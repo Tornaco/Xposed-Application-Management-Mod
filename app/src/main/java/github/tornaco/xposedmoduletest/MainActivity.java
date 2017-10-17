@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        SettingsCompat.manageDrawOverlays(this);
+        SettingsCompat.manageDrawOverlays(this);
 
         Switch sw = (Switch) findViewById(R.id.switch1);
 

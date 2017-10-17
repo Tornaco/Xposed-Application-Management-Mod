@@ -16,7 +16,9 @@ public class XApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Logger.config(Settings.builder().tag("XAppGuard").build());
+        Logger.config(Settings.builder().tag("XAppGuard")
+                .logLevel(Logger.LogLevel.ALL)
+                .build());
         ADM.reloadAsync(this);
     }
 }

@@ -5,7 +5,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.util.SparseArray;
@@ -15,9 +18,6 @@ import org.newstand.logger.Logger;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static github.tornaco.xposedmoduletest.AppStartNoterActivity.KEY_TRANS_ID;
-import static github.tornaco.xposedmoduletest.AppStartNoterActivity.KEY_TRANS_PACKAGE;
 
 /**
  * Created by guohao4 on 2017/10/17.
@@ -39,16 +39,21 @@ public class AppService extends Service {
         }
     };
 
+    private Handler mUIHandler;
+
     @Override
     public void onCreate() {
         super.onCreate();
         registerReceiver(mScreenReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
+        mUIHandler = new Handler(Looper.getMainLooper());
     }
 
     private void noteAppStart(final ICallback callback, final String pkg) {
+        Logger.d("noteAppStart:" + pkg);
         // Check if already passed.
         if (PASSED_PACKAGES.contains(pkg)) {
             try {
+                Logger.d("PASSED:" + pkg);
                 callback.onRes(true);
             } catch (RemoteException e) {
                 onRemoteError(e);
@@ -56,21 +61,21 @@ public class AppService extends Service {
             return;
         }
 
-        int transactionID = TransactionFactory.transactionID();
+        final int transactionID = TransactionFactory.transactionID();
         Logger.d("noteAppStart with transaction id: %s", transactionID);
-
-        // Construct bundle.
-        Intent intent = new Intent(this, AppStartNoterActivity.class);
-        intent.putExtra(KEY_TRANS_ID, transactionID);
-        intent.putExtra(KEY_TRANS_PACKAGE, pkg);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         synchronized (TRANSACTIONS) {
             TRANSACTIONS.put(transactionID, new Transaction(transactionID, pkg, callback));
         }
 
-        startActivity(intent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            new AppStartNoter().note(mUIHandler, AppService.this, pkg, new ICallback.Stub() {
+                @Override
+                public void onRes(boolean res) throws RemoteException {
+                    onTransactionRes(transactionID, res);
+                }
+            });
+        }
     }
 
     private void onRemoteError(RemoteException e) {

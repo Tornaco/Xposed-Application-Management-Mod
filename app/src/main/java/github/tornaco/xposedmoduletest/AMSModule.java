@@ -115,14 +115,6 @@ public class AMSModule implements IXposedHookLoadPackage, IXposedHookZygoteInit 
                 protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
                     super.beforeHookedMethod(param);
 
-                    // Check if hook enabled.
-                    try {
-                        boolean enabled = xSharedPreferences.getBoolean(XKey.ENABLED, false);
-                        XposedBridge.log(TAG + "xSharedPreferences, enabled:" + enabled);
-                    } catch (Exception e) {
-                        XposedBridge.log(TAG + Log.getStackTraceString(e));
-                    }
-
                     try {
                         if (mAppService == null)
                             startAppService();
@@ -135,10 +127,11 @@ public class AMSModule implements IXposedHookLoadPackage, IXposedHookZygoteInit 
 
                         String pkgName = intent.getComponent().getPackageName();
 
-                        XposedBridge.log(TAG + "beforeHookedMethod:" + pkgName);
+                        XposedBridge.log(TAG + "HOOKING startActivity:" + pkgName);
 
                         // Bypass.
                         if (pkgName.contains(SELF_PKG)) {
+                            XposedBridge.log(TAG + "BYPASS SELF");
                             return;
                         }
 
