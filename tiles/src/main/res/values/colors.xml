@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="text_color_second">#66696969</color>
+    <color name="black_overlay">#66000000</color>
+    <color name="tile_icon_tint">#757575</color>
+    <color name="tile_item_pressed">#69696969</color>
+    <color name="card_background">#ffffffff</color>
+    <color name="accent">#68EFAD</color>
+</resources>

@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">XposedModuleTest</string>
+    <string name="title_activity_app_start_noter">AppStartNoterActivity</string>
+</resources>
