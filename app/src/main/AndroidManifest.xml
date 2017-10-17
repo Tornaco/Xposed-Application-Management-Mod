@@ -3,8 +3,10 @@
     package="github.tornaco.xposedmoduletest">
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".XApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -42,7 +44,8 @@
         <activity
             android:name=".AppStartNoterActivity"
             android:label="@string/title_activity_app_start_noter"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

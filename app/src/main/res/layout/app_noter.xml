@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.andrognito.patternlockview.PatternLockView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pattern_lock_view"
+    android:layout_width="280dp"
+    android:layout_height="280dp" />

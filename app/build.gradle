@@ -31,4 +31,14 @@ dependencies {
     compile 'com.android.support:design:26.+'
     testCompile 'junit:junit:4.12'
     provided 'de.robv.android.xposed:api:82'
+
+    compile "com.squareup.retrofit2:retrofit:${rootProject.ext.retrofitVersion}"
+    compile "com.squareup.retrofit2:converter-gson:${rootProject.ext.retrofitVersion}"
+    compile "io.reactivex:rxandroid:${rootProject.ext.rxAndroidVersion}"
+    compile "io.reactivex:rxjava:${rootProject.ext.rxJavaVersion}"
+    compile "com.squareup.retrofit2:adapter-rxjava:${rootProject.ext.retrofitVersion}"
+
+    compile "org.jsoup:jsoup:${rootProject.ext.jsoupVersion}"
+
+    compile 'com.andrognito.patternlockview:patternlockview:1.0.0'
 }

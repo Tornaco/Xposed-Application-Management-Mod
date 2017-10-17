@@ -6,6 +6,8 @@ import android.view.View;
 import android.widget.Switch;
 
 import ezy.assist.compat.SettingsCompat;
+import github.tornaco.xposedmoduletest.license.ADM;
+import github.tornaco.xposedmoduletest.license.License;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -14,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SettingsCompat.manageDrawOverlays(this);
+//        SettingsCompat.manageDrawOverlays(this);
 
         Switch sw = (Switch) findViewById(R.id.switch1);
 
@@ -29,5 +31,8 @@ public class MainActivity extends AppCompatActivity {
                         .putBoolean(XKey.ENABLED, s.isChecked()).apply();
             }
         });
+
+        boolean valid = ADM.invalidate(new License("tornaco@163.com", "PUBLIC-SOURCE", 0, 0));
+        sw.setText(String.valueOf(valid));
     }
 }

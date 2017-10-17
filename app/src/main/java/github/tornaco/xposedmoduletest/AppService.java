@@ -1,16 +1,19 @@
 package github.tornaco.xposedmoduletest;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
+import android.content.IntentFilter;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.util.SparseArray;
 
 import org.newstand.logger.Logger;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static github.tornaco.xposedmoduletest.AppStartNoterActivity.KEY_TRANS_ID;
@@ -23,18 +26,36 @@ import static github.tornaco.xposedmoduletest.AppStartNoterActivity.KEY_TRANS_PA
 
 public class AppService extends Service {
 
-    private Handler handler;
-
     private final SparseArray<Transaction> TRANSACTIONS = new SparseArray<>();
 
-    @Override
+    private final Set<String> PASSED_PACKAGES = new HashSet<>();
 
+    private BroadcastReceiver mScreenReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
+                PASSED_PACKAGES.clear();
+            }
+        }
+    };
+
+    @Override
     public void onCreate() {
         super.onCreate();
-        handler = new Handler(Looper.getMainLooper());
+        registerReceiver(mScreenReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
     }
 
     private void noteAppStart(final ICallback callback, final String pkg) {
+        // Check if already passed.
+        if (PASSED_PACKAGES.contains(pkg)) {
+            try {
+                callback.onRes(true);
+            } catch (RemoteException e) {
+                onRemoteError(e);
+            }
+            return;
+        }
+
         int transactionID = TransactionFactory.transactionID();
         Logger.d("noteAppStart with transaction id: %s", transactionID);
 
@@ -43,6 +64,7 @@ public class AppService extends Service {
         intent.putExtra(KEY_TRANS_ID, transactionID);
         intent.putExtra(KEY_TRANS_PACKAGE, pkg);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         synchronized (TRANSACTIONS) {
             TRANSACTIONS.put(transactionID, new Transaction(transactionID, pkg, callback));
@@ -67,6 +89,9 @@ public class AppService extends Service {
                 if (t.dead) {
                     Logger.e("DEAD transaction for %s", id);
                     return;
+                }
+                if (res) {
+                    PASSED_PACKAGES.add(t.getPkg());
                 }
                 t.getCallback().onRes(res);
             } catch (RemoteException e) {
@@ -101,6 +126,12 @@ public class AppService extends Service {
                 AppService.this.noteAppStart(callback, pkg);
             }
         };
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mScreenReceiver);
     }
 
     private static class TransactionFactory {

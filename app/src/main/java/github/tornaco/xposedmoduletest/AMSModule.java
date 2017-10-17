@@ -30,7 +30,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class AMSModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 
-    private static final String TAG = "AMSModule-";
+    private static final String TAG = "XAppGuard-";
 
     public static final String SELF_PKG = "github.tornaco.xposedmoduletest";
     public static final String SELF_PREF_NAME = "github_tornaco_xposedmoduletest_pref";
@@ -130,11 +130,15 @@ public class AMSModule implements IXposedHookLoadPackage, IXposedHookZygoteInit 
                             Thread.sleep(1000);
                         }
 
-                        String intentStr = param.args[2].toString();
-                        XposedBridge.log(TAG + "beforeHookedMethod:" + intentStr);
+                        Intent intent = (Intent) param.args[2];
+                        if (intent == null) return;
+
+                        String pkgName = intent.getComponent().getPackageName();
+
+                        XposedBridge.log(TAG + "beforeHookedMethod:" + pkgName);
 
                         // Bypass.
-                        if (intentStr.contains(SELF_PKG)) {
+                        if (pkgName.contains(SELF_PKG)) {
                             return;
                         }
 
@@ -153,9 +157,9 @@ public class AMSModule implements IXposedHookLoadPackage, IXposedHookZygoteInit 
                                     XposedBridge.log(TAG + Log.getStackTraceString(e));
                                 }
                             }
-                        }, intentStr);
+                        }, pkgName);
 
-                        if (!intentStr.contains("launcher")) {
+                        if (!pkgName.contains("launcher")) {
                             param.setResult(0);
                         }
                     } catch (Exception e) {
