@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name=".XApp"
+        android:name=".x.XApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -23,7 +23,7 @@
             android:name="xposedminversion"
             android:value="53" />
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -32,7 +32,7 @@
         </activity>
 
         <service
-            android:name=".AppService"
+            android:name=".service.AppService"
             android:exported="true">
             <intent-filter>
                 <action android:name="tornaco.action.app.service" />
@@ -41,11 +41,6 @@
             </intent-filter>
         </service>
 
-        <activity
-            android:name=".AppStartNoterActivity"
-            android:label="@string/title_activity_app_start_noter"
-            android:launchMode="singleTask"
-            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

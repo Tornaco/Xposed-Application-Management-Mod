@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.andrognito.patternlockview.PatternLockView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/pattern_lock_view"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content" />
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <com.andrognito.pinlockview.IndicatorDots
+        android:id="@+id/indicator_dots"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="24dp" />
+
+    <com.andrognito.pinlockview.PinLockView
+        android:id="@+id/pin_lock_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/indicator_dots"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="24dp" />
+
+</RelativeLayout>
+

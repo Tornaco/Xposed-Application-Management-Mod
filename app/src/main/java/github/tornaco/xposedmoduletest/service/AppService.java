@@ -1,23 +1,25 @@
-package github.tornaco.xposedmoduletest;
+package github.tornaco.xposedmoduletest.service;
 
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.SparseArray;
 
 import org.newstand.logger.Logger;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import github.tornaco.xposedmoduletest.IAppService;
+import github.tornaco.xposedmoduletest.ICallback;
+import github.tornaco.xposedmoduletest.ui.AppStartNoter;
 
 /**
  * Created by guohao4 on 2017/10/17.
@@ -28,38 +30,17 @@ public class AppService extends Service {
 
     private final SparseArray<Transaction> TRANSACTIONS = new SparseArray<>();
 
-    private final Set<String> PASSED_PACKAGES = new HashSet<>();
-
-    private BroadcastReceiver mScreenReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
-                PASSED_PACKAGES.clear();
-            }
-        }
-    };
-
     private Handler mUIHandler;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        registerReceiver(mScreenReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
         mUIHandler = new Handler(Looper.getMainLooper());
     }
 
-    private void noteAppStart(final ICallback callback, final String pkg) {
-        Logger.d("noteAppStart:" + pkg);
-        // Check if already passed.
-        if (PASSED_PACKAGES.contains(pkg)) {
-            try {
-                Logger.d("PASSED:" + pkg);
-                callback.onRes(true);
-            } catch (RemoteException e) {
-                onRemoteError(e);
-            }
-            return;
-        }
+    private void noteAppStart(final ICallback callback, final String pkg,
+                              int callingUID, int callingPID) {
+        Logger.d("noteAppStart: %s %s %s", pkg, callingUID, callingPID);
 
         final int transactionID = TransactionFactory.transactionID();
         Logger.d("noteAppStart with transaction id: %s", transactionID);
@@ -68,13 +49,20 @@ public class AppService extends Service {
             TRANSACTIONS.put(transactionID, new Transaction(transactionID, pkg, callback));
         }
 
+        CallingInfo callingInfo = CallingInfo.from(getPackageManager(), callingUID, pkg);
+        Logger.d("Calling info: %s", callingInfo);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            new AppStartNoter().note(mUIHandler, AppService.this, pkg, new ICallback.Stub() {
-                @Override
-                public void onRes(boolean res) throws RemoteException {
-                    onTransactionRes(transactionID, res);
-                }
-            });
+            new AppStartNoter().note(mUIHandler,
+                    AppService.this,
+                    callingInfo.callingName,
+                    callingInfo.targetName,
+                    new ICallback.Stub() {
+                        @Override
+                        public void onRes(boolean res) throws RemoteException {
+                            onTransactionRes(transactionID, res);
+                        }
+                    });
         }
     }
 
@@ -95,9 +83,6 @@ public class AppService extends Service {
                     Logger.e("DEAD transaction for %s", id);
                     return;
                 }
-                if (res) {
-                    PASSED_PACKAGES.add(t.getPkg());
-                }
                 t.getCallback().onRes(res);
             } catch (RemoteException e) {
                 onRemoteError(e);
@@ -112,12 +97,6 @@ public class AppService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Logger.d("onStartCommand: %s", intent);
         if (intent == null) return START_STICKY;
-
-        if (AppStartNoterActivity.ACTION_TRANS_RES.equals(intent.getAction())) {
-            onTransactionRes(intent.getIntExtra(AppStartNoterActivity.KEY_TRANS_ID, -1)
-                    , intent.getBooleanExtra(AppStartNoterActivity.KEY_TRANS_RES, false));
-        }
-
         return START_STICKY;
     }
 
@@ -125,10 +104,10 @@ public class AppService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return new IAppService.Stub() {
-
             @Override
-            public void noteAppStart(ICallback callback, String pkg) throws RemoteException {
-                AppService.this.noteAppStart(callback, pkg);
+            public void noteAppStart(ICallback callback, String pkg,
+                                     int callingUID, int callingPID) throws RemoteException {
+                AppService.this.noteAppStart(callback, pkg, callingUID, callingPID);
             }
         };
     }
@@ -136,7 +115,6 @@ public class AppService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mScreenReceiver);
     }
 
     private static class TransactionFactory {
@@ -145,6 +123,48 @@ public class AppService extends Service {
 
         static int transactionID() {
             return TRANS_ID_BASE.getAndIncrement();
+        }
+    }
+
+    private static class CallingInfo {
+        String callingPkg = "", callingName = "";
+        String targetName = "";
+
+        CallingInfo() {
+        }
+
+        @Override
+        public String toString() {
+            return "CallingInfo{" +
+                    "callingPkg='" + callingPkg + '\'' +
+                    ", callingName='" + callingName + '\'' +
+                    ", targetName='" + targetName + '\'' +
+                    '}';
+        }
+
+        static CallingInfo from(PackageManager pm, int callingUID, String targetPkg) {
+            CallingInfo callInfo = new CallingInfo();
+            String[] pkgs = pm.getPackagesForUid(callingUID);
+            String callingPkg = null;
+            if (pkgs != null && pkgs.length > 0) {
+                callingPkg = pkgs[0];
+                callInfo.callingPkg = callingPkg;
+            }
+            if (!TextUtils.isEmpty(callingPkg)) try {
+                ApplicationInfo callingName = pm.getApplicationInfo(callingPkg, 0);
+                if (callingName != null)
+                    callInfo.callingName = String.valueOf(callingName.loadLabel(pm));
+            } catch (PackageManager.NameNotFoundException e) {
+                Logger.w("NameNotFoundException:" + callingPkg);
+            }
+            try {
+                ApplicationInfo targetAppInfo = pm.getApplicationInfo(targetPkg, 0);
+                if (targetAppInfo != null)
+                    callInfo.targetName = String.valueOf(targetAppInfo.loadLabel(pm));
+            } catch (PackageManager.NameNotFoundException e) {
+                Logger.w("NameNotFoundException:" + targetPkg);
+            }
+            return callInfo;
         }
     }
 
@@ -159,15 +179,15 @@ public class AppService extends Service {
             return id;
         }
 
-        public String getPkg() {
+        String getPkg() {
             return pkg;
         }
 
-        public ICallback getCallback() {
+        ICallback getCallback() {
             return callback;
         }
 
-        public Transaction(int id, String pkg, ICallback callback) {
+        Transaction(int id, String pkg, ICallback callback) {
             this.id = id;
             this.pkg = pkg;
             this.callback = callback;

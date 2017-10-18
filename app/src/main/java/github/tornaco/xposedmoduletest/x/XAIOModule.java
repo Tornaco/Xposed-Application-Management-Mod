@@ -1,6 +1,5 @@
-package github.tornaco.xposedmoduletest;
+package github.tornaco.xposedmoduletest.x;
 
-import android.app.AndroidAppHelper;
 import android.app.IApplicationThread;
 import android.app.ProfilerInfo;
 import android.content.ComponentName;
@@ -9,36 +8,42 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
 
 import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
+import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import github.tornaco.xposedmoduletest.IAppService;
+import github.tornaco.xposedmoduletest.ICallback;
 
 /**
  * Created by guohao4 on 2017/10/13.
  * Email: Tornaco@163.com
  */
 
-public class AMSModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
+public class XAIOModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 
     private static final String TAG = "XAppGuard-";
 
-    public static final String SELF_PKG = "github.tornaco.xposedmoduletest";
+    private static final String SELF_PKG = "github.tornaco.xposedmoduletest";
     public static final String SELF_PREF_NAME = "github_tornaco_xposedmoduletest_pref";
 
-    private IAppService mAppService;
+    private final Set<String> PASSED_PACKAGES = new HashSet<>();
 
-    private XSharedPreferences xSharedPreferences;
-
+    private AppServiceClient mAppService;
+    private Context mAppOpsContext;
+    private Handler mAppOpsHandler;
 
     @Override
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -46,6 +51,7 @@ public class AMSModule implements IXposedHookLoadPackage, IXposedHookZygoteInit 
 
         if (packageName.equals("android")) {
             handleLoadAndroid(lpparam);
+            hookAppOps(lpparam);
         }
 
         if (SELF_PKG.equals(packageName)) {
@@ -55,38 +61,68 @@ public class AMSModule implements IXposedHookLoadPackage, IXposedHookZygoteInit 
 
     private void handlerLoadSelf(final XC_LoadPackage.LoadPackageParam lpparam) {
         XposedBridge.log(TAG + "Loading self...");
-        xSharedPreferences = new XSharedPreferences(SELF_PKG, SELF_PREF_NAME);
-        xSharedPreferences.makeWorldReadable();
-        startAppService();
+        XposedBridge.log(TAG + mAppOpsContext);
+        XposedBridge.log(TAG + mAppOpsHandler);
+    }
+
+    private boolean waitForAppService() {
+        int MAX_RETRY = 50;
+        int times = 0;
+        if (mAppService == null || !mAppService.ok) {
+            startAppService();
+            while (mAppService == null || !mAppService.ok) {
+                try {
+                    Thread.sleep(50);
+                    times++;
+                } catch (InterruptedException ignored) {
+
+                }
+                if (times > MAX_RETRY) return false;
+            }
+        }
+        return true;
     }
 
     private void startAppService() {
+        final Context context = mAppOpsContext;
         try {
-            // Start App service.
-            final Context context = AndroidAppHelper.currentApplication();
             if (context == null) {
                 XposedBridge.log(TAG + "Bad context");
                 return;
             }
-            XposedBridge.log(TAG + "current app:" + context.getPackageName());
-            Intent intent = new Intent("tornaco.action.app.service");
-            intent.setPackage(SELF_PKG);
-            context.startService(intent);
+            if (mAppOpsHandler == null) {
+                XposedBridge.log(TAG + "Bad handler");
+                return;
+            }
 
-            // Bind App service.
-            context.bindService(intent, new ServiceConnection() {
+            Runnable serviceRunnable = new Runnable() {
                 @Override
-                public void onServiceConnected(ComponentName name, IBinder service) {
-                    IAppService appService = IAppService.Stub.asInterface(service);
-                    XposedBridge.log(TAG + "app service:" + appService);
-                    mAppService = appService;
-                }
+                public void run() {
+                    try {
+                        Intent intent = new Intent("tornaco.action.app.service");
+                        intent.setPackage(SELF_PKG);
+                        context.startService(intent);
 
-                @Override
-                public void onServiceDisconnected(ComponentName name) {
+                        // Bind App service.
+                        context.bindService(intent, new ServiceConnection() {
+                            @Override
+                            public void onServiceConnected(ComponentName name, IBinder service) {
+                                IAppService appService = IAppService.Stub.asInterface(service);
+                                XposedBridge.log(TAG + "app service:" + appService);
+                                mAppService = new AppServiceClient(appService);
+                            }
 
+                            @Override
+                            public void onServiceDisconnected(ComponentName name) {
+
+                            }
+                        }, Context.BIND_AUTO_CREATE);
+                    } catch (Throwable e) {
+                        XposedBridge.log(TAG + Log.getStackTraceString(e));
+                    }
                 }
-            }, Context.BIND_AUTO_CREATE);
+            };
+            mAppOpsHandler.post(serviceRunnable);
         } catch (Exception e) {
             XposedBridge.log(TAG + Log.getStackTraceString(e));
         }
@@ -116,22 +152,20 @@ public class AMSModule implements IXposedHookLoadPackage, IXposedHookZygoteInit 
                     super.beforeHookedMethod(param);
 
                     try {
-                        if (mAppService == null)
-                            startAppService();
-                        while (mAppService == null) {
-                            Thread.sleep(1000);
-                        }
+                        if (!waitForAppService()) return;
 
                         Intent intent = (Intent) param.args[2];
                         if (intent == null) return;
 
-                        String pkgName = intent.getComponent().getPackageName();
+                        ComponentName componentName = intent.getComponent();
+                        if (componentName == null) return;
+                        final String pkgName = componentName.getPackageName();
 
                         XposedBridge.log(TAG + "HOOKING startActivity:" + pkgName);
 
                         // Bypass.
-                        if (pkgName.contains(SELF_PKG)) {
-                            XposedBridge.log(TAG + "BYPASS SELF");
+                        if (bypass(pkgName)) {
+                            XposedBridge.log(TAG + "BYPASS PKG");
                             return;
                         }
 
@@ -140,17 +174,21 @@ public class AMSModule implements IXposedHookLoadPackage, IXposedHookZygoteInit 
                         System.arraycopy(param.args, 0, args, 0, param.args.length);
                         args[args.length - 1] = callingUserId;
 
-                        mAppService.noteAppStart(new ICallback.Stub() {
+                        int callingUID = Binder.getCallingUid();
+                        int callingPID = Binder.getCallingPid();
+
+                        mAppService.service.noteAppStart(new ICallback.Stub() {
                             @Override
                             public void onRes(boolean res) throws RemoteException {
                                 if (res) try {
+                                    onPackagePass(pkgName);
                                     XposedBridge.invokeOriginalMethod(startActivityAsUser, param.thisObject, args);
                                 } catch (Exception e) {
                                     // replacing did not work.. but no reason to crash the VM! Log the error and go on.
                                     XposedBridge.log(TAG + Log.getStackTraceString(e));
                                 }
                             }
-                        }, pkgName);
+                        }, pkgName, callingUID, callingPID);
 
                         if (!pkgName.contains("launcher")) {
                             param.setResult(0);
@@ -187,8 +225,66 @@ public class AMSModule implements IXposedHookLoadPackage, IXposedHookZygoteInit 
         }
     }
 
+    private boolean bypass(String pkg) {
+        return PASSED_PACKAGES.contains(pkg) || pkg.equals(SELF_PKG);
+    }
+
+    private void onPackagePass(String pkg) {
+        PASSED_PACKAGES.add(pkg);
+    }
+
+    private void hookAppOps(XC_LoadPackage.LoadPackageParam lpparam) {
+        try {
+            Method systemReady =
+                    Class.forName("com.android.server.AppOpsService", false, lpparam.classLoader)
+                            .getDeclaredMethod("systemReady");
+            XposedBridge.hookMethod(systemReady, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    super.afterHookedMethod(param);
+                    // Retrieve System context.
+                    mAppOpsContext = (Context) XposedHelpers.getObjectField(param.thisObject, "mContext");
+                    mAppOpsHandler = (Handler) XposedHelpers.getObjectField(param.thisObject, "mHandler");
+                    XposedBridge.log(TAG + mAppOpsContext);
+                    XposedBridge.log(TAG + mAppOpsHandler);
+                }
+            });
+        } catch (Exception e) {
+            XposedBridge.log(TAG + Log.getStackTraceString(e));
+        }
+    }
+
     @Override
     public void initZygote(StartupParam startupParam) throws Throwable {
         XposedBridge.log(TAG + "initZygote...");
+    }
+
+    private class AppServiceClient implements IBinder.DeathRecipient {
+        boolean ok;
+        IAppService service;
+
+        public AppServiceClient(IAppService service) {
+            ok = service != null;
+            if (!ok) return;
+            this.service = service;
+            try {
+                this.service.asBinder().linkToDeath(this, 0);
+            } catch (RemoteException ignored) {
+
+            }
+        }
+
+        void unLinkToDeath() {
+            if (ok && service != null) {
+                service.asBinder().unlinkToDeath(this, 0);
+            }
+        }
+
+        @Override
+        public void binderDied() {
+            XposedBridge.log(TAG + "AppServiceClient binder died!!!");
+            ok = false;
+            unLinkToDeath();
+        }
     }
 }

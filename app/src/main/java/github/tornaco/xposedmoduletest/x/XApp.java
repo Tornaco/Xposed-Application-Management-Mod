@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest;
+package github.tornaco.xposedmoduletest.x;
 
 import android.app.Application;
 
