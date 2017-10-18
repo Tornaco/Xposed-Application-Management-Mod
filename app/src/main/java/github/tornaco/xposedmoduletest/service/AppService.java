@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -15,10 +16,17 @@ import android.util.SparseArray;
 
 import org.newstand.logger.Logger;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import github.tornaco.android.common.Collections;
+import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.IAppService;
 import github.tornaco.xposedmoduletest.ICallback;
+import github.tornaco.xposedmoduletest.bean.DaoManager;
+import github.tornaco.xposedmoduletest.bean.DaoSession;
+import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.ui.AppStartNoter;
 
 /**
@@ -29,6 +37,7 @@ import github.tornaco.xposedmoduletest.ui.AppStartNoter;
 public class AppService extends Service {
 
     private final SparseArray<Transaction> TRANSACTIONS = new SparseArray<>();
+    private final Set<String> GUARD_PACKAGES = new HashSet<>();
 
     private Handler mUIHandler;
 
@@ -41,6 +50,14 @@ public class AppService extends Service {
     private void noteAppStart(final ICallback callback, final String pkg,
                               int callingUID, int callingPID) {
         Logger.d("noteAppStart: %s %s %s", pkg, callingUID, callingPID);
+        if (bypass(pkg)) {
+            try {
+                callback.onRes(true);
+            } catch (RemoteException e) {
+                onRemoteError(e);
+            }
+            return;
+        }
 
         final int transactionID = TransactionFactory.transactionID();
         Logger.d("noteAppStart with transaction id: %s", transactionID);
@@ -97,6 +114,7 @@ public class AppService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Logger.d("onStartCommand: %s", intent);
         if (intent == null) return START_STICKY;
+        loadGuardPackages();
         return START_STICKY;
     }
 
@@ -110,6 +128,27 @@ public class AppService extends Service {
                 AppService.this.noteAppStart(callback, pkg, callingUID, callingPID);
             }
         };
+    }
+
+    private boolean bypass(String pkg) {
+        return !GUARD_PACKAGES.contains(pkg);
+    }
+
+    private void loadGuardPackages() {
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+            @Override
+            public void run() {
+                DaoSession session = DaoManager.getInstance().getSession(AppService.this);
+                if (session == null) return;//FIXME.
+                GUARD_PACKAGES.clear();
+                Collections.consumeRemaining(session.getPackageInfoDao().loadAll(), new Consumer<PackageInfo>() {
+                    @Override
+                    public void accept(PackageInfo packageInfo) {
+                        if (packageInfo.getGuard()) GUARD_PACKAGES.add(packageInfo.getPkgName());
+                    }
+                });
+            }
+        });
     }
 
     @Override

@@ -1,8 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat">
-    </style>
+    <style name="AppTheme" parent="Theme.AppCompat"></style>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
@@ -12,5 +11,61 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat" />
+
+    <style name="CardCommon" parent="CardView.Dark">
+        <item name="android:clickable">true</item>
+        <item name="android:foreground">?selectableItemBackground</item>
+        <item name="android:padding">2dp</item>
+    </style>
+
+    <!-- The list item main text style/color -->
+    <style name="ListItemMainText">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">@dimen/list_item_main_text_size</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="ListItemMainText.Single" parent="ListItemMainText">
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="ListItemMainText.Grid.Single" parent="ListItemMainText.Single">
+        <item name="android:textSize">@dimen/text_size_micro</item>
+        <item name="android:textColor">@color/grid_list_item_text_color</item>
+    </style>
+
+    <!-- The list item secondary text style/color -->
+    <style name="ListItemSecondaryText">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">@dimen/list_item_secondary_text_size</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <!-- The list item secondary text style/color -->
+    <style name="ListItemSecondaryTextItalic">
+        <item name="android:textColor">@color/list_item_text_color</item>
+        <item name="android:textSize">@dimen/list_item_secondary_text_size</item>
+        <item name="android:textStyle">italic</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="ListItemSecondaryText.Single" parent="ListItemSecondaryText">
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="ListItemSecondaryText.Grid.Single" parent="ListItemSecondaryText.Single">
+        <item name="android:textSize">@dimen/text_size_extra_micro</item>
+        <item name="android:textColor">@color/grid_list_item_text_color</item>
+    </style>
+
+    <style name="ListItemMainText.Light.Single" parent="ListItemMainText.Single">
+        <item name="android:textColor">@color/list_item_text_color_light</item>
+    </style>
+
+    <style name="ListItemSecondaryText.Light.Single" parent="ListItemSecondaryText.Single">
+        <item name="android:textColor">@color/list_item_text_color_light</item>
+    </style>
 
 </resources>

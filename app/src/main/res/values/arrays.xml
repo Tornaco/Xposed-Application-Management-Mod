@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+
+    <string-array name="polluted_waves">
+        <item>@color/purple</item>
+        <item>@color/green</item>
+        <item>@color/red</item>
+        <item>@color/indigo</item>
+        <item>@color/orange</item>
+    </string-array>
+
+</resources>

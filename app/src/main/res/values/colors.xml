@@ -3,4 +3,19 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+
+    <!-- Standard Text Color -->
+    <color name="default_text_color">@color/black</color>
+    <color name="default_text_color_light">@color/white</color>
+
+    <!-- List view related colors -->
+    <color name="list_item_background">#4cfafafa</color>
+    <color name="list_item_header_text_color">@color/black</color>
+    <color name="list_item_search_footer_text_color">@color/accent</color>
+    <color name="list_item_text_color">@color/text</color>
+    <color name="list_item_text_color_light">@color/default_text_color_light</color>
+    <color name="list_item_divider_color">#4c212121</color>
+    <color name="list_item_divider_color_light">#4c212121</color>
+    <color name="grid_list_item_text_color">#b3212121</color>
 </resources>

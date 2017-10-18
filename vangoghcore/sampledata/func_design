@@ -1,0 +1,19 @@
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                CacheLoader
+
+Request --> Dispatcher --> LoaderProxy -->  Loader[One of] -->  FileLoader
+                                                |
+                                                |               ResLoader
+                                                |
+                                           LoaderObserver

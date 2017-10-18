@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+
+    <!-- Main colors -->
+    <color name="black">#333333</color>
+    <color name="semitransparent_black">#a0333333</color>
+    <color name="white">#fafafa</color>
+    <color name="grey">#9e9e9e</color>
+    <color name="grey_dark">#616161</color>
+    <color name="grey_light">#DADADA</color>
+    <color name="purple">#9C27B0</color>
+    <color name="indigo">#3F51B5</color>
+    <color name="green">#4CAF50</color>
+    <color name="red">#F44336</color>
+    <color name="orange">#FF5722</color>
+    <color name="teal">#009688</color>
+    <color name="blue">#03A9F4</color>
+    <color name="purple_dark">#7B1FA2</color>
+    <color name="indigo_dark">#512DA8</color>
+    <color name="green_dark">#388E3C</color>
+    <color name="red_dark">#D32F2F</color>
+    <color name="orange_dark">#F57C00</color>
+    <color name="teal_dark">#00796B</color>
+    <color name="blue_dark">#303F9F</color>
+    <color name="pink">#FF4081</color>
+    <color name="pink_dark">#C2185B</color>
+    <color name="dark">#363636</color>
+    <color name="dark_dark">#292929</color>
+    <color name="amber">#FFC107</color>
+    <color name="amber_dark">#FFA000</color>
+    <color name="brown">#795548</color>
+    <color name="brown_dark">#5D4037</color>
+    <color name="blue_grey">#607D8B</color>
+    <color name="blue_grey_dark">#455A64</color>
+
+    <!-- Default theme-->
+    <color name="primary">#3F51B5</color>
+    <color name="primary_dark">#303F9F</color>
+    <color name="primary_light">#C5CAE9</color>
+    <color name="accent">#FF4081</color>
+    <color name="primary_text">#212121</color>
+    <color name="secondary_text">#727272</color>
+    <color name="third_text">#757575</color>
+    <color name="icons">#FFFFFF</color>
+    <color name="divider">#BDBDBD</color>
+
+    <color name="window_background">#ECECEC</color>
+    <color name="card">#FFF</color>
+    <color name="title">#212121</color>
+    <color name="title_accent">@color/accent</color>
+    <color name="card_header">@color/primary</color>
+    <color name="text">#727272</color>
+    <color name="special_button">#212121</color>
+    <color name="dividerDark">#AAA</color>
+    <color name="dividerLight">#DADADA</color>
+
+</resources>
