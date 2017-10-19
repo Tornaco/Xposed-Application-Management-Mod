@@ -1,12 +1,13 @@
 package github.tornaco.xposedmoduletest.license;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import org.newstand.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import github.tornaco.xposedmoduletest.x.XExecutor;
 
 /**
  * Created by guohao4 on 2017/10/17.
@@ -22,7 +23,7 @@ public class ADM {
     }
 
     public static void reloadAsync(final Context context) {
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+        XExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 reload(context);

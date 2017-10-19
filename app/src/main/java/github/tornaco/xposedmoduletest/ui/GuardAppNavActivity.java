@@ -1,7 +1,6 @@
 package github.tornaco.xposedmoduletest.ui;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -29,6 +28,7 @@ import github.tornaco.xposedmoduletest.loader.PackageLoader;
 import github.tornaco.xposedmoduletest.service.AppService;
 import github.tornaco.xposedmoduletest.ui.adapter.AppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
+import github.tornaco.xposedmoduletest.x.XExecutor;
 import github.tornaco.xposedmoduletest.x.XSettings;
 
 public class GuardAppNavActivity extends AppCompatActivity {
@@ -112,7 +112,7 @@ public class GuardAppNavActivity extends AppCompatActivity {
 
     private void startLoading() {
         swipeRefreshLayout.setRefreshing(true);
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+        XExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 final List<PackageInfo> res = performLoading();

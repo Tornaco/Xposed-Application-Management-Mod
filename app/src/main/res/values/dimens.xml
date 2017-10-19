@@ -25,5 +25,5 @@
     <dimen name="common_item_min_height">72dp</dimen>
 
     <dimen name="list_item_elevation">1dp</dimen>
-    <dimen name="list_item_margin">1sp</dimen>
+    <dimen name="list_item_margin">2dp</dimen>
 </resources>

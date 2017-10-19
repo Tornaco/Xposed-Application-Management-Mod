@@ -33,17 +33,6 @@
     <color name="blue_grey">#607D8B</color>
     <color name="blue_grey_dark">#455A64</color>
 
-    <!-- Default theme-->
-    <color name="primary">#3F51B5</color>
-    <color name="primary_dark">#303F9F</color>
-    <color name="primary_light">#C5CAE9</color>
-    <color name="accent">#FF4081</color>
-    <color name="primary_text">#212121</color>
-    <color name="secondary_text">#727272</color>
-    <color name="third_text">#757575</color>
-    <color name="icons">#FFFFFF</color>
-    <color name="divider">#BDBDBD</color>
-
     <color name="window_background">#ECECEC</color>
     <color name="card">#FFF</color>
     <color name="title">#212121</color>

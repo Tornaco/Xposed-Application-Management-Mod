@@ -4,7 +4,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -32,6 +31,7 @@ import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.ui.AppStartNoter;
+import github.tornaco.xposedmoduletest.x.XExecutor;
 import github.tornaco.xposedmoduletest.x.XMode;
 import github.tornaco.xposedmoduletest.x.XSettings;
 
@@ -170,7 +170,8 @@ public class AppService extends Service {
     }
 
     private void loadGuardPackages() {
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+        Logger.i("loadGuardPackages");
+        XExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 DaoSession session = DaoManager.getInstance().getSession(AppService.this);
@@ -184,6 +185,7 @@ public class AppService extends Service {
                                     GUARD_PACKAGES.add(packageInfo.getPkgName());
                             }
                         });
+                Logger.i("loadGuardPackages complete.");
             }
         });
     }

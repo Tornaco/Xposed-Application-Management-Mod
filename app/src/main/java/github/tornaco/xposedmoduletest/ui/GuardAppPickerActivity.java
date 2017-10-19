@@ -2,7 +2,6 @@ package github.tornaco.xposedmoduletest.ui;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.view.View;
 
 import java.util.List;
@@ -17,6 +16,7 @@ import github.tornaco.xposedmoduletest.loader.PackageLoader;
 import github.tornaco.xposedmoduletest.service.AppService;
 import github.tornaco.xposedmoduletest.ui.adapter.AppListAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.AppPickerListAdapter;
+import github.tornaco.xposedmoduletest.x.XExecutor;
 
 public class GuardAppPickerActivity extends GuardAppNavActivity {
 
@@ -37,7 +37,7 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
                 p.show();
                 final DaoSession session = DaoManager.getInstance().getSession(getApplicationContext());
                 if (session != null) {
-                    AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+                    XExecutor.execute(new Runnable() {
                         @Override
                         public void run() {
                             Collections.consumeRemaining(appListAdapter.getPackageInfos(),

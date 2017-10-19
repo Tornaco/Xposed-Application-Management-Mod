@@ -42,6 +42,6 @@ dependencies {
     compile "io.reactivex:rxjava:${rootProject.ext.rxJavaVersion}"
     compile "com.squareup.retrofit2:adapter-rxjava:${rootProject.ext.retrofitVersion}"
     compile "org.jsoup:jsoup:${rootProject.ext.jsoupVersion}"
-    compile 'com.andrognito.pinlockview:pinlockview:2.1.0'
     compile project(':vangoghcore')
+    compile project(':pinlockview')
 }

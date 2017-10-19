@@ -1,1 +1,1 @@
-include ':app', ':daogenerator', ':vangoghcore'
+include ':app', ':daogenerator', ':vangoghcore', ':pinlockview'

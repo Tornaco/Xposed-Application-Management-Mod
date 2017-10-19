@@ -29,7 +29,7 @@
         android:maxLines="2"
         android:textAlignment="viewStart"
         android:textAppearance="@style/TextAppearance.Switch"
-        android:textColor="?android:attr/textColorPrimary" />
+        android:textColor="@color/white" />
 
     <github.tornaco.xposedmoduletest.ui.widget.ToggleSwitch
         android:id="@+id/switch_widget"

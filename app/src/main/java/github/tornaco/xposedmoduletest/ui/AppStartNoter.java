@@ -16,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.andrognito.pinlockview.IndicatorDots;
 import com.andrognito.pinlockview.PinLockListener;
@@ -52,53 +51,56 @@ public class AppStartNoter {
                      final String targetPkg,
                      final String appName,
                      final ICallback callback) {
+        Logger.d("note...");
 
         handler.post(new Runnable() {
             @Override
             public void run() {
-
-                @SuppressLint("InflateParams") View container = LayoutInflater.from(context)
-                        .inflate(R.layout.app_noter, null, false);
-
-                PinLockView pinLockView = (PinLockView) container.findViewById(R.id.pin_lock_view);
-                IndicatorDots indicatorDots = (IndicatorDots) container.findViewById(R.id.indicator_dots);
-                pinLockView.attachIndicatorDots(indicatorDots);
-
-                ImageView iconView = (ImageView) container.findViewById(R.id.icon);
-
-                final AlertDialog d = new AlertDialog.Builder(context, R.style.Noter)
-                        .setView(container)
-                        .setCancelable(true)
-                        .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                            @Override
-                            public void onCancel(DialogInterface dialog) {
-                                onFail(callback);
-                            }
-                        })
-                        .create();
-                d.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-
-                pinLockView.setPinLockListener(new PinLockListener() {
-                    @Override
-                    public void onComplete(String pin) {
-                        if (pin.equals("6666")) {
-                            d.dismiss();
-                            onPass(callback);
-                        }
-                    }
-
-                    @Override
-                    public void onEmpty() {
-
-                    }
-
-                    @Override
-                    public void onPinChange(int pinLength, String intermediatePin) {
-
-                    }
-                });
-
                 try {
+                    Logger.d("Init note dialog...");
+
+                    @SuppressLint("InflateParams") View container = LayoutInflater.from(context)
+                            .inflate(R.layout.app_noter, null, false);
+
+                    PinLockView pinLockView = (PinLockView) container.findViewById(R.id.pin_lock_view);
+                    IndicatorDots indicatorDots = (IndicatorDots) container.findViewById(R.id.indicator_dots);
+                    pinLockView.attachIndicatorDots(indicatorDots);
+
+                    ImageView iconView = (ImageView) container.findViewById(R.id.icon);
+
+                    final AlertDialog d = new AlertDialog.Builder(context, R.style.NoterLight)
+                            .setView(container)
+                            .setCancelable(true)
+                            .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                @Override
+                                public void onCancel(DialogInterface dialog) {
+                                    onFail(callback);
+                                }
+                            })
+                            .create();
+                    d.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+
+                    pinLockView.setPinLockListener(new PinLockListener() {
+                        @Override
+                        public void onComplete(String pin) {
+                            if (pin.equals("6666")) {
+                                d.dismiss();
+                                onPass(callback);
+                            }
+                        }
+
+                        @Override
+                        public void onEmpty() {
+
+                        }
+
+                        @Override
+                        public void onPinChange(int pinLength, String intermediatePin) {
+
+                        }
+                    });
+
+                    Logger.d("Show note dialog...");
                     d.show();
 
                     Vangogh.with(context)
@@ -136,7 +138,7 @@ public class AppStartNoter {
                             .into(iconView);
 
                 } catch (Exception e) {
-                    Logger.e("Can not show dialog", Logger.getStackTraceString(e));
+                    Logger.e("Can not show dialog:" + e);
                     // We should tell the res here.
                     try {
                         callback.onRes(XMode.MODE_IGNORED); // BYPASS.
