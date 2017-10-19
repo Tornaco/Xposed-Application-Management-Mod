@@ -1,6 +1,8 @@
 package github.tornaco.xposedmoduletest.ui.adapter;
 
 import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,15 +12,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.newstand.logger.Logger;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 import dev.tornaco.vangogh.Vangogh;
+import dev.tornaco.vangogh.display.appliers.FadeOutFadeInApplier;
 import dev.tornaco.vangogh.loader.Loader;
 import dev.tornaco.vangogh.loader.LoaderObserver;
-import dev.tornaco.vangogh.media.DrawableImage;
+import dev.tornaco.vangogh.media.BitmapImage;
 import dev.tornaco.vangogh.media.Image;
 import dev.tornaco.vangogh.media.ImageSource;
 import github.tornaco.android.common.util.ApkUtil;
@@ -66,20 +71,28 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
     }
 
     @Override
-    public void onBindViewHolder(AppViewHolder holder, int position) {
+    public void onBindViewHolder(final AppViewHolder holder, int position) {
         PackageInfo packageInfo = packageInfos.get(position);
         holder.getLineOneTextView().setText(packageInfo.getAppName());
         holder.getCheckableImageView().setChecked(false);
         holder.getLineTwoTextView().setText(String.valueOf(packageInfo.getPkgName()));
         Vangogh.with(context)
                 .load(packageInfo.getPkgName())
+                .skipMemoryCache(true)
                 .usingLoader(new Loader<Image>() {
                     @Nullable
                     @Override
                     public Image load(@NonNull ImageSource source,
                                       @Nullable LoaderObserver observer) {
                         String pkgName = source.getUrl();
-                        return new DrawableImage(ApkUtil.loadIconByPkgName(context, pkgName));
+                        Drawable d = ApkUtil.loadIconByPkgName(context, pkgName);
+                        BitmapDrawable bd = (BitmapDrawable) d;
+                        Logger.v("XXX- Loading COMPLETE for: " + pkgName);
+                        BitmapImage bitmapImage = new BitmapImage(bd.getBitmap());
+                        if (observer != null) {
+                            observer.onImageReady(bitmapImage);
+                        }
+                        return bitmapImage;
                     }
 
                     @Override
@@ -92,6 +105,8 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
                         return null;
                     }
                 })
+                .applier(new FadeOutFadeInApplier())
+                .placeHolder(0)
                 .fallback(R.mipmap.ic_launcher_round)
                 .into(holder.getCheckableImageView());
     }

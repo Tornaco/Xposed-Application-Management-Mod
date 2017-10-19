@@ -23,6 +23,7 @@ import github.tornaco.xposedmoduletest.bean.PackageInfo;
  */
 
 public interface PackageLoader {
+
     @NonNull
     List<PackageInfo> loadInstalled();
 
@@ -47,6 +48,9 @@ public interface PackageLoader {
         @NonNull
         @Override
         public List<PackageInfo> loadInstalled() {
+
+            List<PackageInfo> guards = loadStoredGuarded();
+
             List<PackageInfo> out = new ArrayList<>();
             PackageManager pm = this.context.getPackageManager();
             List<android.content.pm.PackageInfo> packages;
@@ -71,13 +75,14 @@ public interface PackageLoader {
                 }
 
                 boolean isSystemApp = (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
+                if (isSystemApp) continue;
 
                 PackageInfo p = new PackageInfo();
                 p.setGuard(false);
                 p.setAppName(name);
                 p.setPkgName(packageInfo.packageName);
 
-                out.add(p);
+                if (!guards.contains(p)) out.add(p);
             }
 
             return out;

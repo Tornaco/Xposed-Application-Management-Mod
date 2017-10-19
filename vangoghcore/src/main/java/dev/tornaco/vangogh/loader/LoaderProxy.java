@@ -84,7 +84,7 @@ public class LoaderProxy {
         if (imageRequest.getLoader() != null) {
             usingLoaders.add(imageRequest.getLoader());
             Logger.v("LoaderProxy, Adding custom loader: %s", imageRequest.getLoader());
-            Collections.sort(LOADERS, new Comparator<Loader<Image>>() {
+            Collections.sort(usingLoaders, new Comparator<Loader<Image>>() {
                 @Override
                 public int compare(Loader<Image> l1, Loader<Image> l2) {
                     if (l1.priority() > l2.priority()) return 1;

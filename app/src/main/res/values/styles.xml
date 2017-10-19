@@ -1,9 +1,16 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat"></style>
+    <style name="AppTheme" parent="Theme.AppCompat" />
+
+    <style name="AppThemeLight" parent="Theme.AppCompat.Light" />
 
     <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppThemeLight.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
@@ -11,6 +18,14 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat" />
+
+    <style name="AppThemeLight.AppBarOverlay" parent="ThemeOverlay.AppCompat.ActionBar" />
+
+    <style name="AppThemeLight.PopupOverlay" parent="ThemeOverlay.AppCompat" />
+
+    <style name="Noter" parent="android:Theme.DeviceDefault.Dialog" />
+
+    <style name="NoterLight" parent="android:Theme.DeviceDefault.Light.Dialog" />
 
     <style name="CardCommon" parent="CardView.Dark">
         <item name="android:clickable">true</item>

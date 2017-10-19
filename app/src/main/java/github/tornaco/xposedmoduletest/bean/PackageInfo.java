@@ -84,6 +84,23 @@ public class PackageInfo {
     }
 
     // KEEP METHODS - put your custom methods here
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PackageInfo that = (PackageInfo) o;
+
+        return pkgName.equals(that.pkgName);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return pkgName.hashCode();
+    }
+
     // KEEP METHODS END
 
 }

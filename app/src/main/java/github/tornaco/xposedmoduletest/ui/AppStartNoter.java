@@ -20,6 +20,7 @@ import org.newstand.logger.Logger;
 
 import github.tornaco.xposedmoduletest.ICallback;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.x.XMode;
 
 /**
  * Created by guohao4 on 2017/10/17.
@@ -47,7 +48,7 @@ public class AppStartNoter {
                 pinLockView.attachIndicatorDots(indicatorDots);
 
 
-                final AlertDialog d = new AlertDialog.Builder(context)
+                final AlertDialog d = new AlertDialog.Builder(context, R.style.Noter)
                         .setTitle(appName)
                         .setView(container)
                         .setCancelable(true)
@@ -86,7 +87,7 @@ public class AppStartNoter {
                     Logger.e("Can not show dialog", Logger.getStackTraceString(e));
                     // We should tell the res here.
                     try {
-                        callback.onRes(true); // BYPASS.
+                        callback.onRes(XMode.MODE_IGNORED); // BYPASS.
                     } catch (RemoteException e1) {
                         Logger.e(Logger.getStackTraceString(e1));
                     }
@@ -97,7 +98,7 @@ public class AppStartNoter {
 
     private void onPass(ICallback callback) {
         try {
-            callback.onRes(true);
+            callback.onRes(XMode.MODE_ALLOWED);
         } catch (RemoteException e) {
             Logger.e(Logger.getStackTraceString(e));
         }
@@ -105,7 +106,7 @@ public class AppStartNoter {
 
     private void onFail(ICallback callback) {
         try {
-            callback.onRes(false);
+            callback.onRes(XMode.MODE_DENIED);
         } catch (RemoteException e) {
             Logger.e(Logger.getStackTraceString(e));
         }

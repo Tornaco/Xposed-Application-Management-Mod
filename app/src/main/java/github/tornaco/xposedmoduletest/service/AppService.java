@@ -28,6 +28,7 @@ import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.ui.AppStartNoter;
+import github.tornaco.xposedmoduletest.x.XMode;
 
 /**
  * Created by guohao4 on 2017/10/17.
@@ -52,7 +53,7 @@ public class AppService extends Service {
         Logger.d("noteAppStart: %s %s %s", pkg, callingUID, callingPID);
         if (bypass(pkg)) {
             try {
-                callback.onRes(true);
+                callback.onRes(XMode.MODE_IGNORED);
             } catch (RemoteException e) {
                 onRemoteError(e);
             }
@@ -76,7 +77,7 @@ public class AppService extends Service {
                     callingInfo.targetName,
                     new ICallback.Stub() {
                         @Override
-                        public void onRes(boolean res) throws RemoteException {
+                        public void onRes(int res) throws RemoteException {
                             onTransactionRes(transactionID, res);
                         }
                     });
@@ -87,7 +88,7 @@ public class AppService extends Service {
         Logger.e("onRemoteError\n" + Logger.getStackTraceString(e));
     }
 
-    private void onTransactionRes(int id, boolean res) {
+    private void onTransactionRes(int id, int res) {
         Logger.i("onTransactionRes: %s, %s", id, res);
         synchronized (TRANSACTIONS) {
             Transaction t = TRANSACTIONS.get(id);

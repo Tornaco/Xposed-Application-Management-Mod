@@ -1,4 +1,5 @@
 <resources>
-    <string name="app_name">XposedModuleTest</string>
+    <string name="app_name">App Guard</string>
     <string name="title_activity_app_start_noter">AppStartNoterActivity</string>
+    <string name="manage_overlay">Manage overlay</string>
 </resources>

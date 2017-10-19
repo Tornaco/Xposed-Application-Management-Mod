@@ -62,11 +62,13 @@ public class ImageViewDisplayer implements ImageDisplayer {
 
         try {
             Drawable drawable = image != null ? image.asDrawable(target.getContext()) : null;
+            Logger.v("ImageViewDisplayer, drawable: %s", drawable);
             if (drawable != null) {
                 target.setImageBitmap(null);
                 target.setImageDrawable(drawable);
             } else {
                 Bitmap bitmap = image == null ? null : image.asBitmap(target.getContext());
+                Logger.v("ImageViewDisplayer, bitmap: %s", bitmap);
                 if (bitmap != null) {
                     target.setImageDrawable(null);
                     target.setImageBitmap(bitmap);
@@ -77,10 +79,10 @@ public class ImageViewDisplayer implements ImageDisplayer {
                 }
             }
         } finally {
-            Image oldImage = DisplayManager.getManager().remove(hashCode());
-            Logger.v("ImageViewDisplayer, oldImage: %s", oldImage);
-            if (oldImage != null) oldImage.recycle();
-            DisplayManager.getManager().put(hashCode(), image);
+//            Image oldImage = DisplayManager.getManager().remove(hashCode());
+//            Logger.v("ImageViewDisplayer, oldImage: %s", oldImage);
+//            if (oldImage != null) oldImage.recycle();
+//            DisplayManager.getManager().put(hashCode(), image);
         }
     }
 

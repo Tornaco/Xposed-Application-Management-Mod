@@ -143,6 +143,8 @@ public class LoadRequestDispatcherTornaco implements RequestDispatcher {
 
                     Image image = proxy.load(imageRequest, observer);
 
+                    Logger.v("RequestFuture, call exit with no-null? " + String.valueOf(image != null));
+
                     synchronized (REQUESTS) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                             //noinspection Since15
