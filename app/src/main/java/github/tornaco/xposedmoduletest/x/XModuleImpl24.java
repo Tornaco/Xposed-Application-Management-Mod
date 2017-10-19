@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.x;
 
 import android.app.ActivityManager;
+import android.app.ActivityOptions;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -8,7 +9,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -23,6 +23,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAppService;
 import github.tornaco.xposedmoduletest.ICallback;
 
@@ -33,10 +34,7 @@ import github.tornaco.xposedmoduletest.ICallback;
 
 class XModuleImpl24 extends XModule {
 
-    private static final String TAG = "XAppGuard-";
-
-    private static final String SELF_PKG = "github.tornaco.xposedmoduletest";
-    public static final String SELF_PREF_NAME = "github_tornaco_xposedmoduletest_pref";
+    private static final String SELF_PKG = BuildConfig.APPLICATION_ID;
 
     private final Set<String> PASSED_PACKAGES = new HashSet<>();
 
@@ -62,24 +60,74 @@ class XModuleImpl24 extends XModule {
             hookTaskMover(lpparam);
             hookAppOps(lpparam);
         }
-
-        if (SELF_PKG.equals(packageName)) {
-            handlerLoadSelf(lpparam);
-        }
     }
 
     private void hookTaskMover(XC_LoadPackage.LoadPackageParam lpparam) {
         try {
-            Method moveToFront = Class.forName("com.android.server.am.ActivityManagerService",
+            Class taskRecordClass = Class.forName("com.android.server.am.TaskRecord", false, lpparam.classLoader);
+            final Method moveToFront = Class.forName("com.android.server.am.ActivityStackSupervisor",
                     false, lpparam.classLoader)
-                    .getDeclaredMethod("moveTaskToFrontLocked",
-                            int.class, int.class, Bundle.class);
+                    .getDeclaredMethod("findTaskToMoveToFrontLocked",
+                            taskRecordClass, int.class, ActivityOptions.class,
+                            String.class, boolean.class);
             XposedBridge.hookMethod(moveToFront, new XC_MethodHook() {
                 @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
                     super.beforeHookedMethod(param);
-                    XposedBridge.log(TAG + "moveTaskToFrontLocked:" + param.args[0]);
 
+                    if (earlyPassed()) return;
+
+                    XposedBridge.log(TAG + "findTaskToMoveToFrontLocked:" + param.args[0]);
+                    // FIXME Using aff instead of PKG.
+                    try {
+                        final String affinity = (String) XposedHelpers.getObjectField(param.args[0], "affinity");
+
+                        // Package has been passed.
+                        if (pkgPassed(affinity)) {
+                            XposedBridge.log(TAG + "PASSED PKG");
+                            return;
+                        }
+
+                        int callingUID = Binder.getCallingUid();
+                        int callingPID = Binder.getCallingPid();
+
+                        if (!waitForAppService()) return;
+
+                        mAppService.service.noteAppStart(new ICallback.Stub() {
+                            @Override
+                            public void onRes(int res) throws RemoteException {
+
+                                XposedBridge.log(TAG + "noteAppStart, onRes:" + res);
+
+                                if (res != XMode.MODE_DENIED) try {
+                                    if (res == XMode.MODE_ALLOWED) addPackagePass(affinity);
+                                    mAppOpsHandler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            try {
+                                                XposedBridge.invokeOriginalMethod(moveToFront,
+                                                        param.thisObject, param.args);
+                                            } catch (Exception e) {
+                                                XposedBridge.log(TAG
+                                                        + "Error@" + mSeriousErrorOccurredTimes.incrementAndGet()
+                                                        + Log.getStackTraceString(e));
+                                            }
+                                        }
+                                    });
+                                } catch (Exception e) {
+                                    // replacing did not work.. but no reason to crash the VM! Log the error and go on.
+                                    XposedBridge.log(TAG
+                                            + "Error@" + mSeriousErrorOccurredTimes.incrementAndGet()
+                                            + Log.getStackTraceString(e));
+                                }
+                            }
+                        }, affinity, callingUID, callingPID);
+
+                        param.setResult(null);
+
+                    } catch (Exception e) {
+                        XposedBridge.log(TAG + "findTaskToMoveToFrontLocked" + Log.getStackTraceString(e));
+                    }
                 }
             });
         } catch (Exception e) {
@@ -123,8 +171,6 @@ class XModuleImpl24 extends XModule {
                             if (earlyPassed()) return;
 
                             try {
-                                if (!waitForAppService()) return;
-
                                 Intent intent = (Intent) param.args[1];
                                 if (intent == null) return;
 
@@ -139,6 +185,8 @@ class XModuleImpl24 extends XModule {
                                     XposedBridge.log(TAG + "PASSED PKG");
                                     return;
                                 }
+
+                                if (!waitForAppService()) return;
 
                                 int callingUID = Binder.getCallingUid();
                                 int callingPID = Binder.getCallingPid();
@@ -185,12 +233,6 @@ class XModuleImpl24 extends XModule {
         } catch (Exception e) {
             XposedBridge.log(TAG + "hookActivityStarter" + Log.getStackTraceString(e));
         }
-    }
-
-    private void handlerLoadSelf(final XC_LoadPackage.LoadPackageParam lpparam) {
-        XposedBridge.log(TAG + "Loading self...");
-        XposedBridge.log(TAG + mAppOpsContext);
-        XposedBridge.log(TAG + mAppOpsHandler);
     }
 
     private boolean waitForAppService() {
@@ -263,7 +305,7 @@ class XModuleImpl24 extends XModule {
     }
 
     private boolean pkgPassed(String pkg) {
-        return PASSED_PACKAGES.contains(pkg) || pkg.equals(SELF_PKG);
+        return PREBUILT_WHITE_LIST.contains(pkg) || PASSED_PACKAGES.contains(pkg);
     }
 
     private void addPackagePass(String pkg) {
@@ -291,40 +333,6 @@ class XModuleImpl24 extends XModule {
             });
         } catch (Exception e) {
             XposedBridge.log(TAG + Log.getStackTraceString(e));
-        }
-    }
-
-    @Override
-    public void initZygote(StartupParam startupParam) throws Throwable {
-        XposedBridge.log(TAG + "initZygote...");
-    }
-
-    private class AppServiceClient implements IBinder.DeathRecipient {
-        boolean ok;
-        IAppService service;
-
-        AppServiceClient(IAppService service) {
-            ok = service != null;
-            if (!ok) return;
-            this.service = service;
-            try {
-                this.service.asBinder().linkToDeath(this, 0);
-            } catch (RemoteException ignored) {
-
-            }
-        }
-
-        void unLinkToDeath() {
-            if (ok && service != null) {
-                service.asBinder().unlinkToDeath(this, 0);
-            }
-        }
-
-        @Override
-        public void binderDied() {
-            XposedBridge.log(TAG + "AppServiceClient binder died!!!");
-            ok = false;
-            unLinkToDeath();
         }
     }
 }
