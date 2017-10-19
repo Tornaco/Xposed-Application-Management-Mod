@@ -26,6 +26,7 @@ import github.tornaco.xposedmoduletest.ICallback;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.loader.PackageLoader;
+import github.tornaco.xposedmoduletest.service.AppService;
 import github.tornaco.xposedmoduletest.ui.adapter.AppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.x.XSettings;
@@ -99,7 +100,14 @@ public class GuardAppNavActivity extends AppCompatActivity {
     }
 
     protected AppListAdapter onCreateAdapter() {
-        return new AppListAdapter(this);
+        return new AppListAdapter(this) {
+            @Override
+            protected void onPackageRemoved() {
+                super.onPackageRemoved();
+                startLoading();
+                startService(new Intent(GuardAppNavActivity.this, AppService.class));
+            }
+        };
     }
 
     private void startLoading() {

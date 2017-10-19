@@ -28,6 +28,8 @@ import dev.tornaco.vangogh.media.Image;
 import dev.tornaco.vangogh.media.ImageSource;
 import github.tornaco.android.common.util.ApkUtil;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.bean.DaoManager;
+import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import tornaco.lib.widget.CheckableImageView;
 
@@ -44,7 +46,7 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
         this.context = context;
     }
 
-    protected final List<PackageInfo> packageInfos = new ArrayList<>();
+    final List<PackageInfo> packageInfos = new ArrayList<>();
 
     public void update(Collection<PackageInfo> src) {
         synchronized (packageInfos) {
@@ -64,15 +66,14 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
         return packageInfos;
     }
 
-    protected
     @LayoutRes
-    int getTemplateLayoutRes() {
+    private int getTemplateLayoutRes() {
         return R.layout.data_item_template_with_checkable;
     }
 
     @Override
     public void onBindViewHolder(final AppViewHolder holder, int position) {
-        PackageInfo packageInfo = packageInfos.get(position);
+        final PackageInfo packageInfo = packageInfos.get(position);
         holder.getLineOneTextView().setText(packageInfo.getAppName());
         holder.getCheckableImageView().setChecked(false);
         holder.getLineTwoTextView().setText(String.valueOf(packageInfo.getPkgName()));
@@ -109,6 +110,24 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
                 .placeHolder(0)
                 .fallback(R.mipmap.ic_launcher_round)
                 .into(holder.getCheckableImageView());
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                removePkgAsync(packageInfo);
+                return true;
+            }
+        });
+    }
+
+    private void removePkgAsync(PackageInfo pkg) {
+        DaoSession d = DaoManager.getInstance().getSession(context);
+        if (d == null) return;
+        d.getPackageInfoDao().delete(pkg);
+        onPackageRemoved();
+    }
+
+    protected void onPackageRemoved() {
+
     }
 
     @Override
@@ -121,22 +140,22 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
         private TextView lineTwoTextView;
         private CheckableImageView checkableImageView;
 
-        public AppViewHolder(View itemView) {
+        AppViewHolder(View itemView) {
             super(itemView);
             lineOneTextView = (TextView) itemView.findViewById(android.R.id.title);
             lineTwoTextView = (TextView) itemView.findViewById(android.R.id.text1);
             checkableImageView = (CheckableImageView) itemView.findViewById(R.id.checkable_img_view);
         }
 
-        public TextView getLineOneTextView() {
+        TextView getLineOneTextView() {
             return lineOneTextView;
         }
 
-        public TextView getLineTwoTextView() {
+        TextView getLineTwoTextView() {
             return lineTwoTextView;
         }
 
-        public CheckableImageView getCheckableImageView() {
+        CheckableImageView getCheckableImageView() {
             return checkableImageView;
         }
     }

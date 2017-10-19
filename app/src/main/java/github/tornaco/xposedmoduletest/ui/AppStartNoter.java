@@ -64,13 +64,9 @@ public class AppStartNoter {
                 IndicatorDots indicatorDots = (IndicatorDots) container.findViewById(R.id.indicator_dots);
                 pinLockView.attachIndicatorDots(indicatorDots);
 
-                TextView labelView = (TextView) container.findViewById(R.id.label);
-                labelView.setText(appName);
-
                 ImageView iconView = (ImageView) container.findViewById(R.id.icon);
 
                 final AlertDialog d = new AlertDialog.Builder(context, R.style.Noter)
-                        .setTitle("INPUT PASSWORD")
                         .setView(container)
                         .setCancelable(true)
                         .setOnCancelListener(new DialogInterface.OnCancelListener() {
