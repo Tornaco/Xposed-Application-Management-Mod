@@ -53,12 +53,16 @@ class XModuleImpl24 extends XModule {
 
     @Override
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
+
+        xStatus = XStatus.RUNNING;
+
         String packageName = lpparam.packageName;
 
         if (packageName.equals("android")) {
             hookActivityStarter(lpparam);
             hookTaskMover(lpparam);
             hookAppOps(lpparam);
+            initDefaultXPreference();
         }
     }
 
@@ -91,7 +95,10 @@ class XModuleImpl24 extends XModule {
                         int callingUID = Binder.getCallingUid();
                         int callingPID = Binder.getCallingPid();
 
-                        if (!waitForAppService()) return;
+                        if (!waitForAppService()) {
+                            mSeriousErrorOccurredTimes.incrementAndGet();
+                            return;
+                        }
 
                         mAppService.service.noteAppStart(new ICallback.Stub() {
                             @Override

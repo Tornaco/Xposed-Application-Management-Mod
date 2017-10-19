@@ -3,22 +3,32 @@ package github.tornaco.xposedmoduletest.ui;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.RemoteException;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SwitchCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import org.newstand.logger.Logger;
+
 import java.util.List;
 
 import ezy.assist.compat.SettingsCompat;
+import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.ICallback;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.loader.PackageLoader;
 import github.tornaco.xposedmoduletest.ui.adapter.AppListAdapter;
+import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
+import github.tornaco.xposedmoduletest.x.XSettings;
 
 public class GuardAppNavActivity extends AppCompatActivity {
 
@@ -68,6 +78,24 @@ public class GuardAppNavActivity extends AppCompatActivity {
                 startLoading();
             }
         });
+
+        final XSettings xSettings = XSettings.get();
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                SwitchBar switchBar = (SwitchBar) findViewById(R.id.switchbar);
+                switchBar.setChecked(xSettings.enabled(getApplicationContext()));
+                switchBar.addOnSwitchChangeListener(new SwitchBar.OnSwitchChangeListener() {
+                    @Override
+                    public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
+                        Logger.d("onSwitchChanged:" + isChecked);
+                        xSettings.setEnabled(getApplicationContext(), isChecked);
+                    }
+                });
+                switchBar.show();
+            }
+        });
     }
 
     protected AppListAdapter onCreateAdapter() {
@@ -105,6 +133,19 @@ public class GuardAppNavActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.m_o) {
             SettingsCompat.manageDrawOverlays(this);
+        }
+        if (item.getItemId() == R.id.test_noter) {
+            new AppStartNoter().note(new Handler(Looper.getMainLooper()),
+                    GuardAppNavActivity.this,
+                    "TEST",
+                    BuildConfig.APPLICATION_ID,
+                    "TEST",
+                    new ICallback.Stub() {
+                        @Override
+                        public void onRes(int res) throws RemoteException {
+
+                        }
+                    });
         }
         if (item.getItemId() == android.R.id.home) {
             finish();

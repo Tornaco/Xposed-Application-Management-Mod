@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dev.nick.tiles.widget;
+package github.tornaco.xposedmoduletest.ui.widget;
 
 import android.content.Context;
 import android.support.v7.widget.SwitchCompat;

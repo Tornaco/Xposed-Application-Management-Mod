@@ -17,7 +17,10 @@ import android.util.SparseArray;
 import org.newstand.logger.Logger;
 
 import java.util.HashSet;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import github.tornaco.android.common.Collections;
@@ -30,6 +33,7 @@ import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.ui.AppStartNoter;
 import github.tornaco.xposedmoduletest.x.XMode;
+import github.tornaco.xposedmoduletest.x.XSettings;
 
 /**
  * Created by guohao4 on 2017/10/17.
@@ -42,17 +46,30 @@ public class AppService extends Service {
     private final Set<String> GUARD_PACKAGES = new HashSet<>();
 
     private Handler mUIHandler;
+    private AtomicBoolean mGuardEnabled = new AtomicBoolean(false);
+
+    private XSettings xSettings;
 
     @Override
     public void onCreate() {
         super.onCreate();
         mUIHandler = new Handler(Looper.getMainLooper());
+
+        xSettings = XSettings.get();
+        xSettings.addObserver(new Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
+                Logger.v("Settings changed");
+                mGuardEnabled.set(xSettings.enabled(getApplicationContext()));
+            }
+        });
+        mGuardEnabled.set(xSettings.enabled(getApplicationContext()));
     }
 
     private void noteAppStart(final ICallback callback, final String pkg,
                               int callingUID, int callingPID) {
         Logger.d("noteAppStart: %s %s %s", pkg, callingUID, callingPID);
-        if (bypass(pkg)) {
+        if (!mGuardEnabled.get() || bypass(pkg)) {
             try {
                 callback.onRes(XMode.MODE_IGNORED);
             } catch (RemoteException e) {
@@ -75,6 +92,7 @@ public class AppService extends Service {
             new AppStartNoter().note(mUIHandler,
                     AppService.this,
                     callingInfo.callingName,
+                    callingInfo.targetPkg,
                     callingInfo.targetName,
                     new ICallback.Stub() {
                         @Override
@@ -123,6 +141,9 @@ public class AppService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+
+        // FIXME Should check any permission here.
+
         return new IAppService.Stub() {
             @Override
             public void noteAppStart(ICallback callback, String pkg,
@@ -157,11 +178,12 @@ public class AppService extends Service {
                 GUARD_PACKAGES.clear();
                 Collections.consumeRemaining(session.getPackageInfoDao().loadAll(),
                         new Consumer<PackageInfo>() {
-                    @Override
-                    public void accept(PackageInfo packageInfo) {
-                        if (packageInfo.getGuard()) GUARD_PACKAGES.add(packageInfo.getPkgName());
-                    }
-                });
+                            @Override
+                            public void accept(PackageInfo packageInfo) {
+                                if (packageInfo.getGuard())
+                                    GUARD_PACKAGES.add(packageInfo.getPkgName());
+                            }
+                        });
             }
         });
     }
@@ -182,7 +204,7 @@ public class AppService extends Service {
 
     private static class CallingInfo {
         String callingPkg = "", callingName = "";
-        String targetName = "";
+        String targetName = "", targetPkg = "";
 
         CallingInfo() {
         }
@@ -198,6 +220,7 @@ public class AppService extends Service {
 
         static CallingInfo from(PackageManager pm, int callingUID, String targetPkg) {
             CallingInfo callInfo = new CallingInfo();
+            callInfo.targetPkg = targetPkg;
             String[] pkgs = pm.getPackagesForUid(callingUID);
             String callingPkg = null;
             if (pkgs != null && pkgs.length > 0) {

@@ -10,6 +10,7 @@ import java.util.Set;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
+import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.android.common.Collections;
@@ -36,6 +37,10 @@ class XModule extends IXModuleToken.Stub implements IXposedHookLoadPackage, IXpo
         PREBUILT_WHITE_LIST.add(BuildConfig.APPLICATION_ID);
     }
 
+    XStatus xStatus = XStatus.UNKNOWN;
+
+    XSharedPreferences xSharedPreferences;
+
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
 
@@ -44,6 +49,15 @@ class XModule extends IXModuleToken.Stub implements IXposedHookLoadPackage, IXpo
     @Override
     public void initZygote(StartupParam startupParam) throws Throwable {
 
+    }
+
+
+    void initDefaultXPreference() {
+        xSharedPreferences = new XSharedPreferences(BuildConfig.APPLICATION_ID);
+        xSharedPreferences.makeWorldReadable();
+        XposedBridge.log(TAG + "xSharedPreferences:" + xSharedPreferences);
+        boolean enabled = xSharedPreferences.getBoolean(XKey.ENABLED, false);
+        XposedBridge.log(TAG + "enabled:" + enabled);
     }
 
     @Override
@@ -64,7 +78,7 @@ class XModule extends IXModuleToken.Stub implements IXposedHookLoadPackage, IXpo
 
     @Override
     public int status() throws RemoteException {
-        return -1;
+        return xStatus.ordinal();
     }
 
     class AppServiceClient implements IBinder.DeathRecipient {

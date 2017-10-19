@@ -4,13 +4,19 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.andrognito.pinlockview.IndicatorDots;
 import com.andrognito.pinlockview.PinLockListener;
@@ -18,6 +24,16 @@ import com.andrognito.pinlockview.PinLockView;
 
 import org.newstand.logger.Logger;
 
+import java.util.concurrent.ExecutorService;
+
+import dev.tornaco.vangogh.Vangogh;
+import dev.tornaco.vangogh.display.appliers.ScaleInXYApplier;
+import dev.tornaco.vangogh.loader.Loader;
+import dev.tornaco.vangogh.loader.LoaderObserver;
+import dev.tornaco.vangogh.media.BitmapImage;
+import dev.tornaco.vangogh.media.Image;
+import dev.tornaco.vangogh.media.ImageSource;
+import github.tornaco.android.common.util.ApkUtil;
 import github.tornaco.xposedmoduletest.ICallback;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.x.XMode;
@@ -33,6 +49,7 @@ public class AppStartNoter {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void note(Handler handler, final Context context,
                      final String callingAppName,
+                     final String targetPkg,
                      final String appName,
                      final ICallback callback) {
 
@@ -47,9 +64,13 @@ public class AppStartNoter {
                 IndicatorDots indicatorDots = (IndicatorDots) container.findViewById(R.id.indicator_dots);
                 pinLockView.attachIndicatorDots(indicatorDots);
 
+                TextView labelView = (TextView) container.findViewById(R.id.label);
+                labelView.setText(appName);
+
+                ImageView iconView = (ImageView) container.findViewById(R.id.icon);
 
                 final AlertDialog d = new AlertDialog.Builder(context, R.style.Noter)
-                        .setTitle(appName)
+                        .setTitle("INPUT PASSWORD")
                         .setView(container)
                         .setCancelable(true)
                         .setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -83,6 +104,41 @@ public class AppStartNoter {
 
                 try {
                     d.show();
+
+                    Vangogh.with(context)
+                            .load(targetPkg)
+                            .skipMemoryCache(true)
+                            .usingLoader(new Loader<Image>() {
+                                @Nullable
+                                @Override
+                                public Image load(@NonNull ImageSource source,
+                                                  @Nullable LoaderObserver observer) {
+                                    String pkgName = source.getUrl();
+                                    Drawable d = ApkUtil.loadIconByPkgName(context, pkgName);
+                                    BitmapDrawable bd = (BitmapDrawable) d;
+                                    Logger.v("XXX- Loading COMPLETE for: " + pkgName);
+                                    BitmapImage bitmapImage = new BitmapImage(bd.getBitmap());
+                                    if (observer != null) {
+                                        observer.onImageReady(bitmapImage);
+                                    }
+                                    return bitmapImage;
+                                }
+
+                                @Override
+                                public int priority() {
+                                    return 3;
+                                }
+
+                                @Override
+                                public ExecutorService getExecutor() {
+                                    return null;
+                                }
+                            })
+                            .applier(new ScaleInXYApplier())
+                            .placeHolder(0)
+                            .fallback(R.mipmap.ic_launcher_round)
+                            .into(iconView);
+
                 } catch (Exception e) {
                     Logger.e("Can not show dialog", Logger.getStackTraceString(e));
                     // We should tell the res here.

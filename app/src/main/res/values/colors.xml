@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
-
+    <color name="m_b_g_800">#ff37474f</color>
+    <color name="m_b_g_900">#ff263238</color>
 
     <!-- Standard Text Color -->
     <color name="default_text_color">@color/black</color>

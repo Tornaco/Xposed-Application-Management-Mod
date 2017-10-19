@@ -2,4 +2,7 @@
     <string name="app_name">App Guard</string>
     <string name="title_activity_app_start_noter">AppStartNoterActivity</string>
     <string name="manage_overlay">Manage overlay</string>
+    <string name="switch_on_text">ON</string>
+    <string name="switch_off_text">OFF</string>
+    <string name="test_noter">Test noter</string>
 </resources>

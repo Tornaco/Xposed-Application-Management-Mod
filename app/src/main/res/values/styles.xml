@@ -1,7 +1,11 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat" />
+    <style name="AppTheme" parent="Theme.AppCompat">
+        <item name="switchBarTheme">@style/SwitchBarSettings</item>
+        <item name="colorPrimary">@color/m_b_g_800</item>
+        <item name="colorPrimaryDark">@color/m_b_g_900</item>
+    </style>
 
     <style name="AppThemeLight" parent="Theme.AppCompat.Light" />
 
@@ -15,6 +19,28 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="TextAppearance.Medium" parent="@style/TextAppearance.AppCompat.Medium" />
+
+    <style name="TextAppearance.Small" parent="@style/TextAppearance.AppCompat.Small" />
+
+    <style name="TextAppearance.Switch" parent="TextAppearance.Medium" />
+
+    <style name="TextAppearance.Small.SwitchBar">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="SwitchBarSettings" parent="Widget.AppCompat.ActionBar">
+        <item name="switchBarMarginStart">@dimen/activity_horizontal_margin</item>
+        <item name="switchBarMarginEnd">@dimen/activity_horizontal_margin</item>
+        <item name="switchBarBackgroundColor">@color/m_b_g_900</item>
+    </style>
+
+    <style name="ButtonBar" parent="Theme.AppCompat.Light.Dialog">
+        <!-- Used by controls, e.g. CheckBox, ProgressBar, etc. -->
+        <item name="colorButtonNormal">?attr/colorAccent</item>
+    </style>
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat" />
@@ -23,7 +49,9 @@
 
     <style name="AppThemeLight.PopupOverlay" parent="ThemeOverlay.AppCompat" />
 
-    <style name="Noter" parent="android:Theme.DeviceDefault.Dialog" />
+    <style name="Noter" parent="android:Theme.DeviceDefault.Dialog">
+        <item name="android:windowAnimationStyle">@style/DialogAnim</item>
+    </style>
 
     <style name="NoterLight" parent="android:Theme.DeviceDefault.Light.Dialog" />
 
@@ -83,4 +111,8 @@
         <item name="android:textColor">@color/list_item_text_color_light</item>
     </style>
 
+    <style name="DialogAnim" parent="android:Animation">
+        <item name="@android:windowEnterAnimation">@anim/dialog_enter</item>
+        <item name="@android:windowExitAnimation">@anim/dialog_exit</item>
+    </style>
 </resources>

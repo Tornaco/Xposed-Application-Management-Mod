@@ -4,4 +4,7 @@
     <item
         android:id="@+id/m_o"
         android:title="@string/manage_overlay" />
+    <item
+        android:id="@+id/test_noter"
+        android:title="@string/test_noter" />
 </menu>

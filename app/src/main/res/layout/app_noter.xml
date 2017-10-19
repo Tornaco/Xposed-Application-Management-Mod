@@ -4,12 +4,31 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/activity_vertical_margin_large" />
+
+    <TextView
+        android:id="@+id/label"
+        style="@style/ListItemMainText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/icon"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:text="@string/app_name"
+        android:visibility="gone" />
+
     <com.andrognito.pinlockview.IndicatorDots
         android:id="@+id/indicator_dots"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/label"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="24dp" />
+        android:layout_marginTop="@dimen/activity_vertical_margin_large" />
 
     <com.andrognito.pinlockview.PinLockView
         android:id="@+id/pin_lock_view"
@@ -17,7 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/indicator_dots"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="24dp" />
+        android:layout_marginTop="@dimen/activity_vertical_margin_large" />
 
 </RelativeLayout>
 
