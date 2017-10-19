@@ -3,6 +3,8 @@ package github.tornaco.xposedmoduletest.x;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import org.newstand.logger.Logger;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -10,15 +12,18 @@ import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import github.tornaco.android.common.Collections;
+import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAppService;
+import github.tornaco.xposedmoduletest.IXModuleToken;
 
 /**
  * Created by guohao4 on 2017/10/19.
  * Email: Tornaco@163.com
  */
 
-class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
+class XModule extends IXModuleToken.Stub implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 
     static final String TAG = "XAppGuard-";
 
@@ -41,6 +46,27 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 
     }
 
+    @Override
+    public void dump() throws RemoteException {
+        try {
+            Logger.i("DUMP STARTED");
+            Logger.i("PREBUILT_WHITE_LIST:");
+            Collections.consumeRemaining(PREBUILT_WHITE_LIST, new Consumer<String>() {
+                @Override
+                public void accept(String s) {
+                    Logger.i(s);
+                }
+            });
+            Logger.i("DUMP END");
+        } catch (Exception ignored) {
+        }
+    }
+
+    @Override
+    public int status() throws RemoteException {
+        return -1;
+    }
+
     class AppServiceClient implements IBinder.DeathRecipient {
         boolean ok;
         IAppService service;
@@ -50,8 +76,9 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
             if (!ok) return;
             this.service = service;
             try {
+                this.service.registerXModuleToken(XModule.this);
                 this.service.asBinder().linkToDeath(this, 0);
-            } catch (RemoteException ignored) {
+            } catch (Exception ignored) {
 
             }
         }

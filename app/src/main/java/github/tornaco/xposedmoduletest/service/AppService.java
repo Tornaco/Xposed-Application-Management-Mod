@@ -24,6 +24,7 @@ import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.IAppService;
 import github.tornaco.xposedmoduletest.ICallback;
+import github.tornaco.xposedmoduletest.IXModuleToken;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
@@ -128,6 +129,18 @@ public class AppService extends Service {
                                      int callingUID, int callingPID) throws RemoteException {
                 AppService.this.noteAppStart(callback, pkg, callingUID, callingPID);
             }
+
+            @Override
+            public void onHome() throws RemoteException {
+
+            }
+
+            @Override
+            public void registerXModuleToken(IXModuleToken token) throws RemoteException {
+                Logger.d("registerXModuleToken:" + token);
+                token.dump();
+                Logger.d("registerXModuleToken:" + token.status());
+            }
         };
     }
 
@@ -142,7 +155,8 @@ public class AppService extends Service {
                 DaoSession session = DaoManager.getInstance().getSession(AppService.this);
                 if (session == null) return;//FIXME.
                 GUARD_PACKAGES.clear();
-                Collections.consumeRemaining(session.getPackageInfoDao().loadAll(), new Consumer<PackageInfo>() {
+                Collections.consumeRemaining(session.getPackageInfoDao().loadAll(),
+                        new Consumer<PackageInfo>() {
                     @Override
                     public void accept(PackageInfo packageInfo) {
                         if (packageInfo.getGuard()) GUARD_PACKAGES.add(packageInfo.getPkgName());
