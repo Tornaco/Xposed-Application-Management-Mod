@@ -33,4 +33,8 @@ public abstract class XExecutor {
     public static void runOnUIThreadDelayed(Runnable runnable, long delayMills) {
         mUIThreadHandler.postDelayed(runnable, delayMills);
     }
+
+    public static Handler getUIThreadHandler() {
+        return mUIThreadHandler;
+    }
 }

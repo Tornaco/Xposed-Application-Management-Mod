@@ -63,7 +63,6 @@ class XModuleImpl24 extends XModule {
             hookActivityStarter(lpparam);
             hookTaskMover(lpparam);
             hookAppOps(lpparam);
-            initDefaultXPreference();
         }
     }
 
@@ -378,6 +377,6 @@ class XModuleImpl24 extends XModule {
 
     @Override
     public String codename() throws RemoteException {
-        return "XModule-v24-AOSP";
+        return "XModule-v24-AOSP-" + XModuleGithubCommitSha.LATEST_SHA;
     }
 }

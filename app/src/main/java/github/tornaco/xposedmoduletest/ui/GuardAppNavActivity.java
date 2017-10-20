@@ -169,6 +169,10 @@ public class GuardAppNavActivity extends AppCompatActivity {
             finish();
         }
 
+        if (item.getItemId()==R.id.action_settings){
+            startActivity(new Intent(this, SettingsActivity.class));
+        }
+
         if (item.getItemId() == R.id.module_dump) {
             XExecutor.execute(new Runnable() {
                 @Override

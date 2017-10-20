@@ -33,7 +33,19 @@
             android:layout_toEndOf="@+id/icon"
             android:text="@string/input_password"
             android:textAllCaps="true"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:textColor="@color/primary_text" />
+
+        <github.tornaco.xposedmoduletest.camera.SoftwareCameraPreview
+            android:id="@+id/surface"
+            android:layout_width="1px"
+            android:layout_height="1px"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_marginEnd="@dimen/activity_vertical_margin"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:visibility="gone" />
     </RelativeLayout>
 
     <RelativeLayout

@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:name=".x.XApp"
@@ -31,6 +32,11 @@
         </activity>
 
         <activity android:name=".ui.GuardAppPickerActivity" />
+
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:label="@string/title_settings"
+            android:theme="@style/AppThemeLight.NoActionBar" />
 
         <service
             android:name=".service.AppService"

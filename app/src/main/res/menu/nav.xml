@@ -10,4 +10,7 @@
     <item
         android:id="@+id/module_dump"
         android:title="@string/dump_module" />
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/title_settings" />
 </menu>

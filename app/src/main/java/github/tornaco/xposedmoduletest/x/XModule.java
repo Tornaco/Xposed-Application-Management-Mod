@@ -14,11 +14,11 @@ import java.util.Set;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
+import github.tornaco.apigen.GithubCommitSha;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAppService;
 import github.tornaco.xposedmoduletest.IXModuleToken;
@@ -27,7 +27,7 @@ import github.tornaco.xposedmoduletest.IXModuleToken;
  * Created by guohao4 on 2017/10/19.
  * Email: Tornaco@163.com
  */
-
+@GithubCommitSha
 class XModule extends IXModuleToken.Stub implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 
     static final boolean DEBUG_V = true;
@@ -46,8 +46,6 @@ class XModule extends IXModuleToken.Stub implements IXposedHookLoadPackage, IXpo
 
     XStatus xStatus = XStatus.UNKNOWN;
 
-    XSharedPreferences xSharedPreferences;
-
     @Override
     @CallSuper
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -61,7 +59,7 @@ class XModule extends IXModuleToken.Stub implements IXposedHookLoadPackage, IXpo
 
     }
 
-    void hookFinishBooting(XC_LoadPackage.LoadPackageParam lpparam) {
+    private void hookFinishBooting(XC_LoadPackage.LoadPackageParam lpparam) {
         try {
             XposedBridge.hookAllMethods(Class.forName("com.android.server.am.ActivityManagerService",
                     false,
@@ -80,14 +78,6 @@ class XModule extends IXModuleToken.Stub implements IXposedHookLoadPackage, IXpo
 
     void onBootComplete() {
         XposedBridge.log(TAG + "onBootComplete");
-    }
-
-    void initDefaultXPreference() {
-        xSharedPreferences = new XSharedPreferences(BuildConfig.APPLICATION_ID);
-        xSharedPreferences.makeWorldReadable();
-        XposedBridge.log(TAG + "xSharedPreferences:" + xSharedPreferences);
-        boolean enabled = xSharedPreferences.getBoolean(XKey.ENABLED, false);
-        XposedBridge.log(TAG + "enabled:" + enabled);
     }
 
     boolean isLauncherIntent(Intent intent) {

@@ -52,9 +52,9 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat" />
 
-    <style name="AppThemeLight.AppBarOverlay" parent="ThemeOverlay.AppCompat.ActionBar" />
+    <style name="AppThemeLight.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <style name="AppThemeLight.PopupOverlay" parent="ThemeOverlay.AppCompat" />
+    <style name="AppThemeLight.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="Noter" parent="android:Theme.DeviceDefault.Dialog">
         <item name="android:windowAnimationStyle">@style/DialogAnim</item>

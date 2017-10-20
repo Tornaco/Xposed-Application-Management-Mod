@@ -10,6 +10,6 @@ import android.os.RemoteException;
 class XModuleImpl25 extends XModuleImpl24 {
     @Override
     public String codename() throws RemoteException {
-        return "XModule-v24/v25-AOSP";
+        return "XModule-v25-" + XModuleGithubCommitSha.LATEST_SHA;
     }
 }

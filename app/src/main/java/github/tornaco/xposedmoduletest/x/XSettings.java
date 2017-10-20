@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.x;
 import android.content.Context;
 import android.preference.PreferenceManager;
 
+import java.io.File;
 import java.util.Observable;
 
 /**
@@ -32,5 +33,15 @@ public class XSettings extends Observable {
     public boolean enabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(XKey.ENABLED, false);
+    }
+
+    public boolean takenPhotoEnabled(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(XKey.TAKE_PHOTO_ENABLED, true);
+    }
+
+    public static File getPhotosDir(Context context) {
+        return new File(context.getFilesDir()
+                + File.separator + "photos");
     }
 }
