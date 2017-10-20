@@ -1,11 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="Experiment">
+    <PreferenceCategory android:title="@string/title_advance">
+
+        <Preference
+            android:key="@string/manage_overlay"
+            android:title="@string/manage_overlay" />
+
+        <Preference
+            android:key="@string/test_noter"
+            android:title="@string/test_noter" />
+
+        <Preference
+            android:key="@string/dump_module"
+            android:title="@string/dump_module" />
+
         <SwitchPreference
             android:defaultValue="false"
             android:key="dev_mode_enabled"
             android:title="@string/title_dev_mode" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/title_exp">
 
         <SwitchPreference
             android:defaultValue="false"

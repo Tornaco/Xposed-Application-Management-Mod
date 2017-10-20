@@ -3,19 +3,29 @@ package github.tornaco.xposedmoduletest.ui;
 import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.RemoteException;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
+import ezy.assist.compat.SettingsCompat;
 import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
+import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.ICallback;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.service.AppServiceProxy;
+import github.tornaco.xposedmoduletest.x.XExecutor;
 import github.tornaco.xposedmoduletest.x.XKey;
+import github.tornaco.xposedmoduletest.x.XStatus;
 
 /**
  * Created by guohao4 on 2017/9/7.
@@ -72,6 +82,70 @@ public class SettingsActivity extends AppCompatActivity {
                         @Override
                         public boolean onPreferenceClick(Preference preference) {
                             startActivity(new Intent(getActivity(), PhotoViewerActivity.class));
+                            return true;
+                        }
+                    });
+
+            findPreference(getString(R.string.manage_overlay))
+                    .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                        @Override
+                        public boolean onPreferenceClick(Preference preference) {
+                            SettingsCompat.manageDrawOverlays(getActivity());
+                            return true;
+                        }
+                    });
+
+            findPreference(getString(R.string.test_noter))
+                    .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                        @Override
+                        public boolean onPreferenceClick(Preference preference) {
+                            new AppStartNoter(new Handler(Looper.getMainLooper()), getActivity())
+                                    .note("TEST",
+                                            BuildConfig.APPLICATION_ID,
+                                            "TEST",
+                                            new ICallback.Stub() {
+                                                @Override
+                                                public void onRes(int res) throws RemoteException {
+
+                                                }
+                                            });
+                            return true;
+                        }
+                    });
+
+            findPreference(getString(R.string.dump_module))
+                    .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                        @Override
+                        public boolean onPreferenceClick(Preference preference) {
+                            XExecutor.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    AppServiceProxy serviceProxy = new AppServiceProxy(getActivity());
+                                    String serviceStr = "";
+                                    try {
+                                        int status = serviceProxy.getXModuleStatus();
+                                        serviceStr += ("STATUS: " + XStatus.valueOf(status) + "\n");
+                                        serviceProxy = new AppServiceProxy(getActivity());
+                                        String codeName = serviceProxy.getXModuleCodeName();
+                                        serviceStr += ("CODENAME: " + codeName);
+                                    } catch (RemoteException ignored) {
+
+                                    } finally {
+                                        final String finalServiceStr = serviceStr;
+
+                                        XExecutor.runOnUIThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                new AlertDialog.Builder(getActivity())
+                                                        .setTitle("MODULE INFO")
+                                                        .setMessage(finalServiceStr)
+                                                        .setPositiveButton(android.R.string.ok, null)
+                                                        .show();
+                                            }
+                                        });
+                                    }
+                                }
+                            });
                             return true;
                         }
                     });

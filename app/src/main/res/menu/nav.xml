@@ -2,15 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/m_o"
-        android:title="@string/manage_overlay" />
-    <item
-        android:id="@+id/test_noter"
-        android:title="@string/test_noter" />
-    <item
-        android:id="@+id/module_dump"
-        android:title="@string/dump_module" />
-    <item
         android:id="@+id/action_settings"
         android:title="@string/title_settings" />
 </menu>
