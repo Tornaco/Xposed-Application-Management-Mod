@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_view"
+    style="@style/CardCommon"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:layout_marginTop="2dp"
+    card_view:cardCornerRadius="1dp"
+    card_view:cardElevation="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/activity_horizontal_margin"
+        android:gravity="center_horizontal"
+        android:minHeight="@dimen/common_item_min_height"
+        android:orientation="vertical"
+        android:paddingEnd="?android:attr/scrollbarSize"
+        android:paddingStart="@dimen/activity_horizontal_margin">
+
+        <ImageView
+            android:id="@+id/photo"
+            android:layout_width="@dimen/thumbnail_size_large"
+            android:layout_height="@dimen/thumbnail_size_large"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/ic_launcher_round" />
+
+        <TextView
+            android:id="@android:id/text1"
+            style="@style/ListItemSecondaryText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:text="@string/app_name" />
+
+    </LinearLayout>
+</android.support.v7.widget.CardView>

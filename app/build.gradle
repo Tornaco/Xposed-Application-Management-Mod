@@ -47,4 +47,5 @@ dependencies {
     compile "org.jsoup:jsoup:${rootProject.ext.jsoupVersion}"
     compile project(':vangoghcore')
     compile project(':pinlockview')
+    compile 'si.virag:fuzzydateformatter:1.1.0'
 }

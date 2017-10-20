@@ -100,7 +100,6 @@ public class PackageInfo {
     public int hashCode() {
         return pkgName.hashCode();
     }
-
     // KEEP METHODS END
 
 }

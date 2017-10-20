@@ -7,4 +7,7 @@
     <string name="input_password">需要密码</string>
     <string name="dump_module">模块状态</string>
     <string name="title_settings">设置</string>
+    <string name="title_view_photos">查看闯入者</string>
+    <string name="title_take_photo">闯入抓拍</string>
+    <string name="title_dev_mode">开发者模式</string>
 </resources>

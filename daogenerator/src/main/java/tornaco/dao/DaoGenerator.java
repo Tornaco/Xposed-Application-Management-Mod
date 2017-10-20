@@ -5,13 +5,14 @@ import de.greenrobot.daogenerator.Schema;
 
 public class DaoGenerator {
 
-    private static final int VERSION = 1;
+    private static final int VERSION = 2;
 
     public static void main(String[] args) throws Exception {
         Schema sch = new Schema(VERSION, "github.tornaco.xposedmoduletest.bean");
         sch.setDefaultJavaPackageDao("github.tornaco.xposedmoduletest.bean");
         sch.enableKeepSectionsByDefault();
         createPackageInfo(sch);
+        createAccessInfo(sch);
         new de.greenrobot.daogenerator.DaoGenerator().generateAll(sch, "./app/src/main/java");
     }
 
@@ -27,6 +28,10 @@ public class DaoGenerator {
 
     private static void createAccessInfo(Schema sch) {
         Entity accessInfo = sch.addEntity("AccessInfo");
+        accessInfo.addIntProperty("id").primaryKey();
         accessInfo.addLongProperty("when");
+        accessInfo.addStringProperty("url");
+        accessInfo.addStringProperty("appName");
+        accessInfo.addStringProperty("pkgName");
     }
 }

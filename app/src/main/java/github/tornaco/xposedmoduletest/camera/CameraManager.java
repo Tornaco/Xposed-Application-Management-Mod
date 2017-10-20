@@ -49,6 +49,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+import github.tornaco.xposedmoduletest.bean.AccessInfo;
+import github.tornaco.xposedmoduletest.bean.DaoManager;
+import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.x.XApp;
 import github.tornaco.xposedmoduletest.x.XExecutor;
 import github.tornaco.xposedmoduletest.x.XSettings;
@@ -1006,6 +1009,16 @@ public class CameraManager implements FocusOverlayManager.Listener {
                                 bm.compress(Bitmap.CompressFormat.JPEG, 80, bos);
                                 bos.flush();
                                 bos.close();
+
+                                // Insert.
+                                DaoSession daoSession = DaoManager.getInstance().getSession(XApp.getApp());
+                                if (daoSession != null) {
+                                    AccessInfo accessInfo = new AccessInfo();
+                                    accessInfo.setUrl(picUrl);
+                                    accessInfo.setWhen(System.currentTimeMillis());
+                                    daoSession.getAccessInfoDao().insert(accessInfo);
+                                }
+
                                 callback.onImageReady(picUrl);
                             } catch (Exception e) {
                                 callback.onFail(e);

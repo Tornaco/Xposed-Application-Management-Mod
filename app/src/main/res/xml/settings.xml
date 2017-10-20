@@ -5,14 +5,16 @@
         <SwitchPreference
             android:defaultValue="false"
             android:key="dev_mode_enabled"
-            android:title="Dev mode" />
+            android:title="@string/title_dev_mode" />
 
         <SwitchPreference
             android:defaultValue="false"
             android:key="key_take_photo_enabled"
-            android:title="Take photo" />
+            android:title="@string/title_take_photo" />
 
-        <Preference android:title="View photos" />
+        <Preference
+            android:key="@string/title_view_photos"
+            android:title="@string/title_view_photos" />
 
     </PreferenceCategory>
 

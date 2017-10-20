@@ -41,6 +41,8 @@ class XModule extends IXModuleToken.Stub implements IXposedHookLoadPackage, IXpo
         PREBUILT_WHITE_LIST.add("com.android.packageinstaller");
         PREBUILT_WHITE_LIST.add("android");
         PREBUILT_WHITE_LIST.add("com.cyanogenmod.trebuchet");
+        // It is good for user if our mod crash.
+        PREBUILT_WHITE_LIST.add("de.robv.android.xposed.installer");
         PREBUILT_WHITE_LIST.add(BuildConfig.APPLICATION_ID);
     }
 
