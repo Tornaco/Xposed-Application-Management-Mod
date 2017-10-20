@@ -27,16 +27,22 @@ public class XModuleDelegate extends XModule {
 
     public XModuleDelegate() {
         int sdkInt = Build.VERSION.SDK_INT;
-        XposedBridge.log("Init XModuleDelegate with SDK:" + sdkInt);
-        if (sdkInt == Build.VERSION_CODES.N_MR1) {
-            mImpl = new XModuleImpl25();
+
+        switch (sdkInt) {
+            case Build.VERSION_CODES.N_MR1:
+                mImpl = new XModuleImpl25();
+                break;
+            case Build.VERSION_CODES.N:
+                mImpl = new XModuleImpl24();
+                break;
+            case Build.VERSION_CODES.M:
+                mImpl = new XModuleImpl23();
+                break;
+            default:
+                mImpl = new XModuleNotSupport();
+                break;
         }
-        if (sdkInt == Build.VERSION_CODES.N) {
-            mImpl = new XModuleImpl24();
-        }
-        if (sdkInt == Build.VERSION_CODES.M) {
-            mImpl = new XModuleImpl23();
-        }
-        mImpl = new XModuleNotSupport();
+
+        XposedBridge.log(String.format("Init XModuleDelegate with SDK: %s, impl %s:", sdkInt, mImpl));
     }
 }

@@ -55,6 +55,7 @@ class XModuleImpl23 extends XModule {
 
     @Override
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
+        super.handleLoadPackage(lpparam);
 
         xStatus = XStatus.RUNNING;
 
@@ -96,7 +97,7 @@ class XModuleImpl23 extends XModule {
                         int callingUID = Binder.getCallingUid();
                         int callingPID = Binder.getCallingPid();
 
-                        if (!waitForAppService()) {
+                        if (!ensureAppService(true)) {
                             mSeriousErrorOccurredTimes.incrementAndGet();
                             return;
                         }
@@ -184,7 +185,14 @@ class XModuleImpl23 extends XModule {
                                     return;
                                 }
 
-                                if (!waitForAppService()) return;
+                                boolean isHomeIntent = isLauncherIntent(intent);
+                                if (isHomeIntent) {
+                                    PREBUILT_WHITE_LIST.add(pkgName);
+                                    onLauncherLaunch();
+                                    return;
+                                }
+
+                                if (!ensureAppService(true)) return;
 
                                 int callingUID = Binder.getCallingUid();
                                 int callingPID = Binder.getCallingPid();
@@ -237,12 +245,16 @@ class XModuleImpl23 extends XModule {
         }
     }
 
-    private boolean waitForAppService() {
+    private void onLauncherLaunch() {
+        if (DEBUG_V) XposedBridge.log(TAG + "Launcher ready");
+    }
+
+    private boolean ensureAppService(boolean block) {
         int MAX_RETRY = 50;
         int times = 0;
         if (mAppService == null || !mAppService.ok) {
             startAppService();
-            while (mAppService == null || !mAppService.ok) {
+            if (block) while (mAppService == null || !mAppService.ok) {
                 try {
                     Thread.sleep(50);
                     times++;
@@ -250,6 +262,9 @@ class XModuleImpl23 extends XModule {
 
                 }
                 if (times > MAX_RETRY) return false;
+            }
+            else {
+                return false;
             }
         }
         return true;
@@ -336,5 +351,16 @@ class XModuleImpl23 extends XModule {
         } catch (Exception e) {
             XposedBridge.log(TAG + Log.getStackTraceString(e));
         }
+    }
+
+    @Override
+    void onBootComplete() {
+        super.onBootComplete();
+        ensureAppService(false);
+    }
+
+    @Override
+    public String codename() throws RemoteException {
+        return "XModule-v23-AOSP";
     }
 }

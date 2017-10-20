@@ -67,7 +67,15 @@ public class AppServiceProxy extends ServiceProxy implements IAppService {
 
     @Override
     public String getXModuleCodeName() throws RemoteException {
-        return null;
+        final Holder<String> res = new Holder<>();
+        setTask(new ProxyTask() {
+            @Override
+            public void run() throws RemoteException {
+                res.setData(service.getXModuleCodeName());
+            }
+        });
+        waitForCompletion();
+        return res.getData();
     }
 
     @Override

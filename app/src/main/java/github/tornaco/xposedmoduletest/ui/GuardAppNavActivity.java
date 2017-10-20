@@ -7,6 +7,7 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -26,10 +27,12 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.loader.PackageLoader;
 import github.tornaco.xposedmoduletest.service.AppService;
+import github.tornaco.xposedmoduletest.service.AppServiceProxy;
 import github.tornaco.xposedmoduletest.ui.adapter.AppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.x.XExecutor;
 import github.tornaco.xposedmoduletest.x.XSettings;
+import github.tornaco.xposedmoduletest.x.XStatus;
 
 public class GuardAppNavActivity extends AppCompatActivity {
 
@@ -147,21 +150,54 @@ public class GuardAppNavActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.m_o) {
             SettingsCompat.manageDrawOverlays(this);
         }
-        if (item.getItemId() == R.id.test_noter) {
-            new AppStartNoter().note(new Handler(Looper.getMainLooper()),
-                    GuardAppNavActivity.this,
-                    "TEST",
-                    BuildConfig.APPLICATION_ID,
-                    "TEST",
-                    new ICallback.Stub() {
-                        @Override
-                        public void onRes(int res) throws RemoteException {
 
-                        }
-                    });
+        if (item.getItemId() == R.id.test_noter) {
+            new AppStartNoter(new Handler(Looper.getMainLooper()), GuardAppNavActivity.this)
+                    .note(
+                            "TEST",
+                            BuildConfig.APPLICATION_ID,
+                            "TEST",
+                            new ICallback.Stub() {
+                                @Override
+                                public void onRes(int res) throws RemoteException {
+
+                                }
+                            });
         }
+
         if (item.getItemId() == android.R.id.home) {
             finish();
+        }
+
+        if (item.getItemId() == R.id.module_dump) {
+            XExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    AppServiceProxy serviceProxy = new AppServiceProxy(getApplicationContext());
+                    String serviceStr = "";
+                    try {
+                        int status = serviceProxy.getXModuleStatus();
+                        serviceStr += ("STATUS: " + XStatus.valueOf(status) + "\n");
+                        serviceProxy = new AppServiceProxy(getApplicationContext());
+                        String codeName = serviceProxy.getXModuleCodeName();
+                        serviceStr += ("CODENAME: " + codeName);
+                    } catch (RemoteException ignored) {
+
+                    } finally {
+                        final String finalServiceStr = serviceStr;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                new AlertDialog.Builder(GuardAppNavActivity.this)
+                                        .setTitle("MODULE INFO")
+                                        .setMessage(finalServiceStr)
+                                        .setPositiveButton(android.R.string.ok, null)
+                                        .show();
+                            }
+                        });
+                    }
+                }
+            });
         }
 
         return super.onOptionsItemSelected(item);

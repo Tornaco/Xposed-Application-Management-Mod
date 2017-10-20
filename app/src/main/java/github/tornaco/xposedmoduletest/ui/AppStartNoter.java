@@ -8,6 +8,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,11 +16,15 @@ import android.support.annotation.RequiresApi;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import com.andrognito.pinlockview.IndicatorDots;
 import com.andrognito.pinlockview.PinLockListener;
 import com.andrognito.pinlockview.PinLockView;
+
+import junit.framework.Assert;
 
 import org.newstand.logger.Logger;
 
@@ -45,21 +50,32 @@ import github.tornaco.xposedmoduletest.x.XMode;
 @SuppressWarnings("ConstantConditions")
 public class AppStartNoter {
 
+    private Handler uiHandler;
+    private Context context;
+
+    public AppStartNoter(Handler uiHandler, Context context) {
+        this.uiHandler = uiHandler;
+        this.context = context;
+        Assert.assertTrue(
+                "MainLopper is needed",
+                this.uiHandler.getLooper() == Looper.getMainLooper());
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void note(Handler handler, final Context context,
-                     final String callingAppName,
-                     final String targetPkg,
-                     final String appName,
-                     final ICallback callback) {
+    public void note(
+            final String callingAppName,
+            final String targetPkg,
+            final String appName,
+            final ICallback callback) {
         Logger.d("note...");
 
-        handler.post(new Runnable() {
+        uiHandler.post(new Runnable() {
             @Override
             public void run() {
                 try {
                     Logger.d("Init note dialog...");
 
-                    @SuppressLint("InflateParams") View container = LayoutInflater.from(context)
+                    @SuppressLint("InflateParams") final View container = LayoutInflater.from(context)
                             .inflate(R.layout.app_noter, null, false);
 
                     PinLockView pinLockView = (PinLockView) container.findViewById(R.id.pin_lock_view);
@@ -86,6 +102,9 @@ public class AppStartNoter {
                             if (pin.equals("6666")) {
                                 d.dismiss();
                                 onPass(callback);
+                            } else {
+                                Animation shake = AnimationUtils.loadAnimation(context, R.anim.shake);
+                                container.startAnimation(shake);
                             }
                         }
 

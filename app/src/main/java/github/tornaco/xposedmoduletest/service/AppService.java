@@ -2,7 +2,6 @@ package github.tornaco.xposedmoduletest.service;
 
 import android.app.Service;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
@@ -10,7 +9,6 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 import android.util.SparseArray;
 
 import org.newstand.logger.Logger;
@@ -46,17 +44,17 @@ public class AppService extends Service {
     private final SparseArray<Transaction> TRANSACTIONS = new SparseArray<>();
     private final Set<String> GUARD_PACKAGES = new HashSet<>();
 
-    private Handler mUIHandler;
     private AtomicBoolean mGuardEnabled = new AtomicBoolean(false);
 
     private XSettings xSettings;
 
     private ServiceBinder mServiceBinder;
 
+    private AppStartNoter mAppStartNoter;
+
     @Override
     public void onCreate() {
         super.onCreate();
-        mUIHandler = new Handler(Looper.getMainLooper());
 
         xSettings = XSettings.get();
         xSettings.addObserver(new Observer() {
@@ -68,6 +66,9 @@ public class AppService extends Service {
         });
         mGuardEnabled.set(xSettings.enabled(getApplicationContext()));
         mServiceBinder = new ServiceBinder();
+
+        Handler handler = new Handler(Looper.getMainLooper());
+        mAppStartNoter = new AppStartNoter(handler, this);
     }
 
     private void noteAppStart(final ICallback callback, final String pkg,
@@ -93,9 +94,7 @@ public class AppService extends Service {
         Logger.d("Calling info: %s", callingInfo);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            new AppStartNoter().note(mUIHandler,
-                    AppService.this,
-                    callingInfo.callingName,
+            mAppStartNoter.note(callingInfo.callingName,
                     callingInfo.targetPkg,
                     callingInfo.targetName,
                     new ICallback.Stub() {
@@ -211,6 +210,7 @@ public class AppService extends Service {
                 this.xModuleTokenClient.unLinkToDeath();
             }
             this.xModuleTokenClient = new XModuleTokenClient(token);
+            Logger.d("registerXModuleToken, token:" + token);
         }
 
         @Override
@@ -223,7 +223,10 @@ public class AppService extends Service {
 
         @Override
         public String getXModuleCodeName() throws RemoteException {
-            return "";
+            if (this.xModuleTokenClient == null || !this.xModuleTokenClient.alive) {
+                return "UNKNOWN";
+            }
+            return this.xModuleTokenClient.token.codename();
         }
     }
 
@@ -273,26 +276,26 @@ public class AppService extends Service {
         static CallingInfo from(PackageManager pm, int callingUID, String targetPkg) {
             CallingInfo callInfo = new CallingInfo();
             callInfo.targetPkg = targetPkg;
-            String[] pkgs = pm.getPackagesForUid(callingUID);
-            String callingPkg = null;
-            if (pkgs != null && pkgs.length > 0) {
-                callingPkg = pkgs[0];
-                callInfo.callingPkg = callingPkg;
-            }
-            if (!TextUtils.isEmpty(callingPkg)) try {
-                ApplicationInfo callingName = pm.getApplicationInfo(callingPkg, 0);
-                if (callingName != null)
-                    callInfo.callingName = String.valueOf(callingName.loadLabel(pm));
-            } catch (PackageManager.NameNotFoundException e) {
-                Logger.w("NameNotFoundException:" + callingPkg);
-            }
-            try {
-                ApplicationInfo targetAppInfo = pm.getApplicationInfo(targetPkg, 0);
-                if (targetAppInfo != null)
-                    callInfo.targetName = String.valueOf(targetAppInfo.loadLabel(pm));
-            } catch (PackageManager.NameNotFoundException e) {
-                Logger.w("NameNotFoundException:" + targetPkg);
-            }
+//            String[] pkgs = pm.getPackagesForUid(callingUID);
+//            String callingPkg = null;
+//            if (pkgs != null && pkgs.length > 0) {
+//                callingPkg = pkgs[0];
+//                callInfo.callingPkg = callingPkg;
+//            }
+//            if (!TextUtils.isEmpty(callingPkg)) try {
+//                ApplicationInfo callingName = pm.getApplicationInfo(callingPkg, 0);
+//                if (callingName != null)
+//                    callInfo.callingName = String.valueOf(callingName.loadLabel(pm));
+//            } catch (PackageManager.NameNotFoundException e) {
+//                Logger.w("NameNotFoundException:" + callingPkg);
+//            }
+//            try {
+//                ApplicationInfo targetAppInfo = pm.getApplicationInfo(targetPkg, 0);
+//                if (targetAppInfo != null)
+//                    callInfo.targetName = String.valueOf(targetAppInfo.loadLabel(pm));
+//            } catch (PackageManager.NameNotFoundException e) {
+//                Logger.w("NameNotFoundException:" + targetPkg);
+//            }
             return callInfo;
         }
     }

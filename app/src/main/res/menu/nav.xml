@@ -7,4 +7,7 @@
     <item
         android:id="@+id/test_noter"
         android:title="@string/test_noter" />
+    <item
+        android:id="@+id/module_dump"
+        android:title="@string/dump_module" />
 </menu>

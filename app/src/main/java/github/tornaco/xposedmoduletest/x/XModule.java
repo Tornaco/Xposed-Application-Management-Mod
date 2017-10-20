@@ -1,7 +1,10 @@
 package github.tornaco.xposedmoduletest.x;
 
+import android.content.Intent;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.annotation.CallSuper;
+import android.util.Log;
 
 import org.newstand.logger.Logger;
 
@@ -10,6 +13,7 @@ import java.util.Set;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
+import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
@@ -26,6 +30,8 @@ import github.tornaco.xposedmoduletest.IXModuleToken;
 
 class XModule extends IXModuleToken.Stub implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 
+    static final boolean DEBUG_V = true;
+
     static final String TAG = "XAppGuard-";
 
     static final Set<String> PREBUILT_WHITE_LIST = new HashSet<>();
@@ -34,6 +40,7 @@ class XModule extends IXModuleToken.Stub implements IXposedHookLoadPackage, IXpo
         PREBUILT_WHITE_LIST.add("com.android.systemui");
         PREBUILT_WHITE_LIST.add("com.android.packageinstaller");
         PREBUILT_WHITE_LIST.add("android");
+        PREBUILT_WHITE_LIST.add("com.cyanogenmod.trebuchet");
         PREBUILT_WHITE_LIST.add(BuildConfig.APPLICATION_ID);
     }
 
@@ -42,8 +49,11 @@ class XModule extends IXModuleToken.Stub implements IXposedHookLoadPackage, IXpo
     XSharedPreferences xSharedPreferences;
 
     @Override
+    @CallSuper
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
-
+        if ("android".equals(lpparam.packageName)) {
+            hookFinishBooting(lpparam);
+        }
     }
 
     @Override
@@ -51,6 +61,26 @@ class XModule extends IXModuleToken.Stub implements IXposedHookLoadPackage, IXpo
 
     }
 
+    void hookFinishBooting(XC_LoadPackage.LoadPackageParam lpparam) {
+        try {
+            XposedBridge.hookAllMethods(Class.forName("com.android.server.am.ActivityManagerService",
+                    false,
+                    lpparam.classLoader)
+                    , "finishBooting", new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            super.afterHookedMethod(param);
+                            onBootComplete();
+                        }
+                    });
+        } catch (Exception e) {
+            XposedBridge.log(TAG + "hookFinishBooting" + Log.getStackTraceString(e));
+        }
+    }
+
+    void onBootComplete() {
+        XposedBridge.log(TAG + "onBootComplete");
+    }
 
     void initDefaultXPreference() {
         xSharedPreferences = new XSharedPreferences(BuildConfig.APPLICATION_ID);
@@ -60,17 +90,24 @@ class XModule extends IXModuleToken.Stub implements IXposedHookLoadPackage, IXpo
         XposedBridge.log(TAG + "enabled:" + enabled);
     }
 
+    boolean isLauncherIntent(Intent intent) {
+        return intent != null
+                && intent.getCategories() != null
+                && intent.getCategories().contains("android.intent.category.HOME");
+    }
+
     @Override
     public void dump() throws RemoteException {
         try {
             Logger.i("DUMP STARTED");
             Logger.i("PREBUILT_WHITE_LIST:");
-            Collections.consumeRemaining(PREBUILT_WHITE_LIST, new Consumer<String>() {
-                @Override
-                public void accept(String s) {
-                    Logger.i(s);
-                }
-            });
+            Collections.consumeRemaining(PREBUILT_WHITE_LIST,
+                    new Consumer<String>() {
+                        @Override
+                        public void accept(String s) {
+                            Logger.i(s);
+                        }
+                    });
             Logger.i("DUMP END");
         } catch (Exception ignored) {
         }
@@ -83,7 +120,7 @@ class XModule extends IXModuleToken.Stub implements IXposedHookLoadPackage, IXpo
 
     @Override
     public String codename() throws RemoteException {
-        return null;
+        return getClass().getName();
     }
 
     class AppServiceClient implements IBinder.DeathRecipient {

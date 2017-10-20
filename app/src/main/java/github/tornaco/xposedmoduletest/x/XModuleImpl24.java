@@ -53,6 +53,7 @@ class XModuleImpl24 extends XModule {
 
     @Override
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
+        super.handleLoadPackage(lpparam);
 
         xStatus = XStatus.RUNNING;
 
@@ -76,26 +77,29 @@ class XModuleImpl24 extends XModule {
                             String.class, boolean.class);
             XposedBridge.hookMethod(moveToFront, new XC_MethodHook() {
                 @Override
-                protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
+                protected void beforeHookedMethod(final MethodHookParam param)
+                        throws Throwable {
                     super.beforeHookedMethod(param);
 
                     if (earlyPassed()) return;
 
-                    XposedBridge.log(TAG + "findTaskToMoveToFrontLocked:" + param.args[0]);
+                    if (DEBUG_V)
+                        XposedBridge.log(TAG + "findTaskToMoveToFrontLocked:" + param.args[0]);
                     // FIXME Using aff instead of PKG.
                     try {
                         final String affinity = (String) XposedHelpers.getObjectField(param.args[0], "affinity");
 
                         // Package has been passed.
                         if (pkgPassed(affinity)) {
-                            XposedBridge.log(TAG + "PASSED PKG");
+                            if (DEBUG_V)
+                                XposedBridge.log(TAG + "PASSED PKG");
                             return;
                         }
 
                         int callingUID = Binder.getCallingUid();
                         int callingPID = Binder.getCallingPid();
 
-                        if (!waitForAppService()) {
+                        if (!ensureAppService(true)) {
                             mSeriousErrorOccurredTimes.incrementAndGet();
                             return;
                         }
@@ -104,7 +108,8 @@ class XModuleImpl24 extends XModule {
                             @Override
                             public void onRes(int res) throws RemoteException {
 
-                                XposedBridge.log(TAG + "noteAppStart, onRes:" + res);
+                                if (DEBUG_V)
+                                    XposedBridge.log(TAG + "noteAppStart, onRes:" + res);
 
                                 if (res != XMode.MODE_DENIED) try {
                                     if (res == XMode.MODE_ALLOWED) addPackagePass(affinity);
@@ -181,19 +186,33 @@ class XModuleImpl24 extends XModule {
                                 Intent intent = (Intent) param.args[1];
                                 if (intent == null) return;
 
+                                if (DEBUG_V) {
+                                    XposedBridge.log(TAG + "HOOKING intent: " + intent);
+                                    XposedBridge.log(TAG + "HOOKING is home: " + isLauncherIntent(intent));
+                                }
+
                                 ComponentName componentName = intent.getComponent();
                                 if (componentName == null) return;
                                 final String pkgName = componentName.getPackageName();
 
-                                XposedBridge.log(TAG + "HOOKING startActivityLocked:" + pkgName);
+                                if (DEBUG_V)
+                                    XposedBridge.log(TAG + "HOOKING startActivityLocked:" + pkgName);
 
                                 // Package has been passed.
                                 if (pkgPassed(pkgName)) {
-                                    XposedBridge.log(TAG + "PASSED PKG");
+                                    if (DEBUG_V)
+                                        XposedBridge.log(TAG + "PASSED PKG");
                                     return;
                                 }
 
-                                if (!waitForAppService()) return;
+                                boolean isHomeIntent = isLauncherIntent(intent);
+                                if (isHomeIntent) {
+                                    PREBUILT_WHITE_LIST.add(pkgName);
+                                    onLauncherPackageLaunch();
+                                    return;
+                                }
+
+                                if (!ensureAppService(true)) return;
 
                                 int callingUID = Binder.getCallingUid();
                                 int callingPID = Binder.getCallingPid();
@@ -202,7 +221,8 @@ class XModuleImpl24 extends XModule {
                                     @Override
                                     public void onRes(int res) throws RemoteException {
 
-                                        XposedBridge.log(TAG + "noteAppStart, onRes:" + res);
+                                        if (DEBUG_V)
+                                            XposedBridge.log(TAG + "noteAppStart, onRes:" + res);
 
                                         if (res != XMode.MODE_DENIED) try {
                                             if (res == XMode.MODE_ALLOWED) addPackagePass(pkgName);
@@ -242,12 +262,16 @@ class XModuleImpl24 extends XModule {
         }
     }
 
-    private boolean waitForAppService() {
+    private void onLauncherPackageLaunch() {
+        if (DEBUG_V) XposedBridge.log(TAG + "Launcher ready");
+    }
+
+    private boolean ensureAppService(boolean block) {
         int MAX_RETRY = 50;
         int times = 0;
         if (mAppService == null || !mAppService.ok) {
             startAppService();
-            while (mAppService == null || !mAppService.ok) {
+            if (block) while (mAppService == null || !mAppService.ok) {
                 try {
                     Thread.sleep(50);
                     times++;
@@ -255,6 +279,9 @@ class XModuleImpl24 extends XModule {
 
                 }
                 if (times > MAX_RETRY) return false;
+            }
+            else {
+                return false;
             }
         }
         return true;
@@ -285,7 +312,7 @@ class XModuleImpl24 extends XModule {
                             @Override
                             public void onServiceConnected(ComponentName name, IBinder service) {
                                 IAppService appService = IAppService.Stub.asInterface(service);
-                                XposedBridge.log(TAG + "app service:" + appService);
+                                XposedBridge.log(TAG + "*** Started app service:" + appService + " ***");
                                 mAppService = new AppServiceClient(appService);
                             }
 
@@ -341,5 +368,16 @@ class XModuleImpl24 extends XModule {
         } catch (Exception e) {
             XposedBridge.log(TAG + Log.getStackTraceString(e));
         }
+    }
+
+    @Override
+    void onBootComplete() {
+        super.onBootComplete();
+        ensureAppService(false);
+    }
+
+    @Override
+    public String codename() throws RemoteException {
+        return "XModule-v24-AOSP";
     }
 }
