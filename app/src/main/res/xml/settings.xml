@@ -5,7 +5,8 @@
 
         <Preference
             android:key="@string/manage_overlay"
-            android:title="@string/manage_overlay" />
+            android:title="@string/manage_overlay"
+            android:summary="@string/summary_manage_overlay"/>
 
         <Preference
             android:key="@string/test_noter"
@@ -18,6 +19,7 @@
         <SwitchPreference
             android:defaultValue="false"
             android:key="dev_mode_enabled"
+            android:summary="@string/summary_dev_mode"
             android:title="@string/title_dev_mode" />
 
     </PreferenceCategory>
@@ -27,6 +29,7 @@
         <SwitchPreference
             android:defaultValue="false"
             android:key="key_take_photo_enabled"
+            android:summary="@string/summary_take_photo"
             android:title="@string/title_take_photo" />
 
         <Preference
