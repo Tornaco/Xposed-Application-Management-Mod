@@ -81,6 +81,11 @@ class XModule extends IXModuleToken.Stub implements IXposedHookLoadPackage, IXpo
         return xStatus.ordinal();
     }
 
+    @Override
+    public String codename() throws RemoteException {
+        return null;
+    }
+
     class AppServiceClient implements IBinder.DeathRecipient {
         boolean ok;
         IAppService service;

@@ -21,11 +21,15 @@ import github.tornaco.xposedmoduletest.x.XExecutor;
 public class GuardAppPickerActivity extends GuardAppNavActivity {
 
     @Override
+    protected int getLayoutRes() {
+        return R.layout.app_picker;
+    }
+
+    @Override
     protected void initView() {
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         super.initView();
-        findViewById(R.id.switchbar).setVisibility(View.GONE);
         fab.setImageResource(R.drawable.ic_check_black_24dp);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -6,4 +6,5 @@ package github.tornaco.xposedmoduletest;
 interface IXModuleToken {
     void dump();
     int status();
+    String codename();
 }

@@ -34,6 +34,7 @@ import github.tornaco.xposedmoduletest.ui.AppStartNoter;
 import github.tornaco.xposedmoduletest.x.XExecutor;
 import github.tornaco.xposedmoduletest.x.XMode;
 import github.tornaco.xposedmoduletest.x.XSettings;
+import github.tornaco.xposedmoduletest.x.XStatus;
 
 /**
  * Created by guohao4 on 2017/10/17.
@@ -50,6 +51,8 @@ public class AppService extends Service {
 
     private XSettings xSettings;
 
+    private ServiceBinder mServiceBinder;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -64,6 +67,7 @@ public class AppService extends Service {
             }
         });
         mGuardEnabled.set(xSettings.enabled(getApplicationContext()));
+        mServiceBinder = new ServiceBinder();
     }
 
     private void noteAppStart(final ICallback callback, final String pkg,
@@ -141,28 +145,8 @@ public class AppService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-
         // FIXME Should check any permission here.
-
-        return new IAppService.Stub() {
-            @Override
-            public void noteAppStart(ICallback callback, String pkg,
-                                     int callingUID, int callingPID) throws RemoteException {
-                AppService.this.noteAppStart(callback, pkg, callingUID, callingPID);
-            }
-
-            @Override
-            public void onHome() throws RemoteException {
-
-            }
-
-            @Override
-            public void registerXModuleToken(IXModuleToken token) throws RemoteException {
-                Logger.d("registerXModuleToken:" + token);
-                token.dump();
-                Logger.d("registerXModuleToken:" + token.status());
-            }
-        };
+        return mServiceBinder;
     }
 
     private boolean bypass(String pkg) {
@@ -201,6 +185,72 @@ public class AppService extends Service {
 
         static int transactionID() {
             return TRANS_ID_BASE.getAndIncrement();
+        }
+    }
+
+    private class ServiceBinder extends IAppService.Stub {
+
+        @Nullable
+        private XModuleTokenClient xModuleTokenClient;
+
+        @Override
+        public void noteAppStart(ICallback callback, String pkg,
+                                 int callingUID, int callingPID) throws RemoteException {
+            AppService.this.noteAppStart(callback, pkg, callingUID, callingPID);
+        }
+
+        @Override
+        public void onHome() throws RemoteException {
+
+        }
+
+        @Override
+        public void registerXModuleToken(IXModuleToken token) throws RemoteException {
+            if (token == null) return;
+            if (this.xModuleTokenClient != null) {
+                this.xModuleTokenClient.unLinkToDeath();
+            }
+            this.xModuleTokenClient = new XModuleTokenClient(token);
+        }
+
+        @Override
+        public int getXModuleStatus() throws RemoteException {
+            if (this.xModuleTokenClient == null || !this.xModuleTokenClient.alive) {
+                return XStatus.UNKNOWN.ordinal();
+            }
+            return this.xModuleTokenClient.token.status();
+        }
+
+        @Override
+        public String getXModuleCodeName() throws RemoteException {
+            return "";
+        }
+    }
+
+    private class XModuleTokenClient implements IBinder.DeathRecipient {
+        private IXModuleToken token;
+        private boolean alive;
+
+        XModuleTokenClient(IXModuleToken token) {
+            this.token = token;
+            this.alive = true;
+            try {
+                this.token.asBinder().linkToDeath(this, 0);
+            } catch (RemoteException ignored) {
+
+            }
+        }
+
+        @Override
+        public void binderDied() {
+            alive = false;
+            unLinkToDeath();
+        }
+
+        void unLinkToDeath() {
+            if (alive) {
+                token.asBinder().unlinkToDeath(this, 0);
+            }
         }
     }
 

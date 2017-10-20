@@ -68,7 +68,7 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
 
     @LayoutRes
     private int getTemplateLayoutRes() {
-        return R.layout.data_item_template_with_checkable;
+        return R.layout.app_list_item;
     }
 
     @Override

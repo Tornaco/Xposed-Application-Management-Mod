@@ -8,4 +8,6 @@ interface IAppService {
     void noteAppStart(in ICallback callback, String pkg, int callingUID, int callingPID);
     void onHome();
     void registerXModuleToken(in IXModuleToken token);
+    int getXModuleStatus();
+    String getXModuleCodeName();
 }

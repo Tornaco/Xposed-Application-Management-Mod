@@ -42,9 +42,13 @@ public class GuardAppNavActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.recycler_view_with_fab_template);
+        setContentView(getLayoutRes());
         initView();
         startLoading();
+    }
+
+    protected int getLayoutRes() {
+        return R.layout.app_list;
     }
 
     @Override
@@ -86,6 +90,7 @@ public class GuardAppNavActivity extends AppCompatActivity {
             @Override
             public void run() {
                 SwitchBar switchBar = (SwitchBar) findViewById(R.id.switchbar);
+                if (switchBar == null) return;
                 switchBar.setChecked(xSettings.enabled(getApplicationContext()));
                 switchBar.addOnSwitchChangeListener(new SwitchBar.OnSwitchChangeListener() {
                     @Override
