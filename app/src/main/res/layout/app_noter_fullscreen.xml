@@ -10,10 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:background="@color/primary_dark"
-        android:elevation="2dp"
-        android:paddingEnd="@dimen/activity_horizontal_margin_middle"
-        android:paddingStart="@dimen/activity_horizontal_margin_middle">
+        android:layout_marginTop="?actionBarSize"
+        android:elevation="2dp">
 
         <ImageView
             android:id="@+id/icon"
@@ -23,8 +21,7 @@
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:layout_marginStart="@dimen/activity_vertical_margin"
             android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:src="@mipmap/ic_launcher"
-            android:visibility="gone" />
+            android:src="@mipmap/ic_launcher" />
 
         <TextView
             android:id="@+id/label"
@@ -35,12 +32,10 @@
             android:layout_marginStart="@dimen/activity_horizontal_margin_small"
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_toEndOf="@+id/icon"
-            android:padding="20dp"
             android:text="@string/input_password"
             android:textAllCaps="true"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            android:textColor="@color/white"
-            android:visibility="visible" />
+            android:textColor="@color/primary_text" />
 
         <github.tornaco.xposedmoduletest.camera.SoftwareCameraPreview
             android:id="@+id/surface"
@@ -55,10 +50,11 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/info"
         android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:layout_marginTop="4dp">
 
         <com.andrognito.pinlockview.IndicatorDots

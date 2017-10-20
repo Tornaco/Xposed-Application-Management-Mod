@@ -8,4 +8,5 @@ package github.tornaco.xposedmoduletest.x;
 public interface XKey {
     String ENABLED = "key_enabled";
     String TAKE_PHOTO_ENABLED = "key_take_photo_enabled";
+    String TAKE_FULL_SCREEN_NOTER = "key_full_screen_noter";
 }

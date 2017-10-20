@@ -64,6 +64,14 @@
         <item name="android:windowAnimationStyle">@style/DialogAnim</item>
     </style>
 
+    <style name="NoterLightFullScreen">
+        <item name="android:windowAnimationStyle">@style/DialogAnim</item>
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
     <style name="CardCommon" parent="CardView.Light">
         <item name="android:clickable">true</item>
         <item name="android:foreground">?selectableItemBackground</item>

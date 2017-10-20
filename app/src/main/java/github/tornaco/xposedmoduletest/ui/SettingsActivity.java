@@ -25,6 +25,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.service.AppServiceProxy;
 import github.tornaco.xposedmoduletest.x.XExecutor;
 import github.tornaco.xposedmoduletest.x.XKey;
+import github.tornaco.xposedmoduletest.x.XSettings;
 import github.tornaco.xposedmoduletest.x.XStatus;
 
 /**
@@ -77,6 +78,16 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             });
 
+            findPreference(XKey.TAKE_FULL_SCREEN_NOTER)
+                    .setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object newValue) {
+                            XSettings.get().setChangedL();
+                            XSettings.get().notifyObservers();
+                            return true;
+                        }
+                    });
+
             findPreference(getString(R.string.title_view_photos))
                     .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                         @Override
@@ -100,9 +111,9 @@ public class SettingsActivity extends AppCompatActivity {
                         @Override
                         public boolean onPreferenceClick(Preference preference) {
                             new AppStartNoter(new Handler(Looper.getMainLooper()), getActivity())
-                                    .note("TEST",
+                                    .note("四个六",
                                             BuildConfig.APPLICATION_ID,
-                                            "TEST",
+                                            "四个六",
                                             new ICallback.Stub() {
                                                 @Override
                                                 public void onRes(int res) throws RemoteException {

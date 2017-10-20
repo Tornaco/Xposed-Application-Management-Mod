@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.ui;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.BitmapDrawable;
@@ -19,6 +20,8 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.andrognito.pinlockview.IndicatorDots;
 import com.andrognito.pinlockview.PinLockListener;
@@ -57,7 +60,7 @@ public class AppStartNoter {
     private Handler uiHandler;
     private Context context;
 
-    private boolean takePhoto;
+    private boolean takePhoto, fullscreen;
 
     public AppStartNoter(Handler uiHandler, Context context) {
         this.uiHandler = uiHandler;
@@ -66,6 +69,7 @@ public class AppStartNoter {
                 "MainLopper is needed",
                 this.uiHandler.getLooper() == Looper.getMainLooper());
         this.takePhoto = XSettings.get().takenPhotoEnabled(context);
+        this.fullscreen = XSettings.get().fullScreenNoter(context);
         registerObserver();
     }
 
@@ -74,6 +78,7 @@ public class AppStartNoter {
             @Override
             public void update(Observable o, Object arg) {
                 takePhoto = XSettings.get().takenPhotoEnabled(context);
+                fullscreen = XSettings.get().fullScreenNoter(context);
             }
         });
     }
@@ -104,32 +109,38 @@ public class AppStartNoter {
         @Override
         public void run() {
             try {
-                Logger.v("Init note dialog...");
+                Logger.v("Init note dialog, fullscreen:" + fullscreen);
 
                 @SuppressLint("InflateParams") final View container = LayoutInflater.from(context)
-                        .inflate(R.layout.app_noter, null, false);
+                        .inflate(fullscreen ? R.layout.app_noter_fullscreen : R.layout.app_noter, null, false);
 
                 PinLockView pinLockView = (PinLockView) container.findViewById(R.id.pin_lock_view);
                 IndicatorDots indicatorDots = (IndicatorDots) container.findViewById(R.id.indicator_dots);
                 pinLockView.attachIndicatorDots(indicatorDots);
 
-                final AlertDialog d = new AlertDialog.Builder(context, R.style.NoterLight)
-                        .setView(container)
-                        .setCancelable(true)
-                        .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                            @Override
-                            public void onCancel(DialogInterface dialog) {
-                                onFail(callback);
-                            }
-                        })
-                        .create();
-                d.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+                TextView labelView = (TextView) container.findViewById(R.id.label);
+                labelView.setText(appName);
+
+                final Dialog md =
+                        new AlertDialog.Builder(context,
+                                fullscreen ? R.style.NoterLightFullScreen : R.style.NoterLight)
+                                .setView(container)
+                                .setCancelable(true)
+                                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                    @Override
+                                    public void onCancel(DialogInterface dialog) {
+                                        onFail(callback);
+                                    }
+                                })
+                                .create();
+
+                md.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
 
                 pinLockView.setPinLockListener(new PinLockListener() {
                     @Override
                     public void onComplete(String pin) {
                         if (pin.equals("6666")) {
-                            d.dismiss();
+                            md.dismiss();
                             onPass(callback);
                         } else {
                             Animation shake = AnimationUtils.loadAnimation(context, R.anim.shake);
@@ -163,11 +174,12 @@ public class AppStartNoter {
                 });
 
                 Logger.d("Show note dialog...");
-                d.show();
+                md.show();
 
                 // Setup camera preview.
                 View softwareCameraPreview = container.findViewById(R.id.surface);
-                if (softwareCameraPreview != null) softwareCameraPreview.setVisibility(takePhoto ? View.VISIBLE : View.GONE);
+                if (softwareCameraPreview != null)
+                    softwareCameraPreview.setVisibility(takePhoto ? View.VISIBLE : View.GONE);
 
                 // Load app icon.
                 ImageView iconView = (ImageView) container.findViewById(R.id.icon);
@@ -206,6 +218,8 @@ public class AppStartNoter {
                         .into(iconView);
             } catch (Exception e) {
                 Logger.e("Can not show dialog:" + Logger.getStackTraceString(e));
+                Toast.makeText(context, "FATAL- Fail show lock dialog:\n" + Logger.getStackTraceString(e),
+                        Toast.LENGTH_LONG).show();
                 // We should tell the res here.
                 try {
                     callback.onRes(XMode.MODE_IGNORED); // BYPASS.

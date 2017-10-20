@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
@@ -289,13 +290,13 @@ public class AppService extends Service {
 //            } catch (PackageManager.NameNotFoundException e) {
 //                Logger.w("NameNotFoundException:" + callingPkg);
 //            }
-//            try {
-//                ApplicationInfo targetAppInfo = pm.getApplicationInfo(targetPkg, 0);
-//                if (targetAppInfo != null)
-//                    callInfo.targetName = String.valueOf(targetAppInfo.loadLabel(pm));
-//            } catch (PackageManager.NameNotFoundException e) {
-//                Logger.w("NameNotFoundException:" + targetPkg);
-//            }
+            try {
+                ApplicationInfo targetAppInfo = pm.getApplicationInfo(targetPkg, 0);
+                if (targetAppInfo != null)
+                    callInfo.targetName = String.valueOf(targetAppInfo.loadLabel(pm));
+            } catch (PackageManager.NameNotFoundException e) {
+                Logger.w("NameNotFoundException:" + targetPkg);
+            }
             return callInfo;
         }
     }

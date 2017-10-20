@@ -30,6 +30,10 @@ public class XSettings extends Observable {
         notifyObservers();
     }
 
+    public void setChangedL() {
+        setChanged();
+    }
+
     public boolean enabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(XKey.ENABLED, false);
@@ -38,6 +42,11 @@ public class XSettings extends Observable {
     public boolean takenPhotoEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(XKey.TAKE_PHOTO_ENABLED, true);
+    }
+
+    public boolean fullScreenNoter(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(XKey.TAKE_FULL_SCREEN_NOTER, false);
     }
 
     public static File getPhotosDir(Context context) {
