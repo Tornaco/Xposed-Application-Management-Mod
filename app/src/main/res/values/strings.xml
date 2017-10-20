@@ -17,4 +17,7 @@
     <string name="summary_manage_overlay">我们将使用系统对话框的形式展示解锁界面，因此你必须在系统设置内打开叠加层才能使用最基本的功能</string>
     <string name="title_ui">界面</string>
     <string name="title_fullscreen_noter">使用全屏密码</string>
+    <string name="title_not_available">暂时不可用</string>
+    <string name="title_app_ver">版本信息</string>
+    <string name="title_about">About</string>
 </resources>

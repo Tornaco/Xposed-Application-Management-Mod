@@ -66,7 +66,7 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
         startService(new Intent(this, AppService.class));
     }

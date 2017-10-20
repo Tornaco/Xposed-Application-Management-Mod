@@ -48,4 +48,7 @@ dependencies {
     compile project(':vangoghcore')
     compile project(':pinlockview')
     compile 'si.virag:fuzzydateformatter:1.1.0'
+    compile 'com.google.android.gms:play-services-ads:11.0.4'
 }
+
+
