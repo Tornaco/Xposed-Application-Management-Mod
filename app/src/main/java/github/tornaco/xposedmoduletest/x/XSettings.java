@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.x;
 
 import android.content.Context;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 
 import java.io.File;
 import java.util.Observable;
@@ -12,6 +13,8 @@ import java.util.Observable;
  */
 
 public class XSettings extends Observable {
+
+    static final int PASSCODE_LEVEL = 4;
 
     private static XSettings sMe = new XSettings();
 
@@ -52,5 +55,43 @@ public class XSettings extends Observable {
     public static File getPhotosDir(Context context) {
         return new File(context.getFilesDir()
                 + File.separator + "photos");
+    }
+
+    @Nullable
+    public static String getPassCodeEncrypt(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(XKey.PASSCODE_ENCRYPT, null);
+    }
+
+    public void setPassCodeEncrypt(Context context, String code) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit().putString(XKey.PASSCODE_ENCRYPT, code)
+                .apply();
+        setChanged();
+        notifyObservers();
+    }
+
+    public static void setActivateCode(Context context, String code) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit().putString(XKey.ACTIVATE_CODE, code)
+                .apply();
+    }
+
+    @Nullable
+    public static String getActivateCode(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(XKey.ACTIVATE_CODE, null);
+    }
+
+    public static boolean isDevMode(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(XKey.DEV_MODE, false);
+    }
+
+    public static void setInDevMode(Context context, boolean in) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(XKey.DEV_MODE, in)
+                .apply();
     }
 }

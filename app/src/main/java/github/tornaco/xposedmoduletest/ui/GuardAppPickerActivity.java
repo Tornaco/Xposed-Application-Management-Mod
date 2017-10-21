@@ -16,13 +16,14 @@ import github.tornaco.xposedmoduletest.loader.PackageLoader;
 import github.tornaco.xposedmoduletest.service.AppService;
 import github.tornaco.xposedmoduletest.ui.adapter.AppListAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.AppPickerListAdapter;
+import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.x.XExecutor;
 
 public class GuardAppPickerActivity extends GuardAppNavActivity {
 
     @Override
     protected int getLayoutRes() {
-        return R.layout.app_picker;
+        return R.layout.app_list;
     }
 
     @Override
@@ -30,6 +31,8 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         super.initView();
+        SwitchBar switchBar = (SwitchBar) findViewById(R.id.switchbar);
+        switchBar.hide();
         fab.setImageResource(R.drawable.ic_check_black_24dp);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,5 +81,10 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
     @Override
     protected AppListAdapter onCreateAdapter() {
         return new AppPickerListAdapter(this);
+    }
+
+    @Override
+    protected boolean showLockOnCreate() {
+        return false;
     }
 }

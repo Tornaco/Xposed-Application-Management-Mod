@@ -20,6 +20,7 @@ public class AppPickerListAdapter extends AppListAdapter {
     public void onBindViewHolder(final AppViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         final PackageInfo packageInfo = packageInfos.get(position);
+        holder.getCheckableImageView().setChecked(packageInfo.getGuard());
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

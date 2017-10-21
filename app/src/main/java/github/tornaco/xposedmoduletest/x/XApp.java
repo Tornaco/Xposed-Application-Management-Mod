@@ -6,13 +6,14 @@ import android.app.Application;
 import org.newstand.logger.Logger;
 import org.newstand.logger.Settings;
 
-import github.tornaco.xposedmoduletest.license.ADM;
+import github.tornaco.apigen.GithubCommitSha;
+import github.tornaco.xposedmoduletest.license.XActivation;
 
 /**
  * Created by guohao4 on 2017/10/17.
  * Email: Tornaco@163.com
  */
-
+@GithubCommitSha
 public class XApp extends Application {
 
     @SuppressLint("StaticFieldLeak")
@@ -29,6 +30,6 @@ public class XApp extends Application {
         Logger.config(Settings.builder().tag("XAppGuard")
                 .logLevel(Logger.LogLevel.ALL)
                 .build());
-        ADM.reloadAsync(this);
+        XActivation.reloadAsync(this);
     }
 }

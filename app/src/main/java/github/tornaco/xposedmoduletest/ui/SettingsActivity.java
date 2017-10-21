@@ -14,7 +14,9 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import ezy.assist.compat.SettingsCompat;
 import github.tornaco.permission.requester.RequiresPermission;
@@ -23,6 +25,8 @@ import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.ICallback;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.service.AppServiceProxy;
+import github.tornaco.xposedmoduletest.x.XAppGithubCommitSha;
+import github.tornaco.xposedmoduletest.x.XEnc;
 import github.tornaco.xposedmoduletest.x.XExecutor;
 import github.tornaco.xposedmoduletest.x.XKey;
 import github.tornaco.xposedmoduletest.x.XSettings;
@@ -69,6 +73,45 @@ public class SettingsActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.settings);
 
+            // Below is very ugly:() =.=
+            final Preference passcodePref = findPreference(getString(R.string.title_setup_passcode));
+            if (XEnc.isPassCodeValid(XSettings.getPassCodeEncrypt(getActivity()))) {
+                passcodePref.setSummary(R.string.summary_setup_passcode_set);
+            } else {
+                passcodePref.setSummary(R.string.summary_setup_passcode_none_set);
+            }
+            passcodePref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    PassCodeSetup passCodeSetup = new PassCodeSetup(getActivity());
+                    passCodeSetup.setSetupListener(new PassCodeSetup.SetupListener() {
+                        @Override
+                        public void onSetSuccess() {
+                            Toast.makeText(getActivity(), R.string.summary_setup_passcode_set, Toast.LENGTH_LONG).show();
+
+                            if (XEnc.isPassCodeValid(XSettings.getPassCodeEncrypt(getActivity()))) {
+                                passcodePref.setSummary(R.string.summary_setup_passcode_set);
+                            } else {
+                                passcodePref.setSummary(R.string.summary_setup_passcode_none_set);
+                            }
+                        }
+
+                        @Override
+                        public void onSetFail(String reason) {
+                            Toast.makeText(getActivity(), reason, Toast.LENGTH_LONG).show();
+
+                            if (XEnc.isPassCodeValid(XSettings.getPassCodeEncrypt(getActivity()))) {
+                                passcodePref.setSummary(R.string.summary_setup_passcode_set);
+                            } else {
+                                passcodePref.setSummary(R.string.summary_setup_passcode_none_set);
+                            }
+                        }
+                    });
+                    passCodeSetup.setup(false);
+                    return true;
+                }
+            });
+
             SwitchPreference photoPref = (SwitchPreference) findPreference(XKey.TAKE_PHOTO_ENABLED);
             photoPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
@@ -111,9 +154,9 @@ public class SettingsActivity extends AppCompatActivity {
                         @Override
                         public boolean onPreferenceClick(Preference preference) {
                             new AppStartNoter(new Handler(Looper.getMainLooper()), getActivity())
-                                    .note("四个六",
+                                    .note("HELL WORLD",
                                             BuildConfig.APPLICATION_ID,
-                                            "四个六",
+                                            "HELL WORLD",
                                             new ICallback.Stub() {
                                                 @Override
                                                 public void onRes(int res) throws RemoteException {
@@ -160,6 +203,15 @@ public class SettingsActivity extends AppCompatActivity {
                             return true;
                         }
                     });
+
+            Preference buildInfo = findPreference(getString(R.string.title_app_ver));
+            buildInfo.setSummary(BuildConfig.VERSION_NAME
+                    + "-" + BuildConfig.BUILD_TYPE
+                    + "-" + XAppGithubCommitSha.LATEST_SHA);
+
+            Preference actCode = findPreference(getString(R.string.title_my_act_code));
+            String act = XSettings.getActivateCode(getActivity());
+            actCode.setSummary(TextUtils.isEmpty(act) ? "NONE" : act);
         }
     }
 }

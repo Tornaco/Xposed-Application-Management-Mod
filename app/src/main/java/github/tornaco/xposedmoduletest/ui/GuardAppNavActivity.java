@@ -4,19 +4,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
 
 import org.newstand.logger.Logger;
 
@@ -31,7 +24,7 @@ import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.x.XExecutor;
 import github.tornaco.xposedmoduletest.x.XSettings;
 
-public class GuardAppNavActivity extends AppCompatActivity {
+public class GuardAppNavActivity extends LockedActivity {
 
     protected FloatingActionButton fab;
 
@@ -39,7 +32,6 @@ public class GuardAppNavActivity extends AppCompatActivity {
 
     protected AppListAdapter appListAdapter;
 
-    private AdView mAdView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,55 +46,12 @@ public class GuardAppNavActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         startLoading();
-        if (mAdView != null) {
-            mAdView.resume();
-        }
     }
 
     protected void initView() {
-        MobileAds.initialize(this, "ca-app-pub-5643935235734454~8615411999");
-        mAdView = (AdView) findViewById(R.id.adView);
-
-        mAdView.setAdListener(new AdListener() {
-            @Override
-            public void onAdLoaded() {
-                // Code to be executed when an ad finishes loading.
-                Log.i("Ads", "onAdLoaded");
-            }
-
-            @Override
-            public void onAdFailedToLoad(int errorCode) {
-                // Code to be executed when an ad request fails.
-                Log.i("Ads", "onAdFailedToLoad");
-            }
-
-            @Override
-            public void onAdOpened() {
-                // Code to be executed when an ad opens an overlay that
-                // covers the screen.
-                Log.i("Ads", "onAdOpened");
-            }
-
-            @Override
-            public void onAdLeftApplication() {
-                // Code to be executed when the user has left the app.
-                Log.i("Ads", "onAdLeftApplication");
-            }
-
-            @Override
-            public void onAdClosed() {
-                // Code to be executed when when the user is about to return
-                // to the app after tapping on an ad.
-                Log.i("Ads", "onAdClosed");
-            }
-        });
-
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
-
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
         swipeRefreshLayout.setColorSchemeColors(getResources().getIntArray(R.array.polluted_waves));
@@ -196,28 +145,14 @@ public class GuardAppNavActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
         }
+        if (item.getItemId() == R.id.action_help) {
+            navigateToWebPage(getString(R.string.app_wiki_url));
+        }
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Called when leaving the activity
-     */
     @Override
-    public void onPause() {
-        if (mAdView != null) {
-            mAdView.pause();
-        }
-        super.onPause();
-    }
-
-    /**
-     * Called before the activity is destroyed
-     */
-    @Override
-    public void onDestroy() {
-        if (mAdView != null) {
-            mAdView.destroy();
-        }
-        super.onDestroy();
+    protected boolean showLockOnCreate() {
+        return !XSettings.isDevMode(this);
     }
 }

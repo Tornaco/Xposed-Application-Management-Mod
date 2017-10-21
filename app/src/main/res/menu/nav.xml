@@ -4,4 +4,13 @@
     <item
         android:id="@+id/action_settings"
         android:title="@string/title_settings" />
+    <item
+        android:id="@+id/action_help"
+        android:title="@string/title_help" />
+
+    <item
+        android:id="@+id/action_donate"
+        android:visible="false"
+        android:title="@string/title_donate" />
+
 </menu>

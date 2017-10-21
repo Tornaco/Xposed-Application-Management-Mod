@@ -1,4 +1,5 @@
 <resources>
+    <dimen name="activity_horizontal_margin_large">24dp</dimen>
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_horizontal_margin_middle">12dp</dimen>
     <dimen name="activity_horizontal_margin_small">7dp</dimen>

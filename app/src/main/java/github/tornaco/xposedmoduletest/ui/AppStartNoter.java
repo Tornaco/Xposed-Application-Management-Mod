@@ -5,21 +5,16 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,19 +28,12 @@ import org.newstand.logger.Logger;
 
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.ExecutorService;
 
-import dev.tornaco.vangogh.Vangogh;
-import dev.tornaco.vangogh.display.appliers.ScaleInXYApplier;
-import dev.tornaco.vangogh.loader.Loader;
-import dev.tornaco.vangogh.loader.LoaderObserver;
-import dev.tornaco.vangogh.media.BitmapImage;
-import dev.tornaco.vangogh.media.Image;
-import dev.tornaco.vangogh.media.ImageSource;
-import github.tornaco.android.common.util.ApkUtil;
+import github.tornaco.android.common.Holder;
 import github.tornaco.xposedmoduletest.ICallback;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.camera.CameraManager;
+import github.tornaco.xposedmoduletest.x.XEnc;
 import github.tornaco.xposedmoduletest.x.XMode;
 import github.tornaco.xposedmoduletest.x.XSettings;
 
@@ -57,19 +45,25 @@ import github.tornaco.xposedmoduletest.x.XSettings;
 @SuppressWarnings("ConstantConditions")
 public class AppStartNoter {
 
-    private Handler uiHandler;
-    private Context context;
+    private Handler mUiHandler;
+    private Context mContext;
 
-    private boolean takePhoto, fullscreen;
+    private boolean mTakePhoto, mFullscreen;
+
+    private Animation mErrorAnim;
+
+    private final Holder<String> mPsscode = new Holder<>();
 
     public AppStartNoter(Handler uiHandler, Context context) {
-        this.uiHandler = uiHandler;
-        this.context = context;
+        this.mUiHandler = uiHandler;
+        this.mContext = context;
         Assert.assertTrue(
                 "MainLopper is needed",
-                this.uiHandler.getLooper() == Looper.getMainLooper());
-        this.takePhoto = XSettings.get().takenPhotoEnabled(context);
-        this.fullscreen = XSettings.get().fullScreenNoter(context);
+                this.mUiHandler.getLooper() == Looper.getMainLooper());
+        this.mTakePhoto = XSettings.get().takenPhotoEnabled(context);
+        this.mFullscreen = XSettings.get().fullScreenNoter(context);
+        this.mPsscode.setData(XSettings.getPassCodeEncrypt(context));//FIXME Enc-->NoneEnc
+        this.mErrorAnim = AnimationUtils.loadAnimation(context, R.anim.shake);
         registerObserver();
     }
 
@@ -77,8 +71,9 @@ public class AppStartNoter {
         XSettings.get().addObserver(new Observer() {
             @Override
             public void update(Observable o, Object arg) {
-                takePhoto = XSettings.get().takenPhotoEnabled(context);
-                fullscreen = XSettings.get().fullScreenNoter(context);
+                mTakePhoto = XSettings.get().takenPhotoEnabled(mContext);
+                mFullscreen = XSettings.get().fullScreenNoter(mContext);
+                mPsscode.setData(XSettings.getPassCodeEncrypt(mContext));//FIXME Enc-->NoneEnc
             }
         });
     }
@@ -89,7 +84,7 @@ public class AppStartNoter {
             final String targetPkg,
             final String appName,
             final ICallback callback) {
-        uiHandler.post(new LockDialog(callingAppName, targetPkg, appName, callback));
+        mUiHandler.post(new LockDialog(callingAppName, targetPkg, appName, callback));
     }
 
     private class LockDialog implements Runnable {
@@ -109,10 +104,18 @@ public class AppStartNoter {
         @Override
         public void run() {
             try {
-                Logger.v("Init note dialog, fullscreen:" + fullscreen);
+                // Check if our passcode has been set.
+                if (!XEnc.isPassCodeValid(mPsscode.getData())) {
+                    Logger.w("Pass code not valid, ignoring...");
+                    Toast.makeText(mContext, R.string.summary_setup_passcode_none_set, Toast.LENGTH_SHORT).show();
+                    onPass(callback);
+                    return;
+                }
 
-                @SuppressLint("InflateParams") final View container = LayoutInflater.from(context)
-                        .inflate(fullscreen ? R.layout.app_noter_fullscreen : R.layout.app_noter, null, false);
+                Logger.v("Init note dialog, mFullscreen:" + mFullscreen);
+
+                @SuppressLint("InflateParams") final View container = LayoutInflater.from(mContext)
+                        .inflate(mFullscreen ? R.layout.app_noter_fullscreen : R.layout.app_noter, null, false);
 
                 PinLockView pinLockView = (PinLockView) container.findViewById(R.id.pin_lock_view);
                 IndicatorDots indicatorDots = (IndicatorDots) container.findViewById(R.id.indicator_dots);
@@ -122,8 +125,8 @@ public class AppStartNoter {
                 labelView.setText(appName);
 
                 final Dialog md =
-                        new AlertDialog.Builder(context,
-                                fullscreen ? R.style.NoterLightFullScreen : R.style.NoterLight)
+                        new AlertDialog.Builder(mContext,
+                                mFullscreen ? R.style.NoterLightFullScreen : R.style.NoterLight)
                                 .setView(container)
                                 .setCancelable(true)
                                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -134,19 +137,20 @@ public class AppStartNoter {
                                 })
                                 .create();
 
-                md.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+                md.getWindow().setType(
+                        WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
 
                 pinLockView.setPinLockListener(new PinLockListener() {
                     @Override
                     public void onComplete(String pin) {
-                        if (pin.equals("6666")) {
+                        if (XEnc.isPassCodeCorrect(mPsscode.getData(), pin)) {
                             md.dismiss();
                             onPass(callback);
                         } else {
-                            Animation shake = AnimationUtils.loadAnimation(context, R.anim.shake);
-                            container.startAnimation(shake);
+                            container.clearAnimation();
+                            container.startAnimation(mErrorAnim);
 
-                            if (takePhoto) {
+                            if (mTakePhoto) {
                                 CameraManager.get().captureSaveAsync(new CameraManager.PictureCallback() {
                                     @Override
                                     public void onImageReady(String path) {
@@ -179,46 +183,10 @@ public class AppStartNoter {
                 // Setup camera preview.
                 View softwareCameraPreview = container.findViewById(R.id.surface);
                 if (softwareCameraPreview != null)
-                    softwareCameraPreview.setVisibility(takePhoto ? View.VISIBLE : View.GONE);
-
-                // Load app icon.
-                ImageView iconView = (ImageView) container.findViewById(R.id.icon);
-                Vangogh.with(context)
-                        .load(targetPkg)
-                        .skipMemoryCache(true)
-                        .usingLoader(new Loader<Image>() {
-                            @Nullable
-                            @Override
-                            public Image load(@NonNull ImageSource source,
-                                              @Nullable LoaderObserver observer) {
-                                String pkgName = source.getUrl();
-                                Drawable d = ApkUtil.loadIconByPkgName(context, pkgName);
-                                BitmapDrawable bd = (BitmapDrawable) d;
-                                Logger.v("XXX- Loading COMPLETE for: " + pkgName);
-                                BitmapImage bitmapImage = new BitmapImage(bd.getBitmap());
-                                if (observer != null) {
-                                    observer.onImageReady(bitmapImage);
-                                }
-                                return bitmapImage;
-                            }
-
-                            @Override
-                            public int priority() {
-                                return 3;
-                            }
-
-                            @Override
-                            public ExecutorService getExecutor() {
-                                return null;
-                            }
-                        })
-                        .applier(new ScaleInXYApplier())
-                        .placeHolder(0)
-                        .fallback(R.mipmap.ic_launcher_round)
-                        .into(iconView);
+                    softwareCameraPreview.setVisibility(mTakePhoto ? View.VISIBLE : View.GONE);
             } catch (Exception e) {
                 Logger.e("Can not show dialog:" + Logger.getStackTraceString(e));
-                Toast.makeText(context, "FATAL- Fail show lock dialog:\n" + Logger.getStackTraceString(e),
+                Toast.makeText(mContext, "FATAL- Fail show lock dialog:\n" + Logger.getStackTraceString(e),
                         Toast.LENGTH_LONG).show();
                 // We should tell the res here.
                 try {

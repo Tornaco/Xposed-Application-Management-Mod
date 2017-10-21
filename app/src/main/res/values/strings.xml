@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">App Guard</string>
     <string name="manage_overlay">管理叠加层</string>
-    <string name="switch_on_text">启用</string>
-    <string name="switch_off_text">禁用</string>
-    <string name="test_noter">密码UI测试</string>
+    <string name="switch_on_text">已启用</string>
+    <string name="switch_off_text">已禁用</string>
+    <string name="test_noter">密码测试</string>
     <string name="input_password">需要密码</string>
     <string name="dump_module">模块运行状态</string>
     <string name="title_settings">设置</string>
@@ -13,11 +13,24 @@
     <string name="title_exp">实验</string>
     <string name="title_advance">高级</string>
     <string name="summary_dev_mode">激活日志输出，启用某些实验性能，非开发者无需启用此项设置</string>
-    <string name="summary_take_photo">当密码输入错误时，尝试保存一张前置摄像头的照片，注意，能否保存成功一定程度上取决于你设备的相机预览开启速度</string>
+    <string name="summary_take_photo">当密码输入错误时，尝试保存一张前置摄像头的照片，注意，能否保存成功一定程度上取决于你设备的相机预览开启速度以及输入者手速</string>
     <string name="summary_manage_overlay">我们将使用系统对话框的形式展示解锁界面，因此你必须在系统设置内打开叠加层才能使用最基本的功能</string>
-    <string name="title_ui">界面</string>
+    <string name="title_basic">基本</string>
     <string name="title_fullscreen_noter">使用全屏密码</string>
-    <string name="title_not_available">暂时不可用</string>
+    <string name="title_not_available">不可用</string>
     <string name="title_app_ver">版本信息</string>
-    <string name="title_about">About</string>
+    <string name="title_about">关于</string>
+    <string name="summary_dump_module">查看模块运行状态以及模块的注入信息</string>
+    <string name="summary_test_noter">测试密码盘在本机的样式以及是否可以正确弹出</string>
+    <string name="title_my_act_code">我的授权码</string>
+    <string name="title_picker">选取应用</string>
+    <string name="title_setup_passcode">密码设置</string>
+    <string name="summary_setup_passcode_none_set">密码尚未设置，应用启动不会经过验证</string>
+    <string name="summary_setup_passcode_set">密码已经设置</string>
+    <string name="title_setup_code_repeat">确认密码</string>
+    <string name="title_setup_coce_new">输入新的密码</string>
+    <string name="title_setup_code_invalid">密码不符合规范</string>
+    <string name="title_setup_code_mismatch">两次输入不一致</string>
+    <string name="title_help">帮助与Wiki</string>
+    <string name="title_donate">捐赠</string>
 </resources>
