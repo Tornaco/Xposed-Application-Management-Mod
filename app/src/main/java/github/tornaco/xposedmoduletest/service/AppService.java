@@ -31,6 +31,7 @@ import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.ui.AppStartNoter;
 import github.tornaco.xposedmoduletest.x.XExecutor;
+import github.tornaco.xposedmoduletest.x.XFlags;
 import github.tornaco.xposedmoduletest.x.XMode;
 import github.tornaco.xposedmoduletest.x.XSettings;
 import github.tornaco.xposedmoduletest.x.XStatus;
@@ -53,6 +54,8 @@ public class AppService extends Service {
 
     private AppStartNoter mAppStartNoter;
 
+    private AtomicBoolean mAlwaysNote = new AtomicBoolean(false);
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -63,9 +66,12 @@ public class AppService extends Service {
             public void update(Observable o, Object arg) {
                 Logger.v("Settings changed");
                 mGuardEnabled.set(xSettings.enabled(getApplicationContext()));
+                mAlwaysNote.set(xSettings.alwaysNote(getApplicationContext()));
             }
         });
+
         mGuardEnabled.set(xSettings.enabled(getApplicationContext()));
+        mAlwaysNote.set(xSettings.alwaysNote(getApplicationContext()));
         mServiceBinder = new ServiceBinder();
 
         Handler handler = new Handler(Looper.getMainLooper());
@@ -77,7 +83,7 @@ public class AppService extends Service {
         Logger.d("noteAppStart: %s %s %s", pkg, callingUID, callingPID);
         if (!mGuardEnabled.get() || bypass(pkg)) {
             try {
-                callback.onRes(XMode.MODE_IGNORED);
+                callback.onRes(XMode.MODE_IGNORED, mAlwaysNote.get() ? XFlags.FLAG_ALWAYS_VERIFY : 0);
             } catch (RemoteException e) {
                 onRemoteError(e);
             }
@@ -100,7 +106,7 @@ public class AppService extends Service {
                     callingInfo.targetName,
                     new ICallback.Stub() {
                         @Override
-                        public void onRes(int res) throws RemoteException {
+                        public void onRes(int res, int flags) throws RemoteException {
                             onTransactionRes(transactionID, res);
                         }
                     });
@@ -124,7 +130,7 @@ public class AppService extends Service {
                     Logger.e("DEAD transaction for %s", id);
                     return;
                 }
-                t.getCallback().onRes(res);
+                t.getCallback().onRes(res, mAlwaysNote.get() ? XFlags.FLAG_ALWAYS_VERIFY : 0);
             } catch (RemoteException e) {
                 onRemoteError(e);
             } finally {

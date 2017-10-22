@@ -37,6 +37,7 @@ import github.tornaco.xposedmoduletest.ICallback;
  */
 
 class XModuleImpl23 extends XModule {
+
     private static final String SELF_PKG = BuildConfig.APPLICATION_ID;
 
     private final Set<String> PASSED_PACKAGES = new HashSet<>();
@@ -105,12 +106,15 @@ class XModuleImpl23 extends XModule {
 
                         mAppService.service.noteAppStart(new ICallback.Stub() {
                             @Override
-                            public void onRes(int res) throws RemoteException {
+                            public void onRes(int res, int flags) throws RemoteException {
 
-                                XposedBridge.log(TAG + "noteAppStart, onRes:" + res);
+                                XposedBridge.log(TAG + "noteAppStart, onRes:" + res
+                                        + ", flags:" + flags);
 
                                 if (res != XMode.MODE_DENIED) try {
-                                    if (res == XMode.MODE_ALLOWED) addPackagePass(affinity);
+                                    if (flags != XFlags.FLAG_ALWAYS_VERIFY && res == XMode.MODE_ALLOWED) {
+                                        addPackagePass(affinity);
+                                    }
                                     mAppOpsHandler.post(new Runnable() {
                                         @Override
                                         public void run() {
@@ -208,12 +212,15 @@ class XModuleImpl23 extends XModule {
 
                                 mAppService.service.noteAppStart(new ICallback.Stub() {
                                     @Override
-                                    public void onRes(int res) throws RemoteException {
+                                    public void onRes(int res, int flags) throws RemoteException {
 
-                                        XposedBridge.log(TAG + "noteAppStart, onRes:" + res);
+                                        XposedBridge.log(TAG + "noteAppStart, onRes:" + res
+                                                + ", flags:" + flags);
 
                                         if (res != XMode.MODE_DENIED) try {
-                                            if (res == XMode.MODE_ALLOWED) addPackagePass(pkgName);
+                                            if (flags != XFlags.FLAG_ALWAYS_VERIFY && res == XMode.MODE_ALLOWED) {
+                                                addPackagePass(pkgName);
+                                            }
                                             mAppOpsHandler.post(new Runnable() {
                                                 @Override
                                                 public void run() {

@@ -4,5 +4,5 @@ package github.tornaco.xposedmoduletest;
 // Declare any non-default types here with import statements
 
 interface ICallback {
-    void onRes(int res);
+    void onRes(int res, int flags);
 }

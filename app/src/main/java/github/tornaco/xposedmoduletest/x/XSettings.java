@@ -52,6 +52,11 @@ public class XSettings extends Observable {
                 .getBoolean(XKey.FP_ENABLED, false);
     }
 
+    public boolean alwaysNote(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(XKey.ALWAYS_NOTE, false);
+    }
+
     public boolean fullScreenNoter(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(XKey.TAKE_FULL_SCREEN_NOTER, false);

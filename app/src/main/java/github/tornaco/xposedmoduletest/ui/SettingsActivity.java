@@ -12,6 +12,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -20,6 +21,9 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import java.util.Observable;
+import java.util.Observer;
 
 import ezy.assist.compat.SettingsCompat;
 import github.tornaco.permission.requester.RequiresPermission;
@@ -77,10 +81,53 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public static class SettingsFragment extends PreferenceFragment {
+
+        private void showRebootTip() {
+            if (getView() != null) {
+                try {
+                    Snackbar.make(getView(), R.string.title_reboot_take_effect, Snackbar.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Toast.makeText(getActivity(), R.string.title_reboot_take_effect, Toast.LENGTH_SHORT)
+                            .show();
+                }
+            }
+        }
+
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+
+            XSettings.get().addObserver(new Observer() {
+                @Override
+                public void update(Observable o, Object arg) {
+                    showRebootTip();
+                }
+            });
+
             addPreferencesFromResource(R.xml.settings);
+
+            findPreference(XKey.TAKE_FULL_SCREEN_NOTER)
+                    .setOnPreferenceChangeListener(new Preference
+                            .OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference,
+                                                          Object newValue) {
+                            XSettings.get().setChangedL();
+                            XSettings.get().notifyObservers();
+                            return true;
+                        }
+                    });
+
+            findPreference(XKey.ALWAYS_NOTE)
+                    .setOnPreferenceChangeListener(new Preference
+                            .OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object newValue) {
+                            XSettings.get().setChangedL();
+                            XSettings.get().notifyObservers();
+                            return true;
+                        }
+                    });
 
             // Below is very ugly:() =.=
             final Preference passcodePref = findPreference(getString(R.string.title_setup_passcode));
@@ -183,7 +230,7 @@ public class SettingsActivity extends AppCompatActivity {
                                             "HELL WORLD",
                                             new ICallback.Stub() {
                                                 @Override
-                                                public void onRes(int res) throws RemoteException {
+                                                public void onRes(int res, int flags) throws RemoteException {
 
                                                 }
                                             });

@@ -35,7 +35,10 @@
     <string name="title_donate">捐赠</string>
     <string name="title_show_system_app">显示系统应用</string>
     <string name="first_run_title">首次运行</string>
-    <string name="message_first_run">请务必不要限制本应用的启动，例如不要用 阻止运行/黑域/绿色守护 等相关管理器禁止本应用的运行，否则启动任何应用时，系统会重新连接本应用，造成应用启动的卡顿。
+    <string name="message_first_run">安装完成激活XPOSED模块后请完全重启。\n\n请务必不要限制本应用的启动，例如不要用 阻止运行/黑域/绿色守护 等相关管理器禁止本应用的运行，否则启动任何应用时，系统会重新连接本应用，造成应用启动的卡顿。
         \n\n如果你是第一次使用，建议点击菜单，查看项目wiki获取相关使用教程。</string>
     <string name="title_use_fp">使用指纹</string>
+    <string name="title_always_need_verify">每次都需要验证</string>
+    <string name="summary_always_need_verify">默认机制是当屏幕熄灭重新点亮时，之前验证过的应用才会需要重新验证，如果启用了此选项，将会每次都需要验证</string>
+    <string name="title_reboot_take_effect">某些设置项可能需要重启才会生效</string>
 </resources>

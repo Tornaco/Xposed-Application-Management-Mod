@@ -107,13 +107,16 @@ class XModuleImpl24 extends XModule {
 
                         mAppService.service.noteAppStart(new ICallback.Stub() {
                             @Override
-                            public void onRes(int res) throws RemoteException {
+                            public void onRes(int res, int flags) throws RemoteException {
 
                                 if (DEBUG_V)
-                                    XposedBridge.log(TAG + "noteAppStart, onRes:" + res);
+                                    XposedBridge.log(TAG + "noteAppStart, onRes:" + res
+                                            + ", flags:" + flags);
 
                                 if (res != XMode.MODE_DENIED) try {
-                                    if (res == XMode.MODE_ALLOWED) addPackagePass(affinity);
+                                    if (flags != XFlags.FLAG_ALWAYS_VERIFY && res == XMode.MODE_ALLOWED) {
+                                        addPackagePass(affinity);
+                                    }
                                     mAppOpsHandler.post(new Runnable() {
                                         @Override
                                         public void run() {
@@ -223,13 +226,16 @@ class XModuleImpl24 extends XModule {
 
                                 mAppService.service.noteAppStart(new ICallback.Stub() {
                                     @Override
-                                    public void onRes(int res) throws RemoteException {
+                                    public void onRes(int res, int flags) throws RemoteException {
 
                                         if (DEBUG_V)
-                                            XposedBridge.log(TAG + "noteAppStart, onRes:" + res);
+                                            XposedBridge.log(TAG + "noteAppStart, onRes:" + res
+                                                    + ", flags:" + flags);
 
                                         if (res != XMode.MODE_DENIED) try {
-                                            if (res == XMode.MODE_ALLOWED) addPackagePass(pkgName);
+                                            if (flags != XFlags.FLAG_ALWAYS_VERIFY && res == XMode.MODE_ALLOWED) {
+                                                addPackagePass(pkgName);
+                                            }
                                             mAppOpsHandler.post(new Runnable() {
                                                 @Override
                                                 public void run() {

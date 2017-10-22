@@ -25,7 +25,7 @@ public class LockedActivity extends WithWithCustomTabActivity {
             startNoter.note(null, getPackageName(), getString(R.string.app_name),
                     new ICallback.Stub() {
                         @Override
-                        public void onRes(int res) throws RemoteException {
+                        public void onRes(int res, int flags) throws RemoteException {
                             if (res != XMode.MODE_ALLOWED) {
                                 onModeIgnoreOrDeny();
                             }

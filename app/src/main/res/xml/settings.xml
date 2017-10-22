@@ -12,8 +12,14 @@
             android:defaultValue="false"
             android:enabled="true"
             android:key="key_full_screen_noter"
-            android:summary="@string/title_not_available"
             android:title="@string/title_fullscreen_noter" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="always_note"
+            android:enabled="false"
+            android:summary="@string/summary_always_need_verify"
+            android:title="@string/title_always_need_verify" />
 
     </PreferenceCategory>
 

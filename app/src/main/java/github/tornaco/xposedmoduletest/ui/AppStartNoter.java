@@ -78,6 +78,7 @@ public class AppStartNoter {
         XSettings.get().addObserver(new Observer() {
             @Override
             public void update(Observable o, Object arg) {
+                Logger.d("AppStart noter, settings changed.");
                 mTakePhoto = XSettings.get().takenPhotoEnabled(mContext);
                 mFullscreen = XSettings.get().fullScreenNoter(mContext);
                 mUseFP = XSettings.get().fpEnabled(mContext);
@@ -153,13 +154,13 @@ public class AppStartNoter {
                 if (mUseFP)
                     mCancellationSignal = setupFingerPrint(
                             new FingerprintManagerCompat.AuthenticationCallback() {
-                        @Override
-                        public void onAuthenticationSucceeded(FingerprintManagerCompat.AuthenticationResult result) {
-                            super.onAuthenticationSucceeded(result);
-                            Logger.d("onAuthenticationSucceeded:" + result);
-                            md.dismiss();
-                            onPass(callback);
-                        }
+                                @Override
+                                public void onAuthenticationSucceeded(FingerprintManagerCompat.AuthenticationResult result) {
+                                    super.onAuthenticationSucceeded(result);
+                                    Logger.d("onAuthenticationSucceeded:" + result);
+                                    md.dismiss();
+                                    onPass(callback);
+                                }
 
                                 @Override
                                 public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
@@ -168,17 +169,17 @@ public class AppStartNoter {
                                 }
 
                                 @Override
-                        public void onAuthenticationFailed() {
-                            super.onAuthenticationFailed();
-                            Logger.d("onAuthenticationFailed");
-                        }
+                                public void onAuthenticationFailed() {
+                                    super.onAuthenticationFailed();
+                                    Logger.d("onAuthenticationFailed");
+                                }
 
-                        @Override
-                        public void onAuthenticationError(int errMsgId, CharSequence errString) {
-                            super.onAuthenticationError(errMsgId, errString);
-                            Logger.d("onAuthenticationError:" + errString);
-                        }
-                    });
+                                @Override
+                                public void onAuthenticationError(int errMsgId, CharSequence errString) {
+                                    super.onAuthenticationError(errMsgId, errString);
+                                    Logger.d("onAuthenticationError:" + errString);
+                                }
+                            });
 
                 pinLockView.setPinLockListener(new PinLockListener() {
                     @Override
@@ -231,7 +232,7 @@ public class AppStartNoter {
                 if (mCancellationSignal != null) mCancellationSignal.cancel();
                 // We should tell the res here.
                 try {
-                    callback.onRes(XMode.MODE_IGNORED); // BYPASS.
+                    callback.onRes(XMode.MODE_IGNORED, 0); // BYPASS.
                 } catch (RemoteException e1) {
                     Logger.e(Logger.getStackTraceString(e1));
                 }
@@ -244,7 +245,7 @@ public class AppStartNoter {
             mCancellationSignal.cancel();
         }
         try {
-            callback.onRes(XMode.MODE_ALLOWED);
+            callback.onRes(XMode.MODE_ALLOWED, 0);
         } catch (RemoteException e) {
             Logger.e(Logger.getStackTraceString(e));
         }
@@ -255,7 +256,7 @@ public class AppStartNoter {
             mCancellationSignal.cancel();
         }
         try {
-            callback.onRes(XMode.MODE_DENIED);
+            callback.onRes(XMode.MODE_DENIED, 0);
         } catch (RemoteException e) {
             Logger.e(Logger.getStackTraceString(e));
         }
