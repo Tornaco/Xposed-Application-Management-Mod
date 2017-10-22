@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.USE_FINGERPRINT" />
 
     <application
         android:name=".x.XApp"
@@ -33,8 +34,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.GuardAppPickerActivity"
-            android:label="@string/title_picker"/>
+        <activity
+            android:name=".ui.GuardAppPickerActivity"
+            android:label="@string/title_picker" />
 
         <activity
             android:name=".ui.SettingsActivity"

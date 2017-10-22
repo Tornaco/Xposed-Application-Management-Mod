@@ -1,15 +1,18 @@
 package github.tornaco.xposedmoduletest.ui;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.support.v4.os.CancellationSignal;
 import android.view.LayoutInflater;
@@ -237,6 +240,11 @@ public class AppStartNoter {
     }
 
     private CancellationSignal setupFingerPrint(FingerprintManagerCompat.AuthenticationCallback callback) {
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.USE_FINGERPRINT)
+                != PackageManager.PERMISSION_GRANTED) {
+            Logger.w("FP Permission is missing...");
+            return null;
+        }
         if (!FingerprintManagerCompat.from(mContext).isHardwareDetected()) {
             return null;
         }

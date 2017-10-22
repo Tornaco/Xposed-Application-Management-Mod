@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.andrognito.pinlockview.IndicatorDots;
@@ -57,6 +58,9 @@ class PassCodeSetup {
         labelView.setText(isRepeatPhase
                 ? R.string.title_setup_code_repeat
                 : R.string.title_setup_coce_new);
+
+        ImageView imageView = (ImageView) container.findViewById(R.id.icon);
+        imageView.setVisibility(View.GONE);
 
         final Dialog md =
                 new AlertDialog.Builder(mContext, R.style.NoterLight)
