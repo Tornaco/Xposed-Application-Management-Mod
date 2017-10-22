@@ -10,7 +10,7 @@
 
         <SwitchPreference
             android:defaultValue="false"
-            android:enabled="false"
+            android:enabled="true"
             android:key="key_full_screen_noter"
             android:summary="@string/title_not_available"
             android:title="@string/title_fullscreen_noter" />
