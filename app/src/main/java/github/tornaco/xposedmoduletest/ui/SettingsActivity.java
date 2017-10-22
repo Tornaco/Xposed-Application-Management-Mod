@@ -1,7 +1,9 @@
 package github.tornaco.xposedmoduletest.ui;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -10,6 +12,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
+import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -67,6 +70,12 @@ public class SettingsActivity extends AppCompatActivity {
 
     }
 
+    @TargetApi(Build.VERSION_CODES.M)
+    @RequiresPermission({Manifest.permission.USE_FINGERPRINT})
+    void requestFPPermission() {
+
+    }
+
     public static class SettingsFragment extends PreferenceFragment {
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -111,6 +120,21 @@ public class SettingsActivity extends AppCompatActivity {
                     return true;
                 }
             });
+
+            SwitchPreference fpPre = (SwitchPreference) findPreference(XKey.FP_ENABLED);
+            fpPre.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    XSettings.get().setChangedL();
+                    XSettings.get().notifyObservers();
+                    return true;
+                }
+            });
+            try {
+                fpPre.setEnabled(FingerprintManagerCompat.from(getActivity()).isHardwareDetected());
+            } catch (Throwable e) {
+                fpPre.setEnabled(false);
+            }
 
             SwitchPreference photoPref = (SwitchPreference) findPreference(XKey.TAKE_PHOTO_ENABLED);
             photoPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {

@@ -28,7 +28,6 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Looper;
-import android.support.v4.util.Preconditions;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -297,7 +296,6 @@ public class CameraManager implements FocusOverlayManager.Listener {
             }
 
             final int cameraCount = sCameraWrapper.getNumberOfCameras();
-            Preconditions.checkArgument(cameraCount > 0);
 
             mCameraIndex = NO_CAMERA_SELECTED;
             setCamera(null);
@@ -522,7 +520,6 @@ public class CameraManager implements FocusOverlayManager.Listener {
     }
 
     void startVideo(final MediaCallback callback) {
-        Preconditions.checkArgument(!isRecording());
         mVideoCallback = callback;
         tryStartVideoCapture();
     }

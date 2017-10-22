@@ -35,6 +35,7 @@
     <string name="title_donate">捐赠</string>
     <string name="title_show_system_app">显示系统应用</string>
     <string name="first_run_title">首次运行</string>
-    <string name="message_first_run">请务必不要限制本应用的启动，例如不要用 组织运行/黑狱/绿色守护 等相关管理器禁止本应用的运行，否则启动任何应用时，系统会重新连接本应用，造成应用启动的卡顿。
-        \n如果你是第一次使用，建议点击菜单，查看项目wiki获取相关使用教程。</string>
+    <string name="message_first_run">请务必不要限制本应用的启动，例如不要用 阻止运行/黑域/绿色守护 等相关管理器禁止本应用的运行，否则启动任何应用时，系统会重新连接本应用，造成应用启动的卡顿。
+        \n\n如果你是第一次使用，建议点击菜单，查看项目wiki获取相关使用教程。</string>
+    <string name="title_use_fp">使用指纹</string>
 </resources>

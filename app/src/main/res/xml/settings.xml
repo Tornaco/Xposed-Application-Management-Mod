@@ -2,12 +2,11 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
 
-
     <PreferenceCategory android:title="@string/title_basic">
         <Preference
             android:key="@string/title_setup_passcode"
-            android:title="@string/title_setup_passcode"
-            android:summary="@string/summary_setup_passcode_none_set"/>
+            android:summary="@string/summary_setup_passcode_none_set"
+            android:title="@string/title_setup_passcode" />
 
         <SwitchPreference
             android:defaultValue="false"
@@ -27,13 +26,13 @@
 
         <Preference
             android:key="@string/test_noter"
-            android:title="@string/test_noter"
-            android:summary="@string/summary_test_noter"/>
+            android:summary="@string/summary_test_noter"
+            android:title="@string/test_noter" />
 
         <Preference
             android:key="@string/dump_module"
-            android:title="@string/dump_module"
-            android:summary="@string/summary_dump_module"/>
+            android:summary="@string/summary_dump_module"
+            android:title="@string/dump_module" />
 
         <SwitchPreference
             android:defaultValue="false"
@@ -44,6 +43,12 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/title_exp">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:enabled="false"
+            android:key="fp_enabled"
+            android:title="@string/title_use_fp" />
 
         <SwitchPreference
             android:defaultValue="false"

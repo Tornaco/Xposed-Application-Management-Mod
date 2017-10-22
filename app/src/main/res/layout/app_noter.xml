@@ -36,6 +36,7 @@
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_toEndOf="@+id/icon"
             android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin_small"
             android:paddingStart="@dimen/activity_horizontal_margin_small"
             android:paddingTop="@dimen/activity_vertical_margin"
             android:text="@string/input_password"
@@ -57,12 +58,22 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/info"
-        android:layout_centerHorizontal="true"
-        android:paddingEnd="@dimen/activity_horizontal_margin_large"
-        android:paddingStart="@dimen/activity_horizontal_margin_large">
+        android:layout_centerHorizontal="true">
+
+        <View
+            android:id="@+id/space"
+            android:layout_width="@dimen/activity_horizontal_margin"
+            android:layout_height="1px"
+            android:layout_toStartOf="@+id/pin_lock_view" />
+
+        <View
+            android:id="@+id/space2"
+            android:layout_width="@dimen/activity_horizontal_margin"
+            android:layout_height="1px"
+            android:layout_toEndOf="@+id/pin_lock_view" />
 
         <com.andrognito.pinlockview.IndicatorDots
             android:id="@+id/indicator_dots"
@@ -81,6 +92,8 @@
             android:layout_below="@+id/indicator_dots"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/activity_vertical_margin_large"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:paddingStart="@dimen/activity_horizontal_margin"
             app:keypadTextColor="@color/black" />
     </RelativeLayout>
 

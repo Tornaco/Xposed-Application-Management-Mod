@@ -47,6 +47,11 @@ public class XSettings extends Observable {
                 .getBoolean(XKey.TAKE_PHOTO_ENABLED, true);
     }
 
+    public boolean fpEnabled(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(XKey.FP_ENABLED, false);
+    }
+
     public boolean fullScreenNoter(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(XKey.TAKE_FULL_SCREEN_NOTER, false);

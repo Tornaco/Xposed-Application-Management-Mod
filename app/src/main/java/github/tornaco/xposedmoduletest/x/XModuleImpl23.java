@@ -258,16 +258,18 @@ class XModuleImpl23 extends XModule {
         int times = 0;
         if (mAppService == null || !mAppService.ok) {
             startAppService();
-            if (block) while (mAppService == null || !mAppService.ok) {
-                try {
-                    Thread.sleep(50);
-                    times++;
-                } catch (InterruptedException ignored) {
+            if (block) {
+                toast("正在连接App Guard客户端...");
+                while (mAppService == null || !mAppService.ok) {
+                    try {
+                        Thread.sleep(50);
+                        times++;
+                    } catch (InterruptedException ignored) {
 
+                    }
+                    if (times > MAX_RETRY) return false;
                 }
-                if (times > MAX_RETRY) return false;
-            }
-            else {
+            } else {
                 return false;
             }
         }

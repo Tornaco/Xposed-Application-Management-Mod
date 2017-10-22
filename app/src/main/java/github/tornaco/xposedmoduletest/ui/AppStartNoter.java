@@ -52,7 +52,7 @@ public class AppStartNoter {
     private Handler mUiHandler;
     private Context mContext;
 
-    private boolean mTakePhoto, mFullscreen;
+    private boolean mTakePhoto, mFullscreen, mUseFP;
 
     private Animation mErrorAnim;
 
@@ -70,6 +70,7 @@ public class AppStartNoter {
         this.mFullscreen = XSettings.get().fullScreenNoter(context);
         this.mPsscode.setData(XSettings.getPassCodeEncrypt(context));//FIXME Enc-->NoneEnc
         this.mErrorAnim = AnimationUtils.loadAnimation(context, R.anim.shake);
+        this.mUseFP = XSettings.get().fpEnabled(context);
         registerObserver();
     }
 
@@ -79,6 +80,7 @@ public class AppStartNoter {
             public void update(Observable o, Object arg) {
                 mTakePhoto = XSettings.get().takenPhotoEnabled(mContext);
                 mFullscreen = XSettings.get().fullScreenNoter(mContext);
+                mUseFP = XSettings.get().fpEnabled(mContext);
                 mPsscode.setData(XSettings.getPassCodeEncrypt(mContext));//FIXME Enc-->NoneEnc
             }
         });
@@ -119,7 +121,7 @@ public class AppStartNoter {
                     return;
                 }
 
-                Logger.v("Init note dialog, mFullscreen:" + mFullscreen);
+                Logger.v("Init note dialog, mFP:" + mUseFP);
 
                 @SuppressLint("InflateParams") final View container = LayoutInflater.from(mContext)
                         .inflate(mFullscreen ? R.layout.app_noter_fullscreen : R.layout.app_noter, null, false);
@@ -147,16 +149,36 @@ public class AppStartNoter {
                 md.getWindow().setType(
                         WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
 
-                mCancellationSignal = setupFingerPrint(new FingerprintManagerCompat.AuthenticationCallback() {
-                    @Override
-                    public void onAuthenticationSucceeded(FingerprintManagerCompat.AuthenticationResult result) {
-                        super.onAuthenticationSucceeded(result);
-                        Logger.v("onAuthenticationSucceeded:" + result);
-                        md.dismiss();
-                        onPass(callback);
-                    }
-                });
 
+                if (mUseFP)
+                    mCancellationSignal = setupFingerPrint(
+                            new FingerprintManagerCompat.AuthenticationCallback() {
+                        @Override
+                        public void onAuthenticationSucceeded(FingerprintManagerCompat.AuthenticationResult result) {
+                            super.onAuthenticationSucceeded(result);
+                            Logger.d("onAuthenticationSucceeded:" + result);
+                            md.dismiss();
+                            onPass(callback);
+                        }
+
+                                @Override
+                                public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
+                                    super.onAuthenticationHelp(helpMsgId, helpString);
+                                    Logger.i("onAuthenticationHelp:" + helpString);
+                                }
+
+                                @Override
+                        public void onAuthenticationFailed() {
+                            super.onAuthenticationFailed();
+                            Logger.d("onAuthenticationFailed");
+                        }
+
+                        @Override
+                        public void onAuthenticationError(int errMsgId, CharSequence errString) {
+                            super.onAuthenticationError(errMsgId, errString);
+                            Logger.d("onAuthenticationError:" + errString);
+                        }
+                    });
 
                 pinLockView.setPinLockListener(new PinLockListener() {
                     @Override
@@ -246,11 +268,13 @@ public class AppStartNoter {
             return null;
         }
         if (!FingerprintManagerCompat.from(mContext).isHardwareDetected()) {
+            Logger.w("FP HW is missing...");
             return null;
         }
         CancellationSignal cancellationSignal = new CancellationSignal();
         FingerprintManagerCompat.from(mContext)
                 .authenticate(null, 0, cancellationSignal, callback, mUiHandler);
+        Logger.i("FP authenticate");
         return cancellationSignal;
     }
 }

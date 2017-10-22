@@ -1,5 +1,7 @@
 package github.tornaco.xposedmoduletest.x;
 
+import github.tornaco.xposedmoduletest.BuildConfig;
+
 /**
  * Created by guohao4 on 2017/10/19.
  * Email: Tornaco@163.com
@@ -12,5 +14,6 @@ public interface XKey {
     String PASSCODE_ENCRYPT = "key_pass_code_enc";
     String ACTIVATE_CODE = "key_act_code";
     String DEV_MODE = "dev_mode_enabled";
-    String FIRST_RUN = "first_run";
+    String FP_ENABLED = "fp_enabled";
+    String FIRST_RUN = "first_ru" + BuildConfig.VERSION_NAME;
 }

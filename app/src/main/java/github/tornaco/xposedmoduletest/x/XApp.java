@@ -2,6 +2,8 @@ package github.tornaco.xposedmoduletest.x;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
+import android.content.Context;
+import android.support.multidex.MultiDex;
 
 import org.newstand.logger.Logger;
 import org.newstand.logger.Settings;
@@ -22,6 +24,13 @@ public class XApp extends Application {
     public static XApp getApp() {
         return xApp;
     }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
+    }
+
 
     @Override
     public void onCreate() {
