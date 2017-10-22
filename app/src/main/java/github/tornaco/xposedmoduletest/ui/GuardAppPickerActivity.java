@@ -2,6 +2,8 @@ package github.tornaco.xposedmoduletest.ui;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import java.util.List;
@@ -20,6 +22,8 @@ import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.x.XExecutor;
 
 public class GuardAppPickerActivity extends GuardAppNavActivity {
+
+    private boolean mShowSystemApp;
 
     @Override
     protected int getLayoutRes() {
@@ -75,7 +79,7 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
     }
 
     protected List<PackageInfo> performLoading() {
-        return PackageLoader.Impl.create(this).loadInstalled();
+        return PackageLoader.Impl.create(this).loadInstalled(mShowSystemApp);
     }
 
     @Override
@@ -86,5 +90,25 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
     @Override
     protected boolean showLockOnCreate() {
         return false;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.picker, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.show_system_app).setChecked(mShowSystemApp);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        mShowSystemApp = !mShowSystemApp;
+        invalidateOptionsMenu();
+        startLoading();
+        return super.onOptionsItemSelected(item);
     }
 }

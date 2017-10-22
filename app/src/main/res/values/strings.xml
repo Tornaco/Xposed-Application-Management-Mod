@@ -4,7 +4,7 @@
     <string name="switch_on_text">已启用</string>
     <string name="switch_off_text">已禁用</string>
     <string name="test_noter">密码测试</string>
-    <string name="input_password">需要密码</string>
+    <string name="input_password">需要指纹或密码</string>
     <string name="dump_module">模块运行状态</string>
     <string name="title_settings">设置</string>
     <string name="title_view_photos">查看闯入者</string>
@@ -33,4 +33,7 @@
     <string name="title_setup_code_mismatch">两次输入不一致</string>
     <string name="title_help">帮助与Wiki</string>
     <string name="title_donate">捐赠</string>
+    <string name="title_show_system_app">显示系统应用</string>
+    <string name="first_run_title">首次运行</string>
+    <string name="message_first_run">如果你是第一次使用，建议点击菜单，查看项目wiki获取相关使用教程。</string>
 </resources>

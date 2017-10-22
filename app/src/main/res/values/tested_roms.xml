@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string-array name="tested_roms">
-        <item></item>
-    </string-array>
+    <integer-array name="tested_roms_sdk">
+        <item>23</item>
+        <item>24</item>
+        <item>25</item>
+    </integer-array>
 
 </resources>

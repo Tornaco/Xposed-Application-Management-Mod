@@ -25,7 +25,7 @@ import github.tornaco.xposedmoduletest.bean.PackageInfo;
 public interface PackageLoader {
 
     @NonNull
-    List<PackageInfo> loadInstalled();
+    List<PackageInfo> loadInstalled(boolean showSystem);
 
     @NonNull
     List<PackageInfo> loadStored();
@@ -47,7 +47,7 @@ public interface PackageLoader {
 
         @NonNull
         @Override
-        public List<PackageInfo> loadInstalled() {
+        public List<PackageInfo> loadInstalled(boolean showSystem) {
 
             List<PackageInfo> guards = loadStoredGuarded();
 
@@ -75,7 +75,7 @@ public interface PackageLoader {
                 }
 
                 boolean isSystemApp = (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
-                if (isSystemApp) continue;
+                if (isSystemApp && !showSystem) continue;
 
                 PackageInfo p = new PackageInfo();
                 p.setGuard(false);

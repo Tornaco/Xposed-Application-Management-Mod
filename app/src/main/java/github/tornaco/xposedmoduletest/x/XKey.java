@@ -12,4 +12,5 @@ public interface XKey {
     String PASSCODE_ENCRYPT = "key_pass_code_enc";
     String ACTIVATE_CODE = "key_act_code";
     String DEV_MODE = "dev_mode_enabled";
+    String FIRST_RUN = "first_run";
 }

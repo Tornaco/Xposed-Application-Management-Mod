@@ -1,9 +1,11 @@
 package github.tornaco.xposedmoduletest.ui;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
@@ -38,11 +40,35 @@ public class GuardAppNavActivity extends LockedActivity {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutRes());
         initView();
+        initFirstRun();
         startLoading();
     }
 
     protected int getLayoutRes() {
         return R.layout.app_list;
+    }
+
+    private void initFirstRun() {
+        boolean first = XSettings.isFirstRun(this);
+        if (first) {
+            new AlertDialog.Builder(GuardAppNavActivity.this)
+                    .setTitle(R.string.first_run_title)
+                    .setMessage(R.string.message_first_run)
+                    .setCancelable(false)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            XSettings.setFirstRun(getApplicationContext(), false);
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    })
+                    .show();
+        }
     }
 
     @Override
@@ -109,7 +135,7 @@ public class GuardAppNavActivity extends LockedActivity {
         };
     }
 
-    private void startLoading() {
+    protected void startLoading() {
         swipeRefreshLayout.setRefreshing(true);
         XExecutor.execute(new Runnable() {
             @Override

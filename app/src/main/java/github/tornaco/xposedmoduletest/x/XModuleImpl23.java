@@ -16,6 +16,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -98,6 +99,7 @@ class XModuleImpl23 extends XModule {
 
                         if (!ensureAppService(true)) {
                             mSeriousErrorOccurredTimes.incrementAndGet();
+                            toast("连接应用超时，请检查AppGuard是否被限制");
                             return;
                         }
 
@@ -191,7 +193,10 @@ class XModuleImpl23 extends XModule {
                                     return;
                                 }
 
-                                if (!ensureAppService(true)) return;
+                                if (!ensureAppService(true)) {
+                                    toast("连接应用超时，请检查AppGuard是否被限制");
+                                    return;
+                                }
 
                                 int callingUID = Binder.getCallingUid();
                                 int callingPID = Binder.getCallingPid();
@@ -249,7 +254,7 @@ class XModuleImpl23 extends XModule {
     }
 
     private boolean ensureAppService(boolean block) {
-        int MAX_RETRY = 50;
+        int MAX_RETRY = 20;
         int times = 0;
         if (mAppService == null || !mAppService.ok) {
             startAppService();
@@ -355,11 +360,16 @@ class XModuleImpl23 extends XModule {
     @Override
     void onBootComplete() {
         super.onBootComplete();
-        ensureAppService(false);
+        ensureAppService(true);
     }
 
     @Override
     public String codename() throws RemoteException {
         return "XModule-v23-AOSP-" + XModuleGithubCommitSha.LATEST_SHA;
+    }
+
+
+    private void toast(String what) {
+        Toast.makeText(mAppOpsContext, what, Toast.LENGTH_SHORT).show();
     }
 }

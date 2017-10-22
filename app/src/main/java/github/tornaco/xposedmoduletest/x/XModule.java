@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.x;
 
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.CallSuper;
@@ -103,6 +104,10 @@ class XModule extends IXModuleToken.Stub implements IXposedHookLoadPackage, IXpo
             Logger.i("DUMP END");
         } catch (Exception ignored) {
         }
+    }
+
+    protected boolean isAppServiceInstalled() {
+        return true;
     }
 
     @Override

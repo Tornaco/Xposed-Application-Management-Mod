@@ -10,12 +10,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.support.annotation.RequiresApi;
+import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
+import android.support.v4.os.CancellationSignal;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.andrognito.pinlockview.IndicatorDots;
@@ -53,6 +54,8 @@ public class AppStartNoter {
     private Animation mErrorAnim;
 
     private final Holder<String> mPsscode = new Holder<>();
+
+    private CancellationSignal mCancellationSignal;
 
     public AppStartNoter(Handler uiHandler, Context context) {
         this.mUiHandler = uiHandler;
@@ -103,6 +106,7 @@ public class AppStartNoter {
 
         @Override
         public void run() {
+
             try {
                 // Check if our passcode has been set.
                 if (!XEnc.isPassCodeValid(mPsscode.getData())) {
@@ -121,8 +125,8 @@ public class AppStartNoter {
                 IndicatorDots indicatorDots = (IndicatorDots) container.findViewById(R.id.indicator_dots);
                 pinLockView.attachIndicatorDots(indicatorDots);
 
-                TextView labelView = (TextView) container.findViewById(R.id.label);
-                labelView.setText(appName);
+//                TextView labelView = (TextView) container.findViewById(R.id.label);
+//                labelView.setText(appName);
 
                 final Dialog md =
                         new AlertDialog.Builder(mContext,
@@ -139,6 +143,17 @@ public class AppStartNoter {
 
                 md.getWindow().setType(
                         WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+
+                mCancellationSignal = setupFingerPrint(new FingerprintManagerCompat.AuthenticationCallback() {
+                    @Override
+                    public void onAuthenticationSucceeded(FingerprintManagerCompat.AuthenticationResult result) {
+                        super.onAuthenticationSucceeded(result);
+                        Logger.v("onAuthenticationSucceeded:" + result);
+                        md.dismiss();
+                        onPass(callback);
+                    }
+                });
+
 
                 pinLockView.setPinLockListener(new PinLockListener() {
                     @Override
@@ -188,6 +203,7 @@ public class AppStartNoter {
                 Logger.e("Can not show dialog:" + Logger.getStackTraceString(e));
                 Toast.makeText(mContext, "FATAL- Fail show lock dialog:\n" + Logger.getStackTraceString(e),
                         Toast.LENGTH_LONG).show();
+                if (mCancellationSignal != null) mCancellationSignal.cancel();
                 // We should tell the res here.
                 try {
                     callback.onRes(XMode.MODE_IGNORED); // BYPASS.
@@ -199,6 +215,9 @@ public class AppStartNoter {
     }
 
     private void onPass(ICallback callback) {
+        if (mCancellationSignal != null) {
+            mCancellationSignal.cancel();
+        }
         try {
             callback.onRes(XMode.MODE_ALLOWED);
         } catch (RemoteException e) {
@@ -207,10 +226,23 @@ public class AppStartNoter {
     }
 
     private void onFail(ICallback callback) {
+        if (mCancellationSignal != null) {
+            mCancellationSignal.cancel();
+        }
         try {
             callback.onRes(XMode.MODE_DENIED);
         } catch (RemoteException e) {
             Logger.e(Logger.getStackTraceString(e));
         }
+    }
+
+    private CancellationSignal setupFingerPrint(FingerprintManagerCompat.AuthenticationCallback callback) {
+        if (!FingerprintManagerCompat.from(mContext).isHardwareDetected()) {
+            return null;
+        }
+        CancellationSignal cancellationSignal = new CancellationSignal();
+        FingerprintManagerCompat.from(mContext)
+                .authenticate(null, 0, cancellationSignal, callback, mUiHandler);
+        return cancellationSignal;
     }
 }

@@ -94,4 +94,20 @@ public class XSettings extends Observable {
                 .putBoolean(XKey.DEV_MODE, in)
                 .apply();
     }
+
+    public static boolean isFirstRun(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(XKey.FIRST_RUN, true);
+    }
+
+    public static boolean setFirstRun(Context context, boolean firstRun) {
+        boolean first = isFirstRun(context);
+        if (first != firstRun) {
+            PreferenceManager.getDefaultSharedPreferences(context)
+                    .edit()
+                    .putBoolean(XKey.FIRST_RUN, firstRun)
+                    .apply();
+        }
+        return first;
+    }
 }

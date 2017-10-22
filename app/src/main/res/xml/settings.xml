@@ -4,8 +4,6 @@
 
 
     <PreferenceCategory android:title="@string/title_basic">
-
-
         <Preference
             android:key="@string/title_setup_passcode"
             android:title="@string/title_setup_passcode"
