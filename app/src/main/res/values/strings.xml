@@ -4,7 +4,7 @@
     <string name="switch_on_text">已启用</string>
     <string name="switch_off_text">已禁用</string>
     <string name="test_noter">密码测试</string>
-    <string name="input_password">需要指纹或密码</string>
+    <string name="input_password">应用已锁定</string>
     <string name="dump_module">模块运行状态</string>
     <string name="title_settings">设置</string>
     <string name="title_view_photos">查看闯入者</string>
@@ -41,4 +41,5 @@
     <string name="title_always_need_verify">每次都需要验证</string>
     <string name="summary_always_need_verify">默认机制是当屏幕熄灭重新点亮时，之前验证过的应用才会需要重新验证，如果启用了此选项，将会每次都需要验证</string>
     <string name="title_reboot_take_effect">某些设置项可能需要重启才会生效</string>
+    <string name="title_passcode_wrong">密码错误，请重试</string>
 </resources>

@@ -20,9 +20,6 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import java.util.Observable;
-import java.util.Observer;
-
 import ezy.assist.compat.SettingsCompat;
 import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
@@ -92,14 +89,6 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-
-            XSettings.get().addObserver(new Observer() {
-                @Override
-                public void update(Observable o, Object arg) {
-                    showRebootTip();
-                }
-            });
-
             addPreferencesFromResource(R.xml.settings);
 
             findPreference(XKey.TAKE_FULL_SCREEN_NOTER)

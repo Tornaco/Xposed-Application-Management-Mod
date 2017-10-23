@@ -28,7 +28,9 @@
 
         <activity
             android:name=".ui.VerifyDisplayerActivity"
-            android:exported="true" />
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:theme="@style/AppThemeLight.NoActionBar" />
 
         <activity android:name=".ui.GuardAppNavActivity">
             <intent-filter>
@@ -50,16 +52,6 @@
         <activity
             android:name=".ui.PhotoViewerActivity"
             android:label="@string/title_view_photos" />
-
-        <service
-            android:name=".service.AppService"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="tornaco.action.app.service" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </service>
 
     </application>
 

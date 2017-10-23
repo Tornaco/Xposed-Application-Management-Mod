@@ -11,6 +11,8 @@ import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.support.v4.os.CancellationSignal;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.andrognito.pinlockview.IndicatorDots;
@@ -19,9 +21,13 @@ import com.andrognito.pinlockview.PinLockView;
 
 import org.newstand.logger.Logger;
 
+import dev.tornaco.vangogh.Vangogh;
+import dev.tornaco.vangogh.display.CircleImageEffect;
+import dev.tornaco.vangogh.display.appliers.ScaleInXYApplier;
 import github.tornaco.android.common.Holder;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.camera.CameraManager;
+import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
 import github.tornaco.xposedmoduletest.x.XAppGuardManager;
 import github.tornaco.xposedmoduletest.x.XEnc;
 import github.tornaco.xposedmoduletest.x.XKey;
@@ -65,9 +71,12 @@ public class VerifyDisplayerActivity extends AppCompatActivity {
             return;
         }
 
-        PinLockView pinLockView = (PinLockView) findViewById(R.id.pin_lock_view);
+        final PinLockView pinLockView = (PinLockView) findViewById(R.id.pin_lock_view);
         IndicatorDots indicatorDots = (IndicatorDots) findViewById(R.id.indicator_dots);
         pinLockView.attachIndicatorDots(indicatorDots);
+
+        final TextView labelView = (TextView) findViewById(R.id.label);
+        ImageView imageView = (ImageView) findViewById(R.id.icon);
 
         if (fpEnabled)
             mCancellationSignal = setupFingerPrint(
@@ -104,6 +113,8 @@ public class VerifyDisplayerActivity extends AppCompatActivity {
                 if (XEnc.isPassCodeCorrect(mPsscode.getData(), pin)) {
                     onPass();
                 } else {
+                    pinLockView.resetPinLockView();
+                    labelView.setText(R.string.title_passcode_wrong);
                     if (mTakePhoto) {
                         CameraManager.get().captureSaveAsync(new CameraManager.PictureCallback() {
                             @Override
@@ -135,6 +146,15 @@ public class VerifyDisplayerActivity extends AppCompatActivity {
         View softwareCameraPreview = findViewById(R.id.surface);
         if (softwareCameraPreview != null)
             softwareCameraPreview.setVisibility(mTakePhoto ? View.VISIBLE : View.GONE);
+
+        Vangogh.with(this)
+                .load(pkg)
+                .placeHolder(0)
+                .fallback(R.mipmap.ic_header_avatar)
+                .usingLoader(new VangoghAppLoader(this))
+                .applier(new ScaleInXYApplier())
+                .effect(new CircleImageEffect())
+                .into(imageView);
     }
 
     private void onPass() {

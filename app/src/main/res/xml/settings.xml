@@ -10,25 +10,14 @@
 
         <SwitchPreference
             android:defaultValue="false"
-            android:enabled="true"
-            android:key="key_full_screen_noter"
-            android:title="@string/title_fullscreen_noter" />
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="always_note"
             android:enabled="false"
+            android:key="always_note"
             android:summary="@string/summary_always_need_verify"
             android:title="@string/title_always_need_verify" />
 
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/title_advance">
-
-        <Preference
-            android:key="@string/manage_overlay"
-            android:summary="@string/summary_manage_overlay"
-            android:title="@string/manage_overlay" />
 
         <Preference
             android:key="@string/test_noter"

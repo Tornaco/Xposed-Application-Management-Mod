@@ -277,28 +277,28 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     @Override
     public void forceWriteState() throws RemoteException {
-        mHandler.obtainMessage(MSG_READ_STATE).sendToTarget();
+        mHandler.obtainMessage(MSG_WRITE_STATE).sendToTarget();
     }
 
     private void onReadState() {
         mWorkingService.execute(new Runnable() {
             @Override
             public void run() {
-                persistPackages();
+                loadPackages();
             }
         });
     }
 
     @Override
     public void forceReadState() throws RemoteException {
-        mHandler.obtainMessage(MSG_WRITE_STATE).sendToTarget();
+        mHandler.obtainMessage(MSG_READ_STATE).sendToTarget();
     }
 
     private void onWriteState() {
         mWorkingService.execute(new Runnable() {
             @Override
             public void run() {
-                loadPackages();
+                persistPackages();
             }
         });
     }
@@ -368,7 +368,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     @Override
     public boolean handleMessage(Message msg) {
-        if (DEBUG_V) Slog.d(TAG, "handleMessage:" + msg.what);
+        if (DEBUG_V) Slog.d(TAG, "handleMessage:" + decodeMsg(msg.what));
         switch (msg.what) {
             case MSG_VERIFY_RES:
                 onSetResult(msg.arg1, msg.arg2);
@@ -393,6 +393,27 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
                 return true;
         }
         return false;
+    }
+
+    private String decodeMsg(int what) {
+        switch (what) {
+            case MSG_ADD_PACKAGES:
+                return "MSG_ADD_PACKAGES";
+            case MSG_READ_STATE:
+                return "MSG_READ_STATE";
+            case MSG_REMOVE_PACKAGES:
+                return "MSG_REMOVE_PACKAGES";
+            case MSG_SET_ENABLED:
+                return "MSG_SET_ENABLED";
+            case MSG_VERIFY:
+                return "MSG_VERIFY";
+            case MSG_VERIFY_RES:
+                return "MSG_VERIFY_RES";
+            case MSG_WRITE_STATE:
+                return "MSG_WRITE_STATE";
+            default:
+                return "UNKNOWN";
+        }
     }
 
     private static class TransactionFactory {

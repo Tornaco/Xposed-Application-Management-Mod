@@ -1,34 +1,22 @@
 package github.tornaco.xposedmoduletest.ui.adapter;
 
 import android.content.Context;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.newstand.logger.Logger;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 import dev.tornaco.vangogh.Vangogh;
 import dev.tornaco.vangogh.display.appliers.FadeOutFadeInApplier;
-import dev.tornaco.vangogh.loader.Loader;
-import dev.tornaco.vangogh.loader.LoaderObserver;
-import dev.tornaco.vangogh.media.BitmapImage;
-import dev.tornaco.vangogh.media.Image;
-import dev.tornaco.vangogh.media.ImageSource;
-import github.tornaco.android.common.util.ApkUtil;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
+import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
 import github.tornaco.xposedmoduletest.x.XAppGuardManager;
 import tornaco.lib.widget.CheckableImageView;
 
@@ -40,9 +28,11 @@ import tornaco.lib.widget.CheckableImageView;
 public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewHolder> {
 
     private Context context;
+    private VangoghAppLoader vangoghAppLoader;
 
     public AppListAdapter(Context context) {
         this.context = context;
+        vangoghAppLoader = new VangoghAppLoader(context);
     }
 
     final List<PackageInfo> packageInfos = new ArrayList<>();
@@ -79,32 +69,7 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
         Vangogh.with(context)
                 .load(packageInfo.getPkgName())
                 .skipMemoryCache(true)
-                .usingLoader(new Loader<Image>() {
-                    @Nullable
-                    @Override
-                    public Image load(@NonNull ImageSource source,
-                                      @Nullable LoaderObserver observer) {
-                        String pkgName = source.getUrl();
-                        Drawable d = ApkUtil.loadIconByPkgName(context, pkgName);
-                        BitmapDrawable bd = (BitmapDrawable) d;
-                        Logger.v("XXX- Loading COMPLETE for: " + pkgName);
-                        BitmapImage bitmapImage = new BitmapImage(bd.getBitmap());
-                        if (observer != null) {
-                            observer.onImageReady(bitmapImage);
-                        }
-                        return bitmapImage;
-                    }
-
-                    @Override
-                    public int priority() {
-                        return 3;
-                    }
-
-                    @Override
-                    public ExecutorService getExecutor() {
-                        return null;
-                    }
-                })
+                .usingLoader(vangoghAppLoader)
                 .applier(new FadeOutFadeInApplier())
                 .placeHolder(0)
                 .fallback(R.mipmap.ic_launcher_round)

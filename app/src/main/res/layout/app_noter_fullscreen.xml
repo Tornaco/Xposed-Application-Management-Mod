@@ -9,16 +9,20 @@
         android:id="@+id/info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="98dp"
-        android:elevation="2dp">
+        android:background="@color/primary_dark"
+        android:elevation="5dp"
+        android:paddingBottom="@dimen/activity_vertical_margin_large"
+        android:paddingTop="@dimen/activity_vertical_margin_huge">
 
         <ImageView
             android:id="@+id/icon"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="@dimen/thumbnail_size_large"
+            android:layout_height="@dimen/thumbnail_size_large"
             android:layout_centerHorizontal="true"
-            android:src="@drawable/ic_fingerprint_black_24dp"
+            android:src="@mipmap/ic_header_avatar"
+            android:scaleType="centerCrop"
             android:visibility="visible" />
 
         <TextView
@@ -33,46 +37,44 @@
             android:text="@string/input_password"
             android:textAllCaps="true"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            android:textColor="@color/primary_text" />
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/info"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_marginTop="4dp">
+            android:textColor="@color/white" />
 
         <com.andrognito.pinlockview.IndicatorDots
             android:id="@+id/indicator_dots"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/label"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/activity_vertical_margin_large"
             app:dotEmptyBackground="@drawable/dot_empty"
             app:dotFilledBackground="@drawable/dot_filled"
             app:indicatorType="fixed" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/pin_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/activity_horizontal_margin">
 
         <com.andrognito.pinlockview.PinLockView
             android:id="@+id/pin_lock_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/indicator_dots"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="@dimen/activity_vertical_margin_large"
-            app:keypadButtonSize="98dp"
+            app:keypadButtonSize="88dp"
             app:keypadTextColor="@color/black"
             app:keypadTextSize="24dp" />
 
-        <github.tornaco.xposedmoduletest.camera.SoftwareCameraPreview
-            android:id="@+id/surface"
-            android:layout_width="1px"
-            android:layout_height="1px"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:visibility="gone" />
+        <!--<github.tornaco.xposedmoduletest.camera.SoftwareCameraPreview-->
+        <!--android:id="@+id/surface"-->
+        <!--android:layout_width="1px"-->
+        <!--android:layout_height="1px"-->
+        <!--android:layout_alignParentEnd="true"-->
+        <!--android:layout_centerVertical="true"-->
+        <!--android:visibility="gone" />-->
     </RelativeLayout>
 
 </RelativeLayout>
