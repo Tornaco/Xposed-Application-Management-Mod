@@ -25,22 +25,11 @@ public class XSettings extends Observable {
         return sMe;
     }
 
-    public void setEnabled(Context context, boolean enabled) {
-        PreferenceManager.getDefaultSharedPreferences(context)
-                .edit().putBoolean(XKey.ENABLED, enabled)
-                .apply();
-        setChanged();
-        notifyObservers();
-    }
 
     public void setChangedL() {
         setChanged();
     }
 
-    public boolean enabled(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(XKey.ENABLED, false);
-    }
 
     public boolean takenPhotoEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)

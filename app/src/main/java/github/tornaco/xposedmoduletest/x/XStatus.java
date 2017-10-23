@@ -6,7 +6,7 @@ package github.tornaco.xposedmoduletest.x;
  */
 
 public enum XStatus {
-    RUNNING, ERROR, UNKNOWN;
+    RUNNING, ERROR, WARN, UNKNOWN;
 
     public static XStatus valueOf(int ord) {
         for (XStatus x : values()) {

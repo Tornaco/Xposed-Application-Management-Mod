@@ -28,9 +28,8 @@ import dev.tornaco.vangogh.media.Image;
 import dev.tornaco.vangogh.media.ImageSource;
 import github.tornaco.android.common.util.ApkUtil;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.bean.DaoManager;
-import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
+import github.tornaco.xposedmoduletest.x.XAppGuardManager;
 import tornaco.lib.widget.CheckableImageView;
 
 /**
@@ -120,13 +119,12 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
     }
 
     private void removePkgAsync(PackageInfo pkg) {
-        DaoSession d = DaoManager.getInstance().getSession(context);
-        if (d == null) return;
-        d.getPackageInfoDao().delete(pkg);
-        onPackageRemoved();
+        XAppGuardManager.get().removePackages(new String[]{pkg.getPkgName()});
+        XAppGuardManager.get().forceWriteState();
+        onPackageRemoved(pkg.getPkgName());
     }
 
-    protected void onPackageRemoved() {
+    protected void onPackageRemoved(String pkg) {
 
     }
 

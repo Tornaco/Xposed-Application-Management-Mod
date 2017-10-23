@@ -40,6 +40,7 @@ public class XApp extends Application {
                 .logLevel(XSettings.isDevMode(this)
                         ? Logger.LogLevel.ALL : Logger.LogLevel.WARN)
                 .build());
+        XAppGuardManager.init();
         XActivation.reloadAsync(this);
     }
 }

@@ -5,9 +5,8 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.RemoteException;
+import android.os.ServiceManager;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
@@ -15,7 +14,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -29,15 +27,13 @@ import ezy.assist.compat.SettingsCompat;
 import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.BuildConfig;
-import github.tornaco.xposedmoduletest.ICallback;
+import github.tornaco.xposedmoduletest.IAppGuardService;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.service.AppServiceProxy;
 import github.tornaco.xposedmoduletest.x.XAppGithubCommitSha;
+import github.tornaco.xposedmoduletest.x.XContext;
 import github.tornaco.xposedmoduletest.x.XEnc;
-import github.tornaco.xposedmoduletest.x.XExecutor;
 import github.tornaco.xposedmoduletest.x.XKey;
 import github.tornaco.xposedmoduletest.x.XSettings;
-import github.tornaco.xposedmoduletest.x.XStatus;
 
 /**
  * Created by guohao4 on 2017/9/7.
@@ -224,16 +220,22 @@ public class SettingsActivity extends AppCompatActivity {
                     .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                         @Override
                         public boolean onPreferenceClick(Preference preference) {
-                            new AppStartNoter(new Handler(Looper.getMainLooper()), getActivity())
-                                    .note("HELL WORLD",
-                                            BuildConfig.APPLICATION_ID,
-                                            "HELL WORLD",
-                                            new ICallback.Stub() {
-                                                @Override
-                                                public void onRes(int res, int flags) throws RemoteException {
+//                            new AppStartNoter(new Handler(Looper.getMainLooper()), getActivity())
+//                                    .note("HELL WORLD",
+//                                            BuildConfig.APPLICATION_ID,
+//                                            "HELL WORLD",
+//                                            new ICallback.Stub() {
+//                                                @Override
+//                                                public void onRes(int res, int flags) throws RemoteException {
+//
+//                                                }
+//                                            });
+                            IAppGuardService service = IAppGuardService.Stub.asInterface(ServiceManager.getService(XContext.APP_GUARD_SERVICE));
+                            try {
+                                service.testUI();
+                            } catch (RemoteException e) {
 
-                                                }
-                                            });
+                            }
                             return true;
                         }
                     });
@@ -242,35 +244,7 @@ public class SettingsActivity extends AppCompatActivity {
                     .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                         @Override
                         public boolean onPreferenceClick(Preference preference) {
-                            XExecutor.execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    AppServiceProxy serviceProxy = new AppServiceProxy(getActivity());
-                                    String serviceStr = "";
-                                    try {
-                                        int status = serviceProxy.getXModuleStatus();
-                                        serviceStr += ("STATUS: " + XStatus.valueOf(status) + "\n");
-                                        serviceProxy = new AppServiceProxy(getActivity());
-                                        String codeName = serviceProxy.getXModuleCodeName();
-                                        serviceStr += ("CODENAME: " + codeName);
-                                    } catch (RemoteException ignored) {
 
-                                    } finally {
-                                        final String finalServiceStr = serviceStr;
-
-                                        XExecutor.runOnUIThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                new AlertDialog.Builder(getActivity())
-                                                        .setTitle("MODULE INFO")
-                                                        .setMessage(finalServiceStr)
-                                                        .setPositiveButton(android.R.string.ok, null)
-                                                        .show();
-                                            }
-                                        });
-                                    }
-                                }
-                            });
                             return true;
                         }
                     });

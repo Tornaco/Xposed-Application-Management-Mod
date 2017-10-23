@@ -13,16 +13,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import org.newstand.logger.Logger;
-
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.loader.PackageLoader;
-import github.tornaco.xposedmoduletest.service.AppService;
 import github.tornaco.xposedmoduletest.ui.adapter.AppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
+import github.tornaco.xposedmoduletest.x.XAppGuardManager;
 import github.tornaco.xposedmoduletest.x.XExecutor;
 import github.tornaco.xposedmoduletest.x.XSettings;
 
@@ -77,6 +75,7 @@ public class GuardAppNavActivity extends LockedActivity {
         startLoading();
     }
 
+
     protected void initView() {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
@@ -104,19 +103,16 @@ public class GuardAppNavActivity extends LockedActivity {
             }
         });
 
-        final XSettings xSettings = XSettings.get();
-
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 SwitchBar switchBar = (SwitchBar) findViewById(R.id.switchbar);
                 if (switchBar == null) return;
-                switchBar.setChecked(xSettings.enabled(getApplicationContext()));
+                switchBar.setChecked(XAppGuardManager.get().isEnabled());
                 switchBar.addOnSwitchChangeListener(new SwitchBar.OnSwitchChangeListener() {
                     @Override
                     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-                        Logger.d("onSwitchChanged:" + isChecked);
-                        xSettings.setEnabled(getApplicationContext(), isChecked);
+                        XAppGuardManager.get().setEnabled(isChecked);
                     }
                 });
                 switchBar.show();
@@ -127,10 +123,9 @@ public class GuardAppNavActivity extends LockedActivity {
     protected AppListAdapter onCreateAdapter() {
         return new AppListAdapter(this) {
             @Override
-            protected void onPackageRemoved() {
-                super.onPackageRemoved();
+            protected void onPackageRemoved(String p) {
+                super.onPackageRemoved(p);
                 startLoading();
-                startService(new Intent(GuardAppNavActivity.this, AppService.class));
             }
         };
     }

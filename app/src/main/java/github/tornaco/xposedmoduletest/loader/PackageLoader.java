@@ -13,9 +13,9 @@ import java.util.List;
 
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
-import github.tornaco.xposedmoduletest.bean.DaoManager;
-import github.tornaco.xposedmoduletest.bean.DaoSession;
+import github.tornaco.android.common.util.ApkUtil;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
+import github.tornaco.xposedmoduletest.x.XAppGuardManager;
 
 /**
  * Created by guohao4 on 2017/10/18.
@@ -91,22 +91,23 @@ public interface PackageLoader {
         @NonNull
         @Override
         public List<PackageInfo> loadStored() {
-            DaoSession daoSession = DaoManager.getInstance().getSession(context);
-            if (daoSession == null) return new ArrayList<>(0);
-            return daoSession.getPackageInfoDao().loadAll();
+            final List<PackageInfo> out = new ArrayList<>();
+            Collections.consumeRemaining(XAppGuardManager.get().getPackages(), new Consumer<String>() {
+                @Override
+                public void accept(String s) {
+                    PackageInfo p = new PackageInfo();
+                    p.setPkgName(s);
+                    p.setAppName(String.valueOf(ApkUtil.loadNameByPkgName(context, s)));
+                    out.add(p);
+                }
+            });
+            return out;
         }
 
         @NonNull
         @Override
         public List<PackageInfo> loadStoredGuarded() {
-            final List<PackageInfo> out = new ArrayList<>();
-            Collections.consumeRemaining(loadStored(), new Consumer<PackageInfo>() {
-                @Override
-                public void accept(PackageInfo packageInfo) {
-                    if (packageInfo.getGuard()) out.add(packageInfo);
-                }
-            });
-            return out;
+            return loadStored();
         }
     }
 }

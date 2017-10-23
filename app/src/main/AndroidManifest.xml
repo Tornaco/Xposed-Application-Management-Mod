@@ -26,6 +26,10 @@
             android:name="xposedminversion"
             android:value="53" />
 
+        <activity
+            android:name=".ui.LockStubActivity"
+            android:exported="true" />
+
         <activity android:name=".ui.GuardAppNavActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

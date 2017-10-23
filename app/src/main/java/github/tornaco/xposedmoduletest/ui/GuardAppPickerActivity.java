@@ -1,24 +1,19 @@
 package github.tornaco.xposedmoduletest.ui;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import java.util.List;
 
-import github.tornaco.android.common.Collections;
-import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.bean.DaoManager;
-import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.loader.PackageLoader;
-import github.tornaco.xposedmoduletest.service.AppService;
 import github.tornaco.xposedmoduletest.ui.adapter.AppListAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.AppPickerListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
+import github.tornaco.xposedmoduletest.x.XAppGuardManager;
 import github.tornaco.xposedmoduletest.x.XExecutor;
 
 public class GuardAppPickerActivity extends GuardAppNavActivity {
@@ -46,36 +41,28 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
                 p.setMessage("HANDLING");
                 p.setIndeterminate(true);
                 p.show();
-                final DaoSession session = DaoManager.getInstance().getSession(getApplicationContext());
-                if (session != null) {
-                    XExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            Collections.consumeRemaining(appListAdapter.getPackageInfos(),
-                                    new Consumer<PackageInfo>() {
-                                        @Override
-                                        public void accept(PackageInfo packageInfo) {
-                                            session.getPackageInfoDao().insertOrReplace(packageInfo);
-                                        }
-                                    });
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    p.dismiss();
-                                    finish();
-                                }
-                            });
+                XExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        List<PackageInfo> packageInfoList = appListAdapter.getPackageInfos();
+                        String pkgs[] = new String[packageInfoList.size()];
+                        for (int i = 0; i < packageInfoList.size(); i++) {
+                            if (packageInfoList.get(i).getGuard())
+                                pkgs[i] = packageInfoList.get(i).getPkgName();
                         }
-                    });
-                }
+                        XAppGuardManager.get().addPackages(pkgs);
+                        XAppGuardManager.get().forceWriteState();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                p.dismiss();
+                                finish();
+                            }
+                        });
+                    }
+                });
             }
         });
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        startService(new Intent(this, AppService.class));
     }
 
     protected List<PackageInfo> performLoading() {

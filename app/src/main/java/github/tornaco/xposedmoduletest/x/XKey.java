@@ -17,4 +17,7 @@ public interface XKey {
     String FP_ENABLED = "fp_enabled";
     String ALWAYS_NOTE = "always_note";
     String FIRST_RUN = "first_ru" + BuildConfig.VERSION_NAME;
+
+    String EXTRA_PKG_NAME = "extra.pkg";
+    String EXTRA_TRANS_ID = "extra.tid";
 }

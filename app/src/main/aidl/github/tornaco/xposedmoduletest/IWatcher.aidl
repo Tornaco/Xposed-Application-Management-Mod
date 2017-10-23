@@ -3,8 +3,6 @@ package github.tornaco.xposedmoduletest;
 
 // Declare any non-default types here with import statements
 
-interface IXModuleToken {
-    void dump();
-    int status();
-    String codename();
+interface IWatcher {
+    void onServiceStart();
 }
