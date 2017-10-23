@@ -56,7 +56,7 @@ class XModuleImpl22 extends XModule {
                         int callingUID = Binder.getCallingUid();
                         int callingPID = Binder.getCallingPid();
 
-                        mAppGuardService.verify(affinity, callingUID, callingPID, new XAppGuardService.VerifyListener() {
+                        mAppGuardService.verify(null, affinity, callingUID, callingPID, new XAppGuardService.VerifyListener() {
                             @Override
                             public void onVerifyRes(String pkg, int uid, int pid, int res) {
                                 if (res == XMode.MODE_ALLOWED) try {
@@ -114,7 +114,7 @@ class XModuleImpl22 extends XModule {
                                 if (componentName == null) return;
                                 final String pkgName = componentName.getPackageName();
 
-                                XposedBridge.log(TAG + "HOOKING startActivity:" + pkgName);
+                                XposedBridge.log(TAG + "HOOKING startActivity:" + intent);
 
                                 // Package has been passed.
                                 if (mAppGuardService.passed(pkgName)) {
@@ -134,7 +134,12 @@ class XModuleImpl22 extends XModule {
                                 System.arraycopy(param.args, 0, args, 0, param.args.length);
                                 args[args.length - 1] = callingUserId;
 
-                                mAppGuardService.verify(pkgName, callingUID, callingPID, new XAppGuardService.VerifyListener() {
+                                Bundle bnds = (Bundle) param.args[9];
+                                if (DEBUG_V) {
+                                    XposedBridge.log(TAG + "bnds:" + bnds);
+                                }
+
+                                mAppGuardService.verify(bnds, pkgName, callingUID, callingPID, new XAppGuardService.VerifyListener() {
                                     @Override
                                     public void onVerifyRes(String pkg, int uid, int pid, int res) {
                                         if (res == XMode.MODE_ALLOWED) try {

@@ -5,6 +5,7 @@ import android.app.ActivityOptions;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Bundle;
 import android.util.Log;
 
 import java.lang.reflect.Method;
@@ -20,6 +21,8 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
  */
 
 class XModuleImpl24 extends XModule {
+
+    private int activityOptsIndex = -1;
 
     @Override
     void onLoadingAndroid(XC_LoadPackage.LoadPackageParam lpparam) {
@@ -56,7 +59,7 @@ class XModuleImpl24 extends XModule {
                         int callingUID = Binder.getCallingUid();
                         int callingPID = Binder.getCallingPid();
 
-                        mAppGuardService.verify(affinity, callingUID, callingPID,
+                        mAppGuardService.verify(null, affinity, callingUID, callingPID,
                                 new XAppGuardService.VerifyListener() {
                                     @Override
                                     public void onVerifyRes(String pkg, int uid, int pid, int res) {
@@ -96,6 +99,13 @@ class XModuleImpl24 extends XModule {
                     startActivityLockedExact = method;
                     startActivityLockedExact.setAccessible(true);
                     matchCount++;
+
+                    Class[] classes = method.getParameterTypes();
+                    for (int i = 0; i < classes.length; i++) {
+                        if (ActivityOptions.class == classes[i]) {
+                            activityOptsIndex = i;
+                        }
+                    }
                 }
             }
 
@@ -121,17 +131,12 @@ class XModuleImpl24 extends XModule {
                                 Intent intent = (Intent) param.args[1];
                                 if (intent == null) return;
 
-                                if (DEBUG_V) {
-                                    XposedBridge.log(TAG + "HOOKING intent: " + intent);
-                                    XposedBridge.log(TAG + "HOOKING is home: " + isLauncherIntent(intent));
-                                }
-
                                 ComponentName componentName = intent.getComponent();
                                 if (componentName == null) return;
                                 final String pkgName = componentName.getPackageName();
 
                                 if (DEBUG_V)
-                                    XposedBridge.log(TAG + "HOOKING startActivityLocked:" + pkgName);
+                                    XposedBridge.log(TAG + "HOOKING startActivityLocked:" + intent);
 
                                 // Package has been passed.
                                 if (mAppGuardService.passed(pkgName)) {
@@ -146,19 +151,28 @@ class XModuleImpl24 extends XModule {
                                 int callingUID = Binder.getCallingUid();
                                 int callingPID = Binder.getCallingPid();
 
-                                mAppGuardService.verify(pkgName, callingUID, callingPID, new XAppGuardService.VerifyListener() {
-                                    @Override
-                                    public void onVerifyRes(String pkg, int uid, int pid, int res) {
-                                        if (res == XMode.MODE_ALLOWED) try {
-                                            XposedBridge.invokeOriginalMethod(finalStartActivityLockedExact,
-                                                    param.thisObject, param.args);
-                                        } catch (Exception e) {
-                                            XposedBridge.log(TAG
-                                                    + "Error@"
-                                                    + Log.getStackTraceString(e));
-                                        }
-                                    }
-                                });
+                                Bundle opts = null;
+                                if (activityOptsIndex > 0) {
+                                    opts = (Bundle) param.args[activityOptsIndex];
+                                }
+                                if (DEBUG_V) {
+                                    XposedBridge.log(TAG + "bnds:" + opts);
+                                }
+
+                                mAppGuardService.verify(opts, pkgName, callingUID, callingPID,
+                                        new XAppGuardService.VerifyListener() {
+                                            @Override
+                                            public void onVerifyRes(String pkg, int uid, int pid, int res) {
+                                                if (res == XMode.MODE_ALLOWED) try {
+                                                    XposedBridge.invokeOriginalMethod(finalStartActivityLockedExact,
+                                                            param.thisObject, param.args);
+                                                } catch (Exception e) {
+                                                    XposedBridge.log(TAG
+                                                            + "Error@"
+                                                            + Log.getStackTraceString(e));
+                                                }
+                                            }
+                                        });
 
                                 param.setResult(ActivityManager.START_SUCCESS);
                             } catch (Exception e) {

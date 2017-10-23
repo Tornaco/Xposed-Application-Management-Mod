@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
@@ -123,14 +124,12 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
                 || !WATCHED_PACKAGES.contains(pkg);
     }
 
-    void verify(String pkg, int uid, int pid, VerifyListener listener) {
+    void verify(Bundle bnds, String pkg, int uid, int pid, VerifyListener listener) {
         int tid = TransactionFactory.transactionID();
         Transaction transaction = new Transaction(listener, uid, pid, tid, pkg);
         TRANSACTIONS.put(tid, transaction);
-        Slog.d(TAG, "Put tid:" + tid);
-
         Intent intent = buildLockIntent(tid, pkg);
-        mContext.startActivity(intent);
+        mContext.startActivity(intent, bnds);
     }
 
     private void readSettings() {
@@ -258,7 +257,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
             while (stringTokenizer.hasMoreTokens()) {
                 String p = stringTokenizer.nextToken();
                 WATCHED_PACKAGES.add(p);
-                Slog.d(TAG, "Add:" + p);
+                Slog.d(TAG, "Read:" + p);
             }
         } catch (Exception e) {
             Slog.e(TAG, "Fail loadPackages:" + Log.getStackTraceString(e));
