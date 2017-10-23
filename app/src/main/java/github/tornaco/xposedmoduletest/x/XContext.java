@@ -7,7 +7,7 @@ package github.tornaco.xposedmoduletest.x;
 
 public class XContext {
 
-    public static final String APP_GUARD_SERVICE = "app_guard_service";
+    public static final String APP_GUARD_SERVICE = "user.appguard";
 
-    public static final String SETTINGS_APP_GUARD_ENABLED = "settings_app_guard_enabled";
+    static final String SETTINGS_APP_GUARD_ENABLED = "settings_app_guard_enabled";
 }

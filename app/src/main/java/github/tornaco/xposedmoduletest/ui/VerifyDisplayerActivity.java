@@ -33,7 +33,7 @@ import github.tornaco.xposedmoduletest.x.XSettings;
  * Email: Tornaco@163.com
  */
 
-public class LockStubActivity extends AppCompatActivity {
+public class VerifyDisplayerActivity extends AppCompatActivity {
 
     private String pkg;
     private int tid;
@@ -142,6 +142,13 @@ public class LockStubActivity extends AppCompatActivity {
             mCancellationSignal.cancel();
         }
         XAppGuardManager.get().setResult(tid, XMode.MODE_ALLOWED);
+        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        onFail();
     }
 
     private void onFail() {
@@ -149,12 +156,7 @@ public class LockStubActivity extends AppCompatActivity {
             mCancellationSignal.cancel();
         }
         XAppGuardManager.get().setResult(tid, XMode.MODE_DENIED);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        onFail();
+        finish();
     }
 
     private CancellationSignal setupFingerPrint(FingerprintManagerCompat.AuthenticationCallback callback) {

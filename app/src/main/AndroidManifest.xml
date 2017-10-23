@@ -27,7 +27,7 @@
             android:value="53" />
 
         <activity
-            android:name=".ui.LockStubActivity"
+            android:name=".ui.VerifyDisplayerActivity"
             android:exported="true" />
 
         <activity android:name=".ui.GuardAppNavActivity">

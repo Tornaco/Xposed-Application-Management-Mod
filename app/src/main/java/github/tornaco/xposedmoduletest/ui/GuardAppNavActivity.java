@@ -13,6 +13,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import org.newstand.logger.Logger;
+
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
@@ -37,9 +39,15 @@ public class GuardAppNavActivity extends LockedActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutRes());
+        initService();
         initView();
         initFirstRun();
         startLoading();
+    }
+
+    private void initService() {
+        boolean serviceConnected = XAppGuardManager.get().isServiceConnected();
+        Logger.d("serviceConnected:" + serviceConnected);
     }
 
     protected int getLayoutRes() {

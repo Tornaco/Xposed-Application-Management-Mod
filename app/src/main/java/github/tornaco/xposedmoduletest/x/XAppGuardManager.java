@@ -21,6 +21,7 @@ public class XAppGuardManager {
 
     private XAppGuardManager() {
         mService = IAppGuardService.Stub.asInterface(ServiceManager.getService(XContext.APP_GUARD_SERVICE));
+        Logger.d("XAppGuardManager, service: " + mService);
     }
 
     static void init() {
@@ -32,6 +33,7 @@ public class XAppGuardManager {
     }
 
     public boolean isServiceConnected() {
+        Logger.v("Service connected: " + mService);
         return mService != null;
     }
 
@@ -100,6 +102,7 @@ public class XAppGuardManager {
     }
 
     public void forceWriteState() {
+        if (!isServiceConnected()) return;
         try {
             mService.forceWriteState();
         } catch (RemoteException e) {
@@ -108,6 +111,7 @@ public class XAppGuardManager {
     }
 
     public void forceReadState() {
+        if (!isServiceConnected()) return;
         try {
             mService.forceReadState();
         } catch (RemoteException e) {
@@ -116,6 +120,7 @@ public class XAppGuardManager {
     }
 
     public String[] getPackages() {
+        if (!isServiceConnected()) return new String[0];
         try {
             return mService.getPackages();
         } catch (RemoteException e) {

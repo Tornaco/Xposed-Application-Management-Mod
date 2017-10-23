@@ -44,6 +44,7 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
     }
 
     private void hookAMSShutdown(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedBridge.log(TAG + "hookAMSShutdown...");
         try {
             Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService", lpparam.classLoader);
             XposedBridge.hookAllMethods(ams, "shutdown", new XC_MethodHook() {
@@ -55,6 +56,7 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                     }
                 }
             });
+            XposedBridge.log(TAG + "hookAMSShutdown OK");
         } catch (Exception e) {
             XposedBridge.log(TAG + "Fail hookAMSShutdown");
             xStatus = XStatus.ERROR;
@@ -62,9 +64,12 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
     }
 
     private void hookSystemServiceRegister(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedBridge.log(TAG + "hookSystemServiceRegister...");
+        XposedBridge.log(TAG + "hookSystemServiceRegister OK");
     }
 
     private void hookAMSSystemReady(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedBridge.log(TAG + "hookAMSSystemReady...");
         try {
             Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService", lpparam.classLoader);
             XposedBridge.hookAllMethods(ams, "systemReady", new XC_MethodHook() {
@@ -76,6 +81,7 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                     }
                 }
             });
+            XposedBridge.log(TAG + "hookAMSSystemReady OK");
         } catch (Exception e) {
             XposedBridge.log(TAG + "Fail hookAMSSystemReady");
             xStatus = XStatus.ERROR;
@@ -83,6 +89,7 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
     }
 
     private void hookAMSStart(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedBridge.log(TAG + "hookAMSStart...");
         try {
             Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService",
                     lpparam.classLoader);
@@ -95,6 +102,7 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                     mAppGuardService.publish();
                 }
             });
+            XposedBridge.log(TAG + "hookAMSStart OK");
         } catch (Exception e) {
             XposedBridge.log(TAG + "Fail hook hookAMSStart");
             xStatus = XStatus.ERROR;
@@ -104,6 +112,7 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
     // http://androidxref.com/7.0.0_r1/xref/frameworks/base/services/core/java/com/android/server/fingerprint/FingerprintService.java
     // http://androidxref.com/6.0.1_r10/xref/frameworks/base/services/core/java/com/android/server/fingerprint/FingerprintService.java
     private void hookFPService(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedBridge.log(TAG + "hookFPService...");
         try {
             XposedBridge.hookAllMethods(
                     XposedHelpers.findClass("com.android.server.fingerprint.FingerprintService", lpparam.classLoader),
@@ -118,6 +127,7 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                             }
                         }
                     });
+            XposedBridge.log(TAG + "hookFPService OK");
         } catch (Exception e) {
             XposedBridge.log(TAG + "Fail hookFPService" + e);
             if (xStatus != XStatus.ERROR) xStatus = XStatus.WARN;
@@ -126,7 +136,7 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 
     @Override
     public void initZygote(StartupParam startupParam) throws Throwable {
-
+        XposedBridge.log(TAG + "initZygote...");
     }
 
     boolean isLauncherIntent(Intent intent) {

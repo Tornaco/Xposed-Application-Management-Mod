@@ -1,5 +1,7 @@
 package github.tornaco.xposedmoduletest.x;
 
+import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -16,7 +18,6 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Slog;
-import android.util.SparseArray;
 
 import com.android.internal.os.AtomicFile;
 
@@ -25,7 +26,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.ExecutorService;
@@ -47,10 +50,17 @@ import github.tornaco.xposedmoduletest.IWatcher;
 @GithubCommitSha
 class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback {
 
+    private static final boolean DEBUG_V = true;
+
     private static final String TAG = "XAppGuardService";
 
-    private static final int MSG_VERIFY_RES = 0x100;
-    private static final int MSG_SET_ENABLED = 0x200;
+    private static final int MSG_VERIFY_RES = 0x1;
+    private static final int MSG_SET_ENABLED = 0x2;
+    private static final int MSG_VERIFY = 0x3;
+    private static final int MSG_READ_STATE = 0x4;
+    private static final int MSG_WRITE_STATE = 0x5;
+    private static final int MSG_ADD_PACKAGES = 0x6;
+    private static final int MSG_REMOVE_PACKAGES = 0x7;
 
     private Context mContext;
     private Handler mHandler;
@@ -63,7 +73,8 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     private static final Set<String> PREBUILT_WHITE_LIST = new HashSet<>();
 
-    private final SparseArray<Transaction> TRANSACTIONS = new SparseArray<>();
+    @SuppressLint("UseSparseArrays")
+    private final Map<Integer, Transaction> TRANSACTION_MAP = new HashMap<>();
 
     static {
         PREBUILT_WHITE_LIST.add("com.android.systemui");
@@ -86,23 +97,24 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         }
     };
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     XAppGuardService(Context context) {
         this.mContext = context;
         File dataDir = Environment.getDataDirectory();
         File systemDir = new File(dataDir, "system");
         systemDir.mkdirs();
         mXmlFile = new AtomicFile(new File(systemDir, "app_guard.xml"));
-        Slog.d(TAG, "xml file:" + mXmlFile.getBaseFile());
+        if (DEBUG_V) Slog.d(TAG, "xml file: " + mXmlFile.getBaseFile());
     }
 
     void publish() {
         ServiceManager.addService(XContext.APP_GUARD_SERVICE, asBinder());
-        Slog.d(TAG, "published:" + Binder.getCallingUid());
+        if (DEBUG_V) Slog.d(TAG, "published: " + Binder.getCallingUid());
     }
 
     void systemReady() {
-        Slog.d(TAG, "systemReady:" + Binder.getCallingUid());
-        mHandler = new Handler();
+        if (DEBUG_V) Slog.d(TAG, "systemReady: " + Binder.getCallingUid());
+        mHandler = new Handler(this);
         readSettings();
         loadPackages();
         registerReceiver();
@@ -113,7 +125,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     }
 
     void shutdown() {
-        Slog.d(TAG, "shutdown...");
+        if (DEBUG_V) Slog.d(TAG, "shutdown...");
         persistPackages();
     }
 
@@ -125,11 +137,32 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     }
 
     void verify(Bundle bnds, String pkg, int uid, int pid, VerifyListener listener) {
+        VerifyArgs args = new VerifyArgs(bnds, pkg, uid, pid, listener);
+        mHandler.obtainMessage(MSG_VERIFY, args).sendToTarget();
+    }
+
+    private void onVerify(VerifyArgs args) {
+        if (DEBUG_V) Slog.d(TAG, "onVerify:" + args);
         int tid = TransactionFactory.transactionID();
+        int uid = args.uid;
+        int pid = args.pid;
+        String pkg = args.pkg;
+        Bundle bnds = args.bnds;
+        VerifyListener listener = args.listener;
+
         Transaction transaction = new Transaction(listener, uid, pid, tid, pkg);
-        TRANSACTIONS.put(tid, transaction);
-        Intent intent = buildLockIntent(tid, pkg);
-        mContext.startActivity(intent, bnds);
+
+        synchronized (TRANSACTION_MAP) {
+            TRANSACTION_MAP.put(tid, transaction);
+
+        }
+
+        Intent intent = buildVerifyIntent(tid, pkg);
+        try {
+            mContext.startActivity(intent, bnds);
+        } catch (ActivityNotFoundException anf) {
+            Slog.e(TAG, "*** FATAL ERROR *** ActivityNotFoundException!!!");
+        }
     }
 
     private void readSettings() {
@@ -137,9 +170,9 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         try {
             boolean enabled = (Settings.System.getInt(contentResolver, XContext.SETTINGS_APP_GUARD_ENABLED) == 1);
             mEnabled.set(enabled);
-            Slog.d(TAG, "enabled:" + enabled);
+            if (DEBUG_V) Slog.d(TAG, "enabled:" + enabled);
         } catch (Settings.SettingNotFoundException e) {
-            Slog.w(TAG, "SettingNotFoundException:" + e);
+            if (DEBUG_V) Slog.w(TAG, "SettingNotFoundException:" + e);
         }
     }
 
@@ -150,7 +183,8 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     @Override
     public void setEnabled(boolean enabled) throws RemoteException {
-        mHandler.obtainMessage(MSG_SET_ENABLED, enabled ? 1 : 0, 0).sendToTarget();
+        if (DEBUG_V) Slog.d(TAG, "setEnabled:" + enabled + ", mEnabled:" + mEnabled.get());
+        mHandler.obtainMessage(MSG_SET_ENABLED, enabled ? 1 : 0, 0, null).sendToTarget();
     }
 
     @Override
@@ -164,6 +198,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     }
 
     private void onSetEnabled(boolean enabled) {
+        if (DEBUG_V) Slog.d(TAG, "onSetEnabled:" + enabled);
         if (mEnabled.compareAndSet(!enabled, enabled)) {
             ContentResolver contentResolver = mContext.getContentResolver();
             Settings.System.putInt(contentResolver, XContext.SETTINGS_APP_GUARD_ENABLED, enabled ? 1 : 0);
@@ -172,27 +207,47 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     @Override
     public void setResult(int transactionID, final int res) throws RemoteException {
-        Slog.d(TAG, "setResult:" + transactionID + ", res:" + res);
+        if (DEBUG_V) Slog.d(TAG, "setResult:" + transactionID + ", res:" + res);
         mHandler.obtainMessage(MSG_VERIFY_RES, res, transactionID, null).sendToTarget();
-        TRANSACTIONS.remove(transactionID);
+    }
+
+    private void onSetResult(int res, int transactionID) {
+        synchronized (TRANSACTION_MAP) {
+            Transaction transaction = TRANSACTION_MAP.remove(transactionID);
+            if (transaction == null) {
+                Slog.e(TAG, "Can not find transaction for:" + transactionID);
+                if (DEBUG_V)
+                    Slog.e(TAG, "We have transactions count of:" + TRANSACTION_MAP.values().size());
+
+                return;
+            }
+            if (res == XMode.MODE_ALLOWED) {
+                PASSED_PACKAGES.add(transaction.pkg);
+            }
+            transaction.listener.onVerifyRes(transaction.pkg, transaction.uid, transaction.pid, res);
+        }
     }
 
     @Override
     public void testUI() throws RemoteException {
         long id = Binder.clearCallingIdentity();
-        Intent intent = buildLockIntent(TransactionFactory.transactionID(), "xxxxx");
+        Intent intent = buildVerifyIntent(TransactionFactory.transactionID(), "xxxxx");
         mContext.startActivity(intent);
         Binder.restoreCallingIdentity(id);
     }
 
     @Override
     public void addPackages(String[] pkgs) throws RemoteException {
+        mHandler.obtainMessage(MSG_ADD_PACKAGES, pkgs).sendToTarget();
+    }
+
+    private void onAddPackages(String[] pkgs) {
         Collections.consumeRemaining(pkgs, new Consumer<String>() {
             @Override
             public void accept(String s) {
                 if (!TextUtils.isEmpty(s) && !WATCHED_PACKAGES.contains(s)) {
                     WATCHED_PACKAGES.add(s);
-                    Slog.d(TAG, "Add package:" + s);
+                    if (DEBUG_V) Slog.d(TAG, "Add package:" + s);
                 }
             }
         });
@@ -200,12 +255,16 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     @Override
     public void removePackages(String[] pkgs) throws RemoteException {
+        mHandler.obtainMessage(MSG_REMOVE_PACKAGES, pkgs).sendToTarget();
+    }
+
+    private void onRemovePackages(String[] pkgs) {
         Collections.consumeRemaining(pkgs, new Consumer<String>() {
             @Override
             public void accept(String s) {
                 if (!TextUtils.isEmpty(s) && WATCHED_PACKAGES.contains(s)) {
                     WATCHED_PACKAGES.remove(s);
-                    Slog.d(TAG, "Remove package:" + s);
+                    if (DEBUG_V) Slog.d(TAG, "Remove package:" + s);
                 }
             }
         });
@@ -218,18 +277,24 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     @Override
     public void forceWriteState() throws RemoteException {
-        long id = Binder.clearCallingIdentity();
+        mHandler.obtainMessage(MSG_READ_STATE).sendToTarget();
+    }
+
+    private void onReadState() {
         mWorkingService.execute(new Runnable() {
             @Override
             public void run() {
                 persistPackages();
             }
         });
-        Binder.restoreCallingIdentity(id);
     }
 
     @Override
     public void forceReadState() throws RemoteException {
+        mHandler.obtainMessage(MSG_WRITE_STATE).sendToTarget();
+    }
+
+    private void onWriteState() {
         mWorkingService.execute(new Runnable() {
             @Override
             public void run() {
@@ -251,13 +316,13 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
             fileReader.close();
             bufferedReader.close();
             String content = stringBuilder.toString();
-            Slog.d(TAG, "reader:" + content);
+            if (DEBUG_V) Slog.d(TAG, "reader:" + content);
             StringTokenizer stringTokenizer = new StringTokenizer(content, "|");
             WATCHED_PACKAGES.clear();
             while (stringTokenizer.hasMoreTokens()) {
                 String p = stringTokenizer.nextToken();
                 WATCHED_PACKAGES.add(p);
-                Slog.d(TAG, "Read:" + p);
+                if (DEBUG_V) Slog.d(TAG, "Read:" + p);
             }
         } catch (Exception e) {
             Slog.e(TAG, "Fail loadPackages:" + Log.getStackTraceString(e));
@@ -292,9 +357,9 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         return stringBuilder.toString();
     }
 
-    private static Intent buildLockIntent(int transId, String pkg) {
+    private static Intent buildVerifyIntent(int transId, String pkg) {
         Intent intent = new Intent();
-        intent.setClassName(BuildConfig.APPLICATION_ID, "github.tornaco.xposedmoduletest.ui.LockStubActivity");
+        intent.setClassName(BuildConfig.APPLICATION_ID, "github.tornaco.xposedmoduletest.ui.VerifyDisplayerActivity");
         intent.putExtra(XKey.EXTRA_PKG_NAME, pkg);
         intent.putExtra(XKey.EXTRA_TRANS_ID, transId);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -303,28 +368,31 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     @Override
     public boolean handleMessage(Message msg) {
-        Slog.d(TAG, "handleMessage:" + msg.what);
+        if (DEBUG_V) Slog.d(TAG, "handleMessage:" + msg.what);
         switch (msg.what) {
             case MSG_VERIFY_RES:
-                onRes(msg.arg1, msg.arg2);
+                onSetResult(msg.arg1, msg.arg2);
                 return true;
             case MSG_SET_ENABLED:
                 onSetEnabled(msg.arg1 == 1);
                 return true;
+            case MSG_VERIFY:
+                onVerify((VerifyArgs) msg.obj);
+                return true;
+            case MSG_ADD_PACKAGES:
+                onAddPackages((String[]) msg.obj);
+                return true;
+            case MSG_REMOVE_PACKAGES:
+                onRemovePackages((String[]) msg.obj);
+                return true;
+            case MSG_READ_STATE:
+                onReadState();
+                return true;
+            case MSG_WRITE_STATE:
+                onWriteState();
+                return true;
         }
         return false;
-    }
-
-    private void onRes(int res, int transactionID) {
-        final Transaction transaction = TRANSACTIONS.get(transactionID);
-        if (transaction == null) {
-            Slog.e(TAG, "Can not find transaction for:" + transactionID);
-            return;
-        }
-        if (res == XMode.MODE_ALLOWED) {
-            PASSED_PACKAGES.add(transaction.pkg);
-        }
-        transaction.listener.onVerifyRes(transaction.pkg, transaction.uid, transaction.pid, res);
     }
 
     private static class TransactionFactory {
@@ -354,6 +422,16 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         }
 
         @Override
+        public String toString() {
+            return "Transaction{" +
+                    "uid=" + uid +
+                    ", pid=" + pid +
+                    ", tid=" + tid +
+                    ", pkg='" + pkg + '\'' +
+                    '}';
+        }
+
+        @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
@@ -370,6 +448,22 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
             int result = tid;
             result = 31 * result + pkg.hashCode();
             return result;
+        }
+    }
+
+    private class VerifyArgs {
+        Bundle bnds;
+        String pkg;
+        int uid;
+        int pid;
+        VerifyListener listener;
+
+        VerifyArgs(Bundle bnds, String pkg, int uid, int pid, VerifyListener listener) {
+            this.bnds = bnds;
+            this.pkg = pkg;
+            this.uid = uid;
+            this.pid = pid;
+            this.listener = listener;
         }
     }
 }

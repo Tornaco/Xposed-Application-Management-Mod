@@ -151,15 +151,17 @@ class XModuleImpl24 extends XModule {
                                 int callingUID = Binder.getCallingUid();
                                 int callingPID = Binder.getCallingPid();
 
-                                Bundle opts = null;
+                                ActivityOptions opts = null;
+                                Bundle optsBundle = null;
                                 if (activityOptsIndex > 0) {
-                                    opts = (Bundle) param.args[activityOptsIndex];
+                                    opts = (ActivityOptions) param.args[activityOptsIndex];
+                                    optsBundle = opts.toBundle();
                                 }
                                 if (DEBUG_V) {
-                                    XposedBridge.log(TAG + "bnds:" + opts);
+                                    XposedBridge.log(TAG + "bnds:" + optsBundle);
                                 }
 
-                                mAppGuardService.verify(opts, pkgName, callingUID, callingPID,
+                                mAppGuardService.verify(optsBundle, pkgName, callingUID, callingPID,
                                         new XAppGuardService.VerifyListener() {
                                             @Override
                                             public void onVerifyRes(String pkg, int uid, int pid, int res) {
