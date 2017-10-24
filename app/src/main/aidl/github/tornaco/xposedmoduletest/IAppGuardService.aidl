@@ -8,6 +8,8 @@ import github.tornaco.xposedmoduletest.IWatcher;
 interface IAppGuardService {
     boolean isEnabled();
     void setEnabled(boolean enabled);
+    void ignore(String pkg);
+    void pass(String pkg);
     int getStatus();
     String[] getPackages();
     void setResult(int transactionID, int res);

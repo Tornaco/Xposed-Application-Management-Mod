@@ -177,6 +177,9 @@ public class GuardAppNavActivity extends LockedActivity {
         if (item.getItemId() == R.id.action_help) {
             navigateToWebPage(getString(R.string.app_wiki_url));
         }
+        if (item.getItemId() == R.id.action_open_source) {
+            navigateToWebPage(getString(R.string.app_source_url));
+        }
         return super.onOptionsItemSelected(item);
     }
 

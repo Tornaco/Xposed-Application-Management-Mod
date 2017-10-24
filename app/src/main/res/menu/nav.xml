@@ -9,8 +9,7 @@
         android:title="@string/title_help" />
 
     <item
-        android:id="@+id/action_donate"
-        android:visible="false"
-        android:title="@string/title_donate" />
+        android:id="@+id/action_open_source"
+        android:title="@string/title_open_source" />
 
 </menu>

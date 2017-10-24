@@ -63,6 +63,8 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     private static final int MSG_WRITE_STATE = 0x5;
     private static final int MSG_ADD_PACKAGES = 0x6;
     private static final int MSG_REMOVE_PACKAGES = 0x7;
+    private static final int MSG_PASS = 0x8;
+    private static final int MSG_IGNORE = 0x9;
     private static final int MSG_TRANSACTION_EXPIRE_BASE = 0x99;
 
     private Context mContext;
@@ -202,6 +204,16 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     public void setEnabled(boolean enabled) throws RemoteException {
         if (DEBUG_V) Slog.d(TAG, "setEnabled:" + enabled + ", mEnabled:" + mEnabled.get());
         mHandler.obtainMessage(MSG_SET_ENABLED, enabled ? 1 : 0, 0, null).sendToTarget();
+    }
+
+    @Override
+    public void ignore(String pkg) throws RemoteException {
+        mHandler.obtainMessage(MSG_IGNORE, pkg).sendToTarget();
+    }
+
+    @Override
+    public void pass(String pkg) throws RemoteException {
+        mHandler.obtainMessage(MSG_PASS, pkg).sendToTarget();
     }
 
     @Override
@@ -417,6 +429,9 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
             case MSG_WRITE_STATE:
                 onWriteState();
                 return true;
+            case MSG_PASS:
+            case MSG_IGNORE:
+                return false;
             default:
                 int transaction = (int) msg.obj;
                 onSetResult(XMode.MODE_IGNORED, transaction);
@@ -440,6 +455,10 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
                 return "MSG_VERIFY_RES";
             case MSG_WRITE_STATE:
                 return "MSG_WRITE_STATE";
+            case MSG_PASS:
+                return "MSG_PASS";
+            case MSG_IGNORE:
+                return "MSG_IGNORE";
             default:
                 return "MSG_TRANSACTION_EXPIRE";
         }

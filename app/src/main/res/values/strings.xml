@@ -47,4 +47,5 @@
     <string name="title_service_connected">服务已连接</string>
     <string name="title_service_not_connected">服务未连接</string>
     <string name="theme_def">DEFAULT</string>
+    <string name="title_open_source">源码</string>
 </resources>
