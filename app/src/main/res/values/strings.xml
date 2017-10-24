@@ -42,4 +42,9 @@
     <string name="summary_always_need_verify">默认机制是当屏幕熄灭重新点亮时，之前验证过的应用才会需要重新验证，如果启用了此选项，将会每次都需要验证</string>
     <string name="title_reboot_take_effect">某些设置项可能需要重启才会生效</string>
     <string name="title_passcode_wrong">密码错误，请重试</string>
+    <string name="title_delete_success">已经删除</string>
+    <string name="title_theme">主题色</string>
+    <string name="title_service_connected">服务已连接</string>
+    <string name="title_service_not_connected">服务未连接</string>
+    <string name="theme_def">DEFAULT</string>
 </resources>

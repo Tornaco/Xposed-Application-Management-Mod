@@ -50,6 +50,8 @@ import github.tornaco.xposedmoduletest.IWatcher;
 @GithubCommitSha
 class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback {
 
+    private static final long TRANSACTION_EXPIRE_TIME = 60 * 1000;
+
     private static final boolean DEBUG_V = true;
 
     private static final String TAG = "XAppGuardService";
@@ -61,6 +63,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     private static final int MSG_WRITE_STATE = 0x5;
     private static final int MSG_ADD_PACKAGES = 0x6;
     private static final int MSG_REMOVE_PACKAGES = 0x7;
+    private static final int MSG_TRANSACTION_EXPIRE_BASE = 0x99;
 
     private Context mContext;
     private Handler mHandler;
@@ -97,6 +100,8 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         }
     };
 
+    private XStatus xStatus = XStatus.UNKNOWN;
+
     @SuppressWarnings("ResultOfMethodCallIgnored")
     XAppGuardService(Context context) {
         this.mContext = context;
@@ -118,6 +123,11 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         readSettings();
         loadPackages();
         registerReceiver();
+    }
+
+    void setStatus(XStatus xStatus) {
+        this.xStatus = xStatus;
+        if (DEBUG_V) Slog.d(TAG, "setStatus:" + xStatus);
     }
 
     private void registerReceiver() {
@@ -154,8 +164,9 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
         synchronized (TRANSACTION_MAP) {
             TRANSACTION_MAP.put(tid, transaction);
-
         }
+
+        onNewTransaction(tid);
 
         Intent intent = buildVerifyIntent(tid, pkg);
         try {
@@ -163,6 +174,12 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         } catch (ActivityNotFoundException anf) {
             Slog.e(TAG, "*** FATAL ERROR *** ActivityNotFoundException!!!");
         }
+    }
+
+    private void onNewTransaction(int transaction) {
+        mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_TRANSACTION_EXPIRE_BASE
+                        + transaction,
+                transaction), TRANSACTION_EXPIRE_TIME);
     }
 
     private void readSettings() {
@@ -185,6 +202,11 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     public void setEnabled(boolean enabled) throws RemoteException {
         if (DEBUG_V) Slog.d(TAG, "setEnabled:" + enabled + ", mEnabled:" + mEnabled.get());
         mHandler.obtainMessage(MSG_SET_ENABLED, enabled ? 1 : 0, 0, null).sendToTarget();
+    }
+
+    @Override
+    public int getStatus() throws RemoteException {
+        return xStatus.ordinal();
     }
 
     @Override
@@ -225,6 +247,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
                 PASSED_PACKAGES.add(transaction.pkg);
             }
             transaction.listener.onVerifyRes(transaction.pkg, transaction.uid, transaction.pid, res);
+            mHandler.removeMessages(MSG_TRANSACTION_EXPIRE_BASE + transactionID);
         }
     }
 
@@ -326,6 +349,8 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
             }
         } catch (Exception e) {
             Slog.e(TAG, "Fail loadPackages:" + Log.getStackTraceString(e));
+            // Delete bad file.
+            mXmlFile.delete();
         }
     }
 
@@ -363,6 +388,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         intent.putExtra(XKey.EXTRA_PKG_NAME, pkg);
         intent.putExtra(XKey.EXTRA_TRANS_ID, transId);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         return intent;
     }
 
@@ -391,8 +417,11 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
             case MSG_WRITE_STATE:
                 onWriteState();
                 return true;
+            default:
+                int transaction = (int) msg.obj;
+                onSetResult(XMode.MODE_IGNORED, transaction);
+                return true;
         }
-        return false;
     }
 
     private String decodeMsg(int what) {
@@ -412,7 +441,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
             case MSG_WRITE_STATE:
                 return "MSG_WRITE_STATE";
             default:
-                return "UNKNOWN";
+                return "MSG_TRANSACTION_EXPIRE";
         }
     }
 

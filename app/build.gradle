@@ -7,8 +7,8 @@ android {
         applicationId "github.tornaco.xposedmoduletest"
         minSdkVersion 21
         targetSdkVersion 25
-        versionCode 1003
-        versionName "1.0.0-BETA-3"
+        versionCode 1004
+        versionName "1.0.0-BETA-4"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }

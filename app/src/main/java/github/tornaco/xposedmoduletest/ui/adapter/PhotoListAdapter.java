@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -17,9 +18,10 @@ import java.util.List;
 import dev.tornaco.vangogh.Vangogh;
 import dev.tornaco.vangogh.display.CircleImageEffect;
 import dev.tornaco.vangogh.display.appliers.ResAnimationApplier;
-import dev.tornaco.vangogh.display.appliers.ScaleInXYApplier;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.AccessInfo;
+import github.tornaco.xposedmoduletest.bean.DaoManager;
+import github.tornaco.xposedmoduletest.bean.DaoSession;
 import si.virag.fuzzydateformatter.FuzzyDateTimeFormatter;
 
 /**
@@ -68,6 +70,24 @@ public class PhotoListAdapter extends RecyclerView.Adapter<PhotoListAdapter.Acce
                 .effect(new CircleImageEffect())
                 .fallback(R.mipmap.ic_launcher_round)
                 .into(holder.imageView);
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @SuppressWarnings("ResultOfMethodCallIgnored")
+            @Override
+            public boolean onLongClick(View v) {
+                DaoManager daoManager = DaoManager.getInstance();
+                DaoSession daoSession = daoManager.getSession(context);
+                if (daoSession == null) return false;
+                daoSession.getAccessInfoDao().delete(accessInfo);
+                File del = new File(accessInfo.getUrl());
+                del.delete();
+                onAccessInfoDetele(accessInfo);
+                return true;
+            }
+        });
+    }
+
+    protected void onAccessInfoDetele(AccessInfo accessInfo) {
+
     }
 
     @Override

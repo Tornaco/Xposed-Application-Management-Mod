@@ -35,7 +35,7 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
     }
 
     void onLoadingAndroid(XC_LoadPackage.LoadPackageParam lpparam) {
-        xStatus = XStatus.RUNNING;
+        xStatus = XStatus.GOOD;
         hookAMSStart(lpparam);
         hookSystemServiceRegister(lpparam);
         hookAMSSystemReady(lpparam);
@@ -78,6 +78,7 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                     super.afterHookedMethod(param);
                     if (mAppGuardService != null) {
                         mAppGuardService.systemReady();
+                        mAppGuardService.setStatus(xStatus);
                     }
                 }
             });
@@ -130,7 +131,7 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
             XposedBridge.log(TAG + "hookFPService OK");
         } catch (Exception e) {
             XposedBridge.log(TAG + "Fail hookFPService" + e);
-            if (xStatus != XStatus.ERROR) xStatus = XStatus.WARN;
+            if (xStatus != XStatus.ERROR) xStatus = XStatus.WITH_WARN;
         }
     }
 

@@ -813,7 +813,7 @@ public class CameraManager implements FocusOverlayManager.Listener {
         Uri uri = null;
         String contentType = null;
         try {
-//            final Activity activity = Factory.get().getTopActivity();
+//            final Activity activity = Factory.from().getTopActivity();
 //            activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             mMediaRecorder.stop();
             width = mMediaRecorder.getVideoWidth();

@@ -3,6 +3,12 @@
 
 
     <PreferenceCategory android:title="@string/title_basic">
+        <ListPreference
+            android:defaultValue="@string/theme_def"
+            android:entries="@array/theme_entries"
+            android:entryValues="@array/theme_entries"
+            android:key="theme"
+            android:title="@string/title_theme" />
         <Preference
             android:key="@string/title_setup_passcode"
             android:summary="@string/summary_setup_passcode_none_set"

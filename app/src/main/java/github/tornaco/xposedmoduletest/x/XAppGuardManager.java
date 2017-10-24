@@ -15,6 +15,8 @@ import github.tornaco.xposedmoduletest.IWatcher;
 
 public class XAppGuardManager {
 
+    public static final long TRANSACTION_EXPIRE_TIME = 60 * 1000;
+
     private static XAppGuardManager sMe;
 
     private IAppGuardService mService;
@@ -28,7 +30,7 @@ public class XAppGuardManager {
         sMe = new XAppGuardManager();
     }
 
-    public static XAppGuardManager get() {
+    public static XAppGuardManager from() {
         return sMe;
     }
 
@@ -127,5 +129,14 @@ public class XAppGuardManager {
             Logger.e(Logger.getStackTraceString(e));
         }
         return new String[0];
+    }
+
+    public int getStatus() {
+        try {
+            return mService.getStatus();
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+        return XStatus.UNKNOWN.ordinal();
     }
 }

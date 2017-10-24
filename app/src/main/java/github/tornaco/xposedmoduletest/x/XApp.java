@@ -38,7 +38,7 @@ public class XApp extends Application {
         xApp = this;
         Logger.config(Settings.builder().tag("XAppGuard")
                 .logLevel(XSettings.isDevMode(this)
-                        ? Logger.LogLevel.ALL : Logger.LogLevel.WARN)
+                        ? Logger.LogLevel.INFO : Logger.LogLevel.WARN)
                 .build());
         XAppGuardManager.init();
         XActivation.reloadAsync(this);

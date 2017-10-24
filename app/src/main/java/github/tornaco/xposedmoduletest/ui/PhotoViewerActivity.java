@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.ui;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -61,7 +62,14 @@ public class PhotoViewerActivity extends AppCompatActivity {
     }
 
     protected PhotoListAdapter onCreateAdapter() {
-        return new PhotoListAdapter(this);
+        return new PhotoListAdapter(this) {
+            @Override
+            protected void onAccessInfoDetele(AccessInfo info) {
+                super.onAccessInfoDetele(info);
+                Snackbar.make(swipeRefreshLayout, R.string.title_delete_success, Snackbar.LENGTH_SHORT).show();
+                startLoading();
+            }
+        };
     }
 
     private void startLoading() {

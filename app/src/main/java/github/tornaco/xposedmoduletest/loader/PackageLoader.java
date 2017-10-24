@@ -92,7 +92,7 @@ public interface PackageLoader {
         @Override
         public List<PackageInfo> loadStored() {
             final List<PackageInfo> out = new ArrayList<>();
-            Collections.consumeRemaining(XAppGuardManager.get().getPackages(), new Consumer<String>() {
+            Collections.consumeRemaining(XAppGuardManager.from().getPackages(), new Consumer<String>() {
                 @Override
                 public void accept(String s) {
                     PackageInfo p = new PackageInfo();

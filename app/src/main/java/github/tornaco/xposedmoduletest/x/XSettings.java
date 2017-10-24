@@ -7,6 +7,8 @@ import android.support.annotation.Nullable;
 import java.io.File;
 import java.util.Observable;
 
+import github.tornaco.xposedmoduletest.ui.Themes;
+
 /**
  * Created by guohao4 on 2017/10/19.
  * Email: Tornaco@163.com
@@ -108,5 +110,10 @@ public class XSettings extends Observable {
                     .apply();
         }
         return first;
+    }
+
+    public static Themes getThemes(Context c) {
+        return Themes.valueOfChecked(PreferenceManager.getDefaultSharedPreferences(c)
+                .getString(XKey.THEME, Themes.DEFAULT.name()));
     }
 }

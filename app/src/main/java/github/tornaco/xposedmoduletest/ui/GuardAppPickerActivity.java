@@ -50,8 +50,8 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
                             if (packageInfoList.get(i).getGuard())
                                 pkgs[i] = packageInfoList.get(i).getPkgName();
                         }
-                        XAppGuardManager.get().addPackages(pkgs);
-                        XAppGuardManager.get().forceWriteState();
+                        XAppGuardManager.from().addPackages(pkgs);
+                        XAppGuardManager.from().forceWriteState();
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {

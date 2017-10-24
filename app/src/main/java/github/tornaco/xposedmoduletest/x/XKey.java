@@ -16,6 +16,7 @@ public interface XKey {
     String DEV_MODE = "dev_mode_enabled";
     String FP_ENABLED = "fp_enabled";
     String ALWAYS_NOTE = "always_note";
+    String THEME = "theme";
     String FIRST_RUN = "first_ru" + BuildConfig.VERSION_NAME;
 
     String EXTRA_PKG_NAME = "extra.pkg";

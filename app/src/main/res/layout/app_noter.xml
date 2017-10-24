@@ -23,7 +23,7 @@
             android:layout_centerVertical="true"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:src="@drawable/ic_fingerprint_black_24dp"
+            android:src="@drawable/ic_verified_user_black_24dp"
             android:tint="@color/white"
             android:visibility="visible" />
 

@@ -5,8 +5,6 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.RemoteException;
-import android.os.ServiceManager;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
@@ -20,17 +18,16 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import ezy.assist.compat.SettingsCompat;
 import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.BuildConfig;
-import github.tornaco.xposedmoduletest.IAppGuardService;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.x.XAppGithubCommitSha;
-import github.tornaco.xposedmoduletest.x.XContext;
+import github.tornaco.xposedmoduletest.x.XAppGuardManager;
 import github.tornaco.xposedmoduletest.x.XEnc;
 import github.tornaco.xposedmoduletest.x.XKey;
 import github.tornaco.xposedmoduletest.x.XSettings;
+import github.tornaco.xposedmoduletest.x.XStatus;
 
 /**
  * Created by guohao4 on 2017/9/7.
@@ -90,18 +87,6 @@ public class SettingsActivity extends AppCompatActivity {
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.settings);
-
-            findPreference(XKey.TAKE_FULL_SCREEN_NOTER)
-                    .setOnPreferenceChangeListener(new Preference
-                            .OnPreferenceChangeListener() {
-                        @Override
-                        public boolean onPreferenceChange(Preference preference,
-                                                          Object newValue) {
-                            XSettings.get().setChangedL();
-                            XSettings.get().notifyObservers();
-                            return true;
-                        }
-                    });
 
             findPreference(XKey.ALWAYS_NOTE)
                     .setOnPreferenceChangeListener(new Preference
@@ -177,16 +162,6 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             });
 
-            findPreference(XKey.TAKE_FULL_SCREEN_NOTER)
-                    .setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                        @Override
-                        public boolean onPreferenceChange(Preference preference, Object newValue) {
-                            XSettings.get().setChangedL();
-                            XSettings.get().notifyObservers();
-                            return true;
-                        }
-                    });
-
             findPreference(getString(R.string.title_view_photos))
                     .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                         @Override
@@ -196,47 +171,20 @@ public class SettingsActivity extends AppCompatActivity {
                         }
                     });
 
-            findPreference(getString(R.string.manage_overlay))
-                    .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                        @Override
-                        public boolean onPreferenceClick(Preference preference) {
-                            SettingsCompat.manageDrawOverlays(getActivity());
-                            return true;
-                        }
-                    });
-
             findPreference(getString(R.string.test_noter))
                     .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                         @Override
                         public boolean onPreferenceClick(Preference preference) {
-//                            new AppStartNoter(new Handler(Looper.getMainLooper()), getActivity())
-//                                    .note("HELL WORLD",
-//                                            BuildConfig.APPLICATION_ID,
-//                                            "HELL WORLD",
-//                                            new ICallback.Stub() {
-//                                                @Override
-//                                                public void onRes(int res, int flags) throws RemoteException {
-//
-//                                                }
-//                                            });
-                            IAppGuardService service = IAppGuardService.Stub.asInterface(ServiceManager.getService(XContext.APP_GUARD_SERVICE));
-                            try {
-                                service.testUI();
-                            } catch (RemoteException e) {
-
-                            }
+                            if (XAppGuardManager.from().isServiceConnected())
+                                XAppGuardManager.from().testUI();
+                            else
+                                VerifyDisplayerActivity.startAsTest(getActivity());
                             return true;
                         }
                     });
 
             findPreference(getString(R.string.dump_module))
-                    .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                        @Override
-                        public boolean onPreferenceClick(Preference preference) {
-
-                            return true;
-                        }
-                    });
+                    .setSummary(XStatus.valueOf(XAppGuardManager.from().getStatus()).name());
 
             Preference buildInfo = findPreference(getString(R.string.title_app_ver));
             buildInfo.setSummary(BuildConfig.VERSION_NAME

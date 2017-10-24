@@ -9,4 +9,15 @@
         <item>@color/orange</item>
     </string-array>
 
+    <string-array name="theme_entries">
+        <item>DEFAULT</item>
+        <item>RED</item>
+        <item>BLUE</item>
+        <item>INDIGO</item>
+        <item>GREEN</item>
+        <item>PINK</item>
+        <item>ORANGE</item>
+        <item>BLACK</item>
+    </string-array>
+
 </resources>

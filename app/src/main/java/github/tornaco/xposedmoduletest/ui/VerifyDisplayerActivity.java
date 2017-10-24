@@ -5,12 +5,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.support.v4.os.CancellationSignal;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,9 +28,9 @@ import com.andrognito.pinlockview.PinLockView;
 import org.newstand.logger.Logger;
 
 import dev.tornaco.vangogh.Vangogh;
-import dev.tornaco.vangogh.display.CircleImageEffect;
 import dev.tornaco.vangogh.display.appliers.ScaleInXYApplier;
 import github.tornaco.android.common.Holder;
+import github.tornaco.android.common.util.ColorUtil;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.camera.CameraManager;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
@@ -33,6 +39,9 @@ import github.tornaco.xposedmoduletest.x.XEnc;
 import github.tornaco.xposedmoduletest.x.XKey;
 import github.tornaco.xposedmoduletest.x.XMode;
 import github.tornaco.xposedmoduletest.x.XSettings;
+
+import static github.tornaco.xposedmoduletest.x.XKey.EXTRA_PKG_NAME;
+import static github.tornaco.xposedmoduletest.x.XKey.EXTRA_TRANS_ID;
 
 /**
  * Created by guohao4 on 2017/10/23.
@@ -50,6 +59,23 @@ public class VerifyDisplayerActivity extends AppCompatActivity {
 
     private CancellationSignal mCancellationSignal;
 
+    private Handler mHandler;
+
+    private Runnable expireRunnable = new Runnable() {
+        @Override
+        public void run() {
+            onFail();
+            finish();
+        }
+    };
+
+    public static void startAsTest(Context c) {
+        Intent intent = new Intent(c, VerifyDisplayerActivity.class);
+        intent.putExtra(EXTRA_PKG_NAME, c.getPackageName());
+        intent.putExtra(EXTRA_TRANS_ID, 1024);
+        c.startActivity(intent);
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,7 +84,21 @@ public class VerifyDisplayerActivity extends AppCompatActivity {
         init(this);
     }
 
+    @SuppressWarnings("ConstantConditions")
     private void init(Context context) {
+        AppBarLayout appBar = (AppBarLayout) findViewById(R.id.appbar);
+        int color = ContextCompat.getColor(this, XSettings.getThemes(this).getThemeColorRes());
+        if (appBar != null) appBar.setBackgroundColor(color);
+        ViewGroup infoContainer = (ViewGroup) findViewById(R.id.info);
+        infoContainer.setBackgroundColor(color);
+        getWindow().setStatusBarColor(ColorUtil.colorBurn(color));
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            toolbar.setBackgroundColor(color);
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        setTitle(null);
         this.mTakePhoto = XSettings.get().takenPhotoEnabled(context);
         this.mPsscode.setData(XSettings.getPassCodeEncrypt(context));//FIXME Enc-->NoneEnc
         boolean fpEnabled = XSettings.get().fpEnabled(context);
@@ -153,15 +193,20 @@ public class VerifyDisplayerActivity extends AppCompatActivity {
                 .fallback(R.mipmap.ic_header_avatar)
                 .usingLoader(new VangoghAppLoader(this))
                 .applier(new ScaleInXYApplier())
-                .effect(new CircleImageEffect())
+                .skipDiskCache(true)
+                .skipMemoryCache(true)
                 .into(imageView);
+
+        // Setup timeout.
+        mHandler = new Handler();
+        mHandler.postDelayed(expireRunnable, XAppGuardManager.TRANSACTION_EXPIRE_TIME);
     }
 
     private void onPass() {
         if (mCancellationSignal != null) {
             mCancellationSignal.cancel();
         }
-        XAppGuardManager.get().setResult(tid, XMode.MODE_ALLOWED);
+        XAppGuardManager.from().setResult(tid, XMode.MODE_ALLOWED);
         finish();
     }
 
@@ -172,10 +217,11 @@ public class VerifyDisplayerActivity extends AppCompatActivity {
     }
 
     private void onFail() {
+        mHandler.removeCallbacksAndMessages(null);
         if (mCancellationSignal != null) {
             mCancellationSignal.cancel();
         }
-        XAppGuardManager.get().setResult(tid, XMode.MODE_DENIED);
+        XAppGuardManager.from().setResult(tid, XMode.MODE_DENIED);
         finish();
     }
 
@@ -196,10 +242,26 @@ public class VerifyDisplayerActivity extends AppCompatActivity {
         return cancellationSignal;
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Logger.d("onNewIntent: %s, %s", pkg, tid);
+    }
+
     private void resolveIntent(Intent intent) {
+        Logger.d("before resolveIntent: %s, %s", pkg, tid);
         if (intent == null) return;
-        pkg = intent.getStringExtra(XKey.EXTRA_PKG_NAME);
+        pkg = intent.getStringExtra(EXTRA_PKG_NAME);
         tid = intent.getIntExtra(XKey.EXTRA_TRANS_ID, -1);
-        Logger.d("resolveIntent: %s, %s", pkg, tid);
+        Logger.d("after resolveIntent: %s, %s", pkg, tid);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onFail();
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

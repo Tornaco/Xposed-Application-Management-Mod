@@ -540,7 +540,7 @@ public class PieRenderer extends OverlayRenderer
 
     private PointF getPolar(float x, float y, boolean useOffset) {
         PointF res = new PointF();
-        // get angle and radius from x/y
+        // from angle and radius from x/y
         res.x = (float) Math.PI / 2;
         x = x - mCenter.x;
         y = mCenter.y - y;

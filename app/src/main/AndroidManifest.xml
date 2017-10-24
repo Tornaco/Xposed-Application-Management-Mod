@@ -32,7 +32,9 @@
             android:exported="true"
             android:theme="@style/AppThemeLight.NoActionBar" />
 
-        <activity android:name=".ui.GuardAppNavActivity">
+        <activity
+            android:name=".ui.GuardAppNavActivity"
+            android:excludeFromRecents="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -42,15 +44,18 @@
 
         <activity
             android:name=".ui.GuardAppPickerActivity"
+            android:excludeFromRecents="true"
             android:label="@string/title_picker" />
 
         <activity
             android:name=".ui.SettingsActivity"
+            android:excludeFromRecents="true"
             android:label="@string/title_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
 
         <activity
             android:name=".ui.PhotoViewerActivity"
+            android:excludeFromRecents="true"
             android:label="@string/title_view_photos" />
 
     </application>
