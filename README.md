@@ -1,26 +1,26 @@
 # What is XAppGuard
 
-## Purpose
+## 1. Purpose
 
 借助XPOSED实现系统级别应用锁。
 
-## Workflow
+## 2. Workflow
 
 XAppGuardService(Framework)---XAppGuardApp(App)--User-(返回验证结果)
 
-## Func design
+## 3. Func design
 
 XAppGuardService(Framework)---XAppGuardApp(App)--User(返回验证结果)
 
-### XAppGuardService注入
+### 3.1 XAppGuardService注入
 ```AMS```启动完成后添加```XAppGuardService```到```ServiceManager```
 
-### XAppGuardService获取
+### 3.2 XAppGuardService获取
 ```java
 IAppGuardService.Stub.asInterface(ServiceManager.getService(XContext.APP_GUARD_SERVICE));
 ```
 
-### 劫持的AMS方法
+### 3.3 劫持的AMS方法
 1. Hook start方法，初始化我们的服务。
 ```java
         try {
@@ -134,7 +134,7 @@ private void hookTaskMover(XC_LoadPackage.LoadPackageParam lpparam) {
 ...
 ```
 
-### 劫持指纹服务
+### 3.4 劫持指纹服务
 应用不在前台无法使用指纹，因此需要劫持。
 ```java
     // http://androidxref.com/7.0.0_r1/xref/frameworks/base/services/core/java/com/android/server/fingerprint/FingerprintService.java
@@ -163,9 +163,9 @@ private void hookTaskMover(XC_LoadPackage.LoadPackageParam lpparam) {
     }
 ```
 
-### App封装的XAppGuardManager
+### 3.5 App封装的XAppGuardManager
 方便APP直接调用服务。
 
 
-## Build depencency
+## 4. Build depencency
 依赖hiddenapi，Xposed-Framework。
