@@ -1,5 +1,7 @@
 # What is XAppGuard
 
+![demo](art/videos/workflow.gif)
+
 ## 1. Purpose
 
 借助XPOSED实现系统级别应用锁。
