@@ -48,4 +48,6 @@
     <string name="title_service_not_connected">服务未连接</string>
     <string name="theme_def">DEFAULT</string>
     <string name="title_open_source">源码</string>
+    <string name="title_app_recent_blur">最近任务模糊</string>
+    <string name="summary_app_recent_blur">目前所有任务都会被模糊，仅供测试效果，如果影响性能请关闭</string>
 </resources>

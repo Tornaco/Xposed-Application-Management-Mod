@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.x;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
@@ -41,12 +42,14 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
         hookAMSSystemReady(lpparam);
         hookAMSShutdown(lpparam);
         hookFPService(lpparam);
+        hookScreenshotApplications(lpparam);
     }
 
     private void hookAMSShutdown(XC_LoadPackage.LoadPackageParam lpparam) {
         XposedBridge.log(TAG + "hookAMSShutdown...");
         try {
-            Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService", lpparam.classLoader);
+            Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService",
+                    lpparam.classLoader);
             XposedBridge.hookAllMethods(ams, "shutdown", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -71,7 +74,8 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
     private void hookAMSSystemReady(XC_LoadPackage.LoadPackageParam lpparam) {
         XposedBridge.log(TAG + "hookAMSSystemReady...");
         try {
-            Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService", lpparam.classLoader);
+            Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService",
+                    lpparam.classLoader);
             XposedBridge.hookAllMethods(ams, "systemReady", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -132,6 +136,31 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
         } catch (Exception e) {
             XposedBridge.log(TAG + "Fail hookFPService" + e);
             if (xStatus != XStatus.ERROR) xStatus = XStatus.WITH_WARN;
+        }
+    }
+
+    private void hookScreenshotApplications(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedBridge.log(TAG + "hookScreenshotApplications...");
+        try {
+            Class clz = XposedHelpers.findClass("com.android.server.wm.WindowManagerService",
+                    lpparam.classLoader);
+            XposedBridge.hookAllMethods(clz,
+                    "screenshotApplications", new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            super.afterHookedMethod(param);
+                            if (mAppGuardService != null && mAppGuardService.isBlur()
+                                    && param.getResult() != null) {
+                                Bitmap res = (Bitmap) param.getResult();
+                                if (DEBUG_V) XposedBridge.log(TAG + "Blur bitmap start");
+                                param.setResult(XBitmapUtil.createBlurredBitmap(res));
+                                if (DEBUG_V) XposedBridge.log(TAG + "Blur bitmap end");
+                            }
+                        }
+                    });
+            XposedBridge.log(TAG + "hookScreenshotApplications OK");
+        } catch (Exception e) {
+            XposedBridge.log(TAG + "Fail hookScreenshotApplications:" + e);
         }
     }
 

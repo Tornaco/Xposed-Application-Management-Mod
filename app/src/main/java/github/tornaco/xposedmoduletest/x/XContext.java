@@ -5,9 +5,16 @@ package github.tornaco.xposedmoduletest.x;
  * Email: Tornaco@163.com
  */
 
-public class XContext {
+public interface XContext {
 
-    public static final String APP_GUARD_SERVICE = "user.appguard";
+    String APP_GUARD_SERVICE = "user.appguard";
 
-    static final String SETTINGS_APP_GUARD_ENABLED = "settings_app_guard_enabled";
+    String SETTINGS_APP_GUARD_ENABLED = "settings_app_guard_enabled";
+    String SETTINGS_APP_SCREENSHOT_BLUR_ENABLED = "settings_app_screenshot_blur_enabled";
+
+    interface Feature {
+        String BASE = "feature.base";
+        String BLUR = "feature.blur";
+    }
+
 }

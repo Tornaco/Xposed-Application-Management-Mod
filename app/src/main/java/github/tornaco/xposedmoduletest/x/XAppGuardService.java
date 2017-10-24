@@ -65,12 +65,14 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     private static final int MSG_REMOVE_PACKAGES = 0x7;
     private static final int MSG_PASS = 0x8;
     private static final int MSG_IGNORE = 0x9;
+    private static final int MSG_SET_BLUR = 0x10;
     private static final int MSG_TRANSACTION_EXPIRE_BASE = 0x99;
 
     private Context mContext;
     private Handler mHandler;
 
     private AtomicBoolean mEnabled = new AtomicBoolean(false);
+    private AtomicBoolean mBlur = new AtomicBoolean(false);
 
     private final Set<String> WATCHED_PACKAGES = new HashSet<>();
 
@@ -186,13 +188,12 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     private void readSettings() {
         ContentResolver contentResolver = mContext.getContentResolver();
-        try {
-            boolean enabled = (Settings.System.getInt(contentResolver, XContext.SETTINGS_APP_GUARD_ENABLED) == 1);
-            mEnabled.set(enabled);
-            if (DEBUG_V) Slog.d(TAG, "enabled:" + enabled);
-        } catch (Settings.SettingNotFoundException e) {
-            if (DEBUG_V) Slog.w(TAG, "SettingNotFoundException:" + e);
-        }
+        boolean enabled = (Settings.System.getInt(contentResolver, XContext.SETTINGS_APP_GUARD_ENABLED, 0) == 1);
+        boolean blur = (Settings.System.getInt(contentResolver, XContext.SETTINGS_APP_SCREENSHOT_BLUR_ENABLED, 0) == 1);
+        mEnabled.set(enabled);
+        mBlur.set(blur);
+        if (DEBUG_V) Slog.d(TAG, "enabled:" + enabled);
+        if (DEBUG_V) Slog.d(TAG, "blur:" + blur);
     }
 
     @Override
@@ -204,6 +205,16 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     public void setEnabled(boolean enabled) throws RemoteException {
         if (DEBUG_V) Slog.d(TAG, "setEnabled:" + enabled + ", mEnabled:" + mEnabled.get());
         mHandler.obtainMessage(MSG_SET_ENABLED, enabled ? 1 : 0, 0, null).sendToTarget();
+    }
+
+    @Override
+    public boolean isBlur() throws RemoteException {
+        return mBlur.get();
+    }
+
+    @Override
+    public void setBlur(boolean blur) throws RemoteException {
+        mHandler.obtainMessage(MSG_SET_BLUR, blur ? 1 : 0, 0).sendToTarget();
     }
 
     @Override
@@ -429,6 +440,9 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
             case MSG_WRITE_STATE:
                 onWriteState();
                 return true;
+            case MSG_SET_BLUR:
+                onSetBlur(msg.arg1 == 1);
+                return true;
             case MSG_PASS:
             case MSG_IGNORE:
                 return false;
@@ -436,6 +450,15 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
                 int transaction = (int) msg.obj;
                 onSetResult(XMode.MODE_IGNORED, transaction);
                 return true;
+        }
+    }
+
+    private void onSetBlur(boolean b) {
+        if (DEBUG_V) Slog.d(TAG, "onSetBlur: " + b);
+
+        if (mBlur.compareAndSet(!b, b)) {
+            ContentResolver contentResolver = mContext.getContentResolver();
+            Settings.System.putInt(contentResolver, XContext.SETTINGS_APP_SCREENSHOT_BLUR_ENABLED, b ? 1 : 0);
         }
     }
 
@@ -459,6 +482,8 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
                 return "MSG_PASS";
             case MSG_IGNORE:
                 return "MSG_IGNORE";
+            case MSG_SET_BLUR:
+                return "MSG_SET_BLUR";
             default:
                 return "MSG_TRANSACTION_EXPIRE";
         }

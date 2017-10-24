@@ -140,4 +140,41 @@ public class XAppGuardManager {
         }
         return XStatus.UNKNOWN.ordinal();
     }
+
+    public boolean isBlur() {
+        if (!isServiceConnected()) return false;
+        try {
+            return mService.isBlur();
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+        return false;
+    }
+
+    public void setBlur(boolean blur) {
+        if (!isServiceConnected()) return;
+        try {
+            mService.setBlur(blur);
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+    }
+
+    public void ignore(String pkg) {
+        if (!isServiceConnected()) return;
+        try {
+            mService.ignore(pkg);
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+    }
+
+    public void pass(String pkg) {
+        if (!isServiceConnected()) return;
+        try {
+            mService.pass(pkg);
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+    }
 }

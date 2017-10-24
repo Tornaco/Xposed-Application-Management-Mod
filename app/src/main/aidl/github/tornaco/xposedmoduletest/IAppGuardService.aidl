@@ -8,6 +8,8 @@ import github.tornaco.xposedmoduletest.IWatcher;
 interface IAppGuardService {
     boolean isEnabled();
     void setEnabled(boolean enabled);
+    boolean isBlur();
+    void setBlur(boolean blur);
     void ignore(String pkg);
     void pass(String pkg);
     int getStatus();

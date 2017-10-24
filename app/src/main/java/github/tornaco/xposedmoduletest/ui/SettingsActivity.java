@@ -24,6 +24,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerCompat;
 import github.tornaco.xposedmoduletest.x.XAppGithubCommitSha;
 import github.tornaco.xposedmoduletest.x.XAppGuardManager;
+import github.tornaco.xposedmoduletest.x.XContext;
 import github.tornaco.xposedmoduletest.x.XEnc;
 import github.tornaco.xposedmoduletest.x.XKey;
 import github.tornaco.xposedmoduletest.x.XSettings;
@@ -158,6 +159,17 @@ public class SettingsActivity extends AppCompatActivity {
                             return true;
                         }
                     });
+
+            SwitchPreference blurPref = (SwitchPreference) findPreference(XContext.SETTINGS_APP_SCREENSHOT_BLUR_ENABLED);
+            blurPref.setChecked(XAppGuardManager.from().isBlur());
+            blurPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    boolean enabled = (boolean) newValue;
+                    XAppGuardManager.from().setBlur(enabled);
+                    return true;
+                }
+            });
 
             findPreference(getString(R.string.test_noter))
                     .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
