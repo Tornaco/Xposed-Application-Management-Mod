@@ -83,13 +83,13 @@
             app:keypadTextColor="@color/black"
             app:keypadTextSize="@dimen/keypad_text_size_full" />
 
-        <!--<github.tornaco.xposedmoduletest.camera.SoftwareCameraPreview-->
-        <!--android:id="@+id/surface"-->
-        <!--android:layout_width="1px"-->
-        <!--android:layout_height="1px"-->
-        <!--android:layout_alignParentEnd="true"-->
-        <!--android:layout_centerVertical="true"-->
-        <!--android:visibility="gone" />-->
+        <github.tornaco.xposedmoduletest.camera.SoftwareCameraPreview
+            android:id="@+id/surface"
+            android:layout_width="1px"
+            android:layout_height="1px"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:visibility="gone" />
     </RelativeLayout>
 
 </RelativeLayout>
