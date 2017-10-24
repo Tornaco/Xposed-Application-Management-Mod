@@ -165,3 +165,7 @@ private void hookTaskMover(XC_LoadPackage.LoadPackageParam lpparam) {
 
 ### App封装的XAppGuardManager
 方便APP直接调用服务。
+
+
+## Build depencency
+依赖hiddenapi，Xposed-Framework。
