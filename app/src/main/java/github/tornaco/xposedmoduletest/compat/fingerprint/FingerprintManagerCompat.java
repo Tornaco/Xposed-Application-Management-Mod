@@ -29,6 +29,8 @@ import java.security.Signature;
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 
+import github.tornaco.xposedmoduletest.util.OSUtil;
+
 /**
  * A class that coordinates access to the fingerprint hardware.
  * <p>
@@ -50,14 +52,18 @@ public final class FingerprintManagerCompat {
         mContext = context;
     }
 
-    static final FingerprintManagerCompatImpl IMPL;
+    private static final FingerprintManagerCompatImpl IMPL;
 
     static {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 23) {
-            IMPL = new Api23FingerprintManagerCompatImpl();
+        if (OSUtil.isFlyme()) {
+            IMPL = new FlymeFingerprintManagerCompatImpl();
         } else {
-            IMPL = new LegacyFingerprintManagerCompatImpl();
+            final int version = Build.VERSION.SDK_INT;
+            if (version >= 23) {
+                IMPL = new Api23FingerprintManagerCompatImpl();
+            } else {
+                IMPL = new LegacyFingerprintManagerCompatImpl();
+            }
         }
     }
 
@@ -234,7 +240,7 @@ public final class FingerprintManagerCompat {
     private static class LegacyFingerprintManagerCompatImpl
             implements FingerprintManagerCompatImpl {
 
-        public LegacyFingerprintManagerCompatImpl() {
+        LegacyFingerprintManagerCompatImpl() {
         }
 
         @Override
@@ -251,6 +257,27 @@ public final class FingerprintManagerCompat {
         public void authenticate(Context context, CryptoObject crypto, int flags,
                                  CancellationSignal cancel, AuthenticationCallback callback, Handler handler) {
             // TODO: Figure out behavior when there is no fingerprint hardware available
+        }
+    }
+
+    private static class FlymeFingerprintManagerCompatImpl implements FingerprintManagerCompatImpl {
+
+        @Override
+        public boolean hasEnrolledFingerprints(Context context) {
+            return FingerprintManagerCompatApiFlyme.hasEnrolledFingerprints(context);
+        }
+
+        @Override
+        public boolean isHardwareDetected(Context context) {
+            return FingerprintManagerCompatApiFlyme.isHardwareDetected(context);
+        }
+
+        @Override
+        public void authenticate(Context context,
+                                 CryptoObject crypto, int flags,
+                                 CancellationSignal cancel, AuthenticationCallback callback,
+                                 Handler handler) {
+            FingerprintManagerCompatApiFlyme.authenticate(context, cancel, callback);
         }
     }
 

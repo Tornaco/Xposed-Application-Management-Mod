@@ -52,6 +52,8 @@ dependencies {
     compile 'si.virag:fuzzydateformatter:1.1.0'
     compile 'com.google.android.gms:play-services-ads:11.0.4'
     compile 'com.novoda:simple-chrome-custom-tabs:0.1.5'
+    compile files('libs/flyme_fingerprint.jar')
+    // compile files('libs/flymeapi.jar')
 }
 
 

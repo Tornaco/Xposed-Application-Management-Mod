@@ -18,7 +18,6 @@ package github.tornaco.xposedmoduletest.compat.fingerprint;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Handler;
 import android.support.annotation.RequiresApi;
@@ -40,24 +39,24 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 @RequiresApi(23)
 @TargetApi(23)
 @RestrictTo(LIBRARY_GROUP)
-public final class FingerprintManagerCompatApi23 {
+final class FingerprintManagerCompatApi23 {
 
     private static FingerprintManager getFingerprintManagerOrNull(Context context) {
         return context.getSystemService(FingerprintManager.class);
     }
 
-    public static boolean hasEnrolledFingerprints(Context context) {
+    static boolean hasEnrolledFingerprints(Context context) {
         final FingerprintManager fp = getFingerprintManagerOrNull(context);
         return (fp != null) && fp.hasEnrolledFingerprints();
     }
 
-    public static boolean isHardwareDetected(Context context) {
+    static boolean isHardwareDetected(Context context) {
         final FingerprintManager fp = getFingerprintManagerOrNull(context);
         return (fp != null) && fp.isHardwareDetected();
     }
 
-    public static void authenticate(Context context, CryptoObject crypto, int flags, Object cancel,
-                                    AuthenticationCallback callback, Handler handler) {
+    static void authenticate(Context context, CryptoObject crypto, int flags, Object cancel,
+                             AuthenticationCallback callback, Handler handler) {
         final FingerprintManager fp = getFingerprintManagerOrNull(context);
         if (fp != null) {
             fp.authenticate(wrapCryptoObject(crypto),
@@ -120,56 +119,56 @@ public final class FingerprintManagerCompatApi23 {
         };
     }
 
-    public static class CryptoObject {
+    static class CryptoObject {
 
         private final Signature mSignature;
         private final Cipher mCipher;
         private final Mac mMac;
 
-        public CryptoObject(Signature signature) {
+        CryptoObject(Signature signature) {
             mSignature = signature;
             mCipher = null;
             mMac = null;
         }
 
-        public CryptoObject(Cipher cipher) {
+        CryptoObject(Cipher cipher) {
             mCipher = cipher;
             mSignature = null;
             mMac = null;
         }
 
-        public CryptoObject(Mac mac) {
+        CryptoObject(Mac mac) {
             mMac = mac;
             mCipher = null;
             mSignature = null;
         }
 
-        public Signature getSignature() {
+        Signature getSignature() {
             return mSignature;
         }
 
-        public Cipher getCipher() {
+        Cipher getCipher() {
             return mCipher;
         }
 
-        public Mac getMac() {
+        Mac getMac() {
             return mMac;
         }
     }
 
-    public static final class AuthenticationResultInternal {
+    static final class AuthenticationResultInternal {
         private CryptoObject mCryptoObject;
 
-        public AuthenticationResultInternal(CryptoObject crypto) {
+        AuthenticationResultInternal(CryptoObject crypto) {
             mCryptoObject = crypto;
         }
 
-        public CryptoObject getCryptoObject() {
+        CryptoObject getCryptoObject() {
             return mCryptoObject;
         }
     }
 
-    public static abstract class AuthenticationCallback {
+    static abstract class AuthenticationCallback {
 
         public void onAuthenticationError(int errMsgId, CharSequence errString) {
         }
