@@ -21,13 +21,117 @@ IAppGuardService.Stub.asInterface(ServiceManager.getService(XContext.APP_GUARD_S
 ```
 
 ### 劫持的AMS方法
+1. Hook start方法，初始化我们的服务。
 ```java
- hookAMSStart(lpparam);
- hookSystemServiceRegister(lpparam);
- hookAMSSystemReady(lpparam);
- hookAMSShutdown(lpparam);
- hookActivityStarter(lpparam);
- hookTaskMover(lpparam);
+        try {
+            Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService",
+                    lpparam.classLoader);
+            XposedBridge.hookAllMethods(ams, "start", new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    super.afterHookedMethod(param);
+                    Context context = (Context) XposedHelpers.getObjectField(param.thisObject, "mContext");
+                    mAppGuardService = new XAppGuardService(context);
+                    mAppGuardService.publish();
+                }
+            });
+            XposedBridge.log(TAG + "hookAMSStart OK");
+        } catch (Exception e) {
+            XposedBridge.log(TAG + "Fail hook hookAMSStart");
+            xStatus = XStatus.ERROR;
+        }
+```
+
+2. Hook systemReady，初始化我们的服务。
+
+```java
+        private void hookAMSSystemReady(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedBridge.log(TAG + "hookAMSSystemReady...");
+        try {
+            Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService", lpparam.classLoader);
+            XposedBridge.hookAllMethods(ams, "systemReady", new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    super.afterHookedMethod(param);
+                    if (mAppGuardService != null) {
+                        mAppGuardService.systemReady();
+                        mAppGuardService.setStatus(xStatus);
+                    }
+                }
+            });
+            XposedBridge.log(TAG + "hookAMSSystemReady OK");
+        } catch (Exception e) {
+            XposedBridge.log(TAG + "Fail hookAMSSystemReady");
+            xStatus = XStatus.ERROR;
+        }
+    }
+```
+
+3. Hook shutdown 做保存工作。
+```java
+        private void hookAMSShutdown(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedBridge.log(TAG + "hookAMSShutdown...");
+        try {
+            Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService", lpparam.classLoader);
+            XposedBridge.hookAllMethods(ams, "shutdown", new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    super.afterHookedMethod(param);
+                    if (mAppGuardService != null) {
+                        mAppGuardService.shutdown();
+                    }
+                }
+            });
+            XposedBridge.log(TAG + "hookAMSShutdown OK");
+        } catch (Exception e) {
+            XposedBridge.log(TAG + "Fail hookAMSShutdown");
+            xStatus = XStatus.ERROR;
+        }
+    }
+```
+
+4. Hook startActivity方法，插入我们的逻辑。
+```java
+private void hookActivityStarter(XC_LoadPackage.LoadPackageParam lpparam) {
+
+        try {
+
+            Method startActivityLockedExact = null;
+            int matchCount = 0;
+            for (Method method : Class.forName("com.android.server.am.ActivityStarter",
+                    false, lpparam.classLoader).getDeclaredMethods()) {
+                if (method.getName().equals("startActivityLocked")) {
+                    startActivityLockedExact = method;
+                    startActivityLockedExact.setAccessible(true);
+                    matchCount++;
+
+                    Class[] classes = method.getParameterTypes();
+                    for (int i = 0; i < classes.length; i++) {
+                        if (ActivityOptions.class == classes[i]) {
+                            activityOptsIndex = i;
+                        }
+                    }
+                }
+            }
+   ....
+```
+
+5. Hook moveTask方法，在最近任务植入逻辑。
+```java
+private void hookTaskMover(XC_LoadPackage.LoadPackageParam lpparam) {
+        try {
+            Class taskRecordClass = Class.forName("com.android.server.am.TaskRecord", false, lpparam.classLoader);
+            final Method moveToFront = Class.forName("com.android.server.am.ActivityStackSupervisor",
+                    false, lpparam.classLoader)
+                    .getDeclaredMethod("findTaskToMoveToFrontLocked",
+                            taskRecordClass, int.class, ActivityOptions.class,
+                            String.class, boolean.class);
+            XposedBridge.hookMethod(moveToFront, new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(final MethodHookParam param)
+                        throws Throwable {
+                    super.beforeHookedMethod(param);
+...
 ```
 
 ### 劫持指纹服务
