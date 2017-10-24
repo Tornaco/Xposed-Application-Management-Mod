@@ -132,6 +132,7 @@ public class XAppGuardManager {
     }
 
     public int getStatus() {
+        if (!isServiceConnected()) return XStatus.UNKNOWN.ordinal();
         try {
             return mService.getStatus();
         } catch (RemoteException e) {

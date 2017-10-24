@@ -10,7 +10,6 @@ import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -22,6 +21,7 @@ import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerCompat;
 import github.tornaco.xposedmoduletest.x.XAppGithubCommitSha;
 import github.tornaco.xposedmoduletest.x.XAppGuardManager;
 import github.tornaco.xposedmoduletest.x.XEnc;
@@ -139,19 +139,7 @@ public class SettingsActivity extends AppCompatActivity {
             });
 
             SwitchPreference fpPre = (SwitchPreference) findPreference(XKey.FP_ENABLED);
-            fpPre.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    XSettings.get().setChangedL();
-                    XSettings.get().notifyObservers();
-                    return true;
-                }
-            });
-            try {
-                fpPre.setEnabled(FingerprintManagerCompat.from(getActivity()).isHardwareDetected());
-            } catch (Throwable e) {
-                fpPre.setEnabled(false);
-            }
+            fpPre.setEnabled(FingerprintManagerCompat.from(getActivity()).isHardwareDetected());
 
             SwitchPreference photoPref = (SwitchPreference) findPreference(XKey.TAKE_PHOTO_ENABLED);
             photoPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
