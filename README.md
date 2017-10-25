@@ -1,10 +1,10 @@
 # SDK for developers
 
 ## 1. What can developers do
-Implement different styled lock activity.
+Implement different styled lock activity.（构建第三方验证器界面）
 
 ## 2. How to
-See [DEV_GUIDE](https://github.com/Tornaco/XAppGuard/edit/master/README.md)
+See [DEV_GUIDE](https://github.com/Tornaco/XAppGuardSDK)
 
 # What is XAppGuard
 
