@@ -9,7 +9,6 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -24,7 +23,6 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerCompat;
 import github.tornaco.xposedmoduletest.x.XAppGithubCommitSha;
 import github.tornaco.xposedmoduletest.x.XAppGuardManager;
-import github.tornaco.xposedmoduletest.x.XContext;
 import github.tornaco.xposedmoduletest.x.XEnc;
 import github.tornaco.xposedmoduletest.x.XKey;
 import github.tornaco.xposedmoduletest.x.XSettings;
@@ -72,17 +70,6 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public static class SettingsFragment extends PreferenceFragment {
-
-        private void showRebootTip() {
-            if (getView() != null) {
-                try {
-                    Snackbar.make(getView(), R.string.title_reboot_take_effect, Snackbar.LENGTH_SHORT).show();
-                } catch (Exception e) {
-                    Toast.makeText(getActivity(), R.string.title_reboot_take_effect, Toast.LENGTH_SHORT)
-                            .show();
-                }
-            }
-        }
 
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -160,7 +147,7 @@ public class SettingsActivity extends AppCompatActivity {
                         }
                     });
 
-            SwitchPreference blurPref = (SwitchPreference) findPreference(XContext.SETTINGS_APP_SCREENSHOT_BLUR_ENABLED);
+            SwitchPreference blurPref = (SwitchPreference) findPreference(XKey.BLUR);
             blurPref.setChecked(XAppGuardManager.from().isBlur());
             blurPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
@@ -189,7 +176,7 @@ public class SettingsActivity extends AppCompatActivity {
             Preference buildInfo = findPreference(getString(R.string.title_app_ver));
             buildInfo.setSummary(BuildConfig.VERSION_NAME
                     + "-" + BuildConfig.BUILD_TYPE
-                    + "-" + XAppGithubCommitSha.LATEST_SHA);
+                    + "@" + XAppGithubCommitSha.LATEST_SHA);
 
             Preference actCode = findPreference(getString(R.string.title_my_act_code));
             String act = XSettings.getActivateCode(getActivity());

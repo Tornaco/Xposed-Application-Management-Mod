@@ -15,6 +15,14 @@ import github.tornaco.xposedmoduletest.IWatcher;
 
 public class XAppGuardManager {
 
+    public static final String APP_GUARD_SERVICE = "user.appguard";
+
+    public interface Feature {
+        String BASE = "feature.base";
+        String FP = "feature.fp";
+        String BLUR = "feature.blur";
+    }
+
     public static final long TRANSACTION_EXPIRE_TIME = 60 * 1000;
 
     private static XAppGuardManager sMe;
@@ -22,7 +30,7 @@ public class XAppGuardManager {
     private IAppGuardService mService;
 
     private XAppGuardManager() {
-        mService = IAppGuardService.Stub.asInterface(ServiceManager.getService(XContext.APP_GUARD_SERVICE));
+        mService = IAppGuardService.Stub.asInterface(ServiceManager.getService(APP_GUARD_SERVICE));
         Logger.d("XAppGuardManager, service: " + mService);
     }
 

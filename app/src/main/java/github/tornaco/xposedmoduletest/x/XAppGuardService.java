@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.provider.Settings;
@@ -31,7 +32,6 @@ import java.io.FileReader;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -53,6 +53,11 @@ import github.tornaco.xposedmoduletest.IWatcher;
  */
 @GithubCommitSha
 class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback {
+
+    private static final String SETTINGS_APP_GUARD_ENABLED = "settings_app_guard_enabled";
+    private static final String SETTINGS_APP_SCREENSHOT_BLUR_ENABLED = "settings_app_screenshot_blur_enabled";
+
+    private static int sClientUID = 0;
 
     private static final long TRANSACTION_EXPIRE_TIME = 60 * 1000;
 
@@ -122,7 +127,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     }
 
     void publish() {
-        ServiceManager.addService(XContext.APP_GUARD_SERVICE, asBinder());
+        ServiceManager.addService(XAppGuardManager.APP_GUARD_SERVICE, asBinder());
         if (DEBUG_V) Slog.d(TAG, "published: " + Binder.getCallingUid());
     }
 
@@ -137,24 +142,12 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     private void cacheUIDForPackages() {
         PackageManager pm = this.mContext.getPackageManager();
-        List<android.content.pm.PackageInfo> packages;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            packages = pm.getInstalledPackages(PackageManager.MATCH_UNINSTALLED_PACKAGES);
-        } else {
-            packages = pm.getInstalledPackages(PackageManager.GET_UNINSTALLED_PACKAGES);
-        }
-
-        for (android.content.pm.PackageInfo packageInfo : packages) {
-            String pkgName = packageInfo.packageName;
-            try {
-                ApplicationInfo applicationInfo = pm.getApplicationInfo(pkgName, 0);
-                int uid = applicationInfo == null ? -1 : applicationInfo.uid;
-                if (uid > 0) {
-                    UID_MAP.put(uid, pkgName);
-                    if (DEBUG_V) Slog.d(TAG, "uid: " + uid + ", pkg: " + pkgName);
-                }
-            } catch (PackageManager.NameNotFoundException ignored) {
-            }
+        try {
+            ApplicationInfo applicationInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID, 0);
+            sClientUID = applicationInfo.uid;
+            if (DEBUG_V) Slog.d(TAG, "sClientUID:" + sClientUID);
+        } catch (PackageManager.NameNotFoundException ignored) {
+            Slog.e(TAG, "Can not get UID for our client:" + ignored);
         }
     }
 
@@ -217,8 +210,8 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     private void readSettings() {
         ContentResolver contentResolver = mContext.getContentResolver();
-        boolean enabled = (Settings.System.getInt(contentResolver, XContext.SETTINGS_APP_GUARD_ENABLED, 0) == 1);
-        boolean blur = (Settings.System.getInt(contentResolver, XContext.SETTINGS_APP_SCREENSHOT_BLUR_ENABLED, 0) == 1);
+        boolean enabled = (Settings.System.getInt(contentResolver, SETTINGS_APP_GUARD_ENABLED, 0) == 1);
+        boolean blur = (Settings.System.getInt(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_ENABLED, 0) == 1);
         mEnabled.set(enabled);
         mBlur.set(blur);
         if (DEBUG_V) Slog.d(TAG, "enabled:" + enabled);
@@ -227,17 +220,20 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     @Override
     public boolean isEnabled() throws RemoteException {
+        enforceCallingPermissions();
         return mEnabled.get();
     }
 
     @Override
     public void setEnabled(boolean enabled) throws RemoteException {
+        enforceCallingPermissions();
         if (DEBUG_V) Slog.d(TAG, "setEnabled:" + enabled + ", mEnabled:" + mEnabled.get());
         mHandler.obtainMessage(MSG_SET_ENABLED, enabled ? 1 : 0, 0, null).sendToTarget();
     }
 
     @Override
     public boolean isBlur() {
+        enforceCallingPermissions();
         return mBlur.get();
     }
 
@@ -248,26 +244,69 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     @Override
     public void setBlur(boolean blur) throws RemoteException {
+        enforceCallingPermissions();
         mHandler.obtainMessage(MSG_SET_BLUR, blur ? 1 : 0, 0).sendToTarget();
     }
 
     @Override
+    public void setBlurPolicy(int policy) throws RemoteException {
+        enforceCallingPermissions();
+    }
+
+    @Override
+    public int getBlurPolicy() throws RemoteException {
+        enforceCallingPermissions();
+        return 0;
+    }
+
+    @Override
+    public void setBlurRadius(int radius) throws RemoteException {
+        enforceCallingPermissions();
+    }
+
+    @Override
+    public int getBlurRadius() throws RemoteException {
+        enforceCallingPermissions();
+        return 0;
+    }
+
+    @Override
+    public void setBlurScale(float scale) throws RemoteException {
+        enforceCallingPermissions();
+    }
+
+    @Override
+    public void getBlurScale() throws RemoteException {
+        enforceCallingPermissions();
+    }
+
+    @Override
+    public boolean hasFeature(String feature) throws RemoteException {
+        enforceCallingPermissions();
+        return false;
+    }
+
+    @Override
     public void ignore(String pkg) throws RemoteException {
+        enforceCallingPermissions();
         mHandler.obtainMessage(MSG_IGNORE, pkg).sendToTarget();
     }
 
     @Override
     public void pass(String pkg) throws RemoteException {
+        enforceCallingPermissions();
         mHandler.obtainMessage(MSG_PASS, pkg).sendToTarget();
     }
 
     @Override
     public int getStatus() throws RemoteException {
+        enforceCallingPermissions();
         return xStatus.ordinal();
     }
 
     @Override
     public String[] getPackages() throws RemoteException {
+        enforceCallingPermissions();
         Object[] all = WATCHED_PACKAGES.toArray();
         String[] pkgs = new String[all.length];
         for (int i = 0; i < all.length; i++) {
@@ -280,12 +319,13 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         if (DEBUG_V) Slog.d(TAG, "onSetEnabled:" + enabled);
         if (mEnabled.compareAndSet(!enabled, enabled)) {
             ContentResolver contentResolver = mContext.getContentResolver();
-            Settings.System.putInt(contentResolver, XContext.SETTINGS_APP_GUARD_ENABLED, enabled ? 1 : 0);
+            Settings.System.putInt(contentResolver, SETTINGS_APP_GUARD_ENABLED, enabled ? 1 : 0);
         }
     }
 
     @Override
     public void setResult(int transactionID, final int res) throws RemoteException {
+        enforceCallingPermissions();
         if (DEBUG_V) Slog.d(TAG, "setResult:" + transactionID + ", res:" + res);
         mHandler.obtainMessage(MSG_VERIFY_RES, res, transactionID, null).sendToTarget();
     }
@@ -310,6 +350,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     @Override
     public void testUI() throws RemoteException {
+        enforceCallingPermissions();
         long id = Binder.clearCallingIdentity();
         Intent intent = buildVerifyIntent(TransactionFactory.transactionID(), "xxxxx");
         mContext.startActivity(intent);
@@ -318,6 +359,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     @Override
     public void addPackages(String[] pkgs) throws RemoteException {
+        enforceCallingPermissions();
         mHandler.obtainMessage(MSG_ADD_PACKAGES, pkgs).sendToTarget();
     }
 
@@ -335,6 +377,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     @Override
     public void removePackages(String[] pkgs) throws RemoteException {
+        enforceCallingPermissions();
         mHandler.obtainMessage(MSG_REMOVE_PACKAGES, pkgs).sendToTarget();
     }
 
@@ -352,11 +395,12 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     @Override
     public void watch(IWatcher w) throws RemoteException {
-
+        enforceCallingPermissions();
     }
 
     @Override
     public void forceWriteState() throws RemoteException {
+        enforceCallingPermissions();
         mHandler.obtainMessage(MSG_WRITE_STATE).sendToTarget();
     }
 
@@ -371,6 +415,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     @Override
     public void forceReadState() throws RemoteException {
+        enforceCallingPermissions();
         mHandler.obtainMessage(MSG_READ_STATE).sendToTarget();
     }
 
@@ -492,7 +537,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
         if (mBlur.compareAndSet(!b, b)) {
             ContentResolver contentResolver = mContext.getContentResolver();
-            Settings.System.putInt(contentResolver, XContext.SETTINGS_APP_SCREENSHOT_BLUR_ENABLED, b ? 1 : 0);
+            Settings.System.putInt(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_ENABLED, b ? 1 : 0);
         }
     }
 
@@ -521,6 +566,15 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
             default:
                 return "MSG_TRANSACTION_EXPIRE";
         }
+    }
+
+    private static void enforceCallingPermissions() {
+        int callingUID = Binder.getCallingUid();
+        if (callingUID == Process.myUid() || (sClientUID > 0 && sClientUID == callingUID)) {
+            return;
+        }
+        throw new SecurityException("Package of uid:" + callingUID
+                + ", does not have permission to interact with XAppGuardService");
     }
 
     private static class TransactionFactory {

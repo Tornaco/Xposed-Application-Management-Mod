@@ -9,6 +9,7 @@ import github.tornaco.xposedmoduletest.BuildConfig;
 
 public interface XKey {
     String ENABLED = "key_enabled";
+    String BLUR = "blur_enabled";
     String TAKE_PHOTO_ENABLED = "key_take_photo_enabled";
     String TAKE_FULL_SCREEN_NOTER = "key_full_screen_noter";
     String PASSCODE_ENCRYPT = "key_pass_code_enc";

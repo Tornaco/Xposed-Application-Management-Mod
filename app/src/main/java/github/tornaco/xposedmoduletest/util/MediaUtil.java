@@ -15,7 +15,7 @@ public abstract class MediaUtil {
     public static Intent buildSharedIntent(Context context, File imageFile) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-            sharingIntent.setType("video/mp4");
+            sharingIntent.setType("image/jpg");
             sharingIntent.putExtra(Intent.EXTRA_STREAM,
                     FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", imageFile));
             sharingIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -25,7 +25,7 @@ public abstract class MediaUtil {
             return chooserIntent;
         } else {
             Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-            sharingIntent.setType("video/mp4");
+            sharingIntent.setType("image/jpg");
             Uri uri = Uri.parse("file://" + imageFile.getAbsolutePath());
             sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
             sharingIntent.putExtra(Intent.EXTRA_SUBJECT, imageFile.getName());
@@ -45,7 +45,7 @@ public abstract class MediaUtil {
         } else {
             contentUri = Uri.parse("file://" + imageFile.getAbsolutePath());
         }
-        open.setDataAndType(contentUri, "video/mp4");
+        open.setDataAndType(contentUri, "image/jpg");
         open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         return open;
     }

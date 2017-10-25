@@ -22,6 +22,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.AccessInfo;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
+import github.tornaco.xposedmoduletest.util.MediaUtil;
 import si.virag.fuzzydateformatter.FuzzyDateTimeFormatter;
 
 /**
@@ -82,6 +83,12 @@ public class PhotoListAdapter extends RecyclerView.Adapter<PhotoListAdapter.Acce
                 del.delete();
                 onAccessInfoDetele(accessInfo);
                 return true;
+            }
+        });
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                context.startActivity(MediaUtil.buildOpenIntent(context, new File(accessInfo.getUrl())));
             }
         });
     }
