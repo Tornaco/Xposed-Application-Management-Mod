@@ -2,15 +2,13 @@
 
 ## 1. Purpose
 > 借助XPOSED实现系统级别应用锁。
--------------
+
 
 ## 2. Workflow
-
 XAppGuardService(Framework)---XAppGuardApp(App)--User-(返回验证结果)
--------------
+
 
 ## 3. Func design
-
 XAppGuardService(Framework)---XAppGuardApp(App)--User(返回验证结果)
 
 ### 3.1 XAppGuardService注入
