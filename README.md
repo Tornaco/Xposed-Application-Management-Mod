@@ -1,14 +1,13 @@
 # What is XAppGuard
 
-![demo](art/videos/workflow.gif)
-
 ## 1. Purpose
-
-借助XPOSED实现系统级别应用锁。
+> 借助XPOSED实现系统级别应用锁。
+-------------
 
 ## 2. Workflow
 
 XAppGuardService(Framework)---XAppGuardApp(App)--User-(返回验证结果)
+-------------
 
 ## 3. Func design
 
@@ -171,3 +170,12 @@ private void hookTaskMover(XC_LoadPackage.LoadPackageParam lpparam) {
 
 ## 4. Build depencency
 依赖hiddenapi，Xposed-Framework。
+
+## 5. Test
+[查看最新测试报告](https://github.com/Tornaco/XAppGuard/blob/master/TestResults-XAppGuardManagerTest.html /"最新测试报告")
+测试代码位于```androidTest```目录下。
+
+
+## 6. Demo
+
+![demo](art/videos/workflow.gif)
