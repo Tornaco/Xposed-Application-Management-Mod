@@ -1,3 +1,11 @@
+# SDK for developers
+
+## 1. What can developers do
+Implement different styled lock activity.
+
+## 2. How to
+See [DEV_GUIDE](https://github.com/Tornaco/XAppGuard/edit/master/README.md)
+
 # What is XAppGuard
 
 ## 1. Purpose
@@ -171,6 +179,7 @@ private void hookTaskMover(XC_LoadPackage.LoadPackageParam lpparam) {
 
 ## 5. Test
 5.1 [查看最新测试报告](TestResults-XAppGuardManagerTest.html)
+
 5.2 测试代码位于```androidTest```目录下。
 
 
