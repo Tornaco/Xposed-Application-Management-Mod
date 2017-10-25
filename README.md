@@ -170,8 +170,8 @@ private void hookTaskMover(XC_LoadPackage.LoadPackageParam lpparam) {
 依赖hiddenapi，Xposed-Framework。
 
 ## 5. Test
-[查看最新测试报告](https://github.com/Tornaco/XAppGuard/blob/master/TestResults-XAppGuardManagerTest.html /"最新测试报告")
-测试代码位于```androidTest```目录下。
+5.1 [查看最新测试报告](TestResults-XAppGuardManagerTest.html)
+5.2 测试代码位于```androidTest```目录下。
 
 
 ## 6. Demo
