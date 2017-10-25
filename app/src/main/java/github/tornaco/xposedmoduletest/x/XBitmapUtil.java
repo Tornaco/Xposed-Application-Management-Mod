@@ -21,9 +21,9 @@ import android.graphics.Bitmap;
  */
 final class XBitmapUtil {
 
-    private static final float BITMAP_SCALE = 0.2f;
+    static final float BITMAP_SCALE = 0.2f;
     /* Initial blur radius. */
-    private static final int BLUR_RADIUS = 15;
+    static final int BLUR_RADIUS = 15;
 
     /**
      * This class is never instantiated

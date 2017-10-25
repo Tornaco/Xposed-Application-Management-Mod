@@ -17,7 +17,7 @@ interface IAppGuardService {
     void setBlurRadius(int radius);
     int getBlurRadius();
     void setBlurScale(float scale);
-    void getBlurScale();
+    float getBlurScale();
 
     // Feature api.
     boolean hasFeature(String feature);

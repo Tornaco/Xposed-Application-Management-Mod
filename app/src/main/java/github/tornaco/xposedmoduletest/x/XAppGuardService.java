@@ -21,9 +21,9 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Slog;
-import android.util.SparseArray;
 
 import com.android.internal.os.AtomicFile;
+import com.android.internal.util.Preconditions;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -47,6 +47,9 @@ import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAppGuardService;
 import github.tornaco.xposedmoduletest.IWatcher;
 
+import static github.tornaco.xposedmoduletest.x.XAppGuardManager.ACTION_APP_GUARD_VERIFY_DISPLAYER;
+import static github.tornaco.xposedmoduletest.x.XAppGuardManager.Feature.FEATURE_COUNT;
+
 /**
  * Created by guohao4 on 2017/10/23.
  * Email: Tornaco@163.com
@@ -56,6 +59,9 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     private static final String SETTINGS_APP_GUARD_ENABLED = "settings_app_guard_enabled";
     private static final String SETTINGS_APP_SCREENSHOT_BLUR_ENABLED = "settings_app_screenshot_blur_enabled";
+    private static final String SETTINGS_APP_SCREENSHOT_BLUR_SCALE = "settings_app_screenshot_blur_sc";
+    private static final String SETTINGS_APP_SCREENSHOT_BLUR_RADIUS = "settings_app_screenshot_blur_ra";
+    private static final String SETTINGS_APP_SCREENSHOT_BLUR_POLICY = "settings_app_screenshot_blur_po";
 
     private static int sClientUID = 0;
 
@@ -75,6 +81,9 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     private static final int MSG_PASS = 0x8;
     private static final int MSG_IGNORE = 0x9;
     private static final int MSG_SET_BLUR = 0x10;
+    private static final int MSG_SET_BLUR_POLICY = 0x11;
+    private static final int MSG_SET_BLUR_RADIUS = 0x12;
+    private static final int MSG_SET_BLUR_SCALE = 0x13;
     private static final int MSG_TRANSACTION_EXPIRE_BASE = 0x99;
 
     private Context mContext;
@@ -82,6 +91,10 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     private AtomicBoolean mEnabled = new AtomicBoolean(false);
     private AtomicBoolean mBlur = new AtomicBoolean(false);
+    private AtomicInteger mBlurPolicy = new AtomicInteger(XAppGuardManager.BlurPolicy.BLUR_WATCHED);
+
+    private float mBlurRadius = XBitmapUtil.BLUR_RADIUS;
+    private float mBlurScale = XBitmapUtil.BITMAP_SCALE;
 
     private final Set<String> WATCHED_PACKAGES = new HashSet<>();
 
@@ -91,7 +104,8 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     @SuppressLint("UseSparseArrays")
     private final Map<Integer, Transaction> TRANSACTION_MAP = new HashMap<>();
-    private final SparseArray<String> UID_MAP = new SparseArray<>();
+
+    private final Set<String> FEATURES = new HashSet<>(FEATURE_COUNT);
 
     static {
         PREBUILT_WHITE_LIST.add("com.android.systemui");
@@ -116,9 +130,36 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     private XStatus xStatus = XStatus.UNKNOWN;
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    XAppGuardService(Context context) {
+    XAppGuardService() {
+    }
+
+    void attachContext(Context context) {
+        if (DEBUG_V) Slog.d(TAG, "attachContext: " + context);
         this.mContext = context;
+    }
+
+    void publish() {
+        try {
+            if (DEBUG_V) Slog.d(TAG, "published: " + Binder.getCallingUid());
+            ServiceManager.addService(XAppGuardManager.APP_GUARD_SERVICE, asBinder());
+            publishFeature(XAppGuardManager.Feature.BASE);
+        } catch (Exception e) {
+            Slog.e(TAG, "*** FATAL*** Fail publish our svc:" + e);
+        }
+    }
+
+    void systemReady() {
+        if (DEBUG_V) Slog.d(TAG, "systemReady: " + Binder.getCallingUid());
+        construct();
+        readSettings();
+        loadPackages();
+        registerReceiver();
+        cacheUIDForPackages();
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private void construct() {
+        mHandler = new Handler(this);
         File dataDir = Environment.getDataDirectory();
         File systemDir = new File(dataDir, "system");
         systemDir.mkdirs();
@@ -126,18 +167,11 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         if (DEBUG_V) Slog.d(TAG, "xml file: " + mXmlFile.getBaseFile());
     }
 
-    void publish() {
-        ServiceManager.addService(XAppGuardManager.APP_GUARD_SERVICE, asBinder());
-        if (DEBUG_V) Slog.d(TAG, "published: " + Binder.getCallingUid());
-    }
-
-    void systemReady() {
-        if (DEBUG_V) Slog.d(TAG, "systemReady: " + Binder.getCallingUid());
-        mHandler = new Handler(this);
-        readSettings();
-        loadPackages();
-        registerReceiver();
-        cacheUIDForPackages();
+    void publishFeature(String f) {
+        if (DEBUG_V) Slog.d(TAG, "publishFeature: " + f);
+        synchronized (FEATURES) {
+            if (!FEATURES.contains(f)) FEATURES.add(f);
+        }
     }
 
     private void cacheUIDForPackages() {
@@ -199,6 +233,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
             mContext.startActivity(intent, bnds);
         } catch (ActivityNotFoundException anf) {
             Slog.e(TAG, "*** FATAL ERROR *** ActivityNotFoundException!!!");
+            setResult(tid, XMode.MODE_IGNORED);
         }
     }
 
@@ -211,11 +246,21 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     private void readSettings() {
         ContentResolver contentResolver = mContext.getContentResolver();
         boolean enabled = (Settings.System.getInt(contentResolver, SETTINGS_APP_GUARD_ENABLED, 0) == 1);
-        boolean blur = (Settings.System.getInt(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_ENABLED, 0) == 1);
         mEnabled.set(enabled);
+        boolean blur = (Settings.System.getInt(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_ENABLED, 0) == 1);
         mBlur.set(blur);
+        int blurPolicy = (Settings.System.getInt(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_POLICY,
+                XAppGuardManager.BlurPolicy.BLUR_WATCHED));
+        mBlurPolicy.set(blurPolicy);
+        mBlurScale = (Settings.System.getFloat(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_SCALE,
+                XBitmapUtil.BITMAP_SCALE));
+        mBlurRadius = (Settings.System.getFloat(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_RADIUS,
+                XBitmapUtil.BLUR_RADIUS));
         if (DEBUG_V) Slog.d(TAG, "enabled:" + enabled);
         if (DEBUG_V) Slog.d(TAG, "blur:" + blur);
+        if (DEBUG_V) Slog.d(TAG, "blurPolicy:" + blurPolicy);
+        if (DEBUG_V) Slog.d(TAG, "mBlurScale:" + mBlurScale);
+        if (DEBUG_V) Slog.d(TAG, "mBlurRadius:" + mBlurRadius);
     }
 
     @Override
@@ -231,6 +276,14 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         mHandler.obtainMessage(MSG_SET_ENABLED, enabled ? 1 : 0, 0, null).sendToTarget();
     }
 
+    private void onSetEnabled(boolean enabled) {
+        if (DEBUG_V) Slog.d(TAG, "onSetEnabled:" + enabled);
+        if (mEnabled.compareAndSet(!enabled, enabled)) {
+            ContentResolver contentResolver = mContext.getContentResolver();
+            Settings.System.putInt(contentResolver, SETTINGS_APP_GUARD_ENABLED, enabled ? 1 : 0);
+        }
+    }
+
     @Override
     public boolean isBlur() {
         enforceCallingPermissions();
@@ -238,7 +291,6 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     }
 
     boolean isBlurForPkg(String pkg) {
-        if (DEBUG_V) Slog.d(TAG, "isBlurForPkg:" + pkg);
         return isBlur() && pkg != null && WATCHED_PACKAGES.contains(pkg);
     }
 
@@ -248,53 +300,94 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         mHandler.obtainMessage(MSG_SET_BLUR, blur ? 1 : 0, 0).sendToTarget();
     }
 
+    private void onSetBlur(boolean b) {
+        if (DEBUG_V) Slog.d(TAG, "onSetBlur: " + b);
+
+        if (mBlur.compareAndSet(!b, b)) {
+            ContentResolver contentResolver = mContext.getContentResolver();
+            Settings.System.putInt(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_ENABLED, b ? 1 : 0);
+        }
+    }
+
     @Override
     public void setBlurPolicy(int policy) throws RemoteException {
         enforceCallingPermissions();
+        Preconditions.checkArgument(XAppGuardManager.BlurPolicy.Checker.valid(policy));
+        mHandler.obtainMessage(MSG_SET_BLUR_POLICY, policy, policy).sendToTarget();
     }
+
+    private void onSetBlurPolicy(int policy) {
+        if (DEBUG_V) Slog.d(TAG, "onSetBlurPolicy: " + policy);
+        mBlurPolicy.set(policy);
+        ContentResolver contentResolver = mContext.getContentResolver();
+        Settings.System.putInt(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_POLICY, policy);
+    }
+
 
     @Override
     public int getBlurPolicy() throws RemoteException {
         enforceCallingPermissions();
-        return 0;
+        return mBlurPolicy.get();
     }
 
     @Override
     public void setBlurRadius(int radius) throws RemoteException {
         enforceCallingPermissions();
+        Preconditions.checkArgumentInRange(radius, 1, 25, "radius");
+        mHandler.obtainMessage(MSG_SET_BLUR_RADIUS, radius, radius).sendToTarget();
+    }
+
+    private void onSetBlurRadius(int radius) {
+        if (DEBUG_V) Slog.d(TAG, "onSetBlurRadius: " + radius);
+        mBlurRadius = radius;
+        ContentResolver contentResolver = mContext.getContentResolver();
+        Settings.System.putFloat(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_RADIUS, radius);
     }
 
     @Override
     public int getBlurRadius() throws RemoteException {
         enforceCallingPermissions();
-        return 0;
+        return (int) mBlurRadius;
     }
 
     @Override
     public void setBlurScale(float scale) throws RemoteException {
         enforceCallingPermissions();
+        Preconditions.checkArgumentInRange(scale, 0f, 1f, "scale");
+        mHandler.obtainMessage(MSG_SET_BLUR_SCALE, scale).sendToTarget();
+    }
+
+    private void onSetBlurScale(float scale) {
+        if (DEBUG_V) Slog.d(TAG, "onSetBlurScale: " + scale);
+        mBlurScale = scale;
+        ContentResolver contentResolver = mContext.getContentResolver();
+        Settings.System.putFloat(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_SCALE, scale);
     }
 
     @Override
-    public void getBlurScale() throws RemoteException {
+    public float getBlurScale() throws RemoteException {
         enforceCallingPermissions();
+        return mBlurScale;
     }
 
     @Override
     public boolean hasFeature(String feature) throws RemoteException {
         enforceCallingPermissions();
-        return false;
+        Preconditions.checkNotNull(feature);
+        return FEATURES.contains(feature);
     }
 
     @Override
     public void ignore(String pkg) throws RemoteException {
         enforceCallingPermissions();
+        Preconditions.checkNotNull(pkg);
         mHandler.obtainMessage(MSG_IGNORE, pkg).sendToTarget();
     }
 
     @Override
     public void pass(String pkg) throws RemoteException {
         enforceCallingPermissions();
+        Preconditions.checkNotNull(pkg);
         mHandler.obtainMessage(MSG_PASS, pkg).sendToTarget();
     }
 
@@ -315,16 +408,8 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         return pkgs;
     }
 
-    private void onSetEnabled(boolean enabled) {
-        if (DEBUG_V) Slog.d(TAG, "onSetEnabled:" + enabled);
-        if (mEnabled.compareAndSet(!enabled, enabled)) {
-            ContentResolver contentResolver = mContext.getContentResolver();
-            Settings.System.putInt(contentResolver, SETTINGS_APP_GUARD_ENABLED, enabled ? 1 : 0);
-        }
-    }
-
     @Override
-    public void setResult(int transactionID, final int res) throws RemoteException {
+    public void setResult(int transactionID, final int res) {
         enforceCallingPermissions();
         if (DEBUG_V) Slog.d(TAG, "setResult:" + transactionID + ", res:" + res);
         mHandler.obtainMessage(MSG_VERIFY_RES, res, transactionID, null).sendToTarget();
@@ -360,6 +445,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     @Override
     public void addPackages(String[] pkgs) throws RemoteException {
         enforceCallingPermissions();
+        Preconditions.checkNotNull(pkgs);
         mHandler.obtainMessage(MSG_ADD_PACKAGES, pkgs).sendToTarget();
     }
 
@@ -378,6 +464,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     @Override
     public void removePackages(String[] pkgs) throws RemoteException {
         enforceCallingPermissions();
+        Preconditions.checkNotNull(pkgs);
         mHandler.obtainMessage(MSG_REMOVE_PACKAGES, pkgs).sendToTarget();
     }
 
@@ -404,11 +491,12 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         mHandler.obtainMessage(MSG_WRITE_STATE).sendToTarget();
     }
 
-    private void onReadState() {
+
+    private void onWriteState() {
         mWorkingService.execute(new Runnable() {
             @Override
             public void run() {
-                loadPackages();
+                persistPackages();
             }
         });
     }
@@ -419,11 +507,11 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         mHandler.obtainMessage(MSG_READ_STATE).sendToTarget();
     }
 
-    private void onWriteState() {
+    private void onReadState() {
         mWorkingService.execute(new Runnable() {
             @Override
             public void run() {
-                persistPackages();
+                loadPackages();
             }
         });
     }
@@ -469,7 +557,6 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         } finally {
             if (os != null) {
                 mXmlFile.finishWrite(os);
-
             }
         }
     }
@@ -485,8 +572,8 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     }
 
     private static Intent buildVerifyIntent(int transId, String pkg) {
-        Intent intent = new Intent();
-        intent.setClassName(BuildConfig.APPLICATION_ID, "github.tornaco.xposedmoduletest.ui.VerifyDisplayerActivity");
+        Intent intent = new Intent(ACTION_APP_GUARD_VERIFY_DISPLAYER);
+        // intent.setClassName(BuildConfig.APPLICATION_ID, "github.tornaco.xposedmoduletest.ui.VerifyDisplayerActivity");
         intent.putExtra(XKey.EXTRA_PKG_NAME, pkg);
         intent.putExtra(XKey.EXTRA_TRANS_ID, transId);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -522,6 +609,15 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
             case MSG_SET_BLUR:
                 onSetBlur(msg.arg1 == 1);
                 return true;
+            case MSG_SET_BLUR_POLICY:
+                onSetBlurPolicy(msg.arg1);
+                return true;
+            case MSG_SET_BLUR_RADIUS:
+                onSetBlurRadius(msg.arg1);
+                return true;
+            case MSG_SET_BLUR_SCALE:
+                onSetBlurScale((Float) msg.obj);
+                return true;
             case MSG_PASS:
             case MSG_IGNORE:
                 return false;
@@ -529,15 +625,6 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
                 int transaction = (int) msg.obj;
                 onSetResult(XMode.MODE_IGNORED, transaction);
                 return true;
-        }
-    }
-
-    private void onSetBlur(boolean b) {
-        if (DEBUG_V) Slog.d(TAG, "onSetBlur: " + b);
-
-        if (mBlur.compareAndSet(!b, b)) {
-            ContentResolver contentResolver = mContext.getContentResolver();
-            Settings.System.putInt(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_ENABLED, b ? 1 : 0);
         }
     }
 
@@ -563,6 +650,12 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
                 return "MSG_IGNORE";
             case MSG_SET_BLUR:
                 return "MSG_SET_BLUR";
+            case MSG_SET_BLUR_POLICY:
+                return "MSG_SET_BLUR_POLICY";
+            case MSG_SET_BLUR_RADIUS:
+                return "MSG_SET_BLUR_RADIUS";
+            case MSG_SET_BLUR_SCALE:
+                return "MSG_SET_BLUR_SCALE";
             default:
                 return "MSG_TRANSACTION_EXPIRE";
         }
@@ -620,9 +713,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
             Transaction that = (Transaction) o;
 
-            if (tid != that.tid) return false;
-            return pkg.equals(that.pkg);
-
+            return tid == that.tid && pkg.equals(that.pkg);
         }
 
         @Override

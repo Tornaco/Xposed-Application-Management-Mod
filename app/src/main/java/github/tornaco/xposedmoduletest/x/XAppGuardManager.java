@@ -15,12 +15,30 @@ import github.tornaco.xposedmoduletest.IWatcher;
 
 public class XAppGuardManager {
 
-    public static final String APP_GUARD_SERVICE = "user.appguard";
+    static final String ACTION_APP_GUARD_VERIFY_DISPLAYER
+            = "github.tornaco.xpose.app.guard.action.verify.displayer";
 
+    static final String APP_GUARD_SERVICE = "user.appguard";
+
+    @SuppressWarnings("WeakerAccess")
     public interface Feature {
         String BASE = "feature.base";
         String FP = "feature.fp";
         String BLUR = "feature.blur";
+        int FEATURE_COUNT = 3;
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public interface BlurPolicy {
+        int BLUR_WATCHED = 0x1;
+        int BLUR_ALL = 0x2;
+        int BLUR_POLICY_UNKNOWN = -1;
+
+        class Checker {
+            public static boolean valid(int p) {
+                return p == BLUR_ALL || p == BLUR_WATCHED;
+            }
+        }
     }
 
     public static final long TRANSACTION_EXPIRE_TIME = 60 * 1000;
@@ -184,5 +202,72 @@ public class XAppGuardManager {
         } catch (RemoteException e) {
             Logger.e(Logger.getStackTraceString(e));
         }
+    }
+
+    public void setBlurPolicy(int policy) {
+        if (!isServiceConnected()) return;
+        try {
+            mService.setBlurPolicy(policy);
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+    }
+
+    public int getBlurPolicy() {
+        if (!isServiceConnected()) return BlurPolicy.BLUR_POLICY_UNKNOWN;
+        try {
+            return mService.getBlurPolicy();
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+        return BlurPolicy.BLUR_POLICY_UNKNOWN;
+    }
+
+    public void setBlurRadius(int radius) {
+        if (!isServiceConnected()) return;
+        try {
+            mService.setBlurRadius(radius);
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+    }
+
+    public int getBlurRadius() {
+        if (!isServiceConnected()) return -1;
+        try {
+            return mService.getBlurRadius();
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+        return -1;
+    }
+
+    public void setBlurScale(float scale) {
+        if (!isServiceConnected()) return;
+        try {
+            mService.setBlurScale(scale);
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+    }
+
+    public float getBlurScale() {
+        if (!isServiceConnected()) return -1;
+        try {
+            return mService.getBlurScale();
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+        return -1;
+    }
+
+    public boolean hasFeature(String feature) {
+        if (!isServiceConnected()) return false;
+        try {
+            return mService.hasFeature(feature);
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+        return false;
     }
 }

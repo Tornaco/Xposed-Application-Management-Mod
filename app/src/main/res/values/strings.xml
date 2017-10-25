@@ -50,4 +50,5 @@
     <string name="title_open_source">源码</string>
     <string name="title_app_recent_blur">最近任务模糊</string>
     <string name="summary_app_recent_blur">目前所有任务都会被模糊，仅供测试效果，如果影响性能请关闭</string>
+    <string name="title_default_verifyer">默认验证器</string>
 </resources>

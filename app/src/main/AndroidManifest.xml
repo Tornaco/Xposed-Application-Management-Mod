@@ -31,7 +31,13 @@
             android:name=".ui.VerifyDisplayerActivity"
             android:excludeFromRecents="true"
             android:exported="true"
-            android:theme="@style/AppThemeLight.NoActionBar" />
+            android:label="@string/title_default_verifyer"
+            android:theme="@style/AppThemeLight.NoActionBar">
+            <intent-filter>
+                <action android:name="github.tornaco.xpose.app.guard.action.verify.displayer" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name=".ui.GuardAppNavActivity"

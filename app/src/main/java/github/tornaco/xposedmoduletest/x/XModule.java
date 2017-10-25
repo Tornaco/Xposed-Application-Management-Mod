@@ -27,7 +27,7 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 
     XStatus xStatus = XStatus.UNKNOWN;
 
-    XAppGuardService mAppGuardService;
+    XAppGuardService mAppGuardService = new XAppGuardService();
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -55,9 +55,7 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
-                    if (mAppGuardService != null) {
-                        mAppGuardService.shutdown();
-                    }
+                    mAppGuardService.shutdown();
                 }
             });
             XLog.logV("hookAMSShutdown OK");
@@ -81,10 +79,8 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
-                    if (mAppGuardService != null) {
-                        mAppGuardService.systemReady();
-                        mAppGuardService.setStatus(xStatus);
-                    }
+                    mAppGuardService.systemReady();
+                    mAppGuardService.setStatus(xStatus);
                 }
             });
             XLog.logV("hookAMSSystemReady OK");
@@ -104,7 +100,7 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
                     Context context = (Context) XposedHelpers.getObjectField(param.thisObject, "mContext");
-                    mAppGuardService = new XAppGuardService(context);
+                    mAppGuardService.attachContext(context);
                     mAppGuardService.publish();
                 }
             });
@@ -135,6 +131,7 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                         }
                     });
             XLog.logV("hookFPService OK");
+            mAppGuardService.publishFeature(XAppGuardManager.Feature.FP);
         } catch (Exception e) {
             XLog.logV("Fail hookFPService" + e);
             if (xStatus != XStatus.ERROR) xStatus = XStatus.WITH_WARN;
@@ -161,7 +158,7 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                     final int effectiveUid = (int) XposedHelpers.getObjectField(me, "effectiveUid");
                     XLog.logV("affinity:" + affinity + ", effectiveUid:" + effectiveUid);
                     String pkgName = affinity;
-                    if (mAppGuardService != null && mAppGuardService.isBlurForPkg(pkgName)
+                    if (mAppGuardService.isBlurForPkg(pkgName)
                             && param.getResult() != null) {
 
                         Bitmap res = (Bitmap) param.args[0];
@@ -199,6 +196,7 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                         }
                     });
             XLog.logV("hookScreenshotApplications OK");
+            mAppGuardService.publishFeature(XAppGuardManager.Feature.BLUR);
         } catch (Exception e) {
             XLog.logV("Fail hookScreenshotApplications:" + e);
         }
@@ -217,7 +215,7 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
         if (TextUtils.isEmpty(pkgName)) {
             return;
         }
-        if (mAppGuardService != null && mAppGuardService.isBlurForPkg(pkgName)
+        if (mAppGuardService.isBlurForPkg(pkgName)
                 && param.getResult() != null) {
 
             Bitmap res = (Bitmap) param.getResult();
