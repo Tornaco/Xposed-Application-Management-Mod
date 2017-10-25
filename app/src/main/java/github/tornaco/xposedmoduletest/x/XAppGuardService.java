@@ -7,6 +7,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Environment;
@@ -18,6 +20,7 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Slog;
+import android.util.SparseArray;
 
 import com.android.internal.os.AtomicFile;
 
@@ -28,6 +31,7 @@ import java.io.FileReader;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -82,6 +86,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     @SuppressLint("UseSparseArrays")
     private final Map<Integer, Transaction> TRANSACTION_MAP = new HashMap<>();
+    private final SparseArray<String> UID_MAP = new SparseArray<>();
 
     static {
         PREBUILT_WHITE_LIST.add("com.android.systemui");
@@ -127,6 +132,30 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         readSettings();
         loadPackages();
         registerReceiver();
+        cacheUIDForPackages();
+    }
+
+    private void cacheUIDForPackages() {
+        PackageManager pm = this.mContext.getPackageManager();
+        List<android.content.pm.PackageInfo> packages;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            packages = pm.getInstalledPackages(PackageManager.MATCH_UNINSTALLED_PACKAGES);
+        } else {
+            packages = pm.getInstalledPackages(PackageManager.GET_UNINSTALLED_PACKAGES);
+        }
+
+        for (android.content.pm.PackageInfo packageInfo : packages) {
+            String pkgName = packageInfo.packageName;
+            try {
+                ApplicationInfo applicationInfo = pm.getApplicationInfo(pkgName, 0);
+                int uid = applicationInfo == null ? -1 : applicationInfo.uid;
+                if (uid > 0) {
+                    UID_MAP.put(uid, pkgName);
+                    if (DEBUG_V) Slog.d(TAG, "uid: " + uid + ", pkg: " + pkgName);
+                }
+            } catch (PackageManager.NameNotFoundException ignored) {
+            }
+        }
     }
 
     void setStatus(XStatus xStatus) {
@@ -208,8 +237,13 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     }
 
     @Override
-    public boolean isBlur() throws RemoteException {
+    public boolean isBlur() {
         return mBlur.get();
+    }
+
+    boolean isBlurForPkg(String pkg) {
+        if (DEBUG_V) Slog.d(TAG, "isBlurForPkg:" + pkg);
+        return isBlur() && pkg != null && WATCHED_PACKAGES.contains(pkg);
     }
 
     @Override

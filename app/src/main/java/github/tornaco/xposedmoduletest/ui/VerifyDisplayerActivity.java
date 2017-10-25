@@ -203,6 +203,7 @@ public class VerifyDisplayerActivity extends AppCompatActivity {
     }
 
     private void onPass() {
+        mHandler.removeCallbacksAndMessages(null);
         if (mCancellationSignal != null) {
             mCancellationSignal.cancel();
         }

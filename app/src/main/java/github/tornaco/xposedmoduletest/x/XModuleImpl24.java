@@ -45,9 +45,7 @@ class XModuleImpl24 extends XModule {
                 protected void beforeHookedMethod(final MethodHookParam param)
                         throws Throwable {
                     super.beforeHookedMethod(param);
-
-                    if (DEBUG_V)
-                        XposedBridge.log(TAG + "findTaskToMoveToFrontLocked:" + param.args[0]);
+                    XLog.logV("findTaskToMoveToFrontLocked:" + param.args[0]);
                     // FIXME Using aff instead of PKG.
                     try {
                         final String affinity = (String) XposedHelpers.getObjectField(param.args[0], "affinity");
@@ -67,9 +65,7 @@ class XModuleImpl24 extends XModule {
                                             XposedBridge.invokeOriginalMethod(moveToFront,
                                                     param.thisObject, param.args);
                                         } catch (Exception e) {
-                                            XposedBridge.log(TAG
-                                                    + "Error@"
-                                                    + Log.getStackTraceString(e));
+                                            XLog.logD("Error@" + Log.getStackTraceString(e));
                                         }
                                     }
                                 });
@@ -77,12 +73,12 @@ class XModuleImpl24 extends XModule {
                         param.setResult(null);
 
                     } catch (Exception e) {
-                        XposedBridge.log(TAG + "findTaskToMoveToFrontLocked" + Log.getStackTraceString(e));
+                        XLog.logV("findTaskToMoveToFrontLocked" + Log.getStackTraceString(e));
                     }
                 }
             });
         } catch (Exception e) {
-            XposedBridge.log(TAG + "hookTaskMover" + Log.getStackTraceString(e));
+            XLog.logV("hookTaskMover" + Log.getStackTraceString(e));
             xStatus = XStatus.ERROR;
         }
     }
@@ -110,16 +106,16 @@ class XModuleImpl24 extends XModule {
             }
 
             if (startActivityLockedExact == null) {
-                XposedBridge.log(TAG + "*** FATAL can not find starter method ***");
+                XLog.logV("*** FATAL can not find starter method ***");
                 return;
             }
 
             if (matchCount > 1) {
-                XposedBridge.log(TAG + "*** FATAL more than 1 starter method ***");
+                XLog.logV("*** FATAL more than 1 starter method ***");
                 return;
             }
 
-            XposedBridge.log(TAG + "startActivityLocked method:" + startActivityLockedExact);
+            XLog.logV("startActivityLocked method:" + startActivityLockedExact);
             final Method finalStartActivityLockedExact = startActivityLockedExact;
             XposedBridge.hookMethod(startActivityLockedExact,
                     new XC_MethodHook() {
@@ -135,8 +131,8 @@ class XModuleImpl24 extends XModule {
                                 if (componentName == null) return;
                                 final String pkgName = componentName.getPackageName();
 
-                                if (DEBUG_V)
-                                    XposedBridge.log(TAG + "HOOKING startActivityLocked:" + intent);
+
+                                XLog.logV("HOOKING startActivityLocked:" + intent);
 
                                 // Package has been passed.
                                 if (mAppGuardService.passed(pkgName)) {
@@ -157,9 +153,6 @@ class XModuleImpl24 extends XModule {
                                     opts = (ActivityOptions) param.args[activityOptsIndex];
                                     optsBundle = opts.toBundle();
                                 }
-                                if (DEBUG_V) {
-                                    XposedBridge.log(TAG + "bnds:" + optsBundle);
-                                }
 
                                 mAppGuardService.verify(optsBundle, pkgName, callingUID, callingPID,
                                         new XAppGuardService.VerifyListener() {
@@ -169,8 +162,7 @@ class XModuleImpl24 extends XModule {
                                                     XposedBridge.invokeOriginalMethod(finalStartActivityLockedExact,
                                                             param.thisObject, param.args);
                                                 } catch (Exception e) {
-                                                    XposedBridge.log(TAG
-                                                            + "Error@"
+                                                    XLog.logD("Error@"
                                                             + Log.getStackTraceString(e));
                                                 }
                                             }
@@ -179,12 +171,12 @@ class XModuleImpl24 extends XModule {
                                 param.setResult(ActivityManager.START_SUCCESS);
                             } catch (Exception e) {
                                 // replacing did not work.. but no reason to crash the VM! Log the error and go on.
-                                XposedBridge.log(TAG + Log.getStackTraceString(e));
+                                XLog.logV(Log.getStackTraceString(e));
                             }
                         }
                     });
         } catch (Exception e) {
-            XposedBridge.log(TAG + "hookActivityStarter" + Log.getStackTraceString(e));
+            XLog.logV("hookActivityStarter" + Log.getStackTraceString(e));
             xStatus = XStatus.ERROR;
         }
     }

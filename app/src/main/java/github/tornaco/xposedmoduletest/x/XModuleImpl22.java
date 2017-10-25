@@ -45,7 +45,7 @@ class XModuleImpl22 extends XModule {
                 protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
                     super.beforeHookedMethod(param);
 
-                    XposedBridge.log(TAG + "findTaskToMoveToFrontLocked:" + param.args[0]);
+                    XLog.logV("findTaskToMoveToFrontLocked:" + param.args[0]);
                     // FIXME Using aff instead of PKG.
                     try {
                         final String affinity = (String) XposedHelpers.getObjectField(param.args[0], "affinity");
@@ -63,8 +63,7 @@ class XModuleImpl22 extends XModule {
                                     XposedBridge.invokeOriginalMethod(moveToFront,
                                             param.thisObject, param.args);
                                 } catch (Exception e) {
-                                    XposedBridge.log(TAG
-                                            + "Error@"
+                                    XLog.logD("Error@"
                                             + Log.getStackTraceString(e));
                                 }
                             }
@@ -73,12 +72,12 @@ class XModuleImpl22 extends XModule {
                         param.setResult(null);
 
                     } catch (Exception e) {
-                        XposedBridge.log(TAG + "findTaskToMoveToFrontLocked" + Log.getStackTraceString(e));
+                        XLog.logV("findTaskToMoveToFrontLocked" + Log.getStackTraceString(e));
                     }
                 }
             });
         } catch (Exception e) {
-            XposedBridge.log(TAG + "hookTaskMover" + Log.getStackTraceString(e));
+            XLog.logV("hookTaskMover" + Log.getStackTraceString(e));
             xStatus = XStatus.ERROR;
         }
     }
@@ -114,7 +113,7 @@ class XModuleImpl22 extends XModule {
                                 if (componentName == null) return;
                                 final String pkgName = componentName.getPackageName();
 
-                                XposedBridge.log(TAG + "HOOKING startActivity:" + intent);
+                                XLog.logV("HOOKING startActivity:" + intent);
 
                                 // Package has been passed.
                                 if (mAppGuardService.passed(pkgName)) {
@@ -135,9 +134,6 @@ class XModuleImpl22 extends XModule {
                                 args[args.length - 1] = callingUserId;
 
                                 Bundle bnds = (Bundle) param.args[9];
-                                if (DEBUG_V) {
-                                    XposedBridge.log(TAG + "bnds:" + bnds);
-                                }
 
                                 mAppGuardService.verify(bnds, pkgName, callingUID, callingPID, new XAppGuardService.VerifyListener() {
                                     @Override
@@ -145,21 +141,19 @@ class XModuleImpl22 extends XModule {
                                         if (res == XMode.MODE_ALLOWED) try {
                                             XposedBridge.invokeOriginalMethod(startActivityAsUser, param.thisObject, args);
                                         } catch (Exception e) {
-                                            XposedBridge.log(TAG
-                                                    + "Error@"
-                                                    + Log.getStackTraceString(e));
+                                            XLog.logD("Error@" + Log.getStackTraceString(e));
                                         }
                                     }
                                 });
                                 param.setResult(ActivityManager.START_SUCCESS);
                             } catch (Exception e) {
                                 // replacing did not work.. but no reason to crash the VM! Log the error and go on.
-                                XposedBridge.log(TAG + Log.getStackTraceString(e));
+                                XLog.logV(Log.getStackTraceString(e));
                             }
                         }
                     });
         } catch (Exception e) {
-            XposedBridge.log(TAG + "hookActivityManagerService" + Log.getStackTraceString(e));
+            XLog.logV("hookActivityManagerService" + Log.getStackTraceString(e));
             xStatus = XStatus.ERROR;
         }
     }
