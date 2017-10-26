@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -51,6 +52,7 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit, IXposedH
         hookScreenshotApplications(lpparam);
         hookActivityLifecycle(lpparam);
         hookAMSActivityDestroy(lpparam);
+        hookPWM(lpparam);
 
         stopWatch.stop();
     }
@@ -240,6 +242,28 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit, IXposedH
 
     }
 
+    private void hookPWM(XC_LoadPackage.LoadPackageParam lpparam) {
+        XLog.logV("hookPWM...");
+        try {
+            Class clz = XposedHelpers.findClass("com.android.server.policy.PhoneWindowManager",
+                    lpparam.classLoader);
+            XposedBridge.hookAllMethods(clz,
+                    "interruptKeyBeforeQueueing", new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            super.afterHookedMethod(param);
+                            KeyEvent keyEvent = (KeyEvent) param.args[0];
+                            if (keyEvent.getAction() == KeyEvent.ACTION_UP && keyEvent.getKeyCode() == KeyEvent.KEYCODE_HOME) {
+                                mAppGuardService.onHome();
+                            }
+                        }
+                    });
+            XLog.logV("hookPWM OK");
+            mAppGuardService.publishFeature(XAppGuardManager.Feature.BLUR);
+        } catch (Exception e) {
+            XLog.logV("Fail hookPWM:" + e);
+        }
+    }
 
     @Override
     public void initZygote(StartupParam startupParam) throws Throwable {

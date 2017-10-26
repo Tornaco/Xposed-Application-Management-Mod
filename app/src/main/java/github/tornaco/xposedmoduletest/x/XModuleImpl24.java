@@ -142,7 +142,7 @@ class XModuleImpl24 extends XModule {
 
                                 boolean isHomeIntent = isLauncherIntent(intent);
                                 if (isHomeIntent) {
-                                    mAppGuardService.onHome(pkgName);
+                                    mAppGuardService.onHome();
                                     return;
                                 }
 

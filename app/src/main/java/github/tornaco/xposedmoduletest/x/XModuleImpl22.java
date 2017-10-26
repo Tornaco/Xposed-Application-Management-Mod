@@ -109,7 +109,7 @@ class XModuleImpl22 extends XModule {
                         @Override
                         protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
-                            XStopWatch stopWatch = XStopWatch.start("findTaskToMoveToFrontLocked");
+                            XStopWatch stopWatch = XStopWatch.start("startActivity");
                             try {
                                 Intent intent = (Intent) param.args[2];
                                 if (intent == null) return;
@@ -120,7 +120,7 @@ class XModuleImpl22 extends XModule {
 
                                 boolean isHomeIntent = isLauncherIntent(intent);
                                 if (isHomeIntent) {
-                                    mAppGuardService.onHome(pkgName);
+                                    mAppGuardService.onHome();
                                     return;
                                 }
 

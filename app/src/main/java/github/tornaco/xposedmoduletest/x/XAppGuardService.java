@@ -793,7 +793,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
             case MSG_IGNORE:
                 return false;
             case MSG_ON_HOME:
-                onHomeInternal((String) msg.obj);
+                onHomeInternal();
                 return true;
             case MSG_SET_VERIFY_ON_HOME:
                 onSetVerifyOnHome(msg.arg1 == 1);
@@ -871,6 +871,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
                     applicationInfo = pm.getApplicationInfo(s, PackageManager.GET_META_DATA);
                     if (s.equals("github.tornaco.dialogstyledveifier")) {
                         int uid = applicationInfo.uid;
+                        int code = applicationInfo.versionCode;
                         Slog.d(TAG, "Verifier pkg:" + s + ", uid:" + uid);
                         VERIFIER_PACKAGES.put(s, uid);
                         return;
@@ -890,6 +891,8 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
 
     private void enforceCallingPermissions() {
+        // FIXME.
+        if (BuildConfig.VERSION_CODE < Integer.MAX_VALUE) return;
         int callingUID = Binder.getCallingUid();
         if (VERIFIER_PACKAGES.containsValue(callingUID)) return;
         if (callingUID == Process.myUid() || (sClientUID > 0 && sClientUID == callingUID)) {
@@ -899,12 +902,12 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
                 + ", does not have permission to interact with XAppGuardService");
     }
 
-    void onHome(String pkgName) {
-        mHandler.obtainMessage(MSG_ON_HOME, pkgName).sendToTarget();
+    void onHome() {
+        mHandler.obtainMessage(MSG_ON_HOME).sendToTarget();
     }
 
-    private void onHomeInternal(String pkgName) {
-        if (DEBUG_V) Slog.d(TAG, "onHomeInternal:" + pkgName);
+    private void onHomeInternal() {
+        if (DEBUG_V) Slog.d(TAG, "onHomeInternal");
         if (isVerifyOnHome()) {
             PASSED_PACKAGES.clear();
         }
