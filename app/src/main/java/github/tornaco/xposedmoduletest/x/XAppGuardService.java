@@ -67,6 +67,8 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     private static final String SETTINGS_APP_SCREENSHOT_BLUR_POLICY = "settings_app_guard_app_screenshot_blur_po";
     private static final String SETTINGS_ALLOW_3RD_VERIFIER = "settings_app_guard_allow_third_verifier";
     private static final String SETTINGS_PASSCODE = "settings_app_guard_passcode";
+    private static final String SETTINGS_VERIFY_ON_HOME = "settings_app_guard_verify_on_home";
+    private static final String SETTINGS_VERIFY_ON_SCREEN_OFF = "settings_app_guard_verify_on_sroff";
 
     private static int sClientUID = 0;
 
@@ -91,12 +93,17 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     private static final int MSG_SET_BLUR_SCALE = 0x13;
     private static final int MSG_SET_SET_ALLOW_3RD_VER = 0x14;
     private static final int MSG_SET_PASSCODE = 0x15;
+    private static final int MSG_ON_HOME = 0x16;
+    private static final int MSG_SET_VERIFY_ON_HOME = 0x17;
+    private static final int MSG_SET_VERIFY_ON_SCREEN_OFF = 0x18;
     private static final int MSG_TRANSACTION_EXPIRE_BASE = 0x99;
 
     private Context mContext;
     private Handler mHandler;
 
     private AtomicBoolean mEnabled = new AtomicBoolean(false);
+    private AtomicBoolean mVerifyOnHome = new AtomicBoolean(false);
+    private AtomicBoolean mVerifyOnScreenOff = new AtomicBoolean(false);
     private AtomicBoolean mBlur = new AtomicBoolean(false);
     private AtomicBoolean m3rdVerifierAllowed = new AtomicBoolean(false);
     private AtomicInteger mBlurPolicy = new AtomicInteger(XAppGuardManager.BlurPolicy.BLUR_WATCHED);
@@ -135,7 +142,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
             new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    PASSED_PACKAGES.clear();
+                    onScreenOff();
                 }
             };
 
@@ -183,7 +190,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     void systemReady() {
         if (DEBUG_V) Slog.d(TAG, "systemReady: " + Binder.getCallingUid());
         construct();
-        readSettings();
+        getConfigFromSettings();
         loadPackages();
         registerReceiver();
         cacheUIDForPackages();
@@ -295,17 +302,28 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
                 transaction), TRANSACTION_EXPIRE_TIME);
     }
 
-    private void readSettings() {
+    private void getConfigFromSettings() {
         ContentResolver contentResolver = mContext.getContentResolver();
         boolean enabled = (Settings.System.getInt(contentResolver, SETTINGS_APP_GUARD_ENABLED, 0) == 1);
         mEnabled.set(enabled);
+
+        boolean verifyOnHome = (Settings.System.getInt(contentResolver, SETTINGS_VERIFY_ON_HOME, 0) == 1);
+        mVerifyOnHome.set(enabled);
+
+        // Default is 1.
+        boolean verifyOnScreenOff = (Settings.System.getInt(contentResolver, SETTINGS_VERIFY_ON_SCREEN_OFF, 1) == 1);
+        mVerifyOnScreenOff.set(enabled);
+
         boolean blur = (Settings.System.getInt(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_ENABLED, 0) == 1);
         mBlur.set(blur);
+
         int blurPolicy = (Settings.System.getInt(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_POLICY,
                 XAppGuardManager.BlurPolicy.BLUR_WATCHED));
         mBlurPolicy.set(blurPolicy);
+
         mBlurScale = (Settings.System.getFloat(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_SCALE,
                 XBitmapUtil.BITMAP_SCALE));
+
         mBlurRadius = (Settings.System.getFloat(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_RADIUS,
                 XBitmapUtil.BLUR_RADIUS));
         boolean allow3rdVer = (Settings.System.getInt(contentResolver, SETTINGS_ALLOW_3RD_VERIFIER, 0) == 1);
@@ -323,6 +341,10 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         if (DEBUG_V) Slog.d(TAG, "mBlurRadius:" + mBlurRadius);
         if (DEBUG_V) Slog.d(TAG, "allow3rdVer:" + allow3rdVer);
         if (DEBUG_V) Slog.d(TAG, "mPasscode:" + mPasscode);
+        if (DEBUG_V) Slog.d(TAG, "verifyOnHome:" + verifyOnHome);
+        if (DEBUG_V) Slog.d(TAG, "verifyOnScreenOff:" + verifyOnScreenOff);
+
+        // TODO. Register observer.
     }
 
     @Override
@@ -336,6 +358,44 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         enforceCallingPermissions();
         if (DEBUG_V) Slog.d(TAG, "setEnabled:" + enabled + ", mEnabled:" + mEnabled.get());
         mHandler.obtainMessage(MSG_SET_ENABLED, enabled ? 1 : 0, 0, null).sendToTarget();
+    }
+
+    @Override
+    public void setVerifyOnScreenOff(boolean ver) throws RemoteException {
+        enforceCallingPermissions();
+        mHandler.obtainMessage(MSG_SET_VERIFY_ON_SCREEN_OFF, ver ? 1 : 0, 0).sendToTarget();
+    }
+
+    @Override
+    public boolean isVerifyOnScreenOff() {
+        enforceCallingPermissions();
+        return mVerifyOnScreenOff.get();
+    }
+
+    private void onSetVerifyOnScreenOff(boolean ver) {
+        if (mEnabled.compareAndSet(!ver, ver)) {
+            ContentResolver contentResolver = mContext.getContentResolver();
+            Settings.System.putInt(contentResolver, SETTINGS_VERIFY_ON_SCREEN_OFF, ver ? 1 : 0);
+        }
+    }
+
+    @Override
+    public void setVerifyOnHome(boolean ver) throws RemoteException {
+        enforceCallingPermissions();
+        mHandler.obtainMessage(MSG_SET_VERIFY_ON_HOME, ver ? 1 : 0, 0).sendToTarget();
+    }
+
+    private void onSetVerifyOnHome(boolean ver) {
+        if (mEnabled.compareAndSet(!ver, ver)) {
+            ContentResolver contentResolver = mContext.getContentResolver();
+            Settings.System.putInt(contentResolver, SETTINGS_VERIFY_ON_HOME, ver ? 1 : 0);
+        }
+    }
+
+    @Override
+    public boolean isVerifyOnHome() {
+        enforceCallingPermissions();
+        return mVerifyOnHome.get();
     }
 
     private void onSetEnabled(boolean enabled) {
@@ -353,7 +413,8 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     }
 
     boolean isBlurForPkg(String pkg) {
-        return isBlur() && mBlurPolicy.get() == XAppGuardManager.BlurPolicy.BLUR_ALL || isBlur() && pkg != null && WATCHED_PACKAGES.contains(pkg);
+        return isBlur() && mBlurPolicy.get() == XAppGuardManager.BlurPolicy.BLUR_ALL
+                || isBlur() && pkg != null && WATCHED_PACKAGES.contains(pkg);
     }
 
     @Override
@@ -731,6 +792,15 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
             case MSG_PASS:
             case MSG_IGNORE:
                 return false;
+            case MSG_ON_HOME:
+                onHomeInternal((String) msg.obj);
+                return true;
+            case MSG_SET_VERIFY_ON_HOME:
+                onSetVerifyOnHome(msg.arg1 == 1);
+                return true;
+            case MSG_SET_VERIFY_ON_SCREEN_OFF:
+                onSetVerifyOnScreenOff(msg.arg1 == 1);
+                return true;
             default:
                 int transaction = (int) msg.obj;
                 onSetResult(XMode.MODE_IGNORED, transaction);
@@ -770,6 +840,12 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
                 return "MSG_SET_SET_ALLOW_3RD_VER";
             case MSG_SET_PASSCODE:
                 return "MSG_SET_PASSCODE";
+            case MSG_ON_HOME:
+                return "MSG_ON_HOME";
+            case MSG_SET_VERIFY_ON_HOME:
+                return "MSG_SET_VERIFY_ON_HOME";
+            case MSG_SET_VERIFY_ON_SCREEN_OFF:
+                return "MSG_SET_VERIFY_ON_SCREEN_OFF";
             default:
                 return "MSG_TRANSACTION_EXPIRE";
         }
@@ -821,6 +897,21 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         }
         throw new SecurityException("Package of uid:" + callingUID
                 + ", does not have permission to interact with XAppGuardService");
+    }
+
+    void onHome(String pkgName) {
+        mHandler.obtainMessage(MSG_ON_HOME, pkgName).sendToTarget();
+    }
+
+    private void onHomeInternal(String pkgName) {
+        if (DEBUG_V) Slog.d(TAG, "onHomeInternal:" + pkgName);
+        if (isVerifyOnHome()) {
+            PASSED_PACKAGES.clear();
+        }
+    }
+
+    private void onScreenOff() {
+        if (isVerifyOnScreenOff()) PASSED_PACKAGES.clear();
     }
 
     private static class TransactionFactory {

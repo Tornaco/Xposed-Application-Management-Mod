@@ -18,7 +18,8 @@ public interface XKey {
     String ACTIVATE_CODE = "key_act_code";
     String DEV_MODE = "dev_mode_enabled";
     String FP_ENABLED = "fp_enabled";
-    String ALWAYS_NOTE = "always_note";
+    String VERIFY_ON_HOME = "verify_on_home";
+    String VERIFY_ON_SCREEN_OFF= "verify_on_scroff";
     String THEME = "theme";
     String FIRST_RUN = "first_ru" + BuildConfig.VERSION_NAME;
 

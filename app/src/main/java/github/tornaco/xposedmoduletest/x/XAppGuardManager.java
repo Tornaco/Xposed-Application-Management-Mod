@@ -309,4 +309,42 @@ public class XAppGuardManager {
         }
         return null;
     }
+
+    public void setVerifyOnScreenOff(boolean ver) {
+        if (!isServiceConnected()) return;
+        try {
+            mService.setVerifyOnScreenOff(ver);
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+    }
+
+    public boolean isVerifyOnScreenOff() {
+        if (!isServiceConnected()) return false;
+        try {
+            return mService.isVerifyOnScreenOff();
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+        return false;
+    }
+
+    public void setVerifyOnHome(boolean ver) {
+        if (!isServiceConnected()) return;
+        try {
+            mService.setVerifyOnHome(ver);
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+    }
+
+    public boolean isVerifyOnHome() {
+        if (!isServiceConnected()) return false;
+        try {
+            return mService.isVerifyOnHome();
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+        return false;
+    }
 }

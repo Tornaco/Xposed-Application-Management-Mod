@@ -2,12 +2,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory android:title="@string/title_basic">
-        <ListPreference
-            android:defaultValue="@string/theme_def"
-            android:entries="@array/theme_entries"
-            android:entryValues="@array/theme_entries"
-            android:key="theme"
-            android:title="@string/title_theme" />
         <Preference
             android:key="@string/title_setup_passcode"
             android:summary="@string/summary_setup_passcode_none_set"
@@ -15,10 +9,36 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:key="verify_on_home"
+            android:title="@string/title_ver_on_home" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="verify_on_scroff"
+            android:title="@string/title_ver_on_screenoff" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/title_verifier">
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="key_take_photo_enabled"
+            android:summary="@string/summary_take_photo"
+            android:title="@string/title_take_photo" />
+
+        <Preference
+            android:key="@string/title_view_photos"
+            android:title="@string/title_view_photos" />
+        <SwitchPreference
+            android:defaultValue="false"
             android:enabled="false"
-            android:key="always_note"
-            android:summary="@string/summary_always_need_verify"
-            android:title="@string/title_always_need_verify" />
+            android:key="fp_enabled"
+            android:title="@string/title_use_fp" />
+        <ListPreference
+            android:defaultValue="@string/theme_def"
+            android:entries="@array/theme_entries"
+            android:entryValues="@array/theme_entries"
+            android:key="theme"
+            android:title="@string/title_theme" />
 
     </PreferenceCategory>
 
@@ -33,6 +53,7 @@
             android:key="@string/dump_module"
             android:summary="@string/summary_dump_module"
             android:title="@string/dump_module" />
+
 
         <SwitchPreference
             android:defaultValue="false"
@@ -52,12 +73,6 @@
 
         <SwitchPreference
             android:defaultValue="false"
-            android:enabled="false"
-            android:key="fp_enabled"
-            android:title="@string/title_use_fp" />
-
-        <SwitchPreference
-            android:defaultValue="false"
             android:key="blur_enabled"
             android:summary="@string/summary_app_recent_blur"
             android:title="@string/title_app_recent_blur" />
@@ -69,15 +84,6 @@
             android:summary="@string/summary_app_recent_blur_all"
             android:title="@string/title_app_recent_blur_all" />
 
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="key_take_photo_enabled"
-            android:summary="@string/summary_take_photo"
-            android:title="@string/title_take_photo" />
-
-        <Preference
-            android:key="@string/title_view_photos"
-            android:title="@string/title_view_photos" />
 
     </PreferenceCategory>
 

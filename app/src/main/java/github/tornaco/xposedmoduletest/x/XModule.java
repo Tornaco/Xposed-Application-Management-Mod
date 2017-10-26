@@ -37,13 +37,20 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
     }
 
     void onLoadingAndroid(XC_LoadPackage.LoadPackageParam lpparam) {
+        XStopWatch stopWatch = XStopWatch.start("Hooking init");
+
         xStatus = XStatus.GOOD;
+
         hookAMSStart(lpparam);
         hookSystemServiceRegister(lpparam);
         hookAMSSystemReady(lpparam);
         hookAMSShutdown(lpparam);
         hookFPService(lpparam);
         hookScreenshotApplications(lpparam);
+        hookActivityLifecycle(lpparam);
+        hookAMSActivityDestroy(lpparam);
+
+        stopWatch.stop();
     }
 
     private void hookAMSShutdown(XC_LoadPackage.LoadPackageParam lpparam) {
@@ -157,8 +164,7 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                     final String affinity = (String) XposedHelpers.getObjectField(me, "affinity");
                     final int effectiveUid = (int) XposedHelpers.getObjectField(me, "effectiveUid");
                     XLog.logV("affinity:" + affinity + ", effectiveUid:" + effectiveUid);
-                    String pkgName = affinity;
-                    if (mAppGuardService.isBlurForPkg(pkgName)
+                    if (mAppGuardService.isBlurForPkg(affinity)
                             && param.getResult() != null) {
                         Bitmap res = (Bitmap) param.args[0];
                         XLog.logV("Blur bitmap start");
@@ -178,7 +184,6 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
     /**
      * @see #onScreenshotApplications(XC_MethodHook.MethodHookParam)
      */
-    @Deprecated
     private void hookScreenshotApplications(XC_LoadPackage.LoadPackageParam lpparam) {
         XLog.logV("hookScreenshotApplications...");
         try {
@@ -203,15 +208,10 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
         }
     }
 
-    /**
-     * @deprecated We can not get package name using this hook.
-     */
-    @Deprecated
     private void onScreenshotApplications(XC_MethodHook.MethodHookParam param) throws RemoteException {
         IBinder token = (IBinder) param.args[0];
         ComponentName activityClassForToken = ActivityManagerNative.getDefault().getActivityClassForToken(token);
         XStopWatch stopWatch = XStopWatch.start("onScreenshotApplications");
-        XLog.logV("screenshotApplications, activityClassForToken:" + activityClassForToken);
         String pkgName = activityClassForToken == null ? null : activityClassForToken.getPackageName();
         if (TextUtils.isEmpty(pkgName)) {
             return;
@@ -228,6 +228,16 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
         }
         stopWatch.stop();
     }
+
+
+    private void hookActivityLifecycle(XC_LoadPackage.LoadPackageParam lpparam) {
+
+    }
+
+    private void hookAMSActivityDestroy(XC_LoadPackage.LoadPackageParam lpparam) {
+
+    }
+
 
     @Override
     public void initZygote(StartupParam startupParam) throws Throwable {

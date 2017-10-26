@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.x;
 
 import de.robv.android.xposed.XposedBridge;
+import github.tornaco.xposedmoduletest.BuildConfig;
 
 /**
  * Created by guohao4 on 2017/10/25.
@@ -11,8 +12,8 @@ abstract class XLog {
 
     private static final String TAG = "XAppGuard-";
 
-    private static final boolean DEBUG_V = true;
-    private static final boolean DEBUG_D = true;
+    private static final boolean DEBUG_V = BuildConfig.DEBUG;
+    private static final boolean DEBUG_D = BuildConfig.DEBUG;
 
     static void logV(Object log) {
         if (DEBUG_V) XposedBridge.log(TAG + String.valueOf(log));

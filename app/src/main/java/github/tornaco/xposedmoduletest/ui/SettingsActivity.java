@@ -76,7 +76,7 @@ public class SettingsActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.settings);
 
-            findPreference(XKey.ALWAYS_NOTE)
+            findPreference(XKey.VERIFY_ON_HOME)
                     .setOnPreferenceChangeListener(new Preference
                             .OnPreferenceChangeListener() {
                         @Override
@@ -170,6 +170,28 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             });
 
+            SwitchPreference verHome = (SwitchPreference) findPreference(XKey.VERIFY_ON_HOME);
+            verHome.setChecked(XAppGuardManager.from().isVerifyOnHome());
+            verHome.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    boolean enabled = (boolean) newValue;
+                    XAppGuardManager.from().setVerifyOnHome(enabled);
+                    return true;
+                }
+            });
+
+            SwitchPreference verScr = (SwitchPreference) findPreference(XKey.VERIFY_ON_SCREEN_OFF);
+            verScr.setChecked(XAppGuardManager.from().isVerifyOnScreenOff());
+            verScr.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    boolean enabled = (boolean) newValue;
+                    XAppGuardManager.from().setVerifyOnScreenOff(enabled);
+                    return true;
+                }
+            });
+
             findPreference(getString(R.string.test_noter))
                     .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                         @Override
@@ -199,7 +221,8 @@ public class SettingsActivity extends AppCompatActivity {
             Preference buildInfo = findPreference(getString(R.string.title_app_ver));
             buildInfo.setSummary(BuildConfig.VERSION_NAME
                     + "-" + BuildConfig.BUILD_TYPE
-                    + "@" + XAppGithubCommitSha.LATEST_SHA);
+                    + "\nCommit@" + XAppGithubCommitSha.LATEST_SHA
+                    + "\nDate@" + XAppGithubCommitSha.LATEST_SHA_DATE);
 
             Preference actCode = findPreference(getString(R.string.title_my_act_code));
             String act = XSettings.getActivateCode(getActivity());

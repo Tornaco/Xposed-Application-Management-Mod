@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.x;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.IApplicationThread;
 import android.app.ProfilerInfo;
@@ -35,8 +36,8 @@ class XModuleImpl22 extends XModule {
 
     private void hookTaskMover(XC_LoadPackage.LoadPackageParam lpparam) {
         try {
-            Class taskRecordClass = Class.forName("com.android.server.am.TaskRecord", false, lpparam.classLoader);
-            final Method moveToFront = Class.forName("com.android.server.am.ActivityStackSupervisor",
+            @SuppressLint("PrivateApi") Class taskRecordClass = Class.forName("com.android.server.am.TaskRecord", false, lpparam.classLoader);
+            @SuppressLint("PrivateApi") final Method moveToFront = Class.forName("com.android.server.am.ActivityStackSupervisor",
                     false, lpparam.classLoader)
                     .getDeclaredMethod("findTaskToMoveToFrontLocked",
                             taskRecordClass, int.class, Bundle.class, String.class);
@@ -45,6 +46,7 @@ class XModuleImpl22 extends XModule {
                 protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
                     super.beforeHookedMethod(param);
 
+                    XStopWatch stopWatch = XStopWatch.start("findTaskToMoveToFrontLocked");
                     XLog.logV("findTaskToMoveToFrontLocked:" + param.args[0]);
                     // FIXME Using aff instead of PKG.
                     try {
@@ -56,23 +58,26 @@ class XModuleImpl22 extends XModule {
                         int callingUID = Binder.getCallingUid();
                         int callingPID = Binder.getCallingPid();
 
-                        mAppGuardService.verify(null, affinity, callingUID, callingPID, new XAppGuardService.VerifyListener() {
-                            @Override
-                            public void onVerifyRes(String pkg, int uid, int pid, int res) {
-                                if (res == XMode.MODE_ALLOWED) try {
-                                    XposedBridge.invokeOriginalMethod(moveToFront,
-                                            param.thisObject, param.args);
-                                } catch (Exception e) {
-                                    XLog.logD("Error@"
-                                            + Log.getStackTraceString(e));
-                                }
-                            }
-                        });
+                        mAppGuardService.verify(null, affinity, callingUID, callingPID,
+                                new XAppGuardService.VerifyListener() {
+                                    @Override
+                                    public void onVerifyRes(String pkg, int uid, int pid, int res) {
+                                        if (res == XMode.MODE_ALLOWED) try {
+                                            XposedBridge.invokeOriginalMethod(moveToFront,
+                                                    param.thisObject, param.args);
+                                        } catch (Exception e) {
+                                            XLog.logD("Error@"
+                                                    + Log.getStackTraceString(e));
+                                        }
+                                    }
+                                });
 
                         param.setResult(null);
 
                     } catch (Exception e) {
                         XLog.logV("findTaskToMoveToFrontLocked" + Log.getStackTraceString(e));
+                    } finally {
+                        stopWatch.stop();
                     }
                 }
             });
@@ -86,13 +91,13 @@ class XModuleImpl22 extends XModule {
 
         try {
 
-            final Method startActivity =
+            @SuppressLint("PrivateApi") final Method startActivity =
                     Class.forName("com.android.server.am.ActivityManagerService", false, lpparam.classLoader)
                             .getDeclaredMethod("startActivity", IApplicationThread.class, String.class,
                                     Intent.class, String.class, IBinder.class, String.class,
                                     int.class, int.class, ProfilerInfo.class, Bundle.class);
 
-            final Method startActivityAsUser =
+            @SuppressLint("PrivateApi") final Method startActivityAsUser =
                     Class.forName("com.android.server.am.ActivityManagerService", false, lpparam.classLoader)
                             .getDeclaredMethod("startActivityAsUser", IApplicationThread.class, String.class,
                                     Intent.class, String.class, IBinder.class, String.class,
@@ -104,7 +109,7 @@ class XModuleImpl22 extends XModule {
                         @Override
                         protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
-
+                            XStopWatch stopWatch = XStopWatch.start("findTaskToMoveToFrontLocked");
                             try {
                                 Intent intent = (Intent) param.args[2];
                                 if (intent == null) return;
@@ -113,8 +118,6 @@ class XModuleImpl22 extends XModule {
                                 if (componentName == null) return;
                                 final String pkgName = componentName.getPackageName();
 
-                                XLog.logV("HOOKING startActivity:" + intent);
-
                                 // Package has been passed.
                                 if (mAppGuardService.passed(pkgName)) {
                                     return;
@@ -122,6 +125,7 @@ class XModuleImpl22 extends XModule {
 
                                 boolean isHomeIntent = isLauncherIntent(intent);
                                 if (isHomeIntent) {
+                                    mAppGuardService.onHome(pkgName);
                                     return;
                                 }
 
@@ -149,6 +153,8 @@ class XModuleImpl22 extends XModule {
                             } catch (Exception e) {
                                 // replacing did not work.. but no reason to crash the VM! Log the error and go on.
                                 XLog.logV(Log.getStackTraceString(e));
+                            } finally {
+                                stopWatch.stop();
                             }
                         }
                     });

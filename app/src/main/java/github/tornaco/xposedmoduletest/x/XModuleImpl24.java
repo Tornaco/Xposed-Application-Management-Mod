@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.x;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.content.ComponentName;
@@ -34,8 +35,10 @@ class XModuleImpl24 extends XModule {
 
     private void hookTaskMover(XC_LoadPackage.LoadPackageParam lpparam) {
         try {
+            @SuppressLint("PrivateApi")
             Class taskRecordClass = Class.forName("com.android.server.am.TaskRecord", false, lpparam.classLoader);
-            final Method moveToFront = Class.forName("com.android.server.am.ActivityStackSupervisor",
+            @SuppressLint("PrivateApi") final Method moveToFront
+                    = Class.forName("com.android.server.am.ActivityStackSupervisor",
                     false, lpparam.classLoader)
                     .getDeclaredMethod("findTaskToMoveToFrontLocked",
                             taskRecordClass, int.class, ActivityOptions.class,
@@ -46,6 +49,9 @@ class XModuleImpl24 extends XModule {
                         throws Throwable {
                     super.beforeHookedMethod(param);
                     XLog.logV("findTaskToMoveToFrontLocked:" + param.args[0]);
+
+                    XStopWatch stopWatch = XStopWatch.start("findTaskToMoveToFrontLocked");
+
                     // FIXME Using aff instead of PKG.
                     try {
                         final String affinity = (String) XposedHelpers.getObjectField(param.args[0], "affinity");
@@ -71,9 +77,10 @@ class XModuleImpl24 extends XModule {
                                 });
 
                         param.setResult(null);
-
                     } catch (Exception e) {
                         XLog.logV("findTaskToMoveToFrontLocked" + Log.getStackTraceString(e));
+                    } finally {
+                        stopWatch.stop();
                     }
                 }
             });
@@ -83,6 +90,7 @@ class XModuleImpl24 extends XModule {
         }
     }
 
+    @SuppressLint("PrivateApi")
     private void hookActivityStarter(XC_LoadPackage.LoadPackageParam lpparam) {
 
         try {
@@ -123,6 +131,7 @@ class XModuleImpl24 extends XModule {
                         protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
 
+                            XStopWatch stopWatch = XStopWatch.start("findTaskToMoveToFrontLocked");
                             try {
                                 Intent intent = (Intent) param.args[1];
                                 if (intent == null) return;
@@ -131,9 +140,6 @@ class XModuleImpl24 extends XModule {
                                 if (componentName == null) return;
                                 final String pkgName = componentName.getPackageName();
 
-
-                                XLog.logV("HOOKING startActivityLocked:" + intent);
-
                                 // Package has been passed.
                                 if (mAppGuardService.passed(pkgName)) {
                                     return;
@@ -141,13 +147,14 @@ class XModuleImpl24 extends XModule {
 
                                 boolean isHomeIntent = isLauncherIntent(intent);
                                 if (isHomeIntent) {
+                                    mAppGuardService.onHome(pkgName);
                                     return;
                                 }
 
                                 int callingUID = Binder.getCallingUid();
                                 int callingPID = Binder.getCallingPid();
 
-                                ActivityOptions opts = null;
+                                ActivityOptions opts;
                                 Bundle optsBundle = null;
                                 if (activityOptsIndex > 0) {
                                     opts = (ActivityOptions) param.args[activityOptsIndex];
@@ -172,6 +179,8 @@ class XModuleImpl24 extends XModule {
                             } catch (Exception e) {
                                 // replacing did not work.. but no reason to crash the VM! Log the error and go on.
                                 XLog.logV(Log.getStackTraceString(e));
+                            } finally {
+                                stopWatch.stop();
                             }
                         }
                     });

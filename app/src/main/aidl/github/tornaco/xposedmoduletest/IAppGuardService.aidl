@@ -9,6 +9,12 @@ interface IAppGuardService {
     boolean isEnabled();
     void setEnabled(boolean enabled);
 
+    void setVerifyOnScreenOff(boolean ver);
+    boolean isVerifyOnScreenOff();
+
+    void setVerifyOnHome(boolean ver);
+    boolean isVerifyOnHome();
+
     // Blur api.
     boolean isBlur();
     void setBlur(boolean blur);
