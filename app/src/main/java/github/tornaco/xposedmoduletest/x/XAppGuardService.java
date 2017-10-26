@@ -32,6 +32,7 @@ import java.io.FileReader;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -56,6 +57,8 @@ import static github.tornaco.xposedmoduletest.x.XAppGuardManager.Feature.FEATURE
  */
 @GithubCommitSha
 class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback {
+
+    private static final String META_DATA_KEY_APP_GUARD_VERIFY_DISPLAYER = "app_guard_verify_displayer";
 
     private static final String SETTINGS_APP_GUARD_ENABLED = "settings_app_guard_enabled";
     private static final String SETTINGS_APP_SCREENSHOT_BLUR_ENABLED = "settings_app_guard_app_screenshot_blur_enabled";
@@ -104,8 +107,8 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     private float mBlurScale = XBitmapUtil.BITMAP_SCALE;
 
     private final Set<String> WATCHED_PACKAGES = new HashSet<>();
-
     private final Set<String> PASSED_PACKAGES = new HashSet<>();
+    private final Map<String, Integer> VERIFIER_PACKAGES = new HashMap<>();
 
     private static final Set<String> PREBUILT_WHITE_LIST = new HashSet<>();
 
@@ -135,6 +138,27 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
                     PASSED_PACKAGES.clear();
                 }
             };
+
+    private BroadcastReceiver mPackageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            String action = intent.getAction();
+            if (action == null || intent.getData() == null) {
+                // They send us bad action~
+                return;
+            }
+
+            switch (action) {
+                case Intent.ACTION_PACKAGE_ADDED:
+                case Intent.ACTION_PACKAGE_REPLACED:
+                    String packageName = intent.getData().getSchemeSpecificPart();
+                    if (packageName == null) return;
+                    parsePackageAsync(packageName);
+                    break;
+            }
+        }
+    };
 
     private XStatus xStatus = XStatus.UNKNOWN;
 
@@ -188,7 +212,17 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
             ApplicationInfo applicationInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID, 0);
             sClientUID = applicationInfo.uid;
             if (DEBUG_V) Slog.d(TAG, "sClientUID:" + sClientUID);
-        } catch (PackageManager.NameNotFoundException ignored) {
+
+            // Filter all apps.
+            List<ApplicationInfo> applicationInfos = pm.getInstalledApplications(0);
+            Collections.consumeRemaining(applicationInfos, new Consumer<ApplicationInfo>() {
+                @Override
+                public void accept(ApplicationInfo applicationInfo) {
+                    String pkg = applicationInfo.packageName;
+                    parsePackage(pkg);
+                }
+            });
+        } catch (Exception ignored) {
             Slog.e(TAG, "Can not get UID for our client:" + ignored);
         }
     }
@@ -200,6 +234,14 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     private void registerReceiver() {
         mContext.registerReceiver(mScreenReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        intentFilter.addDataScheme("package");
+        mContext.registerReceiver(mPackageReceiver, intentFilter);
     }
 
     void shutdown() {
@@ -212,6 +254,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
                 && (!TextUtils.isEmpty(mPasscode))
                 || PREBUILT_WHITE_LIST.contains(pkg)
                 || PASSED_PACKAGES.contains(pkg)
+                || VERIFIER_PACKAGES.containsKey(pkg)
                 || !WATCHED_PACKAGES.contains(pkg);
     }
 
@@ -633,7 +676,8 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     private static Intent buildVerifyIntent(boolean allow3rd, int transId, String pkg) {
         Intent intent = new Intent(ACTION_APP_GUARD_VERIFY_DISPLAYER);
         if (!allow3rd)
-            intent.setClassName(BuildConfig.APPLICATION_ID, "github.tornaco.xposedmoduletest.ui.VerifyDisplayerActivity");
+            intent.setClassName(BuildConfig.APPLICATION_ID,
+                    "github.tornaco.xposedmoduletest.ui.VerifyDisplayerActivity");
         intent.putExtra(XKey.EXTRA_PKG_NAME, pkg);
         intent.putExtra(XKey.EXTRA_TRANS_ID, transId);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -731,10 +775,47 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         }
     }
 
+    private void parsePackageAsync(final String... pkg) {
+        mWorkingService.execute(new Runnable() {
+            @Override
+            public void run() {
+                parsePackage(pkg);
+            }
+        });
+    }
+
+    private void parsePackage(final String... pkg) {
+        final PackageManager pm = mContext.getPackageManager();
+
+        Collections.consumeRemaining(pkg, new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                ApplicationInfo applicationInfo;
+                try {
+                    applicationInfo = pm.getApplicationInfo(s, PackageManager.GET_META_DATA);
+                    if (s.equals("github.tornaco.dialogstyledveifier")) {
+                        int uid = applicationInfo.uid;
+                        Slog.d(TAG, "Verifier pkg:" + ", uid:" + uid);
+                        VERIFIER_PACKAGES.put(s, uid);
+                        return;
+                    }
+                    if (applicationInfo.metaData == null) return;
+                    String displayerName = applicationInfo.metaData.getString(META_DATA_KEY_APP_GUARD_VERIFY_DISPLAYER);
+                    if (TextUtils.isEmpty(displayerName)) return;
+                    int uid = applicationInfo.uid;
+                    Slog.d(TAG, "Verifier pkg:" + displayerName + ", uid:" + uid);
+                    VERIFIER_PACKAGES.put(s, uid);
+                } catch (Exception ignored) {
+
+                }
+            }
+        });
+    }
+
+
     private void enforceCallingPermissions() {
-        // TODO. Allow if using 3rd ver, this is not safe.
-        if (m3rdVerifierAllowed.get()) return;
         int callingUID = Binder.getCallingUid();
+        if (VERIFIER_PACKAGES.containsValue(callingUID)) return;
         if (callingUID == Process.myUid() || (sClientUID > 0 && sClientUID == callingUID)) {
             return;
         }
