@@ -57,4 +57,5 @@
     <string name="summary_allow_third_verifier">如果启用该选项，第三方开发的密码验证器允许被使用，到时你可以选择使用某一个。\n酷安提供了几种样式的验证器可供选择。\n你也可以自己开发自定义的任何样式的验证器，具体开发文档请参考源代码</string>
     <string name="title_verifier">验证器</string>
     <string name="title_ver_on_screenoff">灭屏后应用需要验证</string>
+    <string name="title_service_not_connected_settings">服务未连接，设置不会生效</string>
 </resources>

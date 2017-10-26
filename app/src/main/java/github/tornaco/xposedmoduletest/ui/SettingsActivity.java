@@ -9,6 +9,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -71,6 +72,23 @@ public class SettingsActivity extends AppCompatActivity {
 
     public static class SettingsFragment extends PreferenceFragment {
 
+        private void showConnectionTip() {
+            if (getView() != null) {
+                try {
+                    Snackbar.make(getView(), R.string.title_service_not_connected_settings, Snackbar.LENGTH_INDEFINITE).show();
+                } catch (Exception e) {
+                    Toast.makeText(getActivity(), R.string.title_service_not_connected_settings, Toast.LENGTH_SHORT)
+                            .show();
+                }
+            }
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            if (!XAppGuardManager.from().isServiceConnected()) showConnectionTip();
+        }
+
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -80,7 +98,8 @@ public class SettingsActivity extends AppCompatActivity {
                     .setOnPreferenceChangeListener(new Preference
                             .OnPreferenceChangeListener() {
                         @Override
-                        public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        public boolean onPreferenceChange(Preference preference,
+                                                          Object newValue) {
                             XSettings.get().setChangedL();
                             XSettings.get().notifyObservers();
                             return true;
@@ -92,7 +111,7 @@ public class SettingsActivity extends AppCompatActivity {
             passcodePref.setEnabled(XAppGuardManager.from().isServiceConnected());
             if (XEnc.isPassCodeValid(XSettings.getPassCodeEncrypt(getActivity()))) {
                 passcodePref.setSummary(R.string.summary_setup_passcode_set);
-            } else {
+            } else if (XAppGuardManager.from().isServiceConnected()) {
                 passcodePref.setSummary(R.string.summary_setup_passcode_none_set);
             }
             passcodePref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

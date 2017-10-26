@@ -22,4 +22,8 @@ abstract class XLog {
     static void logD(Object log) {
         if (DEBUG_D) XposedBridge.log(TAG + String.valueOf(log));
     }
+
+    static void logW(Object log) {
+        XposedBridge.log(TAG + String.valueOf(log));
+    }
 }

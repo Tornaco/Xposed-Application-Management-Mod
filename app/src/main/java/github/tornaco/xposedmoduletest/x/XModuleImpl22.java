@@ -118,14 +118,14 @@ class XModuleImpl22 extends XModule {
                                 if (componentName == null) return;
                                 final String pkgName = componentName.getPackageName();
 
-                                // Package has been passed.
-                                if (mAppGuardService.passed(pkgName)) {
-                                    return;
-                                }
-
                                 boolean isHomeIntent = isLauncherIntent(intent);
                                 if (isHomeIntent) {
                                     mAppGuardService.onHome(pkgName);
+                                    return;
+                                }
+
+                                // Package has been passed.
+                                if (mAppGuardService.passed(pkgName)) {
                                     return;
                                 }
 

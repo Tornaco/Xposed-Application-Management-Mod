@@ -9,11 +9,13 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
 
+import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
+import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.apigen.GithubCommitSha;
 import github.tornaco.xposedmoduletest.BuildConfig;
@@ -23,7 +25,7 @@ import github.tornaco.xposedmoduletest.BuildConfig;
  * Email: Tornaco@163.com
  */
 @GithubCommitSha
-class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
+class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit, IXposedHookInitPackageResources {
 
     XStatus xStatus = XStatus.UNKNOWN;
 
@@ -248,5 +250,10 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
         return intent != null
                 && intent.getCategories() != null
                 && intent.getCategories().contains("android.intent.category.HOME");
+    }
+
+    @Override
+    public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resparam) throws Throwable {
+
     }
 }

@@ -185,6 +185,6 @@ public class GuardAppNavActivity extends LockedActivity {
 
     @Override
     protected boolean showLockOnCreate() {
-        return true;
+        return XAppGuardManager.from().isServiceConnected();
     }
 }

@@ -871,7 +871,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
                     applicationInfo = pm.getApplicationInfo(s, PackageManager.GET_META_DATA);
                     if (s.equals("github.tornaco.dialogstyledveifier")) {
                         int uid = applicationInfo.uid;
-                        Slog.d(TAG, "Verifier pkg:" + ", uid:" + uid);
+                        Slog.d(TAG, "Verifier pkg:" + s + ", uid:" + uid);
                         VERIFIER_PACKAGES.put(s, uid);
                         return;
                     }
