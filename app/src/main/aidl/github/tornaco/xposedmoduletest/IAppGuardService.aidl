@@ -19,6 +19,12 @@ interface IAppGuardService {
     void setBlurScale(float scale);
     float getBlurScale();
 
+    void setAllow3rdVerifier(boolean allow);
+    boolean isAllow3rdVerifier();
+
+    void setPasscode(String passcode);
+    String getPasscode();
+
     // Feature api.
     boolean hasFeature(String feature);
 

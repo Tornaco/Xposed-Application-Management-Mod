@@ -13,7 +13,11 @@ import com.fingerprints.service.FingerprintManager;
 class FingerprintManagerCompatApiFlyme {
 
     private static FingerprintManager getFingerprintManagerOrNull(Context context) {
-        return FingerprintManager.open();
+        try {
+            return FingerprintManager.open();
+        } catch (Throwable e) {
+            return null;
+        }
     }
 
     static boolean hasEnrolledFingerprints(Context context) {

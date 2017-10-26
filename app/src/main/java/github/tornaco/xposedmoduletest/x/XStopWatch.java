@@ -31,7 +31,7 @@ import android.os.SystemClock;
  * s.stop();
  * </code>
  */
-public class XStopWatch {
+class XStopWatch {
 
     private final String mName;
     private final long mStart;

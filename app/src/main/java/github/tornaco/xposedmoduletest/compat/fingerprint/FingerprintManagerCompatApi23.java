@@ -93,7 +93,7 @@ final class FingerprintManagerCompatApi23 {
         }
     }
 
-    private static FingerprintManager.AuthenticationCallback wrapCallback(
+    static FingerprintManager.AuthenticationCallback wrapCallback(
             final AuthenticationCallback callback) {
         return new FingerprintManager.AuthenticationCallback() {
             @Override

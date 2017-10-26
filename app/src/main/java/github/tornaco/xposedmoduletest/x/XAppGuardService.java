@@ -58,10 +58,12 @@ import static github.tornaco.xposedmoduletest.x.XAppGuardManager.Feature.FEATURE
 class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback {
 
     private static final String SETTINGS_APP_GUARD_ENABLED = "settings_app_guard_enabled";
-    private static final String SETTINGS_APP_SCREENSHOT_BLUR_ENABLED = "settings_app_screenshot_blur_enabled";
-    private static final String SETTINGS_APP_SCREENSHOT_BLUR_SCALE = "settings_app_screenshot_blur_sc";
-    private static final String SETTINGS_APP_SCREENSHOT_BLUR_RADIUS = "settings_app_screenshot_blur_ra";
-    private static final String SETTINGS_APP_SCREENSHOT_BLUR_POLICY = "settings_app_screenshot_blur_po";
+    private static final String SETTINGS_APP_SCREENSHOT_BLUR_ENABLED = "settings_app_guard_app_screenshot_blur_enabled";
+    private static final String SETTINGS_APP_SCREENSHOT_BLUR_SCALE = "settings_app_guard_app_screenshot_blur_sc";
+    private static final String SETTINGS_APP_SCREENSHOT_BLUR_RADIUS = "settings_app_guard_app_screenshot_blur_ra";
+    private static final String SETTINGS_APP_SCREENSHOT_BLUR_POLICY = "settings_app_guard_app_screenshot_blur_po";
+    private static final String SETTINGS_ALLOW_3RD_VERIFIER = "settings_app_guard_allow_third_verifier";
+    private static final String SETTINGS_PASSCODE = "settings_app_guard_passcode";
 
     private static int sClientUID = 0;
 
@@ -84,6 +86,8 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     private static final int MSG_SET_BLUR_POLICY = 0x11;
     private static final int MSG_SET_BLUR_RADIUS = 0x12;
     private static final int MSG_SET_BLUR_SCALE = 0x13;
+    private static final int MSG_SET_SET_ALLOW_3RD_VER = 0x14;
+    private static final int MSG_SET_PASSCODE = 0x15;
     private static final int MSG_TRANSACTION_EXPIRE_BASE = 0x99;
 
     private Context mContext;
@@ -91,7 +95,10 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     private AtomicBoolean mEnabled = new AtomicBoolean(false);
     private AtomicBoolean mBlur = new AtomicBoolean(false);
+    private AtomicBoolean m3rdVerifierAllowed = new AtomicBoolean(false);
     private AtomicInteger mBlurPolicy = new AtomicInteger(XAppGuardManager.BlurPolicy.BLUR_WATCHED);
+
+    private String mPasscode;
 
     private float mBlurRadius = XBitmapUtil.BLUR_RADIUS;
     private float mBlurScale = XBitmapUtil.BITMAP_SCALE;
@@ -121,12 +128,13 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     private final ExecutorService mWorkingService = Executors.newSingleThreadExecutor();
 
-    private BroadcastReceiver mScreenReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            PASSED_PACKAGES.clear();
-        }
-    };
+    private BroadcastReceiver mScreenReceiver =
+            new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    PASSED_PACKAGES.clear();
+                }
+            };
 
     private XStatus xStatus = XStatus.UNKNOWN;
 
@@ -201,6 +209,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     boolean passed(String pkg) {
         return !mEnabled.get()
+                && (!TextUtils.isEmpty(mPasscode))
                 || PREBUILT_WHITE_LIST.contains(pkg)
                 || PASSED_PACKAGES.contains(pkg)
                 || !WATCHED_PACKAGES.contains(pkg);
@@ -228,7 +237,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
         onNewTransaction(tid);
 
-        Intent intent = buildVerifyIntent(tid, pkg);
+        Intent intent = buildVerifyIntent(m3rdVerifierAllowed.get(), tid, pkg);
         try {
             mContext.startActivity(intent, bnds);
         } catch (ActivityNotFoundException anf) {
@@ -256,11 +265,21 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
                 XBitmapUtil.BITMAP_SCALE));
         mBlurRadius = (Settings.System.getFloat(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_RADIUS,
                 XBitmapUtil.BLUR_RADIUS));
+        boolean allow3rdVer = (Settings.System.getInt(contentResolver, SETTINGS_ALLOW_3RD_VERIFIER, 0) == 1);
+        m3rdVerifierAllowed.set(allow3rdVer);
+
+        try {
+            mPasscode = (Settings.System.getString(contentResolver, SETTINGS_PASSCODE));
+        } catch (Exception ignored) {
+        }
+
         if (DEBUG_V) Slog.d(TAG, "enabled:" + enabled);
         if (DEBUG_V) Slog.d(TAG, "blur:" + blur);
         if (DEBUG_V) Slog.d(TAG, "blurPolicy:" + blurPolicy);
         if (DEBUG_V) Slog.d(TAG, "mBlurScale:" + mBlurScale);
         if (DEBUG_V) Slog.d(TAG, "mBlurRadius:" + mBlurRadius);
+        if (DEBUG_V) Slog.d(TAG, "allow3rdVer:" + allow3rdVer);
+        if (DEBUG_V) Slog.d(TAG, "mPasscode:" + mPasscode);
     }
 
     @Override
@@ -291,7 +310,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     }
 
     boolean isBlurForPkg(String pkg) {
-        return isBlur() && pkg != null && WATCHED_PACKAGES.contains(pkg);
+        return isBlur() && mBlurPolicy.get() == XAppGuardManager.BlurPolicy.BLUR_ALL || isBlur() && pkg != null && WATCHED_PACKAGES.contains(pkg);
     }
 
     @Override
@@ -371,6 +390,46 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     }
 
     @Override
+    public void setAllow3rdVerifier(boolean allow) throws RemoteException {
+        enforceCallingPermissions();
+        mHandler.obtainMessage(MSG_SET_SET_ALLOW_3RD_VER, allow ? 1 : 0, 0).sendToTarget();
+    }
+
+    private void onSetAllow3rdVerifier(boolean allow) {
+        if (DEBUG_V) Slog.d(TAG, "onSetAllow3rdVerifier: " + allow);
+        if (m3rdVerifierAllowed.compareAndSet(!allow, allow)) {
+            ContentResolver contentResolver = mContext.getContentResolver();
+            Settings.System.putInt(contentResolver, SETTINGS_ALLOW_3RD_VERIFIER, allow ? 1 : 0);
+        }
+    }
+
+    @Override
+    public boolean isAllow3rdVerifier() throws RemoteException {
+        enforceCallingPermissions();
+        return m3rdVerifierAllowed.get();
+    }
+
+    @Override
+    public void setPasscode(String passcode) throws RemoteException {
+        enforceCallingPermissions();
+        Preconditions.checkArgument(XEnc.isPassCodeValid(passcode));
+        mHandler.obtainMessage(MSG_SET_PASSCODE, passcode).sendToTarget();
+    }
+
+    private void onSetPasscode(String passcode) {
+        if (DEBUG_V) Slog.d(TAG, "onSetPasscode: " + passcode);
+        mPasscode = passcode;
+        ContentResolver contentResolver = mContext.getContentResolver();
+        Settings.System.putString(contentResolver, SETTINGS_PASSCODE, passcode);
+    }
+
+    @Override
+    public String getPasscode() throws RemoteException {
+        enforceCallingPermissions();
+        return mPasscode;
+    }
+
+    @Override
     public boolean hasFeature(String feature) throws RemoteException {
         enforceCallingPermissions();
         Preconditions.checkNotNull(feature);
@@ -437,7 +496,8 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     public void testUI() throws RemoteException {
         enforceCallingPermissions();
         long id = Binder.clearCallingIdentity();
-        Intent intent = buildVerifyIntent(TransactionFactory.transactionID(), "xxxxx");
+        Intent intent = buildVerifyIntent(m3rdVerifierAllowed.get(),
+                TransactionFactory.transactionID(), "xxxxx");
         mContext.startActivity(intent);
         Binder.restoreCallingIdentity(id);
     }
@@ -490,7 +550,6 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         enforceCallingPermissions();
         mHandler.obtainMessage(MSG_WRITE_STATE).sendToTarget();
     }
-
 
     private void onWriteState() {
         mWorkingService.execute(new Runnable() {
@@ -571,9 +630,10 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         return stringBuilder.toString();
     }
 
-    private static Intent buildVerifyIntent(int transId, String pkg) {
+    private static Intent buildVerifyIntent(boolean allow3rd, int transId, String pkg) {
         Intent intent = new Intent(ACTION_APP_GUARD_VERIFY_DISPLAYER);
-        // intent.setClassName(BuildConfig.APPLICATION_ID, "github.tornaco.xposedmoduletest.ui.VerifyDisplayerActivity");
+        if (!allow3rd)
+            intent.setClassName(BuildConfig.APPLICATION_ID, "github.tornaco.xposedmoduletest.ui.VerifyDisplayerActivity");
         intent.putExtra(XKey.EXTRA_PKG_NAME, pkg);
         intent.putExtra(XKey.EXTRA_TRANS_ID, transId);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -618,6 +678,12 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
             case MSG_SET_BLUR_SCALE:
                 onSetBlurScale((Float) msg.obj);
                 return true;
+            case MSG_SET_SET_ALLOW_3RD_VER:
+                onSetAllow3rdVerifier(msg.arg1 == 1);
+                return true;
+            case MSG_SET_PASSCODE:
+                onSetPasscode((String) msg.obj);
+                return true;
             case MSG_PASS:
             case MSG_IGNORE:
                 return false;
@@ -656,12 +722,18 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
                 return "MSG_SET_BLUR_RADIUS";
             case MSG_SET_BLUR_SCALE:
                 return "MSG_SET_BLUR_SCALE";
+            case MSG_SET_SET_ALLOW_3RD_VER:
+                return "MSG_SET_SET_ALLOW_3RD_VER";
+            case MSG_SET_PASSCODE:
+                return "MSG_SET_PASSCODE";
             default:
                 return "MSG_TRANSACTION_EXPIRE";
         }
     }
 
-    private static void enforceCallingPermissions() {
+    private void enforceCallingPermissions() {
+        // TODO. Allow if using 3rd ver, this is not safe.
+        if (m3rdVerifierAllowed.get()) return;
         int callingUID = Binder.getCallingUid();
         if (callingUID == Process.myUid() || (sClientUID > 0 && sClientUID == callingUID)) {
             return;

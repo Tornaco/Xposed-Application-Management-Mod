@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-
     <PreferenceCategory android:title="@string/title_basic">
         <ListPreference
             android:defaultValue="@string/theme_def"
@@ -37,6 +36,12 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:key="3rd_ver_allowed"
+            android:summary="@string/summary_allow_third_verifier"
+            android:title="@string/title_allow_third_verifier" />
+
+        <SwitchPreference
+            android:defaultValue="false"
             android:key="dev_mode_enabled"
             android:summary="@string/summary_dev_mode"
             android:title="@string/title_dev_mode" />
@@ -56,6 +61,13 @@
             android:key="blur_enabled"
             android:summary="@string/summary_app_recent_blur"
             android:title="@string/title_app_recent_blur" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:dependency="blur_enabled"
+            android:key="blur_all_enabled"
+            android:summary="@string/summary_app_recent_blur_all"
+            android:title="@string/title_app_recent_blur_all" />
 
         <SwitchPreference
             android:defaultValue="false"

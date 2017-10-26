@@ -13,6 +13,7 @@ import github.tornaco.xposedmoduletest.IWatcher;
  * Email: Tornaco@163.com
  */
 
+@SuppressWarnings("WeakerAccess")
 public class XAppGuardManager {
 
     static final String ACTION_APP_GUARD_VERIFY_DISPLAYER
@@ -269,5 +270,43 @@ public class XAppGuardManager {
             Logger.e(Logger.getStackTraceString(e));
         }
         return false;
+    }
+
+    public void setAllow3rdVerifier(boolean allow) {
+        if (!isServiceConnected()) return;
+        try {
+            mService.setAllow3rdVerifier(allow);
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+    }
+
+    public boolean isAllow3rdVerifier() {
+        if (!isServiceConnected()) return false;
+        try {
+            return mService.isAllow3rdVerifier();
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+        return false;
+    }
+
+    public void setPasscode(String passcode) {
+        if (!isServiceConnected()) return;
+        try {
+            mService.setPasscode(passcode);
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+    }
+
+    public String getPasscode() {
+        if (!isServiceConnected()) return null;
+        try {
+            return mService.getPasscode();
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+        return null;
     }
 }

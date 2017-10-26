@@ -160,10 +160,11 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                     String pkgName = affinity;
                     if (mAppGuardService.isBlurForPkg(pkgName)
                             && param.getResult() != null) {
-
                         Bitmap res = (Bitmap) param.args[0];
                         XLog.logV("Blur bitmap start");
-                        param.args[0] = (XBitmapUtil.createBlurredBitmap(res));
+                        Bitmap blured = (XBitmapUtil.createBlurredBitmap(res,
+                                mAppGuardService.getBlurRadius(), mAppGuardService.getBlurScale()));
+                        if (blured != null) param.args[0] = blured;
                         XLog.logV("Blur bitmap end");
                     }
                 }
@@ -209,20 +210,23 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit {
     private void onScreenshotApplications(XC_MethodHook.MethodHookParam param) throws RemoteException {
         IBinder token = (IBinder) param.args[0];
         ComponentName activityClassForToken = ActivityManagerNative.getDefault().getActivityClassForToken(token);
+        XStopWatch stopWatch = XStopWatch.start("onScreenshotApplications");
         XLog.logV("screenshotApplications, activityClassForToken:" + activityClassForToken);
-
         String pkgName = activityClassForToken == null ? null : activityClassForToken.getPackageName();
         if (TextUtils.isEmpty(pkgName)) {
             return;
         }
         if (mAppGuardService.isBlurForPkg(pkgName)
                 && param.getResult() != null) {
-
             Bitmap res = (Bitmap) param.getResult();
-            XLog.logV("Blur bitmap start");
-            param.setResult(XBitmapUtil.createBlurredBitmap(res));
-            XLog.logV("Blur bitmap end");
+            stopWatch.split("Blur bitmap start");
+            Bitmap blured = (XBitmapUtil.createBlurredBitmap(res,
+                    mAppGuardService.getBlurRadius(), mAppGuardService.getBlurScale()));
+            if (blured != null)
+                param.setResult(blured);
+            stopWatch.split("Blur bitmap end");
         }
+        stopWatch.stop();
     }
 
     @Override

@@ -38,7 +38,7 @@ final class XBitmapUtil {
      * @return A blurred version of the given {@link Bitmap}.
      */
     public static Bitmap createBlurredBitmap(final Bitmap sentBitmap) {
-        return createBlurredBitmap(sentBitmap, BLUR_RADIUS);
+        return createBlurredBitmap(sentBitmap, BLUR_RADIUS, BITMAP_SCALE);
     }
 
 
@@ -49,7 +49,7 @@ final class XBitmapUtil {
      * @param radius     Radius of the blur effect.
      * @return A blurred version of the given {@link Bitmap}.
      */
-    public static Bitmap createBlurredBitmap(final Bitmap sentBitmap, int radius) {
+    public static Bitmap createBlurredBitmap(final Bitmap sentBitmap, int radius, float scale) {
         if (sentBitmap == null) {
             return null;
         }

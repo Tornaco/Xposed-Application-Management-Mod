@@ -24,12 +24,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.os.CancellationSignal;
 
+import org.newstand.logger.Logger;
+
 import java.security.Signature;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 
 import github.tornaco.xposedmoduletest.util.OSUtil;
+
 
 /**
  * A class that coordinates access to the fingerprint hardware.
@@ -65,6 +68,7 @@ public final class FingerprintManagerCompat {
                 IMPL = new LegacyFingerprintManagerCompatImpl();
             }
         }
+        Logger.w("Using FPIMPL:" + IMPL);
     }
 
     /**
@@ -262,22 +266,40 @@ public final class FingerprintManagerCompat {
 
     private static class FlymeFingerprintManagerCompatImpl implements FingerprintManagerCompatImpl {
 
+        final boolean USE_FLYME_SDK;
+
+        FlymeFingerprintManagerCompatImpl() {
+            USE_FLYME_SDK = FingerprintManagerCompatApiFlyme.isHardwareDetected(null);
+            Logger.d("USE_FLYME_SDK:" + USE_FLYME_SDK);
+        }
+
+        @TargetApi(Build.VERSION_CODES.M)
         @Override
         public boolean hasEnrolledFingerprints(Context context) {
-            return FingerprintManagerCompatApiFlyme.hasEnrolledFingerprints(context);
+            return USE_FLYME_SDK ? FingerprintManagerCompatApiFlyme.hasEnrolledFingerprints(context)
+                    : FingerprintManagerCompatApi23.hasEnrolledFingerprints(context);
         }
 
+        @TargetApi(Build.VERSION_CODES.M)
         @Override
         public boolean isHardwareDetected(Context context) {
-            return FingerprintManagerCompatApiFlyme.isHardwareDetected(context);
+            return USE_FLYME_SDK ? FingerprintManagerCompatApiFlyme.isHardwareDetected(context)
+                    : FingerprintManagerCompatApi23.isHardwareDetected(context);
         }
 
+        @TargetApi(Build.VERSION_CODES.M)
         @Override
         public void authenticate(Context context,
                                  CryptoObject crypto, int flags,
                                  CancellationSignal cancel, AuthenticationCallback callback,
                                  Handler handler) {
-            FingerprintManagerCompatApiFlyme.authenticate(context, cancel, callback);
+            if (USE_FLYME_SDK)
+                FingerprintManagerCompatApiFlyme.authenticate(context, cancel, callback);
+            else
+                FingerprintManagerCompatApi23.authenticate(context, Api23FingerprintManagerCompatImpl.wrapCryptoObject(crypto), flags,
+                        cancel != null ? cancel.getCancellationSignalObject() : null,
+                        Api23FingerprintManagerCompatImpl.wrapCallback(callback), handler);
+
         }
     }
 
@@ -307,7 +329,7 @@ public final class FingerprintManagerCompat {
                     wrapCallback(callback), handler);
         }
 
-        private static FingerprintManagerCompatApi23.CryptoObject wrapCryptoObject(
+        static FingerprintManagerCompatApi23.CryptoObject wrapCryptoObject(
                 CryptoObject cryptoObject) {
             if (cryptoObject == null) {
                 return null;
@@ -337,7 +359,7 @@ public final class FingerprintManagerCompat {
             }
         }
 
-        private static FingerprintManagerCompatApi23.AuthenticationCallback wrapCallback(
+        static FingerprintManagerCompatApi23.AuthenticationCallback wrapCallback(
                 final AuthenticationCallback callback) {
             return new FingerprintManagerCompatApi23.AuthenticationCallback() {
                 @Override

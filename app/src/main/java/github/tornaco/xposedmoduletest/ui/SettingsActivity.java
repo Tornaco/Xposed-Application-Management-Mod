@@ -89,6 +89,7 @@ public class SettingsActivity extends AppCompatActivity {
 
             // Below is very ugly:() =.=
             final Preference passcodePref = findPreference(getString(R.string.title_setup_passcode));
+            passcodePref.setEnabled(XAppGuardManager.from().isServiceConnected());
             if (XEnc.isPassCodeValid(XSettings.getPassCodeEncrypt(getActivity()))) {
                 passcodePref.setSummary(R.string.summary_setup_passcode_set);
             } else {
@@ -158,6 +159,17 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             });
 
+            SwitchPreference blurAllPref = (SwitchPreference) findPreference(XKey.BLUR_ALL);
+            blurAllPref.setChecked(XAppGuardManager.from().getBlurPolicy() == XAppGuardManager.BlurPolicy.BLUR_ALL);
+            blurAllPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    boolean enabled = (boolean) newValue;
+                    XAppGuardManager.from().setBlurPolicy(enabled ? XAppGuardManager.BlurPolicy.BLUR_ALL : XAppGuardManager.BlurPolicy.BLUR_WATCHED);
+                    return true;
+                }
+            });
+
             findPreference(getString(R.string.test_noter))
                     .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                         @Override
@@ -173,6 +185,17 @@ public class SettingsActivity extends AppCompatActivity {
             findPreference(getString(R.string.dump_module))
                     .setSummary(XStatus.valueOf(XAppGuardManager.from().getStatus()).name());
 
+            SwitchPreference allow3rdVerifierPref = (SwitchPreference) findPreference(XKey.ALLOW_3RD_VERIFIER);
+            allow3rdVerifierPref.setChecked(XAppGuardManager.from().isAllow3rdVerifier());
+            allow3rdVerifierPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    boolean enabled = (boolean) newValue;
+                    XAppGuardManager.from().setAllow3rdVerifier(enabled);
+                    return true;
+                }
+            });
+
             Preference buildInfo = findPreference(getString(R.string.title_app_ver));
             buildInfo.setSummary(BuildConfig.VERSION_NAME
                     + "-" + BuildConfig.BUILD_TYPE
@@ -183,4 +206,6 @@ public class SettingsActivity extends AppCompatActivity {
             actCode.setSummary(TextUtils.isEmpty(act) ? "NONE" : act);
         }
     }
+
+
 }

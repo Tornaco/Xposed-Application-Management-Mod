@@ -27,11 +27,9 @@ public class XSettings extends Observable {
         return sMe;
     }
 
-
     public void setChangedL() {
         setChanged();
     }
-
 
     public boolean takenPhotoEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
@@ -60,16 +58,11 @@ public class XSettings extends Observable {
 
     @Nullable
     public static String getPassCodeEncrypt(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getString(XKey.PASSCODE_ENCRYPT, null);
+        return XAppGuardManager.from().getPasscode();
     }
 
     public void setPassCodeEncrypt(Context context, String code) {
-        PreferenceManager.getDefaultSharedPreferences(context)
-                .edit().putString(XKey.PASSCODE_ENCRYPT, code)
-                .apply();
-        setChanged();
-        notifyObservers();
+        XAppGuardManager.from().setPasscode(code);
     }
 
     public static void setActivateCode(Context context, String code) {

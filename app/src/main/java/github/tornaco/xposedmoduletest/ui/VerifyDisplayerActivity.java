@@ -203,7 +203,7 @@ public class VerifyDisplayerActivity extends AppCompatActivity {
     }
 
     private void onPass() {
-        mHandler.removeCallbacksAndMessages(null);
+        if (mHandler != null) mHandler.removeCallbacksAndMessages(null);
         if (mCancellationSignal != null) {
             mCancellationSignal.cancel();
         }
@@ -218,7 +218,7 @@ public class VerifyDisplayerActivity extends AppCompatActivity {
     }
 
     private void onFail() {
-        mHandler.removeCallbacksAndMessages(null);
+        if (mHandler != null) mHandler.removeCallbacksAndMessages(null);
         if (mCancellationSignal != null) {
             mCancellationSignal.cancel();
         }
