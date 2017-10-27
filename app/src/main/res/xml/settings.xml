@@ -40,6 +40,17 @@
             android:key="theme"
             android:title="@string/title_theme" />
 
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="show_app_icon_enabled"
+            android:title="@string/title_show_app_icon" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:dependency="show_app_icon_enabled"
+            android:key="key_crop_circle_enabled"
+            android:title="@string/title_crop_enabled" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/title_advance">
@@ -99,8 +110,9 @@
             android:title="@string/title_app_ver" />
 
         <Preference
-            android:key="@string/title_my_act_code"
-            android:title="@string/title_my_act_code" />
+            android:key="@string/title_thanks"
+            android:summary="尤其感谢酷安ymckc的bug反馈，以及log文件。以及所有酷安给予反馈和支持的朋友~"
+            android:title="@string/title_thanks" />
 
     </PreferenceCategory>
 

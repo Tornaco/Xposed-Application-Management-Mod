@@ -8,7 +8,8 @@ import github.tornaco.xposedmoduletest.BuildConfig;
  */
 
 public interface XKey {
-    String ENABLED = "key_enabled";
+    String CROP_CIRCLE_ENABLED = "key_crop_circle_enabled";
+    String SHOW_APP_ICON_ENABLED = "show_app_icon_enabled";
     String BLUR = "blur_enabled";
     String BLUR_ALL = "blur_all_enabled";
     String ALLOW_3RD_VERIFIER = "3rd_ver_allowed";
@@ -19,7 +20,7 @@ public interface XKey {
     String DEV_MODE = "dev_mode_enabled";
     String FP_ENABLED = "fp_enabled";
     String VERIFY_ON_HOME = "verify_on_home";
-    String VERIFY_ON_SCREEN_OFF= "verify_on_scroff";
+    String VERIFY_ON_SCREEN_OFF = "verify_on_scroff";
     String THEME = "theme";
     String FIRST_RUN = "first_ru" + BuildConfig.VERSION_NAME;
 

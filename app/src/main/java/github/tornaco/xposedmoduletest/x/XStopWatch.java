@@ -17,7 +17,6 @@
 package github.tornaco.xposedmoduletest.x;
 
 import android.os.SystemClock;
-import android.util.Slog;
 
 /**
  * A simple class to measure elapsed time.
@@ -42,7 +41,7 @@ class XStopWatch {
         mName = name;
         mStart = getCurrentTime();
         mLastSplit = mStart;
-        Slog.d("XAppGuard", "XStopWatch(" + mName + ") start");
+        XLog.logD("XStopWatch(" + mName + ") start");
     }
 
     public static XStopWatch start(String name) {
@@ -52,13 +51,13 @@ class XStopWatch {
     void split(String label) {
         long now = getCurrentTime();
         long elapse = now - mLastSplit;
-        Slog.d("XAppGuard", "XStopWatch(" + mName + ") split(" + label + ") " + elapse);
+        XLog.logD("XStopWatch(" + mName + ") split(" + label + ") " + elapse);
         mLastSplit = now;
     }
 
     void stop() {
         long now = getCurrentTime();
-        Slog.d("XAppGuard", "XStopWatch(" + mName + ") stop: "
+        XLog.logD("XStopWatch(" + mName + ") stop: "
                 + (now - mLastSplit)
                 + "  (total " + (now - mStart) + ")");
     }

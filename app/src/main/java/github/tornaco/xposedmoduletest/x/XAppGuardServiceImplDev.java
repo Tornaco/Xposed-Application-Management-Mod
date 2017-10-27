@@ -3,7 +3,6 @@ package github.tornaco.xposedmoduletest.x;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
-import android.util.Slog;
 
 import de.robv.android.xposed.XposedBridge;
 import github.tornaco.xposedmoduletest.IWatcher;
@@ -32,14 +31,14 @@ public class XAppGuardServiceImplDev extends XAppGuardServiceImpl {
                 + String.valueOf(e) + "\n"
                 + Log.getStackTraceString(e);
         XposedBridge.log(logMsg);
-        Slog.d("XAppGuard", logMsg);
+        XLog.logD(logMsg);
     }
 
     @Override
     protected void enforceCallingPermissions() {
         // Skip permission check for DEV version.
         // super.enforceCallingPermissions();
-        Slog.w("XAppGuard", "Skip permission check for DEV version");
+        XLog.logF("Skip permission check for DEV version");
     }
 
 

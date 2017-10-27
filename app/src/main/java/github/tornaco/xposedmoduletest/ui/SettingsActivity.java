@@ -105,18 +105,25 @@ public class SettingsActivity extends AppCompatActivity {
                     });
             else findPreference(getString(R.string.crash_module)).setEnabled(false);
 
-            if (serviceAvailable) findPreference(XKey.VERIFY_ON_HOME)
-                    .setOnPreferenceChangeListener(new Preference
-                            .OnPreferenceChangeListener() {
-                        @Override
-                        public boolean onPreferenceChange(Preference preference,
-                                                          Object newValue) {
-                            XSettings.get().setChangedL();
-                            XSettings.get().notifyObservers();
-                            return true;
-                        }
-                    });
-            else findPreference(XKey.VERIFY_ON_HOME).setEnabled(false);
+            Preference homePref = findPreference(XKey.VERIFY_ON_HOME);
+            homePref.setEnabled(serviceAvailable);
+            boolean canHookHome = XAppGuardManager.from().hasFeature(XAppGuardManager.Feature.HOME);
+            if (serviceAvailable && canHookHome) {
+                homePref
+                        .setOnPreferenceChangeListener(new Preference
+                                .OnPreferenceChangeListener() {
+                            @Override
+                            public boolean onPreferenceChange(Preference preference,
+                                                              Object newValue) {
+                                XSettings.get().setChangedL();
+                                XSettings.get().notifyObservers();
+                                return true;
+                            }
+                        });
+            } else if (serviceAvailable) {
+                homePref.setSummary(R.string.summary_can_not_hook_home);
+                homePref.setEnabled(false);
+            }
 
             // Below is very ugly:() =.=
             final Preference passcodePref = findPreference(getString(R.string.title_setup_passcode));

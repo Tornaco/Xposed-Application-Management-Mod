@@ -34,7 +34,7 @@
                 android:layout_height="@dimen/thumbnail_size_large"
                 android:layout_centerHorizontal="true"
                 android:scaleType="centerCrop"
-                android:src="@mipmap/ic_header_avatar"
+                android:src="@drawable/ic_verified_user_black_24dp"
                 android:visibility="visible" />
 
             <TextView

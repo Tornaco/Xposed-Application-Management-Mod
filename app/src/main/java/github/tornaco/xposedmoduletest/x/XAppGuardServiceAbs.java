@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.x;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 
 import github.tornaco.apigen.GithubCommitSha;
 import github.tornaco.xposedmoduletest.IAppGuardService;
@@ -49,7 +50,6 @@ abstract class XAppGuardServiceAbs extends IAppGuardService.Stub {
     }
 
     void onHome() {
-
     }
 
     boolean isBlurForPkg(String pkg) {

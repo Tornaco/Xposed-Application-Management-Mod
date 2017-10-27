@@ -41,6 +41,16 @@ public class XSettings extends Observable {
                 .getBoolean(XKey.FP_ENABLED, false);
     }
 
+    public boolean cropEnabled(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(XKey.CROP_CIRCLE_ENABLED, false);
+    }
+
+    public boolean showAppIconEnabled(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(XKey.SHOW_APP_ICON_ENABLED, false);
+    }
+
     public static File getPhotosDir(Context context) {
         return new File(context.getFilesDir()
                 + File.separator + "photos");

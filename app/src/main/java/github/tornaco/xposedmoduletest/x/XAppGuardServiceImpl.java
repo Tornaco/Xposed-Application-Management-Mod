@@ -20,10 +20,9 @@ import android.os.ServiceManager;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Slog;
 
 import com.android.internal.os.AtomicFile;
-import com.android.internal.util.Preconditions;
+import com.google.common.base.Preconditions;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -126,11 +125,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
 
     static {
         PREBUILT_WHITE_LIST.add("com.android.systemui");
-        PREBUILT_WHITE_LIST.add("com.android.packageinstaller");
+        // PREBUILT_WHITE_LIST.add("com.android.packageinstaller");
         PREBUILT_WHITE_LIST.add("android");
         PREBUILT_WHITE_LIST.add("com.cyanogenmod.trebuchet");
         // It is good for user if our mod crash.
-        PREBUILT_WHITE_LIST.add("de.robv.android.xposed.installer");
+        // PREBUILT_WHITE_LIST.add("de.robv.android.xposed.installer");
         PREBUILT_WHITE_LIST.add(BuildConfig.APPLICATION_ID);
     }
 
@@ -173,22 +172,22 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     }
 
     void attachContext(Context context) {
-        if (DEBUG_V) Slog.d(TAG, "attachContext: " + context);
+        if (DEBUG_V) XLog.logD("attachContext: " + context);
         this.mContext = context;
     }
 
     void publish() {
         try {
-            if (DEBUG_V) Slog.d(TAG, "published: " + Binder.getCallingUid());
+            if (DEBUG_V) XLog.logD("published: " + Binder.getCallingUid());
             ServiceManager.addService(XAppGuardManager.APP_GUARD_SERVICE, asBinder());
             publishFeature(XAppGuardManager.Feature.BASE);
         } catch (Exception e) {
-            Slog.e(TAG, "*** FATAL*** Fail publish our svc:" + e);
+            XLog.logD("*** FATAL*** Fail publish our svc:" + e);
         }
     }
 
     void systemReady() {
-        if (DEBUG_V) Slog.d(TAG, "systemReady: " + Binder.getCallingUid());
+        if (DEBUG_V) XLog.logD("systemReady: " + Binder.getCallingUid());
         construct();
         getConfigFromSettings();
         loadPackages();
@@ -203,11 +202,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
         File systemDir = new File(dataDir, "system");
         systemDir.mkdirs();
         mXmlFile = new AtomicFile(new File(systemDir, "app_guard.xml"));
-        if (DEBUG_V) Slog.d(TAG, "xml file: " + mXmlFile.getBaseFile());
+        if (DEBUG_V) XLog.logD("xml file: " + mXmlFile.getBaseFile());
     }
 
     void publishFeature(String f) {
-        if (DEBUG_V) Slog.d(TAG, "publishFeature: " + f);
+        if (DEBUG_V) XLog.logD("publishFeature: " + f);
         synchronized (FEATURES) {
             if (!FEATURES.contains(f)) FEATURES.add(f);
         }
@@ -218,7 +217,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
         try {
             ApplicationInfo applicationInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID, 0);
             sClientUID = applicationInfo.uid;
-            if (DEBUG_V) Slog.d(TAG, "sClientUID:" + sClientUID);
+            if (DEBUG_V) XLog.logD("sClientUID:" + sClientUID);
 
             // Filter all apps.
             List<ApplicationInfo> applicationInfos = pm.getInstalledApplications(0);
@@ -230,13 +229,13 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
                 }
             });
         } catch (Exception ignored) {
-            Slog.e(TAG, "Can not get UID for our client:" + ignored);
+            XLog.logD("Can not get UID for our client:" + ignored);
         }
     }
 
     void setStatus(XStatus xStatus) {
         this.xStatus = xStatus;
-        if (DEBUG_V) Slog.d(TAG, "setStatus:" + xStatus);
+        if (DEBUG_V) XLog.logD("setStatus:" + xStatus);
     }
 
     private void registerReceiver() {
@@ -252,7 +251,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     }
 
     void shutdown() {
-        if (DEBUG_V) Slog.d(TAG, "shutdown...");
+        if (DEBUG_V) XLog.logD("shutdown...");
         persistPackages();
     }
 
@@ -271,7 +270,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     }
 
     private void onVerify(VerifyArgs args) {
-        if (DEBUG_V) Slog.d(TAG, "onVerify:" + args);
+        if (DEBUG_V) XLog.logD("onVerify:" + args);
         int tid = TransactionFactory.transactionID();
         int uid = args.uid;
         int pid = args.pid;
@@ -291,7 +290,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
         try {
             mContext.startActivity(intent, bnds);
         } catch (ActivityNotFoundException anf) {
-            Slog.e(TAG, "*** FATAL ERROR *** ActivityNotFoundException!!!");
+            XLog.logD("*** FATAL ERROR *** ActivityNotFoundException!!!");
             setResult(tid, XMode.MODE_IGNORED);
         }
     }
@@ -334,15 +333,15 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
         } catch (Exception ignored) {
         }
 
-        if (DEBUG_V) Slog.d(TAG, "enabled:" + enabled);
-        if (DEBUG_V) Slog.d(TAG, "blur:" + blur);
-        if (DEBUG_V) Slog.d(TAG, "blurPolicy:" + blurPolicy);
-        if (DEBUG_V) Slog.d(TAG, "mBlurScale:" + mBlurScale);
-        if (DEBUG_V) Slog.d(TAG, "mBlurRadius:" + mBlurRadius);
-        if (DEBUG_V) Slog.d(TAG, "allow3rdVer:" + allow3rdVer);
-        if (DEBUG_V) Slog.d(TAG, "mPasscode:" + mPasscode);
-        if (DEBUG_V) Slog.d(TAG, "verifyOnHome:" + verifyOnHome);
-        if (DEBUG_V) Slog.d(TAG, "verifyOnScreenOff:" + verifyOnScreenOff);
+        if (DEBUG_V) XLog.logD("enabled:" + enabled);
+        if (DEBUG_V) XLog.logD("blur:" + blur);
+        if (DEBUG_V) XLog.logD("blurPolicy:" + blurPolicy);
+        if (DEBUG_V) XLog.logD("mBlurScale:" + mBlurScale);
+        if (DEBUG_V) XLog.logD("mBlurRadius:" + mBlurRadius);
+        if (DEBUG_V) XLog.logD("allow3rdVer:" + allow3rdVer);
+        if (DEBUG_V) XLog.logD("mPasscode:" + mPasscode);
+        if (DEBUG_V) XLog.logD("verifyOnHome:" + verifyOnHome);
+        if (DEBUG_V) XLog.logD("verifyOnScreenOff:" + verifyOnScreenOff);
 
         // TODO. Register observer.
     }
@@ -356,7 +355,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     @Override
     public void setEnabled(boolean enabled) throws RemoteException {
         enforceCallingPermissions();
-        if (DEBUG_V) Slog.d(TAG, "setEnabled:" + enabled + ", mEnabled:" + mEnabled.get());
+        if (DEBUG_V) XLog.logD("setEnabled:" + enabled + ", mEnabled:" + mEnabled.get());
         mHandler.obtainMessage(MSG_SET_ENABLED, enabled ? 1 : 0, 0, null).sendToTarget();
     }
 
@@ -399,7 +398,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     }
 
     private void onSetEnabled(boolean enabled) {
-        if (DEBUG_V) Slog.d(TAG, "onSetEnabled:" + enabled);
+        if (DEBUG_V) XLog.logD("onSetEnabled:" + enabled);
         if (mEnabled.compareAndSet(!enabled, enabled)) {
             ContentResolver contentResolver = mContext.getContentResolver();
             Settings.System.putInt(contentResolver, SETTINGS_APP_GUARD_ENABLED, enabled ? 1 : 0);
@@ -424,7 +423,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     }
 
     private void onSetBlur(boolean b) {
-        if (DEBUG_V) Slog.d(TAG, "onSetBlur: " + b);
+        if (DEBUG_V) XLog.logD("onSetBlur: " + b);
 
         if (mBlur.compareAndSet(!b, b)) {
             ContentResolver contentResolver = mContext.getContentResolver();
@@ -440,7 +439,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     }
 
     private void onSetBlurPolicy(int policy) {
-        if (DEBUG_V) Slog.d(TAG, "onSetBlurPolicy: " + policy);
+        if (DEBUG_V) XLog.logD("onSetBlurPolicy: " + policy);
         mBlurPolicy.set(policy);
         ContentResolver contentResolver = mContext.getContentResolver();
         Settings.System.putInt(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_POLICY, policy);
@@ -456,12 +455,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     @Override
     public void setBlurRadius(int radius) throws RemoteException {
         enforceCallingPermissions();
-        Preconditions.checkArgumentInRange(radius, 1, 25, "radius");
         mHandler.obtainMessage(MSG_SET_BLUR_RADIUS, radius, radius).sendToTarget();
     }
 
     private void onSetBlurRadius(int radius) {
-        if (DEBUG_V) Slog.d(TAG, "onSetBlurRadius: " + radius);
+        if (DEBUG_V) XLog.logD("onSetBlurRadius: " + radius);
         mBlurRadius = radius;
         ContentResolver contentResolver = mContext.getContentResolver();
         Settings.System.putFloat(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_RADIUS, radius);
@@ -476,12 +474,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     @Override
     public void setBlurScale(float scale) throws RemoteException {
         enforceCallingPermissions();
-        Preconditions.checkArgumentInRange(scale, 0f, 1f, "scale");
         mHandler.obtainMessage(MSG_SET_BLUR_SCALE, scale).sendToTarget();
     }
 
     private void onSetBlurScale(float scale) {
-        if (DEBUG_V) Slog.d(TAG, "onSetBlurScale: " + scale);
+        if (DEBUG_V) XLog.logD("onSetBlurScale: " + scale);
         mBlurScale = scale;
         ContentResolver contentResolver = mContext.getContentResolver();
         Settings.System.putFloat(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_SCALE, scale);
@@ -500,7 +497,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     }
 
     private void onSetAllow3rdVerifier(boolean allow) {
-        if (DEBUG_V) Slog.d(TAG, "onSetAllow3rdVerifier: " + allow);
+        if (DEBUG_V) XLog.logD("onSetAllow3rdVerifier: " + allow);
         if (m3rdVerifierAllowed.compareAndSet(!allow, allow)) {
             ContentResolver contentResolver = mContext.getContentResolver();
             Settings.System.putInt(contentResolver, SETTINGS_ALLOW_3RD_VERIFIER, allow ? 1 : 0);
@@ -521,7 +518,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     }
 
     private void onSetPasscode(String passcode) {
-        if (DEBUG_V) Slog.d(TAG, "onSetPasscode: " + passcode);
+        if (DEBUG_V) XLog.logD("onSetPasscode: " + passcode);
         mPasscode = passcode;
         ContentResolver contentResolver = mContext.getContentResolver();
         Settings.System.putString(contentResolver, SETTINGS_PASSCODE, passcode);
@@ -574,7 +571,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     @Override
     public void setResult(int transactionID, final int res) {
         enforceCallingPermissions();
-        if (DEBUG_V) Slog.d(TAG, "setResult:" + transactionID + ", res:" + res);
+        if (DEBUG_V) XLog.logD("setResult:" + transactionID + ", res:" + res);
         mHandler.obtainMessage(MSG_VERIFY_RES, res, transactionID, null).sendToTarget();
     }
 
@@ -582,9 +579,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
         synchronized (TRANSACTION_MAP) {
             Transaction transaction = TRANSACTION_MAP.remove(transactionID);
             if (transaction == null) {
-                Slog.e(TAG, "Can not find transaction for:" + transactionID);
+                XLog.logD("Can not find transaction for:" + transactionID);
                 if (DEBUG_V)
-                    Slog.e(TAG, "We have transactions count of:" + TRANSACTION_MAP.values().size());
+                    XLog.logD("We have transactions count of:" + TRANSACTION_MAP.values().size());
 
                 return;
             }
@@ -619,7 +616,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
             public void accept(String s) {
                 if (!TextUtils.isEmpty(s) && !WATCHED_PACKAGES.contains(s)) {
                     WATCHED_PACKAGES.add(s);
-                    if (DEBUG_V) Slog.d(TAG, "Add package:" + s);
+                    if (DEBUG_V) XLog.logD("Add package:" + s);
                 }
             }
         });
@@ -638,7 +635,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
             public void accept(String s) {
                 if (!TextUtils.isEmpty(s) && WATCHED_PACKAGES.contains(s)) {
                     WATCHED_PACKAGES.remove(s);
-                    if (DEBUG_V) Slog.d(TAG, "Remove package:" + s);
+                    if (DEBUG_V) XLog.logD("Remove package:" + s);
                 }
             }
         });
@@ -646,26 +643,26 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
 
     @Override
     public void watch(IWatcher w) throws RemoteException {
-        if (DEBUG_V) Slog.d(TAG, "iWatcher.watch-" + w);
+        if (DEBUG_V) XLog.logD("iWatcher.watch-" + w);
         enforceCallingPermissions();
         Preconditions.checkNotNull(w);
         synchronized (WATCHERS) { //FIXME Link to death~~~
             if (!WATCHERS.contains(w)) {
                 WATCHERS.add(w);
-                if (DEBUG_V) Slog.d(TAG, "iWatcher.watch-OK " + w);
+                if (DEBUG_V) XLog.logD("iWatcher.watch-OK " + w);
             }
         }
     }
 
     @Override
     public void unWatch(IWatcher w) throws RemoteException {
-        if (DEBUG_V) Slog.d(TAG, "iWatcher.unWatch-" + w);
+        if (DEBUG_V) XLog.logD("iWatcher.unWatch-" + w);
         enforceCallingPermissions();
         Preconditions.checkNotNull(w);
         synchronized (WATCHERS) { //FIXME Link to death~~~
             if (WATCHERS.contains(w)) {
                 WATCHERS.remove(w);
-                if (DEBUG_V) Slog.d(TAG, "iWatcher.unWatch-OK " + w);
+                if (DEBUG_V) XLog.logD("iWatcher.unWatch-OK " + w);
             }
         }
     }
@@ -680,7 +677,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
                         public void run() {
                             try {
                                 iWatcher.onUserLeaving(reason);
-                                if (DEBUG_V) Slog.d(TAG, "iWatcher.onUserLeaving-" + reason);
+                                if (DEBUG_V) XLog.logD("iWatcher.onUserLeaving-" + reason);
                             } catch (Throwable ignored) {
                             }
                         }
@@ -746,16 +743,16 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
             fileReader.close();
             bufferedReader.close();
             String content = stringBuilder.toString();
-            if (DEBUG_V) Slog.d(TAG, "reader:" + content);
+            if (DEBUG_V) XLog.logD("reader:" + content);
             StringTokenizer stringTokenizer = new StringTokenizer(content, "|");
             WATCHED_PACKAGES.clear();
             while (stringTokenizer.hasMoreTokens()) {
                 String p = stringTokenizer.nextToken();
                 WATCHED_PACKAGES.add(p);
-                if (DEBUG_V) Slog.d(TAG, "Read:" + p);
+                if (DEBUG_V) XLog.logD("Read:" + p);
             }
         } catch (Exception e) {
-            Slog.e(TAG, "Fail loadPackages:" + Log.getStackTraceString(e));
+            XLog.logD("Fail loadPackages:" + Log.getStackTraceString(e));
             // Delete bad file.
             mXmlFile.delete();
         }
@@ -770,7 +767,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
             printWriter.write(formatPackages());
             printWriter.flush();
         } catch (Exception e) {
-            Slog.e(TAG, "Fail persistPackages:" + Log.getStackTraceString(e));
+            XLog.logD("Fail persistPackages:" + Log.getStackTraceString(e));
         } finally {
             if (os != null) {
                 mXmlFile.finishWrite(os);
@@ -802,7 +799,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
 
     @Override
     public boolean handleMessage(Message msg) {
-        if (DEBUG_V) Slog.d(TAG, "handleMessage:" + decodeMsg(msg.what));
+        if (DEBUG_V) XLog.logD("handleMessage:" + decodeMsg(msg.what));
         switch (msg.what) {
             case MSG_VERIFY_RES:
                 onSetResult(msg.arg1, msg.arg2);
@@ -931,7 +928,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
                     if (s.equals("github.tornaco.dialogstyledveifier")) {
                         int uid = applicationInfo.uid;
                         int code = applicationInfo.versionCode;
-                        Slog.d(TAG, "Verifier pkg:" + s + ", uid:" + uid);
+                        XLog.logD("Verifier pkg:" + s + ", uid:" + uid);
                         VERIFIER_PACKAGES.put(s, uid);
                         return;
                     }
@@ -939,7 +936,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
                     String displayerName = applicationInfo.metaData.getString(META_DATA_KEY_APP_GUARD_VERIFY_DISPLAYER);
                     if (TextUtils.isEmpty(displayerName)) return;
                     int uid = applicationInfo.uid;
-                    Slog.d(TAG, "Verifier pkg:" + displayerName + ", uid:" + uid);
+                    XLog.logD("Verifier pkg:" + displayerName + ", uid:" + uid);
                     VERIFIER_PACKAGES.put(s, uid);
                 } catch (Exception ignored) {
 
@@ -960,12 +957,13 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     }
 
     void onHome() {
+        super.onHome();
         // Skip when early startup.
         if (mHandler != null) mHandler.obtainMessage(MSG_ON_HOME).sendToTarget();
     }
 
     private void onHomeInternal() {
-        if (DEBUG_V) Slog.d(TAG, "onHomeInternal");
+        if (DEBUG_V) XLog.logD("onHomeInternal");
         if (isVerifyOnHome()) {
             PASSED_PACKAGES.clear();
         }

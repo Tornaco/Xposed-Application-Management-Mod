@@ -25,6 +25,7 @@ public class XAppGuardManager {
         String BASE = "feature.base";
         String FP = "feature.fp";
         String BLUR = "feature.blur";
+        String HOME = "feature.home";
         int FEATURE_COUNT = 3;
     }
 

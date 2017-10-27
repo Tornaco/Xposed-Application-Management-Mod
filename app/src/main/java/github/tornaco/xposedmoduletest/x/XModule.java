@@ -8,7 +8,10 @@ import android.graphics.Bitmap;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
+
+import java.util.Set;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -26,7 +29,8 @@ import github.tornaco.xposedmoduletest.BuildConfig;
  * Email: Tornaco@163.com
  */
 @GithubCommitSha
-class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit, IXposedHookInitPackageResources {
+class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit,
+        IXposedHookInitPackageResources {
 
     XStatus xStatus = XStatus.UNKNOWN;
 
@@ -250,19 +254,21 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit, IXposedH
         try {
             Class clz = XposedHelpers.findClass("com.android.server.policy.PhoneWindowManager",
                     lpparam.classLoader);
-            XposedBridge.hookAllMethods(clz,
-                    "interruptKeyBeforeQueueing", new XC_MethodHook() {
+            Set unHooks = XposedBridge.hookAllMethods(clz,
+                    "interceptKeyBeforeQueueing", new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             super.afterHookedMethod(param);
                             KeyEvent keyEvent = (KeyEvent) param.args[0];
-                            if (keyEvent.getAction() == KeyEvent.ACTION_UP && keyEvent.getKeyCode() == KeyEvent.KEYCODE_HOME) {
+                            if (keyEvent.getAction() == KeyEvent.ACTION_UP
+                                    && keyEvent.getKeyCode() == KeyEvent.KEYCODE_HOME) {
                                 mAppGuardService.onHome();
+                                XLog.logF(Log.getStackTraceString(new Throwable("XAppGuard")));
                             }
                         }
                     });
-            XLog.logV("hookPWM OK");
-            mAppGuardService.publishFeature(XAppGuardManager.Feature.BLUR);
+            XLog.logV("hookPWM OK:" + unHooks);
+            mAppGuardService.publishFeature(XAppGuardManager.Feature.HOME);
         } catch (Exception e) {
             XLog.logV("Fail hookPWM:" + e);
         }

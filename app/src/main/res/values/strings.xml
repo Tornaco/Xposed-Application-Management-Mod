@@ -34,8 +34,8 @@
     <string name="title_help">帮助与Wiki</string>
     <string name="title_donate">捐赠</string>
     <string name="title_show_system_app">显示系统应用</string>
-    <string name="first_run_title">首次运行</string>
-    <string name="message_first_run">安装完成激活XPOSED模块后请完全重启。\n\n如果你是第一次使用，建议点击菜单，查看项目wiki获取相关使用教程。</string>
+    <string name="first_run_title">今天星期几？</string>
+    <string name="message_first_run">软件现在还在测试阶段，可能不稳定，尤其是介于现在的ROM众多繁杂适配难以一下全部囊括，使用中如果遇到问题，麻烦尽量帮忙查看Xposed Installer内的log，反馈出来，这样才会使其发展的更好，如果支持的话请给好评，尽量不要抱怨。\n\n安装完成激活XPOSED模块后请完全重启。\n\n如果你是第一次使用，建议点击菜单，查看项目wiki获取相关使用教程。</string>
     <string name="title_use_fp">使用指纹</string>
     <string name="title_ver_on_home">返回HOME应用需要验证</string>
     <string name="summary_always_need_verify">默认机制是当屏幕熄灭重新点亮时，之前验证过的应用才会需要重新验证，如果启用了此选项，将会每次都需要验证</string>
@@ -59,4 +59,8 @@
     <string name="title_service_not_connected_settings">服务未连接，设置不会生效</string>
     <string name="crash_module">CRASH Service</string>
     <string name="summary_crash_module">模拟一次异常，查看Xposed是否可以正常保存日志</string>
+    <string name="title_thanks">特别感谢</string>
+    <string name="summary_can_not_hook_home">无法Hook home，功能不可用</string>
+    <string name="title_crop_enabled">裁剪成圆形图标</string>
+    <string name="title_show_app_icon">显示应用图标</string>
 </resources>

@@ -120,7 +120,6 @@ class XModuleImpl22 extends XModule {
 
                                 boolean isHomeIntent = isLauncherIntent(intent);
                                 if (isHomeIntent) {
-                                    mAppGuardService.onHome();
                                     return;
                                 }
 

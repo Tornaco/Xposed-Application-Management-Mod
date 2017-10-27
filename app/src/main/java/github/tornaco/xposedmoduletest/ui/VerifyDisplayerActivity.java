@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.ActivityCompat;
@@ -26,7 +27,10 @@ import com.andrognito.pinlockview.PinLockView;
 import org.newstand.logger.Logger;
 
 import dev.tornaco.vangogh.Vangogh;
+import dev.tornaco.vangogh.display.CircleImageEffect;
+import dev.tornaco.vangogh.display.ImageEffect;
 import dev.tornaco.vangogh.display.appliers.ScaleInXYApplier;
+import dev.tornaco.vangogh.media.Image;
 import github.tornaco.android.common.Holder;
 import github.tornaco.android.common.util.ColorUtil;
 import github.tornaco.xposedmoduletest.R;
@@ -38,7 +42,6 @@ import github.tornaco.xposedmoduletest.x.XEnc;
 import github.tornaco.xposedmoduletest.x.XKey;
 import github.tornaco.xposedmoduletest.x.XMode;
 import github.tornaco.xposedmoduletest.x.XSettings;
-import github.tornaco.xposedmoduletest.x.XWatcherAdapter;
 import github.tornaco.xposedmoduletest.x.XWatcherMainThreadAdapter;
 
 import static github.tornaco.xposedmoduletest.x.XKey.EXTRA_PKG_NAME;
@@ -188,15 +191,25 @@ public class VerifyDisplayerActivity extends AppCompatActivity {
         if (softwareCameraPreview != null)
             softwareCameraPreview.setVisibility(mTakePhoto ? View.VISIBLE : View.GONE);
 
-        Vangogh.with(this)
-                .load(pkg)
-                .placeHolder(0)
-                .fallback(R.mipmap.ic_header_avatar)
-                .usingLoader(new VangoghAppLoader(this))
-                .applier(new ScaleInXYApplier())
-                .skipDiskCache(true)
-                .skipMemoryCache(true)
-                .into(imageView);
+        if (XSettings.get().showAppIconEnabled(this))
+            Vangogh.with(this)
+                    .load(pkg)
+                    .placeHolder(0)
+                    .fallback(R.mipmap.ic_header_avatar)
+                    .usingLoader(new VangoghAppLoader(this))
+                    .applier(new ScaleInXYApplier())
+                    // FIXME Make it simple.
+                    .effect(XSettings.get().cropEnabled(this)
+                            ? new CircleImageEffect() : new ImageEffect() {
+                        @NonNull
+                        @Override
+                        public Image process(Context context, @NonNull Image image) {
+                            return image;
+                        }
+                    })
+                    .skipDiskCache(true)
+                    .skipMemoryCache(true)
+                    .into(imageView);
 
         XAppGuardManager.from().watch(new XWatcherMainThreadAdapter() {
             @Override
