@@ -54,6 +54,11 @@
             android:summary="@string/summary_dump_module"
             android:title="@string/dump_module" />
 
+        <Preference
+            android:key="@string/crash_module"
+            android:summary="@string/summary_crash_module"
+            android:title="@string/crash_module" />
+
 
         <SwitchPreference
             android:defaultValue="false"

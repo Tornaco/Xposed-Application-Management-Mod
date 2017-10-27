@@ -13,7 +13,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -94,7 +93,19 @@ public class SettingsActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.settings);
 
-            findPreference(XKey.VERIFY_ON_HOME)
+            boolean serviceAvailable = XAppGuardManager.from().isServiceConnected();
+
+            if (serviceAvailable) findPreference(getString(R.string.crash_module))
+                    .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                        @Override
+                        public boolean onPreferenceClick(Preference preference) {
+                            XAppGuardManager.from().mockCrash();
+                            return true;
+                        }
+                    });
+            else findPreference(getString(R.string.crash_module)).setEnabled(false);
+
+            if (serviceAvailable) findPreference(XKey.VERIFY_ON_HOME)
                     .setOnPreferenceChangeListener(new Preference
                             .OnPreferenceChangeListener() {
                         @Override
@@ -105,46 +116,49 @@ public class SettingsActivity extends AppCompatActivity {
                             return true;
                         }
                     });
+            else findPreference(XKey.VERIFY_ON_HOME).setEnabled(false);
 
             // Below is very ugly:() =.=
             final Preference passcodePref = findPreference(getString(R.string.title_setup_passcode));
-            passcodePref.setEnabled(XAppGuardManager.from().isServiceConnected());
-            if (XEnc.isPassCodeValid(XSettings.getPassCodeEncrypt(getActivity()))) {
+            passcodePref.setEnabled(serviceAvailable);
+            passcodePref.setSummary(null);
+            if (serviceAvailable && XEnc.isPassCodeValid(XSettings.getPassCodeEncrypt(getActivity()))) {
                 passcodePref.setSummary(R.string.summary_setup_passcode_set);
-            } else if (XAppGuardManager.from().isServiceConnected()) {
+            } else if (serviceAvailable) {
                 passcodePref.setSummary(R.string.summary_setup_passcode_none_set);
             }
-            passcodePref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    PassCodeSetup passCodeSetup = new PassCodeSetup(getActivity());
-                    passCodeSetup.setSetupListener(new PassCodeSetup.SetupListener() {
-                        @Override
-                        public void onSetSuccess() {
-                            Toast.makeText(getActivity(), R.string.summary_setup_passcode_set, Toast.LENGTH_LONG).show();
+            if (serviceAvailable)
+                passcodePref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        PassCodeSetup passCodeSetup = new PassCodeSetup(getActivity());
+                        passCodeSetup.setSetupListener(new PassCodeSetup.SetupListener() {
+                            @Override
+                            public void onSetSuccess() {
+                                Toast.makeText(getActivity(), R.string.summary_setup_passcode_set, Toast.LENGTH_LONG).show();
 
-                            if (XEnc.isPassCodeValid(XSettings.getPassCodeEncrypt(getActivity()))) {
-                                passcodePref.setSummary(R.string.summary_setup_passcode_set);
-                            } else {
-                                passcodePref.setSummary(R.string.summary_setup_passcode_none_set);
+                                if (XEnc.isPassCodeValid(XSettings.getPassCodeEncrypt(getActivity()))) {
+                                    passcodePref.setSummary(R.string.summary_setup_passcode_set);
+                                } else {
+                                    passcodePref.setSummary(R.string.summary_setup_passcode_none_set);
+                                }
                             }
-                        }
 
-                        @Override
-                        public void onSetFail(String reason) {
-                            Toast.makeText(getActivity(), reason, Toast.LENGTH_LONG).show();
+                            @Override
+                            public void onSetFail(String reason) {
+                                Toast.makeText(getActivity(), reason, Toast.LENGTH_LONG).show();
 
-                            if (XEnc.isPassCodeValid(XSettings.getPassCodeEncrypt(getActivity()))) {
-                                passcodePref.setSummary(R.string.summary_setup_passcode_set);
-                            } else {
-                                passcodePref.setSummary(R.string.summary_setup_passcode_none_set);
+                                if (XEnc.isPassCodeValid(XSettings.getPassCodeEncrypt(getActivity()))) {
+                                    passcodePref.setSummary(R.string.summary_setup_passcode_set);
+                                } else {
+                                    passcodePref.setSummary(R.string.summary_setup_passcode_none_set);
+                                }
                             }
-                        }
-                    });
-                    passCodeSetup.setup(false);
-                    return true;
-                }
-            });
+                        });
+                        passCodeSetup.setup(false);
+                        return true;
+                    }
+                });
 
             SwitchPreference fpPre = (SwitchPreference) findPreference(XKey.FP_ENABLED);
             fpPre.setEnabled(FingerprintManagerCompat.from(getActivity()).isHardwareDetected());
@@ -168,48 +182,63 @@ public class SettingsActivity extends AppCompatActivity {
                     });
 
             SwitchPreference blurPref = (SwitchPreference) findPreference(XKey.BLUR);
-            blurPref.setChecked(XAppGuardManager.from().isBlur());
-            blurPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    boolean enabled = (boolean) newValue;
-                    XAppGuardManager.from().setBlur(enabled);
-                    return true;
-                }
-            });
+            if (serviceAvailable) {
+                blurPref.setChecked(XAppGuardManager.from().isBlur());
+                blurPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        boolean enabled = (boolean) newValue;
+                        XAppGuardManager.from().setBlur(enabled);
+                        return true;
+                    }
+                });
+            } else {
+                blurPref.setEnabled(false);
+            }
 
             SwitchPreference blurAllPref = (SwitchPreference) findPreference(XKey.BLUR_ALL);
-            blurAllPref.setChecked(XAppGuardManager.from().getBlurPolicy() == XAppGuardManager.BlurPolicy.BLUR_ALL);
-            blurAllPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    boolean enabled = (boolean) newValue;
-                    XAppGuardManager.from().setBlurPolicy(enabled ? XAppGuardManager.BlurPolicy.BLUR_ALL : XAppGuardManager.BlurPolicy.BLUR_WATCHED);
-                    return true;
-                }
-            });
+            if (serviceAvailable) {
+                blurAllPref.setChecked(XAppGuardManager.from().getBlurPolicy() == XAppGuardManager.BlurPolicy.BLUR_ALL);
+                blurAllPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        boolean enabled = (boolean) newValue;
+                        XAppGuardManager.from().setBlurPolicy(enabled ? XAppGuardManager.BlurPolicy.BLUR_ALL : XAppGuardManager.BlurPolicy.BLUR_WATCHED);
+                        return true;
+                    }
+                });
+            } else {
+                blurAllPref.setEnabled(false);
+            }
 
             SwitchPreference verHome = (SwitchPreference) findPreference(XKey.VERIFY_ON_HOME);
-            verHome.setChecked(XAppGuardManager.from().isVerifyOnHome());
-            verHome.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    boolean enabled = (boolean) newValue;
-                    XAppGuardManager.from().setVerifyOnHome(enabled);
-                    return true;
-                }
-            });
+            if (serviceAvailable) {
+                verHome.setChecked(XAppGuardManager.from().isVerifyOnHome());
+                verHome.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        boolean enabled = (boolean) newValue;
+                        XAppGuardManager.from().setVerifyOnHome(enabled);
+                        return true;
+                    }
+                });
+            } else {
+                verHome.setEnabled(false);
+            }
 
             SwitchPreference verScr = (SwitchPreference) findPreference(XKey.VERIFY_ON_SCREEN_OFF);
-            verScr.setChecked(XAppGuardManager.from().isVerifyOnScreenOff());
-            verScr.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    boolean enabled = (boolean) newValue;
-                    XAppGuardManager.from().setVerifyOnScreenOff(enabled);
-                    return true;
-                }
-            });
+            verScr.setEnabled(serviceAvailable);
+            if (serviceAvailable) {
+                verScr.setChecked(XAppGuardManager.from().isVerifyOnScreenOff());
+                verScr.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        boolean enabled = (boolean) newValue;
+                        XAppGuardManager.from().setVerifyOnScreenOff(enabled);
+                        return true;
+                    }
+                });
+            }
 
             findPreference(getString(R.string.test_noter))
                     .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -227,25 +256,24 @@ public class SettingsActivity extends AppCompatActivity {
                     .setSummary(XStatus.valueOf(XAppGuardManager.from().getStatus()).name());
 
             SwitchPreference allow3rdVerifierPref = (SwitchPreference) findPreference(XKey.ALLOW_3RD_VERIFIER);
-            allow3rdVerifierPref.setChecked(XAppGuardManager.from().isAllow3rdVerifier());
-            allow3rdVerifierPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    boolean enabled = (boolean) newValue;
-                    XAppGuardManager.from().setAllow3rdVerifier(enabled);
-                    return true;
-                }
-            });
+            allow3rdVerifierPref.setEnabled(serviceAvailable);
+            if (serviceAvailable) {
+                allow3rdVerifierPref.setChecked(XAppGuardManager.from().isAllow3rdVerifier());
+                allow3rdVerifierPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        boolean enabled = (boolean) newValue;
+                        XAppGuardManager.from().setAllow3rdVerifier(enabled);
+                        return true;
+                    }
+                });
+            }
 
             Preference buildInfo = findPreference(getString(R.string.title_app_ver));
             buildInfo.setSummary(BuildConfig.VERSION_NAME
                     + "-" + BuildConfig.BUILD_TYPE
                     + "\nCommit@" + XAppGithubCommitSha.LATEST_SHA
                     + "\nDate@" + XAppGithubCommitSha.LATEST_SHA_DATE);
-
-            Preference actCode = findPreference(getString(R.string.title_my_act_code));
-            String act = XSettings.getActivateCode(getActivity());
-            actCode.setSummary(TextUtils.isEmpty(act) ? "NONE" : act);
         }
     }
 

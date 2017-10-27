@@ -30,7 +30,7 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit, IXposedH
 
     XStatus xStatus = XStatus.UNKNOWN;
 
-    XAppGuardService mAppGuardService = new XAppGuardService();
+    XAppGuardServiceAbs mAppGuardService = new XAppGuardServiceDelegate();
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -122,8 +122,12 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit, IXposedH
         }
     }
 
+    /**
+     * @deprecated No need anymore, our verifier mush be declared as an Activity.
+     */
     // http://androidxref.com/7.0.0_r1/xref/frameworks/base/services/core/java/com/android/server/fingerprint/FingerprintService.java
     // http://androidxref.com/6.0.1_r10/xref/frameworks/base/services/core/java/com/android/server/fingerprint/FingerprintService.java
+    @Deprecated
     private void hookFPService(XC_LoadPackage.LoadPackageParam lpparam) {
         XLog.logV("hookFPService...");
         try {
@@ -137,7 +141,6 @@ class XModule implements IXposedHookLoadPackage, IXposedHookZygoteInit, IXposedH
                             Object pkg = param.args[0];
                             if (BuildConfig.APPLICATION_ID.equals(pkg)) {
                                 param.setResult(true);
-                                XLog.logV("ALLOWING APPGUARD TO USE FP ANYWAY");
                             }
                         }
                     });

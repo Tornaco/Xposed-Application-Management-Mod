@@ -64,7 +64,7 @@ class XModuleImpl24 extends XModule {
                         int callingPID = Binder.getCallingPid();
 
                         mAppGuardService.verify(null, affinity, callingUID, callingPID,
-                                new XAppGuardService.VerifyListener() {
+                                new XAppGuardServiceImpl.VerifyListener() {
                                     @Override
                                     public void onVerifyRes(String pkg, int uid, int pid, int res) {
                                         if (res == XMode.MODE_ALLOWED) try {
@@ -162,7 +162,7 @@ class XModuleImpl24 extends XModule {
                                 }
 
                                 mAppGuardService.verify(optsBundle, pkgName, callingUID, callingPID,
-                                        new XAppGuardService.VerifyListener() {
+                                        new XAppGuardServiceImpl.VerifyListener() {
                                             @Override
                                             public void onVerifyRes(String pkg, int uid, int pid, int res) {
                                                 if (res == XMode.MODE_ALLOWED) try {

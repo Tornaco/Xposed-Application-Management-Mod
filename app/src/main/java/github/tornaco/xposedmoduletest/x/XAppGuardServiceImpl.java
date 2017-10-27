@@ -43,9 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
-import github.tornaco.apigen.GithubCommitSha;
 import github.tornaco.xposedmoduletest.BuildConfig;
-import github.tornaco.xposedmoduletest.IAppGuardService;
 import github.tornaco.xposedmoduletest.IWatcher;
 
 import static github.tornaco.xposedmoduletest.x.XAppGuardManager.ACTION_APP_GUARD_VERIFY_DISPLAYER;
@@ -55,8 +53,7 @@ import static github.tornaco.xposedmoduletest.x.XAppGuardManager.Feature.FEATURE
  * Created by guohao4 on 2017/10/23.
  * Email: Tornaco@163.com
  */
-@GithubCommitSha
-class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback {
+class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callback {
 
     private static final String META_DATA_KEY_APP_GUARD_VERIFY_DISPLAYER = "app_guard_verify_displayer";
 
@@ -76,7 +73,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     private static final boolean DEBUG_V = true;
 
-    private static final String TAG = "XAppGuardService";
+    private static final String TAG = "XAppGuardServiceImpl";
 
     private static final int MSG_VERIFY_RES = 0x1;
     private static final int MSG_SET_ENABLED = 0x2;
@@ -96,6 +93,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     private static final int MSG_ON_HOME = 0x16;
     private static final int MSG_SET_VERIFY_ON_HOME = 0x17;
     private static final int MSG_SET_VERIFY_ON_SCREEN_OFF = 0x18;
+    private static final int MSG_FUCK_YR_SELF = 0x1024;
     private static final int MSG_TRANSACTION_EXPIRE_BASE = 0x99;
 
     private Context mContext;
@@ -169,7 +167,7 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
 
     private XStatus xStatus = XStatus.UNKNOWN;
 
-    XAppGuardService() {
+    XAppGuardServiceImpl() {
     }
 
     void attachContext(Context context) {
@@ -670,6 +668,16 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
         mHandler.obtainMessage(MSG_READ_STATE).sendToTarget();
     }
 
+    @Override
+    public void mockCrash() throws RemoteException {
+        enforceCallingPermissions();
+        mHandler.obtainMessage(MSG_FUCK_YR_SELF).sendToTarget();
+    }
+
+    protected void onMockCrash() {
+        throw new IllegalStateException("Let's CRASH, bye bye you...");
+    }
+
     private void onReadState() {
         mWorkingService.execute(new Runnable() {
             @Override
@@ -801,6 +809,9 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
             case MSG_SET_VERIFY_ON_SCREEN_OFF:
                 onSetVerifyOnScreenOff(msg.arg1 == 1);
                 return true;
+            case MSG_FUCK_YR_SELF:
+                onMockCrash();
+                return true;
             default:
                 int transaction = (int) msg.obj;
                 onSetResult(XMode.MODE_IGNORED, transaction);
@@ -846,6 +857,8 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
                 return "MSG_SET_VERIFY_ON_HOME";
             case MSG_SET_VERIFY_ON_SCREEN_OFF:
                 return "MSG_SET_VERIFY_ON_SCREEN_OFF";
+            case MSG_FUCK_YR_SELF:
+                return "MSG_FUCK_YR_SELF";
             default:
                 return "MSG_TRANSACTION_EXPIRE";
         }
@@ -890,20 +903,19 @@ class XAppGuardService extends IAppGuardService.Stub implements Handler.Callback
     }
 
 
-    private void enforceCallingPermissions() {
-        // FIXME.
-        if (BuildConfig.VERSION_CODE < Integer.MAX_VALUE) return;
+    protected void enforceCallingPermissions() {
         int callingUID = Binder.getCallingUid();
         if (VERIFIER_PACKAGES.containsValue(callingUID)) return;
         if (callingUID == Process.myUid() || (sClientUID > 0 && sClientUID == callingUID)) {
             return;
         }
         throw new SecurityException("Package of uid:" + callingUID
-                + ", does not have permission to interact with XAppGuardService");
+                + ", does not have permission to interact with XAppGuardServiceImpl");
     }
 
     void onHome() {
-        mHandler.obtainMessage(MSG_ON_HOME).sendToTarget();
+        // Skip when early startup.
+        if (mHandler != null) mHandler.obtainMessage(MSG_ON_HOME).sendToTarget();
     }
 
     private void onHomeInternal() {

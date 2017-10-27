@@ -52,4 +52,7 @@ interface IAppGuardService {
 
     void forceWriteState();
     void forceReadState();
+
+    // For test only.
+    void mockCrash();
 }

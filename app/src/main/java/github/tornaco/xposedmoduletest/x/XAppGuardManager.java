@@ -347,4 +347,12 @@ public class XAppGuardManager {
         }
         return false;
     }
+
+    public void mockCrash() {
+        if (!isServiceConnected()) return;
+        try {
+            mService.mockCrash();
+        } catch (RemoteException ignored) {
+        }
+    }
 }
