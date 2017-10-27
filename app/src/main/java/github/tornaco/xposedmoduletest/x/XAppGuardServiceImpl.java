@@ -371,7 +371,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     }
 
     private void onSetVerifyOnScreenOff(boolean ver) {
-        if (mEnabled.compareAndSet(!ver, ver)) {
+        if (mVerifyOnScreenOff.compareAndSet(!ver, ver)) {
             ContentResolver contentResolver = mContext.getContentResolver();
             Settings.System.putInt(contentResolver, SETTINGS_VERIFY_ON_SCREEN_OFF, ver ? 1 : 0);
         }
@@ -384,7 +384,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     }
 
     private void onSetVerifyOnHome(boolean ver) {
-        if (mEnabled.compareAndSet(!ver, ver)) {
+        if (mVerifyOnHome.compareAndSet(!ver, ver)) {
             ContentResolver contentResolver = mContext.getContentResolver();
             Settings.System.putInt(contentResolver, SETTINGS_VERIFY_ON_HOME, ver ? 1 : 0);
         }
