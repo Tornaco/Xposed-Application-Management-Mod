@@ -49,6 +49,7 @@ interface IAppGuardService {
     void removePackages(in String[] pkgs);
 
     void watch(in IWatcher w);
+    void unWatch(in IWatcher w);
 
     void forceWriteState();
     void forceReadState();

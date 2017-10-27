@@ -225,6 +225,16 @@ public class XAppGuardServiceImplDev extends XAppGuardServiceImpl {
     }
 
     @Override
+    public void unWatch(final IWatcher w) throws RemoteException {
+        makeSafeCall(new Call() {
+            @Override
+            public void onCall() throws Throwable {
+                XAppGuardServiceImplDev.super.unWatch(w);
+            }
+        });
+    }
+
+    @Override
     public void forceWriteState() throws RemoteException {
         makeSafeCall(new Call() {
             @Override

@@ -5,4 +5,5 @@ package github.tornaco.xposedmoduletest;
 
 interface IWatcher {
     void onServiceException(String trace);
+    void onUserLeaving(String reason);
 }

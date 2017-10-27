@@ -216,6 +216,11 @@ class XAppGuardServiceDelegate extends XAppGuardServiceAbs {
     }
 
     @Override
+    public void unWatch(IWatcher w) throws RemoteException {
+        mImpl.unWatch(w);
+    }
+
+    @Override
     public void forceWriteState() throws RemoteException {
         mImpl.forceWriteState();
     }

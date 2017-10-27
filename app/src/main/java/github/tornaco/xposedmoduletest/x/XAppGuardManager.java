@@ -6,7 +6,6 @@ import android.os.ServiceManager;
 import org.newstand.logger.Logger;
 
 import github.tornaco.xposedmoduletest.IAppGuardService;
-import github.tornaco.xposedmoduletest.IWatcher;
 
 /**
  * Created by guohao4 on 2017/10/23.
@@ -121,11 +120,20 @@ public class XAppGuardManager {
         }
     }
 
-    public void watch(IWatcher w) {
+    public void watch(XWatcherAdapter w) {
         if (!isServiceConnected()) return;
         try {
             mService.watch(w);
         } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+    }
+
+    public void unWatch(XWatcherAdapter w) {
+        if (!isServiceConnected()) return;
+        try {
+            mService.unWatch(w);
+        } catch (Exception e) {
             Logger.e(Logger.getStackTraceString(e));
         }
     }

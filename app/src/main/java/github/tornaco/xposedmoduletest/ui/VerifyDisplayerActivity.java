@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.ActivityCompat;
@@ -39,6 +38,8 @@ import github.tornaco.xposedmoduletest.x.XEnc;
 import github.tornaco.xposedmoduletest.x.XKey;
 import github.tornaco.xposedmoduletest.x.XMode;
 import github.tornaco.xposedmoduletest.x.XSettings;
+import github.tornaco.xposedmoduletest.x.XWatcherAdapter;
+import github.tornaco.xposedmoduletest.x.XWatcherMainThreadAdapter;
 
 import static github.tornaco.xposedmoduletest.x.XKey.EXTRA_PKG_NAME;
 import static github.tornaco.xposedmoduletest.x.XKey.EXTRA_TRANS_ID;
@@ -59,7 +60,7 @@ public class VerifyDisplayerActivity extends AppCompatActivity {
 
     private CancellationSignal mCancellationSignal;
 
-    private Handler mHandler;
+    private boolean mResNotified = false;
 
     private Runnable expireRunnable = new Runnable() {
         @Override
@@ -197,13 +198,19 @@ public class VerifyDisplayerActivity extends AppCompatActivity {
                 .skipMemoryCache(true)
                 .into(imageView);
 
-        // Setup timeout.
-        mHandler = new Handler();
-        mHandler.postDelayed(expireRunnable, XAppGuardManager.TRANSACTION_EXPIRE_TIME);
+        XAppGuardManager.from().watch(new XWatcherMainThreadAdapter() {
+            @Override
+            protected void onUserLeavingMainThread(String reason) {
+                super.onUserLeavingMainThread(reason);
+                XAppGuardManager.from().unWatch(this);
+                postDelayed(expireRunnable, 800);
+            }
+        });
     }
 
     private void onPass() {
-        if (mHandler != null) mHandler.removeCallbacksAndMessages(null);
+        if (mResNotified) return;
+        mResNotified = true;
         if (mCancellationSignal != null) {
             mCancellationSignal.cancel();
         }
@@ -218,7 +225,8 @@ public class VerifyDisplayerActivity extends AppCompatActivity {
     }
 
     private void onFail() {
-        if (mHandler != null) mHandler.removeCallbacksAndMessages(null);
+        if (mResNotified) return;
+        mResNotified = true;
         if (mCancellationSignal != null) {
             mCancellationSignal.cancel();
         }
@@ -264,5 +272,10 @@ public class VerifyDisplayerActivity extends AppCompatActivity {
             finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }

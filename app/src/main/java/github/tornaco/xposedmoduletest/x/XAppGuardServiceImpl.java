@@ -115,6 +115,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     private final Set<String> PASSED_PACKAGES = new HashSet<>();
     private final Map<String, Integer> VERIFIER_PACKAGES = new HashMap<>();
 
+    private final Set<IWatcher> WATCHERS = new HashSet<>();
+
     private static final Set<String> PREBUILT_WHITE_LIST = new HashSet<>();
 
     @SuppressLint("UseSparseArrays")
@@ -644,7 +646,51 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
 
     @Override
     public void watch(IWatcher w) throws RemoteException {
+        if (DEBUG_V) Slog.d(TAG, "iWatcher.watch-" + w);
         enforceCallingPermissions();
+        Preconditions.checkNotNull(w);
+        synchronized (WATCHERS) { //FIXME Link to death~~~
+            if (!WATCHERS.contains(w)) {
+                WATCHERS.add(w);
+                if (DEBUG_V) Slog.d(TAG, "iWatcher.watch-OK " + w);
+            }
+        }
+    }
+
+    @Override
+    public void unWatch(IWatcher w) throws RemoteException {
+        if (DEBUG_V) Slog.d(TAG, "iWatcher.unWatch-" + w);
+        enforceCallingPermissions();
+        Preconditions.checkNotNull(w);
+        synchronized (WATCHERS) { //FIXME Link to death~~~
+            if (WATCHERS.contains(w)) {
+                WATCHERS.remove(w);
+                if (DEBUG_V) Slog.d(TAG, "iWatcher.unWatch-OK " + w);
+            }
+        }
+    }
+
+    private void notifyWatcherUserLeaving(final String reason) {
+        synchronized (WATCHERS) {
+            Collections.consumeRemaining(WATCHERS, new Consumer<IWatcher>() {
+                @Override
+                public void accept(final IWatcher iWatcher) {
+                    mWorkingService.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                iWatcher.onUserLeaving(reason);
+                                if (DEBUG_V) Slog.d(TAG, "iWatcher.onUserLeaving-" + reason);
+                            } catch (Throwable ignored) {
+                            }
+                        }
+                    });
+                }
+            });
+
+            // FIXME. FFFFFF?
+            WATCHERS.clear();
+        }
     }
 
     @Override
@@ -923,6 +969,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
         if (isVerifyOnHome()) {
             PASSED_PACKAGES.clear();
         }
+        notifyWatcherUserLeaving("Home");
     }
 
     private void onScreenOff() {
