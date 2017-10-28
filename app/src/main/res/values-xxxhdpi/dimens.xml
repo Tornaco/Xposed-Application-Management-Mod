@@ -1,0 +1,43 @@
+<resources>
+    <dimen name="activity_horizontal_margin_large">24dp</dimen>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_horizontal_margin_middle">12dp</dimen>
+    <dimen name="activity_horizontal_margin_small">7dp</dimen>
+    <dimen name="activity_horizontal_margin_marco">5dp</dimen>
+    <dimen name="activity_horizontal_margin_transport_progress">9dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin_large">24dp</dimen>
+    <dimen name="activity_vertical_margin_huge">48dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+
+    <!-- Text sizes -->
+    <dimen name="text_size_extra_micro">12sp</dimen>
+    <dimen name="text_size_micro">13sp</dimen>
+    <dimen name="text_size_small">14sp</dimen>
+    <dimen name="text_size_medium">16sp</dimen>
+    <dimen name="text_size_large">22sp</dimen>
+    <dimen name="text_size_x_large">24sp</dimen>
+    <dimen name="text_size_dayum">34sp</dimen>
+
+    <dimen name="list_item_main_text_size">@dimen/text_size_medium</dimen>
+    <dimen name="list_item_secondary_text_size">@dimen/text_size_micro</dimen>
+
+    <dimen name="thumbnail_size">42dp</dimen>
+    <dimen name="thumbnail_size_large">52dp</dimen>
+    <dimen name="common_item_min_height">72dp</dimen>
+
+    <dimen name="list_item_elevation">1dp</dimen>
+    <dimen name="list_item_margin">2dp</dimen>
+
+    <!-- Camera focus indicator values -->
+    <dimen name="pie_radius_start">40dp</dimen>
+    <dimen name="pie_radius_increment">30dp</dimen>
+    <dimen name="pie_touch_offset">20dp</dimen>
+    <dimen name="focus_radius_offset">8dp</dimen>
+    <dimen name="focus_inner_offset">12dp</dimen>
+    <dimen name="focus_outer_stroke">3dp</dimen>
+    <dimen name="focus_inner_stroke">2dp</dimen>
+
+    <dimen name="keypad_btn_size_full">102dp</dimen>
+    <dimen name="keypad_text_size_full">28dp</dimen>
+</resources>

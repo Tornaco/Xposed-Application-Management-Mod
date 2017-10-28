@@ -51,6 +51,12 @@ public class XSettings extends Observable {
                 .getBoolean(XKey.SHOW_APP_ICON_ENABLED, false);
     }
 
+    public boolean patternLockEnabled(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(XKey.LOCK_PATTERN_ENABLED, false);
+    }
+
+
     public static File getPhotosDir(Context context) {
         return new File(context.getFilesDir()
                 + File.separator + "photos");

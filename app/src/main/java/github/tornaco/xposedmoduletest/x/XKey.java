@@ -8,6 +8,7 @@ import github.tornaco.xposedmoduletest.BuildConfig;
  */
 
 public interface XKey {
+    String LOCK_PATTERN_ENABLED = "key_lock_pattern_enabled";
     String CROP_CIRCLE_ENABLED = "key_crop_circle_enabled";
     String SHOW_APP_ICON_ENABLED = "show_app_icon_enabled";
     String BLUR = "blur_enabled";
