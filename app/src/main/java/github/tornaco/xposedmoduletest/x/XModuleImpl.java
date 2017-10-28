@@ -57,10 +57,10 @@ class XModuleImpl extends XModuleAbs {
         hookFPService(lpparam);
         hookScreenshotApplications(lpparam);
         hookPWM(lpparam);
+        hookPackageInstaller(lpparam);
 
         stopWatch.stop();
     }
-
 
     private void hookTaskMover(XC_LoadPackage.LoadPackageParam lpparam) {
         XLog.logV("hookTaskMover...");
@@ -437,6 +437,32 @@ class XModuleImpl extends XModuleAbs {
             XLog.logV("Fail hookPWM:" + e);
         }
     }
+
+
+    private void hookPackageInstaller(XC_LoadPackage.LoadPackageParam lpparam) {
+        XLog.logV("hookPackageInstaller...");
+        try {
+            Class clz = XposedHelpers.findClass("com.android.server.pm.PackageInstallerService",
+                    lpparam.classLoader);
+            Set unHooks = XposedBridge.hookAllMethods(clz,
+                    "uninstall", new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            super.beforeHookedMethod(param);
+                            XLog.logV("uninstall pkg:" + param.args[0]);
+                            boolean verify = mAppGuardService.locked((String) param.args[0]);
+                            if (verify) {
+                                param.setResult(null);
+                            }
+                        }
+                    });
+            XLog.logV("hookPackageInstaller OK:" + unHooks);
+            mAppGuardService.publishFeature(XAppGuardManager.Feature.HOME);
+        } catch (Exception e) {
+            XLog.logV("Fail hookPackageInstaller:" + e);
+        }
+    }
+
 
     @Override
     public void initZygote(StartupParam startupParam) throws Throwable {

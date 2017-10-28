@@ -264,6 +264,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
                 || !WATCHED_PACKAGES.contains(pkg);
     }
 
+    @Override
+    boolean locked(String pkg) {
+        return !mEnabled.get() && WATCHED_PACKAGES.contains(pkg);
+    }
+
     void verify(Bundle options, String pkg, int uid, int pid, VerifyListener listener) {
         VerifyArgs args = new VerifyArgs(options, pkg, uid, pid, listener);
         mHandler.obtainMessage(MSG_VERIFY, args).sendToTarget();

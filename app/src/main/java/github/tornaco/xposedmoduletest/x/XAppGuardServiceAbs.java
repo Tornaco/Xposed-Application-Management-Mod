@@ -2,7 +2,6 @@ package github.tornaco.xposedmoduletest.x;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 
 import github.tornaco.apigen.GithubCommitSha;
 import github.tornaco.xposedmoduletest.IAppGuardService;
@@ -44,6 +43,10 @@ abstract class XAppGuardServiceAbs extends IAppGuardService.Stub {
 
     boolean passed(String pkg) {
         return true;
+    }
+
+    boolean locked(String pkg) {
+        return false;
     }
 
     void verify(Bundle options, String pkg, int uid, int pid, XAppGuardServiceImpl.VerifyListener listener) {

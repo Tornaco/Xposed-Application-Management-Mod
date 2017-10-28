@@ -16,7 +16,7 @@ import github.tornaco.xposedmoduletest.IAppGuardService;
 public class XAppGuardManager {
 
     static final String ACTION_APP_GUARD_VERIFY_DISPLAYER
-            = "github.tornaco.xpose.app.guard.action.verify.displayer";
+            = "github.tornaco.xpose.app.locked.action.verify.displayer";
 
     static final String APP_GUARD_SERVICE = "user.appguard";
 
