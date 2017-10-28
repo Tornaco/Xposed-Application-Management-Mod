@@ -1,23 +1,31 @@
 # SDK for developers
 
 ## 1. What can developers do
-Implement different styled lock activity.（构建第三方验证器界面）
+第三方开发者可以使用SDK开发自定义的验证器界面。
 
 ## 2. How to
-See [DEV_GUIDE](https://github.com/Tornaco/XAppGuardSDK)
+参考 [DEV_GUIDE](https://github.com/Tornaco/XAppGuardSDK)
 
 # What is XAppGuard
 
 ## 1. Purpose
 > 借助XPOSED实现系统级别应用锁。
 
+### 1.1 功能
+* 应用启动验证。
+* 最近任务验证。
+* 最近任务高斯模糊（算法来自fastblur）。
+* 自定义的验证器。
+* 闯入抓拍。
+* 指纹验证。
 
 ## 2. Workflow
-XAppGuardService(Framework)---XAppGuardApp(App)--User-(返回验证结果)
-
+参考README最下方demo视频。
 
 ## 3. Func design
-XAppGuardService(Framework)---XAppGuardApp(App)--User(返回验证结果)
+- 基础实现思路：XAppGuardService(Framework)---XAppGuardApp(App)--User(返回验证结果)
+
+- 核心实现均在[XAppGuardService](https://github.com/Tornaco/XAppGuard/blob/master/app/src/main/java/github/tornaco/xposedmoduletest/x/XAppGuardServiceImpl.java)，植入系统的一个Binder服务，用以处理用户的返回和应用启动需求，以及用户的设置等。
 
 ### 3.1 XAppGuardService注入
 ```AMS```启动完成后添加```XAppGuardService```到```ServiceManager```
