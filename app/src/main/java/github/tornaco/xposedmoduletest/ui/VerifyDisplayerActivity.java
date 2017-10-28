@@ -245,7 +245,7 @@ public class VerifyDisplayerActivity extends AppCompatActivity {
 
     private void setupLabel() {
         final TextView labelView = (TextView) findViewById(R.id.label);
-        labelView.setText(ApkUtil.loadNameByPkgName(this, pkg));
+        labelView.setText(getString(R.string.input_password, ApkUtil.loadNameByPkgName(this, pkg)));
     }
 
     private void setupCamera() {

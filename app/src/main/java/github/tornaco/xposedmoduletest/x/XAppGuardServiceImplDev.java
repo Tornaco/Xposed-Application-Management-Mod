@@ -53,12 +53,12 @@ public class XAppGuardServiceImplDev extends XAppGuardServiceImpl {
     }
 
     @Override
-    void verify(final Bundle bnds, final String pkg, final int uid, final int pid,
+    void verify(final Bundle options, final String pkg, final int uid, final int pid,
                 final VerifyListener listener) {
         makeSafeCall(new Call() {
             @Override
             public void onCall() throws Throwable {
-                XAppGuardServiceImplDev.super.verify(bnds, pkg, uid, pid, listener);
+                XAppGuardServiceImplDev.super.verify(options, pkg, uid, pid, listener);
             }
         });
     }

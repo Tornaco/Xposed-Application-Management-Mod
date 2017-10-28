@@ -4,7 +4,7 @@
     <string name="switch_on_text">已启用</string>
     <string name="switch_off_text">已禁用</string>
     <string name="test_noter">密码测试</string>
-    <string name="input_password">应用已锁定</string>
+    <string name="input_password">%1$s 已锁定</string>
     <string name="dump_module">模块运行状态</string>
     <string name="title_settings">设置</string>
     <string name="title_view_photos">查看闯入者</string>

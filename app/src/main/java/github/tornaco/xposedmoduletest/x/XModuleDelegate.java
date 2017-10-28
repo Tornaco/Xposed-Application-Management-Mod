@@ -1,13 +1,8 @@
 package github.tornaco.xposedmoduletest.x;
 
-import android.content.res.XModuleResources;
 import android.os.Build;
 import android.support.annotation.Keep;
-import android.widget.TextView;
 
-import java.util.Set;
-
-import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
@@ -17,11 +12,9 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
  * Email: Tornaco@163.com
  */
 @Keep
-public class XModuleDelegate extends XModule {
+public class XModuleDelegate extends XModuleAbs {
 
-    private static String MODULE_PATH = null;
-
-    private XModule mImpl;
+    private XModuleAbs mImpl;
 
     @Override
     public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resparam) throws Throwable {
@@ -34,7 +27,6 @@ public class XModuleDelegate extends XModule {
 
     @Override
     public void initZygote(StartupParam startupParam) throws Throwable {
-        MODULE_PATH = startupParam.modulePath;
         mImpl.initZygote(startupParam);
     }
 

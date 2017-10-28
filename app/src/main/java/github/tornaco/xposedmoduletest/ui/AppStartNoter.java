@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.andrognito.pinlockview.IndicatorDots;
@@ -130,8 +131,8 @@ public class AppStartNoter {
                 IndicatorDots indicatorDots = (IndicatorDots) container.findViewById(R.id.indicator_dots);
                 pinLockView.attachIndicatorDots(indicatorDots);
 
-//                TextView labelView = (TextView) container.findViewById(R.id.label);
-//                labelView.setText(appName);
+                TextView labelView = (TextView) container.findViewById(R.id.label);
+                labelView.setText(mContext.getString(R.string.input_password, appName));
 
                 final Dialog md =
                         new AlertDialog.Builder(mContext,

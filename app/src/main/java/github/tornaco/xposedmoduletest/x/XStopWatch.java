@@ -51,7 +51,7 @@ class XStopWatch {
     void split(String label) {
         long now = getCurrentTime();
         long elapse = now - mLastSplit;
-        XLog.logD("XStopWatch(" + mName + ") split(" + label + ") " + elapse);
+        XLog.logD("XStopWatch(" + mName + ") split(" + label + ") " + elapse + "ms");
         mLastSplit = now;
     }
 
@@ -59,7 +59,8 @@ class XStopWatch {
         long now = getCurrentTime();
         XLog.logD("XStopWatch(" + mName + ") stop: "
                 + (now - mLastSplit)
-                + "  (total " + (now - mStart) + ")");
+                + "  (total " + (now - mStart) + ")"
+                + "ms");
     }
 
     private static long getCurrentTime() {

@@ -46,7 +46,7 @@ abstract class XAppGuardServiceAbs extends IAppGuardService.Stub {
         return true;
     }
 
-    void verify(Bundle bnds, String pkg, int uid, int pid, XAppGuardServiceImpl.VerifyListener listener) {
+    void verify(Bundle options, String pkg, int uid, int pid, XAppGuardServiceImpl.VerifyListener listener) {
     }
 
     void onHome() {

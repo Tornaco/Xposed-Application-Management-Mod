@@ -61,8 +61,8 @@ class XAppGuardServiceDelegate extends XAppGuardServiceAbs {
     }
 
     @Override
-    public void verify(Bundle bnds, String pkg, int uid, int pid, XAppGuardServiceImpl.VerifyListener listener) {
-        mImpl.verify(bnds, pkg, uid, pid, listener);
+    public void verify(Bundle options, String pkg, int uid, int pid, XAppGuardServiceImpl.VerifyListener listener) {
+        mImpl.verify(options, pkg, uid, pid, listener);
     }
 
     @Override
