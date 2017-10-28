@@ -5,6 +5,7 @@ import android.app.ActivityOptions;
 
 import java.lang.reflect.Method;
 
+import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 /**
@@ -30,6 +31,6 @@ class XModuleImpl24 extends XModuleImpl {
     @SuppressLint("PrivateApi")
     @Override
     Class clzForStartActivityMayWait(XC_LoadPackage.LoadPackageParam lpparam) throws ClassNotFoundException {
-        return Class.forName("com.android.server.am.ActivityStarter");
+        return XposedHelpers.findClass("com.android.server.am.ActivityStarter", lpparam.classLoader);
     }
 }

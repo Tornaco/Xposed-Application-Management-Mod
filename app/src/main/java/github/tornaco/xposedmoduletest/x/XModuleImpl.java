@@ -224,7 +224,7 @@ class XModuleImpl extends XModuleAbs {
             });
             XLog.logV("hookStartActivityMayWait OK: " + unhook);
         } catch (Exception e) {
-            XLog.logV("Fail hookAMhookIntentFirewallCheckCompPermission:" + e);
+            XLog.logV("Fail hookStartActivityMayWait:" + e);
             xStatus = XStatus.ERROR;
         }
     }
