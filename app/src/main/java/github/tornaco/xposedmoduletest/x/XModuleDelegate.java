@@ -44,8 +44,10 @@ public class XModuleDelegate extends XModuleAbs {
                 mImpl = new XModuleImpl23();
                 break;
             case Build.VERSION_CODES.LOLLIPOP_MR1:
-            case Build.VERSION_CODES.LOLLIPOP:
                 mImpl = new XModuleImpl22();
+                break;
+            case Build.VERSION_CODES.LOLLIPOP:
+                mImpl = new XModuleImpl21();
                 break;
             default:
                 mImpl = new XModuleNotSupport();

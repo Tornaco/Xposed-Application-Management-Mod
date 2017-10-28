@@ -5,8 +5,8 @@ package github.tornaco.xposedmoduletest.x;
  * Email: Tornaco@163.com
  */
 
-// http://androidxref.com/7.1.1_r6/xref/frameworks/base/services/core/java/com/android/server/am/ActivityStackSupervisor.java
+// http://androidxref.com/8.0.0_r4/xref/frameworks/base/services/core/java/com/android/server/am/ActivityStackSupervisor.java
 // void findTaskToMoveToFrontLocked(TaskRecord task, int flags, ActivityOptions options, String reason, boolean forceNonResizeable)
-class XModuleImpl25 extends XModuleImpl24 {
+class XModuleImpl26 extends XModuleImpl24 {
 
 }

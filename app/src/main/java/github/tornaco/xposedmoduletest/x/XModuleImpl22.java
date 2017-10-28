@@ -12,7 +12,8 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
  * Created by guohao4 on 2017/10/19.
  * Email: Tornaco@163.com
  */
-
+// http://androidxref.com/5.0.0_r2/xref/frameworks/base/services/core/java/com/android/server/am/ActivityStackSupervisor.java
+// void findTaskToMoveToFrontLocked(TaskRecord task, int flags, Bundle options, String reason) {
 class XModuleImpl22 extends XModuleImpl {
 
     @SuppressLint("PrivateApi")
