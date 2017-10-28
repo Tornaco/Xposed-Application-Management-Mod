@@ -104,6 +104,7 @@ class XModuleImpl extends XModuleAbs {
                 }
             });
             XLog.logV("hookTaskMover OK:" + unhook);
+            mAppGuardService.publishFeature(XAppGuardManager.Feature.RECENT);
         } catch (Exception e) {
             XLog.logV("hookTaskMover" + Log.getStackTraceString(e));
             xStatus = XStatus.ERROR;
@@ -223,6 +224,7 @@ class XModuleImpl extends XModuleAbs {
                 }
             });
             XLog.logV("hookStartActivityMayWait OK: " + unhook);
+            mAppGuardService.publishFeature(XAppGuardManager.Feature.START);
         } catch (Exception e) {
             XLog.logV("Fail hookStartActivityMayWait:" + e);
             xStatus = XStatus.ERROR;
@@ -426,7 +428,6 @@ class XModuleImpl extends XModuleAbs {
                             if (keyEvent.getAction() == KeyEvent.ACTION_UP
                                     && keyEvent.getKeyCode() == KeyEvent.KEYCODE_HOME) {
                                 mAppGuardService.onHome();
-                                XLog.logF(Log.getStackTraceString(new Throwable("XAppGuard")));
                             }
                         }
                     });

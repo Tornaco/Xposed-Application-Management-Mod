@@ -21,7 +21,7 @@ import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerCompat;
-import github.tornaco.xposedmoduletest.x.XAppGithubCommitSha;
+import github.tornaco.xposedmoduletest.x.XAppBuildHostInfo;
 import github.tornaco.xposedmoduletest.x.XAppGuardManager;
 import github.tornaco.xposedmoduletest.x.XEnc;
 import github.tornaco.xposedmoduletest.x.XKey;
@@ -279,8 +279,9 @@ public class SettingsActivity extends AppCompatActivity {
             Preference buildInfo = findPreference(getString(R.string.title_app_ver));
             buildInfo.setSummary(BuildConfig.VERSION_NAME
                     + "-" + BuildConfig.BUILD_TYPE
-                    + "\nCommit@" + XAppGithubCommitSha.LATEST_SHA
-                    + "\nDate@" + XAppGithubCommitSha.LATEST_SHA_DATE);
+                    + " " + XAppBuildHostInfo.BUILD_DATE
+                    + "@"
+                    + XAppBuildHostInfo.BUILD_HOST_NAME);
         }
     }
 

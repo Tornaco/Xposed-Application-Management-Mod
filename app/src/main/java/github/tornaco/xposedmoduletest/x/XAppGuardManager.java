@@ -23,6 +23,8 @@ public class XAppGuardManager {
     @SuppressWarnings("WeakerAccess")
     public interface Feature {
         String BASE = "feature.base";
+        String START = "feature.start";
+        String RECENT = "feature.recent";
         String FP = "feature.fp";
         String BLUR = "feature.blur";
         String HOME = "feature.home";

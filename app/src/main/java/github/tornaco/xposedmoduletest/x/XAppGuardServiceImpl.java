@@ -963,7 +963,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     }
 
     private void onHomeInternal() {
-        if (DEBUG_V) XLog.logD("onHomeInternal");
         if (isVerifyOnHome()) {
             PASSED_PACKAGES.clear();
         }

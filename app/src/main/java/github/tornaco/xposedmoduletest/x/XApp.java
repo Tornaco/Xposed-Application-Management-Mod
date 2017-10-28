@@ -8,6 +8,7 @@ import android.support.multidex.MultiDex;
 import org.newstand.logger.Logger;
 import org.newstand.logger.Settings;
 
+import github.tornaco.apigen.BuildHostInfo;
 import github.tornaco.apigen.GithubCommitSha;
 import github.tornaco.xposedmoduletest.license.XActivation;
 
@@ -16,6 +17,7 @@ import github.tornaco.xposedmoduletest.license.XActivation;
  * Email: Tornaco@163.com
  */
 @GithubCommitSha
+@BuildHostInfo
 public class XApp extends Application {
 
     @SuppressLint("StaticFieldLeak")
