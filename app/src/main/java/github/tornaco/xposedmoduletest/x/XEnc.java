@@ -8,7 +8,7 @@ package github.tornaco.xposedmoduletest.x;
 public class XEnc {
 
     public static boolean isPassCodeCorrect(String codeEnc, String codeInput) {
-        return codeEnc.equals(codeInput);
+        return codeEnc != null && codeEnc.equals(codeInput);
     }
 
     public static boolean isPassCodeValid(String codeEnc) {

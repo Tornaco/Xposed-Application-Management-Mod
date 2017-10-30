@@ -91,6 +91,7 @@ public interface PackageLoader {
         @NonNull
         @Override
         public List<PackageInfo> loadStored() {
+            final PackageManager pm = this.context.getPackageManager();
             final List<PackageInfo> out = new ArrayList<>();
             Collections.consumeRemaining(XAppGuardManager.from().getPackages(), new Consumer<String>() {
                 @Override
@@ -98,6 +99,7 @@ public interface PackageLoader {
                     PackageInfo p = new PackageInfo();
                     p.setPkgName(s);
                     p.setAppName(String.valueOf(ApkUtil.loadNameByPkgName(context, s)));
+                    if (TextUtils.isEmpty(p.getAppName())) return;
                     out.add(p);
                 }
             });

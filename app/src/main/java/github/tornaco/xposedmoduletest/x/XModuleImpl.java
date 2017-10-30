@@ -77,15 +77,25 @@ class XModuleImpl extends XModuleAbs {
                     super.beforeHookedMethod(param);
 
                     XStopWatch stopWatch = XStopWatch.start("hookTaskMover- findTaskToMoveToFrontLocked");
-                    // FIXME Using aff instead of PKG.
                     try {
-                        final String affinity = (String) XposedHelpers.getObjectField(param.args[0], "affinity");
-                        XLog.logV("findTaskToMoveToFrontLocked:" + affinity);
+                        String pkgName;
+                        Object realActivityObj = XposedHelpers.getObjectField(param.args[0], "realActivity");
+                        if (realActivityObj != null) {
+                            ComponentName componentName = (ComponentName) realActivityObj;
+                            pkgName = componentName.getPackageName();
+                        } else {
+                            // Using aff instead of PKG.
+                            pkgName = (String) XposedHelpers.getObjectField(param.args[0], "affinity");
+                        }
+
+                        if (TextUtils.isEmpty(pkgName)) return;
+
+                        XLog.logV("findTaskToMoveToFrontLocked:" + pkgName);
 
                         // Package has been passed.
-                        if (mAppGuardService.passed(affinity)) return;
+                        if (mAppGuardService.passed(pkgName)) return;
 
-                        mAppGuardService.verify(null, affinity, 0, 0,
+                        mAppGuardService.verify(null, pkgName, 0, 0,
                                 new XAppGuardServiceImpl.VerifyListener() {
                                     @Override
                                     public void onVerifyRes(String pkg, int uid, int pid, int res) {
@@ -245,14 +255,14 @@ class XModuleImpl extends XModuleAbs {
         try {
             Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService",
                     lpparam.classLoader);
-            XposedBridge.hookAllMethods(ams, "shutdown", new XC_MethodHook() {
+            Set unHooks = XposedBridge.hookAllMethods(ams, "shutdown", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
                     mAppGuardService.shutdown();
                 }
             });
-            XLog.logV("hookAMSShutdown OK");
+            XLog.logV("hookAMSShutdown OK:" + unHooks);
         } catch (Exception e) {
             XLog.logV("Fail hookAMSShutdown");
             xStatus = XStatus.ERROR;
@@ -269,7 +279,7 @@ class XModuleImpl extends XModuleAbs {
         try {
             Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService",
                     lpparam.classLoader);
-            XposedBridge.hookAllMethods(ams, "systemReady", new XC_MethodHook() {
+            Set unHooks = XposedBridge.hookAllMethods(ams, "systemReady", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
@@ -277,7 +287,7 @@ class XModuleImpl extends XModuleAbs {
                     mAppGuardService.setStatus(xStatus);
                 }
             });
-            XLog.logV("hookAMSSystemReady OK");
+            XLog.logV("hookAMSSystemReady OK:" + unHooks);
         } catch (Exception e) {
             XLog.logV("Fail hookAMSSystemReady");
             xStatus = XStatus.ERROR;
@@ -289,7 +299,7 @@ class XModuleImpl extends XModuleAbs {
         try {
             Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService",
                     lpparam.classLoader);
-            XposedBridge.hookAllMethods(ams, "start", new XC_MethodHook() {
+            Set unHooks = XposedBridge.hookAllMethods(ams, "start", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
@@ -298,7 +308,7 @@ class XModuleImpl extends XModuleAbs {
                     mAppGuardService.publish();
                 }
             });
-            XLog.logV("hookAMSStart OK");
+            XLog.logV("hookAMSStart OK:" + unHooks);
         } catch (Exception e) {
             XLog.logV("Fail hook hookAMSStart");
             xStatus = XStatus.ERROR;
@@ -314,7 +324,7 @@ class XModuleImpl extends XModuleAbs {
     private void hookFPService(XC_LoadPackage.LoadPackageParam lpparam) {
         XLog.logV("hookFPService...");
         try {
-            XposedBridge.hookAllMethods(
+            Set unHooks = XposedBridge.hookAllMethods(
                     XposedHelpers.findClass("com.android.server.fingerprint.FingerprintService",
                             lpparam.classLoader),
                     "canUseFingerprint", new XC_MethodHook() {
@@ -327,7 +337,7 @@ class XModuleImpl extends XModuleAbs {
                             }
                         }
                     });
-            XLog.logV("hookFPService OK");
+            XLog.logV("hookFPService OK:" + unHooks);
             mAppGuardService.publishFeature(XAppGuardManager.Feature.FP);
         } catch (Exception e) {
             XLog.logV("Fail hookFPService" + e);
@@ -379,7 +389,7 @@ class XModuleImpl extends XModuleAbs {
         try {
             Class clz = XposedHelpers.findClass("com.android.server.wm.WindowManagerService",
                     lpparam.classLoader);
-            XposedBridge.hookAllMethods(clz,
+            Set unHooks = XposedBridge.hookAllMethods(clz,
                     "screenshotApplications", new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -391,7 +401,7 @@ class XModuleImpl extends XModuleAbs {
                             }
                         }
                     });
-            XLog.logV("hookScreenshotApplications OK");
+            XLog.logV("hookScreenshotApplications OK:" + unHooks);
             mAppGuardService.publishFeature(XAppGuardManager.Feature.BLUR);
         } catch (Exception e) {
             XLog.logV("Fail hookScreenshotApplications:" + e);
@@ -430,10 +440,10 @@ class XModuleImpl extends XModuleAbs {
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             super.afterHookedMethod(param);
                             KeyEvent keyEvent = (KeyEvent) param.args[0];
-                            XLog.logV(keyEvent.getKeyCode());
                             if (keyEvent.getAction() == KeyEvent.ACTION_UP
                                     && (keyEvent.getKeyCode() == KeyEvent.KEYCODE_HOME
                                     || keyEvent.getKeyCode() == KeyEvent.KEYCODE_APP_SWITCH)) {
+                                XLog.logV("dispatchUnhandledKey: HOME/APP_SWITCH");
                                 mAppGuardService.onUserLeaving();
                             }
                         }
@@ -444,7 +454,6 @@ class XModuleImpl extends XModuleAbs {
             XLog.logV("Fail hookPWM:" + e);
         }
     }
-
 
     private void hookPackageInstaller(XC_LoadPackage.LoadPackageParam lpparam) {
         XLog.logV("hookPackageInstaller...");
@@ -462,6 +471,7 @@ class XModuleImpl extends XModuleAbs {
                                 boolean interrupt = interruptPackageRemoval(pkgName);
                                 if (interrupt) {
 
+                                    // FIXME Test fail by adb.
                                     // Send back result.
                                     IntentSender intentSender = (IntentSender) param.args[3];
                                     Intent filIn = new Intent();

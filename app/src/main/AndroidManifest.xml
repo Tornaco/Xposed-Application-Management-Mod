@@ -19,12 +19,13 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppThemeLight">
+
         <meta-data
             android:name="xposedmodule"
             android:value="true" />
         <meta-data
             android:name="xposeddescription"
-            android:value="Easy example which makes the status bar clock red and adds a smiley" />
+            android:value="Easy implementation of App guard" />
         <meta-data
             android:name="xposedminversion"
             android:value="53" />
@@ -48,6 +49,17 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.GuardAppNavActivityNoLauncher"
+            android:exported="true"
+            android:excludeFromRecents="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="de.robv.android.xposed.category.MODULE_SETTINGS" />
             </intent-filter>
         </activity>
 

@@ -25,6 +25,7 @@ public interface XKey {
     String VERIFY_ON_SCREEN_OFF = "verify_on_scroff";
     String THEME = "theme";
     String FIRST_RUN = "first_ru" + BuildConfig.VERSION_NAME;
+    String HIDE_APP_ICON = "key_hide_app_icon";
 
     String PIN_PAD_BTN_SIZE = "key_pin_pad_btn_size";
     String PIN_PAD_TEXT_SIZE = "key_pin_pad_text_size";

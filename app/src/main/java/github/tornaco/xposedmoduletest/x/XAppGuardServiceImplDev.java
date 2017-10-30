@@ -50,9 +50,8 @@ public class XAppGuardServiceImplDev extends XAppGuardServiceImpl {
     protected void enforceCallingPermissions() {
         // Skip permission check for DEV version.
         // super.enforceCallingPermissions();
-        XLog.logF("Skip permission check for DEV version");
+        XLog.logF("Dangerous!!! Skipping permission check for DEV version");
     }
-
 
     @Override
     protected void onMockCrash() {

@@ -1008,13 +1008,17 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
 
     private void onHomeInternal() {
         if (isVerifyOnHome()) {
+            XLog.logV("HOME, Clearing passed pkgs...");
             PASSED_PACKAGES.clear();
         }
         notifyWatcherUserLeaving("Home");
     }
 
     private void onScreenOff() {
-        if (isVerifyOnScreenOff()) PASSED_PACKAGES.clear();
+        if (isVerifyOnScreenOff()) {
+            XLog.logV("SCREEN OFF, Clearing passed pkgs...");
+            PASSED_PACKAGES.clear();
+        }
     }
 
     private static class TransactionFactory {

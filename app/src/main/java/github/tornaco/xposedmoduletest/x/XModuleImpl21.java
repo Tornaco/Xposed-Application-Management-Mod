@@ -15,10 +15,11 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 // http://androidxref.com/5.0.0_r2/xref/frameworks/base/services/core/java/com/android/server/am/ActivityStackSupervisor.java
 // void findTaskToMoveToFrontLocked(TaskRecord task, int flags, Bundle options)
-public class XModuleImpl21 extends XModuleImpl {
+class XModuleImpl21 extends XModuleImpl {
     @SuppressLint("PrivateApi")
     @Override
-    Method methodForTaskMover(XC_LoadPackage.LoadPackageParam lpparam) throws ClassNotFoundException, NoSuchMethodException {
+    Method methodForTaskMover(XC_LoadPackage.LoadPackageParam lpparam)
+            throws ClassNotFoundException, NoSuchMethodException {
         @SuppressLint("PrivateApi") Class taskRecordClass = Class.forName("com.android.server.am.TaskRecord", false, lpparam.classLoader);
         return Class.forName("com.android.server.am.ActivityStackSupervisor",
                 false, lpparam.classLoader)

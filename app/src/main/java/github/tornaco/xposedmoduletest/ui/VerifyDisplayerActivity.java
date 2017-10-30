@@ -66,6 +66,8 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private boolean mTakePhoto, mUsePatternLock;
 
+    private TextView mLabelView;
+
     private final Holder<String> mPsscode = new Holder<>();
 
     private CancellationSignal mCancellationSignal;
@@ -246,8 +248,8 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private void setupLabel() {
-        final TextView labelView = (TextView) findViewById(R.id.label);
-        labelView.setText(getString(R.string.input_password, ApkUtil.loadNameByPkgName(this, pkg)));
+        mLabelView = (TextView) findViewById(R.id.label);
+        mLabelView.setText(getString(R.string.input_password, ApkUtil.loadNameByPkgName(this, pkg)));
     }
 
     private void setupCamera() {
@@ -272,6 +274,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
                         public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
                             super.onAuthenticationHelp(helpMsgId, helpString);
                             Logger.i("onAuthenticationHelp:" + helpString);
+                            mLabelView.setText(helpString);
                         }
 
                         @Override
@@ -284,6 +287,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
                         public void onAuthenticationError(int errMsgId, CharSequence errString) {
                             super.onAuthenticationError(errMsgId, errString);
                             Logger.d("onAuthenticationError:" + errString);
+                            mLabelView.setText(errString);
                         }
                     });
         }
@@ -305,7 +309,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private void onPass() {
-        if (mResNotified) return;
+        if (testMode || mResNotified) return;
         mResNotified = true;
         if (mCancellationSignal != null) {
             mCancellationSignal.cancel();
@@ -321,7 +325,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private void onFail() {
-        if (mResNotified) return;
+        if (testMode || mResNotified) return;
         mResNotified = true;
         if (mCancellationSignal != null) {
             mCancellationSignal.cancel();

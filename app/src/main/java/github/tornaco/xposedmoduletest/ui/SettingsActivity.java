@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.ui;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerCompat;
+import github.tornaco.xposedmoduletest.x.XApp;
 import github.tornaco.xposedmoduletest.x.XAppBuildHostInfo;
 import github.tornaco.xposedmoduletest.x.XAppGithubCommitSha;
 import github.tornaco.xposedmoduletest.x.XAppGuardManager;
@@ -93,7 +95,6 @@ public class SettingsActivity extends BaseActivity {
             addPreferencesFromResource(R.xml.settings);
 
             boolean serviceAvailable = XAppGuardManager.from().isServiceConnected();
-
 
             SwitchPreference uninstallProPref = (SwitchPreference) findPreference(XKey.APP_UNINSTALL_PRO);
             if (serviceAvailable) {
@@ -266,6 +267,28 @@ public class SettingsActivity extends BaseActivity {
 
             findPreference(getString(R.string.dump_module))
                     .setSummary(XStatus.valueOf(XAppGuardManager.from().getStatus()).name());
+
+            SwitchPreference hideAppIcon = (SwitchPreference) findPreference(XKey.HIDE_APP_ICON);
+            hideAppIcon.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    boolean enabled = (boolean) newValue;
+                    XApp.getApp().hideAppIcon(enabled);
+                    ProgressDialog p = new ProgressDialog(getActivity());
+                    p.setMessage("Please wait...");
+                    p.setIndeterminate(true);
+                    p.setCancelable(false);
+                    p.show();
+                    BaseActivity b = (BaseActivity) getActivity();
+                    b.getUIThreadHandler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            getActivity().finishAffinity();
+                        }
+                    }, 8 * 1000);
+                    return true;
+                }
+            });
 
             SwitchPreference allow3rdVerifierPref = (SwitchPreference) findPreference(XKey.ALLOW_3RD_VERIFIER);
             allow3rdVerifierPref.setEnabled(serviceAvailable);
