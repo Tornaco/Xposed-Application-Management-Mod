@@ -1,3 +1,7 @@
+# TRAVIS
+
+[![Build Status](https://travis-ci.org/Tornaco/XAppGuard.svg?branch=master)](https://travis-ci.org/Tornaco/XAppGuard)
+
 # SDK for developers
 
 ## 1. What can developers do
