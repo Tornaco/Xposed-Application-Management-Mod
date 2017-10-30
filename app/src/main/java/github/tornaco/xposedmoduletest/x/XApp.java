@@ -59,4 +59,8 @@ public class XApp extends Application {
         pm.setComponentEnabledSetting(enabled, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
         pm.setComponentEnabledSetting(disabled, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
     }
+
+    public static boolean isBuildByMan() {
+        return false;
+    }
 }
