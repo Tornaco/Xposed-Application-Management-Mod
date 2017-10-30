@@ -6,9 +6,13 @@ import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.github.stuxuhai.jpinyin.PinyinException;
+import com.github.stuxuhai.jpinyin.PinyinHelper;
+
 import org.newstand.logger.Logger;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import github.tornaco.android.common.Collections;
@@ -84,6 +88,7 @@ public interface PackageLoader {
 
                 if (!guards.contains(p)) out.add(p);
             }
+            java.util.Collections.sort(out, new PinyinComparator());
 
             return out;
         }
@@ -101,6 +106,7 @@ public interface PackageLoader {
                     p.setAppName(String.valueOf(ApkUtil.loadNameByPkgName(context, s)));
                     if (TextUtils.isEmpty(p.getAppName())) return;
                     out.add(p);
+                    java.util.Collections.sort(out, new PinyinComparator());
                 }
             });
             return out;
@@ -110,6 +116,20 @@ public interface PackageLoader {
         @Override
         public List<PackageInfo> loadStoredGuarded() {
             return loadStored();
+        }
+    }
+
+    class PinyinComparator implements Comparator<PackageInfo> {
+        public int compare(PackageInfo o1, PackageInfo o2) {
+            int flag = 0;
+            try {
+                String str1 = PinyinHelper.getShortPinyin(String.valueOf(o1.getAppName()));
+                String str2 = PinyinHelper.getShortPinyin(String.valueOf(o2.getAppName()));
+                flag = str1.compareTo(str2);
+            } catch (PinyinException ignored) {
+            }
+
+            return flag;
         }
     }
 }

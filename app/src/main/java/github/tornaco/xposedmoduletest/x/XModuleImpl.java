@@ -61,6 +61,7 @@ class XModuleImpl extends XModuleAbs {
         hookFPService(lpparam);
         hookScreenshotApplications(lpparam);
         hookPWM(lpparam);
+        hookActivity(lpparam);
         hookPackageInstaller(lpparam);
         hookPackageManagerService(lpparam);
 
@@ -452,6 +453,26 @@ class XModuleImpl extends XModuleAbs {
             mAppGuardService.publishFeature(XAppGuardManager.Feature.HOME);
         } catch (Exception e) {
             XLog.logV("Fail hookPWM:" + e);
+        }
+    }
+
+    private void hookActivity(final XC_LoadPackage.LoadPackageParam lpparam) {
+        XLog.logV("hookActivity...");
+        try {
+            Class clz = XposedHelpers.findClass("android.app.Activity",
+                    lpparam.classLoader);
+            Set unHooks = XposedBridge.hookAllMethods(clz,
+                    "onResume", new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            super.afterHookedMethod(param);
+                            XLog.logV("onResume");
+                        }
+                    });
+            XLog.logV("hookActivity OK:" + unHooks);
+            mAppGuardService.publishFeature(XAppGuardManager.Feature.HOME);
+        } catch (Exception e) {
+            XLog.logV("Fail hookActivity:" + e);
         }
     }
 

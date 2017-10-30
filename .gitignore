@@ -64,3 +64,5 @@ freeline_project_description.json*.iml
 
 
 .idea/
+keys/keys_android.jks
+gradle.properties

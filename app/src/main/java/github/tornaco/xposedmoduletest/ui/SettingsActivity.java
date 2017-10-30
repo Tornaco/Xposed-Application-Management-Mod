@@ -275,7 +275,7 @@ public class SettingsActivity extends BaseActivity {
                     boolean enabled = (boolean) newValue;
                     XApp.getApp().hideAppIcon(enabled);
                     ProgressDialog p = new ProgressDialog(getActivity());
-                    p.setMessage("Please wait...");
+                    p.setMessage("&*^$%$(-)$##@%%%%^-^");
                     p.setIndeterminate(true);
                     p.setCancelable(false);
                     p.show();

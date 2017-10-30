@@ -12,10 +12,20 @@ android {
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("../keys/keys_android.jks")
+            storePassword project.hasProperty("KEYSTORE_PASS") ? KEYSTORE_PASS : System.getenv("KEYSTORE_PASS")
+            keyAlias project.hasProperty("ALIAS_NAME") ? ALIAS_NAME : System.getenv("ALIAS_NAME")
+            keyPassword project.hasProperty("ALIAS_PASS") ? ALIAS_PASS : System.getenv("ALIAS_PASS")
         }
     }
 
@@ -64,6 +74,8 @@ dependencies {
     compile "org.jsoup:jsoup:${rootProject.ext.jsoupVersion}"
     compile project(':vangoghcore')
     compile project(':pinlockview')
+    compile 'com.github.myinnos:AlphabetIndex-Fast-Scroll-RecyclerView:1.0.8'
+    compile 'com.github.SilenceDut:jpinyin:v1.0'
     compile 'com.andrognito.patternlockview:patternlockview:1.0.0'
     compile 'si.virag:fuzzydateformatter:1.1.0'
     compile 'com.google.android.gms:play-services-ads:11.0.4'

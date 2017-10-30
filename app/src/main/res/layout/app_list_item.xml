@@ -6,14 +6,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:layout_marginTop="2dp"
-    card_view:cardCornerRadius="1dp"
-    card_view:cardElevation="1dp">
+    card_view:cardCornerRadius="0dp"
+    card_view:cardElevation="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/list_item_margin"
         android:gravity="center_vertical"
         android:minHeight="@dimen/common_item_min_height"
         android:paddingEnd="?android:attr/scrollbarSize"

@@ -6,7 +6,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SectionIndexer;
 import android.widget.TextView;
+
+import com.github.stuxuhai.jpinyin.PinyinException;
+import com.github.stuxuhai.jpinyin.PinyinHelper;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,7 +29,8 @@ import tornaco.lib.widget.CheckableImageView;
  * Email: Tornaco@163.com
  */
 
-public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewHolder> {
+public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewHolder>
+        implements SectionIndexer {
 
     private Context context;
     private VangoghAppLoader vangoghAppLoader;
@@ -96,6 +101,41 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
     @Override
     public int getItemCount() {
         return packageInfos.size();
+    }
+
+    // For index.
+    private ArrayList<Integer> mSectionPositions;
+    // For index end.
+
+    @Override
+    public int getPositionForSection(int sectionIndex) {
+        return mSectionPositions.get(sectionIndex);
+    }
+
+    @Override
+    public int getSectionForPosition(int position) {
+        return 0;
+    }
+
+    @Override
+    public Object[] getSections() {
+        List<String> sections = new ArrayList<>(26);
+        mSectionPositions = new ArrayList<>(26);
+        for (int i = 0, size = packageInfos.size(); i < size; i++) {
+            String appName = String.valueOf(packageInfos.get(i).getAppName());
+            String section = "";
+            try {
+                section = String.valueOf(PinyinHelper
+                        .getShortPinyin(appName).charAt(0)).toUpperCase();
+            } catch (PinyinException ignored) {
+
+            }
+            if (!sections.contains(section)) {
+                sections.add(section);
+                mSectionPositions.add(i);
+            }
+        }
+        return sections.toArray(new String[0]);
     }
 
     static class AppViewHolder extends RecyclerView.ViewHolder {

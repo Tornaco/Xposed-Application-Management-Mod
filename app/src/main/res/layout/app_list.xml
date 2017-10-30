@@ -9,21 +9,19 @@
         android:id="@+id/switchbar"
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
-        android:background="@drawable/switchbar_background"
         android:layout_alignParentTop="true"
+        android:background="@drawable/switchbar_background"
         android:theme="?attr/switchBarTheme" />
 
-    <com.google.android.gms.ads.AdView
-        xmlns:ads="http://schemas.android.com/apk/res-auto"
+    <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
         android:id="@+id/adView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
         android:layout_below="@+id/switchbar"
-        ads:adSize="BANNER"
+        android:layout_centerHorizontal="true"
         android:visibility="gone"
-        ads:adUnitId="ca-app-pub-5643935235734454/6835426461">
-    </com.google.android.gms.ads.AdView>
+        ads:adSize="BANNER"
+        ads:adUnitId="ca-app-pub-5643935235734454/6835426461" />
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe"
@@ -31,14 +29,13 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/adView">
 
-        <android.support.v7.widget.RecyclerView
+        <in.myinnos.alphabetsindexfastscrollrecycler.IndexFastScrollRecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fadeScrollbars="true"
-            android:scrollbarStyle="insideInset"
-            android:scrollbars="vertical"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:setIndexBarColor="@color/grey_light"
+            app:setIndexBarTextColor="@color/black" />
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <android.support.design.widget.FloatingActionButton
