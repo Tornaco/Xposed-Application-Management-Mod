@@ -8,6 +8,7 @@ import github.tornaco.xposedmoduletest.BuildConfig;
  */
 
 public interface XKey {
+    String APP_UNINSTALL_PRO = "key_app_uninstall_pro_enabled";
     String LOCK_PATTERN_ENABLED = "key_lock_pattern_enabled";
     String CROP_CIRCLE_ENABLED = "key_crop_circle_enabled";
     String SHOW_APP_ICON_ENABLED = "show_app_icon_enabled";
@@ -24,6 +25,11 @@ public interface XKey {
     String VERIFY_ON_SCREEN_OFF = "verify_on_scroff";
     String THEME = "theme";
     String FIRST_RUN = "first_ru" + BuildConfig.VERSION_NAME;
+
+    String PIN_PAD_BTN_SIZE = "key_pin_pad_btn_size";
+    String PIN_PAD_TEXT_SIZE = "key_pin_pad_text_size";
+    String PIN_PAD_W = "key_pin_pad_w";
+    String PIN_PAD_H = "key_pin_pad_h";
 
     String EXTRA_PKG_NAME = "extra.pkg";
     String EXTRA_TRANS_ID = "extra.tid";

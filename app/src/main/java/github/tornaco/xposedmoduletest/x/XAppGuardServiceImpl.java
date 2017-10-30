@@ -57,6 +57,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     private static final String META_DATA_KEY_APP_GUARD_VERIFY_DISPLAYER = "app_guard_verify_displayer";
 
     private static final String SETTINGS_APP_GUARD_ENABLED = "settings_app_guard_enabled";
+    private static final String SETTINGS_APP_GUARD_UNINSTALL_PRO_ENABLED = "settings_app_guard_uninstall_pro_enabled";
     private static final String SETTINGS_APP_SCREENSHOT_BLUR_ENABLED = "settings_app_guard_app_screenshot_blur_enabled";
     private static final String SETTINGS_APP_SCREENSHOT_BLUR_SCALE = "settings_app_guard_app_screenshot_blur_sc";
     private static final String SETTINGS_APP_SCREENSHOT_BLUR_RADIUS = "settings_app_guard_app_screenshot_blur_ra";
@@ -71,8 +72,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     private static final long TRANSACTION_EXPIRE_TIME = 60 * 1000;
 
     private static final boolean DEBUG_V = true;
-
-    private static final String TAG = "XAppGuardServiceImpl";
 
     private static final int MSG_VERIFY_RES = 0x1;
     private static final int MSG_SET_ENABLED = 0x2;
@@ -92,6 +91,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     private static final int MSG_ON_HOME = 0x16;
     private static final int MSG_SET_VERIFY_ON_HOME = 0x17;
     private static final int MSG_SET_VERIFY_ON_SCREEN_OFF = 0x18;
+    private static final int MSG_SET_APP_UNINSTALL_PRO = 0x19;
     private static final int MSG_FUCK_YR_SELF = 0x1024;
     private static final int MSG_TRANSACTION_EXPIRE_BASE = 0x99;
 
@@ -99,6 +99,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     private Handler mHandler;
 
     private AtomicBoolean mEnabled = new AtomicBoolean(false);
+    private AtomicBoolean mUninstallProEnabled = new AtomicBoolean(false);
     private AtomicBoolean mVerifyOnHome = new AtomicBoolean(false);
     private AtomicBoolean mVerifyOnScreenOff = new AtomicBoolean(false);
     private AtomicBoolean mBlur = new AtomicBoolean(false);
@@ -174,6 +175,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     void attachContext(Context context) {
         if (DEBUG_V) XLog.logD("attachContext: " + context);
         this.mContext = context;
+    }
+
+    @Override
+    public Context getContext() {
+        return mContext;
     }
 
     void publish() {
@@ -265,8 +271,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     }
 
     @Override
-    boolean locked(String pkg) {
-        return !mEnabled.get() && WATCHED_PACKAGES.contains(pkg);
+    boolean interruptPackageRemoval(String pkg) {
+        return
+                BuildConfig.APPLICATION_ID.equals(pkg)
+                        ? isEnabled()
+                        : isEnabled() && WATCHED_PACKAGES.contains(pkg);
     }
 
     void verify(Bundle options, String pkg, int uid, int pid, VerifyListener listener) {
@@ -308,8 +317,12 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
 
     private void getConfigFromSettings() {
         ContentResolver contentResolver = mContext.getContentResolver();
+
         boolean enabled = (Settings.System.getInt(contentResolver, SETTINGS_APP_GUARD_ENABLED, 0) == 1);
         mEnabled.set(enabled);
+
+        boolean uninstallPro = (Settings.System.getInt(contentResolver, SETTINGS_APP_GUARD_UNINSTALL_PRO_ENABLED, 0) == 1);
+        mUninstallProEnabled.set(enabled);
 
         boolean verifyOnHome = (Settings.System.getInt(contentResolver, SETTINGS_VERIFY_ON_HOME, 0) == 1);
         mVerifyOnHome.set(enabled);
@@ -339,6 +352,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
         }
 
         if (DEBUG_V) XLog.logD("enabled:" + enabled);
+        if (DEBUG_V) XLog.logD("uninstallPro:" + uninstallPro);
         if (DEBUG_V) XLog.logD("blur:" + blur);
         if (DEBUG_V) XLog.logD("blurPolicy:" + blurPolicy);
         if (DEBUG_V) XLog.logD("mBlurScale:" + mBlurScale);
@@ -352,7 +366,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     }
 
     @Override
-    public boolean isEnabled() throws RemoteException {
+    public boolean isEnabled() {
         enforceCallingPermissions();
         return mEnabled.get();
     }
@@ -362,6 +376,34 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
         enforceCallingPermissions();
         if (DEBUG_V) XLog.logD("setEnabled:" + enabled + ", mEnabled:" + mEnabled.get());
         mHandler.obtainMessage(MSG_SET_ENABLED, enabled ? 1 : 0, 0, null).sendToTarget();
+    }
+
+
+    private void onSetEnabled(boolean enabled) {
+        if (DEBUG_V) XLog.logD("onSetEnabled:" + enabled);
+        if (mEnabled.compareAndSet(!enabled, enabled)) {
+            ContentResolver contentResolver = mContext.getContentResolver();
+            Settings.System.putInt(contentResolver, SETTINGS_APP_GUARD_ENABLED, enabled ? 1 : 0);
+        }
+    }
+
+    @Override
+    public boolean isUninstallInterruptEnabled() throws RemoteException {
+        return mUninstallProEnabled.get();
+    }
+
+    @Override
+    public void setUninstallInterruptEnabled(boolean enabled) throws RemoteException {
+        enforceCallingPermissions();
+        mHandler.obtainMessage(MSG_SET_APP_UNINSTALL_PRO, enabled ? 1 : 0, 0).sendToTarget();
+    }
+
+    private void onSetAppUninstallPro(boolean enabled) {
+        if (DEBUG_V) XLog.logD("onSetAppUninstallPro:" + enabled);
+        if (mUninstallProEnabled.compareAndSet(!enabled, enabled)) {
+            ContentResolver contentResolver = mContext.getContentResolver();
+            Settings.System.putInt(contentResolver, SETTINGS_APP_GUARD_UNINSTALL_PRO_ENABLED, enabled ? 1 : 0);
+        }
     }
 
     @Override
@@ -400,14 +442,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     public boolean isVerifyOnHome() {
         enforceCallingPermissions();
         return mVerifyOnHome.get();
-    }
-
-    private void onSetEnabled(boolean enabled) {
-        if (DEBUG_V) XLog.logD("onSetEnabled:" + enabled);
-        if (mEnabled.compareAndSet(!enabled, enabled)) {
-            ContentResolver contentResolver = mContext.getContentResolver();
-            Settings.System.putInt(contentResolver, SETTINGS_APP_GUARD_ENABLED, enabled ? 1 : 0);
-        }
     }
 
     @Override
@@ -860,6 +894,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
             case MSG_FUCK_YR_SELF:
                 onMockCrash();
                 return true;
+            case MSG_SET_APP_UNINSTALL_PRO:
+                onSetAppUninstallPro(msg.arg1 == 1);
+                return true;
             default:
                 int transaction = (int) msg.obj;
                 onSetResult(XMode.MODE_IGNORED, transaction);
@@ -907,6 +944,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
                 return "MSG_SET_VERIFY_ON_SCREEN_OFF";
             case MSG_FUCK_YR_SELF:
                 return "MSG_FUCK_YR_SELF";
+            case MSG_SET_APP_UNINSTALL_PRO:
+                return "MSG_SET_APP_UNINSTALL_PRO";
             default:
                 return "MSG_TRANSACTION_EXPIRE";
         }
@@ -961,8 +1000,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
                 + ", does not have permission to interact with XAppGuardServiceImpl");
     }
 
-    void onHome() {
-        super.onHome();
+    void onUserLeaving() {
+        super.onUserLeaving();
         // Skip when early startup.
         if (mHandler != null) mHandler.obtainMessage(MSG_ON_HOME).sendToTarget();
     }

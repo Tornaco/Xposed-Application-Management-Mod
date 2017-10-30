@@ -63,4 +63,11 @@
     <string name="summary_can_not_hook_home">无法Hook home，功能不可用</string>
     <string name="title_crop_enabled">裁剪成圆形图标</string>
     <string name="title_show_app_icon">显示应用图标</string>
+    <string name="verifier_settings">视图调节</string>
+    <string name="title_width">宽度</string>
+    <string name="title_height">高度</string>
+    <string name="title_btn_size">按钮大小</string>
+    <string name="title_text_size">文字大小</string>
+    <string name="title_app_uninstall_pro">阻止卸载</string>
+    <string name="summary_app_uninstall_pro">阻止任何方式（adb/installer）卸载已经加锁的应用，而且如果想卸载AppGuard必须先禁用应用锁</string>
 </resources>

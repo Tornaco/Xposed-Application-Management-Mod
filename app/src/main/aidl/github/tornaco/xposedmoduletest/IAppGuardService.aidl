@@ -9,6 +9,9 @@ interface IAppGuardService {
     boolean isEnabled();
     void setEnabled(boolean enabled);
 
+    boolean isUninstallInterruptEnabled();
+    void setUninstallInterruptEnabled(boolean enabled);
+
     void setVerifyOnScreenOff(boolean ver);
     boolean isVerifyOnScreenOff();
 

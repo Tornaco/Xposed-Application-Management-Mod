@@ -64,7 +64,7 @@ public class GuardAppNavActivity extends LockedActivity {
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            XSettings.setFirstRun(getApplicationContext(), false);
+                            XSettings.setFirstRun(getApplicationContext());
                         }
                     })
                     .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {

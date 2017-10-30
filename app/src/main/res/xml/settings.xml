@@ -51,6 +51,10 @@
             android:key="key_crop_circle_enabled"
             android:title="@string/title_crop_enabled" />
 
+        <!--<Preference-->
+        <!--android:key="@string/verifier_settings"-->
+        <!--android:title="@string/verifier_settings" />-->
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/title_advance">
@@ -86,6 +90,12 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/title_exp">
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="key_app_uninstall_pro_enabled"
+            android:summary="@string/summary_app_uninstall_pro"
+            android:title="@string/title_app_uninstall_pro" />
+
 
         <SwitchPreference
             android:defaultValue="false"

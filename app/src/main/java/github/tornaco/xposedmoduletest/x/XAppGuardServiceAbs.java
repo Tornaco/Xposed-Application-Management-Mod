@@ -45,17 +45,21 @@ abstract class XAppGuardServiceAbs extends IAppGuardService.Stub {
         return true;
     }
 
-    boolean locked(String pkg) {
+    boolean interruptPackageRemoval(String pkg) {
         return false;
     }
 
     void verify(Bundle options, String pkg, int uid, int pid, XAppGuardServiceImpl.VerifyListener listener) {
     }
 
-    void onHome() {
+    void onUserLeaving() {
     }
 
     boolean isBlurForPkg(String pkg) {
         return false;
+    }
+
+    public Context getContext() {
+        return null;
     }
 }

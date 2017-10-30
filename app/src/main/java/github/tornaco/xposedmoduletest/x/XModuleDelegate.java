@@ -4,7 +4,6 @@ import android.os.Build;
 import android.support.annotation.Keep;
 
 import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 /**
@@ -15,10 +14,6 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 public class XModuleDelegate extends XModuleAbs {
 
     private XModuleAbs mImpl;
-
-    @Override
-    public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resparam) throws Throwable {
-    }
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -50,7 +45,7 @@ public class XModuleDelegate extends XModuleAbs {
                 mImpl = new XModuleImpl21();
                 break;
             default:
-                mImpl = new XModuleNotSupport();
+                mImpl = new XModuleEmpty();
                 break;
         }
 

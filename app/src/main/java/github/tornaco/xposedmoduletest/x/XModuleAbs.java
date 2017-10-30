@@ -1,6 +1,5 @@
 package github.tornaco.xposedmoduletest.x;
 
-import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
 
@@ -9,6 +8,5 @@ import de.robv.android.xposed.IXposedHookZygoteInit;
  * Email: Tornaco@163.com
  */
 
-abstract class XModuleAbs implements IXposedHookLoadPackage, IXposedHookZygoteInit,
-        IXposedHookInitPackageResources {
+abstract class XModuleAbs implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 }

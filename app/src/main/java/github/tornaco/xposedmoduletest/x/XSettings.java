@@ -4,6 +4,8 @@ import android.content.Context;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 
+import org.newstand.logger.Logger;
+
 import java.io.File;
 import java.util.Observable;
 
@@ -100,12 +102,12 @@ public class XSettings extends Observable {
                 .getBoolean(XKey.FIRST_RUN, true);
     }
 
-    public static boolean setFirstRun(Context context, boolean firstRun) {
+    public static boolean setFirstRun(Context context) {
         boolean first = isFirstRun(context);
-        if (first != firstRun) {
+        if (first) {
             PreferenceManager.getDefaultSharedPreferences(context)
                     .edit()
-                    .putBoolean(XKey.FIRST_RUN, firstRun)
+                    .putBoolean(XKey.FIRST_RUN, false)
                     .apply();
         }
         return first;
@@ -114,5 +116,55 @@ public class XSettings extends Observable {
     public static Themes getThemes(Context c) {
         return Themes.valueOfChecked(PreferenceManager.getDefaultSharedPreferences(c)
                 .getString(XKey.THEME, Themes.DEFAULT.name()));
+    }
+
+    public static int getPinLockBtnSize(Context context, int def) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(XKey.PIN_PAD_BTN_SIZE, def);
+    }
+
+    public static int getPinLockTextSize(Context context, int def) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(XKey.PIN_PAD_TEXT_SIZE, def);
+    }
+
+    public static int getPinLockW(Context context, int def) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(XKey.PIN_PAD_W, def);
+    }
+
+    public static int getPinLockH(Context context, int def) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(XKey.PIN_PAD_H, def);
+    }
+
+    public static void setPinLockBtnSize(Context context, int size) {
+        Logger.d("setPinLockBtnSize:" + size);
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putInt(XKey.PIN_PAD_BTN_SIZE, size)
+                .apply();
+    }
+
+    public static void setPinLockTextSize(Context context, int size) {
+        Logger.d("setPinLockTextSize:" + size);
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putInt(XKey.PIN_PAD_TEXT_SIZE, size)
+                .apply();
+    }
+
+    public static void setPinLockW(Context context, int size) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putInt(XKey.PIN_PAD_W, size)
+                .apply();
+    }
+
+    public static void setPinLockH(Context context, int size) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putInt(XKey.PIN_PAD_H, size)
+                .apply();
     }
 }

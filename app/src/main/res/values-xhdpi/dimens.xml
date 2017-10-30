@@ -38,6 +38,6 @@
     <dimen name="focus_outer_stroke">3dp</dimen>
     <dimen name="focus_inner_stroke">2dp</dimen>
 
-    <dimen name="keypad_btn_size_full">90dp</dimen>
-    <dimen name="keypad_text_size_full">25dp</dimen>
+    <dimen name="keypad_btn_size_full">66dp</dimen>
+    <dimen name="keypad_text_size_full">20dp</dimen>
 </resources>

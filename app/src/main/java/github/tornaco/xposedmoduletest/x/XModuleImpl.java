@@ -6,6 +6,11 @@ import android.app.ActivityManagerNative;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
+import android.content.pm.IPackageDeleteObserver;
+import android.content.pm.IPackageDeleteObserver2;
+import android.content.pm.PackageInstaller;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -20,7 +25,6 @@ import java.util.Set;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
-import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.apigen.GithubCommitSha;
 import github.tornaco.xposedmoduletest.BuildConfig;
@@ -58,6 +62,7 @@ class XModuleImpl extends XModuleAbs {
         hookScreenshotApplications(lpparam);
         hookPWM(lpparam);
         hookPackageInstaller(lpparam);
+        hookPackageManagerService(lpparam);
 
         stopWatch.stop();
     }
@@ -414,7 +419,7 @@ class XModuleImpl extends XModuleAbs {
         stopWatch.stop();
     }
 
-    private void hookPWM(XC_LoadPackage.LoadPackageParam lpparam) {
+    private void hookPWM(final XC_LoadPackage.LoadPackageParam lpparam) {
         XLog.logV("hookPWM...");
         try {
             Class clz = XposedHelpers.findClass("com.android.server.policy.PhoneWindowManager",
@@ -425,9 +430,11 @@ class XModuleImpl extends XModuleAbs {
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             super.afterHookedMethod(param);
                             KeyEvent keyEvent = (KeyEvent) param.args[0];
+                            XLog.logV(keyEvent.getKeyCode());
                             if (keyEvent.getAction() == KeyEvent.ACTION_UP
-                                    && keyEvent.getKeyCode() == KeyEvent.KEYCODE_HOME) {
-                                mAppGuardService.onHome();
+                                    && (keyEvent.getKeyCode() == KeyEvent.KEYCODE_HOME
+                                    || keyEvent.getKeyCode() == KeyEvent.KEYCODE_APP_SWITCH)) {
+                                mAppGuardService.onUserLeaving();
                             }
                         }
                     });
@@ -449,10 +456,28 @@ class XModuleImpl extends XModuleAbs {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
-                            XLog.logV("uninstall pkg:" + param.args[0]);
-                            boolean verify = mAppGuardService.locked((String) param.args[0]);
-                            if (verify) {
-                                param.setResult(null);
+                            try {
+                                String pkgName = (String) param.args[0];
+                                XLog.logV("PackageInstallerService uninstall pkg:" + pkgName);
+                                boolean interrupt = interruptPackageRemoval(pkgName);
+                                if (interrupt) {
+
+                                    // Send back result.
+                                    IntentSender intentSender = (IntentSender) param.args[3];
+                                    Intent filIn = new Intent();
+                                    filIn.putExtra(PackageInstaller.EXTRA_PACKAGE_NAME, pkgName);
+                                    filIn.putExtra(PackageInstaller.EXTRA_STATUS,
+                                            PackageManager.deleteStatusToPublicStatus(PackageManager.DELETE_FAILED_ABORTED));
+                                    filIn.putExtra(PackageInstaller.EXTRA_STATUS_MESSAGE,
+                                            PackageManager.deleteStatusToString(PackageManager.DELETE_FAILED_ABORTED));
+                                    filIn.putExtra(PackageInstaller.EXTRA_LEGACY_STATUS, PackageManager.DELETE_FAILED_ABORTED);
+                                    intentSender.sendIntent(mAppGuardService.getContext(), 0, filIn, null, null);
+
+                                    param.setResult(null);
+                                    XLog.logV("PackageInstallerService interruptPackageRemoval");
+                                }
+                            } catch (Exception e) {
+                                XLog.logV("Fail uninstall:" + e);
                             }
                         }
                     });
@@ -463,6 +488,48 @@ class XModuleImpl extends XModuleAbs {
         }
     }
 
+    private void hookPackageManagerService(XC_LoadPackage.LoadPackageParam lpparam) {
+        XLog.logV("hookPackageManagerService...");
+        try {
+            Class clz = XposedHelpers.findClass("com.android.server.pm.PackageManagerService",
+                    lpparam.classLoader);
+            Set unHooks = XposedBridge.hookAllMethods(clz,
+                    "deletePackageAsUser", new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            super.beforeHookedMethod(param);
+                            try {
+                                String pkgName = (String) param.args[0];
+                                XLog.logV("PackageManagerService deletePackageAsUser pkg:" + pkgName);
+                                boolean interrupt = interruptPackageRemoval(pkgName);
+                                if (interrupt) {
+                                    Object oo = param.args[1];
+                                    XLog.logV("deletePackageAsUser ob:" + oo);
+                                    if (oo instanceof IPackageDeleteObserver2) {
+                                        IPackageDeleteObserver2 observer2 = (IPackageDeleteObserver2) oo;
+                                        observer2.onPackageDeleted(pkgName, PackageManager.DELETE_FAILED_ABORTED, null);
+                                    } else if (oo instanceof IPackageDeleteObserver) {
+                                        IPackageDeleteObserver observer = (IPackageDeleteObserver) oo;
+                                        observer.packageDeleted(pkgName, PackageManager.DELETE_FAILED_ABORTED);
+                                    }
+                                    param.setResult(null);
+                                    XLog.logV("PackageManagerService interruptPackageRemoval");
+                                }
+                            } catch (Exception e) {
+                                XLog.logV("Fail deletePackageAsUser:" + e);
+                            }
+                        }
+                    });
+            XLog.logV("hookPackageManagerService OK:" + unHooks);
+            mAppGuardService.publishFeature(XAppGuardManager.Feature.HOME);
+        } catch (Exception e) {
+            XLog.logV("Fail hookPackageManagerService:" + e);
+        }
+    }
+
+    private boolean interruptPackageRemoval(String pkgName) {
+        return mAppGuardService.interruptPackageRemoval(pkgName);
+    }
 
     @Override
     public void initZygote(StartupParam startupParam) throws Throwable {
@@ -473,10 +540,5 @@ class XModuleImpl extends XModuleAbs {
         return intent != null
                 && intent.getCategories() != null
                 && intent.getCategories().contains("android.intent.category.HOME");
-    }
-
-    @Override
-    public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resparam) throws Throwable {
-
     }
 }

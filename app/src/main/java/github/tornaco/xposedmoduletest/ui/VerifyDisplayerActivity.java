@@ -11,7 +11,6 @@ import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.os.CancellationSignal;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
@@ -58,10 +57,12 @@ import static github.tornaco.xposedmoduletest.x.XKey.EXTRA_TRANS_ID;
  * Email: Tornaco@163.com
  */
 
-public class VerifyDisplayerActivity extends AppCompatActivity {
+public class VerifyDisplayerActivity extends BaseActivity {
 
     private String pkg;
     private int tid;
+
+    private boolean testMode;
 
     private boolean mTakePhoto, mUsePatternLock;
 
@@ -83,6 +84,7 @@ public class VerifyDisplayerActivity extends AppCompatActivity {
         Intent intent = new Intent(c, VerifyDisplayerActivity.class);
         intent.putExtra(EXTRA_PKG_NAME, c.getPackageName());
         intent.putExtra(EXTRA_TRANS_ID, 1024);
+        intent.putExtra("extra.test", true);
         c.startActivity(intent);
     }
 
@@ -120,7 +122,7 @@ public class VerifyDisplayerActivity extends AppCompatActivity {
         setTitle(null);
 
         // Check if our passcode has been set.
-        if (!XEnc.isPassCodeValid(mPsscode.getData())) {
+        if (!testMode && !XEnc.isPassCodeValid(mPsscode.getData())) {
             Logger.w("Pass code not valid, ignoring...");
             Toast.makeText(this, R.string.summary_setup_passcode_none_set, Toast.LENGTH_SHORT).show();
             onPass();
@@ -357,7 +359,8 @@ public class VerifyDisplayerActivity extends AppCompatActivity {
         pkg = intent.getStringExtra(EXTRA_PKG_NAME);
         tid = intent.getIntExtra(XKey.EXTRA_TRANS_ID, -1);
         Logger.d("after resolveIntent: %s, %s", pkg, tid);
-        return pkg != null && tid > 0;
+        testMode = intent.getBooleanExtra("extra.test", false);
+        return (pkg != null && tid > 0) || testMode;
     }
 
     @Override

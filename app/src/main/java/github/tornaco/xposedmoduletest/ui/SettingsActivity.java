@@ -10,8 +10,6 @@ import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -34,7 +32,7 @@ import github.tornaco.xposedmoduletest.x.XStatus;
  * Email: Tornaco@163.com
  */
 @RuntimePermissions
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,10 +42,10 @@ public class SettingsActivity extends AppCompatActivity {
                 new SettingsFragment()).commitAllowingStateLoss();
     }
 
-    protected void showHomeAsUp() {
+    @Override
+    public void showHomeAsUp() {
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) actionBar.setDisplayHomeAsUpEnabled(true);
+        super.showHomeAsUp();
     }
 
     @Override
@@ -96,6 +94,23 @@ public class SettingsActivity extends AppCompatActivity {
 
             boolean serviceAvailable = XAppGuardManager.from().isServiceConnected();
 
+
+            SwitchPreference uninstallProPref = (SwitchPreference) findPreference(XKey.APP_UNINSTALL_PRO);
+            if (serviceAvailable) {
+                uninstallProPref.setChecked(XAppGuardManager.from().isUninstallInterruptEnabled());
+                uninstallProPref
+                        .setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                            @Override
+                            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                                boolean enabled = (boolean) newValue;
+                                XAppGuardManager.from().setUninstallInterruptEnabled(enabled);
+                                return true;
+                            }
+                        });
+            } else {
+                uninstallProPref.setEnabled(false);
+            }
+
             if (serviceAvailable) findPreference(getString(R.string.crash_module))
                     .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                         @Override
@@ -105,26 +120,6 @@ public class SettingsActivity extends AppCompatActivity {
                         }
                     });
             else findPreference(getString(R.string.crash_module)).setEnabled(false);
-
-            Preference homePref = findPreference(XKey.VERIFY_ON_HOME);
-            homePref.setEnabled(serviceAvailable);
-            boolean canHookHome = XAppGuardManager.from().hasFeature(XAppGuardManager.Feature.HOME);
-            if (serviceAvailable && canHookHome) {
-                homePref
-                        .setOnPreferenceChangeListener(new Preference
-                                .OnPreferenceChangeListener() {
-                            @Override
-                            public boolean onPreferenceChange(Preference preference,
-                                                              Object newValue) {
-                                XSettings.get().setChangedL();
-                                XSettings.get().notifyObservers();
-                                return true;
-                            }
-                        });
-            } else if (serviceAvailable) {
-                homePref.setSummary(R.string.summary_can_not_hook_home);
-                homePref.setEnabled(false);
-            }
 
             // Below is very ugly:() =.=
             final Preference passcodePref = findPreference(getString(R.string.title_setup_passcode));
@@ -259,6 +254,15 @@ public class SettingsActivity extends AppCompatActivity {
                             return true;
                         }
                     });
+
+//            findPreference(getString(R.string.verifier_settings))
+//                    .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+//                        @Override
+//                        public boolean onPreferenceClick(Preference preference) {
+//                            startActivity(new Intent(getActivity(), VerifyDisplayerSettingsActivity.class));
+//                            return true;
+//                        }
+//                    });
 
             findPreference(getString(R.string.dump_module))
                     .setSummary(XStatus.valueOf(XAppGuardManager.from().getStatus()).name());

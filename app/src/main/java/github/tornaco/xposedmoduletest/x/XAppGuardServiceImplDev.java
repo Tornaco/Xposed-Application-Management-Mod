@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.x;
 
 import android.os.Bundle;
+import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -32,6 +33,17 @@ public class XAppGuardServiceImplDev extends XAppGuardServiceImpl {
                 + Log.getStackTraceString(e);
         XposedBridge.log(logMsg);
         XLog.logD(logMsg);
+    }
+
+    @Override
+    public boolean handleMessage(final Message msg) {
+        makeSafeCall(new Call() {
+            @Override
+            public void onCall() throws Throwable {
+                XAppGuardServiceImplDev.super.handleMessage(msg);
+            }
+        });
+        return true;
     }
 
     @Override
@@ -254,11 +266,21 @@ public class XAppGuardServiceImplDev extends XAppGuardServiceImpl {
     }
 
     @Override
-    void onHome() {
+    void onUserLeaving() {
         makeSafeCall(new Call() {
             @Override
             public void onCall() throws Throwable {
-                XAppGuardServiceImplDev.super.onHome();
+                XAppGuardServiceImplDev.super.onUserLeaving();
+            }
+        });
+    }
+
+    @Override
+    public void setUninstallInterruptEnabled(final boolean enabled) throws RemoteException {
+        makeSafeCall(new Call() {
+            @Override
+            public void onCall() throws Throwable {
+                XAppGuardServiceImplDev.super.setUninstallInterruptEnabled(enabled);
             }
         });
     }

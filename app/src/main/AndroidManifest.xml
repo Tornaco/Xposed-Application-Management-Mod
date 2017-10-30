@@ -67,6 +67,13 @@
             android:excludeFromRecents="true"
             android:label="@string/title_view_photos" />
 
+
+        <activity
+            android:name=".ui.VerifyDisplayerSettingsActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_default_verifyer"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}.provider"

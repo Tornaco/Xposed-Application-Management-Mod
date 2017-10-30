@@ -16,7 +16,7 @@ import github.tornaco.xposedmoduletest.IAppGuardService;
 public class XAppGuardManager {
 
     static final String ACTION_APP_GUARD_VERIFY_DISPLAYER
-            = "github.tornaco.xpose.app.locked.action.verify.displayer";
+            = "github.tornaco.xpose.app.interruptPackageRemoval.action.verify.displayer";
 
     static final String APP_GUARD_SERVICE = "user.appguard";
 
@@ -43,8 +43,6 @@ public class XAppGuardManager {
             }
         }
     }
-
-    public static final long TRANSACTION_EXPIRE_TIME = 60 * 1000;
 
     private static XAppGuardManager sMe;
 
@@ -364,6 +362,24 @@ public class XAppGuardManager {
         try {
             mService.mockCrash();
         } catch (RemoteException ignored) {
+        }
+    }
+
+    public boolean isUninstallInterruptEnabled() {
+        if (!isServiceConnected()) return false;
+        try {
+            return mService.isUninstallInterruptEnabled();
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+        return false;
+    }
+
+    public void setUninstallInterruptEnabled(boolean enabled) {
+        try {
+            mService.setUninstallInterruptEnabled(enabled);
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
         }
     }
 }

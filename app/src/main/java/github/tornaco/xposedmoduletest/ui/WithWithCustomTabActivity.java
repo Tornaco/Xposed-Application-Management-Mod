@@ -3,7 +3,6 @@ package github.tornaco.xposedmoduletest.ui;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 
 import com.novoda.simplechromecustomtabs.SimpleChromeCustomTabs;
 import com.novoda.simplechromecustomtabs.navigation.IntentCustomizer;
@@ -17,7 +16,7 @@ import github.tornaco.xposedmoduletest.R;
  * Email: Tornaco@163.com
  */
 
-public abstract class WithWithCustomTabActivity extends AppCompatActivity {
+public abstract class WithWithCustomTabActivity extends BaseActivity {
 
     private final IntentCustomizer intentCustomizer = new IntentCustomizer() {
         @Override

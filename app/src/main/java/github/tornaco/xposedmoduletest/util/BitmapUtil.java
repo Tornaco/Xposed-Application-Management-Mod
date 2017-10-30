@@ -7,9 +7,9 @@ import android.graphics.Bitmap;
  * Email: Tornaco@163.com
  */
 
-public abstract class BitmapUtil {
+abstract class BitmapUtil {
 
-    public static Bitmap convertToBlackWhite(Bitmap bmp) {
+    static Bitmap convertToBlackWhite(Bitmap bmp) {
         int width = bmp.getWidth();
         int height = bmp.getHeight();
         int[] pixels = new int[width * height];

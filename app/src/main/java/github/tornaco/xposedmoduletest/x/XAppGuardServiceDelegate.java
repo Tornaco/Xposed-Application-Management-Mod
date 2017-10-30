@@ -21,6 +21,11 @@ class XAppGuardServiceDelegate extends XAppGuardServiceAbs {
     }
 
     @Override
+    public Context getContext() {
+        return mImpl.getContext();
+    }
+
+    @Override
     public String commitDate() {
         return mImpl.commitDate();
     }
@@ -66,8 +71,8 @@ class XAppGuardServiceDelegate extends XAppGuardServiceAbs {
     }
 
     @Override
-    public void onHome() {
-        mImpl.onHome();
+    public void onUserLeaving() {
+        mImpl.onUserLeaving();
     }
 
     @Override
@@ -83,6 +88,16 @@ class XAppGuardServiceDelegate extends XAppGuardServiceAbs {
     @Override
     public void setEnabled(boolean enabled) throws RemoteException {
         mImpl.setEnabled(enabled);
+    }
+
+    @Override
+    public boolean isUninstallInterruptEnabled() throws RemoteException {
+        return mImpl.isUninstallInterruptEnabled();
+    }
+
+    @Override
+    public void setUninstallInterruptEnabled(boolean enabled) throws RemoteException {
+        mImpl.setUninstallInterruptEnabled(enabled);
     }
 
     @Override
@@ -233,5 +248,10 @@ class XAppGuardServiceDelegate extends XAppGuardServiceAbs {
     @Override
     public void mockCrash() throws RemoteException {
         mImpl.mockCrash();
+    }
+
+    @Override
+    boolean interruptPackageRemoval(String pkg) {
+        return mImpl.interruptPackageRemoval(pkg);
     }
 }
