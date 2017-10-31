@@ -23,8 +23,8 @@ import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerComp
 import github.tornaco.xposedmoduletest.x.XApp;
 import github.tornaco.xposedmoduletest.x.XAppBuildHostInfo;
 import github.tornaco.xposedmoduletest.x.XAppGithubCommitSha;
-import github.tornaco.xposedmoduletest.x.XAppGuardManager;
-import github.tornaco.xposedmoduletest.x.XEnc;
+import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.x.secure.XEnc;
 import github.tornaco.xposedmoduletest.x.XKey;
 import github.tornaco.xposedmoduletest.x.XSettings;
 import github.tornaco.xposedmoduletest.x.XStatus;

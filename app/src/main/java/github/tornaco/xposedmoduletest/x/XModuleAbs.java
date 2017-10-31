@@ -8,5 +8,5 @@ import de.robv.android.xposed.IXposedHookZygoteInit;
  * Email: Tornaco@163.com
  */
 
-abstract class XModuleAbs implements IXposedHookLoadPackage, IXposedHookZygoteInit {
+public abstract class XModuleAbs implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 }

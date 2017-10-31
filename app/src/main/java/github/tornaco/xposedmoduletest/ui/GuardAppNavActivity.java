@@ -21,8 +21,8 @@ import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.loader.PackageLoader;
 import github.tornaco.xposedmoduletest.ui.adapter.AppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.x.XAppGuardManager;
-import github.tornaco.xposedmoduletest.x.XExecutor;
+import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.x.util.XExecutor;
 import github.tornaco.xposedmoduletest.x.XSettings;
 import in.myinnos.alphabetsindexfastscrollrecycler.IndexFastScrollRecyclerView;
 

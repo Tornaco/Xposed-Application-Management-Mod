@@ -19,7 +19,7 @@ import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.android.common.util.ApkUtil;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
-import github.tornaco.xposedmoduletest.x.XAppGuardManager;
+import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
 
 /**
  * Created by guohao4 on 2017/10/18.

@@ -42,12 +42,12 @@ import github.tornaco.xposedmoduletest.camera.CameraManager;
 import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerCompat;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
-import github.tornaco.xposedmoduletest.x.XAppGuardManager;
-import github.tornaco.xposedmoduletest.x.XEnc;
+import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.x.secure.XEnc;
 import github.tornaco.xposedmoduletest.x.XKey;
-import github.tornaco.xposedmoduletest.x.XMode;
+import github.tornaco.xposedmoduletest.x.app.XMode;
 import github.tornaco.xposedmoduletest.x.XSettings;
-import github.tornaco.xposedmoduletest.x.XWatcherMainThreadAdapter;
+import github.tornaco.xposedmoduletest.x.app.XWatcherMainThreadAdapter;
 
 import static github.tornaco.xposedmoduletest.x.XKey.EXTRA_PKG_NAME;
 import static github.tornaco.xposedmoduletest.x.XKey.EXTRA_TRANS_ID;

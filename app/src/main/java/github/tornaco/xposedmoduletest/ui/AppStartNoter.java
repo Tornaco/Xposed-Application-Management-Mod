@@ -35,8 +35,8 @@ import github.tornaco.android.common.Holder;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.camera.CameraManager;
 import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerCompat;
-import github.tornaco.xposedmoduletest.x.XEnc;
-import github.tornaco.xposedmoduletest.x.XMode;
+import github.tornaco.xposedmoduletest.x.secure.XEnc;
+import github.tornaco.xposedmoduletest.x.app.XMode;
 import github.tornaco.xposedmoduletest.x.XSettings;
 
 /**

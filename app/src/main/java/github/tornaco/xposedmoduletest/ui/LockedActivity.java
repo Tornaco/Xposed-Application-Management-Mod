@@ -7,7 +7,7 @@ import android.support.annotation.Nullable;
 import org.newstand.logger.Logger;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.x.XMode;
+import github.tornaco.xposedmoduletest.x.app.XMode;
 
 /**
  * Created by guohao4 on 2017/10/21.

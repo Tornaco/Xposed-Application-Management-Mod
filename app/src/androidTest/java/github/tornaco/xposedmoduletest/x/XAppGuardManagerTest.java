@@ -5,6 +5,8 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
+
 import static java.lang.Thread.sleep;
 
 /**

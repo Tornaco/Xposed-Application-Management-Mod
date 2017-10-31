@@ -52,7 +52,7 @@ import github.tornaco.xposedmoduletest.bean.AccessInfo;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.x.XApp;
-import github.tornaco.xposedmoduletest.x.XExecutor;
+import github.tornaco.xposedmoduletest.x.util.XExecutor;
 import github.tornaco.xposedmoduletest.x.XSettings;
 
 /**

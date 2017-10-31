@@ -13,8 +13,8 @@ import github.tornaco.xposedmoduletest.loader.PackageLoader;
 import github.tornaco.xposedmoduletest.ui.adapter.AppListAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.AppPickerListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.x.XAppGuardManager;
-import github.tornaco.xposedmoduletest.x.XExecutor;
+import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.x.util.XExecutor;
 
 public class GuardAppPickerActivity extends GuardAppNavActivity {
 

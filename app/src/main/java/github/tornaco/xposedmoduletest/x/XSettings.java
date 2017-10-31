@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.Observable;
 
 import github.tornaco.xposedmoduletest.ui.Themes;
+import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
 
 /**
  * Created by guohao4 on 2017/10/19.
@@ -18,7 +19,6 @@ import github.tornaco.xposedmoduletest.ui.Themes;
 
 public class XSettings extends Observable {
 
-    static final int PASSCODE_LEVEL = 4;
 
     private static XSettings sMe = new XSettings();
 

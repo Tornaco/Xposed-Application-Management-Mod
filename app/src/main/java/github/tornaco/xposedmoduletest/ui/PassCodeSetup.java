@@ -17,7 +17,7 @@ import com.andrognito.pinlockview.PinLockView;
 import org.newstand.logger.Logger;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.x.XEnc;
+import github.tornaco.xposedmoduletest.x.secure.XEnc;
 import github.tornaco.xposedmoduletest.x.XSettings;
 
 /**

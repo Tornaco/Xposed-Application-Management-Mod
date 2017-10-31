@@ -21,7 +21,7 @@ import dev.tornaco.vangogh.display.appliers.FadeOutFadeInApplier;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
-import github.tornaco.xposedmoduletest.x.XAppGuardManager;
+import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
 import tornaco.lib.widget.CheckableImageView;
 
 /**

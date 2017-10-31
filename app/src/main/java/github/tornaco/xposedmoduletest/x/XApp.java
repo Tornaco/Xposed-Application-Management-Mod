@@ -15,6 +15,7 @@ import github.tornaco.apigen.GithubCommitSha;
 import github.tornaco.xposedmoduletest.license.XActivation;
 import github.tornaco.xposedmoduletest.ui.GuardAppNavActivity;
 import github.tornaco.xposedmoduletest.ui.GuardAppNavActivityNoLauncher;
+import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
 
 /**
  * Created by guohao4 on 2017/10/17.
