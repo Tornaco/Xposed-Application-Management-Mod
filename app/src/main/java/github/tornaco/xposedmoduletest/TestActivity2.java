@@ -14,6 +14,7 @@ public class TestActivity2 extends AppCompatActivity {
         setContentView(R.layout.keyguard_pattern_view);
         KeyguardPatternView keyguardPatternView = (KeyguardPatternView) findViewById(R.id.keyguard_pattern_view);
         keyguardPatternView.setKeyguardCallback(new KeyguardSecurityCallback() {
+
             @Override
             public void dismiss(boolean securityVerified) {
 
@@ -30,7 +31,7 @@ public class TestActivity2 extends AppCompatActivity {
             }
 
             @Override
-            public void reportUnlockAttempt(int userId, boolean success, int timeoutMs) {
+            public void reportUnlockAttempt(boolean success) {
 
             }
 

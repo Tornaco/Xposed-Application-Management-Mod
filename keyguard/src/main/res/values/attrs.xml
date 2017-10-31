@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2006 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2006 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -21,7 +20,7 @@
 
 <resources>
     <declare-styleable name="KeyguardSecurityViewFlipper_Layout">
-        <attr name="layout_maxWidth" format="dimension"/>
+        <attr name="layout_maxWidth" format="dimension" />
         <attr name="layout_maxHeight" format="dimension" />
     </declare-styleable>
 
@@ -57,7 +56,7 @@
         <!-- The error color -->
         <attr name="errorColor" format="color|reference" />
         <!-- The success color -->
-        <attr name="successColor" format="color|reference"/>
+        <attr name="successColor" format="color|reference" />
     </declare-styleable>
 
 

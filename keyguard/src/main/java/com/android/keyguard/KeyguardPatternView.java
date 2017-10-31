@@ -18,7 +18,6 @@ package com.android.keyguard;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.AsyncTask;
-import android.os.CountDownTimer;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -63,7 +62,6 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
     private final DisappearAnimationUtils mDisappearAnimationUtils;
     private final DisappearAnimationUtils mDisappearAnimationUtilsLocked;
 
-    private CountDownTimer mCountdownTimer = null;
     private AsyncTask<?, ?, ?> mPendingLockCheck;
     private LockPatternView mLockPatternView;
     private KeyguardSecurityCallback mCallback;
@@ -105,15 +103,15 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
         mAppearAnimationUtils = new AppearAnimationUtils(context,
                 AppearAnimationUtils.DEFAULT_APPEAR_DURATION, 1.5f /* translationScale */,
                 2.0f /* delayScale */, AnimationUtils.loadInterpolator(
-                mContext, android.R.interpolator.linear_out_slow_in));
+                context, android.R.interpolator.linear_out_slow_in));
         mDisappearAnimationUtils = new DisappearAnimationUtils(context,
                 125, 1.2f /* translationScale */,
                 0.6f /* delayScale */, AnimationUtils.loadInterpolator(
-                mContext, android.R.interpolator.fast_out_linear_in));
+                context, android.R.interpolator.fast_out_linear_in));
         mDisappearAnimationUtilsLocked = new DisappearAnimationUtils(context,
                 (long) (125 * DISAPPEAR_MULTIPLIER_LOCKED), 1.2f /* translationScale */,
                 0.6f /* delayScale */, AnimationUtils.loadInterpolator(
-                mContext, android.R.interpolator.fast_out_linear_in));
+                context, android.R.interpolator.fast_out_linear_in));
     }
 
     @Override
@@ -257,29 +255,6 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
         return getContext().getString(msgId);
     }
 
-    private void handleAttemptLockout(long elapsedRealtimeDeadline) {
-        mLockPatternView.clearPattern();
-        mLockPatternView.setEnabled(false);
-        final long elapsedRealtime = SystemClock.elapsedRealtime();
-
-        mCountdownTimer = new CountDownTimer(elapsedRealtimeDeadline - elapsedRealtime, 1000) {
-
-            @Override
-            public void onTick(long millisUntilFinished) {
-                final int secondsRemaining = (int) (millisUntilFinished / 1000);
-                mSecurityMessageDisplay.setMessage(
-                        R.string.kg_too_many_failed_attempts_countdown, true, secondsRemaining);
-            }
-
-            @Override
-            public void onFinish() {
-                mLockPatternView.setEnabled(true);
-                displayDefaultSecurityMessage();
-            }
-
-        }.start();
-    }
-
     @Override
     public boolean needsInput() {
         return false;
@@ -287,10 +262,6 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
 
     @Override
     public void onPause() {
-        if (mCountdownTimer != null) {
-            mCountdownTimer.cancel();
-            mCountdownTimer = null;
-        }
         if (mPendingLockCheck != null) {
             mPendingLockCheck.cancel(false);
             mPendingLockCheck = null;
@@ -310,26 +281,8 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
     @Override
     public void showPromptReason(int reason) {
         switch (reason) {
-            case PROMPT_REASON_RESTART:
-                mSecurityMessageDisplay.setMessage(R.string.kg_prompt_reason_restart_pattern,
-                        true /* important */);
-                break;
-            case PROMPT_REASON_TIMEOUT:
-                mSecurityMessageDisplay.setMessage(R.string.kg_prompt_reason_timeout_pattern,
-                        true /* important */);
-                break;
-            case PROMPT_REASON_DEVICE_ADMIN:
-                mSecurityMessageDisplay.setMessage(R.string.kg_prompt_reason_device_admin,
-                        true /* important */);
-                break;
-            case PROMPT_REASON_USER_REQUEST:
-                mSecurityMessageDisplay.setMessage(R.string.kg_prompt_reason_user_request,
-                        true /* important */);
-                break;
-            case PROMPT_REASON_NONE:
-                break;
             default:
-                mSecurityMessageDisplay.setMessage(R.string.kg_prompt_reason_timeout_pattern,
+                mSecurityMessageDisplay.setMessage(R.string.kg_enter_confirm_pin_hint,
                         true /* important */);
                 break;
         }

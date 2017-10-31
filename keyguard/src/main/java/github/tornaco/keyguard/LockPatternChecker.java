@@ -41,7 +41,7 @@ public final class LockPatternChecker {
         AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
             @Override
             protected Boolean doInBackground(Void... args) {
-                return false;
+                return true;
             }
 
             @Override
@@ -67,7 +67,7 @@ public final class LockPatternChecker {
 
             @Override
             protected Boolean doInBackground(Void... args) {
-                return false;
+                return true;
             }
 
             @Override
@@ -97,7 +97,7 @@ public final class LockPatternChecker {
 
             @Override
             protected Boolean doInBackground(Void... args) {
-                return false;
+                return true;
             }
 
             @Override
@@ -119,11 +119,10 @@ public final class LockPatternChecker {
             final String password,
             final OnCheckCallback callback) {
         AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
-            private int mThrottleTimeout;
 
             @Override
             protected Boolean doInBackground(Void... args) {
-                return false;
+                return true;
             }
 
             @Override

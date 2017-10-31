@@ -18,8 +18,6 @@ package com.android.keyguard;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.CountDownTimer;
-import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
@@ -38,7 +36,6 @@ public abstract class KeyguardAbsKeyInputView extends LinearLayout
     protected SecurityMessageDisplay mSecurityMessageDisplay;
     protected boolean mEnableHaptics;
     private boolean mDismissing;
-    private int mMaxCountdownTimes = 0;
 
     // To avoid accidental lockout due to events while the device in in the pocket, ignore
     // any passwords with length less than or equal to this length.
@@ -73,9 +70,6 @@ public abstract class KeyguardAbsKeyInputView extends LinearLayout
     protected void onFinishInflate() {
         super.onFinishInflate();
         mSecurityMessageDisplay = KeyguardMessageArea.findSecurityMessageDisplay(this);
-
-        mMaxCountdownTimes = mContext.getResources()
-                .getInteger(R.integer.config_max_unlock_countdown_times);
     }
 
     /*
@@ -143,26 +137,6 @@ public abstract class KeyguardAbsKeyInputView extends LinearLayout
 
     protected abstract void setPasswordEntryInputEnabled(boolean enabled);
 
-    // Prevent user from using the PIN/Password entry until scheduled deadline.
-    protected void handleAttemptLockout(long elapsedRealtimeDeadline) {
-        setPasswordEntryEnabled(false);
-        long elapsedRealtime = SystemClock.elapsedRealtime();
-        new CountDownTimer(elapsedRealtimeDeadline - elapsedRealtime, 1000) {
-
-            @Override
-            public void onTick(long millisUntilFinished) {
-                int secondsRemaining = (int) (millisUntilFinished / 1000);
-                mSecurityMessageDisplay.setMessage(
-                        R.string.kg_too_many_failed_attempts_countdown, true, secondsRemaining);
-            }
-
-            @Override
-            public void onFinish() {
-                mSecurityMessageDisplay.setMessage("", false);
-                resetState();
-            }
-        }.start();
-    }
 
     protected String getMessageWithCount(int msgId) {
         return getContext().getString(msgId);

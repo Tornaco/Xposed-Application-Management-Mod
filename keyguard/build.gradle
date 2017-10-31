@@ -26,6 +26,5 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.anggrayudi:android-hidden-api:0.0.7'
     compile project(':settingslib')
 }

@@ -33,8 +33,6 @@ import android.os.Debug;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
-import android.os.UserHandle;
-import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.IntArray;
 import android.util.Log;
@@ -543,21 +541,18 @@ public class LockPatternView extends View {
     }
 
     private void notifyPatternStarted() {
-        sendAccessEvent(R.string.lockscreen_access_pattern_start);
         if (mOnPatternListener != null) {
             mOnPatternListener.onPatternStart();
         }
     }
 
     private void notifyPatternDetected() {
-        sendAccessEvent(R.string.lockscreen_access_pattern_detected);
         if (mOnPatternListener != null) {
             mOnPatternListener.onPatternDetected(mPattern);
         }
     }
 
     private void notifyPatternCleared() {
-        sendAccessEvent(R.string.lockscreen_access_pattern_cleared);
         if (mOnPatternListener != null) {
             mOnPatternListener.onPatternCleared();
         }
@@ -967,10 +962,6 @@ public class LockPatternView extends View {
             invalidate(mInvalidate);
             mInvalidate.set(mTmpInvalidateRect);
         }
-    }
-
-    private void sendAccessEvent(int resId) {
-        announceForAccessibility(mContext.getString(resId));
     }
 
     private void handleActionUp() {
@@ -1455,13 +1446,7 @@ public class LockPatternView extends View {
         }
 
         private boolean shouldSpeakPassword() {
-            final boolean speakPassword = Settings.Secure.getIntForUser(
-                    mContext.getContentResolver(), Settings.Secure.ACCESSIBILITY_SPEAK_PASSWORD, 0,
-                    UserHandle.USER_CURRENT_OR_SELF) != 0;
-            final boolean hasHeadphones = mAudioManager != null ?
-                    (mAudioManager.isWiredHeadsetOn() || mAudioManager.isBluetoothA2dpOn())
-                    : false;
-            return speakPassword || hasHeadphones;
+            return false;
         }
 
         private CharSequence getTextForVirtualView(int virtualViewId) {
