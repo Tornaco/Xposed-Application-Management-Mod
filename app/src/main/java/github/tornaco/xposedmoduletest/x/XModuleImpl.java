@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.x;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
+import android.app.PackageDeleteObserver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -493,16 +494,15 @@ class XModuleImpl extends XModuleAbs {
                                 if (interrupt) {
 
                                     // FIXME Test fail by adb.
-                                    // Send back result.
-                                    IntentSender intentSender = (IntentSender) param.args[3];
-                                    Intent filIn = new Intent();
-                                    filIn.putExtra(PackageInstaller.EXTRA_PACKAGE_NAME, pkgName);
-                                    filIn.putExtra(PackageInstaller.EXTRA_STATUS,
-                                            PackageManager.deleteStatusToPublicStatus(PackageManager.DELETE_FAILED_ABORTED));
-                                    filIn.putExtra(PackageInstaller.EXTRA_STATUS_MESSAGE,
-                                            PackageManager.deleteStatusToString(PackageManager.DELETE_FAILED_ABORTED));
-                                    filIn.putExtra(PackageInstaller.EXTRA_LEGACY_STATUS, PackageManager.DELETE_FAILED_ABORTED);
-                                    intentSender.sendIntent(mAppGuardService.getContext(), 0, filIn, null, null);
+                                    final Context context = (Context) XposedHelpers.getObjectField(param.thisObject, "mContext");
+                                    String callingPkgName = (String) param.args[1];
+                                    int userID = (int) param.args[4];
+//                                    DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+//                                    boolean isDeviceOwner = dpm != null && dpm.isDeviceOwnerAppOnCallingUser(callingPkgName);
+                                    IntentSender statusReceiver = (IntentSender) param.args[3];
+                                    PackageDeleteObserverAdapter observerAdapter =
+                                            new PackageDeleteObserverAdapter(context, statusReceiver, pkgName, userID);
+                                    observerAdapter.onPackageDeleted(pkgName, PackageManager.DELETE_FAILED_ABORTED, null);
 
                                     param.setResult(null);
                                     XLog.logV("PackageInstallerService interruptPackageRemoval");
@@ -571,5 +571,48 @@ class XModuleImpl extends XModuleAbs {
         return intent != null
                 && intent.getCategories() != null
                 && intent.getCategories().contains("android.intent.category.HOME");
+    }
+
+    static class PackageDeleteObserverAdapter extends PackageDeleteObserver {
+
+        private final Context mContext;
+        private final IntentSender mTarget;
+        private final String mPackageName;
+
+        PackageDeleteObserverAdapter(Context context, IntentSender target,
+                                     String packageName, int userId) {
+            mContext = context;
+            mTarget = target;
+            mPackageName = packageName;
+        }
+
+        @Override
+        public void onUserActionRequired(Intent intent) {
+            final Intent fillIn = new Intent();
+            fillIn.putExtra(PackageInstaller.EXTRA_PACKAGE_NAME, mPackageName);
+            fillIn.putExtra(PackageInstaller.EXTRA_STATUS,
+                    PackageInstaller.STATUS_PENDING_USER_ACTION);
+            fillIn.putExtra(Intent.EXTRA_INTENT, intent);
+            try {
+                mTarget.sendIntent(mContext, 0, fillIn, null, null);
+            } catch (IntentSender.SendIntentException ignored) {
+            }
+        }
+
+        @Override
+        public void onPackageDeleted(String basePackageName, int returnCode, String msg) {
+            final Intent fillIn = new Intent();
+            fillIn.putExtra(PackageInstaller.EXTRA_PACKAGE_NAME, mPackageName);
+            fillIn.putExtra(PackageInstaller.EXTRA_STATUS,
+                    PackageManager.deleteStatusToPublicStatus(returnCode));
+            fillIn.putExtra(PackageInstaller.EXTRA_STATUS_MESSAGE,
+                    PackageManager.deleteStatusToString(returnCode, msg));
+            fillIn.putExtra(PackageInstaller.EXTRA_LEGACY_STATUS, returnCode);
+            try {
+                mTarget.sendIntent(mContext, 0, fillIn, null, null);
+            } catch (IntentSender.SendIntentException ignored) {
+                XLog.logF("SendIntentException:" + Log.getStackTraceString(ignored));
+            }
+        }
     }
 }

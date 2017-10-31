@@ -98,6 +98,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     private Context mContext;
     private Handler mHandler;
 
+    private boolean isSafeMode;
+
     private AtomicBoolean mEnabled = new AtomicBoolean(false);
     private AtomicBoolean mUninstallProEnabled = new AtomicBoolean(false);
     private AtomicBoolean mVerifyOnHome = new AtomicBoolean(false);
@@ -194,11 +196,16 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
 
     void systemReady() {
         if (DEBUG_V) XLog.logD("systemReady: " + Binder.getCallingUid());
+        checkSafeMode();
         construct();
         getConfigFromSettings();
         loadPackages();
         registerReceiver();
         cacheUIDForPackages();
+    }
+
+    private void checkSafeMode() {
+        isSafeMode = mContext.getPackageManager().isSafeMode();
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -262,8 +269,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     }
 
     boolean passed(String pkg) {
-        return !mEnabled.get()
-                && (!TextUtils.isEmpty(mPasscode))
+        return !isEnabled()
+                || (TextUtils.isEmpty(mPasscode))
                 || PREBUILT_WHITE_LIST.contains(pkg)
                 || PASSED_PACKAGES.contains(pkg)
                 || VERIFIER_PACKAGES.containsKey(pkg)
@@ -305,7 +312,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
             mContext.startActivity(intent, bnds);
         } catch (ActivityNotFoundException anf) {
             XLog.logD("*** FATAL ERROR *** ActivityNotFoundException!!!");
-            setResult(tid, XMode.MODE_IGNORED);
+            setResult(tid, XMode.MODE_ALLOWED);
         }
     }
 
@@ -325,11 +332,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
         mUninstallProEnabled.set(enabled);
 
         boolean verifyOnHome = (Settings.System.getInt(contentResolver, SETTINGS_VERIFY_ON_HOME, 0) == 1);
-        mVerifyOnHome.set(enabled);
+        mVerifyOnHome.set(verifyOnHome);
 
         // Default is 1.
         boolean verifyOnScreenOff = (Settings.System.getInt(contentResolver, SETTINGS_VERIFY_ON_SCREEN_OFF, 1) == 1);
-        mVerifyOnScreenOff.set(enabled);
+        mVerifyOnScreenOff.set(verifyOnScreenOff);
 
         boolean blur = (Settings.System.getInt(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_ENABLED, 0) == 1);
         mBlur.set(blur);
@@ -368,7 +375,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     @Override
     public boolean isEnabled() {
         enforceCallingPermissions();
-        return mEnabled.get();
+        return !isSafeMode && mEnabled.get();
     }
 
     @Override
@@ -826,9 +833,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
 
     private static Intent buildVerifyIntent(boolean allow3rd, int transId, String pkg) {
         Intent intent = new Intent(ACTION_APP_GUARD_VERIFY_DISPLAYER);
-        if (!allow3rd)
-            intent.setClassName(BuildConfig.APPLICATION_ID,
-                    "github.tornaco.xposedmoduletest.ui.VerifyDisplayerActivity");
+        intent.setClassName(BuildConfig.APPLICATION_ID,
+                "github.tornaco.xposedmoduletest.ui.VerifyDisplayerActivity");
         intent.putExtra(XKey.EXTRA_PKG_NAME, pkg);
         intent.putExtra(XKey.EXTRA_TRANS_ID, transId);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

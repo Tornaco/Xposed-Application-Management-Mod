@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The y translation to apply at the start in appear animations. -->
+    <dimen name="appear_y_translation_start">32dp</dimen>
+
+    <!-- The translation for disappearing security views after having solved them. -->
+    <dimen name="disappear_y_translation">-32dp</dimen>
+</resources>
