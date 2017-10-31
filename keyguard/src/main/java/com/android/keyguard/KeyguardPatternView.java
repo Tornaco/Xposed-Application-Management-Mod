@@ -31,8 +31,8 @@ import android.widget.LinearLayout;
 
 import java.util.List;
 
+import github.tornaco.keyguard.BuildConfig;
 import github.tornaco.keyguard.LockPatternChecker;
-import github.tornaco.keyguard.LockPatternUtils;
 import github.tornaco.keyguard.LockPatternView;
 import github.tornaco.keyguard.R;
 import github.tornaco.settingslib.animation.AppearAnimationCreator;
@@ -43,7 +43,7 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
         AppearAnimationCreator<LockPatternView.CellState> {
 
     private static final String TAG = "SecurityPatternView";
-    private static final boolean DEBUG = KeyguardConstants.DEBUG;
+    private static final boolean DEBUG = BuildConfig.DEBUG;
 
     // how long before we clear the wrong pattern
     private static final int PATTERN_CLEAR_TIMEOUT_MS = 2000;
@@ -57,12 +57,13 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
     // How much we scale up the duration of the disappear animation when the current user is locked
     public static final float DISAPPEAR_MULTIPLIER_LOCKED = 1.5f;
 
+    private static final int MIN_PATTERN_REGISTER_FAIL = 4;
+
     private final AppearAnimationUtils mAppearAnimationUtils;
     private final DisappearAnimationUtils mDisappearAnimationUtils;
     private final DisappearAnimationUtils mDisappearAnimationUtilsLocked;
 
     private CountDownTimer mCountdownTimer = null;
-    private LockPatternUtils mLockPatternUtils;
     private AsyncTask<?, ?, ?> mPendingLockCheck;
     private LockPatternView mLockPatternView;
     private KeyguardSecurityCallback mCallback;
@@ -87,9 +88,7 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
     };
     private Rect mTempRect = new Rect();
     private KeyguardMessageArea mSecurityMessageDisplay;
-    private int mMaxCountdownTimes;
     private ViewGroup mContainer;
-    private int mDisappearYTranslation;
 
     enum FooterMode {
         Normal,
@@ -115,8 +114,6 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
                 (long) (125 * DISAPPEAR_MULTIPLIER_LOCKED), 1.2f /* translationScale */,
                 0.6f /* delayScale */, AnimationUtils.loadInterpolator(
                 mContext, android.R.interpolator.fast_out_linear_in));
-        mDisappearYTranslation = getResources().getDimensionPixelSize(
-                R.dimen.disappear_y_translation);
     }
 
     @Override
@@ -125,17 +122,8 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
     }
 
     @Override
-    public void setLockPatternUtils(LockPatternUtils utils) {
-        mLockPatternUtils = utils;
-    }
-
-    @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        mMaxCountdownTimes = mContext.getResources()
-                .getInteger(R.integer.config_max_unlock_countdown_times);
-        mLockPatternUtils = mLockPatternUtils == null
-                ? new LockPatternUtils(mContext) : mLockPatternUtils;
 
         mLockPatternView = (LockPatternView) findViewById(R.id.lockPatternView);
         mLockPatternView.setSaveEnabled(false);
@@ -144,7 +132,7 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
         setFocusableInTouchMode(true);
 
         // vibrate mode will be the same for the life of this screen
-        mLockPatternView.setTactileFeedbackEnabled(mLockPatternUtils.isTactileFeedbackEnabled());
+        mLockPatternView.setTactileFeedbackEnabled(true);
 
         mSecurityMessageDisplay =
                 (KeyguardMessageArea) KeyguardMessageArea.findSecurityMessageDisplay(this);
@@ -172,7 +160,7 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
     @Override
     public void reset() {
         // reset lock pattern
-        mLockPatternView.setInStealthMode(!mLockPatternUtils.isVisiblePatternEnabled());
+        mLockPatternView.setInStealthMode(false);
         mLockPatternView.enableInput();
         mLockPatternView.setEnabled(true);
         mLockPatternView.clearPattern();
@@ -194,7 +182,6 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
      */
     public void cleanUp() {
         if (DEBUG) Log.v(TAG, "Cleanup() called on " + this);
-        mLockPatternUtils = null;
         mLockPatternView.setOnPatternListener(null);
     }
 
@@ -222,29 +209,23 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
                 mPendingLockCheck.cancel(false);
             }
 
-            if (pattern.size() < LockPatternUtils.MIN_PATTERN_REGISTER_FAIL) {
+            if (pattern.size() < MIN_PATTERN_REGISTER_FAIL) {
                 mLockPatternView.enableInput();
-                onPatternChecked(false, 0, false /* not valid - too short */);
+                onPatternChecked(false, false /* not valid - too short */);
                 return;
             }
 
             mPendingLockCheck = LockPatternChecker.checkPattern(
-                    mLockPatternUtils,
                     pattern,
                     new LockPatternChecker.OnCheckCallback() {
 
-                        @Override
-                        public void onEarlyMatched() {
-                            onPatternChecked(true /* matched */, 0 /* timeoutMs */,
-                                    true /* isValidPattern */);
-                        }
 
                         @Override
-                        public void onChecked(boolean matched, int timeoutMs) {
+                        public void onChecked(boolean matched) {
                             mLockPatternView.enableInput();
                             mPendingLockCheck = null;
                             if (!matched) {
-                                onPatternChecked(false /* matched */, timeoutMs,
+                                onPatternChecked(false /* matched */,
                                         true /* isValidPattern */);
                             }
                         }
@@ -254,23 +235,20 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
             }
         }
 
-        private void onPatternChecked(boolean matched, int timeoutMs,
+        private void onPatternChecked(boolean matched,
                                       boolean isValidPattern) {
             if (matched) {
-                mLockPatternUtils.sanitizePassword();
-                mCallback.reportUnlockAttempt(true, 0);
+                mCallback.reportUnlockAttempt(true);
                 mLockPatternView.setDisplayMode(LockPatternView.DisplayMode.Correct);
                 mCallback.dismiss(true);
             } else {
                 mLockPatternView.setDisplayMode(LockPatternView.DisplayMode.Wrong);
                 if (isValidPattern) {
-                    mCallback.reportUnlockAttempt(false, timeoutMs);
+                    mCallback.reportUnlockAttempt(false);
                 }
-                if (timeoutMs == 0) {
-                    mSecurityMessageDisplay.
-                            setMessage(getMessageWithCount(R.string.kg_wrong_pattern), true);
-                    mLockPatternView.postDelayed(mCancelPatternRunnable, PATTERN_CLEAR_TIMEOUT_MS);
-                }
+                mSecurityMessageDisplay.
+                        setMessage(getMessageWithCount(R.string.kg_wrong_pattern), true);
+                mLockPatternView.postDelayed(mCancelPatternRunnable, PATTERN_CLEAR_TIMEOUT_MS);
             }
         }
     }

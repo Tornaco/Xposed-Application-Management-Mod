@@ -26,7 +26,6 @@ import android.view.KeyEvent;
 import android.widget.LinearLayout;
 
 import github.tornaco.keyguard.LockPatternChecker;
-import github.tornaco.keyguard.LockPatternUtils;
 import github.tornaco.keyguard.R;
 
 /**
@@ -35,7 +34,6 @@ import github.tornaco.keyguard.R;
 public abstract class KeyguardAbsKeyInputView extends LinearLayout
         implements KeyguardSecurityView {
     protected KeyguardSecurityCallback mCallback;
-    protected LockPatternUtils mLockPatternUtils;
     protected AsyncTask<?, ?, ?> mPendingLockCheck;
     protected SecurityMessageDisplay mSecurityMessageDisplay;
     protected boolean mEnableHaptics;
@@ -60,12 +58,6 @@ public abstract class KeyguardAbsKeyInputView extends LinearLayout
     }
 
     @Override
-    public void setLockPatternUtils(LockPatternUtils utils) {
-        mLockPatternUtils = utils;
-        mEnableHaptics = mLockPatternUtils.isTactileFeedbackEnabled();
-    }
-
-    @Override
     public void reset() {
         // start fresh
         mDismissing = false;
@@ -80,7 +72,6 @@ public abstract class KeyguardAbsKeyInputView extends LinearLayout
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        mLockPatternUtils = new LockPatternUtils(mContext);
         mSecurityMessageDisplay = KeyguardMessageArea.findSecurityMessageDisplay(this);
 
         mMaxCountdownTimes = mContext.getResources()
@@ -109,47 +100,36 @@ public abstract class KeyguardAbsKeyInputView extends LinearLayout
             // to avoid accidental lockout, only count attempts that are long enough to be a
             // real password. This may require some tweaking.
             setPasswordEntryInputEnabled(true);
-            onPasswordChecked(false /* matched */, 0, false /* not valid - too short */);
+            onPasswordChecked(false /* matched */, false /* not valid - too short */);
             return;
         }
 
         mPendingLockCheck = LockPatternChecker.checkPassword(
-                mLockPatternUtils,
                 entry,
                 new LockPatternChecker.OnCheckCallback() {
 
-                    @Override
-                    public void onEarlyMatched() {
-                        onPasswordChecked(true /* matched */, 0 /* timeoutMs */,
-                                true /* isValidPassword */);
-                    }
 
                     @Override
-                    public void onChecked(boolean matched, int timeoutMs) {
+                    public void onChecked(boolean matched) {
                         setPasswordEntryInputEnabled(true);
                         mPendingLockCheck = null;
                         if (!matched) {
-                            onPasswordChecked(false /* matched */, timeoutMs,
+                            onPasswordChecked(false /* matched */,
                                     true /* isValidPassword */);
                         }
                     }
                 });
     }
 
-    private void onPasswordChecked(boolean matched, int timeoutMs,
+    private void onPasswordChecked(boolean matched,
                                    boolean isValidPassword) {
         if (matched) {
-            mLockPatternUtils.sanitizePassword();
-            mCallback.reportUnlockAttempt(true, 0);
+            mCallback.reportUnlockAttempt(true);
             mDismissing = true;
             mCallback.dismiss(true);
         } else {
             if (isValidPassword) {
-                mCallback.reportUnlockAttempt(false, timeoutMs);
-            }
-            if (timeoutMs == 0) {
-                String msg = getMessageWithCount(getWrongPasswordStringId());
-                mSecurityMessageDisplay.setMessage(msg, true);
+                mCallback.reportUnlockAttempt(false);
             }
         }
         resetPasswordText(true /* animate */, !matched /* announce deletion if no match */);

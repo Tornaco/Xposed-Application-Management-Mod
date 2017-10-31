@@ -31,7 +31,7 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ViewFlipper;
 
-import github.tornaco.keyguard.LockPatternUtils;
+import github.tornaco.keyguard.BuildConfig;
 import github.tornaco.keyguard.R;
 
 /**
@@ -40,7 +40,7 @@ import github.tornaco.keyguard.R;
  */
 public class KeyguardSecurityViewFlipper extends ViewFlipper implements KeyguardSecurityView {
     private static final String TAG = "SecurityViewFlipper";
-    private static final boolean DEBUG = KeyguardConstants.DEBUG;
+    private static final boolean DEBUG = BuildConfig.DEBUG;
 
     private Rect mTempRect = new Rect();
 
@@ -81,14 +81,6 @@ public class KeyguardSecurityViewFlipper extends ViewFlipper implements Keyguard
         KeyguardSecurityView ksv = getSecurityView();
         if (ksv != null) {
             ksv.setKeyguardCallback(callback);
-        }
-    }
-
-    @Override
-    public void setLockPatternUtils(LockPatternUtils utils) {
-        KeyguardSecurityView ksv = getSecurityView();
-        if (ksv != null) {
-            ksv.setLockPatternUtils(utils);
         }
     }
 

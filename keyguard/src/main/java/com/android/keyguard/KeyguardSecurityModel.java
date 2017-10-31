@@ -18,14 +18,10 @@ package com.android.keyguard;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 
-import github.tornaco.keyguard.LockPatternUtils;
-
 public class KeyguardSecurityModel {
 
     /**
      * The different types of security available.
-     *
-     * @see KeyguardSecurityContainer#showSecurityScreen
      */
     public enum SecurityMode {
         Invalid, // NULL state
@@ -36,19 +32,9 @@ public class KeyguardSecurityModel {
     }
 
     private final Context mContext;
-    private final boolean mIsPukScreenAvailable;
-
-    private LockPatternUtils mLockPatternUtils;
 
     KeyguardSecurityModel(Context context) {
         mContext = context;
-        mLockPatternUtils = new LockPatternUtils(context);
-        mIsPukScreenAvailable = mContext.getResources().getBoolean(
-                com.android.internal.R.bool.config_enable_puk_unlock_screen);
-    }
-
-    void setLockPatternUtils(LockPatternUtils utils) {
-        mLockPatternUtils = utils;
     }
 
     SecurityMode getSecurityMode() {

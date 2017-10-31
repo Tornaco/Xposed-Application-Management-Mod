@@ -16,8 +16,6 @@
 package com.android.keyguard;
 
 
-import github.tornaco.keyguard.LockPatternUtils;
-
 public interface KeyguardSecurityView {
     static public final int SCREEN_ON = 1;
     static public final int VIEW_REVEALED = 2;
@@ -55,13 +53,6 @@ public interface KeyguardSecurityView {
      * @param callback
      */
     void setKeyguardCallback(KeyguardSecurityCallback callback);
-
-    /**
-     * Set {@link LockPatternUtils} object. Useful for providing a mock interface.
-     *
-     * @param utils
-     */
-    void setLockPatternUtils(LockPatternUtils utils);
 
     /**
      * Reset the view and prepare to take input. This should do things like clearing the

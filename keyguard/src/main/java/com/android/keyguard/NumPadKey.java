@@ -29,7 +29,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import github.tornaco.keyguard.LockPatternUtils;
 import github.tornaco.keyguard.R;
 
 public class NumPadKey extends ViewGroup {
@@ -93,7 +92,7 @@ public class NumPadKey extends ViewGroup {
         setOnHoverListener(new LiftToActivateListener(context));
         setAccessibilityDelegate(new ObscureSpeechDelegate(context));
 
-        mEnableHaptics = new LockPatternUtils(context).isTactileFeedbackEnabled();
+        mEnableHaptics = true;//FIXME Read.
         mPM = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
