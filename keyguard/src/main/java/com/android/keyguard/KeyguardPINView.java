@@ -49,7 +49,6 @@ public class KeyguardPINView extends KeyguardPinBasedInputView {
     private View mDivider;
     private int mDisappearYTranslation;
     private View[][] mViews;
-    private final KeyguardUpdateMonitor mKeyguardUpdateMonitor;
 
     private static List<Integer> sNumbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 0);
 
@@ -71,7 +70,6 @@ public class KeyguardPINView extends KeyguardPinBasedInputView {
                 mContext, android.R.interpolator.fast_out_linear_in));
         mDisappearYTranslation = getResources().getDimensionPixelSize(
                 R.dimen.disappear_y_translation);
-        mKeyguardUpdateMonitor = KeyguardUpdateMonitor.getInstance(context);
     }
 
     @Override
@@ -113,10 +111,8 @@ public class KeyguardPINView extends KeyguardPinBasedInputView {
                 },
                 new View[]{
                         null, findViewById(R.id.key0), findViewById(R.id.key_enter)
-                },
-                new View[]{
-                        null, mEcaView, null
-                }};
+                }
+        };
 
         // FIXME Read from Settings.
         boolean scramblePin = false;
@@ -177,8 +173,7 @@ public class KeyguardPINView extends KeyguardPinBasedInputView {
         setTranslationY(0);
         AppearAnimationUtils.startTranslationYAnimation(this, 0 /* delay */, 280 /* duration */,
                 mDisappearYTranslation, mDisappearAnimationUtils.getInterpolator());
-        DisappearAnimationUtils disappearAnimationUtils = mKeyguardUpdateMonitor
-                .needsSlowUnlockTransition()
+        DisappearAnimationUtils disappearAnimationUtils = true
                 ? mDisappearAnimationUtilsLocked
                 : mDisappearAnimationUtils;
         disappearAnimationUtils.startAnimation2d(mViews,

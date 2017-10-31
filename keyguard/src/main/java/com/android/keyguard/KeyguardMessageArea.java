@@ -47,7 +47,6 @@ class KeyguardMessageArea extends TextView implements SecurityMessageDisplay {
 
     private static final int SECURITY_MESSAGE_DURATION = 5000;
 
-    private final KeyguardUpdateMonitor mUpdateMonitor;
     private final Handler mHandler;
     private final int mDefaultColor;
 
@@ -86,8 +85,6 @@ class KeyguardMessageArea extends TextView implements SecurityMessageDisplay {
         super(context, attrs);
         setLayerType(LAYER_TYPE_HARDWARE, null); // work around nested unclipped SaveLayer bug
 
-        mUpdateMonitor = KeyguardUpdateMonitor.getInstance(getContext());
-        mUpdateMonitor.registerCallback(mInfoCallback);
         mHandler = new Handler(Looper.myLooper());
 
         mDefaultColor = getCurrentTextColor();
@@ -145,8 +142,7 @@ class KeyguardMessageArea extends TextView implements SecurityMessageDisplay {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        boolean shouldMarquee = KeyguardUpdateMonitor.getInstance(mContext).isDeviceInteractive();
-        setSelected(shouldMarquee); // This is required to ensure marquee works
+        setSelected(true); //FIXME This is required to ensure marquee works
     }
 
     private void securityMessageChanged(CharSequence message) {

@@ -17,9 +17,6 @@ package com.android.keyguard;
 
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
-import android.telephony.SubscriptionManager;
-
-import com.android.internal.telephony.IccCardConstants;
 
 import github.tornaco.keyguard.LockPatternUtils;
 
@@ -36,8 +33,6 @@ public class KeyguardSecurityModel {
         Pattern, // Unlock by drawing a pattern.
         Password, // Unlock by entering an alphanumeric password
         PIN, // Strictly numeric password
-        SimPin, // Unlock by entering a sim pin.
-        SimPuk // Unlock by entering a sim puk
     }
 
     private final Context mContext;
@@ -57,20 +52,8 @@ public class KeyguardSecurityModel {
     }
 
     SecurityMode getSecurityMode() {
-        KeyguardUpdateMonitor monitor = KeyguardUpdateMonitor.getInstance(mContext);
-
-        if (mIsPukScreenAvailable && SubscriptionManager.isValidSubscriptionId(
-                monitor.getNextSubIdForState(IccCardConstants.State.PUK_REQUIRED))) {
-            return SecurityMode.SimPuk;
-        }
-
-        if (SubscriptionManager.isValidSubscriptionId(
-                monitor.getNextSubIdForState(IccCardConstants.State.PIN_REQUIRED))) {
-            return SecurityMode.SimPin;
-        }
-
-        final int security = mLockPatternUtils.getActivePasswordQuality(
-                KeyguardUpdateMonitor.getCurrentUser());
+        // FIXME Read from Settings.
+        final int security = DevicePolicyManager.PASSWORD_QUALITY_NUMERIC;
         switch (security) {
             case DevicePolicyManager.PASSWORD_QUALITY_NUMERIC:
             case DevicePolicyManager.PASSWORD_QUALITY_NUMERIC_COMPLEX:

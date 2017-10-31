@@ -18,10 +18,8 @@ package github.tornaco.keyguard;
 
 import android.annotation.IntDef;
 import android.annotation.Nullable;
-import android.annotation.SuppressLint;
 import android.app.admin.DevicePolicyManager;
 import android.app.trust.IStrongAuthTracker;
-import android.app.trust.TrustManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -34,9 +32,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.ServiceManager;
-import android.os.SystemClock;
 import android.os.UserHandle;
-import android.os.UserManager;
 import android.os.storage.IMountService;
 import android.os.storage.StorageManager;
 import android.provider.Settings;
@@ -135,54 +131,14 @@ public class LockPatternUtils {
     private static final String LOCK_SCREEN_DEVICE_OWNER_INFO = "lockscreen.device_owner_info";
 
     private static final String ENABLED_TRUST_AGENTS = "lockscreen.enabledtrustagents";
-    private static final String IS_TRUST_USUALLY_MANAGED = "lockscreen.istrustusuallymanaged";
 
     // Maximum allowed number of repeated or ordered characters in a sequence before we'll
     // consider it a complex PIN/password.
     public static final int MAX_ALLOWED_SEQUENCE = 3;
 
-    public static final String PROFILE_KEY_NAME_ENCRYPT = "profile_key_name_encrypt_";
-    public static final String PROFILE_KEY_NAME_DECRYPT = "profile_key_name_decrypt_";
-
     private final Context mContext;
     private final ContentResolver mContentResolver;
-    private DevicePolicyManager mDevicePolicyManager;
-    private ILockSettings mLockSettingsService;
-    private UserManager mUserManager;
     private final Handler mHandler;
-
-    /**
-     * Use {@link TrustManager#isTrustUsuallyManaged(int)}.
-     * <p>
-     * This returns the lazily-peristed value and should only be used by TrustManagerService.
-     */
-    public boolean isTrustUsuallyManaged(int userId) {
-        if (!(mLockSettingsService instanceof ILockSettings.Stub)) {
-            throw new IllegalStateException("May only be called by TrustManagerService. "
-                    + "Use TrustManager.isTrustUsuallyManaged()");
-        }
-        try {
-            return getLockSettings().getBoolean(IS_TRUST_USUALLY_MANAGED, false, userId);
-        } catch (RemoteException e) {
-            return false;
-        }
-    }
-
-    public void setTrustUsuallyManaged(boolean managed, int userId) {
-        try {
-            getLockSettings().setBoolean(IS_TRUST_USUALLY_MANAGED, managed, userId);
-        } catch (RemoteException e) {
-            // System dead.
-        }
-    }
-
-    public void userPresent(int userId) {
-        try {
-            getLockSettings().userPresent(userId);
-        } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
-        }
-    }
 
     public static final class RequestThrottledException extends Exception {
         private int mTimeoutMs;
@@ -201,33 +157,6 @@ public class LockPatternUtils {
 
     }
 
-    public DevicePolicyManager getDevicePolicyManager() {
-        if (mDevicePolicyManager == null) {
-            mDevicePolicyManager =
-                    (DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
-            if (mDevicePolicyManager == null) {
-                Log.e(TAG, "Can't get DevicePolicyManagerService: is it running?",
-                        new IllegalStateException("Stack trace:"));
-            }
-        }
-        return mDevicePolicyManager;
-    }
-
-    private UserManager getUserManager() {
-        if (mUserManager == null) {
-            mUserManager = UserManager.get(mContext);
-        }
-        return mUserManager;
-    }
-
-    private TrustManager getTrustManager() {
-        @SuppressLint("WrongConstant") TrustManager trust = (TrustManager) mContext.getSystemService(Context.TRUST_SERVICE);
-        if (trust == null) {
-            Log.e(TAG, "Can't get TrustManagerService: is it running?",
-                    new IllegalStateException("Stack trace:"));
-        }
-        return trust;
-    }
 
     public LockPatternUtils(Context context) {
         mContext = context;
@@ -235,74 +164,6 @@ public class LockPatternUtils {
 
         Looper looper = Looper.myLooper();
         mHandler = looper != null ? new Handler(looper) : null;
-    }
-
-    private ILockSettings getLockSettings() {
-        if (mLockSettingsService == null) {
-            ILockSettings service = ILockSettings.Stub.asInterface(
-                    ServiceManager.getService("lock_settings"));
-            mLockSettingsService = service;
-        }
-        return mLockSettingsService;
-    }
-
-    public int getRequestedMinimumPasswordLength(int userId) {
-        return getDevicePolicyManager().getPasswordMinimumLength(null, userId);
-    }
-
-    /**
-     * Gets the device policy password mode. If the mode is non-specific, returns
-     * MODE_PATTERN which allows the user to choose anything.
-     */
-    public int getRequestedPasswordQuality(int userId) {
-        return getDevicePolicyManager().getPasswordQuality(null, userId);
-    }
-
-    private int getRequestedPasswordHistoryLength(int userId) {
-        return getDevicePolicyManager().getPasswordHistoryLength(null, userId);
-    }
-
-    public int getRequestedPasswordMinimumLetters(int userId) {
-        return getDevicePolicyManager().getPasswordMinimumLetters(null, userId);
-    }
-
-    public int getRequestedPasswordMinimumUpperCase(int userId) {
-        return getDevicePolicyManager().getPasswordMinimumUpperCase(null, userId);
-    }
-
-    public int getRequestedPasswordMinimumLowerCase(int userId) {
-        return getDevicePolicyManager().getPasswordMinimumLowerCase(null, userId);
-    }
-
-    public int getRequestedPasswordMinimumNumeric(int userId) {
-        return getDevicePolicyManager().getPasswordMinimumNumeric(null, userId);
-    }
-
-    public int getRequestedPasswordMinimumSymbols(int userId) {
-        return getDevicePolicyManager().getPasswordMinimumSymbols(null, userId);
-    }
-
-    public int getRequestedPasswordMinimumNonLetter(int userId) {
-        return getDevicePolicyManager().getPasswordMinimumNonLetter(null, userId);
-    }
-
-    public void reportFailedPasswordAttempt(int userId) {
-        getDevicePolicyManager().reportFailedPasswordAttempt(userId);
-        getTrustManager().reportUnlockAttempt(false /* authenticated */, userId);
-    }
-
-    public void reportSuccessfulPasswordAttempt(int userId) {
-        getDevicePolicyManager().reportSuccessfulPasswordAttempt(userId);
-        getTrustManager().reportUnlockAttempt(true /* authenticated */, userId);
-    }
-
-    public int getCurrentFailedPasswordAttempts(int userId) {
-        return getDevicePolicyManager().getCurrentFailedPasswordAttempts(userId);
-    }
-
-    public int getMaximumFailedPasswordsForWipe(int userId) {
-        return getDevicePolicyManager().getMaximumFailedPasswordsForWipe(
-                null /* componentName */, userId);
     }
 
     /**
@@ -314,27 +175,12 @@ public class LockPatternUtils {
      * @param challenge The challenge to verify against the pattern
      * @return the attestation that the challenge was verified, or null.
      */
-    public byte[] verifyPattern(List<LockPatternView.Cell> pattern, long challenge, int userId)
+    public byte[] verifyPattern(List<LockPatternView.Cell> pattern, long challenge)
             throws RequestThrottledException {
         throwIfCalledOnMainThread();
-        try {
-            VerifyCredentialResponse response =
-                    getLockSettings().verifyPattern(patternToString(pattern), challenge, userId);
-            if (response == null) {
-                // Shouldn't happen
-                return null;
-            }
+        return new byte[0];
 
-            if (response.getResponseCode() == VerifyCredentialResponse.RESPONSE_OK) {
-                return response.getPayload();
-            } else if (response.getResponseCode() == VerifyCredentialResponse.RESPONSE_RETRY) {
-                throw new RequestThrottledException(response.getTimeout());
-            } else {
-                return null;
-            }
-        } catch (RemoteException re) {
-            return null;
-        }
+        // FIXME Impl.
     }
 
     /**
@@ -344,9 +190,9 @@ public class LockPatternUtils {
      * @param pattern The pattern to check.
      * @return Whether the pattern matches the stored one.
      */
-    public boolean checkPattern(List<LockPatternView.Cell> pattern, int userId)
+    public boolean checkPattern(List<LockPatternView.Cell> pattern)
             throws RequestThrottledException {
-        return checkPattern(pattern, userId, null /* progressCallback */);
+        return checkPattern(pattern, null /* progressCallback */);
     }
 
     /**
@@ -356,25 +202,11 @@ public class LockPatternUtils {
      * @param pattern The pattern to check.
      * @return Whether the pattern matches the stored one.
      */
-    public boolean checkPattern(List<LockPatternView.Cell> pattern, int userId,
+    public boolean checkPattern(List<LockPatternView.Cell> pattern,
                                 @Nullable CheckCredentialProgressCallback progressCallback)
             throws RequestThrottledException {
         throwIfCalledOnMainThread();
-        try {
-            VerifyCredentialResponse response =
-                    getLockSettings().checkPattern(patternToString(pattern), userId,
-                            wrapCallback(progressCallback));
-
-            if (response.getResponseCode() == VerifyCredentialResponse.RESPONSE_OK) {
-                return true;
-            } else if (response.getResponseCode() == VerifyCredentialResponse.RESPONSE_RETRY) {
-                throw new RequestThrottledException(response.getTimeout());
-            } else {
-                return false;
-            }
-        } catch (RemoteException re) {
-            return false;
-        }
+        return true;//FIXME Check.
     }
 
     /**
@@ -389,20 +221,9 @@ public class LockPatternUtils {
     public byte[] verifyPassword(String password, long challenge, int userId)
             throws RequestThrottledException {
         throwIfCalledOnMainThread();
-        try {
-            VerifyCredentialResponse response =
-                    getLockSettings().verifyPassword(password, challenge, userId);
+        return new byte[0];
 
-            if (response.getResponseCode() == VerifyCredentialResponse.RESPONSE_OK) {
-                return response.getPayload();
-            } else if (response.getResponseCode() == VerifyCredentialResponse.RESPONSE_RETRY) {
-                throw new RequestThrottledException(response.getTimeout());
-            } else {
-                return null;
-            }
-        } catch (RemoteException re) {
-            return null;
-        }
+        // FIXME Impl.
     }
 
 
@@ -418,21 +239,9 @@ public class LockPatternUtils {
     public byte[] verifyTiedProfileChallenge(String password, boolean isPattern, long challenge,
                                              int userId) throws RequestThrottledException {
         throwIfCalledOnMainThread();
-        try {
-            VerifyCredentialResponse response =
-                    getLockSettings().verifyTiedProfileChallenge(password, isPattern, challenge,
-                            userId);
+        return new byte[0];
 
-            if (response.getResponseCode() == VerifyCredentialResponse.RESPONSE_OK) {
-                return response.getPayload();
-            } else if (response.getResponseCode() == VerifyCredentialResponse.RESPONSE_RETRY) {
-                throw new RequestThrottledException(response.getTimeout());
-            } else {
-                return null;
-            }
-        } catch (RemoteException re) {
-            return null;
-        }
+        // FIXME Impl.
     }
 
     /**
@@ -442,8 +251,8 @@ public class LockPatternUtils {
      * @param password The password to check.
      * @return Whether the password matches the stored one.
      */
-    public boolean checkPassword(String password, int userId) throws RequestThrottledException {
-        return checkPassword(password, userId, null /* progressCallback */);
+    public boolean checkPassword(String password) throws RequestThrottledException {
+        return checkPassword(password, null /* progressCallback */);
     }
 
     /**
@@ -453,23 +262,11 @@ public class LockPatternUtils {
      * @param password The password to check.
      * @return Whether the password matches the stored one.
      */
-    public boolean checkPassword(String password, int userId,
+    public boolean checkPassword(String password,
                                  @Nullable CheckCredentialProgressCallback progressCallback)
             throws RequestThrottledException {
         throwIfCalledOnMainThread();
-        try {
-            VerifyCredentialResponse response =
-                    getLockSettings().checkPassword(password, userId, wrapCallback(progressCallback));
-            if (response.getResponseCode() == VerifyCredentialResponse.RESPONSE_OK) {
-                return true;
-            } else if (response.getResponseCode() == VerifyCredentialResponse.RESPONSE_RETRY) {
-                throw new RequestThrottledException(response.getTimeout());
-            } else {
-                return false;
-            }
-        } catch (RemoteException re) {
-            return false;
-        }
+        return false;//FIXME Check.
     }
 
     /**
@@ -1241,8 +1038,8 @@ public class LockPatternUtils {
     /**
      * @return Whether the visible pattern is enabled.
      */
-    public boolean isVisiblePatternEnabled(int userId) {
-        return getBoolean(Settings.Secure.LOCK_PATTERN_VISIBLE, false, userId);
+    public boolean isVisiblePatternEnabled() {
+        return true;
     }
 
     /**
@@ -1297,46 +1094,8 @@ public class LockPatternUtils {
      * @return Whether tactile feedback for the pattern is enabled.
      */
     public boolean isTactileFeedbackEnabled() {
-        return Settings.System.getIntForUser(mContentResolver,
-                Settings.System.HAPTIC_FEEDBACK_ENABLED, 1, UserHandle.USER_CURRENT) != 0;
-    }
-
-    /**
-     * Set and store the lockout deadline, meaning the user can't attempt his/her unlock
-     * pattern until the deadline has passed.
-     *
-     * @return the chosen deadline.
-     */
-    public long setLockoutAttemptDeadline(int userId, int timeoutMs) {
-        final long deadline = SystemClock.elapsedRealtime() + timeoutMs;
-        setLong(LOCKOUT_ATTEMPT_DEADLINE, deadline, userId);
-        setLong(LOCKOUT_ATTEMPT_TIMEOUT_MS, timeoutMs, userId);
-        return deadline;
-    }
-
-    /**
-     * @return The elapsed time in millis in the future when the user is allowed to
-     * attempt to enter his/her lock pattern, or 0 if the user is welcome to
-     * enter a pattern.
-     */
-    public long getLockoutAttemptDeadline(int userId) {
-        long deadline = getLong(LOCKOUT_ATTEMPT_DEADLINE, 0L, userId);
-        final long timeoutMs = getLong(LOCKOUT_ATTEMPT_TIMEOUT_MS, 0L, userId);
-        final long now = SystemClock.elapsedRealtime();
-        if (deadline < now && deadline != 0) {
-            // timeout expired
-            setLong(LOCKOUT_ATTEMPT_DEADLINE, 0, userId);
-            setLong(LOCKOUT_ATTEMPT_TIMEOUT_MS, 0, userId);
-            return 0L;
-        }
-
-        if (deadline > (now + timeoutMs)) {
-            // device was rebooted, set new deadline
-            deadline = now + timeoutMs;
-            setLong(LOCKOUT_ATTEMPT_DEADLINE, deadline, userId);
-        }
-
-        return deadline;
+        return Settings.System.getInt(mContentResolver,
+                Settings.System.HAPTIC_FEEDBACK_ENABLED, 1) != 0;
     }
 
     private boolean getBoolean(String secureSettingKey, boolean defaultValue, int userId) {

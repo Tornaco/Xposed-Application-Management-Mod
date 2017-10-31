@@ -31,6 +31,7 @@ import android.view.WindowManager;
 import github.tornaco.keyguard.R;
 
 public class KeyguardDisplayManager {
+
     protected static final String TAG = "KeyguardDisplayManager";
     private static boolean DEBUG = KeyguardConstants.DEBUG;
     Presentation mPresentation;

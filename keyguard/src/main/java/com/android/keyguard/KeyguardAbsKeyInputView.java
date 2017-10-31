@@ -23,7 +23,6 @@ import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
-import android.view.View;
 import android.widget.LinearLayout;
 
 import github.tornaco.keyguard.LockPatternChecker;
@@ -34,12 +33,11 @@ import github.tornaco.keyguard.R;
  * Base class for PIN and password unlock screens.
  */
 public abstract class KeyguardAbsKeyInputView extends LinearLayout
-        implements KeyguardSecurityView, EmergencyButton.EmergencyButtonCallback {
+        implements KeyguardSecurityView {
     protected KeyguardSecurityCallback mCallback;
     protected LockPatternUtils mLockPatternUtils;
     protected AsyncTask<?, ?, ?> mPendingLockCheck;
     protected SecurityMessageDisplay mSecurityMessageDisplay;
-    protected View mEcaView;
     protected boolean mEnableHaptics;
     private boolean mDismissing;
     private int mMaxCountdownTimes = 0;
@@ -72,19 +70,7 @@ public abstract class KeyguardAbsKeyInputView extends LinearLayout
         // start fresh
         mDismissing = false;
         resetPasswordText(false /* animate */, false /* announce */);
-        // if the user is currently locked out, enforce it.
-        long deadline = mLockPatternUtils.getLockoutAttemptDeadline(
-                KeyguardUpdateMonitor.getCurrentUser());
-        if (shouldLockout(deadline)) {
-            handleAttemptLockout(deadline);
-        } else {
-            resetState();
-        }
-    }
-
-    // Allow subclasses to override this behavior
-    protected boolean shouldLockout(long deadline) {
-        return deadline != 0;
+        resetState();
     }
 
     protected abstract int getPasswordTextViewId();
@@ -96,20 +82,9 @@ public abstract class KeyguardAbsKeyInputView extends LinearLayout
         super.onFinishInflate();
         mLockPatternUtils = new LockPatternUtils(mContext);
         mSecurityMessageDisplay = KeyguardMessageArea.findSecurityMessageDisplay(this);
-        mEcaView = findViewById(R.id.keyguard_selector_fade_container);
 
         mMaxCountdownTimes = mContext.getResources()
                 .getInteger(R.integer.config_max_unlock_countdown_times);
-
-        EmergencyButton button = (EmergencyButton) findViewById(R.id.emergency_call_button);
-        if (button != null) {
-            button.setCallback(this);
-        }
-    }
-
-    @Override
-    public void onEmergencyButtonClickedWhenInCall() {
-        mCallback.reset();
     }
 
     /*
@@ -130,24 +105,22 @@ public abstract class KeyguardAbsKeyInputView extends LinearLayout
             mPendingLockCheck.cancel(false);
         }
 
-        final int userId = KeyguardUpdateMonitor.getCurrentUser();
         if (entry.length() <= MINIMUM_PASSWORD_LENGTH_BEFORE_REPORT) {
             // to avoid accidental lockout, only count attempts that are long enough to be a
             // real password. This may require some tweaking.
             setPasswordEntryInputEnabled(true);
-            onPasswordChecked(userId, false /* matched */, 0, false /* not valid - too short */);
+            onPasswordChecked(false /* matched */, 0, false /* not valid - too short */);
             return;
         }
 
         mPendingLockCheck = LockPatternChecker.checkPassword(
                 mLockPatternUtils,
                 entry,
-                userId,
                 new LockPatternChecker.OnCheckCallback() {
 
                     @Override
                     public void onEarlyMatched() {
-                        onPasswordChecked(userId, true /* matched */, 0 /* timeoutMs */,
+                        onPasswordChecked(true /* matched */, 0 /* timeoutMs */,
                                 true /* isValidPassword */);
                     }
 
@@ -156,31 +129,23 @@ public abstract class KeyguardAbsKeyInputView extends LinearLayout
                         setPasswordEntryInputEnabled(true);
                         mPendingLockCheck = null;
                         if (!matched) {
-                            onPasswordChecked(userId, false /* matched */, timeoutMs,
+                            onPasswordChecked(false /* matched */, timeoutMs,
                                     true /* isValidPassword */);
                         }
                     }
                 });
     }
 
-    private void onPasswordChecked(int userId, boolean matched, int timeoutMs,
+    private void onPasswordChecked(boolean matched, int timeoutMs,
                                    boolean isValidPassword) {
-        boolean dismissKeyguard = KeyguardUpdateMonitor.getCurrentUser() == userId;
         if (matched) {
             mLockPatternUtils.sanitizePassword();
-            mCallback.reportUnlockAttempt(userId, true, 0);
-            if (dismissKeyguard) {
-                mDismissing = true;
-                mCallback.dismiss(true);
-            }
+            mCallback.reportUnlockAttempt(true, 0);
+            mDismissing = true;
+            mCallback.dismiss(true);
         } else {
             if (isValidPassword) {
-                mCallback.reportUnlockAttempt(userId, false, timeoutMs);
-                if (!(mMaxCountdownTimes > 0) && timeoutMs > 0) {
-                    long deadline = mLockPatternUtils.setLockoutAttemptDeadline(
-                            userId, timeoutMs);
-                    handleAttemptLockout(deadline);
-                }
+                mCallback.reportUnlockAttempt(false, timeoutMs);
             }
             if (timeoutMs == 0) {
                 String msg = getMessageWithCount(getWrongPasswordStringId());
@@ -220,15 +185,7 @@ public abstract class KeyguardAbsKeyInputView extends LinearLayout
     }
 
     protected String getMessageWithCount(int msgId) {
-        String msg = getContext().getString(msgId);
-        int remaining = mMaxCountdownTimes
-                - KeyguardUpdateMonitor.getInstance(mContext).getFailedUnlockAttempts(
-                KeyguardUpdateMonitor.getCurrentUser());
-        if (mMaxCountdownTimes > 0 && remaining > 0) {
-            msg += " - " + getContext().getResources().getString(
-                    R.string.kg_remaining_attempts, remaining);
-        }
-        return msg;
+        return getContext().getString(msgId);
     }
 
     protected void onUserInput() {

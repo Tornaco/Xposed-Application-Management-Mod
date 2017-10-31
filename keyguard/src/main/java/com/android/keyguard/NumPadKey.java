@@ -29,8 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.android.internal.widget.LockPatternUtils;
-
+import github.tornaco.keyguard.LockPatternUtils;
 import github.tornaco.keyguard.R;
 
 public class NumPadKey extends ViewGroup {

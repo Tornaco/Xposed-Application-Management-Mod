@@ -16,16 +16,10 @@
 package com.android.keyguard;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.app.admin.DevicePolicyManager;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.UserHandle;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.Slog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -51,10 +45,6 @@ public class KeyguardSecurityContainer extends FrameLayout implements KeyguardSe
     private boolean mIsVerifyUnlockOnly;
     private SecurityMode mCurrentSecuritySelection = SecurityMode.Invalid;
     private SecurityCallback mSecurityCallback;
-
-    private final KeyguardUpdateMonitor mUpdateMonitor;
-
-    private WipeConfirmListener mWipeConfirmListener = null;
 
     // Used to notify the container when something interesting happens.
     public interface SecurityCallback {
@@ -85,7 +75,6 @@ public class KeyguardSecurityContainer extends FrameLayout implements KeyguardSe
         super(context, attrs, defStyle);
         mSecurityModel = new KeyguardSecurityModel(context);
         mLockPatternUtils = new LockPatternUtils(context);
-        mUpdateMonitor = KeyguardUpdateMonitor.getInstance(mContext);
     }
 
     public void setSecurityCallback(SecurityCallback callback) {
@@ -192,186 +181,9 @@ public class KeyguardSecurityContainer extends FrameLayout implements KeyguardSe
         dialog.show();
     }
 
-    private void showTimeoutDialog(int timeoutMs) {
-        int timeoutInSeconds = (int) timeoutMs / 1000;
-        int messageId = 0;
-
-        switch (mSecurityModel.getSecurityMode()) {
-            case Pattern:
-                messageId = R.string.kg_too_many_failed_pattern_attempts_dialog_message;
-                break;
-            case PIN:
-                messageId = R.string.kg_too_many_failed_pin_attempts_dialog_message;
-                break;
-            case Password:
-                messageId = R.string.kg_too_many_failed_password_attempts_dialog_message;
-                break;
-            // These don't have timeout dialogs.
-            case Invalid:
-            case None:
-            case SimPin:
-            case SimPuk:
-                break;
-        }
-
-        if (messageId != 0) {
-            final String message = mContext.getString(messageId,
-                    KeyguardUpdateMonitor.getInstance(mContext).getFailedUnlockAttempts(
-                            KeyguardUpdateMonitor.getCurrentUser()),
-                    timeoutInSeconds);
-            showDialog(null, message);
-        }
-    }
-
-    private void showAlmostAtWipeDialog(int attempts, int remaining, int userType) {
-        String message = null;
-        switch (userType) {
-            case USER_TYPE_PRIMARY:
-                message = mContext.getString(R.string.kg_failed_attempts_almost_at_wipe,
-                        attempts, remaining);
-                break;
-            case USER_TYPE_SECONDARY_USER:
-                message = mContext.getString(R.string.kg_failed_attempts_almost_at_erase_user,
-                        attempts, remaining);
-                break;
-            case USER_TYPE_WORK_PROFILE:
-                message = mContext.getString(R.string.kg_failed_attempts_almost_at_erase_profile,
-                        attempts, remaining);
-                break;
-        }
-        showDialog(null, message);
-    }
-
-    private void showWipeDialog(int attempts, int userType) {
-        String message = null;
-        switch (userType) {
-            case USER_TYPE_PRIMARY:
-                message = mContext.getString(R.string.kg_failed_attempts_now_wiping,
-                        attempts);
-                break;
-            case USER_TYPE_SECONDARY_USER:
-                message = mContext.getString(R.string.kg_failed_attempts_now_erasing_user,
-                        attempts);
-                break;
-            case USER_TYPE_WORK_PROFILE:
-                message = mContext.getString(R.string.kg_failed_attempts_now_erasing_profile,
-                        attempts);
-                break;
-        }
-        showDialog(null, message);
-    }
-
-    private void showCountdownWipeDialog(int attempts) {
-        int msgId = R.string.kg_failed_attempts_now_wiping;
-        switch (mSecurityModel.getSecurityMode()) {
-            case PIN:
-                msgId = R.string.kg_failed_pin_attempts_now_wiping;
-                break;
-            case Password:
-                msgId = R.string.kg_failed_password_attempts_now_wiping;
-                break;
-            case Pattern:
-                msgId = R.string.kg_failed_pattern_attempts_now_wiping;
-                break;
-        }
-        if (mWipeConfirmListener == null) {
-            mWipeConfirmListener = new WipeConfirmListener();
-        }
-        final AlertDialog dialog = new AlertDialog.Builder(mContext)
-                .setMessage(mContext.getString(msgId, attempts))
-                .setNegativeButton(com.android.internal.R.string.gpsVerifYes,// reuse public Yes/No
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                showWipeConfirmDialog();
-                            }
-                        })
-                .setPositiveButton(com.android.internal.R.string.gpsVerifNo, mWipeConfirmListener)
-                .setCancelable(false)
-                .create();
-        if (!(mContext instanceof Activity)) {
-            dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
-        }
-        dialog.show();
-    }
-
-    private void showWipeConfirmDialog() {
-        final AlertDialog dialog = new AlertDialog.Builder(mContext)
-                .setMessage(R.string.kg_failed_attempts_now_wiping_confirm)
-                .setNegativeButton(com.android.internal.R.string.gpsVerifYes, mWipeConfirmListener)
-                .setPositiveButton(com.android.internal.R.string.gpsVerifNo, mWipeConfirmListener)
-                .setCancelable(false)
-                .create();
-        if (!(mContext instanceof Activity)) {
-            dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
-        }
-        dialog.show();
-    }
-
-    private class WipeConfirmListener implements DialogInterface.OnClickListener {
-        public void onClick(DialogInterface dialog, int which) {
-            if (DialogInterface.BUTTON_POSITIVE == which) {
-                KeyguardUpdateMonitor.getInstance(mContext).clearFailedUnlockAttempts();
-            } else {
-                if (ActivityManager.isUserAMonkey()) return;
-                Intent wipeIntent = new Intent(Intent.ACTION_MASTER_CLEAR);
-                mContext.sendBroadcast(wipeIntent);
-            }
-        }
-    }
-
-    private void reportFailedUnlockAttempt(int userId, int timeoutMs) {
-        final KeyguardUpdateMonitor monitor = KeyguardUpdateMonitor.getInstance(mContext);
-        final int failedAttempts = monitor.getFailedUnlockAttempts(userId) + 1; // +1 for this time
-
-        if (DEBUG) Log.d(TAG, "reportFailedPatternAttempt: #" + failedAttempts);
-
+    private void reportFailedUnlockAttempt(int timeoutMs) {
+        if (DEBUG) Log.d(TAG, "reportFailedPatternAttempt: #" + timeoutMs);
         SecurityMode mode = mSecurityModel.getSecurityMode();
-        final DevicePolicyManager dpm = mLockPatternUtils.getDevicePolicyManager();
-        final int failedAttemptsBeforeWipe =
-                dpm.getMaximumFailedPasswordsForWipe(null, userId);
-
-        final int remainingBeforeWipe = failedAttemptsBeforeWipe > 0 ?
-                (failedAttemptsBeforeWipe - failedAttempts)
-                : Integer.MAX_VALUE; // because DPM returns 0 if no restriction
-
-        final boolean usingPattern = mode == KeyguardSecurityModel.SecurityMode.Pattern;
-        final boolean usingPIN = mode == KeyguardSecurityModel.SecurityMode.PIN;
-        final boolean usingPassword = mode == KeyguardSecurityModel.SecurityMode.Password;
-        final int maxCountdownTimes = mContext.getResources()
-                .getInteger(R.integer.config_max_unlock_countdown_times);
-        final boolean enableTimesCounter = maxCountdownTimes > 0 && (usingPattern || usingPIN
-                || usingPassword);
-
-        if (enableTimesCounter && (failedAttempts >= maxCountdownTimes)) {
-            showCountdownWipeDialog(failedAttempts);
-        } else if (remainingBeforeWipe < LockPatternUtils.FAILED_ATTEMPTS_BEFORE_WIPE_GRACE) {
-            // The user has installed a DevicePolicyManager that requests a user/profile to be wiped
-            // N attempts. Once we get below the grace period, we post this dialog every time as a
-            // clear warning until the deletion fires.
-            // Check which profile has the strictest policy for failed password attempts
-            final int expiringUser = dpm.getProfileWithMinimumFailedPasswordsForWipe(userId);
-            int userType = USER_TYPE_PRIMARY;
-            if (expiringUser == userId) {
-                // TODO: http://b/23522538
-                if (expiringUser != UserHandle.USER_SYSTEM) {
-                    userType = USER_TYPE_SECONDARY_USER;
-                }
-            } else if (expiringUser != UserHandle.USER_NULL) {
-                userType = USER_TYPE_WORK_PROFILE;
-            } // If USER_NULL, which shouldn't happen, leave it as USER_TYPE_PRIMARY
-            if (remainingBeforeWipe > 0) {
-                showAlmostAtWipeDialog(failedAttempts, remainingBeforeWipe, userType);
-            } else {
-                // Too many attempts. The device will be wiped shortly.
-                Slog.i(TAG, "Too many unlock attempts; user " + expiringUser + " will be wiped!");
-                showWipeDialog(failedAttempts, userType);
-            }
-        }
-        monitor.reportFailedStrongAuthUnlockAttempt(userId);
-        mLockPatternUtils.reportFailedPasswordAttempt(userId);
-        if (!enableTimesCounter && (timeoutMs > 0)) {
-            showTimeoutDialog(timeoutMs);
-        }
     }
 
     /**
@@ -394,57 +206,12 @@ public class KeyguardSecurityContainer extends FrameLayout implements KeyguardSe
      */
     boolean showNextSecurityScreenOrFinish(boolean authenticated) {
         if (DEBUG) Log.d(TAG, "showNextSecurityScreenOrFinish(" + authenticated + ")");
-        boolean finish = false;
-        boolean strongAuth = false;
-        if (mUpdateMonitor.getUserCanSkipBouncer(
-                KeyguardUpdateMonitor.getCurrentUser())) {
-            finish = true;
-        } else if (SecurityMode.None == mCurrentSecuritySelection) {
-            SecurityMode securityMode = mSecurityModel.getSecurityMode();
-            if (SecurityMode.None == securityMode) {
-                finish = true; // no security required
-            } else {
-                showSecurityScreen(securityMode); // switch to the alternate security view
-            }
-        } else if (authenticated) {
-            switch (mCurrentSecuritySelection) {
-                case Pattern:
-                case Password:
-                case PIN:
-                    strongAuth = true;
-                    finish = true;
-                    break;
-
-                case SimPin:
-                case SimPuk:
-                    // Shortcut for SIM PIN/PUK to go to directly to user's security screen or home
-                    SecurityMode securityMode = mSecurityModel.getSecurityMode();
-                    if (securityMode != SecurityMode.None
-                            || !mLockPatternUtils.isLockScreenDisabled(
-                            KeyguardUpdateMonitor.getCurrentUser())) {
-                        showSecurityScreen(securityMode);
-                    } else {
-                        finish = true;
-                    }
-                    break;
-
-                default:
-                    Log.v(TAG, "Bad security screen " + mCurrentSecuritySelection + ", fail safe");
-                    showPrimarySecurityScreen(false);
-                    break;
-            }
-        }
-        if (finish) {
-            mSecurityCallback.finish(strongAuth);
-        }
-        return finish;
+        return true;
     }
 
     /**
      * Switches to the given security view unless it's already being shown, in which case
      * this is a no-op.
-     *
-     * @param securityMode
      */
     private void showSecurityScreen(SecurityMode securityMode) {
         if (DEBUG) Log.d(TAG, "showSecurityScreen(" + securityMode + ")");
@@ -554,10 +321,6 @@ public class KeyguardSecurityContainer extends FrameLayout implements KeyguardSe
                 return R.id.keyguard_pin_view;
             case Password:
                 return R.id.keyguard_password_view;
-            case SimPin:
-                return R.id.keyguard_sim_pin_view;
-            case SimPuk:
-                return R.id.keyguard_sim_puk_view;
         }
         return 0;
     }
@@ -570,10 +333,6 @@ public class KeyguardSecurityContainer extends FrameLayout implements KeyguardSe
                 return R.layout.keyguard_pin_view;
             case Password:
                 return R.layout.keyguard_password_view;
-            case SimPin:
-                return R.layout.keyguard_sim_pin_view;
-            case SimPuk:
-                return R.layout.keyguard_sim_puk_view;
             default:
                 return 0;
         }

@@ -37,6 +37,7 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
@@ -75,6 +76,7 @@ dependencies {
     compile "org.jsoup:jsoup:${rootProject.ext.jsoupVersion}"
     compile project(':vangoghcore')
     compile project(':pinlockview')
+    compile project(':keyguard')
     compile 'com.github.myinnos:AlphabetIndex-Fast-Scroll-RecyclerView:1.0.8'
     compile 'com.github.SilenceDut:jpinyin:v1.0'
     compile 'com.andrognito.patternlockview:patternlockview:1.0.0'
@@ -84,5 +86,6 @@ dependencies {
     compile files('libs/flyme_fingerprint.jar')
     // compile files('libs/flymeapi.jar')
 }
+
 
 

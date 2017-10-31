@@ -86,12 +86,10 @@ public final class LockPatternChecker {
      *
      * @param utils    The LockPatternUtils instance to use.
      * @param pattern  The pattern to check.
-     * @param userId   The user to check against the pattern.
      * @param callback The callback to be invoked with the check result.
      */
     public static AsyncTask<?, ?, ?> checkPattern(final LockPatternUtils utils,
                                                   final List<LockPatternView.Cell> pattern,
-                                                  final int userId,
                                                   final OnCheckCallback callback) {
         AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
             private int mThrottleTimeout;
@@ -99,7 +97,7 @@ public final class LockPatternChecker {
             @Override
             protected Boolean doInBackground(Void... args) {
                 try {
-                    return utils.checkPattern(pattern, userId,
+                    return utils.checkPattern(pattern,
                             new LockPatternUtils.CheckCredentialProgressCallback() {
                                 @Override
                                 public void onEarlyMatched() {
@@ -199,12 +197,10 @@ public final class LockPatternChecker {
      *
      * @param utils    The LockPatternUtils instance to use.
      * @param password The password to check.
-     * @param userId   The user to check against the pattern.
      * @param callback The callback to be invoked with the check result.
      */
     public static AsyncTask<?, ?, ?> checkPassword(final LockPatternUtils utils,
                                                    final String password,
-                                                   final int userId,
                                                    final OnCheckCallback callback) {
         AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
             private int mThrottleTimeout;
@@ -212,12 +208,13 @@ public final class LockPatternChecker {
             @Override
             protected Boolean doInBackground(Void... args) {
                 try {
-                    return utils.checkPassword(password, userId, new LockPatternUtils.CheckCredentialProgressCallback() {
-                        @Override
-                        public void onEarlyMatched() {
-                            callback.onEarlyMatched();
-                        }
-                    });
+                    return utils.checkPassword(password,
+                            new LockPatternUtils.CheckCredentialProgressCallback() {
+                                @Override
+                                public void onEarlyMatched() {
+                                    callback.onEarlyMatched();
+                                }
+                            });
                 } catch (LockPatternUtils.RequestThrottledException ex) {
                     mThrottleTimeout = ex.getTimeoutMs();
                     return false;
