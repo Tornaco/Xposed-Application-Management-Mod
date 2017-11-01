@@ -1,2 +1,4 @@
 github.tornaco.apigen.GithubCommitShaCompiler
 github.tornaco.apigen.BuildHostInfoCompiler
+github.tornaco.apigen.CreateBinderServiceCompiler
+github.tornaco.apigen.CreateMessageIdWithMethodsCompiler

@@ -89,8 +89,8 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
     }
 
     private void removePkgAsync(PackageInfo pkg) {
-        XAppGuardManager.from().removePackages(new String[]{pkg.getPkgName()});
-        XAppGuardManager.from().forceWriteState();
+//        XAppGuardManager.from().removePackages(new String[]{pkg.getPkgName()});
+//        XAppGuardManager.from().forceWriteState();
         onPackageRemoved(pkg.getPkgName());
     }
 

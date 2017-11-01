@@ -22,7 +22,7 @@ import github.tornaco.xposedmoduletest.loader.PackageLoader;
 import github.tornaco.xposedmoduletest.ui.adapter.AppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.x.util.XExecutor;
+import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.x.XSettings;
 import in.myinnos.alphabetsindexfastscrollrecycler.IndexFastScrollRecyclerView;
 
@@ -45,7 +45,7 @@ public class GuardAppNavActivity extends LockedActivity {
     }
 
     private void initService() {
-        boolean serviceConnected = XAppGuardManager.from().isServiceConnected();
+        boolean serviceConnected = XAppGuardManager.from().isServiceAvailable();
         Logger.d("serviceConnected:" + serviceConnected);
         setTitle(serviceConnected ? R.string.title_service_connected : R.string.title_service_not_connected);
     }
@@ -187,6 +187,6 @@ public class GuardAppNavActivity extends LockedActivity {
 
     @Override
     protected boolean showLockOnCreate() {
-        return XAppGuardManager.from().isServiceConnected();
+        return XAppGuardManager.from().isServiceAvailable();
     }
 }

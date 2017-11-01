@@ -33,8 +33,8 @@ class AMSSubModule extends AndroidSubModuleModule {
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
                     Context context = (Context) XposedHelpers.getObjectField(param.thisObject, "mContext");
-                    getService().attachContext(context);
-                    getService().publish();
+                    getBridge().attachContext(context);
+                    getBridge().publish();
                 }
             });
             XLog.logV("hookAMSStart OK:" + unHooks);

@@ -3,7 +3,6 @@ package github.tornaco.xposedmoduletest.x.service;
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -14,27 +13,22 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceManager;
-import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.android.internal.os.AtomicFile;
-import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.io.Files;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -44,94 +38,48 @@ import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IWatcher;
-import github.tornaco.xposedmoduletest.x.XKey;
-import github.tornaco.xposedmoduletest.x.util.XLog;
-import github.tornaco.xposedmoduletest.x.app.XMode;
-import github.tornaco.xposedmoduletest.x.XStatus;
 import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.x.secure.XEnc;
-import github.tornaco.xposedmoduletest.x.util.XBitmapUtil;
+import github.tornaco.xposedmoduletest.x.app.XMode;
+import github.tornaco.xposedmoduletest.x.bean.BlurSettings;
+import github.tornaco.xposedmoduletest.x.bean.PackageSettings;
+import github.tornaco.xposedmoduletest.x.bean.VerifySettings;
+import github.tornaco.xposedmoduletest.x.service.provider.TorSettings;
+import github.tornaco.xposedmoduletest.x.util.FileUtil;
+import github.tornaco.xposedmoduletest.x.util.XLog;
+import github.tornaco.xposedmoduletest.x.util.XStopWatch;
 
-import static github.tornaco.xposedmoduletest.x.app.XAppGuardManager.ACTION_APP_GUARD_VERIFY_DISPLAYER;
 import static github.tornaco.xposedmoduletest.x.app.XAppGuardManager.Feature.FEATURE_COUNT;
+import static github.tornaco.xposedmoduletest.x.app.XAppGuardManager.META_DATA_KEY_APP_GUARD_VERIFY_DISPLAYER;
 
 /**
  * Created by guohao4 on 2017/10/23.
  * Email: Tornaco@163.com
  */
-class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callback {
-
-    private static final String META_DATA_KEY_APP_GUARD_VERIFY_DISPLAYER = "app_guard_verify_displayer";
-
-    private static final String SETTINGS_APP_GUARD_ENABLED = "settings_app_guard_enabled";
-    private static final String SETTINGS_APP_GUARD_UNINSTALL_PRO_ENABLED = "settings_app_guard_uninstall_pro_enabled";
-    private static final String SETTINGS_APP_SCREENSHOT_BLUR_ENABLED = "settings_app_guard_app_screenshot_blur_enabled";
-    private static final String SETTINGS_APP_SCREENSHOT_BLUR_SCALE = "settings_app_guard_app_screenshot_blur_sc";
-    private static final String SETTINGS_APP_SCREENSHOT_BLUR_RADIUS = "settings_app_guard_app_screenshot_blur_ra";
-    private static final String SETTINGS_APP_SCREENSHOT_BLUR_POLICY = "settings_app_guard_app_screenshot_blur_po";
-    private static final String SETTINGS_ALLOW_3RD_VERIFIER = "settings_app_guard_allow_third_verifier";
-    private static final String SETTINGS_PASSCODE = "settings_app_guard_passcode";
-    private static final String SETTINGS_VERIFY_ON_HOME = "settings_app_guard_verify_on_home";
-    private static final String SETTINGS_VERIFY_ON_SCREEN_OFF = "settings_app_guard_verify_on_sroff";
-
-    private static int sClientUID = 0;
+class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     private static final long TRANSACTION_EXPIRE_TIME = 60 * 1000;
 
-    private static final boolean DEBUG_V = true;
+    private final Map<String, PackageSettings> FAST_PKG_SETTINGS_MAP = Maps.newHashMap();
 
-    private static final int MSG_VERIFY_RES = 0x1;
-    private static final int MSG_SET_ENABLED = 0x2;
-    private static final int MSG_VERIFY = 0x3;
-    private static final int MSG_READ_STATE = 0x4;
-    private static final int MSG_WRITE_STATE = 0x5;
-    private static final int MSG_ADD_PACKAGES = 0x6;
-    private static final int MSG_REMOVE_PACKAGES = 0x7;
-    private static final int MSG_PASS = 0x8;
-    private static final int MSG_IGNORE = 0x9;
-    private static final int MSG_SET_BLUR = 0x10;
-    private static final int MSG_SET_BLUR_POLICY = 0x11;
-    private static final int MSG_SET_BLUR_RADIUS = 0x12;
-    private static final int MSG_SET_BLUR_SCALE = 0x13;
-    private static final int MSG_SET_SET_ALLOW_3RD_VER = 0x14;
-    private static final int MSG_SET_PASSCODE = 0x15;
-    private static final int MSG_ON_HOME = 0x16;
-    private static final int MSG_SET_VERIFY_ON_HOME = 0x17;
-    private static final int MSG_SET_VERIFY_ON_SCREEN_OFF = 0x18;
-    private static final int MSG_SET_APP_UNINSTALL_PRO = 0x19;
-    private static final int MSG_FUCK_YR_SELF = 0x1024;
-    private static final int MSG_TRANSACTION_EXPIRE_BASE = 0x99;
+    private PackageSettingsLoader mPkgSettingsLoader;
 
-    private Context mContext;
-    private Handler mHandler;
-
-    private boolean isSafeMode;
+    private Handler mServiceHandler;
 
     private AtomicBoolean mEnabled = new AtomicBoolean(false);
     private AtomicBoolean mUninstallProEnabled = new AtomicBoolean(false);
     private AtomicBoolean mVerifyOnHome = new AtomicBoolean(false);
     private AtomicBoolean mVerifyOnScreenOff = new AtomicBoolean(false);
     private AtomicBoolean mBlur = new AtomicBoolean(false);
-    private AtomicBoolean m3rdVerifierAllowed = new AtomicBoolean(false);
     private AtomicInteger mBlurPolicy = new AtomicInteger(XAppGuardManager.BlurPolicy.BLUR_WATCHED);
-
-    private String mPasscode;
-
-    private float mBlurRadius = XBitmapUtil.BLUR_RADIUS;
-    private float mBlurScale = XBitmapUtil.BITMAP_SCALE;
-
-    private final Set<String> WATCHED_PACKAGES = new HashSet<>();
-    private final Set<String> PASSED_PACKAGES = new HashSet<>();
-    private final Map<String, Integer> VERIFIER_PACKAGES = new HashMap<>();
-
-    private final Set<IWatcher> WATCHERS = new HashSet<>();
-
-    private static final Set<String> PREBUILT_WHITE_LIST = new HashSet<>();
 
     @SuppressLint("UseSparseArrays")
     private final Map<Integer, Transaction> TRANSACTION_MAP = new HashMap<>();
 
     private final Set<String> FEATURES = new HashSet<>(FEATURE_COUNT);
+
+    private static final Set<String> PREBUILT_WHITE_LIST = new HashSet<>();
+
+    private static int sClientUID = 0;
 
     static {
         PREBUILT_WHITE_LIST.add("com.android.systemui");
@@ -143,9 +91,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
         PREBUILT_WHITE_LIST.add(BuildConfig.APPLICATION_ID);
     }
 
-    private AtomicFile mXmlFile;
-
-    private final ExecutorService mWorkingService = Executors.newSingleThreadExecutor();
+    private final ExecutorService mWorkingService = Executors.newCachedThreadPool();
 
     private BroadcastReceiver mScreenReceiver =
             new BroadcastReceiver() {
@@ -175,25 +121,14 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
             }
         }
     };
+    private boolean mIsSafeMode = false;
 
-    private XStatus xStatus = XStatus.UNKNOWN;
-
-    XAppGuardServiceImpl() {
-    }
-
-    public void attachContext(Context context) {
-        if (DEBUG_V) XLog.logD("attachContext: " + context);
-        this.mContext = context;
-    }
+    private final Object LOCK = new Object();
 
     @Override
-    public Context getContext() {
-        return mContext;
-    }
-
     public void publish() {
         try {
-            if (DEBUG_V) XLog.logD("published: " + Binder.getCallingUid());
+            XLog.logD("published by uid: " + Binder.getCallingUid());
             ServiceManager.addService(XAppGuardManager.APP_GUARD_SERVICE, asBinder());
             publishFeature(XAppGuardManager.Feature.BASE);
         } catch (Exception e) {
@@ -201,43 +136,60 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
         }
     }
 
-    public void systemReady() {
-        if (DEBUG_V) XLog.logD("systemReady: " + Binder.getCallingUid());
-        checkSafeMode();
-        construct();
-        getConfigFromSettings();
-        loadPackages();
-        registerReceiver();
-        cacheUIDForPackages();
-    }
-
     private void checkSafeMode() {
-        isSafeMode = mContext.getPackageManager().isSafeMode();
+        mIsSafeMode = getContext().getPackageManager().isSafeMode();
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private void construct() {
-        mHandler = new Handler(this);
-        File dataDir = Environment.getDataDirectory();
-        File systemDir = new File(dataDir, "system");
-        systemDir.mkdirs();
-        mXmlFile = new AtomicFile(new File(systemDir, "app_guard.xml"));
-        if (DEBUG_V) XLog.logD("xml file: " + mXmlFile.getBaseFile());
+        mServiceHandler = new ServiceHandlerImpl();
+        mPkgSettingsLoader = new PackageSettingsLoader();
     }
 
-    public void publishFeature(String f) {
-        if (DEBUG_V) XLog.logD("publishFeature: " + f);
-        synchronized (FEATURES) {
-            if (!FEATURES.contains(f)) FEATURES.add(f);
-        }
+    @Override
+    public void systemReady() {
+        checkSafeMode();
+        construct();
+        registerReceiver();
+        getConfigFromSettings();
+        loadPackageSettings();
+        cacheUIDForPackages();
+    }
+
+    private void getConfigFromSettings() {
+        boolean appGuardEnabled = (boolean) TorSettings.APP_GUARD_ENABLED_B.readFromSystemSettings(getContext());
+        mEnabled.set(appGuardEnabled);
+    }
+
+    private void registerReceiver() {
+        getContext().registerReceiver(mScreenReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        intentFilter.addDataScheme("package");
+        getContext().registerReceiver(mPackageReceiver, intentFilter);
+    }
+
+    private void loadPackageSettings() {
+        Set<PackageSettings> packageSettings = mPkgSettingsLoader.loadPackageSettings();
+        Collections.consumeRemaining(packageSettings, new Consumer<PackageSettings>() {
+            @Override
+            public void accept(PackageSettings packageSettings) {
+                FAST_PKG_SETTINGS_MAP.put(packageSettings.getPkgName(), packageSettings);
+            }
+        });
     }
 
     private void cacheUIDForPackages() {
-        PackageManager pm = this.mContext.getPackageManager();
+        PackageManager pm = this.getContext().getPackageManager();
         try {
             ApplicationInfo applicationInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID, 0);
-            sClientUID = applicationInfo.uid;
-            if (DEBUG_V) XLog.logD("sClientUID:" + sClientUID);
+            if (BuildConfig.APPLICATION_ID.equals(applicationInfo.packageName)) {
+                sClientUID = applicationInfo.uid;
+            }
 
             // Filter all apps.
             List<ApplicationInfo> applicationInfos = pm.getInstalledApplications(0);
@@ -253,715 +205,153 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
         }
     }
 
-    public void setStatus(XStatus xStatus) {
-        this.xStatus = xStatus;
-        if (DEBUG_V) XLog.logD("setStatus:" + xStatus);
+    @Override
+    public void publishFeature(String f) {
     }
 
-    private void registerReceiver() {
-        mContext.registerReceiver(mScreenReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
-
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
-        intentFilter.addDataScheme("package");
-        mContext.registerReceiver(mPackageReceiver, intentFilter);
-    }
-
+    @Override
     public void shutdown() {
-        if (DEBUG_V) XLog.logD("shutdown...");
-        persistPackages();
-    }
 
-    public boolean passed(String pkg) {
-        return !isEnabled()
-                || (TextUtils.isEmpty(mPasscode))
-                || PREBUILT_WHITE_LIST.contains(pkg)
-                || PASSED_PACKAGES.contains(pkg)
-                || VERIFIER_PACKAGES.containsKey(pkg)
-                || !WATCHED_PACKAGES.contains(pkg);
     }
 
     @Override
     public boolean interruptPackageRemoval(String pkg) {
-        return
-                BuildConfig.APPLICATION_ID.equals(pkg)
-                        ? isEnabled()
-                        : isEnabled() && WATCHED_PACKAGES.contains(pkg);
+        return false;
     }
 
+    @Override
+    public boolean onEarlyVerifyConfirm(String pkg) {
+        return !mIsSafeMode
+                && mEnabled.get()
+                && !PREBUILT_WHITE_LIST.contains(pkg)
+                && FAST_PKG_SETTINGS_MAP.containsKey(pkg)
+                && FAST_PKG_SETTINGS_MAP.get(pkg).isVerify();
+    }
+
+    @Override
     public void verify(Bundle options, String pkg, int uid, int pid, VerifyListener listener) {
         VerifyArgs args = new VerifyArgs(options, pkg, uid, pid, listener);
-        mHandler.obtainMessage(MSG_VERIFY, args).sendToTarget();
-    }
-
-    private void onVerify(VerifyArgs args) {
-        if (DEBUG_V) XLog.logD("onVerify:" + args);
-        int tid = TransactionFactory.transactionID();
-        int uid = args.uid;
-        int pid = args.pid;
-        String pkg = args.pkg;
-        Bundle bnds = args.bnds;
-        VerifyListener listener = args.listener;
-
-        Transaction transaction = new Transaction(listener, uid, pid, tid, pkg);
-
-        synchronized (TRANSACTION_MAP) {
-            TRANSACTION_MAP.put(tid, transaction);
-        }
-
-        onNewTransaction(tid);
-
-        Intent intent = buildVerifyIntent(m3rdVerifierAllowed.get(), tid, pkg);
-        try {
-            mContext.startActivity(intent, bnds);
-        } catch (ActivityNotFoundException anf) {
-            XLog.logD("*** FATAL ERROR *** ActivityNotFoundException!!!");
-            setResult(tid, XMode.MODE_ALLOWED);
-        }
-    }
-
-    private void onNewTransaction(int transaction) {
-        mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_TRANSACTION_EXPIRE_BASE
-                        + transaction,
-                transaction), TRANSACTION_EXPIRE_TIME);
-    }
-
-    private void getConfigFromSettings() {
-        ContentResolver contentResolver = mContext.getContentResolver();
-
-        boolean enabled = (Settings.System.getInt(contentResolver, SETTINGS_APP_GUARD_ENABLED, 0) == 1);
-        mEnabled.set(enabled);
-
-        boolean uninstallPro = (Settings.System.getInt(contentResolver, SETTINGS_APP_GUARD_UNINSTALL_PRO_ENABLED, 0) == 1);
-        mUninstallProEnabled.set(enabled);
-
-        boolean verifyOnHome = (Settings.System.getInt(contentResolver, SETTINGS_VERIFY_ON_HOME, 0) == 1);
-        mVerifyOnHome.set(verifyOnHome);
-
-        // Default is 1.
-        boolean verifyOnScreenOff = (Settings.System.getInt(contentResolver, SETTINGS_VERIFY_ON_SCREEN_OFF, 1) == 1);
-        mVerifyOnScreenOff.set(verifyOnScreenOff);
-
-        boolean blur = (Settings.System.getInt(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_ENABLED, 0) == 1);
-        mBlur.set(blur);
-
-        int blurPolicy = (Settings.System.getInt(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_POLICY,
-                XAppGuardManager.BlurPolicy.BLUR_WATCHED));
-        mBlurPolicy.set(blurPolicy);
-
-        mBlurScale = (Settings.System.getFloat(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_SCALE,
-                XBitmapUtil.BITMAP_SCALE));
-
-        mBlurRadius = (Settings.System.getFloat(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_RADIUS,
-                XBitmapUtil.BLUR_RADIUS));
-        boolean allow3rdVer = (Settings.System.getInt(contentResolver, SETTINGS_ALLOW_3RD_VERIFIER, 0) == 1);
-        m3rdVerifierAllowed.set(allow3rdVer);
-
-        try {
-            mPasscode = (Settings.System.getString(contentResolver, SETTINGS_PASSCODE));
-        } catch (Exception ignored) {
-        }
-
-        if (DEBUG_V) XLog.logD("enabled:" + enabled);
-        if (DEBUG_V) XLog.logD("uninstallPro:" + uninstallPro);
-        if (DEBUG_V) XLog.logD("blur:" + blur);
-        if (DEBUG_V) XLog.logD("blurPolicy:" + blurPolicy);
-        if (DEBUG_V) XLog.logD("mBlurScale:" + mBlurScale);
-        if (DEBUG_V) XLog.logD("mBlurRadius:" + mBlurRadius);
-        if (DEBUG_V) XLog.logD("allow3rdVer:" + allow3rdVer);
-        if (DEBUG_V) XLog.logD("mPasscode:" + mPasscode);
-        if (DEBUG_V) XLog.logD("verifyOnHome:" + verifyOnHome);
-        if (DEBUG_V) XLog.logD("verifyOnScreenOff:" + verifyOnScreenOff);
-
-        // TODO. Register observer.
+        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_VERIFY, args).sendToTarget();
     }
 
     @Override
+    public void onUserLeaving(String reason) {
+
+    }
+
+    @Override
+    public boolean isBlurForPkg(String pkg) {
+        return false;
+    }
+
+    @Override
+    @BinderCall
     public boolean isEnabled() {
         enforceCallingPermissions();
-        return !isSafeMode && mEnabled.get();
+        return !mIsSafeMode && mEnabled.get();
     }
 
     @Override
+    @BinderCall
     public void setEnabled(boolean enabled) throws RemoteException {
-        enforceCallingPermissions();
-        if (DEBUG_V) XLog.logD("setEnabled:" + enabled + ", mEnabled:" + mEnabled.get());
-        mHandler.obtainMessage(MSG_SET_ENABLED, enabled ? 1 : 0, 0, null).sendToTarget();
-    }
-
-
-    private void onSetEnabled(boolean enabled) {
-        if (DEBUG_V) XLog.logD("onSetEnabled:" + enabled);
-        if (mEnabled.compareAndSet(!enabled, enabled)) {
-            ContentResolver contentResolver = mContext.getContentResolver();
-            Settings.System.putInt(contentResolver, SETTINGS_APP_GUARD_ENABLED, enabled ? 1 : 0);
-        }
+        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_SETENABLED, enabled ? 1 : 0, 0).sendToTarget();
     }
 
     @Override
+    @BinderCall
     public boolean isUninstallInterruptEnabled() throws RemoteException {
         return mUninstallProEnabled.get();
     }
 
     @Override
+    @BinderCall
     public void setUninstallInterruptEnabled(boolean enabled) throws RemoteException {
-        enforceCallingPermissions();
-        mHandler.obtainMessage(MSG_SET_APP_UNINSTALL_PRO, enabled ? 1 : 0, 0).sendToTarget();
-    }
-
-    private void onSetAppUninstallPro(boolean enabled) {
-        if (DEBUG_V) XLog.logD("onSetAppUninstallPro:" + enabled);
-        if (mUninstallProEnabled.compareAndSet(!enabled, enabled)) {
-            ContentResolver contentResolver = mContext.getContentResolver();
-            Settings.System.putInt(contentResolver, SETTINGS_APP_GUARD_UNINSTALL_PRO_ENABLED, enabled ? 1 : 0);
-        }
+        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_SETUNINSTALLINTERRUPTENABLED, enabled ? 1 : 0, 0).sendToTarget();
     }
 
     @Override
-    public void setVerifyOnScreenOff(boolean ver) throws RemoteException {
-        enforceCallingPermissions();
-        mHandler.obtainMessage(MSG_SET_VERIFY_ON_SCREEN_OFF, ver ? 1 : 0, 0).sendToTarget();
+    public void setVerifySettings(VerifySettings settings) throws RemoteException {
+        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_SETVERIFYSETTINGS, settings).sendToTarget();
     }
 
     @Override
-    public boolean isVerifyOnScreenOff() {
-        enforceCallingPermissions();
-        return mVerifyOnScreenOff.get();
-    }
-
-    private void onSetVerifyOnScreenOff(boolean ver) {
-        if (mVerifyOnScreenOff.compareAndSet(!ver, ver)) {
-            ContentResolver contentResolver = mContext.getContentResolver();
-            Settings.System.putInt(contentResolver, SETTINGS_VERIFY_ON_SCREEN_OFF, ver ? 1 : 0);
-        }
+    @BinderCall
+    public VerifySettings getVerifySettings() throws RemoteException {
+        return null;
     }
 
     @Override
-    public void setVerifyOnHome(boolean ver) throws RemoteException {
-        enforceCallingPermissions();
-        mHandler.obtainMessage(MSG_SET_VERIFY_ON_HOME, ver ? 1 : 0, 0).sendToTarget();
-    }
-
-    private void onSetVerifyOnHome(boolean ver) {
-        if (mVerifyOnHome.compareAndSet(!ver, ver)) {
-            ContentResolver contentResolver = mContext.getContentResolver();
-            Settings.System.putInt(contentResolver, SETTINGS_VERIFY_ON_HOME, ver ? 1 : 0);
-        }
+    @BinderCall
+    public void setBlurSettings(BlurSettings settings) throws RemoteException {
+        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_SETBLURSETTINGS, settings).sendToTarget();
     }
 
     @Override
-    public boolean isVerifyOnHome() {
-        enforceCallingPermissions();
-        return mVerifyOnHome.get();
+    @BinderCall
+    public BlurSettings getBlurSettings() throws RemoteException {
+        return null;
     }
 
     @Override
-    public boolean isBlur() {
-        enforceCallingPermissions();
-        return mBlur.get();
-    }
-
-    public boolean isBlurForPkg(String pkg) {
-        return isBlur() && mBlurPolicy.get() == XAppGuardManager.BlurPolicy.BLUR_ALL
-                || isBlur() && pkg != null && WATCHED_PACKAGES.contains(pkg);
+    @BinderCall
+    public void setResult(int transactionID, int res) throws RemoteException {
+        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_SETRESULT, transactionID, res).sendToTarget();
     }
 
     @Override
-    public void setBlur(boolean blur) throws RemoteException {
-        enforceCallingPermissions();
-        mHandler.obtainMessage(MSG_SET_BLUR, blur ? 1 : 0, 0).sendToTarget();
-    }
-
-    private void onSetBlur(boolean b) {
-        if (DEBUG_V) XLog.logD("onSetBlur: " + b);
-
-        if (mBlur.compareAndSet(!b, b)) {
-            ContentResolver contentResolver = mContext.getContentResolver();
-            Settings.System.putInt(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_ENABLED, b ? 1 : 0);
-        }
-    }
-
-    @Override
-    public void setBlurPolicy(int policy) throws RemoteException {
-        enforceCallingPermissions();
-        Preconditions.checkArgument(XAppGuardManager.BlurPolicy.Checker.valid(policy));
-        mHandler.obtainMessage(MSG_SET_BLUR_POLICY, policy, policy).sendToTarget();
-    }
-
-    private void onSetBlurPolicy(int policy) {
-        if (DEBUG_V) XLog.logD("onSetBlurPolicy: " + policy);
-        mBlurPolicy.set(policy);
-        ContentResolver contentResolver = mContext.getContentResolver();
-        Settings.System.putInt(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_POLICY, policy);
-    }
-
-
-    @Override
-    public int getBlurPolicy() throws RemoteException {
-        enforceCallingPermissions();
-        return mBlurPolicy.get();
-    }
-
-    @Override
-    public void setBlurRadius(int radius) throws RemoteException {
-        enforceCallingPermissions();
-        mHandler.obtainMessage(MSG_SET_BLUR_RADIUS, radius, radius).sendToTarget();
-    }
-
-    private void onSetBlurRadius(int radius) {
-        if (DEBUG_V) XLog.logD("onSetBlurRadius: " + radius);
-        mBlurRadius = radius;
-        ContentResolver contentResolver = mContext.getContentResolver();
-        Settings.System.putFloat(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_RADIUS, radius);
-    }
-
-    @Override
-    public int getBlurRadius() throws RemoteException {
-        enforceCallingPermissions();
-        return (int) mBlurRadius;
-    }
-
-    @Override
-    public void setBlurScale(float scale) throws RemoteException {
-        enforceCallingPermissions();
-        mHandler.obtainMessage(MSG_SET_BLUR_SCALE, scale).sendToTarget();
-    }
-
-    private void onSetBlurScale(float scale) {
-        if (DEBUG_V) XLog.logD("onSetBlurScale: " + scale);
-        mBlurScale = scale;
-        ContentResolver contentResolver = mContext.getContentResolver();
-        Settings.System.putFloat(contentResolver, SETTINGS_APP_SCREENSHOT_BLUR_SCALE, scale);
-    }
-
-    @Override
-    public float getBlurScale() throws RemoteException {
-        enforceCallingPermissions();
-        return mBlurScale;
-    }
-
-    @Override
-    public void setAllow3rdVerifier(boolean allow) throws RemoteException {
-        enforceCallingPermissions();
-        mHandler.obtainMessage(MSG_SET_SET_ALLOW_3RD_VER, allow ? 1 : 0, 0).sendToTarget();
-    }
-
-    private void onSetAllow3rdVerifier(boolean allow) {
-        if (DEBUG_V) XLog.logD("onSetAllow3rdVerifier: " + allow);
-        if (m3rdVerifierAllowed.compareAndSet(!allow, allow)) {
-            ContentResolver contentResolver = mContext.getContentResolver();
-            Settings.System.putInt(contentResolver, SETTINGS_ALLOW_3RD_VERIFIER, allow ? 1 : 0);
-        }
-    }
-
-    @Override
-    public boolean isAllow3rdVerifier() throws RemoteException {
-        enforceCallingPermissions();
-        return m3rdVerifierAllowed.get();
-    }
-
-    @Override
-    public void setPasscode(String passcode) throws RemoteException {
-        enforceCallingPermissions();
-        Preconditions.checkArgument(XEnc.isPassCodeValid(passcode));
-        mHandler.obtainMessage(MSG_SET_PASSCODE, passcode).sendToTarget();
-    }
-
-    private void onSetPasscode(String passcode) {
-        if (DEBUG_V) XLog.logD("onSetPasscode: " + passcode);
-        mPasscode = passcode;
-        ContentResolver contentResolver = mContext.getContentResolver();
-        Settings.System.putString(contentResolver, SETTINGS_PASSCODE, passcode);
-    }
-
-    @Override
-    public String getPasscode() throws RemoteException {
-        enforceCallingPermissions();
-        return mPasscode;
-    }
-
-    @Override
-    public boolean hasFeature(String feature) throws RemoteException {
-        enforceCallingPermissions();
-        Preconditions.checkNotNull(feature);
-        return FEATURES.contains(feature);
-    }
-
-    @Override
-    public void ignore(String pkg) throws RemoteException {
-        enforceCallingPermissions();
-        Preconditions.checkNotNull(pkg);
-        mHandler.obtainMessage(MSG_IGNORE, pkg).sendToTarget();
-    }
-
-    @Override
-    public void pass(String pkg) throws RemoteException {
-        enforceCallingPermissions();
-        Preconditions.checkNotNull(pkg);
-        mHandler.obtainMessage(MSG_PASS, pkg).sendToTarget();
-    }
-
-    @Override
-    public int getStatus() throws RemoteException {
-        enforceCallingPermissions();
-        return xStatus.ordinal();
-    }
-
-    @Override
-    public String[] getPackages() throws RemoteException {
-        enforceCallingPermissions();
-        Object[] all = WATCHED_PACKAGES.toArray();
-        String[] pkgs = new String[all.length];
-        for (int i = 0; i < all.length; i++) {
-            pkgs[i] = String.valueOf(all[i]);
-        }
-        return pkgs;
-    }
-
-    @Override
-    public void setResult(int transactionID, final int res) {
-        enforceCallingPermissions();
-        if (DEBUG_V) XLog.logD("setResult:" + transactionID + ", res:" + res);
-        mHandler.obtainMessage(MSG_VERIFY_RES, res, transactionID, null).sendToTarget();
-    }
-
-    private void onSetResult(int res, int transactionID) {
-        synchronized (TRANSACTION_MAP) {
-            Transaction transaction = TRANSACTION_MAP.remove(transactionID);
-            if (transaction == null) {
-                XLog.logD("Can not find transaction for:" + transactionID);
-                if (DEBUG_V)
-                    XLog.logD("We have transactions count of:" + TRANSACTION_MAP.values().size());
-
-                return;
-            }
-            if (res == XMode.MODE_ALLOWED) {
-                PASSED_PACKAGES.add(transaction.pkg);
-            }
-            transaction.listener.onVerifyRes(transaction.pkg, transaction.uid, transaction.pid, res);
-            mHandler.removeMessages(MSG_TRANSACTION_EXPIRE_BASE + transactionID);
-        }
-    }
-
-    @Override
+    @BinderCall
     public void testUI() throws RemoteException {
-        enforceCallingPermissions();
-        long id = Binder.clearCallingIdentity();
-        Intent intent = buildVerifyIntent(m3rdVerifierAllowed.get(),
-                TransactionFactory.transactionID(), "xxxxx");
-        mContext.startActivity(intent);
-        Binder.restoreCallingIdentity(id);
+
     }
 
     @Override
-    public void addPackages(String[] pkgs) throws RemoteException {
-        enforceCallingPermissions();
-        Preconditions.checkNotNull(pkgs);
-        mHandler.obtainMessage(MSG_ADD_PACKAGES, pkgs).sendToTarget();
+    @BinderCall
+    public void addPackages(PackageSettings pkg) throws RemoteException {
+        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_ADDPACKAGES, pkg).sendToTarget();
     }
 
-    private void onAddPackages(String[] pkgs) {
-        Collections.consumeRemaining(pkgs, new Consumer<String>() {
+    @Override
+    @BinderCall
+    public void removePackages(PackageSettings pkg) throws RemoteException {
+        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_REMOVEPACKAGES, pkg).sendToTarget();
+    }
+
+    @Override
+    @BinderCall
+    public List<PackageSettings> getPackageSettings() throws RemoteException {
+        final XStopWatch stopWatch = XStopWatch.start("getPackageSettings");
+        enforceCallingPermissions();
+        if (FAST_PKG_SETTINGS_MAP.values().size() == 0)
+            return Lists.newArrayListWithCapacity(0);
+        Object[] arr = FAST_PKG_SETTINGS_MAP.values().toArray();
+        final List<PackageSettings> out = Lists.newArrayListWithCapacity(arr.length);
+        Collections.consumeRemaining(arr, new Consumer<Object>() {
             @Override
-            public void accept(String s) {
-                if (!TextUtils.isEmpty(s) && !WATCHED_PACKAGES.contains(s)) {
-                    WATCHED_PACKAGES.add(s);
-                    if (DEBUG_V) XLog.logD("Add package:" + s);
-                }
+            public void accept(Object o) {
+                out.add((PackageSettings) o);
+                stopWatch.split(((PackageSettings) o).getPkgName());
             }
         });
+        stopWatch.stop();
+        return out;
     }
 
     @Override
-    public void removePackages(String[] pkgs) throws RemoteException {
-        enforceCallingPermissions();
-        Preconditions.checkNotNull(pkgs);
-        mHandler.obtainMessage(MSG_REMOVE_PACKAGES, pkgs).sendToTarget();
-    }
-
-    private void onRemovePackages(String[] pkgs) {
-        Collections.consumeRemaining(pkgs, new Consumer<String>() {
-            @Override
-            public void accept(String s) {
-                if (!TextUtils.isEmpty(s) && WATCHED_PACKAGES.contains(s)) {
-                    WATCHED_PACKAGES.remove(s);
-                    if (DEBUG_V) XLog.logD("Remove package:" + s);
-                }
-            }
-        });
-    }
-
-    @Override
+    @BinderCall
     public void watch(IWatcher w) throws RemoteException {
-        if (DEBUG_V) XLog.logD("iWatcher.watch-" + w);
-        enforceCallingPermissions();
-        Preconditions.checkNotNull(w);
-        synchronized (WATCHERS) { //FIXME Link to death~~~
-            if (!WATCHERS.contains(w)) {
-                WATCHERS.add(w);
-                if (DEBUG_V) XLog.logD("iWatcher.watch-OK " + w);
-            }
-        }
+
     }
 
     @Override
+    @BinderCall
     public void unWatch(IWatcher w) throws RemoteException {
-        if (DEBUG_V) XLog.logD("iWatcher.unWatch-" + w);
-        enforceCallingPermissions();
-        Preconditions.checkNotNull(w);
-        synchronized (WATCHERS) { //FIXME Link to death~~~
-            if (WATCHERS.contains(w)) {
-                WATCHERS.remove(w);
-                if (DEBUG_V) XLog.logD("iWatcher.unWatch-OK " + w);
-            }
-        }
-    }
 
-    private void notifyWatcherUserLeaving(final String reason) {
-        synchronized (WATCHERS) {
-            Collections.consumeRemaining(WATCHERS, new Consumer<IWatcher>() {
-                @Override
-                public void accept(final IWatcher iWatcher) {
-                    mWorkingService.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                iWatcher.onUserLeaving(reason);
-                                if (DEBUG_V) XLog.logD("iWatcher.onUserLeaving-" + reason);
-                            } catch (Throwable ignored) {
-                            }
-                        }
-                    });
-                }
-            });
-
-            // FIXME. FFFFFF?
-            WATCHERS.clear();
-        }
     }
 
     @Override
-    public void forceWriteState() throws RemoteException {
-        enforceCallingPermissions();
-        mHandler.obtainMessage(MSG_WRITE_STATE).sendToTarget();
-    }
-
-    private void onWriteState() {
-        mWorkingService.execute(new Runnable() {
-            @Override
-            public void run() {
-                persistPackages();
-            }
-        });
-    }
-
-    @Override
-    public void forceReadState() throws RemoteException {
-        enforceCallingPermissions();
-        mHandler.obtainMessage(MSG_READ_STATE).sendToTarget();
-    }
-
-    @Override
+    @BinderCall
     public void mockCrash() throws RemoteException {
-        enforceCallingPermissions();
-        mHandler.obtainMessage(MSG_FUCK_YR_SELF).sendToTarget();
-    }
 
-    protected void onMockCrash() {
-        throw new IllegalStateException("Let's CRASH, bye bye you...");
-    }
-
-    private void onReadState() {
-        mWorkingService.execute(new Runnable() {
-            @Override
-            public void run() {
-                loadPackages();
-            }
-        });
-    }
-
-    @SuppressWarnings("unchecked")
-    private void loadPackages() {
-        try {
-            FileReader fileReader = new FileReader(mXmlFile.getBaseFile());
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            String line;
-            StringBuilder stringBuilder = new StringBuilder();
-            while ((line = bufferedReader.readLine()) != null) {
-                stringBuilder.append(line);
-            }
-            fileReader.close();
-            bufferedReader.close();
-            String content = stringBuilder.toString();
-            if (DEBUG_V) XLog.logD("reader:" + content);
-            StringTokenizer stringTokenizer = new StringTokenizer(content, "|");
-            WATCHED_PACKAGES.clear();
-            while (stringTokenizer.hasMoreTokens()) {
-                String p = stringTokenizer.nextToken();
-                WATCHED_PACKAGES.add(p);
-                if (DEBUG_V) XLog.logD("Read:" + p);
-            }
-        } catch (Exception e) {
-            XLog.logD("Fail loadPackages:" + Log.getStackTraceString(e));
-            // Delete bad file.
-            mXmlFile.delete();
-        }
-    }
-
-    private void persistPackages() {
-        FileOutputStream os = null;
-        try {
-            mXmlFile.delete();
-            os = mXmlFile.startWrite();
-            PrintWriter printWriter = new PrintWriter(os, false);
-            printWriter.write(formatPackages());
-            printWriter.flush();
-        } catch (Exception e) {
-            XLog.logD("Fail persistPackages:" + Log.getStackTraceString(e));
-        } finally {
-            if (os != null) {
-                mXmlFile.finishWrite(os);
-            }
-        }
-    }
-
-    private String formatPackages() {
-        StringBuilder stringBuilder = new StringBuilder();
-        Object[] arr = WATCHED_PACKAGES.toArray();
-        for (int i = 0; i < arr.length; i++) {
-            stringBuilder.append(String.valueOf(arr[i]));
-            if (i != arr.length - 1) stringBuilder.append("|");
-        }
-        return stringBuilder.toString();
-    }
-
-    private static Intent buildVerifyIntent(boolean allow3rd, int transId, String pkg) {
-        Intent intent = new Intent(ACTION_APP_GUARD_VERIFY_DISPLAYER);
-        intent.setClassName(BuildConfig.APPLICATION_ID,
-                "github.tornaco.xposedmoduletest.ui.VerifyDisplayerActivity");
-        intent.putExtra(XKey.EXTRA_PKG_NAME, pkg);
-        intent.putExtra(XKey.EXTRA_TRANS_ID, transId);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        return intent;
-    }
-
-    @Override
-    public boolean handleMessage(Message msg) {
-        if (DEBUG_V) XLog.logD("handleMessage:" + decodeMsg(msg.what));
-        switch (msg.what) {
-            case MSG_VERIFY_RES:
-                onSetResult(msg.arg1, msg.arg2);
-                return true;
-            case MSG_SET_ENABLED:
-                onSetEnabled(msg.arg1 == 1);
-                return true;
-            case MSG_VERIFY:
-                onVerify((VerifyArgs) msg.obj);
-                return true;
-            case MSG_ADD_PACKAGES:
-                onAddPackages((String[]) msg.obj);
-                return true;
-            case MSG_REMOVE_PACKAGES:
-                onRemovePackages((String[]) msg.obj);
-                return true;
-            case MSG_READ_STATE:
-                onReadState();
-                return true;
-            case MSG_WRITE_STATE:
-                onWriteState();
-                return true;
-            case MSG_SET_BLUR:
-                onSetBlur(msg.arg1 == 1);
-                return true;
-            case MSG_SET_BLUR_POLICY:
-                onSetBlurPolicy(msg.arg1);
-                return true;
-            case MSG_SET_BLUR_RADIUS:
-                onSetBlurRadius(msg.arg1);
-                return true;
-            case MSG_SET_BLUR_SCALE:
-                onSetBlurScale((Float) msg.obj);
-                return true;
-            case MSG_SET_SET_ALLOW_3RD_VER:
-                onSetAllow3rdVerifier(msg.arg1 == 1);
-                return true;
-            case MSG_SET_PASSCODE:
-                onSetPasscode((String) msg.obj);
-                return true;
-            case MSG_PASS:
-            case MSG_IGNORE:
-                return false;
-            case MSG_ON_HOME:
-                onHomeInternal();
-                return true;
-            case MSG_SET_VERIFY_ON_HOME:
-                onSetVerifyOnHome(msg.arg1 == 1);
-                return true;
-            case MSG_SET_VERIFY_ON_SCREEN_OFF:
-                onSetVerifyOnScreenOff(msg.arg1 == 1);
-                return true;
-            case MSG_FUCK_YR_SELF:
-                onMockCrash();
-                return true;
-            case MSG_SET_APP_UNINSTALL_PRO:
-                onSetAppUninstallPro(msg.arg1 == 1);
-                return true;
-            default:
-                int transaction = (int) msg.obj;
-                onSetResult(XMode.MODE_IGNORED, transaction);
-                return true;
-        }
-    }
-
-    private String decodeMsg(int what) {
-        switch (what) {
-            case MSG_ADD_PACKAGES:
-                return "MSG_ADD_PACKAGES";
-            case MSG_READ_STATE:
-                return "MSG_READ_STATE";
-            case MSG_REMOVE_PACKAGES:
-                return "MSG_REMOVE_PACKAGES";
-            case MSG_SET_ENABLED:
-                return "MSG_SET_ENABLED";
-            case MSG_VERIFY:
-                return "MSG_VERIFY";
-            case MSG_VERIFY_RES:
-                return "MSG_VERIFY_RES";
-            case MSG_WRITE_STATE:
-                return "MSG_WRITE_STATE";
-            case MSG_PASS:
-                return "MSG_PASS";
-            case MSG_IGNORE:
-                return "MSG_IGNORE";
-            case MSG_SET_BLUR:
-                return "MSG_SET_BLUR";
-            case MSG_SET_BLUR_POLICY:
-                return "MSG_SET_BLUR_POLICY";
-            case MSG_SET_BLUR_RADIUS:
-                return "MSG_SET_BLUR_RADIUS";
-            case MSG_SET_BLUR_SCALE:
-                return "MSG_SET_BLUR_SCALE";
-            case MSG_SET_SET_ALLOW_3RD_VER:
-                return "MSG_SET_SET_ALLOW_3RD_VER";
-            case MSG_SET_PASSCODE:
-                return "MSG_SET_PASSCODE";
-            case MSG_ON_HOME:
-                return "MSG_ON_HOME";
-            case MSG_SET_VERIFY_ON_HOME:
-                return "MSG_SET_VERIFY_ON_HOME";
-            case MSG_SET_VERIFY_ON_SCREEN_OFF:
-                return "MSG_SET_VERIFY_ON_SCREEN_OFF";
-            case MSG_FUCK_YR_SELF:
-                return "MSG_FUCK_YR_SELF";
-            case MSG_SET_APP_UNINSTALL_PRO:
-                return "MSG_SET_APP_UNINSTALL_PRO";
-            default:
-                return "MSG_TRANSACTION_EXPIRE";
-        }
     }
 
     private void parsePackageAsync(final String... pkg) {
@@ -974,7 +364,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
     }
 
     private void parsePackage(final String... pkg) {
-        final PackageManager pm = mContext.getPackageManager();
+        final PackageManager pm = getContext().getPackageManager();
 
         Collections.consumeRemaining(pkg, new Consumer<String>() {
             @Override
@@ -982,19 +372,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
                 ApplicationInfo applicationInfo;
                 try {
                     applicationInfo = pm.getApplicationInfo(s, PackageManager.GET_META_DATA);
-                    if (s.equals("github.tornaco.dialogstyledveifier")) {
-                        int uid = applicationInfo.uid;
-                        int code = applicationInfo.versionCode;
-                        XLog.logD("Verifier pkg:" + s + ", uid:" + uid);
-                        VERIFIER_PACKAGES.put(s, uid);
-                        return;
-                    }
                     if (applicationInfo.metaData == null) return;
                     String displayerName = applicationInfo.metaData.getString(META_DATA_KEY_APP_GUARD_VERIFY_DISPLAYER);
                     if (TextUtils.isEmpty(displayerName)) return;
                     int uid = applicationInfo.uid;
                     XLog.logD("Verifier pkg:" + displayerName + ", uid:" + uid);
-                    VERIFIER_PACKAGES.put(s, uid);
                 } catch (Exception ignored) {
 
                 }
@@ -1004,34 +386,29 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
 
 
     protected void enforceCallingPermissions() {
+        if (BuildConfig.DEBUG) return;
         int callingUID = Binder.getCallingUid();
-        if (VERIFIER_PACKAGES.containsValue(callingUID)) return;
-        if (callingUID == Process.myUid() || (sClientUID > 0 && sClientUID == callingUID)) {
+        if (callingUID == android.os.Process.myUid() || (sClientUID > 0 && sClientUID == callingUID)) {
             return;
         }
         throw new SecurityException("Package of uid:" + callingUID
                 + ", does not have permission to interact with XAppGuardServiceImpl");
     }
 
-    public void onUserLeaving() {
-        super.onUserLeaving();
-        // Skip when early startup.
-        if (mHandler != null) mHandler.obtainMessage(MSG_ON_HOME).sendToTarget();
-    }
-
-    private void onHomeInternal() {
-        if (isVerifyOnHome()) {
-            XLog.logV("HOME, Clearing passed pkgs...");
-            PASSED_PACKAGES.clear();
-        }
-        notifyWatcherUserLeaving("Home");
-    }
-
     private void onScreenOff() {
-        if (isVerifyOnScreenOff()) {
-            XLog.logV("SCREEN OFF, Clearing passed pkgs...");
-            PASSED_PACKAGES.clear();
-        }
+        XLog.logV("SCREEN OFF, Clearing passed pkgs...");
+    }
+
+
+    private static Intent buildVerifyIntent(boolean allow3rd, int transId, String pkg) {
+        Intent intent = new Intent(XAppGuardManager.ACTION_APP_GUARD_VERIFY_DISPLAYER);
+        intent.setClassName(BuildConfig.APPLICATION_ID,
+                "github.tornaco.xposedmoduletest.ui.VerifyDisplayerActivity");
+        intent.putExtra(XAppGuardManager.EXTRA_PKG_NAME, pkg);
+        intent.putExtra(XAppGuardManager.EXTRA_TRANS_ID, transId);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        return intent;
     }
 
     private static class TransactionFactory {
@@ -1043,4 +420,208 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs implements Handler.Callba
         }
     }
 
+
+    @SuppressLint("HandlerLeak")
+    private class ServiceHandlerImpl extends Handler
+            implements ServiceHandler {
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            int wht = msg.what;
+            XLog.logV("handleMessage@" + ServiceHandlerMessages.decodeMessage(wht));
+            switch (wht) {
+                case ServiceHandlerMessages.MSG_SETENABLED:
+                    setEnabled(msg.arg1 == 1);
+                    break;
+                case ServiceHandlerMessages.MSG_SETBLURSETTINGS:
+                    setBlurSettings((BlurSettings) msg.obj);
+                    break;
+                case ServiceHandlerMessages.MSG_ADDPACKAGES:
+                    addPackages((PackageSettings) msg.obj);
+                    break;
+                case ServiceHandlerMessages.MSG_MOCKCRASH:
+                    mockCrash();
+                    break;
+                case ServiceHandlerMessages.MSG_REMOVEPACKAGES:
+                    removePackages((PackageSettings) msg.obj);
+                    break;
+                case ServiceHandlerMessages.MSG_SETRESULT:
+                    setResult(msg.arg1, msg.arg2);
+                    break;
+                case ServiceHandlerMessages.MSG_SETUNINSTALLINTERRUPTENABLED:
+                    setUninstallInterruptEnabled(msg.arg1 == 1);
+                    break;
+                case ServiceHandlerMessages.MSG_SETVERIFYSETTINGS:
+                    setVerifySettings((VerifySettings) msg.obj);
+                    break;
+                case ServiceHandlerMessages.MSG_TESTUI:
+                    testUI();
+                    break;
+                case ServiceHandlerMessages.MSG_UNWATCH:
+                    unWatch((IWatcher) msg.obj);
+                    break;
+                case ServiceHandlerMessages.MSG_WATCH:
+                    watch((IWatcher) msg.obj);
+                    break;
+                case ServiceHandlerMessages.MSG_VERIFY:
+                    verify((VerifyArgs) msg.obj);
+                    break;
+                default:
+                    XLog.logF("Unknown msg:" + wht);
+                    break;
+            }
+        }
+
+        @Override
+        public void setEnabled(boolean enabled) {
+            if (mEnabled.compareAndSet(!enabled, enabled)) {
+                TorSettings.APP_GUARD_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setUninstallInterruptEnabled(boolean enabled) {
+
+        }
+
+        @Override
+        public void setVerifySettings(VerifySettings settings) {
+
+        }
+
+
+        @Override
+        public void setBlurSettings(BlurSettings settings) {
+
+        }
+
+
+        @Override
+        public void setResult(int transactionID, int res) {
+            Transaction transaction = TRANSACTION_MAP.remove(transactionID);
+            if (transaction == null) {
+                XLog.logD("Can not find transaction for:" + transactionID);
+                return;
+            }
+            if (res == XMode.MODE_ALLOWED) {
+//                PASSED_PACKAGES.add(transaction.pkg);
+            }
+            transaction.listener.onVerifyRes(transaction.pkg, transaction.uid, transaction.pid, res);
+            mServiceHandler.removeMessages(MSG_TRANSACTION_EXPIRE_BASE + transactionID);
+        }
+
+        @Override
+        public void verify(VerifyArgs args) {
+            XLog.logD("onVerify:" + args);
+            int tid = TransactionFactory.transactionID();
+            int uid = args.uid;
+            int pid = args.pid;
+            String pkg = args.pkg;
+            Bundle bnds = args.bnds;
+            VerifyListener listener = args.listener;
+
+            Transaction transaction = new Transaction(listener, uid, pid, tid, pkg);
+
+            synchronized (TRANSACTION_MAP) {
+                TRANSACTION_MAP.put(tid, transaction);
+            }
+
+            onNewTransaction(tid);
+
+            Intent intent = buildVerifyIntent(false, tid, pkg);
+            try {
+                getContext().startActivity(intent, bnds);
+            } catch (ActivityNotFoundException anf) {
+                XLog.logD("*** FATAL ERROR *** ActivityNotFoundException!!!");
+                setResult(tid, XMode.MODE_ALLOWED);
+            }
+        }
+
+        private void onNewTransaction(int transaction) {
+            sendMessageDelayed(obtainMessage(MSG_TRANSACTION_EXPIRE_BASE
+                            + transaction,
+                    transaction), TRANSACTION_EXPIRE_TIME);
+        }
+
+        @Override
+        public void testUI() {
+
+        }
+
+        @Override
+        public void addPackages(final PackageSettings pkg) {
+            FAST_PKG_SETTINGS_MAP.put(pkg.getPkgName(), pkg);
+            mWorkingService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized (LOCK) {
+                        pkg.writeTo(PackageSettingsLoader.PKG_SETTINGS_DIR);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void removePackages(PackageSettings pkg) {
+            FAST_PKG_SETTINGS_MAP.remove(pkg.getPkgName());
+            synchronized (LOCK) {
+                pkg.deleteFrom(PackageSettingsLoader.PKG_SETTINGS_DIR);
+            }
+        }
+
+
+        @Override
+        public void watch(IWatcher w) {
+
+        }
+
+        @Override
+        public void unWatch(IWatcher w) {
+
+        }
+
+        @Override
+        public void mockCrash() {
+
+        }
+    }
+
+    private static class PackageSettingsLoader {
+
+        private static final File PKG_SETTINGS_DIR;
+
+        static {
+            File dataDir = Environment.getDataDirectory();
+            File systemDir = new File(dataDir, "system/app_guard/");
+            PKG_SETTINGS_DIR = new File(systemDir, "pkgs");
+        }
+
+        Set<PackageSettings> loadPackageSettings() {
+            if (FileUtil.isEmptyDir(PKG_SETTINGS_DIR)) return Sets.newHashSet();
+            final Set<PackageSettings> all = Sets.newHashSet();
+            github.tornaco.android.common.Collections.consumeRemaining(
+                    Files.fileTreeTraverser().children(PKG_SETTINGS_DIR),
+                    new Consumer<File>() {
+                        @Override
+                        public void accept(File file) {
+                            try {
+                                PackageSettings packageSettings = PackageSettings.readFrom(file);
+                                if (TextUtils.isEmpty(packageSettings.getPkgName())) {
+                                    // Skip bad one.
+                                    return;
+                                }
+                                XLog.logV("Read PackageSettings:" + packageSettings);
+                                all.add(packageSettings);
+                            } catch (Exception e) {
+                                XLog.logF("Fail read PackageSettings:"
+                                        + file
+                                        + ", Exception:"
+                                        + Log.getStackTraceString(e));
+                            }
+                        }
+                    });
+            return all;
+        }
+    }
 }

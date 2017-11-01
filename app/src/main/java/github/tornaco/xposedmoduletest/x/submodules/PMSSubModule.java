@@ -58,7 +58,7 @@ class PMSSubModule extends AndroidSubModuleModule {
                         }
                     });
             XLog.logV("hookPackageManagerService OK:" + unHooks);
-            getService().publishFeature(XAppGuardManager.Feature.HOME);
+            getBridge().publishFeature(XAppGuardManager.Feature.HOME);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
             XLog.logV("Fail hookPackageManagerService:" + e);
@@ -69,6 +69,6 @@ class PMSSubModule extends AndroidSubModuleModule {
 
 
     private boolean interruptPackageRemoval(String pkgName) {
-        return getService().interruptPackageRemoval(pkgName);
+        return getBridge().interruptPackageRemoval(pkgName);
     }
 }

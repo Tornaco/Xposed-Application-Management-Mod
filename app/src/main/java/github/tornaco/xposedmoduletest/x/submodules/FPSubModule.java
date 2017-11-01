@@ -46,7 +46,7 @@ class FPSubModule extends AndroidSubModuleModule {
                         }
                     });
             XLog.logV("hookFPService OK:" + unHooks);
-            getService().publishFeature(XAppGuardManager.Feature.FP);
+            getBridge().publishFeature(XAppGuardManager.Feature.FP);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
             XLog.logV("Fail hookFPService" + e);

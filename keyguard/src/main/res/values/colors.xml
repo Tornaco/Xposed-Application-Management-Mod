@@ -19,8 +19,8 @@
     <color name="clock_gray">#b3ffffff</color>
 
     <!-- LockPatternView -->
-    <color name="lock_pattern_view_regular_color">#ffffffff</color>
-    <color name="lock_pattern_view_success_color">#ffffffff</color>
+    <color name="lock_pattern_view_regular_color">@android:color/background_dark</color>
+    <color name="lock_pattern_view_success_color">@android:color/holo_green_dark</color>
     <color name="lock_pattern_view_error_color">#fff4511e</color>
 
 </resources>

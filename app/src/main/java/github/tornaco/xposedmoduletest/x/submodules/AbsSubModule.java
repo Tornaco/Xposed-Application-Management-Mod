@@ -5,7 +5,7 @@ import android.content.Intent;
 import java.util.Set;
 
 import de.robv.android.xposed.XC_MethodHook;
-import github.tornaco.xposedmoduletest.x.service.XAppGuardServiceAbs;
+import github.tornaco.xposedmoduletest.x.service.IModuleBridge;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,7 +16,7 @@ import lombok.Setter;
 
 abstract class AbsSubModule implements SubModule {
     @Getter
-    private XAppGuardServiceAbs service;
+    private IModuleBridge bridge;
 
     @Getter
     @Setter
@@ -27,8 +27,8 @@ abstract class AbsSubModule implements SubModule {
     private String errorMessage;
 
     @Override
-    public void onAppGuardServiceCreate(XAppGuardServiceAbs service) {
-        this.service = service;
+    public void onBridgeCreate(IModuleBridge bridge) {
+        this.bridge = bridge;
     }
 
     @Override

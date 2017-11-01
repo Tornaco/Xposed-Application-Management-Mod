@@ -57,21 +57,14 @@
 
     <RelativeLayout
         android:id="@+id/pin_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/keyguard_security_width"
+        android:layout_height="@dimen/keyguard_security_height"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:layout_marginTop="@dimen/activity_horizontal_margin">
 
-        <com.andrognito.patternlockview.PatternLockView
-            android:id="@+id/pattern_lock_view"
-            android:layout_width="300dp"
-            android:layout_height="300dp"
-            android:layout_centerInParent="true"
-            app:correctStateColor="@color/green_dark"
-            app:normalStateColor="@color/black"
-            app:wrongStateColor="@color/red_dark" />
+        <include layout="@layout/keyguard_pattern_view" />
 
         <!--<github.tornaco.xposedmoduletest.camera.SoftwareCameraPreview-->
         <!--android:id="@+id/surface"-->

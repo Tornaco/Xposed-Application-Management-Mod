@@ -11,10 +11,10 @@ import java.lang.reflect.Method;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.x.service.VerifyListener;
 import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.x.util.XLog;
 import github.tornaco.xposedmoduletest.x.app.XMode;
+import github.tornaco.xposedmoduletest.x.service.VerifyListener;
+import github.tornaco.xposedmoduletest.x.util.XLog;
 import github.tornaco.xposedmoduletest.x.util.XStopWatch;
 
 /**
@@ -109,7 +109,7 @@ class ActivityStartSubModule extends AndroidSubModuleModule {
                         }
 
                         // Package has been passed.
-                        if (getService().passed(pkgName)) {
+                        if (!getBridge().onEarlyVerifyConfirm(pkgName)) {
                             return;
                         }
 
@@ -118,7 +118,7 @@ class ActivityStartSubModule extends AndroidSubModuleModule {
                                         (Bundle) param.args[finalActivityOptsIndex]
                                         : null;
 
-                        getService().verify(options, pkgName, 0, 0,
+                        getBridge().verify(options, pkgName, 0, 0,
                                 new VerifyListener() {
                                     @Override
                                     public void onVerifyRes(String pkg, int uid, int pid, int res) {
@@ -139,7 +139,7 @@ class ActivityStartSubModule extends AndroidSubModuleModule {
                 }
             });
             XLog.logV("hookStartActivityMayWait OK: " + unhook);
-            getService().publishFeature(XAppGuardManager.Feature.START);
+            getBridge().publishFeature(XAppGuardManager.Feature.START);
             setStatus(unhookToStatus(unhook));
         } catch (Exception e) {
             XLog.logV("Fail hookStartActivityMayWait:" + e);

@@ -38,12 +38,12 @@ class PWMSubModule extends AndroidSubModuleModule {
                                     && (keyEvent.getKeyCode() == KeyEvent.KEYCODE_HOME
                                     || keyEvent.getKeyCode() == KeyEvent.KEYCODE_APP_SWITCH)) {
                                 XLog.logV("dispatchUnhandledKey: HOME/APP_SWITCH");
-                                getService().onUserLeaving();
+                                getBridge().onUserLeaving("HOME");
                             }
                         }
                     });
             XLog.logV("hookPWM OK:" + unHooks);
-            getService().publishFeature(XAppGuardManager.Feature.HOME);
+            getBridge().publishFeature(XAppGuardManager.Feature.HOME);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
             XLog.logV("Fail hookPWM:" + e);

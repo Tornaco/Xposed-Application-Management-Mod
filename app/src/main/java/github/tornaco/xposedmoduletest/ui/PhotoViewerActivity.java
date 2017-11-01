@@ -18,7 +18,7 @@ import github.tornaco.xposedmoduletest.bean.AccessInfo;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.ui.adapter.PhotoListAdapter;
-import github.tornaco.xposedmoduletest.x.util.XExecutor;
+import github.tornaco.xposedmoduletest.util.XExecutor;
 
 /**
  * Created by guohao4 on 2017/10/20.

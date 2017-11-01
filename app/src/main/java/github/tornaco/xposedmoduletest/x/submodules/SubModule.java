@@ -3,7 +3,7 @@ package github.tornaco.xposedmoduletest.x.submodules;
 import java.util.Set;
 
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.x.service.XAppGuardServiceAbs;
+import github.tornaco.xposedmoduletest.x.service.IModuleBridge;
 
 /**
  * Created by guohao4 on 2017/10/30.
@@ -12,7 +12,7 @@ import github.tornaco.xposedmoduletest.x.service.XAppGuardServiceAbs;
 
 public interface SubModule {
 
-    void onAppGuardServiceCreate(XAppGuardServiceAbs service);
+    void onBridgeCreate(IModuleBridge bridge);
 
     void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam);
 

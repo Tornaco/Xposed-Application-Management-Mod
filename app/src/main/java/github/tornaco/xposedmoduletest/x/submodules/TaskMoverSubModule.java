@@ -11,10 +11,10 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.x.service.VerifyListener;
 import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.x.util.XLog;
 import github.tornaco.xposedmoduletest.x.app.XMode;
+import github.tornaco.xposedmoduletest.x.service.VerifyListener;
+import github.tornaco.xposedmoduletest.x.util.XLog;
 import github.tornaco.xposedmoduletest.x.util.XStopWatch;
 
 /**
@@ -54,9 +54,9 @@ class TaskMoverSubModule extends AndroidSubModuleModule {
                         XLog.logV("findTaskToMoveToFrontLocked:" + pkgName);
 
                         // Package has been passed.
-                        if (getService().passed(pkgName)) return;
+                        if (!getBridge().onEarlyVerifyConfirm(pkgName)) return;
 
-                        getService().verify(null, pkgName, 0, 0,
+                        getBridge().verify(null, pkgName, 0, 0,
                                 new VerifyListener() {
                                     @Override
                                     public void onVerifyRes(String pkg, int uid, int pid, int res) {
@@ -81,7 +81,7 @@ class TaskMoverSubModule extends AndroidSubModuleModule {
             });
             XLog.logV("hookTaskMover OK:" + unhook);
             setStatus(unhookToStatus(unhook));
-            getService().publishFeature(XAppGuardManager.Feature.RECENT);
+            getBridge().publishFeature(XAppGuardManager.Feature.RECENT);
         } catch (Exception e) {
             XLog.logV("hookTaskMover" + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);

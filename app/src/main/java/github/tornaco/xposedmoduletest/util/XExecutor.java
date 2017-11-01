@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.x.util;
+package github.tornaco.xposedmoduletest.util;
 
 import android.os.Handler;
 import android.os.Looper;

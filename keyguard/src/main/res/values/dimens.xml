@@ -26,7 +26,7 @@
     <dimen name="keyguard_security_width">320dp</dimen>
 
     <!-- Height of the sliding KeyguardSecurityContainer (includes 2x keyguard_security_view_margin) -->
-    <dimen name="keyguard_security_height">400dp</dimen>
+    <dimen name="keyguard_security_height">320dp</dimen>
 
     <!-- Max Height of the sliding KeyguardSecurityContainer (includes 2x keyguard_security_view_margin) -->
     <dimen name="keyguard_security_max_height">450dp</dimen>

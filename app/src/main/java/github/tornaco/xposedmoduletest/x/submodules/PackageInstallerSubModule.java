@@ -65,7 +65,7 @@ class PackageInstallerSubModule extends AndroidSubModuleModule {
                     });
             XLog.logV("hookPackageInstaller OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
-            getService().publishFeature(XAppGuardManager.Feature.HOME);
+            getBridge().publishFeature(XAppGuardManager.Feature.HOME);
         } catch (Exception e) {
             XLog.logV("Fail hookPackageInstaller:" + e);
             setStatus(SubModuleStatus.ERROR);
@@ -75,7 +75,7 @@ class PackageInstallerSubModule extends AndroidSubModuleModule {
 
 
     private boolean interruptPackageRemoval(String pkgName) {
-        return getService().interruptPackageRemoval(pkgName);
+        return getBridge().interruptPackageRemoval(pkgName);
     }
 
     static class PackageDeleteObserverAdapter extends PackageDeleteObserver {

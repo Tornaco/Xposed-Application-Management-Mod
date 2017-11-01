@@ -2,7 +2,6 @@ package github.tornaco.xposedmoduletest.ui;
 
 import android.Manifest;
 import android.annotation.TargetApi;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,17 +16,12 @@ import android.widget.Toast;
 
 import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
-import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerCompat;
-import github.tornaco.xposedmoduletest.x.XApp;
-import github.tornaco.xposedmoduletest.x.XAppBuildHostInfo;
-import github.tornaco.xposedmoduletest.x.XAppGithubCommitSha;
-import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.x.secure.XEnc;
 import github.tornaco.xposedmoduletest.x.XKey;
 import github.tornaco.xposedmoduletest.x.XSettings;
-import github.tornaco.xposedmoduletest.x.XStatus;
+import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.x.secure.XEnc;
 
 /**
  * Created by guohao4 on 2017/9/7.
@@ -86,7 +80,7 @@ public class SettingsActivity extends BaseActivity {
         @Override
         public void onResume() {
             super.onResume();
-            if (!XAppGuardManager.from().isServiceConnected()) showConnectionTip();
+            if (!XAppGuardManager.from().isServiceAvailable()) showConnectionTip();
         }
 
         @Override
@@ -94,7 +88,7 @@ public class SettingsActivity extends BaseActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.settings);
 
-            boolean serviceAvailable = XAppGuardManager.from().isServiceConnected();
+            boolean serviceAvailable = XAppGuardManager.from().isServiceAvailable();
 
             SwitchPreference uninstallProPref = (SwitchPreference) findPreference(XKey.APP_UNINSTALL_PRO);
             if (serviceAvailable) {
@@ -185,132 +179,132 @@ public class SettingsActivity extends BaseActivity {
                         }
                     });
 
-            SwitchPreference blurPref = (SwitchPreference) findPreference(XKey.BLUR);
-            if (serviceAvailable) {
-                blurPref.setChecked(XAppGuardManager.from().isBlur());
-                blurPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        boolean enabled = (boolean) newValue;
-                        XAppGuardManager.from().setBlur(enabled);
-                        return true;
-                    }
-                });
-            } else {
-                blurPref.setEnabled(false);
-            }
-
-            SwitchPreference blurAllPref = (SwitchPreference) findPreference(XKey.BLUR_ALL);
-            if (serviceAvailable) {
-                blurAllPref.setChecked(XAppGuardManager.from().getBlurPolicy() == XAppGuardManager.BlurPolicy.BLUR_ALL);
-                blurAllPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        boolean enabled = (boolean) newValue;
-                        XAppGuardManager.from().setBlurPolicy(enabled ? XAppGuardManager.BlurPolicy.BLUR_ALL : XAppGuardManager.BlurPolicy.BLUR_WATCHED);
-                        return true;
-                    }
-                });
-            } else {
-                blurAllPref.setEnabled(false);
-            }
-
-            SwitchPreference verHome = (SwitchPreference) findPreference(XKey.VERIFY_ON_HOME);
-            if (serviceAvailable) {
-                verHome.setChecked(XAppGuardManager.from().isVerifyOnHome());
-                verHome.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        boolean enabled = (boolean) newValue;
-                        XAppGuardManager.from().setVerifyOnHome(enabled);
-                        return true;
-                    }
-                });
-            } else {
-                verHome.setEnabled(false);
-            }
-
-            SwitchPreference verScr = (SwitchPreference) findPreference(XKey.VERIFY_ON_SCREEN_OFF);
-            verScr.setEnabled(serviceAvailable);
-            if (serviceAvailable) {
-                verScr.setChecked(XAppGuardManager.from().isVerifyOnScreenOff());
-                verScr.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        boolean enabled = (boolean) newValue;
-                        XAppGuardManager.from().setVerifyOnScreenOff(enabled);
-                        return true;
-                    }
-                });
-            }
-
-            findPreference(getString(R.string.test_noter))
-                    .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                        @Override
-                        public boolean onPreferenceClick(Preference preference) {
-                            if (XAppGuardManager.from().isServiceConnected())
-                                XAppGuardManager.from().testUI();
-                            else
-                                VerifyDisplayerActivity.startAsTest(getActivity());
-                            return true;
-                        }
-                    });
-
-//            findPreference(getString(R.string.verifier_settings))
+//            SwitchPreference blurPref = (SwitchPreference) findPreference(XKey.BLUR);
+//            if (serviceAvailable) {
+//                blurPref.setChecked(XAppGuardManager.from().isBlur());
+//                blurPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+//                    @Override
+//                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+//                        boolean enabled = (boolean) newValue;
+//                        XAppGuardManager.from().setBlur(enabled);
+//                        return true;
+//                    }
+//                });
+//            } else {
+//                blurPref.setEnabled(false);
+//            }
+//
+//            SwitchPreference blurAllPref = (SwitchPreference) findPreference(XKey.BLUR_ALL);
+//            if (serviceAvailable) {
+//                blurAllPref.setChecked(XAppGuardManager.from().getBlurPolicy() == XAppGuardManager.BlurPolicy.BLUR_ALL);
+//                blurAllPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+//                    @Override
+//                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+//                        boolean enabled = (boolean) newValue;
+//                        XAppGuardManager.from().setBlurPolicy(enabled ? XAppGuardManager.BlurPolicy.BLUR_ALL : XAppGuardManager.BlurPolicy.BLUR_WATCHED);
+//                        return true;
+//                    }
+//                });
+//            } else {
+//                blurAllPref.setEnabled(false);
+//            }
+//
+//            SwitchPreference verHome = (SwitchPreference) findPreference(XKey.VERIFY_ON_HOME);
+//            if (serviceAvailable) {
+//                verHome.setChecked(XAppGuardManager.from().isVerifyOnHome());
+//                verHome.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+//                    @Override
+//                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+//                        boolean enabled = (boolean) newValue;
+//                        XAppGuardManager.from().setVerifyOnHome(enabled);
+//                        return true;
+//                    }
+//                });
+//            } else {
+//                verHome.setEnabled(false);
+//            }
+//
+//            SwitchPreference verScr = (SwitchPreference) findPreference(XKey.VERIFY_ON_SCREEN_OFF);
+//            verScr.setEnabled(serviceAvailable);
+//            if (serviceAvailable) {
+//                verScr.setChecked(XAppGuardManager.from().isVerifyOnScreenOff());
+//                verScr.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+//                    @Override
+//                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+//                        boolean enabled = (boolean) newValue;
+//                        XAppGuardManager.from().setVerifyOnScreenOff(enabled);
+//                        return true;
+//                    }
+//                });
+//            }
+//
+//            findPreference(getString(R.string.test_noter))
 //                    .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 //                        @Override
 //                        public boolean onPreferenceClick(Preference preference) {
-//                            startActivity(new Intent(getActivity(), VerifyDisplayerSettingsActivity.class));
+//                            if (XAppGuardManager.from().isServiceAvailable())
+//                                XAppGuardManager.from().testUI();
+//                            else
+//                                VerifyDisplayerActivity.startAsTest(getActivity());
 //                            return true;
 //                        }
 //                    });
+//
+////            findPreference(getString(R.string.verifier_settings))
+////                    .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+////                        @Override
+////                        public boolean onPreferenceClick(Preference preference) {
+////                            startActivity(new Intent(getActivity(), VerifyDisplayerSettingsActivity.class));
+////                            return true;
+////                        }
+////                    });
+//
+//            findPreference(getString(R.string.dump_module))
+//                    .setSummary(XStatus.valueOf(XAppGuardManager.from().getStatus()).name());
+//
+//            SwitchPreference hideAppIcon = (SwitchPreference) findPreference(XKey.HIDE_APP_ICON);
+//            hideAppIcon.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+//                @Override
+//                public boolean onPreferenceChange(Preference preference, Object newValue) {
+//                    boolean enabled = (boolean) newValue;
+//                    XApp.getApp().hideAppIcon(enabled);
+//                    ProgressDialog p = new ProgressDialog(getActivity());
+//                    p.setMessage("&*^$%$(-)$##@%%%%^-^");
+//                    p.setIndeterminate(true);
+//                    p.setCancelable(false);
+//                    p.show();
+//                    BaseActivity b = (BaseActivity) getActivity();
+//                    b.getUIThreadHandler().postDelayed(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            getActivity().finishAffinity();
+//                        }
+//                    }, 8 * 1000);
+//                    return true;
+//                }
+//            });
+//
+//            SwitchPreference allow3rdVerifierPref = (SwitchPreference) findPreference(XKey.ALLOW_3RD_VERIFIER);
+//            allow3rdVerifierPref.setEnabled(serviceAvailable);
+//            if (serviceAvailable) {
+//                allow3rdVerifierPref.setChecked(XAppGuardManager.from().isAllow3rdVerifier());
+//                allow3rdVerifierPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+//                    @Override
+//                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+//                        boolean enabled = (boolean) newValue;
+//                        XAppGuardManager.from().setAllow3rdVerifier(enabled);
+//                        return true;
+//                    }
+//                });
+//            }
 
-            findPreference(getString(R.string.dump_module))
-                    .setSummary(XStatus.valueOf(XAppGuardManager.from().getStatus()).name());
-
-            SwitchPreference hideAppIcon = (SwitchPreference) findPreference(XKey.HIDE_APP_ICON);
-            hideAppIcon.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    boolean enabled = (boolean) newValue;
-                    XApp.getApp().hideAppIcon(enabled);
-                    ProgressDialog p = new ProgressDialog(getActivity());
-                    p.setMessage("&*^$%$(-)$##@%%%%^-^");
-                    p.setIndeterminate(true);
-                    p.setCancelable(false);
-                    p.show();
-                    BaseActivity b = (BaseActivity) getActivity();
-                    b.getUIThreadHandler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            getActivity().finishAffinity();
-                        }
-                    }, 8 * 1000);
-                    return true;
-                }
-            });
-
-            SwitchPreference allow3rdVerifierPref = (SwitchPreference) findPreference(XKey.ALLOW_3RD_VERIFIER);
-            allow3rdVerifierPref.setEnabled(serviceAvailable);
-            if (serviceAvailable) {
-                allow3rdVerifierPref.setChecked(XAppGuardManager.from().isAllow3rdVerifier());
-                allow3rdVerifierPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        boolean enabled = (boolean) newValue;
-                        XAppGuardManager.from().setAllow3rdVerifier(enabled);
-                        return true;
-                    }
-                });
-            }
-
-            Preference buildInfo = findPreference(getString(R.string.title_app_ver));
-            buildInfo.setSummary(BuildConfig.VERSION_NAME
-                    + "-" + BuildConfig.BUILD_TYPE
-                    + "\n编译日期 " + XAppBuildHostInfo.BUILD_DATE
-                    + "\n主机 "
-                    + XAppBuildHostInfo.BUILD_HOST_NAME
-                    + "\n提交 " + XAppGithubCommitSha.LATEST_SHA);
+//            Preference buildInfo = findPreference(getString(R.string.title_app_ver));
+//            buildInfo.setSummary(BuildConfig.VERSION_NAME
+//                    + "-" + BuildConfig.BUILD_TYPE
+//                    + "\n编译日期 " + XAppBuildHostInfo.BUILD_DATE
+//                    + "\n主机 "
+//                    + XAppBuildHostInfo.BUILD_HOST_NAME
+//                    + "\n提交 " + XAppGithubCommitSha.LATEST_SHA);
         }
     }
 

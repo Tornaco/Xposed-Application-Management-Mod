@@ -2,7 +2,6 @@ package github.tornaco.xposedmoduletest.x.submodules;
 
 import android.app.ActivityManagerNative;
 import android.content.ComponentName;
-import android.graphics.Bitmap;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
@@ -17,7 +16,6 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.x.util.XLog;
 import github.tornaco.xposedmoduletest.x.util.XStopWatch;
-import github.tornaco.xposedmoduletest.x.util.XBitmapUtil;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -51,7 +49,7 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModuleModule {
                         }
                     });
             XLog.logV("hookScreenshotApplications OK:" + unHooks);
-            getService().publishFeature(XAppGuardManager.Feature.BLUR);
+            getBridge().publishFeature(XAppGuardManager.Feature.BLUR);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
             XLog.logV("Fail hookScreenshotApplications:" + e);
@@ -68,15 +66,15 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModuleModule {
         if (TextUtils.isEmpty(pkgName)) {
             return;
         }
-        if (getService().isBlurForPkg(pkgName)
+        if (getBridge().isBlurForPkg(pkgName)
                 && param.getResult() != null) {
-            Bitmap res = (Bitmap) param.getResult();
-            stopWatch.split("Blur bitmap start");
-            Bitmap blured = (XBitmapUtil.createBlurredBitmap(res,
-                    getService().getBlurRadius(), getService().getBlurScale()));
-            if (blured != null)
-                param.setResult(blured);
-            stopWatch.split("Blur bitmap end");
+//            Bitmap res = (Bitmap) param.getResult();
+//            stopWatch.split("Blur bitmap start");
+//            Bitmap blured = (XBitmapUtil.createBlurredBitmap(res,
+//                    getBridge().getBlurRadius(), getBridge().getBlurScale()));
+//            if (blured != null)
+//                param.setResult(blured);
+//            stopWatch.split("Blur bitmap end");
         }
         stopWatch.stop();
     }

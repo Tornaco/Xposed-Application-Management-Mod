@@ -222,10 +222,8 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
                         public void onChecked(boolean matched) {
                             mLockPatternView.enableInput();
                             mPendingLockCheck = null;
-                            if (!matched) {
-                                onPatternChecked(false /* matched */,
-                                        true /* isValidPattern */);
-                            }
+                            onPatternChecked(matched /* matched */,
+                                    true /* isValidPattern */);
                         }
                     });
             if (pattern.size() > MIN_PATTERN_BEFORE_POKE_WAKELOCK) {

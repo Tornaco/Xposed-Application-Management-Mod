@@ -1,7 +1,7 @@
 package github.tornaco.xposedmoduletest.x;
 
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.x.service.XAppGuardServiceAbs;
+import github.tornaco.xposedmoduletest.x.service.IModuleBridge;
 import github.tornaco.xposedmoduletest.x.service.XAppGuardServiceDelegate;
 import github.tornaco.xposedmoduletest.x.submodules.SubModule;
 import github.tornaco.xposedmoduletest.x.submodules.SubModuleManager;
@@ -15,9 +15,9 @@ import github.tornaco.xposedmoduletest.x.util.XLog;
 class XModuleImplSeparable extends XModuleAbs {
 
     XModuleImplSeparable() {
-        XAppGuardServiceAbs delegate = new XAppGuardServiceDelegate();
+        IModuleBridge bridge = new XAppGuardServiceDelegate();
         for (SubModule s : SubModuleManager.getInstance().getAllSubModules()) {
-            s.onAppGuardServiceCreate(delegate);
+            s.onBridgeCreate(bridge);
         }
     }
 

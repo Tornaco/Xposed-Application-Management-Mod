@@ -29,16 +29,16 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.apigen.GithubCommitSha;
 import github.tornaco.xposedmoduletest.BuildConfig;
-import github.tornaco.xposedmoduletest.x.service.VerifyListener;
-import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.x.service.XAppGuardServiceAbs;
-import github.tornaco.xposedmoduletest.x.service.XAppGuardServiceDelegate;
-import github.tornaco.xposedmoduletest.x.util.XLog;
-import github.tornaco.xposedmoduletest.x.app.XMode;
 import github.tornaco.xposedmoduletest.x.XModuleAbs;
 import github.tornaco.xposedmoduletest.x.XStatus;
-import github.tornaco.xposedmoduletest.x.util.XStopWatch;
+import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.x.app.XMode;
+import github.tornaco.xposedmoduletest.x.service.IModuleBridge;
+import github.tornaco.xposedmoduletest.x.service.VerifyListener;
+import github.tornaco.xposedmoduletest.x.service.XAppGuardServiceDelegate;
 import github.tornaco.xposedmoduletest.x.util.XBitmapUtil;
+import github.tornaco.xposedmoduletest.x.util.XLog;
+import github.tornaco.xposedmoduletest.x.util.XStopWatch;
 
 /**
  * Created by guohao4 on 2017/10/19.
@@ -49,7 +49,7 @@ class XModuleImpl extends XModuleAbs {
 
     private XStatus xStatus = XStatus.UNKNOWN;
 
-    private XAppGuardServiceAbs mAppGuardService = new XAppGuardServiceDelegate();
+    private IModuleBridge moduleBridge = new XAppGuardServiceDelegate();
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -103,9 +103,9 @@ class XModuleImpl extends XModuleAbs {
                         XLog.logV("findTaskToMoveToFrontLocked:" + pkgName);
 
                         // Package has been passed.
-                        if (mAppGuardService.passed(pkgName)) return;
+                        if (!moduleBridge.onEarlyVerifyConfirm(pkgName)) return;
 
-                        mAppGuardService.verify(null, pkgName, 0, 0,
+                        moduleBridge.verify(null, pkgName, 0, 0,
                                 new VerifyListener() {
                                     @Override
                                     public void onVerifyRes(String pkg, int uid, int pid, int res) {
@@ -129,7 +129,7 @@ class XModuleImpl extends XModuleAbs {
                 }
             });
             XLog.logV("hookTaskMover OK:" + unhook);
-            mAppGuardService.publishFeature(XAppGuardManager.Feature.RECENT);
+            moduleBridge.publishFeature(XAppGuardManager.Feature.RECENT);
         } catch (Exception e) {
             XLog.logV("hookTaskMover" + Log.getStackTraceString(e));
             xStatus = XStatus.ERROR;
@@ -219,7 +219,7 @@ class XModuleImpl extends XModuleAbs {
                         }
 
                         // Package has been passed.
-                        if (mAppGuardService.passed(pkgName)) {
+                        if (!moduleBridge.onEarlyVerifyConfirm(pkgName)) {
                             return;
                         }
 
@@ -228,7 +228,7 @@ class XModuleImpl extends XModuleAbs {
                                         (Bundle) param.args[finalActivityOptsIndex]
                                         : null;
 
-                        mAppGuardService.verify(options, pkgName, 0, 0,
+                        moduleBridge.verify(options, pkgName, 0, 0,
                                 new VerifyListener() {
                                     @Override
                                     public void onVerifyRes(String pkg, int uid, int pid, int res) {
@@ -249,7 +249,7 @@ class XModuleImpl extends XModuleAbs {
                 }
             });
             XLog.logV("hookStartActivityMayWait OK: " + unhook);
-            mAppGuardService.publishFeature(XAppGuardManager.Feature.START);
+            moduleBridge.publishFeature(XAppGuardManager.Feature.START);
         } catch (Exception e) {
             XLog.logV("Fail hookStartActivityMayWait:" + e);
             xStatus = XStatus.ERROR;
@@ -269,7 +269,7 @@ class XModuleImpl extends XModuleAbs {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
-                    mAppGuardService.shutdown();
+                    moduleBridge.shutdown();
                 }
             });
             XLog.logV("hookAMSShutdown OK:" + unHooks);
@@ -288,8 +288,7 @@ class XModuleImpl extends XModuleAbs {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
-                    mAppGuardService.systemReady();
-                    mAppGuardService.setStatus(xStatus);
+                    moduleBridge.systemReady();
                 }
             });
             XLog.logV("hookAMSSystemReady OK:" + unHooks);
@@ -309,8 +308,8 @@ class XModuleImpl extends XModuleAbs {
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
                     Context context = (Context) XposedHelpers.getObjectField(param.thisObject, "mContext");
-                    mAppGuardService.attachContext(context);
-                    mAppGuardService.publish();
+                    moduleBridge.attachContext(context);
+                    moduleBridge.publish();
                 }
             });
             XLog.logV("hookAMSStart OK:" + unHooks);
@@ -343,7 +342,7 @@ class XModuleImpl extends XModuleAbs {
                         }
                     });
             XLog.logV("hookFPService OK:" + unHooks);
-            mAppGuardService.publishFeature(XAppGuardManager.Feature.FP);
+            moduleBridge.publishFeature(XAppGuardManager.Feature.FP);
         } catch (Exception e) {
             XLog.logV("Fail hookFPService" + e);
             if (xStatus != XStatus.ERROR) xStatus = XStatus.WITH_WARN;
@@ -369,12 +368,11 @@ class XModuleImpl extends XModuleAbs {
                     final String affinity = (String) XposedHelpers.getObjectField(me, "affinity");
                     final int effectiveUid = (int) XposedHelpers.getObjectField(me, "effectiveUid");
                     XLog.logV("affinity:" + affinity + ", effectiveUid:" + effectiveUid);
-                    if (mAppGuardService.isBlurForPkg(affinity)
+                    if (moduleBridge.isBlurForPkg(affinity)
                             && param.getResult() != null) {
                         Bitmap res = (Bitmap) param.args[0];
                         XLog.logV("Blur bitmap start");
-                        Bitmap blured = (XBitmapUtil.createBlurredBitmap(res,
-                                mAppGuardService.getBlurRadius(), mAppGuardService.getBlurScale()));
+                        Bitmap blured = (XBitmapUtil.createBlurredBitmap(res));
                         if (blured != null) param.args[0] = blured;
                         XLog.logV("Blur bitmap end");
                     }
@@ -407,7 +405,7 @@ class XModuleImpl extends XModuleAbs {
                         }
                     });
             XLog.logV("hookScreenshotApplications OK:" + unHooks);
-            mAppGuardService.publishFeature(XAppGuardManager.Feature.BLUR);
+            moduleBridge.publishFeature(XAppGuardManager.Feature.BLUR);
         } catch (Exception e) {
             XLog.logV("Fail hookScreenshotApplications:" + e);
         }
@@ -421,12 +419,11 @@ class XModuleImpl extends XModuleAbs {
         if (TextUtils.isEmpty(pkgName)) {
             return;
         }
-        if (mAppGuardService.isBlurForPkg(pkgName)
+        if (moduleBridge.isBlurForPkg(pkgName)
                 && param.getResult() != null) {
             Bitmap res = (Bitmap) param.getResult();
             stopWatch.split("Blur bitmap start");
-            Bitmap blured = (XBitmapUtil.createBlurredBitmap(res,
-                    mAppGuardService.getBlurRadius(), mAppGuardService.getBlurScale()));
+            Bitmap blured = (XBitmapUtil.createBlurredBitmap(res));
             if (blured != null)
                 param.setResult(blured);
             stopWatch.split("Blur bitmap end");
@@ -449,12 +446,12 @@ class XModuleImpl extends XModuleAbs {
                                     && (keyEvent.getKeyCode() == KeyEvent.KEYCODE_HOME
                                     || keyEvent.getKeyCode() == KeyEvent.KEYCODE_APP_SWITCH)) {
                                 XLog.logV("dispatchUnhandledKey: HOME/APP_SWITCH");
-                                mAppGuardService.onUserLeaving();
+                                moduleBridge.onUserLeaving("HOME");
                             }
                         }
                     });
             XLog.logV("hookPWM OK:" + unHooks);
-            mAppGuardService.publishFeature(XAppGuardManager.Feature.HOME);
+            moduleBridge.publishFeature(XAppGuardManager.Feature.HOME);
         } catch (Exception e) {
             XLog.logV("Fail hookPWM:" + e);
         }
@@ -496,7 +493,7 @@ class XModuleImpl extends XModuleAbs {
                         }
                     });
             XLog.logV("hookPackageInstaller OK:" + unHooks);
-            mAppGuardService.publishFeature(XAppGuardManager.Feature.HOME);
+            moduleBridge.publishFeature(XAppGuardManager.Feature.HOME);
         } catch (Exception e) {
             XLog.logV("Fail hookPackageInstaller:" + e);
         }
@@ -535,14 +532,14 @@ class XModuleImpl extends XModuleAbs {
                         }
                     });
             XLog.logV("hookPackageManagerService OK:" + unHooks);
-            mAppGuardService.publishFeature(XAppGuardManager.Feature.HOME);
+            moduleBridge.publishFeature(XAppGuardManager.Feature.HOME);
         } catch (Exception e) {
             XLog.logV("Fail hookPackageManagerService:" + e);
         }
     }
 
     private boolean interruptPackageRemoval(String pkgName) {
-        return mAppGuardService.interruptPackageRemoval(pkgName);
+        return moduleBridge.interruptPackageRemoval(pkgName);
     }
 
     @Override

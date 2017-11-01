@@ -19,15 +19,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.andrognito.patternlockview.PatternLockView;
-import com.andrognito.patternlockview.listener.PatternLockViewListener;
 import com.andrognito.pinlockview.IndicatorDots;
 import com.andrognito.pinlockview.PinLockListener;
 import com.andrognito.pinlockview.PinLockView;
+import com.android.keyguard.KeyguardPatternView;
+import com.android.keyguard.KeyguardSecurityCallback;
 
 import org.newstand.logger.Logger;
-
-import java.util.List;
 
 import dev.tornaco.vangogh.Vangogh;
 import dev.tornaco.vangogh.display.CircleImageEffect;
@@ -42,15 +40,15 @@ import github.tornaco.xposedmoduletest.camera.CameraManager;
 import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerCompat;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
-import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.x.secure.XEnc;
-import github.tornaco.xposedmoduletest.x.XKey;
-import github.tornaco.xposedmoduletest.x.app.XMode;
 import github.tornaco.xposedmoduletest.x.XSettings;
+import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.x.app.XMode;
 import github.tornaco.xposedmoduletest.x.app.XWatcherMainThreadAdapter;
+import github.tornaco.xposedmoduletest.x.secure.XEnc;
 
-import static github.tornaco.xposedmoduletest.x.XKey.EXTRA_PKG_NAME;
-import static github.tornaco.xposedmoduletest.x.XKey.EXTRA_TRANS_ID;
+import static github.tornaco.xposedmoduletest.x.app.XAppGuardManager.EXTRA_PKG_NAME;
+import static github.tornaco.xposedmoduletest.x.app.XAppGuardManager.EXTRA_TRANS_ID;
+
 
 /**
  * Created by guohao4 on 2017/10/23.
@@ -127,8 +125,8 @@ public class VerifyDisplayerActivity extends BaseActivity {
         if (!testMode && !XEnc.isPassCodeValid(mPsscode.getData())) {
             Logger.w("Pass code not valid, ignoring...");
             Toast.makeText(this, R.string.summary_setup_passcode_none_set, Toast.LENGTH_SHORT).show();
-            onPass();
-            return;
+//            onPass();
+//            return;
         }
 
         setupLabel();
@@ -180,27 +178,30 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private void setupPatternLockView() {
-        PatternLockView patternLockView =
-                (PatternLockView) findViewById(R.id.pattern_lock_view);
-        patternLockView.setInputEnabled(true);
-        patternLockView.addPatternLockListener(new PatternLockViewListener() {
+        KeyguardPatternView keyguardPatternView = (KeyguardPatternView) findViewById(R.id.keyguard_pattern_view);
+        keyguardPatternView.setKeyguardCallback(new KeyguardSecurityCallback() {
             @Override
-            public void onStarted() {
+            public void dismiss(boolean securityVerified) {
+                onPass();
+            }
+
+            @Override
+            public void userActivity() {
 
             }
 
             @Override
-            public void onProgress(List<PatternLockView.Dot> progressPattern) {
-                Logger.e("onProgress:" + progressPattern.toString());
+            public boolean isVerifyUnlockOnly() {
+                return false;
             }
 
             @Override
-            public void onComplete(List<PatternLockView.Dot> pattern) {
-                Logger.e(pattern.toString());
+            public void reportUnlockAttempt(boolean success) {
+
             }
 
             @Override
-            public void onCleared() {
+            public void reset() {
 
             }
         });
@@ -324,6 +325,13 @@ public class VerifyDisplayerActivity extends BaseActivity {
         onFail();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        KeyguardPatternView keyguardPatternView = (KeyguardPatternView) findViewById(R.id.keyguard_pattern_view);
+        if (keyguardPatternView != null) keyguardPatternView.startAppearAnimation();
+    }
+
     private void onFail() {
         if (testMode || mResNotified) return;
         mResNotified = true;
@@ -361,7 +369,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
         Logger.d("before resolveIntent: %s, %s", pkg, tid);
         if (intent == null) return false;
         pkg = intent.getStringExtra(EXTRA_PKG_NAME);
-        tid = intent.getIntExtra(XKey.EXTRA_TRANS_ID, -1);
+        tid = intent.getIntExtra(EXTRA_TRANS_ID, -1);
         Logger.d("after resolveIntent: %s, %s", pkg, tid);
         testMode = intent.getBooleanExtra("extra.test", false);
         return (pkg != null && tid > 0) || testMode;

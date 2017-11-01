@@ -32,6 +32,4 @@ public interface XKey {
     String PIN_PAD_W = "key_pin_pad_w";
     String PIN_PAD_H = "key_pin_pad_h";
 
-    String EXTRA_PKG_NAME = "extra.pkg";
-    String EXTRA_TRANS_ID = "extra.tid";
 }

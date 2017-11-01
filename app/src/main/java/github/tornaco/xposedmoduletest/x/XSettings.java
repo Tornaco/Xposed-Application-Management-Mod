@@ -10,7 +10,6 @@ import java.io.File;
 import java.util.Observable;
 
 import github.tornaco.xposedmoduletest.ui.Themes;
-import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
 
 /**
  * Created by guohao4 on 2017/10/19.
@@ -55,7 +54,7 @@ public class XSettings extends Observable {
 
     public boolean patternLockEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(XKey.LOCK_PATTERN_ENABLED, false);
+                .getBoolean(XKey.LOCK_PATTERN_ENABLED, true);
     }
 
 
@@ -66,11 +65,11 @@ public class XSettings extends Observable {
 
     @Nullable
     public static String getPassCodeEncrypt(Context context) {
-        return XAppGuardManager.from().getPasscode();
+        return null;
     }
 
     public void setPassCodeEncrypt(Context context, String code) {
-        XAppGuardManager.from().setPasscode(code);
+
     }
 
     public static void setActivateCode(Context context, String code) {

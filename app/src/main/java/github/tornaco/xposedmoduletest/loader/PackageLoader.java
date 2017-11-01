@@ -8,6 +8,7 @@ import android.text.TextUtils;
 
 import com.github.stuxuhai.jpinyin.PinyinException;
 import com.github.stuxuhai.jpinyin.PinyinHelper;
+import com.google.common.base.Stopwatch;
 
 import org.newstand.logger.Logger;
 
@@ -20,6 +21,7 @@ import github.tornaco.android.common.Consumer;
 import github.tornaco.android.common.util.ApkUtil;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.x.bean.PackageSettings;
 
 /**
  * Created by guohao4 on 2017/10/18.
@@ -96,19 +98,21 @@ public interface PackageLoader {
         @NonNull
         @Override
         public List<PackageInfo> loadStored() {
-            final PackageManager pm = this.context.getPackageManager();
             final List<PackageInfo> out = new ArrayList<>();
-            Collections.consumeRemaining(XAppGuardManager.from().getPackages(), new Consumer<String>() {
-                @Override
-                public void accept(String s) {
-                    PackageInfo p = new PackageInfo();
-                    p.setPkgName(s);
-                    p.setAppName(String.valueOf(ApkUtil.loadNameByPkgName(context, s)));
-                    if (TextUtils.isEmpty(p.getAppName())) return;
-                    out.add(p);
-                    java.util.Collections.sort(out, new PinyinComparator());
-                }
-            });
+            if (XAppGuardManager.from().isServiceAvailable()) {
+                Collections.consumeRemaining(XAppGuardManager.from().getPackageSettings(),
+                        new Consumer<PackageSettings>() {
+                            @Override
+                            public void accept(PackageSettings s) {
+                                PackageInfo p = new PackageInfo();
+                                p.setPkgName(s.getPkgName());
+                                p.setAppName(String.valueOf(ApkUtil.loadNameByPkgName(context, s.getPkgName())));
+                                if (TextUtils.isEmpty(p.getAppName())) return;
+                                out.add(p);
+                            }
+                        });
+                java.util.Collections.sort(out, new PinyinComparator());
+            }
             return out;
         }
 

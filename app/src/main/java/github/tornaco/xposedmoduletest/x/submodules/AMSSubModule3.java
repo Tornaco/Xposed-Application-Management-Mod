@@ -30,7 +30,7 @@ class AMSSubModule3 extends AndroidSubModuleModule {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
-                    getService().shutdown();
+                    getBridge().shutdown();
                 }
             });
             XLog.logV("hookAMSShutdown OK:" + unHooks);
