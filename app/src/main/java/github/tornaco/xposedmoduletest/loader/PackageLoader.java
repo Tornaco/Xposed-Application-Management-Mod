@@ -8,7 +8,6 @@ import android.text.TextUtils;
 
 import com.github.stuxuhai.jpinyin.PinyinException;
 import com.github.stuxuhai.jpinyin.PinyinHelper;
-import com.google.common.base.Stopwatch;
 
 import org.newstand.logger.Logger;
 
@@ -20,6 +19,7 @@ import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.android.common.util.ApkUtil;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
+import github.tornaco.xposedmoduletest.util.StopWatch;
 import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.x.bean.PackageSettings;
 
@@ -99,6 +99,7 @@ public interface PackageLoader {
         @Override
         public List<PackageInfo> loadStored() {
             final List<PackageInfo> out = new ArrayList<>();
+            StopWatch stopWatch = StopWatch.start("loadStored");
             if (XAppGuardManager.from().isServiceAvailable()) {
                 Collections.consumeRemaining(XAppGuardManager.from().getPackageSettings(),
                         new Consumer<PackageSettings>() {
@@ -111,8 +112,11 @@ public interface PackageLoader {
                                 out.add(p);
                             }
                         });
-                java.util.Collections.sort(out, new PinyinComparator());
+                stopWatch.split("load..");
+                // java.util.Collections.sort(out, new PinyinComparator());
+                stopWatch.split("sort..");
             }
+            stopWatch.stop();
             return out;
         }
 

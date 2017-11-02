@@ -10,8 +10,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
+import github.tornaco.xposedmoduletest.R;
 import lombok.Synchronized;
 
 /**
@@ -29,6 +31,15 @@ public class BaseActivity extends AppCompatActivity implements View {
     protected Handler getUIThreadHandler() {
         if (uiThreadHandler == null) uiThreadHandler = new Handler(Looper.getMainLooper());
         return uiThreadHandler;
+    }
+
+    protected void setupToolbar() {
+        setupToolbar(R.id.toolbar);
+    }
+
+    protected void setupToolbar(int resId) {
+        Toolbar toolbar = (Toolbar) findViewById(resId);
+        setSupportActionBar(toolbar);
     }
 
     @Override

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/title_basic">
+        <Preference
+            android:key="verify_method"
+            android:summary="@string/title_verify_pattern"
+            android:title="@string/title_verify_method" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="ver_on_home"
+            android:title="@string/title_ver_on_home" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="ver_on_screenoff"
+            android:title="@string/title_ver_on_screenoff" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

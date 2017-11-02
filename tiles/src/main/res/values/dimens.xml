@@ -1,0 +1,52 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="text_margin">16dp</dimen>
+
+    <!-- Dashboard margins between each tiles within the layout -->
+    <dimen name="dashboard_cell_gap_x">0dp</dimen>
+    <dimen name="dashboard_cell_gap_y">0dp</dimen>
+
+    <!-- Dashboard padding in its container -->
+    <dimen name="dashboard_padding_start">0dp</dimen>
+    <dimen name="dashboard_padding_end">0dp</dimen>
+    <dimen name="dashboard_padding_top">0dp</dimen>
+    <dimen name="dashboard_padding_bottom">0dp</dimen>
+
+    <!-- Dashboard category padding start / end -->
+    <dimen name="dashboard_category_padding_start">0dp</dimen>
+    <dimen name="dashboard_category_padding_end">0dp</dimen>
+
+    <!-- Dashboard category bot margin -->
+    <dimen name="dashboard_category_bot_margin">16dp</dimen>
+
+    <!-- Dashboard category panel elevation -->
+    <dimen name="dashboard_category_elevation">2dp</dimen>
+
+    <!-- Dashboard category title layout height -->
+    <dimen name="dashboard_category_title_height">48dp</dimen>
+
+    <!-- Dashboard category title margin start -->
+    <dimen name="dashboard_category_title_margin_start">16dp</dimen>
+
+    <!-- Dashboard tile minimum height -->
+    <dimen name="dashboard_tile_minimum_height">72dp</dimen>
+
+    <!-- Dashboard tile minimum height small -->
+    <dimen name="dashboard_tile_minimum_height_small">56dp</dimen>
+
+    <!-- Dashboard image tile size -->
+    <dimen name="dashboard_tile_image_size">28dp</dimen>
+
+    <!-- Dashboard tile image margin start / end -->
+    <dimen name="dashboard_tile_image_margin_start">16dp</dimen>
+    <dimen name="dashboard_tile_image_margin_end">16dp</dimen>
+
+    <dimen name="dashboard_tile_action_margin">32dp</dimen>
+
+    <dimen name="toolbar_elevation">5dp</dimen>
+
+    <dimen name="drop_down_width">150dp</dimen>
+</resources>

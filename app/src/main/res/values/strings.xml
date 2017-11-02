@@ -71,4 +71,9 @@
     <string name="title_app_uninstall_pro">阻止卸载</string>
     <string name="summary_app_uninstall_pro">阻止任何方式（adb/installer）卸载已经加锁的应用，而且如果想卸载AppGuard必须先禁用应用锁</string>
     <string name="title_hide_app_icon">隐藏桌面图标</string>
+    <string name="title_secure">安全</string>
+    <string name="title_personal">个人</string>
+    <string name="title_verify_method">锁定方式</string>
+    <string name="title_verify_pin">数字密码</string>
+    <string name="title_verify_pattern">图案密码</string>
 </resources>

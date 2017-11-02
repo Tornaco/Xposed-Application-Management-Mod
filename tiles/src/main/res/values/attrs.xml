@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="DashBoard">
+        <!-- Identifier value for the header. -->
+        <attr name="dashId" format="reference"/>
+        <attr name="dashTitle" format="string"/>
+        <attr name="targetClass" format="string"/>
+        <!-- An icon for the item. -->
+        <attr name="dashIcon" format="reference"/>
+        <!-- The summary for the item. -->
+        <attr name="summary" format="string"/>
+        <!-- The fragment that is displayed when the user selects this item. -->
+        <attr name="fragment" format="string"/>
+    </declare-styleable>
+
+    <attr name="switchBarTheme" format="reference"/>
+    <attr name="switchBarMarginStart" format="dimension"/>
+    <attr name="switchBarMarginEnd" format="dimension"/>
+
+</resources>
