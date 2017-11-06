@@ -6,9 +6,6 @@ import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import com.github.stuxuhai.jpinyin.PinyinException;
-import com.github.stuxuhai.jpinyin.PinyinHelper;
-
 import org.newstand.logger.Logger;
 
 import java.util.ArrayList;
@@ -111,15 +108,7 @@ public interface PackageLoader {
 
     class PinyinComparator implements Comparator<PackageInfo> {
         public int compare(PackageInfo o1, PackageInfo o2) {
-            int flag = 0;
-            try {
-                String str1 = PinyinHelper.getShortPinyin(String.valueOf(o1.getAppName()));
-                String str2 = PinyinHelper.getShortPinyin(String.valueOf(o2.getAppName()));
-                flag = str1.compareTo(str2);
-            } catch (PinyinException ignored) {
-            }
-
-            return flag;
+            return 1;
         }
     }
 }

@@ -9,8 +9,6 @@ import android.view.ViewGroup;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 
-import com.github.stuxuhai.jpinyin.PinyinException;
-import com.github.stuxuhai.jpinyin.PinyinHelper;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -123,12 +121,7 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
         for (int i = 0, size = packageInfos.size(); i < size; i++) {
             String appName = String.valueOf(packageInfos.get(i).getAppName());
             String section = "";
-            try {
-                section = String.valueOf(PinyinHelper
-                        .getShortPinyin(appName).charAt(0)).toUpperCase();
-            } catch (PinyinException ignored) {
-
-            }
+            // FIXME Session ret.
             if (!sections.contains(section)) {
                 sections.add(section);
                 mSectionPositions.add(i);

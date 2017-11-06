@@ -19,9 +19,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.andrognito.pinlockview.IndicatorDots;
-import com.andrognito.pinlockview.PinLockListener;
-import com.andrognito.pinlockview.PinLockView;
 import com.android.keyguard.KeyguardPatternView;
 import com.android.keyguard.KeyguardSecurityCallback;
 
@@ -62,7 +59,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private boolean testMode;
 
-    private boolean mTakePhoto, mUsePatternLock;
+    private boolean mTakePhoto;
 
     private TextView mLabelView;
 
@@ -92,9 +89,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         readSettings();
-        setContentView(mUsePatternLock ?
-                R.layout.app_noter_fullscreen_pattern
-                : R.layout.app_noter_fullscreen);
+        setContentView(R.layout.verify_displayer);
         if (resolveIntent(getIntent())) {
             showVerifyView();
         }
@@ -103,7 +98,6 @@ public class VerifyDisplayerActivity extends BaseActivity {
     private void readSettings() {
         this.mTakePhoto = XSettings.get().takenPhotoEnabled(this);
         this.mPsscode.setData(XSettings.getPassCodeEncrypt(this));//FIXME Enc-->NoneEnc
-        this.mUsePatternLock = XSettings.get().patternLockEnabled(this);
     }
 
     private void showVerifyView() {
@@ -170,11 +164,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private void setupLockView() {
-        if (mUsePatternLock) {
-            setupPatternLockView();
-        } else {
-            setupPinLockView();
-        }
+        setupPatternLockView();
     }
 
     private void setupPatternLockView() {
@@ -202,47 +192,6 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
             @Override
             public void reset() {
-
-            }
-        });
-    }
-
-    private void setupPinLockView() {
-
-        final PinLockView pinLockView = (PinLockView) findViewById(R.id.pin_lock_view);
-        IndicatorDots indicatorDots = (IndicatorDots) findViewById(R.id.indicator_dots);
-        pinLockView.attachIndicatorDots(indicatorDots);
-
-        pinLockView.setPinLockListener(new PinLockListener() {
-            @Override
-            public void onComplete(String pin) {
-                if (XEnc.isPassCodeCorrect(mPsscode.getData(), pin)) {
-                    onPass();
-                } else {
-                    pinLockView.resetPinLockView();
-                    if (mTakePhoto) {
-                        CameraManager.get().captureSaveAsync(new CameraManager.PictureCallback() {
-                            @Override
-                            public void onImageReady(String path) {
-                                Logger.v("onImageReady:" + path);
-                            }
-
-                            @Override
-                            public void onFail(Exception e) {
-                                Logger.v("onImageFail:" + e);
-                            }
-                        });
-                    }
-                }
-            }
-
-            @Override
-            public void onEmpty() {
-
-            }
-
-            @Override
-            public void onPinChange(int pinLength, String intermediatePin) {
 
             }
         });

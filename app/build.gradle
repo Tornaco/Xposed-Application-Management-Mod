@@ -82,12 +82,9 @@ dependencies {
     compile "com.squareup.retrofit2:adapter-rxjava:${rootProject.ext.retrofitVersion}"
     compile "org.jsoup:jsoup:${rootProject.ext.jsoupVersion}"
     compile project(':vangoghcore')
-    compile project(':pinlockview')
     compile project(':keyguard')
     compile project(':tiles')
     compile 'com.github.myinnos:AlphabetIndex-Fast-Scroll-RecyclerView:1.0.8'
-    compile 'com.github.SilenceDut:jpinyin:v1.0'
-    compile 'com.andrognito.patternlockview:patternlockview:1.0.0'
     compile 'si.virag:fuzzydateformatter:1.1.0'
     compile 'com.google.android.gms:play-services-ads:11.0.4'
     compile 'com.novoda:simple-chrome-custom-tabs:0.1.5'

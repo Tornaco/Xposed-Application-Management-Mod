@@ -1,12 +1,14 @@
 package github.tornaco.xposedmoduletest.ui.activity;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
 
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.ui.PassCodeSetupActivity;
 import github.tornaco.xposedmoduletest.ui.SettingsActivity;
 import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.x.bean.VerifySettings;
@@ -34,6 +36,16 @@ public class SecureSettings extends SettingsActivity {
             if (verifySettings == null) verifySettings = new VerifySettings();
 
             if (XAppGuardManager.from().isServiceAvailable()) {
+                findPreference("verify_method")
+                        .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                            @Override
+                            public boolean onPreferenceClick(Preference preference) {
+                                startActivity(new Intent(getActivity(), PassCodeSetupActivity.class));
+                                return true;
+                            }
+                        });
+
+
                 final boolean verifyOnHome = verifySettings.isVerifyOnHome();
                 SwitchPreference homePref = (SwitchPreference) findPreference("ver_on_home");
                 homePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {

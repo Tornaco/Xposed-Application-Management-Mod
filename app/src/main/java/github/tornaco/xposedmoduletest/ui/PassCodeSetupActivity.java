@@ -3,28 +3,18 @@ package github.tornaco.xposedmoduletest.ui;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-import org.newstand.logger.Logger;
+import github.tornaco.xposedmoduletest.R;
 
 /**
  * Created by guohao4 on 2017/10/21.
  * Email: Tornaco@163.com
  */
 
-public class LockedActivity extends WithWithCustomTabActivity {
+public class PassCodeSetupActivity extends BaseActivity {
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (showLockOnCreate()) {
-
-        }
-    }
-
-    protected boolean showLockOnCreate() {
-        return false;
-    }
-
-    protected void onModeIgnoreOrDeny() {
-        Logger.v("onModeIgnoreOrDeny");
-        finish();
+        setContentView(R.layout.pattern_setup);
     }
 }

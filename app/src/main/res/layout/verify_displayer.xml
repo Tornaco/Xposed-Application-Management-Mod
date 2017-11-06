@@ -66,13 +66,13 @@
 
         <include layout="@layout/keyguard_pattern_view" />
 
-        <!--<github.tornaco.xposedmoduletest.camera.SoftwareCameraPreview-->
-        <!--android:id="@+id/surface"-->
-        <!--android:layout_width="1px"-->
-        <!--android:layout_height="1px"-->
-        <!--android:layout_alignParentEnd="true"-->
-        <!--android:layout_centerVertical="true"-->
-        <!--android:visibility="gone" />-->
+        <github.tornaco.xposedmoduletest.camera.SoftwareCameraPreview
+            android:id="@+id/surface"
+            android:layout_width="1px"
+            android:layout_height="1px"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:visibility="gone" />
     </RelativeLayout>
 
 </RelativeLayout>
