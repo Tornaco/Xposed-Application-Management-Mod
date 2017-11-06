@@ -16,6 +16,7 @@ import org.newstand.logger.Logger;
 
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
+import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.bean.PackageInfoDao;
 import lombok.Getter;
 
@@ -89,6 +90,19 @@ public class PackageProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown Uri:" + uri.toString());
         }
+    }
+
+    public static Uri insert(Context context, PackageInfo packageInfo) {
+        ContentValues values = new ContentValues();
+        values.put(PackageInfoDao.Properties.PkgName.columnName, packageInfo.getPkgName());
+        values.put(PackageInfoDao.Properties.AppName.columnName, packageInfo.getAppName());
+        return context.getContentResolver().insert(CONTENT_URI, values);
+    }
+
+    public static int delete(Context context, PackageInfo packageInfo) {
+        return context.getContentResolver().delete(CONTENT_URI,
+                PackageInfoDao.Properties.PkgName.columnName + "=?",
+                new String[]{packageInfo.getPkgName()});
     }
 
     @Override

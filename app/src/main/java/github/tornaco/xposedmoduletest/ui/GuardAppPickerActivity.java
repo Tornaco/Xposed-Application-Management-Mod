@@ -9,10 +9,9 @@ import java.util.List;
 
 import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.bean.DaoManager;
-import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.loader.PackageLoader;
+import github.tornaco.xposedmoduletest.provider.PackageProvider;
 import github.tornaco.xposedmoduletest.ui.adapter.AppListAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.AppPickerListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
@@ -52,10 +51,7 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
                                     @Override
                                     public void accept(PackageInfo packageInfo) {
                                         if (packageInfo.getGuard()) {
-                                            DaoSession daoSession = DaoManager.getInstance().getSession(getApplicationContext());
-                                            if (daoSession != null) {
-                                                daoSession.insertOrReplace(packageInfo);
-                                            }//FIXME NullOPT.
+                                            PackageProvider.insert(getApplicationContext(), packageInfo);
                                         }
                                     }
                                 });
