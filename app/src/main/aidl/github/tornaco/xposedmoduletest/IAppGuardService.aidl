@@ -22,13 +22,6 @@ interface IAppGuardService {
 
     void setResult(int transactionID, int res);
 
-    void testUI();
-
-    void addPackages(in PackageSettings pkg);
-    void removePackages(in PackageSettings pkg);
-
-    List<PackageSettings> getPackageSettings();
-
     void watch(in IWatcher w);
     void unWatch(in IWatcher w);
 

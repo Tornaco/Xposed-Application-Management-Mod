@@ -9,14 +9,14 @@ import java.util.List;
 
 import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.bean.DaoManager;
+import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.loader.PackageLoader;
 import github.tornaco.xposedmoduletest.ui.adapter.AppListAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.AppPickerListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.x.bean.PackageSettings;
 
 public class GuardAppPickerActivity extends GuardAppNavActivity {
 
@@ -40,7 +40,7 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
             public void onClick(View v) {
                 final ProgressDialog p = new ProgressDialog(GuardAppPickerActivity.this);
                 p.setCancelable(false);
-                p.setMessage("HANDLING");
+                p.setMessage("SAVING...");
                 p.setIndeterminate(true);
                 p.show();
                 XExecutor.execute(new Runnable() {
@@ -51,11 +51,12 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
                                 new Consumer<PackageInfo>() {
                                     @Override
                                     public void accept(PackageInfo packageInfo) {
-                                        XAppGuardManager.from().addPackages(PackageSettings.builder()
-                                                .pkgName(packageInfo.getPkgName())
-                                                .verify(true)
-                                                .verifyPolicy(0)
-                                                .build());
+                                        if (packageInfo.getGuard()) {
+                                            DaoSession daoSession = DaoManager.getInstance().getSession(getApplicationContext());
+                                            if (daoSession != null) {
+                                                daoSession.insertOrReplace(packageInfo);
+                                            }//FIXME NullOPT.
+                                        }
                                     }
                                 });
                         runOnUiThread(new Runnable() {

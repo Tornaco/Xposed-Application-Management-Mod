@@ -3,6 +3,8 @@ package github.tornaco.xposedmoduletest.x.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.Gson;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +18,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class BlurSettings implements Parcelable {
+public class BlurSettings implements Parcelable, Cloneable {
+
+    public static final String KEY_SETTINGS = "tornaco.app_guard_blur";
 
     private boolean enabled;
     private int policy;
@@ -53,5 +57,21 @@ public class BlurSettings implements Parcelable {
         dest.writeInt(policy);
         dest.writeInt(radius);
         dest.writeFloat(scale);
+    }
+
+    public String formatJson() {
+        return new Gson().toJson(this);
+    }
+
+    public static BlurSettings from(String str) {
+        return new Gson().fromJson(str, BlurSettings.class);
+    }
+
+    public BlurSettings duplicate() {
+        try {
+            return (BlurSettings) this.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
     }
 }

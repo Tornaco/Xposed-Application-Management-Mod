@@ -3,10 +3,13 @@ package github.tornaco.xposedmoduletest.x.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.Gson;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -16,7 +19,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class VerifySettings implements Parcelable {
+@ToString
+public class VerifySettings implements Parcelable, Cloneable {
+
+    public static final String KEY_SETTINGS = "tornaco.app_guard_verify";
 
     private boolean verifyOnScreenOff;
     private boolean verifyOnHome;
@@ -50,5 +56,21 @@ public class VerifySettings implements Parcelable {
         dest.writeByte((byte) (verifyOnScreenOff ? 1 : 0));
         dest.writeByte((byte) (verifyOnHome ? 1 : 0));
         dest.writeByte((byte) (verifyOnAppSwitch ? 1 : 0));
+    }
+
+    public String formatJson() {
+        return new Gson().toJson(this);
+    }
+
+    public static VerifySettings from(String str) {
+        return new Gson().fromJson(str, VerifySettings.class);
+    }
+
+    public VerifySettings duplicate() {
+        try {
+            return (VerifySettings) this.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
     }
 }

@@ -486,7 +486,7 @@ public class CameraManager implements FocusOverlayManager.Listener {
     /**
      * Closes the camera releasing the resources it uses
      */
-    void closeCamera() {
+    public void closeCamera() {
         mOpenRequested = false;
         setCamera(null);
     }

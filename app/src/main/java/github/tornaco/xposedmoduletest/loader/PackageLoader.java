@@ -15,13 +15,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import github.tornaco.android.common.Collections;
-import github.tornaco.android.common.Consumer;
-import github.tornaco.android.common.util.ApkUtil;
+import github.tornaco.xposedmoduletest.bean.DaoManager;
+import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
-import github.tornaco.xposedmoduletest.util.StopWatch;
-import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.x.bean.PackageSettings;
 
 /**
  * Created by guohao4 on 2017/10/18.
@@ -99,25 +95,11 @@ public interface PackageLoader {
         @Override
         public List<PackageInfo> loadStored() {
             final List<PackageInfo> out = new ArrayList<>();
-            StopWatch stopWatch = StopWatch.start("loadStored");
-            if (XAppGuardManager.from().isServiceAvailable()) {
-                Collections.consumeRemaining(XAppGuardManager.from().getPackageSettings(),
-                        new Consumer<PackageSettings>() {
-                            @Override
-                            public void accept(PackageSettings s) {
-                                PackageInfo p = new PackageInfo();
-                                p.setPkgName(s.getPkgName());
-                                p.setAppName(String.valueOf(ApkUtil.loadNameByPkgName(context, s.getPkgName())));
-                                if (TextUtils.isEmpty(p.getAppName())) return;
-                                out.add(p);
-                            }
-                        });
-                stopWatch.split("load..");
-                // java.util.Collections.sort(out, new PinyinComparator());
-                stopWatch.split("sort..");
-            }
-            stopWatch.stop();
-            return out;
+            DaoSession daoSession = DaoManager.getInstance().getSession(context);
+            if (daoSession == null)
+                return out;
+            List<PackageInfo> all = daoSession.getPackageInfoDao().loadAll();
+            return all == null ? out : all;
         }
 
         @NonNull

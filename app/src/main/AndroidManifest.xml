@@ -94,26 +94,10 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity
-            android:name=".TestActivity"
-            android:theme="@style/AppTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".TestActivity2"
-            android:label="Pattern"
-            android:theme="@style/AppTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <provider
+            android:name=".provider.PackageProvider"
+            android:authorities="github.tornaco.xposedmoduletest.package_provider"
+            android:exported="true" />
     </application>
 
 </manifest>

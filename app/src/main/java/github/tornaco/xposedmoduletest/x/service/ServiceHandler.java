@@ -26,15 +26,11 @@ interface ServiceHandler {
 
     void verify(VerifyArgs verifyArgs);
 
-    void testUI();
-
-    void addPackages(github.tornaco.xposedmoduletest.x.bean.PackageSettings pkg);
-
-    void removePackages(github.tornaco.xposedmoduletest.x.bean.PackageSettings pkg);
-
     void watch(github.tornaco.xposedmoduletest.IWatcher w);
 
     void unWatch(github.tornaco.xposedmoduletest.IWatcher w);
 
     void mockCrash();
+
+    void userLeaving(String rea);
 }

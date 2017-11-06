@@ -4,16 +4,12 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 import org.newstand.logger.Logger;
-
-import java.util.List;
 
 import github.tornaco.xposedmoduletest.IAppGuardService;
 import github.tornaco.xposedmoduletest.IWatcher;
 import github.tornaco.xposedmoduletest.x.bean.BlurSettings;
-import github.tornaco.xposedmoduletest.x.bean.PackageSettings;
 import github.tornaco.xposedmoduletest.x.bean.VerifySettings;
 
 /**
@@ -139,33 +135,6 @@ public class XAppGuardManager {
         }
     }
 
-    public void addPackages(PackageSettings pkg) {
-        ensureService();
-        try {
-            mService.addPackages(pkg);
-        } catch (RemoteException ignored) {
-
-        }
-    }
-
-    public void removePackages(PackageSettings pkg) {
-        ensureService();
-        try {
-            mService.removePackages(pkg);
-        } catch (RemoteException ignored) {
-
-        }
-    }
-
-    public List<PackageSettings> getPackageSettings() {
-        ensureService();
-        try {
-            return mService.getPackageSettings();
-        } catch (RemoteException ignored) {
-            return Lists.newArrayListWithCapacity(0);
-        }
-    }
-
     public void watch(IWatcher w) {
         ensureService();
         try {
@@ -188,15 +157,6 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.setResult(transactionID, res);
-        } catch (RemoteException e) {
-            Logger.e(Logger.getStackTraceString(e));
-        }
-    }
-
-    public void testUI() {
-        ensureService();
-        try {
-            mService.testUI();
         } catch (RemoteException e) {
             Logger.e(Logger.getStackTraceString(e));
         }

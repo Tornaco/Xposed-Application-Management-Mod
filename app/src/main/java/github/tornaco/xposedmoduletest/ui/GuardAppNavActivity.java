@@ -119,7 +119,7 @@ public class GuardAppNavActivity extends LockedActivity {
             public void run() {
                 SwitchBar switchBar = (SwitchBar) findViewById(R.id.switchbar);
                 if (switchBar == null) return;
-                switchBar.setChecked(XAppGuardManager.from().isEnabled());
+                switchBar.setChecked(XAppGuardManager.from().isServiceAvailable() && XAppGuardManager.from().isEnabled());
                 switchBar.addOnSwitchChangeListener(new SwitchBar.OnSwitchChangeListener() {
                     @Override
                     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {

@@ -3,27 +3,27 @@ package github.tornaco.xposedmoduletest.x.service;
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.database.ContentObserver;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.common.io.Files;
+import com.google.common.base.Preconditions;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -38,15 +38,16 @@ import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IWatcher;
+import github.tornaco.xposedmoduletest.bean.PackageInfo;
+import github.tornaco.xposedmoduletest.bean.PackageInfoDaoUtil;
+import github.tornaco.xposedmoduletest.provider.PackageProvider;
 import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.x.app.XMode;
 import github.tornaco.xposedmoduletest.x.bean.BlurSettings;
-import github.tornaco.xposedmoduletest.x.bean.PackageSettings;
 import github.tornaco.xposedmoduletest.x.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.x.service.provider.TorSettings;
-import github.tornaco.xposedmoduletest.x.util.FileUtil;
+import github.tornaco.xposedmoduletest.x.util.Closer;
 import github.tornaco.xposedmoduletest.x.util.XLog;
-import github.tornaco.xposedmoduletest.x.util.XStopWatch;
 
 import static github.tornaco.xposedmoduletest.x.app.XAppGuardManager.Feature.FEATURE_COUNT;
 import static github.tornaco.xposedmoduletest.x.app.XAppGuardManager.META_DATA_KEY_APP_GUARD_VERIFY_DISPLAYER;
@@ -59,18 +60,13 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     private static final long TRANSACTION_EXPIRE_TIME = 60 * 1000;
 
-    private final Map<String, PackageSettings> FAST_PKG_SETTINGS_MAP = Maps.newHashMap();
-
-    private PackageSettingsLoader mPkgSettingsLoader;
-
     private Handler mServiceHandler;
 
     private AtomicBoolean mEnabled = new AtomicBoolean(false);
     private AtomicBoolean mUninstallProEnabled = new AtomicBoolean(false);
-    private AtomicBoolean mVerifyOnHome = new AtomicBoolean(false);
-    private AtomicBoolean mVerifyOnScreenOff = new AtomicBoolean(false);
-    private AtomicBoolean mBlur = new AtomicBoolean(false);
-    private AtomicInteger mBlurPolicy = new AtomicInteger(XAppGuardManager.BlurPolicy.BLUR_WATCHED);
+
+    private BlurSettings mBlurSettings;
+    private VerifySettings mVerifySettings;
 
     @SuppressLint("UseSparseArrays")
     private final Map<Integer, Transaction> TRANSACTION_MAP = new HashMap<>();
@@ -78,6 +74,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     private final Set<String> FEATURES = new HashSet<>(FEATURE_COUNT);
 
     private static final Set<String> PREBUILT_WHITE_LIST = new HashSet<>();
+    private static final Map<String, PackageInfo> GUARD_PACKAGES = new HashMap<>();
+    private static final Set<String> VERIFIED_PACKAGES = new HashSet<>();
 
     private static int sClientUID = 0;
 
@@ -123,8 +121,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     };
     private boolean mIsSafeMode = false;
 
-    private final Object LOCK = new Object();
-
     @Override
     public void publish() {
         try {
@@ -143,22 +139,35 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private void construct() {
         mServiceHandler = new ServiceHandlerImpl();
-        mPkgSettingsLoader = new PackageSettingsLoader();
     }
 
     @Override
     public void systemReady() {
         checkSafeMode();
         construct();
-        registerReceiver();
         getConfigFromSettings();
-        loadPackageSettings();
         cacheUIDForPackages();
+        loadPackageSettings();
+        registerPackageObserver();
+        registerReceiver();
     }
 
     private void getConfigFromSettings() {
-        boolean appGuardEnabled = (boolean) TorSettings.APP_GUARD_ENABLED_B.readFromSystemSettings(getContext());
-        mEnabled.set(appGuardEnabled);
+        try {
+            boolean appGuardEnabled = (boolean) TorSettings.APP_GUARD_ENABLED_B.readFromSystemSettings(getContext());
+            mEnabled.set(appGuardEnabled);
+
+            ContentResolver resolver = getContext().getContentResolver();
+            if (resolver == null) return;
+            mBlurSettings = BlurSettings.from(Settings.System.getString(resolver, BlurSettings.KEY_SETTINGS));
+            mVerifySettings = VerifySettings.from(Settings.System.getString(resolver, VerifySettings.KEY_SETTINGS));
+
+            XLog.logV(String.valueOf(mBlurSettings));
+            XLog.logV(String.valueOf(mVerifySettings));
+            XLog.logV(String.valueOf(mEnabled));
+        } catch (Throwable e) {
+            XLog.logF("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+        }
     }
 
     private void registerReceiver() {
@@ -174,13 +183,62 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     private void loadPackageSettings() {
-        Set<PackageSettings> packageSettings = mPkgSettingsLoader.loadPackageSettings();
-        Collections.consumeRemaining(packageSettings, new Consumer<PackageSettings>() {
-            @Override
-            public void accept(PackageSettings packageSettings) {
-                FAST_PKG_SETTINGS_MAP.put(packageSettings.getPkgName(), packageSettings);
+        ContentResolver contentResolver = getContext().getContentResolver();
+        if (contentResolver == null) {
+            // Happen when early start.
+            return;
+        }
+        Cursor cursor = null;
+        try {
+            cursor = contentResolver.query(PackageProvider.CONTENT_URI, null, null, null, null);
+            if (cursor == null) {
+                XLog.logF("Fail query pkgs, cursor is null");
+                return;
             }
-        });
+            for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+                PackageInfo packageInfo = PackageInfoDaoUtil.readEntity(cursor, 0);
+                XLog.logV("readEntity of: " + packageInfo.getPkgName());
+                String key = packageInfo.getPkgName();
+                if (TextUtils.isEmpty(key)) continue;
+                GUARD_PACKAGES.put(key, packageInfo);
+            }
+        } catch (Throwable e) {
+            XLog.logF("Fail query pkgs:\n" + Log.getStackTraceString(e));
+        } finally {
+            Closer.closeQuietly(cursor);
+        }
+    }
+
+    private void registerPackageObserver() {
+        ContentResolver contentResolver = getContext().getContentResolver();
+        if (contentResolver == null) {
+            // Happen when early start.
+            return;
+        }
+        try {
+            contentResolver.registerContentObserver(PackageProvider.CONTENT_URI,
+                    false, new ContentObserver(mServiceHandler) {
+                        @Override
+                        public void onChange(boolean selfChange, Uri uri) {
+                            super.onChange(selfChange, uri);
+                            XLog.logV("onChange 2");
+                        }
+
+                        @Override
+                        public void onChange(boolean selfChange) {
+                            super.onChange(selfChange);
+                            XLog.logV("onChange 1");
+                        }
+
+                        @Override
+                        public void onChange(boolean selfChange, Uri uri, int userId) {
+                            super.onChange(selfChange, uri, userId);
+                            XLog.logV("onChange 3");
+                        }
+                    });
+        } catch (Exception e) {
+            XLog.logF("Fail registerContentObserver:\n" + Log.getStackTraceString(e));
+        }
     }
 
     private void cacheUIDForPackages() {
@@ -221,11 +279,14 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @Override
     public boolean onEarlyVerifyConfirm(String pkg) {
-        return !mIsSafeMode
+        boolean prefy = !mIsSafeMode
                 && mEnabled.get()
-                && !PREBUILT_WHITE_LIST.contains(pkg)
-                && FAST_PKG_SETTINGS_MAP.containsKey(pkg)
-                && FAST_PKG_SETTINGS_MAP.get(pkg).isVerify();
+                && !PREBUILT_WHITE_LIST.contains(pkg) // White list.
+                && !VERIFIED_PACKAGES.contains(pkg); // Passed.
+        if (!prefy) return false;
+        PackageInfo p = GUARD_PACKAGES.get(pkg);
+        if (p == null) return false;
+        return p.getGuard();
     }
 
     @Override
@@ -236,12 +297,23 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @Override
     public void onUserLeaving(String reason) {
-
+        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_USERLEAVING, reason).sendToTarget();
     }
 
     @Override
     public boolean isBlurForPkg(String pkg) {
-        return false;
+        if (mBlurSettings == null) return false;
+        int policy = mBlurSettings.getPolicy();
+        switch (policy) {
+            case XAppGuardManager.BlurPolicy.BLUR_ALL:
+                return true;
+            case XAppGuardManager.BlurPolicy.BLUR_POLICY_UNKNOWN:
+                return false;
+            case XAppGuardManager.BlurPolicy.BLUR_WATCHED:
+                return GUARD_PACKAGES.containsKey(pkg);
+            default:
+                return false;
+        }
     }
 
     @Override
@@ -277,81 +349,47 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Override
     @BinderCall
     public VerifySettings getVerifySettings() throws RemoteException {
-        return null;
+        enforceCallingPermissions();
+        return mVerifySettings == null ? null : mVerifySettings.duplicate();
     }
 
     @Override
     @BinderCall
     public void setBlurSettings(BlurSettings settings) throws RemoteException {
+        enforceCallingPermissions();
         mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_SETBLURSETTINGS, settings).sendToTarget();
     }
 
     @Override
     @BinderCall
     public BlurSettings getBlurSettings() throws RemoteException {
-        return null;
+        enforceCallingPermissions();
+        return mBlurSettings == null ? null : mBlurSettings.duplicate();
     }
 
     @Override
     @BinderCall
     public void setResult(int transactionID, int res) throws RemoteException {
+        enforceCallingPermissions();
         mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_SETRESULT, transactionID, res).sendToTarget();
     }
 
     @Override
     @BinderCall
-    public void testUI() throws RemoteException {
-
-    }
-
-    @Override
-    @BinderCall
-    public void addPackages(PackageSettings pkg) throws RemoteException {
-        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_ADDPACKAGES, pkg).sendToTarget();
-    }
-
-    @Override
-    @BinderCall
-    public void removePackages(PackageSettings pkg) throws RemoteException {
-        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_REMOVEPACKAGES, pkg).sendToTarget();
-    }
-
-    @Override
-    @BinderCall
-    public List<PackageSettings> getPackageSettings() throws RemoteException {
-        final XStopWatch stopWatch = XStopWatch.start("getPackageSettings");
-        enforceCallingPermissions();
-        if (FAST_PKG_SETTINGS_MAP.values().size() == 0)
-            return Lists.newArrayListWithCapacity(0);
-        Object[] arr = FAST_PKG_SETTINGS_MAP.values().toArray();
-        final List<PackageSettings> out = Lists.newArrayListWithCapacity(arr.length);
-        Collections.consumeRemaining(arr, new Consumer<Object>() {
-            @Override
-            public void accept(Object o) {
-                out.add((PackageSettings) o);
-                stopWatch.split(((PackageSettings) o).getPkgName());
-            }
-        });
-        stopWatch.stop();
-        return out;
-    }
-
-    @Override
-    @BinderCall
     public void watch(IWatcher w) throws RemoteException {
-
+        enforceCallingPermissions();
     }
 
     @Override
     @BinderCall
     public void unWatch(IWatcher w) throws RemoteException {
-
+        enforceCallingPermissions();
     }
 
     @Override
     @BinderCall
     public void mockCrash() throws RemoteException {
-
+        enforceCallingPermissions();
     }
 
     private void parsePackageAsync(final String... pkg) {
@@ -432,40 +470,37 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             XLog.logV("handleMessage@" + ServiceHandlerMessages.decodeMessage(wht));
             switch (wht) {
                 case ServiceHandlerMessages.MSG_SETENABLED:
-                    setEnabled(msg.arg1 == 1);
+                    ServiceHandlerImpl.this.setEnabled(msg.arg1 == 1);
                     break;
                 case ServiceHandlerMessages.MSG_SETBLURSETTINGS:
-                    setBlurSettings((BlurSettings) msg.obj);
-                    break;
-                case ServiceHandlerMessages.MSG_ADDPACKAGES:
-                    addPackages((PackageSettings) msg.obj);
+                    ServiceHandlerImpl.this.setBlurSettings((BlurSettings) msg.obj);
                     break;
                 case ServiceHandlerMessages.MSG_MOCKCRASH:
-                    mockCrash();
-                    break;
-                case ServiceHandlerMessages.MSG_REMOVEPACKAGES:
-                    removePackages((PackageSettings) msg.obj);
+                    ServiceHandlerImpl.this.mockCrash();
                     break;
                 case ServiceHandlerMessages.MSG_SETRESULT:
-                    setResult(msg.arg1, msg.arg2);
+                    ServiceHandlerImpl.this.setResult(msg.arg1, msg.arg2);
                     break;
                 case ServiceHandlerMessages.MSG_SETUNINSTALLINTERRUPTENABLED:
-                    setUninstallInterruptEnabled(msg.arg1 == 1);
+                    ServiceHandlerImpl.this.setUninstallInterruptEnabled(msg.arg1 == 1);
                     break;
                 case ServiceHandlerMessages.MSG_SETVERIFYSETTINGS:
-                    setVerifySettings((VerifySettings) msg.obj);
-                    break;
-                case ServiceHandlerMessages.MSG_TESTUI:
-                    testUI();
+                    ServiceHandlerImpl.this.setVerifySettings((VerifySettings) msg.obj);
                     break;
                 case ServiceHandlerMessages.MSG_UNWATCH:
-                    unWatch((IWatcher) msg.obj);
+                    ServiceHandlerImpl.this.unWatch((IWatcher) msg.obj);
                     break;
                 case ServiceHandlerMessages.MSG_WATCH:
-                    watch((IWatcher) msg.obj);
+                    ServiceHandlerImpl.this.watch((IWatcher) msg.obj);
                     break;
                 case ServiceHandlerMessages.MSG_VERIFY:
-                    verify((VerifyArgs) msg.obj);
+                    ServiceHandlerImpl.this.verify((VerifyArgs) msg.obj);
+                    break;
+                case ServiceHandlerMessages.MSG_MSG_TRANSACTION_EXPIRE_BASE:
+                    ServiceHandlerImpl.this.setResult(wht, XMode.MODE_IGNORED);
+                    break;
+                case ServiceHandlerMessages.MSG_USERLEAVING:
+                    ServiceHandlerImpl.this.userLeaving((String) msg.obj);
                     break;
                 default:
                     XLog.logF("Unknown msg:" + wht);
@@ -486,14 +521,30 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         }
 
         @Override
-        public void setVerifySettings(VerifySettings settings) {
-
+        public void setVerifySettings(final VerifySettings settings) {
+            mVerifySettings = Preconditions.checkNotNull(settings);
+            mWorkingService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    // Saving to db.
+                    ContentResolver resolver = getContext().getContentResolver();
+                    Settings.System.putString(resolver, VerifySettings.KEY_SETTINGS, settings.formatJson());
+                }
+            });
         }
 
 
         @Override
-        public void setBlurSettings(BlurSettings settings) {
-
+        public void setBlurSettings(final BlurSettings settings) {
+            mBlurSettings = Preconditions.checkNotNull(settings);
+            mWorkingService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    // Saving to db.
+                    ContentResolver resolver = getContext().getContentResolver();
+                    Settings.System.putString(resolver, BlurSettings.KEY_SETTINGS, settings.formatJson());
+                }
+            });
         }
 
 
@@ -505,7 +556,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 return;
             }
             if (res == XMode.MODE_ALLOWED) {
-//                PASSED_PACKAGES.add(transaction.pkg);
+                VERIFIED_PACKAGES.add(transaction.pkg);
             }
             transaction.listener.onVerifyRes(transaction.pkg, transaction.uid, transaction.pid, res);
             mServiceHandler.removeMessages(MSG_TRANSACTION_EXPIRE_BASE + transactionID);
@@ -545,33 +596,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         }
 
         @Override
-        public void testUI() {
-
-        }
-
-        @Override
-        public void addPackages(final PackageSettings pkg) {
-            FAST_PKG_SETTINGS_MAP.put(pkg.getPkgName(), pkg);
-            mWorkingService.execute(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized (LOCK) {
-                        pkg.writeTo(PackageSettingsLoader.PKG_SETTINGS_DIR);
-                    }
-                }
-            });
-        }
-
-        @Override
-        public void removePackages(PackageSettings pkg) {
-            FAST_PKG_SETTINGS_MAP.remove(pkg.getPkgName());
-            synchronized (LOCK) {
-                pkg.deleteFrom(PackageSettingsLoader.PKG_SETTINGS_DIR);
-            }
-        }
-
-
-        @Override
         public void watch(IWatcher w) {
 
         }
@@ -585,43 +609,16 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         public void mockCrash() {
 
         }
-    }
 
-    private static class PackageSettingsLoader {
-
-        private static final File PKG_SETTINGS_DIR;
-
-        static {
-            File dataDir = Environment.getDataDirectory();
-            File systemDir = new File(dataDir, "system/app_guard/");
-            PKG_SETTINGS_DIR = new File(systemDir, "pkgs");
-        }
-
-        Set<PackageSettings> loadPackageSettings() {
-            if (FileUtil.isEmptyDir(PKG_SETTINGS_DIR)) return Sets.newHashSet();
-            final Set<PackageSettings> all = Sets.newHashSet();
-            github.tornaco.android.common.Collections.consumeRemaining(
-                    Files.fileTreeTraverser().children(PKG_SETTINGS_DIR),
-                    new Consumer<File>() {
-                        @Override
-                        public void accept(File file) {
-                            try {
-                                PackageSettings packageSettings = PackageSettings.readFrom(file);
-                                if (TextUtils.isEmpty(packageSettings.getPkgName())) {
-                                    // Skip bad one.
-                                    return;
-                                }
-                                XLog.logV("Read PackageSettings:" + packageSettings);
-                                all.add(packageSettings);
-                            } catch (Exception e) {
-                                XLog.logF("Fail read PackageSettings:"
-                                        + file
-                                        + ", Exception:"
-                                        + Log.getStackTraceString(e));
-                            }
-                        }
-                    });
-            return all;
+        @Override
+        public void userLeaving(String res) {
+            if (mVerifySettings != null) {
+                boolean clearOnHome = mVerifySettings.isVerifyOnHome();
+                if (clearOnHome) {
+                    VERIFIED_PACKAGES.clear();
+                }
+            }
         }
     }
+
 }

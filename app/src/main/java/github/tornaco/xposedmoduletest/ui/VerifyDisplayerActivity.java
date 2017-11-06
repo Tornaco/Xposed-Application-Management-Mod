@@ -387,5 +387,6 @@ public class VerifyDisplayerActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        CameraManager.get().closeCamera();
     }
 }

@@ -3,7 +3,6 @@ package github.tornaco.xposedmoduletest.x.util;
 import org.newstand.logger.Logger;
 
 import java.io.Closeable;
-import java.io.IOException;
 
 /**
  * Created by Nick@NewStand.org on 2017/3/9 13:38
@@ -16,7 +15,7 @@ public abstract class Closer {
         if (closeable == null) return;
         try {
             closeable.close();
-        } catch (IOException ignore) {
+        } catch (Exception ignore) {
             Logger.e(ignore, "Fail to close %s with err", closeable);
         }
     }
