@@ -7,8 +7,9 @@ import android.preference.Preference;
 import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
 
+import github.tornaco.keyguard.KeyguardStorage;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.ui.PassCodeSetupActivity;
+import github.tornaco.xposedmoduletest.ui.PatternSetupActivity;
 import github.tornaco.xposedmoduletest.ui.SettingsActivity;
 import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.x.bean.VerifySettings;
@@ -33,17 +34,21 @@ public class SecureSettings extends SettingsActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.secure);
 
+            Preference lockSettingsPref = findPreference("verify_method");
+            lockSettingsPref.setSummary(KeyguardStorage.iaPatternSet(getActivity()) ?
+                    R.string.summary_setup_passcode_set
+                    : R.string.summary_setup_passcode_none_set);
+            lockSettingsPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    startActivity(new Intent(getActivity(), PatternSetupActivity.class));
+                    return true;
+                }
+            });
+
             if (verifySettings == null) verifySettings = new VerifySettings();
 
             if (XAppGuardManager.from().isServiceAvailable()) {
-                findPreference("verify_method")
-                        .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                            @Override
-                            public boolean onPreferenceClick(Preference preference) {
-                                startActivity(new Intent(getActivity(), PassCodeSetupActivity.class));
-                                return true;
-                            }
-                        });
 
 
                 final boolean verifyOnHome = verifySettings.isVerifyOnHome();

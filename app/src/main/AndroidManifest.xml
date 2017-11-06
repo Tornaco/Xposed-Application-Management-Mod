@@ -42,7 +42,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.PassCodeSetupActivity"
+            android:name=".ui.PatternSetupActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_setup_code_new"
             android:theme="@style/AppThemeLight.NoActionBar" />

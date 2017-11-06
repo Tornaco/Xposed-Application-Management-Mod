@@ -9,14 +9,14 @@ import java.util.List;
  * Email: Tornaco@163.com
  */
 
-public class LockPatternUtils {
+class LockPatternUtils {
     /**
      * Serialize a pattern.
      *
      * @param pattern The pattern.
      * @return The pattern in string form.
      */
-    public static String patternToString(List<LockPatternView.Cell> pattern) {
+    static String patternToString(List<LockPatternView.Cell> pattern) {
         if (pattern == null) {
             return "";
         }
@@ -36,7 +36,7 @@ public class LockPatternUtils {
      * @param string The pattern serialized with {@link #patternToString}
      * @return The pattern.
      */
-    public static List<LockPatternView.Cell> stringToPattern(String string) {
+    static List<LockPatternView.Cell> stringToPattern(String string) {
         if (string == null) {
             return null;
         }

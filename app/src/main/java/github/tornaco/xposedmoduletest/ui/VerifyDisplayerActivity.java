@@ -97,7 +97,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private void readSettings() {
         this.mTakePhoto = XSettings.get().takenPhotoEnabled(this);
-        this.mPsscode.setData(XSettings.getPassCodeEncrypt(this));//FIXME Enc-->NoneEnc
+        this.mPsscode.setData(XSettings.getPattern(this));//FIXME Enc-->NoneEnc
     }
 
     private void showVerifyView() {
@@ -120,7 +120,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
             Logger.w("Pass code not valid, ignoring...");
             Toast.makeText(this, R.string.summary_setup_passcode_none_set, Toast.LENGTH_SHORT).show();
 //            onPass();
-//            return;
+//            return; //FIXME.
         }
 
         setupLabel();
@@ -277,8 +277,17 @@ public class VerifyDisplayerActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        KeyguardPatternView keyguardPatternView = (KeyguardPatternView) findViewById(R.id.keyguard_pattern_view);
-        if (keyguardPatternView != null) keyguardPatternView.startAppearAnimation();
+
+        getUIThreadHandler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (!isDestroyed()) {
+                    KeyguardPatternView keyguardPatternView =
+                            (KeyguardPatternView) findViewById(R.id.keyguard_pattern_view);
+                    if (keyguardPatternView != null) keyguardPatternView.startAppearAnimation();
+                }
+            }
+        }, 500);
     }
 
     private void onFail() {

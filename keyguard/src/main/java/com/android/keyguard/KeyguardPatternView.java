@@ -63,6 +63,7 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
     private final DisappearAnimationUtils mDisappearAnimationUtilsLocked;
 
     private AsyncTask<?, ?, ?> mPendingLockCheck;
+    private boolean editMode;
     private LockPatternView mLockPatternView;
     private KeyguardSecurityCallback mCallback;
 
@@ -114,6 +115,10 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
                 context, android.R.interpolator.fast_out_linear_in));
     }
 
+    public void setEditMode(boolean editMode) {
+        this.editMode = editMode;
+    }
+
     @Override
     public void setKeyguardCallback(KeyguardSecurityCallback callback) {
         mCallback = callback;
@@ -135,6 +140,8 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
         mSecurityMessageDisplay =
                 (KeyguardMessageArea) KeyguardMessageArea.findSecurityMessageDisplay(this);
         mContainer = (ViewGroup) findViewById(R.id.container);
+
+        setAlpha(0);
 
     }
 
@@ -213,19 +220,32 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
                 return;
             }
 
-            mPendingLockCheck = LockPatternChecker.checkPattern(
-                    pattern,
-                    new LockPatternChecker.OnCheckCallback() {
-
-
-                        @Override
-                        public void onChecked(boolean matched) {
-                            mLockPatternView.enableInput();
-                            mPendingLockCheck = null;
-                            onPatternChecked(matched /* matched */,
-                                    true /* isValidPattern */);
-                        }
-                    });
+            mPendingLockCheck =
+                    editMode ?
+                            LockPatternChecker.recordPattern(
+                                    getContext(),
+                                    pattern,
+                                    new LockPatternChecker.OnRecordCallback() {
+                                        @Override
+                                        public void onRecord(boolean ok) {
+                                            mLockPatternView.enableInput();
+                                            mPendingLockCheck = null;
+                                            onPatternChecked(ok /* matched */,
+                                                    true /* isValidPattern */);
+                                        }
+                                    })
+                            : LockPatternChecker.checkPattern(
+                            getContext(),
+                            pattern,
+                            new LockPatternChecker.OnCheckCallback() {
+                                @Override
+                                public void onChecked(boolean matched) {
+                                    mLockPatternView.enableInput();
+                                    mPendingLockCheck = null;
+                                    onPatternChecked(matched /* matched */,
+                                            true /* isValidPattern */);
+                                }
+                            });
             if (pattern.size() > MIN_PATTERN_BEFORE_POKE_WAKELOCK) {
                 mCallback.userActivity();
             }

@@ -34,7 +34,7 @@
     <string name="title_help">帮助与Wiki</string>
     <string name="title_donate">捐赠</string>
     <string name="title_show_system_app">显示系统应用</string>
-    <string name="first_run_title">今天星期几？</string>
+    <string name="first_run_title">XXXXX？!</string>
     <string name="message_first_run">软件现在还在测试阶段，可能不稳定，尤其是介于现在的ROM众多繁杂适配难以一下全部囊括，使用中如果遇到问题，麻烦尽量帮忙查看Xposed Installer内的log，反馈出来，这样才会使其发展的更好，如果支持的话请给好评，尽量不要抱怨。\n\n安装完成激活XPOSED模块后请完全重启。\n\n如果你是第一次使用，建议点击菜单，查看项目wiki获取相关使用教程。</string>
     <string name="title_use_fp">使用指纹</string>
     <string name="title_ver_on_home">返回HOME应用需要验证</string>
