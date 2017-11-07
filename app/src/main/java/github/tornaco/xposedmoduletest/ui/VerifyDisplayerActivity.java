@@ -1,10 +1,13 @@
 package github.tornaco.xposedmoduletest.ui;
 
 import android.Manifest;
+import android.app.KeyguardManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -43,6 +46,7 @@ import github.tornaco.xposedmoduletest.x.app.XMode;
 import github.tornaco.xposedmoduletest.x.app.XWatcherMainThreadAdapter;
 import github.tornaco.xposedmoduletest.x.secure.XEnc;
 
+import static github.tornaco.xposedmoduletest.x.app.XAppGuardManager.EXTRA_INJECT_HOME_WHEN_FAIL_ID;
 import static github.tornaco.xposedmoduletest.x.app.XAppGuardManager.EXTRA_PKG_NAME;
 import static github.tornaco.xposedmoduletest.x.app.XAppGuardManager.EXTRA_TRANS_ID;
 
@@ -54,8 +58,11 @@ import static github.tornaco.xposedmoduletest.x.app.XAppGuardManager.EXTRA_TRANS
 
 public class VerifyDisplayerActivity extends BaseActivity {
 
-    private String pkg;
-    private int tid;
+    private String pkg = null;
+    // FIXME, this is not a good solution.
+    // Tid is 0 or negative when this is performed when activity resume on user present?
+    private int tid = -1;
+    private boolean injectHome = false;
 
     private boolean testMode;
 
@@ -126,14 +133,13 @@ public class VerifyDisplayerActivity extends BaseActivity {
         setupLabel();
         setupIcon();
         setupLockView();
-        setupFP();
         setupCamera();
 
-        XAppGuardManager.from().watch(new XWatcherMainThreadAdapter() {
+        XAppGuardManager.defaultInstance().watch(new XWatcherMainThreadAdapter() {
             @Override
             protected void onUserLeavingMainThread(String reason) {
                 super.onUserLeavingMainThread(reason);
-                XAppGuardManager.from().unWatch(this);
+                XAppGuardManager.defaultInstance().unWatch(this);
                 postDelayed(expireRunnable, 800);
             }
         });
@@ -209,7 +215,23 @@ public class VerifyDisplayerActivity extends BaseActivity {
             softwareCameraPreview.setVisibility(mTakePhoto ? View.VISIBLE : View.GONE);
     }
 
+    private final class ScreenBroadcastReceiver extends BroadcastReceiver {
+        private ScreenBroadcastReceiver() {
+        }
+
+        public void onReceive(Context context, Intent intent) {
+            String strAction = null;
+            if (intent != null) {
+                strAction = intent.getAction();
+            }
+            if (Intent.ACTION_USER_PRESENT.equals(strAction)) {
+                setupFP();
+            }
+        }
+    }
+
     private void setupFP() {
+        cancelFP();
         if (XSettings.get().fpEnabled(this)) {
             mCancellationSignal = setupFingerPrint(
                     new FingerprintManagerCompat.AuthenticationCallback() {
@@ -231,6 +253,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
                         public void onAuthenticationFailed() {
                             super.onAuthenticationFailed();
                             Logger.d("onAuthenticationFailed");
+                            vibrate();
                         }
 
                         @Override
@@ -238,8 +261,16 @@ public class VerifyDisplayerActivity extends BaseActivity {
                             super.onAuthenticationError(errMsgId, errString);
                             Logger.d("onAuthenticationError:" + errString);
                             mLabelView.setText(errString);
+                            vibrate();
                         }
                     });
+        }
+    }
+
+    private void vibrate() {
+        Vibrator vibrator = (Vibrator) VerifyDisplayerActivity.this.getSystemService(VIBRATOR_SERVICE);
+        if (vibrator != null) {
+            vibrator.vibrate(200);
         }
     }
 
@@ -258,14 +289,30 @@ public class VerifyDisplayerActivity extends BaseActivity {
         }
     }
 
+    private boolean isKeyguard() {
+        KeyguardManager keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
+        if (keyguardManager != null && keyguardManager.inKeyguardRestrictedInputMode()) {
+            Logger.d("in keyguard true");
+            return true;
+        }
+        Logger.d("in keyguard false");
+        return false;
+    }
+
+
     private void onPass() {
         if (testMode || mResNotified) return;
         mResNotified = true;
-        if (mCancellationSignal != null) {
-            mCancellationSignal.cancel();
-        }
-        XAppGuardManager.from().setResult(tid, XMode.MODE_ALLOWED);
+        cancelFP();
+        XAppGuardManager.defaultInstance().setResult(tid, XMode.MODE_ALLOWED);
         finish();
+    }
+
+    private void cancelFP() {
+        if (mCancellationSignal != null && !mCancellationSignal.isCanceled()) {
+            mCancellationSignal.cancel();
+            mCancellationSignal = null;
+        }
     }
 
     @Override
@@ -275,28 +322,33 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        cancelFP();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
-
-        getUIThreadHandler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (!isDestroyed()) {
-                    KeyguardPatternView keyguardPatternView =
-                            (KeyguardPatternView) findViewById(R.id.keyguard_pattern_view);
-                    if (keyguardPatternView != null) keyguardPatternView.startAppearAnimation();
-                }
-            }
-        }, 500);
+        KeyguardPatternView keyguardPatternView =
+                (KeyguardPatternView) findViewById(R.id.keyguard_pattern_view);
+        if (keyguardPatternView != null) keyguardPatternView.startAppearAnimation();
+        setupFP();
     }
 
     private void onFail() {
-        if (testMode || mResNotified) return;
-        mResNotified = true;
-        if (mCancellationSignal != null) {
-            mCancellationSignal.cancel();
+        if (testMode || mResNotified) {
+            return;
         }
-        XAppGuardManager.from().setResult(tid, XMode.MODE_DENIED);
+        mResNotified = true;
+        cancelFP();
+        XAppGuardManager.defaultInstance().setResult(tid, XMode.MODE_DENIED);
+        if (injectHome) {
+            Intent intent = new Intent("android.intent.action.MAIN");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addCategory("android.intent.category.HOME");
+            startActivity(intent);
+        }
         finish();
     }
 
@@ -328,9 +380,10 @@ public class VerifyDisplayerActivity extends BaseActivity {
         if (intent == null) return false;
         pkg = intent.getStringExtra(EXTRA_PKG_NAME);
         tid = intent.getIntExtra(EXTRA_TRANS_ID, -1);
-        Logger.d("after resolveIntent: %s, %s", pkg, tid);
+        injectHome = intent.getBooleanExtra(EXTRA_INJECT_HOME_WHEN_FAIL_ID, false);
+        Logger.d("after resolveIntent: %s, %s, %s", pkg, tid, injectHome);
         testMode = intent.getBooleanExtra("extra.test", false);
-        return (pkg != null && tid > 0) || testMode;
+        return (pkg != null) || testMode;
     }
 
     @Override

@@ -140,9 +140,6 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
         mSecurityMessageDisplay =
                 (KeyguardMessageArea) KeyguardMessageArea.findSecurityMessageDisplay(this);
         mContainer = (ViewGroup) findViewById(R.id.container);
-
-        setAlpha(0);
-
     }
 
     @Override

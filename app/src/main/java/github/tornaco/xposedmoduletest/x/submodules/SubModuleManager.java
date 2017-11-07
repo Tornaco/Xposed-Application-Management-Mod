@@ -17,16 +17,18 @@ public class SubModuleManager {
     private final Set<SubModule> SUBS = new HashSet<>();
 
     private SubModuleManager() {
-        SUBS.add(new AMSSubModule());
-        SUBS.add(new AMSSubModule2());
-        SUBS.add(new AMSSubModule3());
-        SUBS.add(new ActivityStartSubModuleDelegate());
-        SUBS.add(new TaskMoverSubModuleDelegate());
+        SUBS.add(new ActivityModule());
         SUBS.add(new FPSubModule());
         SUBS.add(new ScreenshotApplicationsSubModule());
         SUBS.add(new PWMSubModule());
         SUBS.add(new PackageInstallerSubModule());
         SUBS.add(new PMSSubModule());
+        SUBS.add(new TaskMoverSubModuleDelegate());
+        SUBS.add(new ActivityStartSubModuleDelegate());
+        SUBS.add(new AMSSubModule3());
+        SUBS.add(new AMSSubModule2());
+        SUBS.add(new AMSSubModule());
+
     }
 
     @Synchronized

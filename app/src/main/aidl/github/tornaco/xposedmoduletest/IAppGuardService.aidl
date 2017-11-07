@@ -30,4 +30,12 @@ interface IAppGuardService {
     void mockCrash();
 
     void setVerifierPackage(String pkg);
+
+    void injectHomeEvent();
+
+    void setDebug(boolean debug);
+
+    boolean isDebug();
+
+    void onActivityPackageResume(String pkg);
 }

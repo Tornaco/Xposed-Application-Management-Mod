@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.x.service;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -29,4 +30,8 @@ public interface IModuleBridge {
     void onKeyEvent(KeyEvent event);
 
     boolean isBlurForPkg(String pkg);
+
+    void onActivityResume(Activity activity);
+
+    String serial();
 }

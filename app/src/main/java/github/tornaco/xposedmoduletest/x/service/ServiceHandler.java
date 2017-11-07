@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.x.service;
 
+import android.app.Activity;
 import android.view.KeyEvent;
 
 import github.tornaco.apigen.CreateMessageIdWithMethods;
@@ -35,4 +36,12 @@ interface ServiceHandler {
     void mockCrash();
 
     void onKeyEvent(KeyEvent keyEvent);
+
+    void injectHomeEvent();
+
+    void setDebug(boolean debug);
+
+    void onActivityResume(Activity activity);
+
+    void onActivityPackageResume(String pkg);
 }

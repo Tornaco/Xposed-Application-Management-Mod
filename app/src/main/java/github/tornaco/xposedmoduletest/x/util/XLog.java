@@ -1,5 +1,7 @@
 package github.tornaco.xposedmoduletest.x.util;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import de.robv.android.xposed.XposedBridge;
 
 /**
@@ -11,15 +13,18 @@ public abstract class XLog {
 
     private static final String TAG = "XAppGuard-";
 
-    private static final boolean DEBUG_V = true;
-    private static final boolean DEBUG_D = true;
+    private static final AtomicBoolean DEBUG = new AtomicBoolean(true);
+
+    public static void setDebug(boolean debug) {
+        XLog.DEBUG.set(debug);
+    }
 
     public static void logV(Object log) {
-        if (DEBUG_V) XposedBridge.log(TAG + String.valueOf(log));
+        if (DEBUG.get()) XposedBridge.log(TAG + String.valueOf(log));
     }
 
     public static void logD(Object log) {
-        if (DEBUG_D) XposedBridge.log(TAG + String.valueOf(log));
+        if (DEBUG.get()) XposedBridge.log(TAG + String.valueOf(log));
     }
 
     public static void logF(Object log) {

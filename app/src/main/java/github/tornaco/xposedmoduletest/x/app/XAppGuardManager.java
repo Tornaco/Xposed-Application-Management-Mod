@@ -29,6 +29,7 @@ public class XAppGuardManager {
 
     public static final String EXTRA_PKG_NAME = "extra.pkg";
     public static final String EXTRA_TRANS_ID = "extra.tid";
+    public static final String EXTRA_INJECT_HOME_WHEN_FAIL_ID = "extra.inject_home_on_fail";
 
     @SuppressWarnings("WeakerAccess")
     public interface Feature {
@@ -38,7 +39,8 @@ public class XAppGuardManager {
         String FP = "feature.fp";
         String BLUR = "feature.blur";
         String HOME = "feature.home";
-        int FEATURE_COUNT = 3;
+        String RESUME = "feature.resume";
+        int FEATURE_COUNT = 7;
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -64,10 +66,12 @@ public class XAppGuardManager {
     }
 
     public static void init() {
-        sMe = new XAppGuardManager();
+        if (sMe == null || !sMe.isServiceAvailable()) {
+            sMe = new XAppGuardManager();
+        }
     }
 
-    public static XAppGuardManager from() {
+    public static XAppGuardManager defaultInstance() {
         return sMe;
     }
 
@@ -202,6 +206,52 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.setUninstallInterruptEnabled(enabled);
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+    }
+
+    public void setVerifierPackage(String pkg) {
+        ensureService();
+        try {
+            mService.setVerifierPackage(pkg);
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+    }
+
+    public void injectHomeEvent() {
+        ensureService();
+        try {
+            mService.injectHomeEvent();
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+    }
+
+    public void setDebug(boolean debug) {
+        ensureService();
+        try {
+            mService.setDebug(debug);
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+    }
+
+    public boolean isDebug() {
+        ensureService();
+        try {
+            return mService.isDebug();
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+        return false;
+    }
+
+    public void onActivityPackageResume(String pkg) {
+        ensureService();
+        try {
+            mService.onActivityPackageResume(pkg);
         } catch (RemoteException e) {
             Logger.e(Logger.getStackTraceString(e));
         }

@@ -27,7 +27,7 @@ public class SecureSettings extends SettingsActivity {
 
     public static class SecureSettingsFragment extends SettingsActivity.SettingsFragment {
 
-        VerifySettings verifySettings = XAppGuardManager.from().getVerifySettings();
+        VerifySettings verifySettings = XAppGuardManager.defaultInstance().getVerifySettings();
 
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -48,7 +48,7 @@ public class SecureSettings extends SettingsActivity {
 
             if (verifySettings == null) verifySettings = new VerifySettings();
 
-            if (XAppGuardManager.from().isServiceAvailable()) {
+            if (XAppGuardManager.defaultInstance().isServiceAvailable()) {
 
 
                 final boolean verifyOnHome = verifySettings.isVerifyOnHome();
@@ -58,7 +58,7 @@ public class SecureSettings extends SettingsActivity {
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean v = (boolean) newValue;
                         verifySettings.setVerifyOnHome(v);
-                        XAppGuardManager.from().setVerifySettings(verifySettings);
+                        XAppGuardManager.defaultInstance().setVerifySettings(verifySettings);
                         return true;
                     }
                 });
@@ -71,7 +71,7 @@ public class SecureSettings extends SettingsActivity {
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean v = (boolean) newValue;
                         verifySettings.setVerifyOnScreenOff(v);
-                        XAppGuardManager.from().setVerifySettings(verifySettings);
+                        XAppGuardManager.defaultInstance().setVerifySettings(verifySettings);
                         return true;
                     }
                 });

@@ -24,12 +24,13 @@ class XModuleImplSeparable extends XModuleAbs {
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
         for (SubModule s : SubModuleManager.getInstance().getAllSubModules()) {
-            if (s.getInterestedPackages().contains(lpparam.packageName)) {
+            if (s.getInterestedPackages().contains(lpparam.packageName)
+                    || s.getInterestedPackages().contains("*")) {
                 try {
-                    XLog.logF("Invoking submodule@handleLoadPackage: " + s.name());
+                    // XLog.logF("Invoking submodule@handleLoadPackage: " + s.name());
                     s.handleLoadingPackage(lpparam.packageName, lpparam);
                 } catch (Throwable e) {
-                    XLog.logF("Error call handleLoadingPackage from submodule:" + s);
+                    XLog.logF("Error call handleLoadingPackage defaultInstance submodule:" + s);
                 }
             }
         }

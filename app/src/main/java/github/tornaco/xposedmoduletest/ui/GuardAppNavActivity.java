@@ -46,7 +46,7 @@ public class GuardAppNavActivity extends LockedActivity {
     }
 
     private void initService() {
-        boolean serviceConnected = XAppGuardManager.from().isServiceAvailable();
+        boolean serviceConnected = XAppGuardManager.defaultInstance().isServiceAvailable();
         Logger.d("serviceConnected:" + serviceConnected);
         setTitle(serviceConnected ? R.string.title_service_connected : R.string.title_service_not_connected);
     }
@@ -119,11 +119,11 @@ public class GuardAppNavActivity extends LockedActivity {
             public void run() {
                 SwitchBar switchBar = (SwitchBar) findViewById(R.id.switchbar);
                 if (switchBar == null) return;
-                switchBar.setChecked(XAppGuardManager.from().isServiceAvailable() && XAppGuardManager.from().isEnabled());
+                switchBar.setChecked(XAppGuardManager.defaultInstance().isServiceAvailable() && XAppGuardManager.defaultInstance().isEnabled());
                 switchBar.addOnSwitchChangeListener(new SwitchBar.OnSwitchChangeListener() {
                     @Override
                     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-                        XAppGuardManager.from().setEnabled(isChecked);
+                        XAppGuardManager.defaultInstance().setEnabled(isChecked);
                     }
                 });
                 switchBar.show();
@@ -188,6 +188,6 @@ public class GuardAppNavActivity extends LockedActivity {
 
     @Override
     protected boolean showLockOnCreate() {
-        return XAppGuardManager.from().isServiceAvailable();
+        return XAppGuardManager.defaultInstance().isServiceAvailable();
     }
 }

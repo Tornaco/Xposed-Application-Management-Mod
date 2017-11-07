@@ -6,4 +6,5 @@ package github.tornaco.xposedmoduletest.x.service;
  */
 
 @interface BinderCall {
+    String restrict() default "us";
 }

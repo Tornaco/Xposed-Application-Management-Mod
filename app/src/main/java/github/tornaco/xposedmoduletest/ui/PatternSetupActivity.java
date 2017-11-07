@@ -54,11 +54,6 @@ public class PatternSetupActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        getUIThreadHandler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (!isDestroyed()) keyguardPatternView.startAppearAnimation();
-            }
-        }, 500);
+        keyguardPatternView.startAppearAnimation();
     }
 }
