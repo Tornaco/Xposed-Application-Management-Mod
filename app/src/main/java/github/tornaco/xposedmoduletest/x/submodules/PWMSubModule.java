@@ -34,12 +34,7 @@ class PWMSubModule extends AndroidSubModuleModule {
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             super.afterHookedMethod(param);
                             KeyEvent keyEvent = (KeyEvent) param.args[0];
-                            if (keyEvent.getAction() == KeyEvent.ACTION_UP
-                                    && (keyEvent.getKeyCode() == KeyEvent.KEYCODE_HOME
-                                    || keyEvent.getKeyCode() == KeyEvent.KEYCODE_APP_SWITCH)) {
-                                XLog.logV("dispatchUnhandledKey: HOME/APP_SWITCH");
-                                getBridge().onUserLeaving("HOME");
-                            }
+                            getBridge().onKeyEvent(keyEvent);
                         }
                     });
             XLog.logV("hookPWM OK:" + unHooks);

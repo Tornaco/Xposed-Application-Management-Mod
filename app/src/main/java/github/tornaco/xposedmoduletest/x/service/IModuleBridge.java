@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.x.service;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.view.KeyEvent;
 
 /**
  * Created by guohao4 on 2017/11/1.
@@ -25,7 +26,7 @@ public interface IModuleBridge {
 
     void verify(Bundle options, String pkg, int uid, int pid, VerifyListener listener);
 
-    void onUserLeaving(String reason);
+    void onKeyEvent(KeyEvent event);
 
     boolean isBlurForPkg(String pkg);
 }

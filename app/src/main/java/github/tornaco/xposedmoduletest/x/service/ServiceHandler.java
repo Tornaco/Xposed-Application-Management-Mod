@@ -1,5 +1,7 @@
 package github.tornaco.xposedmoduletest.x.service;
 
+import android.view.KeyEvent;
+
 import github.tornaco.apigen.CreateMessageIdWithMethods;
 
 import static github.tornaco.xposedmoduletest.x.service.ServiceHandler.BASE;
@@ -32,5 +34,5 @@ interface ServiceHandler {
 
     void mockCrash();
 
-    void userLeaving(String rea);
+    void onKeyEvent(KeyEvent keyEvent);
 }

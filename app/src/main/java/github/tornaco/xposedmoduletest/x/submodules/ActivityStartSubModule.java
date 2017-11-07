@@ -110,6 +110,7 @@ class ActivityStartSubModule extends AndroidSubModuleModule {
 
                         // Package has been passed.
                         if (!getBridge().onEarlyVerifyConfirm(pkgName)) {
+                            XLog.logV("onEarlyVerifyConfirmed...");
                             return;
                         }
 

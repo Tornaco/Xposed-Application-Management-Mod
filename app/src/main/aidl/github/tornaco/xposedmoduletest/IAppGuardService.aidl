@@ -7,6 +7,7 @@ import github.tornaco.xposedmoduletest.x.bean.PackageSettings;
 import github.tornaco.xposedmoduletest.x.bean.VerifySettings;
 
 interface IAppGuardService {
+
     boolean isEnabled();
     void setEnabled(boolean enabled);
 
@@ -27,4 +28,6 @@ interface IAppGuardService {
 
     // For test only.
     void mockCrash();
+
+    void setVerifierPackage(String pkg);
 }

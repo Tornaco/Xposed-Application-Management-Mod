@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -18,6 +19,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
 public class BlurSettings implements Parcelable, Cloneable {
 
     public static final String KEY_SETTINGS = "tornaco.app_guard_blur";

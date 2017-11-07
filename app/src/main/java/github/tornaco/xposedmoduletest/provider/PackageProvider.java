@@ -96,6 +96,7 @@ public class PackageProvider extends ContentProvider {
         ContentValues values = new ContentValues();
         values.put(PackageInfoDao.Properties.PkgName.columnName, packageInfo.getPkgName());
         values.put(PackageInfoDao.Properties.AppName.columnName, packageInfo.getAppName());
+        values.put(PackageInfoDao.Properties.Guard.columnName, packageInfo.getGuard());
         return context.getContentResolver().insert(CONTENT_URI, values);
     }
 
