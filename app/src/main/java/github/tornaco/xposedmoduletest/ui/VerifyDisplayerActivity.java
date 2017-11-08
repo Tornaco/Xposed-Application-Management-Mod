@@ -40,6 +40,7 @@ import github.tornaco.xposedmoduletest.camera.CameraManager;
 import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerCompat;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
+import github.tornaco.xposedmoduletest.util.StopWatch;
 import github.tornaco.xposedmoduletest.x.XSettings;
 import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.x.app.XMode;
@@ -236,32 +237,34 @@ public class VerifyDisplayerActivity extends BaseActivity {
             mCancellationSignal = setupFingerPrint(
                     new FingerprintManagerCompat.AuthenticationCallback() {
                         @Override
-                        public void onAuthenticationSucceeded(FingerprintManagerCompat.AuthenticationResult result) {
+                        public void onAuthenticationSucceeded(
+                                FingerprintManagerCompat.AuthenticationResult result) {
                             super.onAuthenticationSucceeded(result);
                             Logger.d("onAuthenticationSucceeded:" + result);
                             onPass();
+                            vibrate();
                         }
 
                         @Override
                         public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
                             super.onAuthenticationHelp(helpMsgId, helpString);
                             Logger.i("onAuthenticationHelp:" + helpString);
-                            mLabelView.setText(helpString);
+                            // mLabelView.setText(helpString);
                         }
 
                         @Override
                         public void onAuthenticationFailed() {
                             super.onAuthenticationFailed();
                             Logger.d("onAuthenticationFailed");
-                            vibrate();
+                            // vibrate();
                         }
 
                         @Override
                         public void onAuthenticationError(int errMsgId, CharSequence errString) {
                             super.onAuthenticationError(errMsgId, errString);
                             Logger.d("onAuthenticationError:" + errString);
-                            mLabelView.setText(errString);
-                            vibrate();
+                            // mLabelView.setText(errString);
+                            // vibrate();
                         }
                     });
         }
@@ -302,9 +305,12 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private void onPass() {
         if (testMode || mResNotified) return;
+        StopWatch stopWatch = StopWatch.start("onPass");
         mResNotified = true;
         cancelFP();
+        stopWatch.split("cancelFP");
         XAppGuardManager.defaultInstance().setResult(tid, XMode.MODE_ALLOWED);
+        stopWatch.split("setResult");
         finish();
     }
 

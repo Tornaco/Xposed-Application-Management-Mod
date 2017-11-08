@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.List;
 
@@ -66,16 +67,19 @@ public class LockPatternChecker {
 
             @Override
             protected Boolean doInBackground(Void... args) {
+                Log.d("XAppGuard", "checkPattern doInBackground.");
                 String saved = KeyguardStorage.getPattern(context);
                 return !TextUtils.isEmpty(saved) && saved.equals(LockPatternUtils.patternToString(pattern));
             }
 
             @Override
             protected void onPostExecute(Boolean result) {
+                Log.d("XAppGuard", "checkPattern onPostExecute.");
                 callback.onChecked(result);
             }
         };
         task.execute();
+        Log.d("XAppGuard", "checkPattern return.");
         return task;
     }
 

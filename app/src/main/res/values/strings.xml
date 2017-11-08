@@ -77,4 +77,10 @@
     <string name="title_verify_pin">数字密码</string>
     <string name="title_verify_pattern">图案密码</string>
     <string name="title_others">其他</string>
+    <string name="title_camera">相机</string>
+    <string name="title_password">解锁</string>
+    <string name="title_verify_settings">验证</string>
+    <string name="title_themes">主题</string>
+    <string name="title_service">服务</string>
+    <string name="title_app">应用</string>
 </resources>

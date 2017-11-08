@@ -12,8 +12,10 @@ import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.BaseActivity;
+import github.tornaco.xposedmoduletest.ui.tiles.Advanced;
 import github.tornaco.xposedmoduletest.ui.tiles.Experiment;
 import github.tornaco.xposedmoduletest.ui.tiles.Secure;
+import github.tornaco.xposedmoduletest.ui.tiles.Verifier;
 
 /**
  * Created by guohao4 on 2017/11/2.
@@ -37,6 +39,8 @@ public class SettingsDashboardActivity extends BaseActivity {
             Category personal = new Category();
             personal.titleRes = R.string.title_personal;
             personal.addTile(new Secure(getActivity()));
+            personal.addTile(new Verifier(getActivity()));
+            personal.addTile(new Advanced(getActivity()));
 
             Category others = new Category();
             others.titleRes = R.string.title_others;

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/title_service">
+
+        <Preference
+            android:key="@string/test_noter"
+            android:summary="@string/summary_test_noter"
+            android:title="@string/test_noter" />
+
+        <Preference
+            android:key="@string/dump_module"
+            android:summary="@string/summary_dump_module"
+            android:title="@string/dump_module" />
+
+        <Preference
+            android:key="@string/crash_module"
+            android:summary="@string/summary_crash_module"
+            android:title="@string/crash_module" />
+
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="3rd_ver_allowed"
+            android:summary="@string/summary_allow_third_verifier"
+            android:title="@string/title_allow_third_verifier" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/title_app">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="key_hide_app_icon"
+            android:title="@string/title_hide_app_icon" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="dev_mode_enabled"
+            android:summary="@string/summary_dev_mode"
+            android:title="@string/title_dev_mode" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
