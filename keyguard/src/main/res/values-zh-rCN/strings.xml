@@ -18,7 +18,6 @@
  -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name">"Keyguard"</string>
     <string name="keyguard_accessibility_pin_area">PIN area</string>
     <string name="keyguard_password_enter_pin_code">"输入PIN码"</string>
     <string name="keyguard_password_enter_puk_code">"请输入SIM卡PUK码和新的PIN码"</string>

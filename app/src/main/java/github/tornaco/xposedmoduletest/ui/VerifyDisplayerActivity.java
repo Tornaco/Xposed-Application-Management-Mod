@@ -104,7 +104,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private void readSettings() {
         this.mTakePhoto = XSettings.get().takenPhotoEnabled(this);
-        this.mPsscode.setData(XSettings.getPattern(this));//FIXME Enc-->NoneEnc
+        this.mPsscode.setData(XSettings.getPattern(this));
     }
 
     private void showVerifyView() {

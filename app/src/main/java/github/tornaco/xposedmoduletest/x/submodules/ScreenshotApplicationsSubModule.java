@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.x.submodules;
 
 import android.app.ActivityManagerNative;
 import android.content.ComponentName;
+import android.graphics.Bitmap;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
@@ -14,6 +15,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.x.util.XBitmapUtil;
 import github.tornaco.xposedmoduletest.x.util.XLog;
 import github.tornaco.xposedmoduletest.x.util.XStopWatch;
 
@@ -68,13 +70,13 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModuleModule {
         }
         if (getBridge().isBlurForPkg(pkgName)
                 && param.getResult() != null) {
-//            Bitmap res = (Bitmap) param.getResult();
-//            stopWatch.split("Blur bitmap start");
-//            Bitmap blured = (XBitmapUtil.createBlurredBitmap(res,
-//                    getBridge().getBlurRadius(), getBridge().getBlurScale()));
-//            if (blured != null)
-//                param.setResult(blured);
-//            stopWatch.split("Blur bitmap end");
+            Bitmap res = (Bitmap) param.getResult();
+            stopWatch.split("Blur bitmap start");
+            Bitmap blured = (XBitmapUtil.createBlurredBitmap(res,
+                    XBitmapUtil.BLUR_RADIUS, XBitmapUtil.BITMAP_SCALE));
+            if (blured != null)
+                param.setResult(blured);
+            stopWatch.split("Blur bitmap end");
         }
         stopWatch.stop();
     }

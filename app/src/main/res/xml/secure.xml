@@ -6,17 +6,20 @@
         android:title="@string/title_basic">
         <Preference
             android:key="verify_method"
+            android:persistent="false"
             android:summary="@string/title_verify_pattern"
             android:title="@string/title_verify_method" />
 
         <SwitchPreference
             android:defaultValue="false"
             android:key="ver_on_home"
+            android:persistent="false"
             android:title="@string/title_ver_on_home" />
 
         <SwitchPreference
             android:defaultValue="true"
             android:key="ver_on_screenoff"
+            android:persistent="false"
             android:title="@string/title_ver_on_screenoff" />
     </PreferenceCategory>
 

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/title_exp">
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="key_app_uninstall_pro_enabled"
+            android:persistent="false"
+            android:summary="@string/summary_app_uninstall_pro"
+            android:title="@string/title_app_uninstall_pro" />
+
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="blur_enabled"
+            android:persistent="false"
+            android:summary="@string/summary_app_recent_blur"
+            android:title="@string/title_app_recent_blur" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:dependency="blur_enabled"
+            android:persistent="false"
+            android:key="blur_all_enabled"
+            android:summary="@string/summary_app_recent_blur_all"
+            android:title="@string/title_app_recent_blur_all" />
+
+
+    </PreferenceCategory>
+</PreferenceScreen>

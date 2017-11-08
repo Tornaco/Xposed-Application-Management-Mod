@@ -29,7 +29,8 @@ public class ActivityModule extends AbsSubModule {
     private void hookActivityForApp(String pkg) {
         // XLog.logV("hookActivityForApp: " + pkg);
         try {
-            Set unHooks = XposedBridge.hookAllMethods(Activity.class, "onResume", new XC_MethodHook() {
+            Set unHooks = XposedBridge.hookAllMethods(Activity.class, "onResume",
+                    new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     super.beforeHookedMethod(param);

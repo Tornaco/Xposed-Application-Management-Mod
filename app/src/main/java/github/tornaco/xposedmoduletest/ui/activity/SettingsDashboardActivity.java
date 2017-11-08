@@ -12,6 +12,7 @@ import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.BaseActivity;
+import github.tornaco.xposedmoduletest.ui.tiles.Experiment;
 import github.tornaco.xposedmoduletest.ui.tiles.Secure;
 
 /**
@@ -33,10 +34,16 @@ public class SettingsDashboardActivity extends BaseActivity {
         @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
-            Category category = new Category();
-            category.titleRes = R.string.title_personal;
-            category.addTile(new Secure(getActivity()));
-            categories.add(category);
+            Category personal = new Category();
+            personal.titleRes = R.string.title_personal;
+            personal.addTile(new Secure(getActivity()));
+
+            Category others = new Category();
+            others.titleRes = R.string.title_others;
+            others.addTile(new Experiment(getActivity()));
+
+            categories.add(personal);
+            categories.add(others);
         }
     }
 

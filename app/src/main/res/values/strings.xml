@@ -76,4 +76,5 @@
     <string name="title_verify_method">锁定方式</string>
     <string name="title_verify_pin">数字密码</string>
     <string name="title_verify_pattern">图案密码</string>
+    <string name="title_others">其他</string>
 </resources>

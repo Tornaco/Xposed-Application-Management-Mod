@@ -107,7 +107,8 @@ public class GuardAppNavActivity extends LockedActivity {
         recyclerView.setAdapter(appListAdapter);
 
 
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        swipeRefreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 startLoading();
@@ -119,7 +120,8 @@ public class GuardAppNavActivity extends LockedActivity {
             public void run() {
                 SwitchBar switchBar = (SwitchBar) findViewById(R.id.switchbar);
                 if (switchBar == null) return;
-                switchBar.setChecked(XAppGuardManager.defaultInstance().isServiceAvailable() && XAppGuardManager.defaultInstance().isEnabled());
+                switchBar.setChecked(XAppGuardManager.defaultInstance().isServiceAvailable()
+                        && XAppGuardManager.defaultInstance().isEnabled());
                 switchBar.addOnSwitchChangeListener(new SwitchBar.OnSwitchChangeListener() {
                     @Override
                     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {

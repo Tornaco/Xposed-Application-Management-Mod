@@ -19,6 +19,10 @@ public abstract class XLog {
         XLog.DEBUG.set(debug);
     }
 
+    public static boolean isDebug() {
+        return DEBUG.get();
+    }
+
     public static void logV(Object log) {
         if (DEBUG.get()) XposedBridge.log(TAG + String.valueOf(log));
     }

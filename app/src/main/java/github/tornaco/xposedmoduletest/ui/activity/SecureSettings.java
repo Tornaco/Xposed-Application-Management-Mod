@@ -27,7 +27,7 @@ public class SecureSettings extends SettingsActivity {
 
     public static class SecureSettingsFragment extends SettingsActivity.SettingsFragment {
 
-        VerifySettings verifySettings = XAppGuardManager.defaultInstance().getVerifySettings();
+        private VerifySettings verifySettings = null;
 
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,10 +46,11 @@ public class SecureSettings extends SettingsActivity {
                 }
             });
 
-            if (verifySettings == null) verifySettings = new VerifySettings();
 
             if (XAppGuardManager.defaultInstance().isServiceAvailable()) {
 
+                verifySettings = XAppGuardManager.defaultInstance().getVerifySettings();
+                if (verifySettings == null) verifySettings = new VerifySettings();
 
                 final boolean verifyOnHome = verifySettings.isVerifyOnHome();
                 SwitchPreference homePref = (SwitchPreference) findPreference("ver_on_home");
