@@ -28,7 +28,7 @@ public class BaseActivity extends AppCompatActivity implements View {
 
     @Synchronized
     // Lazy.
-    protected Handler getUIThreadHandler() {
+    public Handler getUIThreadHandler() {
         if (uiThreadHandler == null) uiThreadHandler = new Handler(Looper.getMainLooper());
         return uiThreadHandler;
     }

@@ -25,7 +25,15 @@ public interface SubModule {
     String name();
 
     enum SubModuleStatus {
+        UNKNOWN,
         ERROR,
-        READY
+        READY;
+
+        public static SubModuleStatus valueOf(int i) {
+            for (SubModuleStatus s : values()) {
+                if (i == s.ordinal()) return s;
+            }
+            return UNKNOWN;
+        }
     }
 }

@@ -31,19 +31,19 @@ public class ActivityModule extends AbsSubModule {
         try {
             Set unHooks = XposedBridge.hookAllMethods(Activity.class, "onResume",
                     new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    super.beforeHookedMethod(param);
-                    // Make a binder call crossing process.
-                    Activity activity = (Activity) param.thisObject;
-                    String pkgName = activity.getPackageName();
-                    XAppGuardManager.init();
-                    XAppGuardManager manager = XAppGuardManager.defaultInstance();
-                    if (manager.isServiceAvailable()) {
-                        manager.onActivityPackageResume(pkgName);
-                    }
-                }
-            });
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            super.beforeHookedMethod(param);
+                            // Make a binder call crossing process.
+                            Activity activity = (Activity) param.thisObject;
+                            String pkgName = activity.getPackageName();
+                            XAppGuardManager.init();
+                            XAppGuardManager manager = XAppGuardManager.defaultInstance();
+                            if (manager.isServiceAvailable()) {
+                                manager.onActivityPackageResume(pkgName);
+                            }
+                        }
+                    });
             getBridge().publishFeature(XAppGuardManager.Feature.RESUME);
             setStatus(unhooksToStatus(unHooks));
             // XLog.logV("hookActivityForApp OK:" + unHooks);

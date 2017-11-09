@@ -17,7 +17,6 @@ package com.android.keyguard;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -62,7 +61,6 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
     private final DisappearAnimationUtils mDisappearAnimationUtils;
     private final DisappearAnimationUtils mDisappearAnimationUtilsLocked;
 
-    private AsyncTask<?, ?, ?> mPendingLockCheck;
     private boolean editMode;
     private LockPatternView mLockPatternView;
     private KeyguardSecurityCallback mCallback;
@@ -207,42 +205,37 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
         @Override
         public void onPatternDetected(final List<LockPatternView.Cell> pattern) {
             mLockPatternView.disableInput();
-            if (mPendingLockCheck != null) {
-                mPendingLockCheck.cancel(false);
-            }
-
             if (pattern.size() < MIN_PATTERN_REGISTER_FAIL) {
                 mLockPatternView.enableInput();
                 onPatternChecked(false, false /* not valid - too short */);
                 return;
             }
 
-            mPendingLockCheck =
-                    editMode ?
-                            LockPatternChecker.recordPattern(
-                                    getContext(),
-                                    pattern,
-                                    new LockPatternChecker.OnRecordCallback() {
-                                        @Override
-                                        public void onRecord(boolean ok) {
-                                            mLockPatternView.enableInput();
-                                            mPendingLockCheck = null;
-                                            onPatternChecked(ok /* matched */,
-                                                    true /* isValidPattern */);
-                                        }
-                                    })
-                            : LockPatternChecker.checkPattern(
-                            getContext(),
-                            pattern,
-                            new LockPatternChecker.OnCheckCallback() {
-                                @Override
-                                public void onChecked(boolean matched) {
-                                    mLockPatternView.enableInput();
-                                    mPendingLockCheck = null;
-                                    onPatternChecked(matched /* matched */,
-                                            true /* isValidPattern */);
-                                }
-                            });
+            if (editMode) {
+                LockPatternChecker.recordPattern(
+                        getContext(),
+                        pattern,
+                        new LockPatternChecker.OnRecordCallback() {
+                            @Override
+                            public void onRecord(boolean ok) {
+                                mLockPatternView.enableInput();
+                                onPatternChecked(ok /* matched */,
+                                        true /* isValidPattern */);
+                            }
+                        });
+            } else {
+                LockPatternChecker.checkPattern(
+                        getContext(),
+                        pattern,
+                        new LockPatternChecker.OnCheckCallback() {
+                            @Override
+                            public void onChecked(boolean matched) {
+                                mLockPatternView.enableInput();
+                                onPatternChecked(matched /* matched */,
+                                        true /* isValidPattern */);
+                            }
+                        });
+            }
             if (pattern.size() > MIN_PATTERN_BEFORE_POKE_WAKELOCK) {
                 mCallback.userActivity();
             }
@@ -277,10 +270,6 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
 
     @Override
     public void onPause() {
-        if (mPendingLockCheck != null) {
-            mPendingLockCheck.cancel(false);
-            mPendingLockCheck = null;
-        }
     }
 
     @Override
@@ -337,7 +326,7 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
 
     @Override
     public boolean startDisappearAnimation(final Runnable finishRunnable) {
-        float durationMultiplier = true
+        float durationMultiplier = false
                 ? DISAPPEAR_MULTIPLIER_LOCKED
                 : 1f;
         mLockPatternView.clearPattern();
@@ -348,7 +337,7 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
                 -mDisappearAnimationUtils.getStartTranslation(),
                 mDisappearAnimationUtils.getInterpolator());
 
-        DisappearAnimationUtils disappearAnimationUtils = true
+        DisappearAnimationUtils disappearAnimationUtils = false
                 ? mDisappearAnimationUtilsLocked
                 : mDisappearAnimationUtils;
         disappearAnimationUtils.startAnimation2d(mLockPatternView.getCellStates(),

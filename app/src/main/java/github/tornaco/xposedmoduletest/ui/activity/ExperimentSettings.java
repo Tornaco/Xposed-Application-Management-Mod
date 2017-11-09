@@ -29,50 +29,54 @@ public class ExperimentSettings extends SettingsActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.exp);
 
-            if (XAppGuardManager.defaultInstance().isServiceAvailable()) {
-                BlurSettings blurSettings = XAppGuardManager.defaultInstance()
-                        .getBlurSettings();
-                if (blurSettings == null) blurSettings = new BlurSettings();
 
-                final BlurSettings finalBlurSettings = blurSettings;
-
-                SwitchPreference blurPref = (SwitchPreference) findPreference("blur_enabled");
-                blurPref.setChecked(blurSettings.isEnabled());
-                blurPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        boolean v = (boolean) newValue;
-                        finalBlurSettings.setEnabled(v);
-                        XAppGuardManager.defaultInstance().setBlurSettings(finalBlurSettings);
-                        return true;
-                    }
-                });
-
-                SwitchPreference blurAllPref = (SwitchPreference) findPreference("blur_all_enabled");
-                blurAllPref.setChecked(blurSettings.getPolicy() == XAppGuardManager.BlurPolicy.BLUR_ALL);
-                blurAllPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        boolean v = (boolean) newValue;
-                        finalBlurSettings.setPolicy(v ? XAppGuardManager.BlurPolicy.BLUR_ALL : XAppGuardManager.BlurPolicy.BLUR_WATCHED);
-                        XAppGuardManager.defaultInstance().setBlurSettings(finalBlurSettings);
-                        return true;
-                    }
-                });
-
-
-                SwitchPreference uninstallPref = (SwitchPreference) findPreference("key_app_uninstall_pro_enabled");
-                uninstallPref.setChecked(XAppGuardManager.defaultInstance().isUninstallInterruptEnabled());
-                uninstallPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        boolean v = (boolean) newValue;
-                        XAppGuardManager.defaultInstance().setUninstallInterruptEnabled(v);
-                        return true;
-                    }
-                });
-
+            if (!XAppGuardManager.defaultInstance().isServiceAvailable()) {
+                getPreferenceScreen().setEnabled(false);
+                return;
             }
+
+
+            BlurSettings blurSettings = XAppGuardManager.defaultInstance()
+                    .getBlurSettings();
+            if (blurSettings == null) blurSettings = new BlurSettings();
+
+            final BlurSettings finalBlurSettings = blurSettings;
+
+            SwitchPreference blurPref = (SwitchPreference) findPreference("blur_enabled");
+            blurPref.setChecked(blurSettings.isEnabled());
+            blurPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    boolean v = (boolean) newValue;
+                    finalBlurSettings.setEnabled(v);
+                    XAppGuardManager.defaultInstance().setBlurSettings(finalBlurSettings);
+                    return true;
+                }
+            });
+
+            SwitchPreference blurAllPref = (SwitchPreference) findPreference("blur_all_enabled");
+            blurAllPref.setChecked(blurSettings.getPolicy() == XAppGuardManager.BlurPolicy.BLUR_ALL);
+            blurAllPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    boolean v = (boolean) newValue;
+                    finalBlurSettings.setPolicy(v ? XAppGuardManager.BlurPolicy.BLUR_ALL : XAppGuardManager.BlurPolicy.BLUR_WATCHED);
+                    XAppGuardManager.defaultInstance().setBlurSettings(finalBlurSettings);
+                    return true;
+                }
+            });
+
+
+            SwitchPreference uninstallPref = (SwitchPreference) findPreference("key_app_uninstall_pro_enabled");
+            uninstallPref.setChecked(XAppGuardManager.defaultInstance().isUninstallInterruptEnabled());
+            uninstallPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    boolean v = (boolean) newValue;
+                    XAppGuardManager.defaultInstance().setUninstallInterruptEnabled(v);
+                    return true;
+                }
+            });
 
 
         }

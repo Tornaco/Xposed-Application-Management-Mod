@@ -4,24 +4,25 @@
     <PreferenceCategory android:title="@string/title_service">
 
         <Preference
-            android:key="@string/test_noter"
+            android:key="key_test_noter"
             android:summary="@string/summary_test_noter"
             android:title="@string/test_noter" />
 
         <Preference
-            android:key="@string/dump_module"
+            android:key="key_dump_module"
             android:summary="@string/summary_dump_module"
             android:title="@string/dump_module" />
 
         <Preference
-            android:key="@string/crash_module"
+            android:key="key_crash_module"
             android:summary="@string/summary_crash_module"
             android:title="@string/crash_module" />
 
-
         <SwitchPreference
             android:defaultValue="false"
-            android:key="3rd_ver_allowed"
+            android:key="key_3rd_ver_allowed"
+            android:persistent="false"
+            android:enabled="false"
             android:summary="@string/summary_allow_third_verifier"
             android:title="@string/title_allow_third_verifier" />
 
@@ -38,6 +39,7 @@
             android:defaultValue="false"
             android:key="dev_mode_enabled"
             android:summary="@string/summary_dev_mode"
+            android:persistent="false"
             android:title="@string/title_dev_mode" />
 
     </PreferenceCategory>

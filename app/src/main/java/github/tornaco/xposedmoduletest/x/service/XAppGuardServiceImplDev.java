@@ -1,5 +1,7 @@
 package github.tornaco.xposedmoduletest.x.service;
 
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import de.robv.android.xposed.XposedBridge;
@@ -16,11 +18,35 @@ class XAppGuardServiceImplDev extends XAppGuardServiceImpl {
         void onCall() throws Throwable;
     }
 
-    private void makeSafeCall(Call call) {
+    @Override
+    protected void enforceCallingPermissions() {
+        // super.enforceCallingPermissions();
+        XLog.logV("Skip enforce permission on DEV version!");
+    }
+
+    @Override
+    protected Handler onCreateServiceHandler() {
+        final Handler impl = super.onCreateServiceHandler();
+        return new Handler(new Handler.Callback() {
+            @Override
+            public boolean handleMessage(final Message msg) {
+                return makeSafeCall(new Call() {
+                    @Override
+                    public void onCall() throws Throwable {
+                        impl.handleMessage(msg);
+                    }
+                });
+            }
+        });
+    }
+
+    private boolean makeSafeCall(Call call) {
         try {
             call.onCall();
+            return true;
         } catch (Throwable e) {
             onException(e);
+            return false;
         }
     }
 

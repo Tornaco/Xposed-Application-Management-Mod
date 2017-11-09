@@ -7,11 +7,13 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.multidex.MultiDex;
 
+import com.android.internal.os.BinderInternal;
+import com.squareup.leakcanary.LeakCanary;
+
 import org.newstand.logger.Logger;
 import org.newstand.logger.Settings;
 
 import github.tornaco.apigen.BuildHostInfo;
-import github.tornaco.apigen.CreateBinderServiceManager;
 import github.tornaco.apigen.GithubCommitSha;
 import github.tornaco.xposedmoduletest.license.XActivation;
 import github.tornaco.xposedmoduletest.ui.GuardAppNavActivity;
@@ -24,7 +26,7 @@ import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
  */
 @GithubCommitSha
 @BuildHostInfo
-public class XApp extends Application {
+public class XApp extends Application implements Runnable {
 
     @SuppressLint("StaticFieldLeak")
     private static XApp xApp;
@@ -43,6 +45,14 @@ public class XApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        if (LeakCanary.isInAnalyzerProcess(this)) {
+            // This process is dedicated to LeakCanary for heap analysis.
+            // You should not init your app in this process.
+            return;
+        }
+        LeakCanary.install(this);
+
         xApp = this;
         Logger.config(Settings.builder().tag("XAppGuard")
                 .logLevel(XSettings.isDevMode(this)
@@ -50,19 +60,25 @@ public class XApp extends Application {
                 .build());
         XAppGuardManager.init();
         XActivation.reloadAsync(this);
+        BinderInternal.addGcWatcher(this);
     }
 
     public void hideAppIcon(boolean enable) {
         PackageManager pm = getPackageManager();
-        ComponentName enabled = enable ? new ComponentName(this, GuardAppNavActivityNoLauncher.class) : new ComponentName(this, GuardAppNavActivity.class);
-        ComponentName disabled = enable ? new ComponentName(this, GuardAppNavActivity.class) : new ComponentName(this, GuardAppNavActivityNoLauncher.class);
+        ComponentName enabled = enable ? new ComponentName(this,
+                GuardAppNavActivityNoLauncher.class) : new ComponentName(this, GuardAppNavActivity.class);
+        ComponentName disabled = enable ? new ComponentName(this,
+                GuardAppNavActivity.class) : new ComponentName(this, GuardAppNavActivityNoLauncher.class);
         Logger.d(enabled);
         Logger.d(disabled);
-        pm.setComponentEnabledSetting(enabled, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-        pm.setComponentEnabledSetting(disabled, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+        pm.setComponentEnabledSetting(enabled,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+        pm.setComponentEnabledSetting(disabled,
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
     }
 
-    public static boolean isBuildByMan() {
-        return false;
+    @Override
+    public void run() {
+        Logger.d("onGC...");
     }
 }

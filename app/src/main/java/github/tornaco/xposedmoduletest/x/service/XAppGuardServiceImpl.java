@@ -50,6 +50,8 @@ import github.tornaco.xposedmoduletest.x.app.XMode;
 import github.tornaco.xposedmoduletest.x.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.x.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.x.service.provider.TorSettings;
+import github.tornaco.xposedmoduletest.x.submodules.SubModule;
+import github.tornaco.xposedmoduletest.x.submodules.SubModuleManager;
 import github.tornaco.xposedmoduletest.x.util.Closer;
 import github.tornaco.xposedmoduletest.x.util.XLog;
 import lombok.Synchronized;
@@ -158,8 +160,12 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     private void construct() {
-        mServiceHandler = new ServiceHandlerImpl();
+        mServiceHandler = onCreateServiceHandler();
         XLog.logV("construct, mServiceHandler: " + mServiceHandler + " -" + serial());
+    }
+
+    protected Handler onCreateServiceHandler() {
+        return new ServiceHandlerImpl();
     }
 
     @Override
@@ -370,6 +376,46 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             return;
         }
         mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_ONACTIVITYPACKAGERESUME, pkg).sendToTarget();
+    }
+
+    @Override
+    public String[] getSubModules() throws RemoteException {
+        enforceCallingPermissions();
+        long id = Binder.clearCallingIdentity();
+        try {
+            Object[] modules = SubModuleManager.getInstance().getAllSubModules().toArray();
+            final String[] tokens = new String[modules.length];
+            for (int i = 0; i < modules.length; i++) {
+                SubModule subModule = (SubModule) modules[i];
+                tokens[i] = String.valueOf(subModule.name());
+            }
+            return tokens;
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
+    }
+
+    @Override
+    public int getSubModuleStatus(final String token) throws RemoteException {
+        enforceCallingPermissions();
+        Preconditions.checkNotNull(token);
+        long id = Binder.clearCallingIdentity();
+        final Holder<Integer> status = new Holder<>();
+        status.setData(SubModule.SubModuleStatus.ERROR.ordinal());
+        try {
+            Collections.consumeRemaining(SubModuleManager.getInstance().getAllSubModules(),
+                    new Consumer<SubModule>() {
+                        @Override
+                        public void accept(SubModule subModule) {
+                            if (token.equals(subModule.name())) {
+                                status.setData(subModule.getStatus().ordinal());
+                            }
+                        }
+                    });
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
+        return status.getData();
     }
 
     @Override
@@ -826,6 +872,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
         @Override
         public void setDebug(boolean debug) {
+            if (mDebugEnabled.compareAndSet(!debug, debug)) {
+                TorSettings.APP_GUARD_DEBUG_MODE_B.writeToSystemSettings(getContext(), debug);
+            }
             XLog.setDebug(debug);
         }
 

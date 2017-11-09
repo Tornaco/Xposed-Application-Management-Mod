@@ -23,7 +23,7 @@
             android:title="@string/title_take_photo" />
 
         <Preference
-            android:key="@string/title_view_photos"
+            android:key="key_view_photos"
             android:title="@string/title_view_photos" />
     </PreferenceCategory>
 

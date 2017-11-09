@@ -1,16 +1,23 @@
 package github.tornaco.xposedmoduletest.ui.activity;
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
 
 import github.tornaco.keyguard.KeyguardStorage;
+import github.tornaco.permission.requester.RequiresPermission;
+import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.PatternSetupActivity;
+import github.tornaco.xposedmoduletest.ui.PhotoViewerActivity;
 import github.tornaco.xposedmoduletest.ui.SettingsActivity;
+import github.tornaco.xposedmoduletest.x.XKey;
 import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.x.bean.VerifySettings;
 
@@ -19,6 +26,7 @@ import github.tornaco.xposedmoduletest.x.bean.VerifySettings;
  * Email: Tornaco@163.com
  */
 
+@RuntimePermissions
 public class SecureSettings extends SettingsActivity {
     @Override
     protected Fragment onCreateSettingsFragment() {
@@ -78,9 +86,38 @@ public class SecureSettings extends SettingsActivity {
                 });
 
 
+                SwitchPreference photoPref = (SwitchPreference) findPreference(XKey.TAKE_PHOTO_ENABLED);
+                photoPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        SecureSettingsPermissionRequester.requestCameraPermissionChecked((SecureSettings) getActivity());
+                        return true;
+                    }
+                });
+
+                findPreference("key_view_photos")
+                        .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                            @Override
+                            public boolean onPreferenceClick(Preference preference) {
+                                startActivity(new Intent(getActivity(), PhotoViewerActivity.class));
+                                return true;
+                            }
+                        });
+
             } else {
                 getPreferenceScreen().setEnabled(false);
             }
         }
+    }
+
+    @RequiresPermission({Manifest.permission.CAMERA})
+    void requestCameraPermission() {
+
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    @RequiresPermission({Manifest.permission.USE_FINGERPRINT})
+    void requestFPPermission() {
+
     }
 }

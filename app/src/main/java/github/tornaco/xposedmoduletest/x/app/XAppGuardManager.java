@@ -11,6 +11,7 @@ import github.tornaco.xposedmoduletest.IAppGuardService;
 import github.tornaco.xposedmoduletest.IWatcher;
 import github.tornaco.xposedmoduletest.x.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.x.bean.VerifySettings;
+import github.tornaco.xposedmoduletest.x.submodules.SubModule;
 
 /**
  * Created by guohao4 on 2017/10/23.
@@ -255,5 +256,23 @@ public class XAppGuardManager {
         } catch (RemoteException e) {
             Logger.e(Logger.getStackTraceString(e));
         }
+    }
+
+    public String[] getSubModules() {
+        try {
+            return mService.getSubModules();
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+        return new String[0];
+    }
+
+    public int getSubModuleStatus(String token) {
+        try {
+            return mService.getSubModuleStatus(token);
+        } catch (RemoteException e) {
+            Logger.e(Logger.getStackTraceString(e));
+        }
+        return SubModule.SubModuleStatus.UNKNOWN.ordinal();
     }
 }

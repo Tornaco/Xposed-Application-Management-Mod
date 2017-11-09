@@ -38,4 +38,7 @@ interface IAppGuardService {
     boolean isDebug();
 
     void onActivityPackageResume(String pkg);
+
+    String[] getSubModules();
+    int getSubModuleStatus(String token);
 }
