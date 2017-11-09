@@ -229,10 +229,15 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
                         pattern,
                         new LockPatternChecker.OnCheckCallback() {
                             @Override
-                            public void onChecked(boolean matched) {
-                                mLockPatternView.enableInput();
-                                onPatternChecked(matched /* matched */,
-                                        true /* isValidPattern */);
+                            public void onChecked(final boolean matched) {
+                                post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mLockPatternView.enableInput();
+                                        onPatternChecked(matched /* matched */,
+                                                true /* isValidPattern */);
+                                    }
+                                });
                             }
                         });
             }

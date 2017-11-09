@@ -7,7 +7,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
  * Email: Tornaco@163.com
  */
 
-class TaskMoverSubModuleEmpty extends TaskMoverSubModule {
+class TaskMoverSubModuleEmpty extends AppGuardAndroidSubModule {
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         // Nothing.

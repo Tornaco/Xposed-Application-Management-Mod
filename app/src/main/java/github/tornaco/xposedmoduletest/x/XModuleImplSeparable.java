@@ -1,10 +1,14 @@
 package github.tornaco.xposedmoduletest.x;
 
+import android.util.Log;
+
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.x.service.IModuleBridge;
 import github.tornaco.xposedmoduletest.x.service.XAppGuardServiceDelegate;
+import github.tornaco.xposedmoduletest.x.service.XIntentFirewallServiceDelegate;
+import github.tornaco.xposedmoduletest.x.submodules.AppGuardSubModuleManager;
+import github.tornaco.xposedmoduletest.x.submodules.IntentFirewallSubModuleManager;
 import github.tornaco.xposedmoduletest.x.submodules.SubModule;
-import github.tornaco.xposedmoduletest.x.submodules.SubModuleManager;
 import github.tornaco.xposedmoduletest.x.util.XLog;
 
 /**
@@ -15,22 +19,40 @@ import github.tornaco.xposedmoduletest.x.util.XLog;
 class XModuleImplSeparable extends XModuleAbs {
 
     XModuleImplSeparable() {
-        IModuleBridge bridge = new XAppGuardServiceDelegate();
-        for (SubModule s : SubModuleManager.getInstance().getAllSubModules()) {
-            s.onBridgeCreate(bridge);
+        IModuleBridge appguard = new XAppGuardServiceDelegate();
+        for (SubModule s : AppGuardSubModuleManager.getInstance().getAllSubModules()) {
+            s.onBridgeCreate(appguard);
+        }
+        IModuleBridge firewall = new XIntentFirewallServiceDelegate();
+        for (SubModule s : IntentFirewallSubModuleManager.getInstance().getAllSubModules()) {
+            s.onBridgeCreate(firewall);
         }
     }
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
-        for (SubModule s : SubModuleManager.getInstance().getAllSubModules()) {
+        for (SubModule s : AppGuardSubModuleManager.getInstance().getAllSubModules()) {
             if (s.getInterestedPackages().contains(lpparam.packageName)
                     || s.getInterestedPackages().contains("*")) {
                 try {
                     // XLog.logF("Invoking submodule@handleLoadPackage: " + s.name());
                     s.handleLoadingPackage(lpparam.packageName, lpparam);
                 } catch (Throwable e) {
-                    XLog.logF("Error call handleLoadingPackage defaultInstance submodule:" + s);
+                    XLog.logF("Error call handleLoadingPackage defaultInstance submodule:" + s
+                            + " , trace: " + Log.getStackTraceString(e));
+                }
+            }
+        }
+
+        for (SubModule s : IntentFirewallSubModuleManager.getInstance().getAllSubModules()) {
+            if (s.getInterestedPackages().contains(lpparam.packageName)
+                    || s.getInterestedPackages().contains("*")) {
+                try {
+                    // XLog.logF("Invoking submodule@handleLoadPackage: " + s.name());
+                    s.handleLoadingPackage(lpparam.packageName, lpparam);
+                } catch (Throwable e) {
+                    XLog.logF("Error call handleLoadingPackage defaultInstance submodule:" + s
+                            + " , trace: " + Log.getStackTraceString(e));
                 }
             }
         }

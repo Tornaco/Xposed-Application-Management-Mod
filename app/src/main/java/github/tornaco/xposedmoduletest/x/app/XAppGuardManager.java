@@ -26,7 +26,7 @@ public class XAppGuardManager {
     public static final String ACTION_APP_GUARD_VERIFY_DISPLAYER
             = "github.tornaco.xpose.app.interruptPackageRemoval.action.verify.displayer";
 
-    public static final String APP_GUARD_SERVICE = "user.appguard";
+    public static final String APP_GUARD_SERVICE = "user.tor_ag";
 
     public static final String EXTRA_PKG_NAME = "extra.pkg";
     public static final String EXTRA_TRANS_ID = "extra.tid";
@@ -63,7 +63,7 @@ public class XAppGuardManager {
 
     private XAppGuardManager() {
         mService = IAppGuardService.Stub.asInterface(ServiceManager.getService(APP_GUARD_SERVICE));
-        Logger.d("XAppGuardManager, service: " + mService);
+        Logger.d("XAppGuardManager construct, service: " + mService);
     }
 
     public static void init() {

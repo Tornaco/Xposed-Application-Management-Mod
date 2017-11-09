@@ -9,6 +9,7 @@ import android.util.Log;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 /**
  * Helper class to check/verify PIN/Password/Pattern asynchronously.
@@ -71,7 +72,7 @@ public class LockPatternChecker {
      * @param pattern  The pattern to check.
      * @param callback The callback to be invoked with the check result.
      */
-    public static void checkPattern(
+    public static FutureTask checkPattern(
             final Context context,
             final List<LockPatternView.Cell> pattern,
             final OnCheckCallback callback) {
@@ -87,6 +88,7 @@ public class LockPatternChecker {
             }
         });
         Log.d("XAppGuard", "checkPattern return.");
+        return null; // FIXME Wrap with future task.
     }
 
     /**

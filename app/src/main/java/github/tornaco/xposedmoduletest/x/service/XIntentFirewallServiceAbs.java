@@ -3,7 +3,7 @@ package github.tornaco.xposedmoduletest.x.service;
 import android.content.Context;
 
 import github.tornaco.apigen.GithubCommitSha;
-import github.tornaco.xposedmoduletest.IAppGuardService;
+import github.tornaco.xposedmoduletest.IIntentFirewall;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,8 +12,8 @@ import lombok.Setter;
  * Email: Tornaco@163.com
  */
 @GithubCommitSha
-abstract class XAppGuardServiceAbs extends IAppGuardService.Stub
-        implements IAppGuardBridge {
+abstract class XIntentFirewallServiceAbs extends IIntentFirewall.Stub
+        implements IIntentFirewallBridge {
 
     @Getter
     @Setter

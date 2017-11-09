@@ -22,7 +22,7 @@ import github.tornaco.xposedmoduletest.x.util.XLog;
  * Email: Tornaco@163.com
  */
 
-class PackageInstallerSubModule extends AndroidSubModuleModule {
+class PackageInstallerSubModule extends AppGuardAndroidSubModule {
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         hookPackageInstaller(lpparam);
@@ -75,7 +75,7 @@ class PackageInstallerSubModule extends AndroidSubModuleModule {
 
 
     private boolean interruptPackageRemoval(String pkgName) {
-        return getBridge().interruptPackageRemoval(pkgName);
+        return getAppGuardBridge().interruptPackageRemoval(pkgName);
     }
 
     static class PackageDeleteObserverAdapter extends PackageDeleteObserver {

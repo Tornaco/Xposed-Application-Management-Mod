@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.x.util;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import de.robv.android.xposed.XposedBridge;
@@ -25,6 +26,15 @@ public abstract class XLog {
 
     public static void logV(Object log) {
         if (DEBUG.get()) XposedBridge.log(TAG + String.valueOf(log));
+    }
+
+    public static void logVOnExecutor(final Object log, ExecutorService executorService) {
+        if (DEBUG.get()) executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                XposedBridge.log(TAG + String.valueOf(log));
+            }
+        });
     }
 
     public static void logD(Object log) {

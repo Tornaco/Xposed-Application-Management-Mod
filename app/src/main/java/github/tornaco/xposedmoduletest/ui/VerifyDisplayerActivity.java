@@ -5,8 +5,10 @@ import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -44,7 +46,7 @@ import github.tornaco.xposedmoduletest.util.StopWatch;
 import github.tornaco.xposedmoduletest.x.XSettings;
 import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.x.app.XMode;
-import github.tornaco.xposedmoduletest.x.app.XWatcherMainThreadAdapter;
+import github.tornaco.xposedmoduletest.x.app.XWatcherAdapter;
 import github.tornaco.xposedmoduletest.x.secure.XEnc;
 
 import static github.tornaco.xposedmoduletest.x.app.XAppGuardManager.EXTRA_INJECT_HOME_WHEN_FAIL_ID;
@@ -69,21 +71,12 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private boolean mTakePhoto;
 
-    private TextView mLabelView;
-
     private final Holder<String> mPsscode = new Holder<>();
 
     private CancellationSignal mCancellationSignal;
 
     private boolean mResNotified = false;
-
-    private Runnable expireRunnable = new Runnable() {
-        @Override
-        public void run() {
-            onFail();
-            finish();
-        }
-    };
+    private ScreenBroadcastReceiver mScreenBroadcastReceiver;
 
     public static void startAsTest(Context c) {
         Intent intent = new Intent(c, VerifyDisplayerActivity.class);
@@ -127,8 +120,8 @@ public class VerifyDisplayerActivity extends BaseActivity {
         if (!testMode && !XEnc.isPassCodeValid(mPsscode.getData())) {
             Logger.w("Pass code not valid, ignoring...");
             Toast.makeText(this, R.string.summary_setup_passcode_none_set, Toast.LENGTH_SHORT).show();
-//            onPass();
-//            return; //FIXME.
+            onPass();
+            return;
         }
 
         setupLabel();
@@ -136,12 +129,11 @@ public class VerifyDisplayerActivity extends BaseActivity {
         setupLockView();
         setupCamera();
 
-        XAppGuardManager.defaultInstance().watch(new XWatcherMainThreadAdapter() {
+        XAppGuardManager.defaultInstance().watch(new XWatcherAdapter() {
             @Override
-            protected void onUserLeavingMainThread(String reason) {
-                super.onUserLeavingMainThread(reason);
+            public void onUserLeaving(String reason) throws RemoteException {
+                super.onUserLeaving(reason);
                 XAppGuardManager.defaultInstance().unWatch(this);
-                postDelayed(expireRunnable, 800);
             }
         });
     }
@@ -205,8 +197,8 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private void setupLabel() {
-        mLabelView = (TextView) findViewById(R.id.label);
-        mLabelView.setText(getString(R.string.input_password, ApkUtil.loadNameByPkgName(this, pkg)));
+        TextView textView = (TextView) findViewById(R.id.label);
+        textView.setText(getString(R.string.input_password, ApkUtil.loadNameByPkgName(this, pkg)));
     }
 
     private void setupCamera() {
@@ -336,9 +328,19 @@ public class VerifyDisplayerActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (isKeyguard()) {
+            this.mScreenBroadcastReceiver = new ScreenBroadcastReceiver();
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(Intent.ACTION_USER_PRESENT);
+            registerReceiver(this.mScreenBroadcastReceiver, intentFilter);
+            return;
+        }
+
         KeyguardPatternView keyguardPatternView =
                 (KeyguardPatternView) findViewById(R.id.keyguard_pattern_view);
         if (keyguardPatternView != null) keyguardPatternView.startAppearAnimation();
+
         setupFP();
     }
 
@@ -404,6 +406,14 @@ public class VerifyDisplayerActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        CameraManager.get().closeCamera();
+        try {
+            CameraManager.get().closeCamera();
+
+            if (mScreenBroadcastReceiver != null) {
+                unregisterReceiver(mScreenBroadcastReceiver);
+            }
+        } catch (Throwable e) {
+            Logger.e("Error onDestroy: " + e);
+        }
     }
 }

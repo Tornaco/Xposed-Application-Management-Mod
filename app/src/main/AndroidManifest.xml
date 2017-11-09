@@ -35,6 +35,7 @@
             android:excludeFromRecents="true"
             android:exported="true"
             android:label="@string/title_default_verifyer"
+            android:screenOrientation="portrait"
             android:theme="@style/AppThemeLight.NoActionBar">
             <intent-filter>
                 <action android:name="github.tornaco.xpose.app.guard.action.verify.displayer" />

@@ -9,9 +9,9 @@ import lombok.experimental.Delegate;
  * Email: Tornaco@163.com
  */
 
-class TaskMoverSubModuleDelegate extends AndroidSubModuleModule {
+class TaskMoverSubModuleDelegate extends AppGuardAndroidSubModule {
     @Delegate
-    private TaskMoverSubModule taskMoverSubModule;
+    private AppGuardAndroidSubModule taskMoverSubModule;
 
     TaskMoverSubModuleDelegate() {
         int sdkVersion = Build.VERSION.SDK_INT;

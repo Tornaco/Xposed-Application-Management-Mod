@@ -19,7 +19,7 @@ import github.tornaco.xposedmoduletest.x.util.XLog;
  * Email: Tornaco@163.com
  */
 
-class PMSSubModule extends AndroidSubModuleModule {
+class PMSSubModule extends AppGuardAndroidSubModule {
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         hookPackageManagerService(lpparam);
@@ -69,6 +69,6 @@ class PMSSubModule extends AndroidSubModuleModule {
 
 
     private boolean interruptPackageRemoval(String pkgName) {
-        return getBridge().interruptPackageRemoval(pkgName);
+        return getAppGuardBridge().interruptPackageRemoval(pkgName);
     }
 }

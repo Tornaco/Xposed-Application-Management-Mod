@@ -17,7 +17,7 @@ import github.tornaco.xposedmoduletest.x.util.XLog;
  * Email: Tornaco@163.com
  */
 
-class PWMSubModule extends AndroidSubModuleModule {
+class PWMSubModule extends AppGuardAndroidSubModule {
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         hookPWM(lpparam);
@@ -34,7 +34,7 @@ class PWMSubModule extends AndroidSubModuleModule {
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             super.afterHookedMethod(param);
                             KeyEvent keyEvent = (KeyEvent) param.args[0];
-                            getBridge().onKeyEvent(keyEvent);
+                            getAppGuardBridge().onKeyEvent(keyEvent);
                         }
                     });
             XLog.logV("hookPWM OK:" + unHooks);

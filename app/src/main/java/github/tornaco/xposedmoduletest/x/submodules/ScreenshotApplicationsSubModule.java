@@ -24,7 +24,7 @@ import github.tornaco.xposedmoduletest.x.util.XStopWatch;
  * Email: Tornaco@163.com
  */
 
-public class ScreenshotApplicationsSubModule extends AndroidSubModuleModule {
+public class ScreenshotApplicationsSubModule extends AppGuardAndroidSubModule {
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         hookScreenshotApplications(lpparam);
@@ -68,7 +68,7 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModuleModule {
         if (TextUtils.isEmpty(pkgName)) {
             return;
         }
-        if (getBridge().isBlurForPkg(pkgName)
+        if (getAppGuardBridge().isBlurForPkg(pkgName)
                 && param.getResult() != null) {
             Bitmap res = (Bitmap) param.getResult();
             stopWatch.split("Blur bitmap start");

@@ -16,6 +16,7 @@ import github.tornaco.xposedmoduletest.x.util.XLog;
  */
 
 class AMSSubModule3 extends AndroidSubModuleModule {
+
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         hookAMSShutdown(lpparam);

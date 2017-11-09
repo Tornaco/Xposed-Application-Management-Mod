@@ -51,7 +51,7 @@ import github.tornaco.xposedmoduletest.x.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.x.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.x.service.provider.TorSettings;
 import github.tornaco.xposedmoduletest.x.submodules.SubModule;
-import github.tornaco.xposedmoduletest.x.submodules.SubModuleManager;
+import github.tornaco.xposedmoduletest.x.submodules.AppGuardSubModuleManager;
 import github.tornaco.xposedmoduletest.x.util.Closer;
 import github.tornaco.xposedmoduletest.x.util.XLog;
 import lombok.Synchronized;
@@ -383,7 +383,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         enforceCallingPermissions();
         long id = Binder.clearCallingIdentity();
         try {
-            Object[] modules = SubModuleManager.getInstance().getAllSubModules().toArray();
+            Object[] modules = AppGuardSubModuleManager.getInstance().getAllSubModules().toArray();
             final String[] tokens = new String[modules.length];
             for (int i = 0; i < modules.length; i++) {
                 SubModule subModule = (SubModule) modules[i];
@@ -403,7 +403,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         final Holder<Integer> status = new Holder<>();
         status.setData(SubModule.SubModuleStatus.ERROR.ordinal());
         try {
-            Collections.consumeRemaining(SubModuleManager.getInstance().getAllSubModules(),
+            Collections.consumeRemaining(AppGuardSubModuleManager.getInstance().getAllSubModules(),
                     new Consumer<SubModule>() {
                         @Override
                         public void accept(SubModule subModule) {

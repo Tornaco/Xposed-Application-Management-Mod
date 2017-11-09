@@ -7,8 +7,7 @@ import lombok.experimental.Delegate;
  * Email: Tornaco@163.com
  */
 
-public class XAppGuardServiceDelegate implements IAppGuardBridge {
+public class XIntentFirewallServiceDelegate implements IIntentFirewallBridge {
     @Delegate
-    private final XAppGuardServiceAbs mImpl = new XAppGuardServiceImplDev();
-
+    private final XIntentFirewallServiceAbs mImpl = new XIntentFirewallServiceImpl();
 }

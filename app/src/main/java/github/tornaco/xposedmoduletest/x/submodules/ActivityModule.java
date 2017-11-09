@@ -18,7 +18,7 @@ import github.tornaco.xposedmoduletest.x.util.XLog;
  * Email: Tornaco@163.com
  */
 
-public class ActivityModule extends AbsSubModule {
+public class ActivityModule extends AppGuardAndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {

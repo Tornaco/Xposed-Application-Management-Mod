@@ -22,7 +22,7 @@ import github.tornaco.xposedmoduletest.x.util.XStopWatch;
  * Email: Tornaco@163.com
  */
 
-class ActivityStartSubModule extends AndroidSubModuleModule {
+class ActivityStartSubModule extends AppGuardAndroidSubModule {
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         hookStartActivityMayWait(lpparam);
@@ -109,7 +109,7 @@ class ActivityStartSubModule extends AndroidSubModuleModule {
                         }
 
                         // Package has been passed.
-                        if (!getBridge().onEarlyVerifyConfirm(pkgName)) {
+                        if (!getAppGuardBridge().onEarlyVerifyConfirm(pkgName)) {
                             XLog.logV("onEarlyVerifyConfirmed...");
                             return;
                         }
@@ -119,7 +119,7 @@ class ActivityStartSubModule extends AndroidSubModuleModule {
                                         (Bundle) param.args[finalActivityOptsIndex]
                                         : null;
 
-                        getBridge().verify(options, pkgName, 0, 0,
+                        getAppGuardBridge().verify(options, pkgName, 0, 0,
                                 new VerifyListener() {
                                     @Override
                                     public void onVerifyRes(String pkg, int uid, int pid, int res) {

@@ -22,7 +22,7 @@ import github.tornaco.xposedmoduletest.x.util.XStopWatch;
  * Email: Tornaco@163.com
  */
 
-class TaskMoverSubModule extends AndroidSubModuleModule {
+class TaskMoverSubModule extends AppGuardAndroidSubModule {
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         hookTaskMover(lpparam);
@@ -54,9 +54,9 @@ class TaskMoverSubModule extends AndroidSubModuleModule {
                         XLog.logV("findTaskToMoveToFrontLocked:" + pkgName);
 
                         // Package has been passed.
-                        if (!getBridge().onEarlyVerifyConfirm(pkgName)) return;
+                        if (!getAppGuardBridge().onEarlyVerifyConfirm(pkgName)) return;
 
-                        getBridge().verify(null, pkgName, 0, 0,
+                        getAppGuardBridge().verify(null, pkgName, 0, 0,
                                 new VerifyListener() {
                                     @Override
                                     public void onVerifyRes(String pkg, int uid, int pid, int res) {

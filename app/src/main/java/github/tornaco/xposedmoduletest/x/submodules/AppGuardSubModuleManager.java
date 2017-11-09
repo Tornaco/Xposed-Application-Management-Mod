@@ -10,13 +10,13 @@ import lombok.Synchronized;
  * Email: Tornaco@163.com
  */
 
-public class SubModuleManager {
+public class AppGuardSubModuleManager {
 
-    private static SubModuleManager sMe;
+    private static AppGuardSubModuleManager sMe;
 
     private final Set<SubModule> SUBS = new HashSet<>();
 
-    private SubModuleManager() {
+    private AppGuardSubModuleManager() {
         SUBS.add(new ActivityModule());
         SUBS.add(new FPSubModule());
         SUBS.add(new ScreenshotApplicationsSubModule());
@@ -28,13 +28,12 @@ public class SubModuleManager {
         SUBS.add(new AMSSubModule3());
         SUBS.add(new AMSSubModule2());
         SUBS.add(new AMSSubModule());
-
     }
 
     @Synchronized
     public
-    static SubModuleManager getInstance() {
-        if (sMe == null) sMe = new SubModuleManager();
+    static AppGuardSubModuleManager getInstance() {
+        if (sMe == null) sMe = new AppGuardSubModuleManager();
         return sMe;
     }
 
