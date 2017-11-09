@@ -1,11 +1,15 @@
 package github.tornaco.xposedmoduletest.x.service;
 
+import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.Handler;
+import android.os.Message;
 import android.os.ServiceManager;
 import android.text.TextUtils;
 import android.util.SparseArray;
@@ -16,14 +20,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.x.app.XIntentFirewallManager;
 import github.tornaco.xposedmoduletest.x.util.PkgUtil;
 import github.tornaco.xposedmoduletest.x.util.XLog;
+import lombok.AllArgsConstructor;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 
@@ -54,6 +61,30 @@ public class XIntentFirewallServiceImpl extends XIntentFirewallServiceAbs {
     private final ExecutorService mWorkingService = Executors.newCachedThreadPool();
 
     private final SparseArray<String> mPackagesCache = new SparseArray<>();
+
+    private Handler mFirewallHandler;
+
+    private BroadcastReceiver mScreenReceiver =
+            new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
+                        onScreenOff();
+                    }
+
+                    if (Intent.ACTION_USER_PRESENT.equals(intent.getAction())) {
+                        onUserPresent();
+                    }
+                }
+            };
+
+    private void onUserPresent() {
+
+    }
+
+    private void onScreenOff() {
+        mFirewallHandler.sendEmptyMessage(IntentFirewallHandlerMessages.MSG_CLEARPROCESSONSCREENOFF);
+    }
 
     private BroadcastReceiver mPackageReceiver = new BroadcastReceiver() {
         @Override
@@ -172,17 +203,19 @@ public class XIntentFirewallServiceImpl extends XIntentFirewallServiceAbs {
                 isInWhiteList(servicePkgName)
                         || PkgUtil.isSystemApp(getContext(), servicePkgName)
                         || PkgUtil.isAppRunning(getContext(), servicePkgName);
+
         if (!res) {
             String callerPkgName =
                     mPackagesCache.get(callerUid);
             if (callerPkgName == null) {
                 callerPkgName = PkgUtil.pkgForUid(getContext(), callerUid);
             }
-            XLog.logVOnExecutor(String.format("SRV: %s--->%s  %s--->%s",
+            XLog.logVOnExecutor(String.format("BROADCAST: %s--->%s  %s--->%s %s",
                     PkgUtil.loadNameByPkgName(getContext(), callerPkgName),
                     PkgUtil.loadNameByPkgName(getContext(), servicePkgName),
                     callerPkgName,
-                    servicePkgName),
+                    servicePkgName,
+                    "拒绝×"),
                     mWorkingService);
         }
         return res;
@@ -208,17 +241,20 @@ public class XIntentFirewallServiceImpl extends XIntentFirewallServiceAbs {
             if (callerPkgName == null) {
                 callerPkgName = PkgUtil.pkgForUid(getContext(), callerUid);
             }
-            XLog.logVOnExecutor(String.format("SRV: %s--->%s  %s--->%s",
+            XLog.logVOnExecutor(String.format("SERVICE: %s--->%s  %s--->%s %s",
                     PkgUtil.loadNameByPkgName(getContext(), callerPkgName),
                     PkgUtil.loadNameByPkgName(getContext(), receiverPkgName),
                     callerPkgName,
-                    receiverPkgName),
+                    receiverPkgName,
+                    "拒绝×"),
                     mWorkingService);
         }
         return res;
     }
 
     private void registerReceiver() {
+        getContext().registerReceiver(mScreenReceiver,
+                new IntentFilter(Intent.ACTION_SCREEN_OFF));
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
@@ -231,6 +267,7 @@ public class XIntentFirewallServiceImpl extends XIntentFirewallServiceAbs {
     @Override
     public void publish() {
         ServiceManager.addService(XIntentFirewallManager.INTENT_FIREWALL_SERVICE, asBinder());
+        construct();
     }
 
     @Override
@@ -238,6 +275,15 @@ public class XIntentFirewallServiceImpl extends XIntentFirewallServiceAbs {
         cachePackages();
         whiteIMEPackages();
         registerReceiver();
+    }
+
+    private void construct() {
+        mFirewallHandler = onCreateServiceHandler();
+        XLog.logV("construct, mFirewallHandler: " + mFirewallHandler + " -" + serial());
+    }
+
+    protected Handler onCreateServiceHandler() {
+        return new HandlerImpl();
     }
 
     @Override
@@ -253,5 +299,57 @@ public class XIntentFirewallServiceImpl extends XIntentFirewallServiceAbs {
     @Override
     public String serial() {
         return mSerialUUID.toString();
+    }
+
+    @SuppressLint("HandlerLeak")
+    @AllArgsConstructor
+    private class HandlerImpl extends Handler implements IntentFirewallHandler {
+
+        @Override
+        public void handleMessage(Message msg) {
+            XLog.logV("handleMessage: " + IntentFirewallHandlerMessages.decodeMessage(msg.what));
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case IntentFirewallHandlerMessages.MSG_CLEARPROCESSONSCREENOFF:
+                    HandlerImpl.this.clearProcessOnScreenOff();
+                    break;
+            }
+        }
+
+        @Override
+        public void setEnabled(boolean enabled) {
+
+        }
+
+        @Override
+        public void clearProcessOnScreenOff() {
+            FutureTask<Void> futureTask = new FutureTask<>(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
+                    if (am == null) return null;
+                    List<ActivityManager.RunningAppProcessInfo> processes =
+                            am.getRunningAppProcesses();
+                    int count = processes == null ? 0 : processes.size();
+                    for (int i = 0; i < count; i++) {
+                        for (String runningPackageName : processes.get(i).pkgList) {
+                            if (runningPackageName != null && !WHITE_LIST.contains(runningPackageName)) {
+                                if (PkgUtil.isSystemApp(getContext(), runningPackageName)) {
+                                    continue;
+                                }
+                                if (PkgUtil.isAppRunningForeground(getContext(), runningPackageName)) {
+                                    XLog.logV("App is in foreground, wont kill: " + runningPackageName);
+                                    continue;
+                                }
+                                am.forceStopPackage(runningPackageName);
+                                XLog.logV("Force stopped: " + runningPackageName);
+                            }
+                        }
+                    }
+                    return null;
+                }
+            });
+            mWorkingService.execute(futureTask);
+        }
     }
 }

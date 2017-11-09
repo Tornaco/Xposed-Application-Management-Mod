@@ -50,8 +50,8 @@ import github.tornaco.xposedmoduletest.x.app.XMode;
 import github.tornaco.xposedmoduletest.x.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.x.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.x.service.provider.TorSettings;
-import github.tornaco.xposedmoduletest.x.submodules.SubModule;
 import github.tornaco.xposedmoduletest.x.submodules.AppGuardSubModuleManager;
+import github.tornaco.xposedmoduletest.x.submodules.SubModule;
 import github.tornaco.xposedmoduletest.x.util.Closer;
 import github.tornaco.xposedmoduletest.x.util.XLog;
 import lombok.Synchronized;
@@ -165,7 +165,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     protected Handler onCreateServiceHandler() {
-        return new ServiceHandlerImpl();
+        return new AppGuardServiceHandlerImpl();
     }
 
     @Override
@@ -346,7 +346,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     private void verifyInternal(Bundle options, String pkg, int uid, int pid,
                                 boolean injectHomeOnFail, VerifyListener listener) {
         if (mServiceHandler == null) {
-            XLog.logF("WTF? ServiceHandler is null?");
+            XLog.logF("WTF? AppGuardServiceHandler is null?");
             return;
         }
         XLog.logV("verifyInternal: " + pkg);
@@ -358,12 +358,12 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 .listener(listener)
                 .pkg(pkg)
                 .build();
-        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_VERIFY, args).sendToTarget();
+        mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_VERIFY, args).sendToTarget();
     }
 
     @Override
     public void onKeyEvent(KeyEvent event) {
-        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_ONKEYEVENT, event).sendToTarget();
+        mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_ONKEYEVENT, event).sendToTarget();
     }
 
     @Override
@@ -372,10 +372,10 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         if (mServiceHandler == null) {
             XLog.logV("mServiceHandler@" + serial() + " : " + mServiceHandler);
             XLog.logV("onActivityPackageResume caller:" + Binder.getCallingUid());
-            XLog.logF("WTF? ServiceHandler is null @onActivityPackageResume-" + serial());
+            XLog.logF("WTF? AppGuardServiceHandler is null @onActivityPackageResume-" + serial());
             return;
         }
-        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_ONACTIVITYPACKAGERESUME, pkg).sendToTarget();
+        mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_ONACTIVITYPACKAGERESUME, pkg).sendToTarget();
     }
 
     @Override
@@ -425,10 +425,10 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         if (mServiceHandler == null) {
             XLog.logV("mServiceHandler@" + serial() + " : " + mServiceHandler);
             XLog.logV("onActivityResume caller:" + Binder.getCallingUid());
-            XLog.logF("WTF? ServiceHandler is null @onActivityResume-" + serial());
+            XLog.logF("WTF? AppGuardServiceHandler is null @onActivityResume-" + serial());
             return;
         }
-        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_ONACTIVITYRESUME, activity).sendToTarget();
+        mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_ONACTIVITYRESUME, activity).sendToTarget();
     }
 
     @Override
@@ -463,8 +463,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @BinderCall
     public void setEnabled(boolean enabled) throws RemoteException {
         enforceCallingPermissions();
-        mServiceHandler.removeMessages(ServiceHandlerMessages.MSG_SETENABLED);
-        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_SETENABLED,
+        mServiceHandler.removeMessages(AppGuardServiceHandlerMessages.MSG_SETENABLED);
+        mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_SETENABLED,
                 enabled ? 1 : 0, 0)
                 .sendToTarget();
     }
@@ -480,9 +480,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @BinderCall
     public void setUninstallInterruptEnabled(boolean enabled) throws RemoteException {
         enforceCallingPermissions();
-        mServiceHandler.removeMessages(ServiceHandlerMessages.MSG_SETUNINSTALLINTERRUPTENABLED);
+        mServiceHandler.removeMessages(AppGuardServiceHandlerMessages.MSG_SETUNINSTALLINTERRUPTENABLED);
         mServiceHandler.obtainMessage(
-                ServiceHandlerMessages.MSG_SETUNINSTALLINTERRUPTENABLED,
+                AppGuardServiceHandlerMessages.MSG_SETUNINSTALLINTERRUPTENABLED,
                 enabled ? 1 : 0, 0)
                 .sendToTarget();
     }
@@ -491,8 +491,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @BinderCall
     public void setVerifySettings(VerifySettings settings) throws RemoteException {
         enforceCallingPermissions();
-        mServiceHandler.removeMessages(ServiceHandlerMessages.MSG_SETVERIFYSETTINGS);
-        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_SETVERIFYSETTINGS, settings).sendToTarget();
+        mServiceHandler.removeMessages(AppGuardServiceHandlerMessages.MSG_SETVERIFYSETTINGS);
+        mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_SETVERIFYSETTINGS, settings).sendToTarget();
     }
 
     @Override
@@ -506,8 +506,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @BinderCall
     public void setBlurSettings(BlurSettings settings) throws RemoteException {
         enforceCallingPermissions();
-        mServiceHandler.removeMessages(ServiceHandlerMessages.MSG_SETBLURSETTINGS);
-        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_SETBLURSETTINGS, settings).sendToTarget();
+        mServiceHandler.removeMessages(AppGuardServiceHandlerMessages.MSG_SETBLURSETTINGS);
+        mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_SETBLURSETTINGS, settings).sendToTarget();
     }
 
     @Override
@@ -521,7 +521,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @BinderCall
     public void setResult(int transactionID, int res) throws RemoteException {
         enforceCallingPermissions();
-        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_SETRESULT, transactionID, res).sendToTarget();
+        mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_SETRESULT, transactionID, res).sendToTarget();
     }
 
     @Override
@@ -529,21 +529,21 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     public void watch(IWatcher w) throws RemoteException {
         XLog.logD("iWatcher.watch-" + w);
         enforceCallingPermissions();
-        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_WATCH, w).sendToTarget();
+        mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_WATCH, w).sendToTarget();
     }
 
     @Override
     @BinderCall
     public void unWatch(IWatcher w) throws RemoteException {
         XLog.logD("iWatcher.unWatch-" + w);
-        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_UNWATCH, w).sendToTarget();
+        mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_UNWATCH, w).sendToTarget();
     }
 
     @Override
     @BinderCall
     public void mockCrash() throws RemoteException {
         enforceCallingPermissions();
-        mServiceHandler.sendEmptyMessage(ServiceHandlerMessages.MSG_MOCKCRASH);
+        mServiceHandler.sendEmptyMessage(AppGuardServiceHandlerMessages.MSG_MOCKCRASH);
     }
 
     @Override
@@ -556,13 +556,13 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Override
     public void injectHomeEvent() throws RemoteException {
         enforceCallingPermissions();
-        mServiceHandler.sendEmptyMessage(ServiceHandlerMessages.MSG_INJECTHOMEEVENT);
+        mServiceHandler.sendEmptyMessage(AppGuardServiceHandlerMessages.MSG_INJECTHOMEEVENT);
     }
 
     @Override
     public void setDebug(boolean debug) throws RemoteException {
         enforceCallingPermissions();
-        mServiceHandler.obtainMessage(ServiceHandlerMessages.MSG_SETDEBUG, debug).sendToTarget();
+        mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_SETDEBUG, debug).sendToTarget();
     }
 
     @Override
@@ -649,58 +649,58 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     @SuppressLint("HandlerLeak")
-    private class ServiceHandlerImpl extends Handler
-            implements ServiceHandler {
+    private class AppGuardServiceHandlerImpl extends Handler
+            implements AppGuardServiceHandler {
 
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             int wht = msg.what;
-            XLog.logV("handleMessage@" + ServiceHandlerMessages.decodeMessage(wht));
+            XLog.logV("handleMessage@" + AppGuardServiceHandlerMessages.decodeMessage(wht));
             switch (wht) {
-                case ServiceHandlerMessages.MSG_SETENABLED:
-                    ServiceHandlerImpl.this.setEnabled(msg.arg1 == 1);
+                case AppGuardServiceHandlerMessages.MSG_SETENABLED:
+                    AppGuardServiceHandlerImpl.this.setEnabled(msg.arg1 == 1);
                     break;
-                case ServiceHandlerMessages.MSG_SETBLURSETTINGS:
-                    ServiceHandlerImpl.this.setBlurSettings((BlurSettings) msg.obj);
+                case AppGuardServiceHandlerMessages.MSG_SETBLURSETTINGS:
+                    AppGuardServiceHandlerImpl.this.setBlurSettings((BlurSettings) msg.obj);
                     break;
-                case ServiceHandlerMessages.MSG_MOCKCRASH:
-                    ServiceHandlerImpl.this.mockCrash();
+                case AppGuardServiceHandlerMessages.MSG_MOCKCRASH:
+                    AppGuardServiceHandlerImpl.this.mockCrash();
                     break;
-                case ServiceHandlerMessages.MSG_SETRESULT:
-                    ServiceHandlerImpl.this.setResult(msg.arg1, msg.arg2);
+                case AppGuardServiceHandlerMessages.MSG_SETRESULT:
+                    AppGuardServiceHandlerImpl.this.setResult(msg.arg1, msg.arg2);
                     break;
-                case ServiceHandlerMessages.MSG_SETUNINSTALLINTERRUPTENABLED:
-                    ServiceHandlerImpl.this.setUninstallInterruptEnabled(msg.arg1 == 1);
+                case AppGuardServiceHandlerMessages.MSG_SETUNINSTALLINTERRUPTENABLED:
+                    AppGuardServiceHandlerImpl.this.setUninstallInterruptEnabled(msg.arg1 == 1);
                     break;
-                case ServiceHandlerMessages.MSG_SETVERIFYSETTINGS:
-                    ServiceHandlerImpl.this.setVerifySettings((VerifySettings) msg.obj);
+                case AppGuardServiceHandlerMessages.MSG_SETVERIFYSETTINGS:
+                    AppGuardServiceHandlerImpl.this.setVerifySettings((VerifySettings) msg.obj);
                     break;
-                case ServiceHandlerMessages.MSG_UNWATCH:
-                    ServiceHandlerImpl.this.unWatch((IWatcher) msg.obj);
+                case AppGuardServiceHandlerMessages.MSG_UNWATCH:
+                    AppGuardServiceHandlerImpl.this.unWatch((IWatcher) msg.obj);
                     break;
-                case ServiceHandlerMessages.MSG_WATCH:
-                    ServiceHandlerImpl.this.watch((IWatcher) msg.obj);
+                case AppGuardServiceHandlerMessages.MSG_WATCH:
+                    AppGuardServiceHandlerImpl.this.watch((IWatcher) msg.obj);
                     break;
-                case ServiceHandlerMessages.MSG_VERIFY:
-                    ServiceHandlerImpl.this.verify((VerifyArgs) msg.obj);
+                case AppGuardServiceHandlerMessages.MSG_VERIFY:
+                    AppGuardServiceHandlerImpl.this.verify((VerifyArgs) msg.obj);
                     break;
-                case ServiceHandlerMessages.MSG_MSG_TRANSACTION_EXPIRE_BASE:
-                    ServiceHandlerImpl.this.setResult(wht, XMode.MODE_IGNORED);
+                case AppGuardServiceHandlerMessages.MSG_MSG_TRANSACTION_EXPIRE_BASE:
+                    AppGuardServiceHandlerImpl.this.setResult(wht, XMode.MODE_IGNORED);
                     break;
-                case ServiceHandlerMessages.MSG_ONKEYEVENT:
-                    ServiceHandlerImpl.this.onKeyEvent((KeyEvent) msg.obj);
+                case AppGuardServiceHandlerMessages.MSG_ONKEYEVENT:
+                    AppGuardServiceHandlerImpl.this.onKeyEvent((KeyEvent) msg.obj);
                     break;
-                case ServiceHandlerMessages.MSG_INJECTHOMEEVENT:
-                    ServiceHandlerImpl.this.injectHomeEvent();
+                case AppGuardServiceHandlerMessages.MSG_INJECTHOMEEVENT:
+                    AppGuardServiceHandlerImpl.this.injectHomeEvent();
                     break;
-                case ServiceHandlerMessages.MSG_SETDEBUG:
-                    ServiceHandlerImpl.this.setDebug((Boolean) msg.obj);
+                case AppGuardServiceHandlerMessages.MSG_SETDEBUG:
+                    AppGuardServiceHandlerImpl.this.setDebug((Boolean) msg.obj);
                     break;
-                case ServiceHandlerMessages.MSG_ONACTIVITYRESUME:
-                    ServiceHandlerImpl.this.onActivityResume((Activity) msg.obj);
+                case AppGuardServiceHandlerMessages.MSG_ONACTIVITYRESUME:
+                    AppGuardServiceHandlerImpl.this.onActivityResume((Activity) msg.obj);
                     break;
-                case ServiceHandlerMessages.MSG_ONACTIVITYPACKAGERESUME:
+                case AppGuardServiceHandlerMessages.MSG_ONACTIVITYPACKAGERESUME:
                     onActivityPackageResume((String) msg.obj);
                     break;
                 default:

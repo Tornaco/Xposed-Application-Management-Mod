@@ -75,6 +75,22 @@ public class PkgUtil {
     }
 
     @SuppressWarnings("ConstantConditions")
+    public static boolean isAppRunningForeground(Context context, String pkg) {
+        List<ActivityManager.RunningAppProcessInfo> processes =
+                ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE))
+                        .getRunningAppProcesses();
+        int count = processes == null ? 0 : processes.size();
+        for (int i = 0; i < count; i++) {
+            ActivityManager.RunningAppProcessInfo proc = processes.get(i);
+            if (proc.importance
+                    == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+                    && arraysContains(proc.pkgList, pkg))
+                return true;
+        }
+        return false;
+    }
+
+    @SuppressWarnings("ConstantConditions")
     public static boolean isAppRunningForeground(Context context, int uid) {
         List<ActivityManager.RunningAppProcessInfo> processes =
                 ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE))
@@ -82,7 +98,17 @@ public class PkgUtil {
         int count = processes == null ? 0 : processes.size();
         for (int i = 0; i < count; i++) {
             ActivityManager.RunningAppProcessInfo proc = processes.get(i);
-            if (proc.uid == uid) return true;
+            if (proc.uid == uid && proc.importance
+                    == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
+                return true;
+        }
+        return false;
+    }
+
+    private static boolean arraysContains(String[] arr, String target) {
+        if (arr == null) return false;
+        for (String s : arr) {
+            if (s.equals(target)) return true;
         }
         return false;
     }
