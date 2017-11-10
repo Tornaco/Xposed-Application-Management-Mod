@@ -68,6 +68,20 @@
             android:excludeFromRecents="true"
             android:label="@string/title_picker" />
         <activity
+            android:name=".ui.activity.BootAppNavActivity"
+            android:excludeFromRecents="true" />
+        <activity
+            android:name=".ui.activity.BootAppPickerActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_picker" />
+        <activity
+            android:name=".ui.activity.StartAppNavActivity"
+            android:excludeFromRecents="true" />
+        <activity
+            android:name=".ui.activity.StartAppPickerActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_picker" />
+        <activity
             android:name=".ui.activity.SecureSettings"
             android:excludeFromRecents="true"
             android:label="@string/title_secure"

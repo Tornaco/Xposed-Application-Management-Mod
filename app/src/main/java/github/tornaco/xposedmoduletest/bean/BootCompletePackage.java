@@ -11,6 +11,7 @@ public class BootCompletePackage {
 
     private Integer id;
     private String pkgName;
+    private String appName;
     private Boolean allow;
 
     // KEEP FIELDS - put your custom fields here
@@ -23,9 +24,10 @@ public class BootCompletePackage {
         this.id = id;
     }
 
-    public BootCompletePackage(Integer id, String pkgName, Boolean allow) {
+    public BootCompletePackage(Integer id, String pkgName, String appName, Boolean allow) {
         this.id = id;
         this.pkgName = pkgName;
+        this.appName = appName;
         this.allow = allow;
     }
 
@@ -43,6 +45,14 @@ public class BootCompletePackage {
 
     public void setPkgName(String pkgName) {
         this.pkgName = pkgName;
+    }
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
     }
 
     public Boolean getAllow() {

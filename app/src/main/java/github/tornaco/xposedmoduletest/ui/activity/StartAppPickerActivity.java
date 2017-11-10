@@ -9,15 +9,15 @@ import java.util.List;
 
 import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.bean.PackageInfo;
-import github.tornaco.xposedmoduletest.loader.PackageLoader;
-import github.tornaco.xposedmoduletest.provider.AppGuardPackageProvider;
-import github.tornaco.xposedmoduletest.ui.adapter.GuardAppListAdapter;
-import github.tornaco.xposedmoduletest.ui.adapter.GuardAppPickerListAdapter;
+import github.tornaco.xposedmoduletest.bean.AutoStartPackage;
+import github.tornaco.xposedmoduletest.loader.StartPackageLoader;
+import github.tornaco.xposedmoduletest.provider.AutoStartPackageProvider;
+import github.tornaco.xposedmoduletest.ui.adapter.StartAppListAdapter;
+import github.tornaco.xposedmoduletest.ui.adapter.StartAppPickerListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 
-public class GuardAppPickerActivity extends GuardAppNavActivity {
+public class StartAppPickerActivity extends StartAppNavActivity {
 
     private boolean mShowSystemApp;
 
@@ -37,7 +37,7 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final ProgressDialog p = new ProgressDialog(GuardAppPickerActivity.this);
+                final ProgressDialog p = new ProgressDialog(StartAppPickerActivity.this);
                 p.setCancelable(false);
                 p.setMessage("SAVING...");
                 p.setIndeterminate(true);
@@ -45,13 +45,13 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
                 XExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        List<PackageInfo> packageInfoList = guardAppListAdapter.getPackageInfos();
+                        List<AutoStartPackage> packageInfoList = bootAppListAdapter.getAutoStartPackages();
                         github.tornaco.android.common.Collections.consumeRemaining(packageInfoList,
-                                new Consumer<PackageInfo>() {
+                                new Consumer<AutoStartPackage>() {
                                     @Override
-                                    public void accept(PackageInfo packageInfo) {
-                                        if (packageInfo.getGuard()) {
-                                            AppGuardPackageProvider.insert(getApplicationContext(), packageInfo);
+                                    public void accept(AutoStartPackage packageInfo) {
+                                        if (!packageInfo.getAllow()) {
+                                            AutoStartPackageProvider.insert(getApplicationContext(), packageInfo);
                                         }
                                     }
                                 });
@@ -68,13 +68,13 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
         });
     }
 
-    protected List<PackageInfo> performLoading() {
-        return PackageLoader.Impl.create(this).loadInstalled(mShowSystemApp);
+    protected List<AutoStartPackage> performLoading() {
+        return StartPackageLoader.Impl.create(this).loadInstalled(mShowSystemApp);
     }
 
     @Override
-    protected GuardAppListAdapter onCreateAdapter() {
-        return new GuardAppPickerListAdapter(this);
+    protected StartAppListAdapter onCreateAdapter() {
+        return new StartAppPickerListAdapter(this);
     }
 
     @Override

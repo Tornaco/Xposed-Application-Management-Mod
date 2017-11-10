@@ -1,11 +1,9 @@
 package github.tornaco.xposedmoduletest.ui.activity;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.SwitchCompat;
 import android.view.Menu;
@@ -17,22 +15,21 @@ import org.newstand.logger.Logger;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.bean.PackageInfo;
-import github.tornaco.xposedmoduletest.loader.PackageLoader;
-import github.tornaco.xposedmoduletest.ui.adapter.GuardAppListAdapter;
+import github.tornaco.xposedmoduletest.bean.BootCompletePackage;
+import github.tornaco.xposedmoduletest.loader.BootPackageLoader;
+import github.tornaco.xposedmoduletest.ui.adapter.BootAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.x.XSettings;
 import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
 import in.myinnos.alphabetsindexfastscrollrecycler.IndexFastScrollRecyclerView;
 
-public class GuardAppNavActivity extends LockedActivity {
+public class BootAppNavActivity extends LockedActivity {
 
     protected FloatingActionButton fab;
 
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    protected GuardAppListAdapter guardAppListAdapter;
+    protected BootAppListAdapter bootAppListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +38,6 @@ public class GuardAppNavActivity extends LockedActivity {
         showHomeAsUp();
         initService();
         initView();
-        initFirstRun();
         startLoading();
     }
 
@@ -53,29 +49,6 @@ public class GuardAppNavActivity extends LockedActivity {
 
     protected int getLayoutRes() {
         return R.layout.app_list;
-    }
-
-    private void initFirstRun() {
-        boolean first = XSettings.isFirstRun(this);
-        if (first) {
-            new AlertDialog.Builder(GuardAppNavActivity.this)
-                    .setTitle(R.string.first_run_title)
-                    .setMessage(R.string.message_first_run)
-                    .setCancelable(false)
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            XSettings.setFirstRun(getApplicationContext());
-                        }
-                    })
-                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                        }
-                    })
-                    .show();
-        }
     }
 
     @Override
@@ -96,24 +69,24 @@ public class GuardAppNavActivity extends LockedActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(GuardAppNavActivity.this, GuardAppPickerActivity.class));
+                startActivity(new Intent(BootAppNavActivity.this, BootAppPickerActivity.class));
             }
         });
 
-        guardAppListAdapter = onCreateAdapter();
+        bootAppListAdapter = onCreateAdapter();
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(guardAppListAdapter);
+        recyclerView.setAdapter(bootAppListAdapter);
 
 
         swipeRefreshLayout.setOnRefreshListener(
                 new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                startLoading();
-            }
-        });
+                    @Override
+                    public void onRefresh() {
+                        startLoading();
+                    }
+                });
 
         runOnUiThread(new Runnable() {
             @Override
@@ -133,8 +106,8 @@ public class GuardAppNavActivity extends LockedActivity {
         });
     }
 
-    protected GuardAppListAdapter onCreateAdapter() {
-        return new GuardAppListAdapter(this) {
+    protected BootAppListAdapter onCreateAdapter() {
+        return new BootAppListAdapter(this) {
             @Override
             protected void onPackageRemoved(String p) {
                 super.onPackageRemoved(p);
@@ -148,20 +121,20 @@ public class GuardAppNavActivity extends LockedActivity {
         XExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                final List<PackageInfo> res = performLoading();
+                final List<BootCompletePackage> res = performLoading();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         swipeRefreshLayout.setRefreshing(false);
-                        guardAppListAdapter.update(res);
+                        bootAppListAdapter.update(res);
                     }
                 });
             }
         });
     }
 
-    protected List<PackageInfo> performLoading() {
-        return PackageLoader.Impl.create(this).loadStoredGuarded();
+    protected List<BootCompletePackage> performLoading() {
+        return BootPackageLoader.Impl.create(this).loadStoredDisAllowed();
     }
 
     @Override

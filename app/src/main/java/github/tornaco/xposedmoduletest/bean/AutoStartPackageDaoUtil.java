@@ -16,7 +16,8 @@ public class AutoStartPackageDaoUtil {
         AutoStartPackage entity = new AutoStartPackage( //
                 cursor.isNull(offset + 0) ? null : cursor.getInt(offset + 0), // id
                 cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // pkgName
-                cursor.isNull(offset + 2) ? null : cursor.getShort(offset + 2) != 0 // allow
+                cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // appName
+                cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0 // allow
         );
         return entity;
     }

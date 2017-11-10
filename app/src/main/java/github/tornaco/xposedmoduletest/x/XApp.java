@@ -2,9 +2,7 @@ package github.tornaco.xposedmoduletest.x;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.support.multidex.MultiDex;
 
 import com.android.internal.os.BinderInternal;
@@ -16,8 +14,6 @@ import org.newstand.logger.Settings;
 import github.tornaco.apigen.BuildHostInfo;
 import github.tornaco.apigen.GithubCommitSha;
 import github.tornaco.xposedmoduletest.license.XActivation;
-import github.tornaco.xposedmoduletest.ui.activity.GuardAppNavActivity;
-import github.tornaco.xposedmoduletest.ui.activity.GuardAppNavActivityNoLauncher;
 import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
 
 /**
@@ -64,17 +60,17 @@ public class XApp extends Application implements Runnable {
     }
 
     public void hideAppIcon(boolean enable) {
-        PackageManager pm = getPackageManager();
-        ComponentName enabled = enable ? new ComponentName(this,
-                GuardAppNavActivityNoLauncher.class) : new ComponentName(this, GuardAppNavActivity.class);
-        ComponentName disabled = enable ? new ComponentName(this,
-                GuardAppNavActivity.class) : new ComponentName(this, GuardAppNavActivityNoLauncher.class);
-        Logger.d(enabled);
-        Logger.d(disabled);
-        pm.setComponentEnabledSetting(enabled,
-                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-        pm.setComponentEnabledSetting(disabled,
-                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+//        PackageManager pm = getPackageManager();
+//        ComponentName enabled = enable ? new ComponentName(this,
+//                GuardAppNavActivityNoLauncher.class) : new ComponentName(this, GuardAppNavActivity.class);
+//        ComponentName disabled = enable ? new ComponentName(this,
+//                GuardAppNavActivity.class) : new ComponentName(this, GuardAppNavActivityNoLauncher.class);
+//        Logger.d(enabled);
+//        Logger.d(disabled);
+//        pm.setComponentEnabledSetting(enabled,
+//                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+//        pm.setComponentEnabledSetting(disabled,
+//                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
     }
 
     @Override

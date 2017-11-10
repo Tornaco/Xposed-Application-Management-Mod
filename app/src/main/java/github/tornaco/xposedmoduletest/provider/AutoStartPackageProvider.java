@@ -96,6 +96,7 @@ public class AutoStartPackageProvider extends ContentProvider {
         ContentValues values = new ContentValues();
         values.put(AutoStartPackageDao.Properties.PkgName.columnName, autoStartPackage.getPkgName());
         values.put(AutoStartPackageDao.Properties.Allow.columnName, autoStartPackage.getAllow());
+        values.put(AutoStartPackageDao.Properties.AppName.columnName, autoStartPackage.getAppName());
         return context.getContentResolver().insert(CONTENT_URI, values);
     }
 

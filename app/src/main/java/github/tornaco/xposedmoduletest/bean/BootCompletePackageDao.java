@@ -25,7 +25,8 @@ public class BootCompletePackageDao extends AbstractDao<BootCompletePackage, Int
     public static class Properties {
         public final static Property Id = new Property(0, Integer.class, "id", true, "ID");
         public final static Property PkgName = new Property(1, String.class, "pkgName", false, "PKG_NAME");
-        public final static Property Allow = new Property(2, Boolean.class, "allow", false, "ALLOW");
+        public final static Property AppName = new Property(2, String.class, "appName", false, "APP_NAME");
+        public final static Property Allow = new Property(3, Boolean.class, "allow", false, "ALLOW");
     };
 
 
@@ -43,7 +44,8 @@ public class BootCompletePackageDao extends AbstractDao<BootCompletePackage, Int
         db.execSQL("CREATE TABLE " + constraint + "\"BOOT_COMPLETE_PACKAGE\" (" + //
                 "\"ID\" INTEGER PRIMARY KEY ," + // 0: id
                 "\"PKG_NAME\" TEXT," + // 1: pkgName
-                "\"ALLOW\" INTEGER);"); // 2: allow
+                "\"APP_NAME\" TEXT," + // 2: appName
+                "\"ALLOW\" INTEGER);"); // 3: allow
     }
 
     /** Drops the underlying database table. */
@@ -67,9 +69,14 @@ public class BootCompletePackageDao extends AbstractDao<BootCompletePackage, Int
             stmt.bindString(2, pkgName);
         }
  
+        String appName = entity.getAppName();
+        if (appName != null) {
+            stmt.bindString(3, appName);
+        }
+ 
         Boolean allow = entity.getAllow();
         if (allow != null) {
-            stmt.bindLong(3, allow ? 1L: 0L);
+            stmt.bindLong(4, allow ? 1L: 0L);
         }
     }
 
@@ -85,7 +92,8 @@ public class BootCompletePackageDao extends AbstractDao<BootCompletePackage, Int
         BootCompletePackage entity = new BootCompletePackage( //
             cursor.isNull(offset + 0) ? null : cursor.getInt(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // pkgName
-            cursor.isNull(offset + 2) ? null : cursor.getShort(offset + 2) != 0 // allow
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // appName
+            cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0 // allow
         );
         return entity;
     }
@@ -95,7 +103,8 @@ public class BootCompletePackageDao extends AbstractDao<BootCompletePackage, Int
     public void readEntity(Cursor cursor, BootCompletePackage entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getInt(offset + 0));
         entity.setPkgName(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setAllow(cursor.isNull(offset + 2) ? null : cursor.getShort(offset + 2) != 0);
+        entity.setAppName(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setAllow(cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0);
      }
     
     /** @inheritdoc */

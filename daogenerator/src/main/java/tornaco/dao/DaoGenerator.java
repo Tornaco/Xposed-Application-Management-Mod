@@ -41,6 +41,7 @@ public class DaoGenerator {
         Entity pkgInfo = sch.addEntity("BootCompletePackage");
         pkgInfo.addIntProperty("id").primaryKey();
         pkgInfo.addStringProperty("pkgName");
+        pkgInfo.addStringProperty("appName");
         pkgInfo.addBooleanProperty("allow");
     }
 
@@ -48,6 +49,7 @@ public class DaoGenerator {
         Entity pkgInfo = sch.addEntity("AutoStartPackage");
         pkgInfo.addIntProperty("id").primaryKey();
         pkgInfo.addStringProperty("pkgName");
+        pkgInfo.addStringProperty("appName");
         pkgInfo.addBooleanProperty("allow");
     }
 }

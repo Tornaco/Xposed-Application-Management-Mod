@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -17,9 +16,9 @@ import java.util.List;
 import dev.tornaco.vangogh.Vangogh;
 import dev.tornaco.vangogh.display.appliers.FadeOutFadeInApplier;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.bean.PackageInfo;
+import github.tornaco.xposedmoduletest.bean.BootCompletePackage;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
-import github.tornaco.xposedmoduletest.provider.AppGuardPackageProvider;
+import github.tornaco.xposedmoduletest.provider.BootPackageProvider;
 import tornaco.lib.widget.CheckableImageView;
 
 /**
@@ -27,23 +26,23 @@ import tornaco.lib.widget.CheckableImageView;
  * Email: Tornaco@163.com
  */
 
-public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewHolder>
+public class BootAppListAdapter extends RecyclerView.Adapter<BootAppListAdapter.AppViewHolder>
         implements SectionIndexer {
 
     private Context context;
     private VangoghAppLoader vangoghAppLoader;
 
-    public AppListAdapter(Context context) {
+    public BootAppListAdapter(Context context) {
         this.context = context;
         vangoghAppLoader = new VangoghAppLoader(context);
     }
 
-    final List<PackageInfo> packageInfos = new ArrayList<>();
+    final List<BootCompletePackage> BootCompletePackages = new ArrayList<>();
 
-    public void update(Collection<PackageInfo> src) {
-        synchronized (packageInfos) {
-            packageInfos.clear();
-            packageInfos.addAll(src);
+    public void update(Collection<BootCompletePackage> src) {
+        synchronized (BootCompletePackages) {
+            BootCompletePackages.clear();
+            BootCompletePackages.addAll(src);
         }
         notifyDataSetChanged();
     }
@@ -54,8 +53,8 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
         return new AppViewHolder(view);
     }
 
-    public List<PackageInfo> getPackageInfos() {
-        return packageInfos;
+    public List<BootCompletePackage> getBootCompletePackages() {
+        return BootCompletePackages;
     }
 
     @LayoutRes
@@ -65,12 +64,12 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
 
     @Override
     public void onBindViewHolder(final AppViewHolder holder, int position) {
-        final PackageInfo packageInfo = packageInfos.get(position);
-        holder.getLineOneTextView().setText(packageInfo.getAppName());
+        final BootCompletePackage BootCompletePackage = BootCompletePackages.get(position);
+        holder.getLineOneTextView().setText(BootCompletePackage.getAppName());
         holder.getCheckableImageView().setChecked(false);
-        holder.getLineTwoTextView().setText(String.valueOf(packageInfo.getPkgName()));
+        holder.getLineTwoTextView().setText(String.valueOf(BootCompletePackage.getPkgName()));
         Vangogh.with(context)
-                .load(packageInfo.getPkgName())
+                .load(BootCompletePackage.getPkgName())
                 .skipMemoryCache(true)
                 .usingLoader(vangoghAppLoader)
                 .applier(new FadeOutFadeInApplier())
@@ -80,14 +79,14 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                removePkgAsync(packageInfo);
+                removePkgAsync(BootCompletePackage);
                 return true;
             }
         });
     }
 
-    private void removePkgAsync(PackageInfo pkg) {
-        AppGuardPackageProvider.delete(context, pkg);
+    private void removePkgAsync(BootCompletePackage pkg) {
+        BootPackageProvider.delete(context, pkg);
         onPackageRemoved(pkg.getPkgName());
     }
 
@@ -97,7 +96,7 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
 
     @Override
     public int getItemCount() {
-        return packageInfos.size();
+        return BootCompletePackages.size();
     }
 
     // For index.
@@ -118,8 +117,8 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
     public Object[] getSections() {
         List<String> sections = new ArrayList<>(26);
         mSectionPositions = new ArrayList<>(26);
-        for (int i = 0, size = packageInfos.size(); i < size; i++) {
-            String appName = String.valueOf(packageInfos.get(i).getAppName());
+        for (int i = 0, size = BootCompletePackages.size(); i < size; i++) {
+            String appName = String.valueOf(BootCompletePackages.get(i).getAppName());
             String section = "";
             // FIXME Session ret.
             if (!sections.contains(section)) {

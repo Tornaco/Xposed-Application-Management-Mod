@@ -9,15 +9,14 @@ import java.util.List;
 
 import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.bean.PackageInfo;
-import github.tornaco.xposedmoduletest.loader.PackageLoader;
-import github.tornaco.xposedmoduletest.provider.AppGuardPackageProvider;
-import github.tornaco.xposedmoduletest.ui.adapter.GuardAppListAdapter;
-import github.tornaco.xposedmoduletest.ui.adapter.GuardAppPickerListAdapter;
+import github.tornaco.xposedmoduletest.bean.BootCompletePackage;
+import github.tornaco.xposedmoduletest.loader.BootPackageLoader;
+import github.tornaco.xposedmoduletest.provider.BootPackageProvider;
+import github.tornaco.xposedmoduletest.ui.adapter.BootAppPickerListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 
-public class GuardAppPickerActivity extends GuardAppNavActivity {
+public class BootAppPickerActivity extends BootAppNavActivity {
 
     private boolean mShowSystemApp;
 
@@ -37,7 +36,7 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final ProgressDialog p = new ProgressDialog(GuardAppPickerActivity.this);
+                final ProgressDialog p = new ProgressDialog(BootAppPickerActivity.this);
                 p.setCancelable(false);
                 p.setMessage("SAVING...");
                 p.setIndeterminate(true);
@@ -45,13 +44,13 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
                 XExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        List<PackageInfo> packageInfoList = guardAppListAdapter.getPackageInfos();
+                        List<BootCompletePackage> packageInfoList = bootAppListAdapter.getBootCompletePackages();
                         github.tornaco.android.common.Collections.consumeRemaining(packageInfoList,
-                                new Consumer<PackageInfo>() {
+                                new Consumer<BootCompletePackage>() {
                                     @Override
-                                    public void accept(PackageInfo packageInfo) {
-                                        if (packageInfo.getGuard()) {
-                                            AppGuardPackageProvider.insert(getApplicationContext(), packageInfo);
+                                    public void accept(BootCompletePackage packageInfo) {
+                                        if (!packageInfo.getAllow()) {
+                                            BootPackageProvider.insert(getApplicationContext(), packageInfo);
                                         }
                                     }
                                 });
@@ -68,13 +67,13 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
         });
     }
 
-    protected List<PackageInfo> performLoading() {
-        return PackageLoader.Impl.create(this).loadInstalled(mShowSystemApp);
+    protected List<BootCompletePackage> performLoading() {
+        return BootPackageLoader.Impl.create(this).loadInstalled(mShowSystemApp);
     }
 
     @Override
-    protected GuardAppListAdapter onCreateAdapter() {
-        return new GuardAppPickerListAdapter(this);
+    protected BootAppPickerListAdapter onCreateAdapter() {
+        return new BootAppPickerListAdapter(this);
     }
 
     @Override

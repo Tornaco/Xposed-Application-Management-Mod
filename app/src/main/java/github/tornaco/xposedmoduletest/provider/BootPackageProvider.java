@@ -96,6 +96,7 @@ public class BootPackageProvider extends ContentProvider {
         ContentValues values = new ContentValues();
         values.put(BootCompletePackageDao.Properties.PkgName.columnName, bootCompletePackage.getPkgName());
         values.put(BootCompletePackageDao.Properties.Allow.columnName, bootCompletePackage.getAllow());
+        values.put(BootCompletePackageDao.Properties.AppName.columnName, bootCompletePackage.getAppName());
         return context.getContentResolver().insert(CONTENT_URI, values);
     }
 
