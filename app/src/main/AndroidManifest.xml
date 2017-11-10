@@ -112,8 +112,8 @@
         </provider>
 
         <provider
-            android:name=".provider.PackageProvider"
-            android:authorities="github.tornaco.xposedmoduletest.package_provider"
+            android:name=".provider.AppGuardPackageProvider"
+            android:authorities="github.tornaco.xposedmoduletest.app_guard_package_provider"
             android:exported="true" />
     </application>
 

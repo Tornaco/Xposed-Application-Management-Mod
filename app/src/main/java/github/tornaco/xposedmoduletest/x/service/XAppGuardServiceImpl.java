@@ -26,6 +26,8 @@ import android.view.KeyEvent;
 
 import com.google.common.base.Preconditions;
 
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -44,7 +46,7 @@ import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IWatcher;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.bean.PackageInfoDaoUtil;
-import github.tornaco.xposedmoduletest.provider.PackageProvider;
+import github.tornaco.xposedmoduletest.provider.AppGuardPackageProvider;
 import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.x.app.XMode;
 import github.tornaco.xposedmoduletest.x.bean.BlurSettings;
@@ -224,7 +226,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         }
         Cursor cursor = null;
         try {
-            cursor = contentResolver.query(PackageProvider.CONTENT_URI, null, null, null, null);
+            cursor = contentResolver.query(AppGuardPackageProvider.CONTENT_URI, null, null, null, null);
             if (cursor == null) {
                 XLog.logF("Fail query pkgs, cursor is null");
                 return;
@@ -253,7 +255,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             return;
         }
         try {
-            contentResolver.registerContentObserver(PackageProvider.CONTENT_URI,
+            contentResolver.registerContentObserver(AppGuardPackageProvider.CONTENT_URI,
                     false, new ContentObserver(mServiceHandler) {
                         @Override
                         public void onChange(boolean selfChange, Uri uri) {
@@ -308,6 +310,12 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Override
     public boolean interruptPackageRemoval(String pkg) {
         return mUninstallProEnabled.get();
+    }
+
+    @Override
+    protected void dump(FileDescriptor fd, PrintWriter fout, String[] args) {
+        enforceCallingPermissions();
+        super.dump(fd, fout, args);
     }
 
     @Override

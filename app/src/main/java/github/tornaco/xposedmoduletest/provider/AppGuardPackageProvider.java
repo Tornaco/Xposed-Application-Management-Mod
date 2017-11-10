@@ -25,9 +25,9 @@ import lombok.Getter;
  * Email: Tornaco@163.com
  */
 
-public class PackageProvider extends ContentProvider {
+public class AppGuardPackageProvider extends ContentProvider {
 
-    public static final Uri CONTENT_URI = Uri.parse("content://github.tornaco.xposedmoduletest.package_provider/pkgs");
+    public static final Uri CONTENT_URI = Uri.parse("content://github.tornaco.xposedmoduletest.app_guard_package_provider/pkgs");
 
     private static final UriMatcher MATCHER = new UriMatcher(
             UriMatcher.NO_MATCH);
@@ -35,7 +35,7 @@ public class PackageProvider extends ContentProvider {
     private static final int PKGS = 1;
 
     static {
-        MATCHER.addURI("github.tornaco.xposedmoduletest.package_provider", "pkgs", PKGS);
+        MATCHER.addURI("github.tornaco.xposedmoduletest.app_guard_package_provider", "pkgs", PKGS);
     }
 
     @Getter
@@ -51,7 +51,7 @@ public class PackageProvider extends ContentProvider {
             case PKGS:
                 PackageInfoDao dao = daoSession.getPackageInfoDao();
                 SQLiteDatabase db = dao.getDatabase();
-                int count = db.delete("PACKAGE_INFO", selection, selectionArgs);
+                int count = db.delete(PackageInfoDao.TABLENAME, selection, selectionArgs);
                 ContentResolver resolver = resolverChecked();
                 if (resolver != null) resolver.notifyChange(uri, null);
                 return count;
@@ -82,7 +82,7 @@ public class PackageProvider extends ContentProvider {
             case PKGS:
                 PackageInfoDao dao = daoSession.getPackageInfoDao();
                 SQLiteDatabase db = dao.getDatabase();
-                long rowid = db.insert("PACKAGE_INFO", null, values);
+                long rowid = db.insert(PackageInfoDao.TABLENAME, null, values);
                 Uri insertUri = ContentUris.withAppendedId(uri, rowid);
                 ContentResolver resolver = resolverChecked();
                 if (resolver != null) resolver.notifyChange(uri, null);
@@ -109,7 +109,7 @@ public class PackageProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         daoSession = DaoManager.getInstance().getSession(getContext());
-        org.newstand.logger.Logger.d("PackageProvider, onCreate:" + daoSession);
+        org.newstand.logger.Logger.d("AppGuardPackageProvider, onCreate:" + daoSession);
         return false;
     }
 
@@ -126,7 +126,7 @@ public class PackageProvider extends ContentProvider {
             case PKGS:
                 PackageInfoDao dao = daoSession.getPackageInfoDao();
                 SQLiteDatabase db = dao.getDatabase();
-                return db.query("PACKAGE_INFO", projection, selection, selectionArgs,
+                return db.query(PackageInfoDao.TABLENAME, projection, selection, selectionArgs,
                         null, null, sortOrder);
             default:
                 throw new IllegalArgumentException("Unknown Uri:" + uri.toString());
@@ -144,7 +144,7 @@ public class PackageProvider extends ContentProvider {
                 int count;
                 PackageInfoDao dao = daoSession.getPackageInfoDao();
                 SQLiteDatabase db = dao.getDatabase();
-                count = db.update("PACKAGE_INFO", values, selection, selectionArgs);
+                count = db.update(PackageInfoDao.TABLENAME, values, selection, selectionArgs);
                 ContentResolver resolver = resolverChecked();
                 if (resolver != null) resolver.notifyChange(uri, null);
                 return count;

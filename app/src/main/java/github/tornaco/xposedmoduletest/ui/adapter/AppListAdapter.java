@@ -19,7 +19,7 @@ import dev.tornaco.vangogh.display.appliers.FadeOutFadeInApplier;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
-import github.tornaco.xposedmoduletest.provider.PackageProvider;
+import github.tornaco.xposedmoduletest.provider.AppGuardPackageProvider;
 import tornaco.lib.widget.CheckableImageView;
 
 /**
@@ -87,7 +87,7 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
     }
 
     private void removePkgAsync(PackageInfo pkg) {
-        PackageProvider.delete(context, pkg);
+        AppGuardPackageProvider.delete(context, pkg);
         onPackageRemoved(pkg.getPkgName());
     }
 

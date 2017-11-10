@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.x.submodules;
 
 import android.content.ComponentName;
+import android.content.Intent;
 import android.util.Log;
 
 import java.util.Set;
@@ -44,7 +45,9 @@ public class IFWSubModule extends IntentFirewallAndroidSubModule {
                     super.beforeHookedMethod(param);
                     int callerUid = (int) param.args[1];
                     int recUid = (int) param.args[4];
-                    param.setResult(getIntentFirewallBridge().checkBroadcast(recUid, callerUid));
+                    Intent intent = (Intent) param.args[0];
+                    String action = intent == null ? null : intent.getAction();
+                    param.setResult(getIntentFirewallBridge().checkBroadcast(action, recUid, callerUid));
                 }
             });
             XLog.logV("hookIntentFireWall OK:" + unHooks);

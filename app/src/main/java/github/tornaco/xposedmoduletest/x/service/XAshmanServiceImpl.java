@@ -8,14 +8,19 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.Message;
+import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
 
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,13 +29,17 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
+import github.tornaco.android.common.Holder;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.x.app.XIntentFirewallManager;
+import github.tornaco.xposedmoduletest.x.service.provider.TorSettings;
 import github.tornaco.xposedmoduletest.x.util.PkgUtil;
 import github.tornaco.xposedmoduletest.x.util.XLog;
-import lombok.AllArgsConstructor;
+import github.tornaco.xposedmoduletest.x.util.XStopWatch;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 
@@ -39,7 +48,7 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
  * Email: Tornaco@163.com
  */
 
-public class XIntentFirewallServiceImpl extends XIntentFirewallServiceAbs {
+public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private static final Set<String> WHITE_LIST = new HashSet<>();
 
@@ -58,11 +67,18 @@ public class XIntentFirewallServiceImpl extends XIntentFirewallServiceAbs {
 
     private UUID mSerialUUID = UUID.randomUUID();
 
+    private static int sClientUID = 0;
+
     private final ExecutorService mWorkingService = Executors.newCachedThreadPool();
 
     private final SparseArray<String> mPackagesCache = new SparseArray<>();
 
     private Handler mFirewallHandler;
+
+    private AtomicBoolean mIFWEnabled = new AtomicBoolean(false);
+
+    // Safe mode is the last clear place user can stay.
+    private boolean mIsSafeMode = false;
 
     private BroadcastReceiver mScreenReceiver =
             new BroadcastReceiver() {
@@ -79,11 +95,11 @@ public class XIntentFirewallServiceImpl extends XIntentFirewallServiceAbs {
             };
 
     private void onUserPresent() {
-
+        mFirewallHandler.sendEmptyMessage(IntentFirewallHandlerMessages.MSG_ONSCREENON);
     }
 
     private void onScreenOff() {
-        mFirewallHandler.sendEmptyMessage(IntentFirewallHandlerMessages.MSG_CLEARPROCESSONSCREENOFF);
+        mFirewallHandler.sendEmptyMessage(IntentFirewallHandlerMessages.MSG_ONSCREENOFF);
     }
 
     private BroadcastReceiver mPackageReceiver = new BroadcastReceiver() {
@@ -117,6 +133,7 @@ public class XIntentFirewallServiceImpl extends XIntentFirewallServiceAbs {
     }
 
     private void cachePackages(final String... pkg) {
+
         final PackageManager pm = getContext().getPackageManager();
 
         Collections.consumeRemaining(pkg, new Consumer<String>() {
@@ -142,6 +159,16 @@ public class XIntentFirewallServiceImpl extends XIntentFirewallServiceAbs {
 
     private void cachePackages() {
         PackageManager pm = this.getContext().getPackageManager();
+
+        // Retrieve our package first.
+        try {
+            ApplicationInfo applicationInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID, 0);
+            sClientUID = applicationInfo.uid;
+            XLog.logV("sClientUID:" + sClientUID);
+        } catch (PackageManager.NameNotFoundException e) {
+            XLog.logD("Can not get UID for our client:" + e);
+        }
+
         try {
             // Filter all apps.
             List<ApplicationInfo> applicationInfos = pm.getInstalledApplications(0);
@@ -196,21 +223,36 @@ public class XIntentFirewallServiceImpl extends XIntentFirewallServiceAbs {
         }
     }
 
+    private void checkSafeMode() {
+        mIsSafeMode = getContext().getPackageManager().isSafeMode();
+    }
+
+    private void getConfigFromSettings() {
+        try {
+            boolean ifwEnabled = (boolean) TorSettings.IFW_ENABLED_B.readFromSystemSettings(getContext());
+            mIFWEnabled.set(ifwEnabled);
+            XLog.logV(String.valueOf(ifwEnabled));
+        } catch (Throwable e) {
+            XLog.logF("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+    }
+
     @Override
     public boolean checkService(String servicePkgName, int callerUid) {
         if (TextUtils.isEmpty(servicePkgName)) return true;
+        String callerPkgName =
+                mPackagesCache.get(callerUid);
+        if (callerPkgName == null) {
+            callerPkgName = PkgUtil.pkgForUid(getContext(), callerUid);
+        }
         boolean res =
                 isInWhiteList(servicePkgName)
+                        || servicePkgName.equals(callerPkgName) // Service from/to same app is allowed.
                         || PkgUtil.isSystemApp(getContext(), servicePkgName)
                         || PkgUtil.isAppRunning(getContext(), servicePkgName);
 
         if (!res) {
-            String callerPkgName =
-                    mPackagesCache.get(callerUid);
-            if (callerPkgName == null) {
-                callerPkgName = PkgUtil.pkgForUid(getContext(), callerUid);
-            }
-            XLog.logVOnExecutor(String.format("BROADCAST: %s--->%s  %s--->%s %s",
+            XLog.logVOnExecutor(String.format("SERVICE: %s--->%s  %s--->%s %s",
                     PkgUtil.loadNameByPkgName(getContext(), callerPkgName),
                     PkgUtil.loadNameByPkgName(getContext(), servicePkgName),
                     callerPkgName,
@@ -222,7 +264,13 @@ public class XIntentFirewallServiceImpl extends XIntentFirewallServiceAbs {
     }
 
     @Override
-    public boolean checkBroadcast(int receiverUid, int callerUid) {
+    public boolean checkBroadcast(String action, int receiverUid, int callerUid) {
+
+        // Check if this is a boot complete action.
+        if (isBootCompleteBroadcastAction(action)) {
+            return checkBootCompleteBroadcast(receiverUid, callerUid);
+        }
+
         String receiverPkgName =
                 mPackagesCache.get(receiverUid);
         if (receiverPkgName == null) {
@@ -232,6 +280,7 @@ public class XIntentFirewallServiceImpl extends XIntentFirewallServiceAbs {
 
         boolean res =
                 isInWhiteList(receiverPkgName)
+                        || callerUid == receiverUid // Broadcast from/to same app is allowed.
                         || PkgUtil.isSystemApp(getContext(), receiverPkgName)
                         || PkgUtil.isAppRunning(getContext(), receiverPkgName);
 
@@ -241,7 +290,8 @@ public class XIntentFirewallServiceImpl extends XIntentFirewallServiceAbs {
             if (callerPkgName == null) {
                 callerPkgName = PkgUtil.pkgForUid(getContext(), callerUid);
             }
-            XLog.logVOnExecutor(String.format("SERVICE: %s--->%s  %s--->%s %s",
+            XLog.logVOnExecutor(String.format("BROADCAST: %s %s--->%s  %s--->%s %s",
+                    action,
                     PkgUtil.loadNameByPkgName(getContext(), callerPkgName),
                     PkgUtil.loadNameByPkgName(getContext(), receiverPkgName),
                     callerPkgName,
@@ -252,10 +302,22 @@ public class XIntentFirewallServiceImpl extends XIntentFirewallServiceAbs {
         return res;
     }
 
+    private boolean checkBootCompleteBroadcast(int receiverUid, int callerUid) {
+
+        return true;
+    }
+
+    private static boolean isBootCompleteBroadcastAction(String action) {
+        return Intent.ACTION_BOOT_COMPLETED.equals(action);
+    }
+
     private void registerReceiver() {
-        getContext().registerReceiver(mScreenReceiver,
-                new IntentFilter(Intent.ACTION_SCREEN_OFF));
         IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        intentFilter.addAction(Intent.ACTION_USER_PRESENT);
+        getContext().registerReceiver(mScreenReceiver, intentFilter);
+
+        intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
         intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
@@ -272,6 +334,8 @@ public class XIntentFirewallServiceImpl extends XIntentFirewallServiceAbs {
 
     @Override
     public void systemReady() {
+        checkSafeMode();
+        getConfigFromSettings();
         cachePackages();
         whiteIMEPackages();
         registerReceiver();
@@ -301,55 +365,138 @@ public class XIntentFirewallServiceImpl extends XIntentFirewallServiceAbs {
         return mSerialUUID.toString();
     }
 
+    @Override
+    @BinderCall
+    public void clearProcess() throws RemoteException {
+        enforceCallingPermissions();
+        mFirewallHandler.sendEmptyMessage(IntentFirewallHandlerMessages.MSG_CLEARPROCESS);
+    }
+
+    @Override
+    @BinderCall
+    public void setIFWEnabled(boolean enabled) throws RemoteException {
+        enforceCallingPermissions();
+        mFirewallHandler.obtainMessage(IntentFirewallHandlerMessages.MSG_SETENABLED, enabled)
+                .sendToTarget();
+    }
+
+    @Override
+    @BinderCall
+    public boolean isIFWEnabled() {
+        enforceCallingPermissions();
+        return !mIsSafeMode && mIFWEnabled.get();
+    }
+
+    @Override
+    @BinderCall
+    protected void dump(FileDescriptor fd, PrintWriter fout, String[] args) {
+        enforceCallingPermissions();
+        super.dump(fd, fout, args);
+    }
+
+    protected void enforceCallingPermissions() {
+        int callingUID = Binder.getCallingUid();
+        XLog.logV("enforceCallingPermissions@uid:" + callingUID);
+        if (callingUID == android.os.Process.myUid() || (sClientUID > 0 && sClientUID == callingUID)) {
+            return;
+        }
+        throw new SecurityException("Package of uid:" + callingUID
+                + ", does not require permission to interact with XIntentFirewallService");
+    }
+
     @SuppressLint("HandlerLeak")
-    @AllArgsConstructor
     private class HandlerImpl extends Handler implements IntentFirewallHandler {
+
+        private final Holder<FutureTask<String[]>> mClearingTask = new Holder<>();
 
         @Override
         public void handleMessage(Message msg) {
             XLog.logV("handleMessage: " + IntentFirewallHandlerMessages.decodeMessage(msg.what));
             super.handleMessage(msg);
             switch (msg.what) {
-                case IntentFirewallHandlerMessages.MSG_CLEARPROCESSONSCREENOFF:
-                    HandlerImpl.this.clearProcessOnScreenOff();
+                case IntentFirewallHandlerMessages.MSG_CLEARPROCESS:
+                    HandlerImpl.this.clearProcess();
+                    break;
+                case IntentFirewallHandlerMessages.MSG_SETENABLED:
+                    HandlerImpl.this.setEnabled((Boolean) msg.obj);
+                    break;
+                case IntentFirewallHandlerMessages.MSG_ONSCREENOFF:
+                    HandlerImpl.this.onScreenOff();
+                    break;
+                case IntentFirewallHandlerMessages.MSG_ONSCREENON:
+                    HandlerImpl.this.onScreenOn();
                     break;
             }
         }
 
         @Override
         public void setEnabled(boolean enabled) {
-
+            if (mIFWEnabled.compareAndSet(!enabled, enabled)) {
+                TorSettings.IFW_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+            }
         }
 
         @Override
-        public void clearProcessOnScreenOff() {
-            FutureTask<Void> futureTask = new FutureTask<>(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
-                    if (am == null) return null;
-                    List<ActivityManager.RunningAppProcessInfo> processes =
-                            am.getRunningAppProcesses();
-                    int count = processes == null ? 0 : processes.size();
-                    for (int i = 0; i < count; i++) {
-                        for (String runningPackageName : processes.get(i).pkgList) {
-                            if (runningPackageName != null && !WHITE_LIST.contains(runningPackageName)) {
-                                if (PkgUtil.isSystemApp(getContext(), runningPackageName)) {
-                                    continue;
+        public void clearProcess() {
+            XStopWatch stopWatch = XStopWatch.start("onScreenOn, clear tasks");
+            synchronized (mClearingTask) {
+                if (mClearingTask.getData() != null && (!mClearingTask.getData().isDone()
+                        && !mClearingTask.getData().isCancelled())) {
+                    XLog.logV("clearProcess, Canceling existing clear task...");
+                    mClearingTask.getData().cancel(true);
+                    mClearingTask.setData(null);
+                }
+                stopWatch.split("cancel old one");
+                FutureTask<String[]> futureTask = new FutureTask<>(new Callable<String[]>() {
+                    @Override
+                    public String[] call() throws Exception {
+                        ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
+                        if (am == null) return null;
+                        List<ActivityManager.RunningAppProcessInfo> processes =
+                                am.getRunningAppProcesses();
+                        int count = processes == null ? 0 : processes.size();
+                        String[] cleared = new String[count];
+                        for (int i = 0; i < count; i++) {
+                            for (String runningPackageName : processes.get(i).pkgList) {
+                                if (runningPackageName != null && !WHITE_LIST.contains(runningPackageName)) {
+                                    if (PkgUtil.isSystemApp(getContext(), runningPackageName)) {
+                                        continue;
+                                    }
+                                    if (PkgUtil.isAppRunningForeground(getContext(), runningPackageName)) {
+                                        XLog.logV("App is in foreground, but will kill: " + runningPackageName);
+                                    }
+                                    am.forceStopPackage(runningPackageName);
+                                    cleared[i] = runningPackageName;
+                                    XLog.logV("Force stopped: " + runningPackageName);
                                 }
-                                if (PkgUtil.isAppRunningForeground(getContext(), runningPackageName)) {
-                                    XLog.logV("App is in foreground, wont kill: " + runningPackageName);
-                                    continue;
-                                }
-                                am.forceStopPackage(runningPackageName);
-                                XLog.logV("Force stopped: " + runningPackageName);
                             }
                         }
+                        return cleared;
                     }
-                    return null;
+                });
+                mClearingTask.setData(futureTask);
+            }
+            mWorkingService.execute(mClearingTask.getData());
+            stopWatch.stop();
+        }
+
+        @Override
+        public void onScreenOff() {
+            clearProcess();
+        }
+
+        @Override
+        public void onScreenOn() {
+            XStopWatch stopWatch = XStopWatch.start("onScreenOn, cancel clear task");
+            synchronized (mClearingTask) {
+                if (mClearingTask.getData() != null && (!mClearingTask.getData().isDone()
+                        && !mClearingTask.getData().isCancelled())) {
+                    XLog.logV("onScreenOn, Canceling existing clear task...");
+                    mClearingTask.getData().cancel(true);
+                    mClearingTask.setData(null);
                 }
-            });
-            mWorkingService.execute(futureTask);
+            }
+            stopWatch.stop();
         }
     }
 }

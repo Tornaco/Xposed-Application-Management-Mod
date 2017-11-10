@@ -13,6 +13,8 @@ public class DaoGenerator {
         sch.enableKeepSectionsByDefault();
         createPackageInfo(sch);
         createAccessInfo(sch);
+        createBootCompletePackage(sch);
+        createAutoStartPackage(sch);
         new de.greenrobot.daogenerator.DaoGenerator().generateAll(sch, "./app/src/main/java");
     }
 
@@ -33,5 +35,19 @@ public class DaoGenerator {
         accessInfo.addStringProperty("url");
         accessInfo.addStringProperty("appName");
         accessInfo.addStringProperty("pkgName");
+    }
+
+    private static void createBootCompletePackage(Schema sch) {
+        Entity pkgInfo = sch.addEntity("BootCompletePackage");
+        pkgInfo.addIntProperty("id").primaryKey();
+        pkgInfo.addStringProperty("pkgName");
+        pkgInfo.addBooleanProperty("allow");
+    }
+
+    private static void createAutoStartPackage(Schema sch) {
+        Entity pkgInfo = sch.addEntity("AutoStartPackage");
+        pkgInfo.addIntProperty("id").primaryKey();
+        pkgInfo.addStringProperty("pkgName");
+        pkgInfo.addBooleanProperty("allow");
     }
 }

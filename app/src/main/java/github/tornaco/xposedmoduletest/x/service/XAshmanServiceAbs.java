@@ -3,7 +3,7 @@ package github.tornaco.xposedmoduletest.x.service;
 import android.content.Context;
 
 import github.tornaco.apigen.GithubCommitSha;
-import github.tornaco.xposedmoduletest.IIntentFirewall;
+import github.tornaco.xposedmoduletest.IAshmanService;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +12,7 @@ import lombok.Setter;
  * Email: Tornaco@163.com
  */
 @GithubCommitSha
-abstract class XIntentFirewallServiceAbs extends IIntentFirewall.Stub
+abstract class XAshmanServiceAbs extends IAshmanService.Stub
         implements IIntentFirewallBridge {
 
     @Getter

@@ -4,7 +4,6 @@ package github.tornaco.xposedmoduletest.bean;
 
 // KEEP INCLUDES - put your custom includes here
 // KEEP INCLUDES END
-
 /**
  * Entity mapped to table "PACKAGE_INFO".
  */
@@ -115,6 +114,5 @@ public class PackageInfo {
         return pkgName.hashCode();
     }
     // KEEP METHODS END
-
 
 }

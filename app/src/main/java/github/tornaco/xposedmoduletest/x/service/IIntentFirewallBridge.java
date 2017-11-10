@@ -9,5 +9,5 @@ public interface IIntentFirewallBridge extends IModuleBridge {
     // API For Firewall.
     boolean checkService(String servicePkgName, int callerUid);
 
-    boolean checkBroadcast(int receiverUid, int callerUid);
+    boolean checkBroadcast(String action, int receiverUid, int callerUid);
 }
