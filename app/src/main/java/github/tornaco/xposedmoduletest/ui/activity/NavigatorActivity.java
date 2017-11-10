@@ -6,6 +6,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -24,7 +26,7 @@ import lombok.Getter;
  * Email: Tornaco@163.com
  */
 
-public class NavigatorActivity extends BaseActivity {
+public class NavigatorActivity extends WithWithCustomTabActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,6 +34,21 @@ public class NavigatorActivity extends BaseActivity {
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         getSupportFragmentManager().beginTransaction().replace(R.id.container,
                 onCreateFragment()).commitAllowingStateLoss();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_open_source) {
+            navigateToWebPage(getString(R.string.app_source_url));
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     protected Fragment onCreateFragment() {
@@ -55,7 +72,14 @@ public class NavigatorActivity extends BaseActivity {
         }
 
         private void setupView() {
-
+            findView(rootView, R.id.button)
+                    .setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            WithWithCustomTabActivity withWithCustomTabActivity = (WithWithCustomTabActivity) getActivity();
+                            withWithCustomTabActivity.navigateToWebPage(getString(R.string.app_wiki_url));
+                        }
+                    });
         }
 
         @Override

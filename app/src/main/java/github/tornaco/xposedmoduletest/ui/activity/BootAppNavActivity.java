@@ -152,12 +152,6 @@ public class BootAppNavActivity extends LockedActivity {
         if (item.getItemId() == R.id.action_settings) {
             startActivity(new Intent(this, SettingsDashboardActivity.class));
         }
-        if (item.getItemId() == R.id.action_help) {
-            navigateToWebPage(getString(R.string.app_wiki_url));
-        }
-        if (item.getItemId() == R.id.action_open_source) {
-            navigateToWebPage(getString(R.string.app_source_url));
-        }
         return super.onOptionsItemSelected(item);
     }
 
