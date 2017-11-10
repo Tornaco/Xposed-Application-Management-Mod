@@ -47,7 +47,6 @@ import github.tornaco.xposedmoduletest.x.XSettings;
 import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.x.app.XMode;
 import github.tornaco.xposedmoduletest.x.app.XWatcherAdapter;
-import github.tornaco.xposedmoduletest.x.secure.XEnc;
 
 import static github.tornaco.xposedmoduletest.x.app.XAppGuardManager.EXTRA_INJECT_HOME_WHEN_FAIL_ID;
 import static github.tornaco.xposedmoduletest.x.app.XAppGuardManager.EXTRA_PKG_NAME;
@@ -117,8 +116,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
         setTitle(null);
 
         // Check if our passcode has been set.
-        if (!testMode && !XEnc.isPassCodeValid(mPsscode.getData())) {
-            Logger.w("Pass code not valid, ignoring...");
+        if (!testMode && XSettings.getPattern(this) == null) {
             Toast.makeText(this, R.string.summary_setup_passcode_none_set, Toast.LENGTH_SHORT).show();
             onPass();
             return;

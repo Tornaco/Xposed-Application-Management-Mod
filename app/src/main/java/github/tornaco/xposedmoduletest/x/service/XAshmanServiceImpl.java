@@ -3,11 +3,15 @@ package github.tornaco.xposedmoduletest.x.service;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.database.ContentObserver;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.Message;
@@ -21,8 +25,10 @@ import android.view.inputmethod.InputMethodManager;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -35,8 +41,15 @@ import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.android.common.Holder;
 import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.bean.AutoStartPackage;
+import github.tornaco.xposedmoduletest.bean.AutoStartPackageDaoUtil;
+import github.tornaco.xposedmoduletest.bean.BootCompletePackage;
+import github.tornaco.xposedmoduletest.bean.BootCompletePackageDaoUtil;
+import github.tornaco.xposedmoduletest.provider.AutoStartPackageProvider;
+import github.tornaco.xposedmoduletest.provider.BootPackageProvider;
 import github.tornaco.xposedmoduletest.x.app.XIntentFirewallManager;
 import github.tornaco.xposedmoduletest.x.service.provider.TorSettings;
+import github.tornaco.xposedmoduletest.x.util.Closer;
 import github.tornaco.xposedmoduletest.x.util.PkgUtil;
 import github.tornaco.xposedmoduletest.x.util.XLog;
 import github.tornaco.xposedmoduletest.x.util.XStopWatch;
@@ -76,6 +89,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private Handler mFirewallHandler;
 
     private AtomicBoolean mIFWEnabled = new AtomicBoolean(false);
+
+    private final Map<String, BootCompletePackage> mBootPackages = new HashMap<>();
+    private final Map<String, AutoStartPackage> mStartPackages = new HashMap<>();
 
     // Safe mode is the last clear place user can stay.
     private boolean mIsSafeMode = false;
@@ -188,6 +204,111 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             });
         } catch (Exception ignored) {
             XLog.logD("Can not get UID for our client:" + ignored);
+        }
+    }
+
+    synchronized private void loadBootPackageSettings() {
+        XLog.logV("loadPackageSettings...");
+        ContentResolver contentResolver = getContext().getContentResolver();
+        if (contentResolver == null) {
+            // Happen when early start.
+            return;
+        }
+        Cursor cursor = null;
+        try {
+            cursor = contentResolver.query(BootPackageProvider.CONTENT_URI, null, null, null, null);
+            if (cursor == null) {
+                XLog.logF("Fail query boot pkgs, cursor is null");
+                return;
+            }
+
+            mBootPackages.clear();
+
+            for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+                BootCompletePackage bootCompletePackage = BootCompletePackageDaoUtil.readEntity(cursor, 0);
+                XLog.logV("Boot pkg reader readEntity of: " + bootCompletePackage);
+                String key = bootCompletePackage.getPkgName();
+                if (TextUtils.isEmpty(key)) continue;
+                mBootPackages.put(key, bootCompletePackage);
+            }
+        } catch (Throwable e) {
+            XLog.logF("Fail query boot pkgs:\n" + Log.getStackTraceString(e));
+        } finally {
+            Closer.closeQuietly(cursor);
+        }
+    }
+
+    synchronized private void loadStartPackageSettings() {
+        XLog.logV("loadPackageSettings...");
+        ContentResolver contentResolver = getContext().getContentResolver();
+        if (contentResolver == null) {
+            // Happen when early start.
+            return;
+        }
+        Cursor cursor = null;
+        try {
+            cursor = contentResolver.query(AutoStartPackageProvider.CONTENT_URI, null, null, null, null);
+            if (cursor == null) {
+                XLog.logF("Fail query start pkgs, cursor is null");
+                return;
+            }
+
+            mStartPackages.clear();
+
+            for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+                AutoStartPackage autoStartPackage = AutoStartPackageDaoUtil.readEntity(cursor, 0);
+                XLog.logV("Start pkg reader readEntity of: " + autoStartPackage);
+                String key = autoStartPackage.getPkgName();
+                if (TextUtils.isEmpty(key)) continue;
+                mStartPackages.put(key, autoStartPackage);
+            }
+        } catch (Throwable e) {
+            XLog.logF("Fail query start pkgs:\n" + Log.getStackTraceString(e));
+        } finally {
+            Closer.closeQuietly(cursor);
+        }
+    }
+
+    private void registerPackageObserver() {
+        ContentResolver contentResolver = getContext().getContentResolver();
+        if (contentResolver == null) {
+            // Happen when early start.
+            return;
+        }
+        try {
+            contentResolver.registerContentObserver(BootPackageProvider.CONTENT_URI,
+                    false, new ContentObserver(mFirewallHandler) {
+                        @Override
+                        public void onChange(boolean selfChange, Uri uri) {
+                            super.onChange(selfChange, uri);
+                            mWorkingService.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    loadBootPackageSettings();
+                                }
+                            });
+                        }
+                    });
+        } catch (Exception e) {
+            XLog.logF("Fail registerContentObserver@BootPackageProvider:\n" + Log.getStackTraceString(e));
+        }
+
+        try {
+            contentResolver.registerContentObserver(AutoStartPackageProvider.CONTENT_URI,
+                    false, new ContentObserver(mFirewallHandler) {
+                        @Override
+                        public void onChange(boolean selfChange, Uri uri) {
+                            super.onChange(selfChange, uri);
+                            mWorkingService.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    loadStartPackageSettings();
+                                }
+                            });
+                        }
+                    });
+        } catch (Exception e) {
+            XLog.logF("Fail registerContentObserver@AutoStartPackageProvider:\n" + Log.getStackTraceString(e));
         }
     }
 
@@ -337,6 +458,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         checkSafeMode();
         getConfigFromSettings();
         cachePackages();
+        loadBootPackageSettings();
+        loadStartPackageSettings();
+        registerPackageObserver();
         whiteIMEPackages();
         registerReceiver();
     }

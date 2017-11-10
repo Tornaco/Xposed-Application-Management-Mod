@@ -115,6 +115,14 @@
             android:name=".provider.AppGuardPackageProvider"
             android:authorities="github.tornaco.xposedmoduletest.app_guard_package_provider"
             android:exported="true" />
+        <provider
+            android:name=".provider.BootPackageProvider"
+            android:authorities="github.tornaco.xposedmoduletest.boot_package_provider"
+            android:exported="true" />
+        <provider
+            android:name=".provider.AutoStartPackageProvider"
+            android:authorities="github.tornaco.xposedmoduletest.auto_start_package_provider"
+            android:exported="true" />
     </application>
 
 </manifest>

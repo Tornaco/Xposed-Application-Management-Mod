@@ -228,7 +228,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         try {
             cursor = contentResolver.query(AppGuardPackageProvider.CONTENT_URI, null, null, null, null);
             if (cursor == null) {
-                XLog.logF("Fail query pkgs, cursor is null");
+                XLog.logF("Fail query guard pkgs, cursor is null");
                 return;
             }
 
@@ -236,13 +236,13 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
                 PackageInfo packageInfo = PackageInfoDaoUtil.readEntity(cursor, 0);
-                XLog.logV("readEntity of: " + packageInfo);
+                XLog.logV("Guard pkg reader, readEntity of: " + packageInfo);
                 String key = packageInfo.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
                 mGuardPackages.put(key, packageInfo);
             }
         } catch (Throwable e) {
-            XLog.logF("Fail query pkgs:\n" + Log.getStackTraceString(e));
+            XLog.logF("Fail query guard  pkgs:\n" + Log.getStackTraceString(e));
         } finally {
             Closer.closeQuietly(cursor);
         }
@@ -269,7 +269,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                         }
                     });
         } catch (Exception e) {
-            XLog.logF("Fail registerContentObserver:\n" + Log.getStackTraceString(e));
+            XLog.logF("Fail registerContentObserver@AppGuardPackageProvider:\n" + Log.getStackTraceString(e));
         }
     }
 
