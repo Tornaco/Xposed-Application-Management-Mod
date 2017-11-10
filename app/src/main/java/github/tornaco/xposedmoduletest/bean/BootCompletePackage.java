@@ -4,6 +4,7 @@ package github.tornaco.xposedmoduletest.bean;
 
 // KEEP INCLUDES - put your custom includes here
 // KEEP INCLUDES END
+
 /**
  * Entity mapped to table "BOOT_COMPLETE_PACKAGE".
  */
@@ -64,6 +65,32 @@ public class BootCompletePackage {
     }
 
     // KEEP METHODS - put your custom methods here
+
+    @Override
+    public String toString() {
+        return "BootCompletePackage{" +
+                "id=" + id +
+                ", pkgName='" + pkgName + '\'' +
+                ", appName='" + appName + '\'' +
+                ", allow=" + allow +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BootCompletePackage that = (BootCompletePackage) o;
+
+        return pkgName.equals(that.pkgName);
+    }
+
+    @Override
+    public int hashCode() {
+        return pkgName.hashCode();
+    }
+
     // KEEP METHODS END
 
 }

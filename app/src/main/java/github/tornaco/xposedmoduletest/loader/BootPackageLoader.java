@@ -48,7 +48,7 @@ public interface BootPackageLoader {
         @Override
         public List<BootCompletePackage> loadInstalled(boolean showSystem) {
 
-            List<BootCompletePackage> guards = loadStoredDisAllowed();
+            List<BootCompletePackage> blocked = loadStoredDisAllowed();
 
             List<BootCompletePackage> out = new ArrayList<>();
             PackageManager pm = this.context.getPackageManager();
@@ -81,7 +81,7 @@ public interface BootPackageLoader {
                 p.setAppName(name);
                 p.setPkgName(packageInfo.packageName);
 
-                if (!guards.contains(p)) out.add(p);
+                if (!blocked.contains(p)) out.add(p);
             }
             java.util.Collections.sort(out, new PinyinComparator());
 

@@ -64,6 +64,32 @@ public class AutoStartPackage {
     }
 
     // KEEP METHODS - put your custom methods here
+
+    @Override
+    public String toString() {
+        return "AutoStartPackage{" +
+                "id=" + id +
+                ", pkgName='" + pkgName + '\'' +
+                ", appName='" + appName + '\'' +
+                ", allow=" + allow +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AutoStartPackage that = (AutoStartPackage) o;
+
+        return pkgName.equals(that.pkgName);
+    }
+
+    @Override
+    public int hashCode() {
+        return pkgName.hashCode();
+    }
+
     // KEEP METHODS END
 
 }

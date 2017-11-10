@@ -361,18 +361,28 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public boolean checkService(String servicePkgName, int callerUid) {
         if (TextUtils.isEmpty(servicePkgName)) return true;
+
         String callerPkgName =
                 mPackagesCache.get(callerUid);
         if (callerPkgName == null) {
             callerPkgName = PkgUtil.pkgForUid(getContext(), callerUid);
         }
-        boolean res =
+
+        // If this app is not in good condition, but user
+        // does not block, we also allow it to start.
+        boolean isBlockedByUser = isStartBlockByUser(servicePkgName);
+        if (!isBlockedByUser) {
+            return true;
+        }
+
+        // It is system/white/running.
+        boolean allowDef =
                 isInWhiteList(servicePkgName)
                         || servicePkgName.equals(callerPkgName) // Service from/to same app is allowed.
                         || PkgUtil.isSystemApp(getContext(), servicePkgName)
                         || PkgUtil.isAppRunning(getContext(), servicePkgName);
 
-        if (!res) {
+        if (!allowDef) {
             XLog.logVOnExecutor(String.format("SERVICE: %s--->%s  %s--->%s %s",
                     PkgUtil.loadNameByPkgName(getContext(), callerPkgName),
                     PkgUtil.loadNameByPkgName(getContext(), servicePkgName),
@@ -381,7 +391,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     "拒绝×"),
                     mWorkingService);
         }
-        return res;
+
+        return allowDef;
     }
 
     @Override
@@ -399,13 +410,23 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
         if (TextUtils.isEmpty(receiverPkgName)) return true;
 
-        boolean res =
+        // If this app is not in good condition, but user
+        // does not block, we also allow it to start.
+        boolean isBlockedByUser = isStartBlockByUser(receiverPkgName);
+        if (!isBlockedByUser) {
+            return true;
+        }
+
+        // It is system/white/running.
+        boolean allowDef =
                 isInWhiteList(receiverPkgName)
                         || callerUid == receiverUid // Broadcast from/to same app is allowed.
                         || PkgUtil.isSystemApp(getContext(), receiverPkgName)
                         || PkgUtil.isAppRunning(getContext(), receiverPkgName);
 
-        if (!res) {
+
+        // DEBUG START
+        if (!allowDef) {
             String callerPkgName =
                     mPackagesCache.get(callerUid);
             if (callerPkgName == null) {
@@ -420,12 +441,56 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     "拒绝×"),
                     mWorkingService);
         }
-        return res;
+        // DEBUG END.
+        return allowDef;
+    }
+
+    private boolean isBootBlockByUser(String pkg) {
+        BootCompletePackage bootCompletePackage = mBootPackages.get(pkg);
+        return bootCompletePackage != null && !bootCompletePackage.getAllow();
+    }
+
+    private boolean isStartBlockByUser(String pkg) {
+        AutoStartPackage autoStartPackage = mStartPackages.get(pkg);
+        return autoStartPackage != null && !autoStartPackage.getAllow();
     }
 
     private boolean checkBootCompleteBroadcast(int receiverUid, int callerUid) {
 
-        return true;
+        String receiverPkgName =
+                mPackagesCache.get(receiverUid);
+        if (receiverPkgName == null) {
+            PkgUtil.pkgForUid(getContext(), receiverUid);
+        }
+
+        if (TextUtils.isEmpty(receiverPkgName)) return true;
+
+        boolean blockedByUser = isBootBlockByUser(receiverPkgName);
+
+        // DEBUG START
+        String callerPkgName =
+                mPackagesCache.get(callerUid);
+        if (callerPkgName == null) {
+            callerPkgName = PkgUtil.pkgForUid(getContext(), callerUid);
+        }
+        XLog.logVOnExecutor(String.format("BOOT COMPLETE: %s--->%s  %s--->%s %s",
+                PkgUtil.loadNameByPkgName(getContext(), callerPkgName),
+                PkgUtil.loadNameByPkgName(getContext(), receiverPkgName),
+                callerPkgName,
+                receiverPkgName,
+                !blockedByUser ? "允许√" : "拒绝×"),
+                mWorkingService);
+
+        // DEBUG END.
+
+
+        if (!blockedByUser) {
+            return true;
+        }
+
+        // It is system/white/running.
+        return isInWhiteList(receiverPkgName)
+                || PkgUtil.isSystemApp(getContext(), receiverPkgName);
     }
 
     private static boolean isBootCompleteBroadcastAction(String action) {

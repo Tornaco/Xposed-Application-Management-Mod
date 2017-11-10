@@ -84,6 +84,6 @@
     <string name="title_service">服务</string>
     <string name="title_app">应用</string>
     <string name="title_app_guard">应用锁</string>
-    <string name="title_app_boot">自启动</string>
-    <string name="title_app_auto_start">链式启动</string>
+    <string name="title_app_boot">开机自启动</string>
+    <string name="title_app_auto_start">全家桶链式启动</string>
 </resources>
