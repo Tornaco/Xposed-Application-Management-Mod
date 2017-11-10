@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.ui;
+package github.tornaco.xposedmoduletest.ui.activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -14,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.ui.View;
 import lombok.Synchronized;
 
 /**

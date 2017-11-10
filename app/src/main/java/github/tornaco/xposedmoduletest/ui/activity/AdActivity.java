@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.ui;
+package github.tornaco.xposedmoduletest.ui.activity;
 
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;

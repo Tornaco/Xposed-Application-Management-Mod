@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.ui;
+package github.tornaco.xposedmoduletest.ui.activity;
 
 /**
  * Created by guohao4 on 2017/10/30.

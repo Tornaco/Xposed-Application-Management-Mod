@@ -42,4 +42,7 @@
     <dimen name="keypad_text_size_full">25dp</dimen>
     <dimen name="keypad_w">300dp</dimen>
     <dimen name="keypad_h">300dp</dimen>
+
+    <dimen name="card_radius">1dp</dimen>
+    <dimen name="card_elevation">2dp</dimen>
 </resources>

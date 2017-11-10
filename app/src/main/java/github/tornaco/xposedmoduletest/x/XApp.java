@@ -16,8 +16,8 @@ import org.newstand.logger.Settings;
 import github.tornaco.apigen.BuildHostInfo;
 import github.tornaco.apigen.GithubCommitSha;
 import github.tornaco.xposedmoduletest.license.XActivation;
-import github.tornaco.xposedmoduletest.ui.GuardAppNavActivity;
-import github.tornaco.xposedmoduletest.ui.GuardAppNavActivityNoLauncher;
+import github.tornaco.xposedmoduletest.ui.activity.GuardAppNavActivity;
+import github.tornaco.xposedmoduletest.ui.activity.GuardAppNavActivityNoLauncher;
 import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
 
 /**

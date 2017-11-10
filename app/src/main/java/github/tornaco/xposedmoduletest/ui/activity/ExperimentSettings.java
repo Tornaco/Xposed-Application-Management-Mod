@@ -7,7 +7,6 @@ import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.ui.SettingsActivity;
 import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.x.bean.BlurSettings;
 

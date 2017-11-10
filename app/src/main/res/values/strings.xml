@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">App Guard</string>
+    <string name="app_name">应用管理</string>
     <string name="manage_overlay">管理叠加层</string>
     <string name="switch_on_text">已启用</string>
     <string name="switch_off_text">已禁用</string>
@@ -83,4 +83,7 @@
     <string name="title_themes">主题</string>
     <string name="title_service">服务</string>
     <string name="title_app">应用</string>
+    <string name="title_app_guard">应用锁</string>
+    <string name="title_app_boot">自启动</string>
+    <string name="title_app_auto_start">链式启动</string>
 </resources>

@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.ui;
+package github.tornaco.xposedmoduletest.ui.activity;
 
 import android.content.Intent;
 import android.net.Uri;

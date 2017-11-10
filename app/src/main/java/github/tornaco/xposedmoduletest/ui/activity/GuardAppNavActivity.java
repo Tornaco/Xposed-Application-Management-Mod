@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.ui;
+package github.tornaco.xposedmoduletest.ui.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,7 +19,6 @@ import java.util.List;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.loader.PackageLoader;
-import github.tornaco.xposedmoduletest.ui.activity.SettingsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.AppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
@@ -39,6 +38,7 @@ public class GuardAppNavActivity extends LockedActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutRes());
+        showHomeAsUp();
         initService();
         initView();
         initFirstRun();

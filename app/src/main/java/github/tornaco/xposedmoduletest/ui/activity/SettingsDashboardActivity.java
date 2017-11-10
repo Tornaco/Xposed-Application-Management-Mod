@@ -11,7 +11,6 @@ import java.util.List;
 import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.ui.BaseActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.Advanced;
 import github.tornaco.xposedmoduletest.ui.tiles.Experiment;
 import github.tornaco.xposedmoduletest.ui.tiles.Secure;

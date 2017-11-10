@@ -31,7 +31,7 @@
             android:value="53" />
 
         <activity
-            android:name=".ui.VerifyDisplayerActivity"
+            android:name=".ui.activity.VerifyDisplayerActivity"
             android:excludeFromRecents="true"
             android:exported="true"
             android:label="@string/title_default_verifyer"
@@ -44,31 +44,27 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.PatternSetupActivity"
+            android:name=".ui.activity.PatternSetupActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_setup_code_new"
             android:theme="@style/AppThemeLight.NoActionBar" />
+
         <activity
-            android:name=".ui.GuardAppNavActivity"
-            android:excludeFromRecents="true">
+            android:name=".ui.activity.NavigatorActivity"
+            android:excludeFromRecents="true"
+            android:theme="@style/AppThemeLight.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.GuardAppNavActivityNoLauncher"
-            android:excludeFromRecents="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="de.robv.android.xposed.category.MODULE_SETTINGS" />
-            </intent-filter>
-        </activity>
         <activity
-            android:name=".ui.GuardAppPickerActivity"
+            android:name=".ui.activity.GuardAppNavActivity"
+            android:excludeFromRecents="true" />
+        <activity
+            android:name=".ui.activity.GuardAppPickerActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_picker" />
         <activity
@@ -97,7 +93,7 @@
             android:label="@string/title_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
-            android:name=".ui.PhotoViewerActivity"
+            android:name=".ui.activity.PhotoViewerActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_view_photos" />
 
