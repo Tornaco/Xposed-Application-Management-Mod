@@ -89,7 +89,6 @@ public class AutoStartPackage {
     public int hashCode() {
         return pkgName.hashCode();
     }
-
     // KEEP METHODS END
 
 }

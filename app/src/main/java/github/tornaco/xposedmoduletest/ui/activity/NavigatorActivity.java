@@ -19,6 +19,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
 import github.tornaco.xposedmoduletest.ui.tiles.AppStart;
+import github.tornaco.xposedmoduletest.ui.tiles.LockKill;
 import lombok.Getter;
 
 /**
@@ -86,10 +87,17 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
             Category category = new Category();
+            category.titleRes = R.string.title_secure;
             category.addTile(new AppGuard(getActivity()));
-            category.addTile(new AppBoot(getActivity()));
-            category.addTile(new AppStart(getActivity()));
+
+            Category ash = new Category();
+            ash.titleRes = R.string.title_clearn;
+            ash.addTile(new AppBoot(getActivity()));
+            ash.addTile(new AppStart(getActivity()));
+            ash.addTile(new LockKill(getActivity()));
+
             categories.add(category);
+            categories.add(ash);
         }
 
         @SuppressWarnings("unchecked")

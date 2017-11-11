@@ -7,7 +7,7 @@
     <style name="TextAppearance.Switch" parent="TextAppearance.Medium" />
 
     <style name="TextAppearance.CategoryTitle" parent="TextAppearance.Small">
-        <item name="android:textColor">?colorAccent</item>
+        <!--<item name="android:textColor">?colorAccent</item>-->
     </style>
 
     <style name="TextAppearance.TileTitle" parent="TextAppearance.Medium">

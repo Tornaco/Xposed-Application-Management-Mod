@@ -14,6 +14,18 @@ import java.util.List;
 
 public class PkgUtil {
 
+    public static boolean isPkgInstalled(Context context, String pkg) {
+        PackageManager pm = context.getPackageManager();
+
+        try {
+            ApplicationInfo info = pm.getApplicationInfo(pkg, 0);
+            return info != null;
+        } catch (PackageManager.NameNotFoundException var4) {
+            return false;
+        }
+    }
+
+
     public static CharSequence loadNameByPkgName(Context context, String pkg) {
         PackageManager pm = context.getPackageManager();
 

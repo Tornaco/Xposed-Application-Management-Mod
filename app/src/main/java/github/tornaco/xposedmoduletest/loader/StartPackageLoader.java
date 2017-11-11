@@ -12,9 +12,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.bean.AutoStartPackage;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
+import github.tornaco.xposedmoduletest.x.util.PkgUtil;
 
 /**
  * Created by guohao4 on 2017/10/18.
@@ -96,7 +98,18 @@ public interface StartPackageLoader {
             if (daoSession == null)
                 return out;
             List<AutoStartPackage> all = daoSession.getAutoStartPackageDao().loadAll();
-            return all == null ? out : all;
+            if (all != null) {
+                github.tornaco.android.common.Collections.consumeRemaining(all,
+                        new Consumer<AutoStartPackage>() {
+                            @Override
+                            public void accept(AutoStartPackage autoStartPackage) {
+                                if (PkgUtil.isPkgInstalled(context, autoStartPackage.getPkgName())) {
+                                    out.add(autoStartPackage);
+                                }
+                            }
+                        });
+            }
+            return out;
         }
 
         @NonNull

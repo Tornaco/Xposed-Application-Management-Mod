@@ -82,6 +82,13 @@
             android:excludeFromRecents="true"
             android:label="@string/title_picker" />
         <activity
+            android:name=".ui.activity.LockKillAppNavActivity"
+            android:excludeFromRecents="true" />
+        <activity
+            android:name=".ui.activity.LockKillAppPickerActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_picker" />
+        <activity
             android:name=".ui.activity.SecureSettings"
             android:excludeFromRecents="true"
             android:label="@string/title_secure"
@@ -132,6 +139,10 @@
         <provider
             android:name=".provider.AutoStartPackageProvider"
             android:authorities="github.tornaco.xposedmoduletest.auto_start_package_provider"
+            android:exported="true" />
+        <provider
+            android:name=".provider.LockKillPackageProvider"
+            android:authorities="github.tornaco.xposedmoduletest.lock_kill_package_provider"
             android:exported="true" />
     </application>
 

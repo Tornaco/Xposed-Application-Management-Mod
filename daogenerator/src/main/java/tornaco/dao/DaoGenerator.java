@@ -15,6 +15,7 @@ public class DaoGenerator {
         createAccessInfo(sch);
         createBootCompletePackage(sch);
         createAutoStartPackage(sch);
+        createLockClearPackage(sch);
         new de.greenrobot.daogenerator.DaoGenerator().generateAll(sch, "./app/src/main/java");
     }
 
@@ -52,4 +53,13 @@ public class DaoGenerator {
         pkgInfo.addStringProperty("appName");
         pkgInfo.addBooleanProperty("allow");
     }
+
+    private static void createLockClearPackage(Schema sch) {
+        Entity pkgInfo = sch.addEntity("LockKillPackage");
+        pkgInfo.addIntProperty("id").primaryKey();
+        pkgInfo.addStringProperty("pkgName");
+        pkgInfo.addStringProperty("appName");
+        pkgInfo.addBooleanProperty("kill");
+    }
+
 }

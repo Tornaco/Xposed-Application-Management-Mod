@@ -12,9 +12,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
+import github.tornaco.xposedmoduletest.x.util.PkgUtil;
 
 /**
  * Created by guohao4 on 2017/10/18.
@@ -96,7 +98,16 @@ public interface PackageLoader {
             if (daoSession == null)
                 return out;
             List<PackageInfo> all = daoSession.getPackageInfoDao().loadAll();
-            return all == null ? out : all;
+            if (all != null)
+                github.tornaco.android.common.Collections.consumeRemaining(all, new Consumer<PackageInfo>() {
+                    @Override
+                    public void accept(PackageInfo packageInfo) {
+                        if (PkgUtil.isPkgInstalled(context, packageInfo.getPkgName())) {
+                            out.add(packageInfo);
+                        }
+                    }
+                });
+            return out;
         }
 
         @NonNull

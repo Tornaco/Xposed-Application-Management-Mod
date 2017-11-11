@@ -647,6 +647,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         String[] cleared = new String[count];
                         for (int i = 0; i < count; i++) {
                             for (String runningPackageName : processes.get(i).pkgList) {
+                                // Check if we can control.
+                                boolean blockByUser = isStartBlockByUser(runningPackageName);
+                                if (!blockByUser) continue;
+
                                 if (runningPackageName != null && !WHITE_LIST.contains(runningPackageName)) {
                                     if (PkgUtil.isSystemApp(getContext(), runningPackageName)) {
                                         continue;

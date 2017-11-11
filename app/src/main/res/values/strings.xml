@@ -86,4 +86,6 @@
     <string name="title_app_guard">应用锁</string>
     <string name="title_app_boot">开机自启动</string>
     <string name="title_app_auto_start">全家桶链式启动</string>
+    <string name="title_clearn">加速</string>
+    <string name="title_app_lock_kill">锁屏清理</string>
 </resources>

@@ -4,7 +4,6 @@ package github.tornaco.xposedmoduletest.bean;
 
 // KEEP INCLUDES - put your custom includes here
 // KEEP INCLUDES END
-
 /**
  * Entity mapped to table "BOOT_COMPLETE_PACKAGE".
  */
@@ -90,7 +89,6 @@ public class BootCompletePackage {
     public int hashCode() {
         return pkgName.hashCode();
     }
-
     // KEEP METHODS END
 
 }

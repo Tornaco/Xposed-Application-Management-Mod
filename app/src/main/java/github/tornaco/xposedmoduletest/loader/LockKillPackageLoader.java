@@ -13,9 +13,9 @@ import java.util.Comparator;
 import java.util.List;
 
 import github.tornaco.android.common.Consumer;
-import github.tornaco.xposedmoduletest.bean.BootCompletePackage;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
+import github.tornaco.xposedmoduletest.bean.LockKillPackage;
 import github.tornaco.xposedmoduletest.x.util.PkgUtil;
 
 /**
@@ -23,20 +23,20 @@ import github.tornaco.xposedmoduletest.x.util.PkgUtil;
  * Email: Tornaco@163.com
  */
 
-public interface BootPackageLoader {
+public interface LockKillPackageLoader {
 
     @NonNull
-    List<BootCompletePackage> loadInstalled(boolean showSystem);
+    List<LockKillPackage> loadInstalled(boolean showSystem);
 
     @NonNull
-    List<BootCompletePackage> loadStored();
+    List<LockKillPackage> loadStored();
 
     @NonNull
-    List<BootCompletePackage> loadStoredDisAllowed();
+    List<LockKillPackage> loadStoredKilled();
 
-    class Impl implements BootPackageLoader {
+    class Impl implements LockKillPackageLoader {
 
-        public static BootPackageLoader create(Context context) {
+        public static LockKillPackageLoader create(Context context) {
             return new Impl(context);
         }
 
@@ -48,11 +48,11 @@ public interface BootPackageLoader {
 
         @NonNull
         @Override
-        public List<BootCompletePackage> loadInstalled(boolean showSystem) {
+        public List<LockKillPackage> loadInstalled(boolean showSystem) {
 
-            List<BootCompletePackage> blocked = loadStoredDisAllowed();
+            List<LockKillPackage> guards = loadStoredKilled();
 
-            List<BootCompletePackage> out = new ArrayList<>();
+            List<LockKillPackage> out = new ArrayList<>();
             PackageManager pm = this.context.getPackageManager();
             List<android.content.pm.PackageInfo> packages;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
@@ -78,12 +78,12 @@ public interface BootPackageLoader {
                 boolean isSystemApp = (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
                 if (isSystemApp && !showSystem) continue;
 
-                BootCompletePackage p = new BootCompletePackage();
-                p.setAllow(true);
+                LockKillPackage p = new LockKillPackage();
+                p.setKill(false);
                 p.setAppName(name);
                 p.setPkgName(packageInfo.packageName);
 
-                if (!blocked.contains(p)) out.add(p);
+                if (!guards.contains(p)) out.add(p);
             }
             java.util.Collections.sort(out, new PinyinComparator());
 
@@ -92,19 +92,19 @@ public interface BootPackageLoader {
 
         @NonNull
         @Override
-        public List<BootCompletePackage> loadStored() {
-            final List<BootCompletePackage> out = new ArrayList<>();
+        public List<LockKillPackage> loadStored() {
+            final List<LockKillPackage> out = new ArrayList<>();
             DaoSession daoSession = DaoManager.getInstance().getSession(context);
             if (daoSession == null)
                 return out;
-            List<BootCompletePackage> all = daoSession.getBootCompletePackageDao().loadAll();
+            List<LockKillPackage> all = daoSession.getLockKillPackageDao().loadAll();
             if (all != null) {
                 github.tornaco.android.common.Collections.consumeRemaining(all,
-                        new Consumer<BootCompletePackage>() {
+                        new Consumer<LockKillPackage>() {
                             @Override
-                            public void accept(BootCompletePackage bootCompletePackage) {
-                                if (PkgUtil.isPkgInstalled(context, bootCompletePackage.getPkgName())) {
-                                    out.add(bootCompletePackage);
+                            public void accept(LockKillPackage LockKillPackage) {
+                                if (PkgUtil.isPkgInstalled(context, LockKillPackage.getPkgName())) {
+                                    out.add(LockKillPackage);
                                 }
                             }
                         });
@@ -114,13 +114,13 @@ public interface BootPackageLoader {
 
         @NonNull
         @Override
-        public List<BootCompletePackage> loadStoredDisAllowed() {
+        public List<LockKillPackage> loadStoredKilled() {
             return loadStored();
         }
     }
 
-    class PinyinComparator implements Comparator<BootCompletePackage> {
-        public int compare(BootCompletePackage o1, BootCompletePackage o2) {
+    class PinyinComparator implements Comparator<LockKillPackage> {
+        public int compare(LockKillPackage o1, LockKillPackage o2) {
             return 1;
         }
     }
