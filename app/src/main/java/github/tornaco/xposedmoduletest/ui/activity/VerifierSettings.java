@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 
 /**
  * Created by guohao4 on 2017/11/2.

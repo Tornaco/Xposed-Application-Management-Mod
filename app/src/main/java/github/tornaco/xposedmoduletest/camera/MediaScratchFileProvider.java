@@ -30,7 +30,7 @@ import android.util.Log;
 import java.io.File;
 import java.util.List;
 
-import github.tornaco.xposedmoduletest.x.XApp;
+import github.tornaco.xposedmoduletest.xposed.XApp;
 
 /**
  * A very simple content provider that can serve media files from our cache directory.

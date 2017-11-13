@@ -1,10 +1,9 @@
-// IAppGuardService.aidl
 package github.tornaco.xposedmoduletest;
 
-import github.tornaco.xposedmoduletest.IWatcher;
-import github.tornaco.xposedmoduletest.x.bean.BlurSettings;
-import github.tornaco.xposedmoduletest.x.bean.PackageSettings;
-import github.tornaco.xposedmoduletest.x.bean.VerifySettings;
+import github.tornaco.xposedmoduletest.IAppGuardWatcher;
+import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
+import github.tornaco.xposedmoduletest.xposed.bean.PackageSettings;
+import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 
 interface IAppGuardService {
 
@@ -23,8 +22,8 @@ interface IAppGuardService {
 
     void setResult(int transactionID, int res);
 
-    void watch(in IWatcher w);
-    void unWatch(in IWatcher w);
+    void watch(in IAppGuardWatcher w);
+    void unWatch(in IAppGuardWatcher w);
 
     // For test only.
     void mockCrash();

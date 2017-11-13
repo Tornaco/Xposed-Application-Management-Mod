@@ -16,6 +16,7 @@ public class DaoGenerator {
         createBootCompletePackage(sch);
         createAutoStartPackage(sch);
         createLockClearPackage(sch);
+        createBlockRecord(sch);
         new de.greenrobot.daogenerator.DaoGenerator().generateAll(sch, "./app/src/main/java");
     }
 
@@ -60,6 +61,18 @@ public class DaoGenerator {
         pkgInfo.addStringProperty("pkgName");
         pkgInfo.addStringProperty("appName");
         pkgInfo.addBooleanProperty("kill");
+    }
+
+    private static void createBlockRecord(Schema sch) {
+        Entity pkgInfo = sch.addEntity("BlockRecord");
+        pkgInfo.addIntProperty("id").primaryKey();
+        pkgInfo.addStringProperty("pkgName");
+        pkgInfo.addStringProperty("appName");
+        pkgInfo.addLongProperty("timeWhen");
+        pkgInfo.addLongProperty("howManyTimes");
+        pkgInfo.addBooleanProperty("allow");
+        pkgInfo.addStringProperty("description");
+        pkgInfo.addStringProperty("why");
     }
 
 }

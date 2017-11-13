@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -49,7 +50,7 @@ public class BootAppPickerActivity extends BootAppNavActivity {
                                 new Consumer<BootCompletePackage>() {
                                     @Override
                                     public void accept(BootCompletePackage packageInfo) {
-                                        if (!packageInfo.getAllow()) {
+                                        if (packageInfo.getAllow()) {
                                             BootPackageProvider.insert(getApplicationContext(), packageInfo);
                                         }
                                     }
@@ -65,6 +66,12 @@ public class BootAppPickerActivity extends BootAppNavActivity {
                 });
             }
         });
+        setSummaryView();
+    }
+
+    protected void setSummaryView() {
+        TextView textView = (TextView) findViewById(R.id.summary);
+        textView.setVisibility(View.GONE);
     }
 
     protected List<BootCompletePackage> performLoading() {

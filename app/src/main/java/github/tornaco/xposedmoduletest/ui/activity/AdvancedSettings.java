@@ -1,7 +1,6 @@
 package github.tornaco.xposedmoduletest.ui.activity;
 
 import android.app.Fragment;
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.SwitchPreference;
@@ -10,9 +9,8 @@ import android.support.annotation.Nullable;
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.x.XApp;
-import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.x.submodules.SubModule;
+import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.submodules.SubModule;
 
 /**
  * Created by guohao4 on 2017/11/2.
@@ -47,27 +45,27 @@ public class AdvancedSettings extends SettingsActivity {
                         }
                     });
 
-            SwitchPreference hideAppIcon = (SwitchPreference) findPreference("key_hide_app_icon");
-            hideAppIcon.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    boolean enabled = (boolean) newValue;
-                    XApp.getApp().hideAppIcon(enabled);
-                    ProgressDialog p = new ProgressDialog(getActivity());
-                    p.setMessage("&*^$%$(-)$##@%%%%^-^");
-                    p.setIndeterminate(true);
-                    p.setCancelable(false);
-                    p.show();
-                    BaseActivity b = (BaseActivity) getActivity();
-                    b.getUIThreadHandler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            getActivity().finishAffinity();
-                        }
-                    }, 8 * 1000);
-                    return true;
-                }
-            });
+//            SwitchPreference hideAppIcon = (SwitchPreference) findPreference("key_hide_app_icon");
+//            hideAppIcon.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+//                @Override
+//                public boolean onPreferenceChange(Preference preference, Object newValue) {
+//                    boolean enabled = (boolean) newValue;
+//                    XApp.getApp().hideAppIcon(enabled);
+//                    ProgressDialog p = new ProgressDialog(getActivity());
+//                    p.setMessage("&*^$%$(-)$##@%%%%^-^");
+//                    p.setIndeterminate(true);
+//                    p.setCancelable(false);
+//                    p.show();
+//                    BaseActivity b = (BaseActivity) getActivity();
+//                    b.getUIThreadHandler().postDelayed(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            getActivity().finishAffinity();
+//                        }
+//                    }, 8 * 1000);
+//                    return true;
+//                }
+//            });
 
             final StringBuilder moduleStatus = new StringBuilder();
             Collections.consumeRemaining(XAppGuardManager.defaultInstance().getSubModules(),

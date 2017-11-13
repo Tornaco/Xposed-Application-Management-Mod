@@ -10,7 +10,7 @@ import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.x.XSettings;
+import github.tornaco.xposedmoduletest.provider.XSettings;
 
 /**
  * Created by guohao4 on 2017/10/17.

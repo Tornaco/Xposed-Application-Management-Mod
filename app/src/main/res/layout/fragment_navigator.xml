@@ -101,7 +101,7 @@
                     android:paddingEnd="@dimen/activity_vertical_margin"
                     android:paddingStart="@dimen/activity_vertical_margin"
                     android:paddingTop="@dimen/activity_horizontal_margin"
-                    android:text="@string/app_wiki_url"
+                    android:text="@string/app_intro"
                     android:visibility="visible" />
 
                 <View
@@ -111,7 +111,7 @@
                     android:layout_below="@android:id/text1"
                     android:layout_marginLeft="@dimen/activity_horizontal_margin"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_marginTop="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin_small"
                     android:background="@color/dividerLight"
                     android:visibility="visible" />
 
@@ -129,7 +129,6 @@
                         android:layout_alignParentEnd="true"
                         android:text="@string/title_help" />
                 </RelativeLayout>
-
 
             </RelativeLayout>
 

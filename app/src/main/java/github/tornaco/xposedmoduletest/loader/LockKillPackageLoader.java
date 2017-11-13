@@ -16,7 +16,7 @@ import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.bean.LockKillPackage;
-import github.tornaco.xposedmoduletest.x.util.PkgUtil;
+import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
  * Created by guohao4 on 2017/10/18.
@@ -79,7 +79,7 @@ public interface LockKillPackageLoader {
                 if (isSystemApp && !showSystem) continue;
 
                 LockKillPackage p = new LockKillPackage();
-                p.setKill(false);
+                p.setKill(true);
                 p.setAppName(name);
                 p.setPkgName(packageInfo.packageName);
 

@@ -5,12 +5,12 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
-import org.newstand.logger.Logger;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -20,8 +20,8 @@ import github.tornaco.xposedmoduletest.loader.BootPackageLoader;
 import github.tornaco.xposedmoduletest.ui.adapter.BootAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
-import in.myinnos.alphabetsindexfastscrollrecycler.IndexFastScrollRecyclerView;
+import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 public class BootAppNavActivity extends LockedActivity {
 
@@ -36,15 +36,8 @@ public class BootAppNavActivity extends LockedActivity {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutRes());
         showHomeAsUp();
-        initService();
         initView();
         startLoading();
-    }
-
-    private void initService() {
-        boolean serviceConnected = XAppGuardManager.defaultInstance().isServiceAvailable();
-        Logger.d("serviceConnected:" + serviceConnected);
-        setTitle(serviceConnected ? R.string.title_service_connected : R.string.title_service_not_connected);
     }
 
     protected int getLayoutRes() {
@@ -59,9 +52,7 @@ public class BootAppNavActivity extends LockedActivity {
 
 
     protected void initView() {
-        IndexFastScrollRecyclerView recyclerView = (IndexFastScrollRecyclerView) findViewById(R.id.recycler_view);
-        recyclerView.setIndexBarColor("#DADADA");
-        recyclerView.setIndexBarTextColor("#333333");
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
         swipeRefreshLayout.setColorSchemeColors(getResources().getIntArray(R.array.polluted_waves));
         fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -93,17 +84,27 @@ public class BootAppNavActivity extends LockedActivity {
             public void run() {
                 SwitchBar switchBar = (SwitchBar) findViewById(R.id.switchbar);
                 if (switchBar == null) return;
-                switchBar.setChecked(XAppGuardManager.defaultInstance().isServiceAvailable()
-                        && XAppGuardManager.defaultInstance().isEnabled());
+                switchBar.setChecked(XAshmanManager.defaultInstance().isServiceAvailable()
+                        && XAshmanManager.defaultInstance().isBlockBlockEnabled());
                 switchBar.addOnSwitchChangeListener(new SwitchBar.OnSwitchChangeListener() {
                     @Override
                     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-                        XAppGuardManager.defaultInstance().setEnabled(isChecked);
+                        if (XAshmanManager.defaultInstance().isServiceAvailable())
+                            XAshmanManager.defaultInstance().setBootBlockEnabled(isChecked);
+                        else showTips(R.string.title_service_not_connected_settings, false,
+                                null, null);
                     }
                 });
                 switchBar.show();
             }
         });
+        setSummaryView();
+    }
+
+
+    protected void setSummaryView() {
+        TextView textView = (TextView) findViewById(R.id.summary);
+        textView.setText(R.string.summary_boot_app);
     }
 
     protected BootAppListAdapter onCreateAdapter() {

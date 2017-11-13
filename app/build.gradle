@@ -84,15 +84,14 @@ dependencies {
     compile project(':vangoghcore')
     compile project(':keyguard')
     compile project(':tiles')
-    compile 'com.github.myinnos:AlphabetIndex-Fast-Scroll-RecyclerView:1.0.8'
     compile 'si.virag:fuzzydateformatter:1.1.0'
     compile 'com.google.android.gms:play-services-ads:11.0.4'
     compile 'com.novoda:simple-chrome-custom-tabs:0.1.5'
     compile files('libs/flyme_fingerprint.jar')
     // compile files('libs/flymeapi.jar')
 
-    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.4'
-    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
+    // debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.4'
+    // releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
 }
 
 

@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class LockKillAppPickerActivity extends LockKillAppNavActivity {
                                 new Consumer<LockKillPackage>() {
                                     @Override
                                     public void accept(LockKillPackage packageInfo) {
-                                        if (packageInfo.getKill()) {
+                                        if (!packageInfo.getKill()) {
                                             LockKillPackageProvider.insert(getApplicationContext(), packageInfo);
                                         }
                                     }
@@ -66,6 +67,12 @@ public class LockKillAppPickerActivity extends LockKillAppNavActivity {
                 });
             }
         });
+        setSummaryView();
+    }
+
+    protected void setSummaryView() {
+        TextView textView = (TextView) findViewById(R.id.summary);
+        textView.setVisibility(View.GONE);
     }
 
     protected List<LockKillPackage> performLoading() {

@@ -51,9 +51,9 @@ import java.util.UUID;
 import github.tornaco.xposedmoduletest.bean.AccessInfo;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
-import github.tornaco.xposedmoduletest.x.XApp;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.x.XSettings;
+import github.tornaco.xposedmoduletest.xposed.XApp;
+import github.tornaco.xposedmoduletest.provider.XSettings;
 
 /**
  * Class which manages interactions with the camera, but does not do any UI.  This class is

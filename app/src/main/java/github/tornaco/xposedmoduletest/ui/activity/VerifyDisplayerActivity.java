@@ -43,14 +43,14 @@ import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerComp
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
 import github.tornaco.xposedmoduletest.util.StopWatch;
-import github.tornaco.xposedmoduletest.x.XSettings;
-import github.tornaco.xposedmoduletest.x.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.x.app.XMode;
-import github.tornaco.xposedmoduletest.x.app.XWatcherAdapter;
+import github.tornaco.xposedmoduletest.provider.XSettings;
+import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
+import github.tornaco.xposedmoduletest.xposed.app.XWatcherAdapter;
 
-import static github.tornaco.xposedmoduletest.x.app.XAppGuardManager.EXTRA_INJECT_HOME_WHEN_FAIL_ID;
-import static github.tornaco.xposedmoduletest.x.app.XAppGuardManager.EXTRA_PKG_NAME;
-import static github.tornaco.xposedmoduletest.x.app.XAppGuardManager.EXTRA_TRANS_ID;
+import static github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager.EXTRA_INJECT_HOME_WHEN_FAIL_ID;
+import static github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager.EXTRA_PKG_NAME;
+import static github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager.EXTRA_TRANS_ID;
 
 
 /**
@@ -299,7 +299,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
         mResNotified = true;
         cancelFP();
         stopWatch.split("cancelFP");
-        XAppGuardManager.defaultInstance().setResult(tid, XMode.MODE_ALLOWED);
+        XAppGuardManager.defaultInstance().setResult(tid, XAppVerifyMode.MODE_ALLOWED);
         stopWatch.split("setResult");
         finish();
     }
@@ -348,7 +348,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
         }
         mResNotified = true;
         cancelFP();
-        XAppGuardManager.defaultInstance().setResult(tid, XMode.MODE_DENIED);
+        XAppGuardManager.defaultInstance().setResult(tid, XAppVerifyMode.MODE_DENIED);
         if (injectHome) {
             Intent intent = new Intent("android.intent.action.MAIN");
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

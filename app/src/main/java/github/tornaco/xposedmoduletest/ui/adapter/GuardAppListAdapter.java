@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

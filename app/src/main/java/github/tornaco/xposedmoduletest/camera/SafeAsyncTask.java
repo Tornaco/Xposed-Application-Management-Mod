@@ -22,8 +22,8 @@ import android.os.Debug;
 import android.os.SystemClock;
 import android.util.Log;
 
-import github.tornaco.xposedmoduletest.x.XApp;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import github.tornaco.xposedmoduletest.xposed.XApp;
 
 
 /**

@@ -13,11 +13,25 @@
         android:background="@drawable/switchbar_background"
         android:theme="?attr/switchBarTheme" />
 
+    <TextView
+        android:id="@+id/summary"
+        style="@style/BottomSummaryText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/switchbar"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:layout_marginTop="@dimen/activity_horizontal_margin_marco"
+        android:paddingEnd="@dimen/activity_vertical_margin"
+        android:paddingStart="@dimen/activity_vertical_margin"
+        android:paddingTop="@dimen/activity_horizontal_margin"
+        android:text="@string/summary_app_guard"
+        android:visibility="visible" />
+
     <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
         android:id="@+id/adView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/switchbar"
+        android:layout_below="@+id/summary"
         android:layout_centerHorizontal="true"
         android:visibility="gone"
         ads:adSize="BANNER"
@@ -29,13 +43,11 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/adView">
 
-        <in.myinnos.alphabetsindexfastscrollrecycler.IndexFastScrollRecyclerView
+        <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            app:setIndexBarColor="@color/grey_light"
-            app:setIndexBarTextColor="@color/black" />
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <android.support.design.widget.FloatingActionButton

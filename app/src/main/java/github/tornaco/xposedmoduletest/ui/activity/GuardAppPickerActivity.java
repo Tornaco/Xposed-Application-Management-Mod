@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -80,6 +81,12 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
     @Override
     protected boolean showLockOnCreate() {
         return false;
+    }
+
+    @Override
+    protected void setSummaryView() {
+        TextView textView = (TextView) findViewById(R.id.summary);
+        textView.setVisibility(View.GONE);
     }
 
     @Override

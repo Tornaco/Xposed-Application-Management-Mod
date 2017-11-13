@@ -20,12 +20,12 @@ public class StartAppPickerListAdapter extends StartAppListAdapter {
     public void onBindViewHolder(final AppViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         final AutoStartPackage packageInfo = getAutoStartPackages().get(position);
-        holder.getCheckableImageView().setChecked(!packageInfo.getAllow());
+        holder.getCheckableImageView().setChecked(packageInfo.getAllow());
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 packageInfo.setAllow(!packageInfo.getAllow());
-                holder.getCheckableImageView().setChecked(!packageInfo.getAllow());
+                holder.getCheckableImageView().setChecked(packageInfo.getAllow());
             }
         });
     }

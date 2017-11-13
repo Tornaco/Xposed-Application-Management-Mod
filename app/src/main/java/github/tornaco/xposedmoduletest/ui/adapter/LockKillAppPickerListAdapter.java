@@ -20,12 +20,12 @@ public class LockKillAppPickerListAdapter extends LockKillAppListAdapter {
     public void onBindViewHolder(final AppViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         final LockKillPackage packageInfo = getLockKillPackages().get(position);
-        holder.getCheckableImageView().setChecked(packageInfo.getKill());
+        holder.getCheckableImageView().setChecked(!packageInfo.getKill());
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 packageInfo.setKill(!packageInfo.getKill());
-                holder.getCheckableImageView().setChecked(packageInfo.getKill());
+                holder.getCheckableImageView().setChecked(!packageInfo.getKill());
             }
         });
     }

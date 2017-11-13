@@ -23,7 +23,7 @@ import android.net.Uri;
 
 import java.io.FileNotFoundException;
 
-import github.tornaco.xposedmoduletest.x.XApp;
+import github.tornaco.xposedmoduletest.xposed.XApp;
 
 class MmsVideoRecorder extends MediaRecorder {
     private static final float VIDEO_OVERSHOOT_SLOP = .85F;

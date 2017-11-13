@@ -4,12 +4,14 @@ import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -20,6 +22,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
 import github.tornaco.xposedmoduletest.ui.tiles.AppStart;
 import github.tornaco.xposedmoduletest.ui.tiles.LockKill;
+import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import lombok.Getter;
 
 /**
@@ -81,6 +84,15 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
                             withWithCustomTabActivity.navigateToWebPage(getString(R.string.app_wiki_url));
                         }
                     });
+
+            TextView statusTitle = findView(rootView, android.R.id.title);
+            statusTitle.setText(XAppGuardManager.defaultInstance().isServiceAvailable() ?
+                    R.string.title_service_connected : R.string.title_service_not_connected);
+            ViewGroup header = findView(rootView, R.id.header1);
+            header.setBackgroundColor(
+                    XAppGuardManager.defaultInstance().isServiceAvailable() ?
+                            ContextCompat.getColor(getActivity(), R.color.green)
+                            : ContextCompat.getColor(getActivity(), R.color.red));
         }
 
         @Override

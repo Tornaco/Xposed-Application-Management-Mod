@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Set;
 
-import github.tornaco.xposedmoduletest.x.XApp;
+import github.tornaco.xposedmoduletest.xposed.XApp;
 
 /**
  * Android OS version utilities
