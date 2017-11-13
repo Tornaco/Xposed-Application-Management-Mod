@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import org.newstand.logger.Logger;
 
@@ -18,6 +19,7 @@ import github.tornaco.xposedmoduletest.bean.BlockRecord;
 import github.tornaco.xposedmoduletest.bean.BlockRecordDao;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
+import github.tornaco.xposedmoduletest.xposed.util.Closer;
 import lombok.Getter;
 
 /**
@@ -50,6 +52,11 @@ public class BlockRecordProvider extends ContentProvider {
         switch (MATCHER.match(uri)) {
             case PKGS:
                 BlockRecordDao dao = daoSession.getBlockRecordDao();
+                // Magic number:)
+                if ("*".equals(selection)) {
+                    dao.deleteAll();
+                    return 0;
+                }
                 SQLiteDatabase db = dao.getDatabase();
                 int count = db.delete(BlockRecordDao.TABLENAME, selection, selectionArgs);
                 ContentResolver resolver = resolverChecked();
@@ -82,6 +89,12 @@ public class BlockRecordProvider extends ContentProvider {
             case PKGS:
                 BlockRecordDao dao = daoSession.getBlockRecordDao();
                 SQLiteDatabase db = dao.getDatabase();
+                Cursor cursor = db.query(BlockRecordDao.TABLENAME, null, null, null, null, null, null);
+                int count = cursor == null ? 0 : cursor.getCount();
+                if (count >= 1000) {
+                    dao.deleteAll();
+                }
+                Closer.closeQuietly(cursor);
                 long rowid = db.insert(BlockRecordDao.TABLENAME, null, values);
                 Uri insertUri = ContentUris.withAppendedId(uri, rowid);
                 ContentResolver resolver = resolverChecked();
@@ -93,23 +106,9 @@ public class BlockRecordProvider extends ContentProvider {
     }
 
     public static Uri insert(Context context, BlockRecord blockRecord) {
-        // Query first.
-//        long previousTimes = 0;
-//        DaoSession session = DaoManager.getInstance().getSession(context);
-//        if (session != null) {
-//            BlockRecordDao dao = session.getBlockRecordDao();
-//            List<BlockRecord> preList = dao.queryRaw(BlockRecordDao.Properties.PkgName.columnName + "=?",
-//                    blockRecord.getPkgName());
-//            BlockRecord first = preList == null ? null : preList.get(0);
-//            if (first != null) {
-//                previousTimes = first.getHowManyTimes();
-//                Logger.d("previousTimes for %s, is %s", first, previousTimes);
-//            }
-//        }
-//        blockRecord.setHowManyTimes(previousTimes + 1);
+        Log.d("XAppGuardApp", "BlockRecordProvider insert: " + blockRecord);
         ContentValues values = new ContentValues();
         values.put(BlockRecordDao.Properties.PkgName.columnName, blockRecord.getPkgName());
-        values.put(BlockRecordDao.Properties.HowManyTimes.columnName, blockRecord.getHowManyTimes());
         values.put(BlockRecordDao.Properties.AppName.columnName, blockRecord.getAppName());
         values.put(BlockRecordDao.Properties.TimeWhen.columnName, blockRecord.getTimeWhen());
         values.put(BlockRecordDao.Properties.Allow.columnName, blockRecord.getAllow());

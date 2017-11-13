@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -77,6 +78,10 @@ public class PkgUtil {
                         .getRunningAppProcesses();
         int count = processes == null ? 0 : processes.size();
         for (int i = 0; i < count; i++) {
+            XLog.logV("runningPackageName====================");
+            XLog.logV("runningPackageName: " + processes.get(i).processName);
+            XLog.logV("runningPackageName-pkgs: " + Arrays.toString(processes.get(i).pkgList));
+            XLog.logV("runningPackageName====================");
             for (String runningPackageName : processes.get(i).pkgList) {
                 if (runningPackageName != null && runningPackageName.equals(pkg)) {
                     return true;

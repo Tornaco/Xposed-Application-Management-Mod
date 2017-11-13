@@ -20,10 +20,9 @@ import github.tornaco.xposedmoduletest.loader.LockKillPackageLoader;
 import github.tornaco.xposedmoduletest.ui.adapter.LockKillAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
-public class LockKillAppNavActivity extends LockedActivity {
+public class LockKillAppNavActivity extends WithRecyclerView {
 
     protected FloatingActionButton fab;
 
@@ -153,10 +152,5 @@ public class LockKillAppNavActivity extends LockedActivity {
             startActivity(new Intent(this, SettingsDashboardActivity.class));
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected boolean showLockOnCreate() {
-        return XAppGuardManager.defaultInstance().isServiceAvailable();
     }
 }

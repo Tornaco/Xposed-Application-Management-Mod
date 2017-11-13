@@ -271,7 +271,7 @@ public class Vangogh {
         }
 
         public ImageRequest into(@NonNull ImageView imageView) {
-            Assert.assertNotNull(imageView);
+            Assert.assertNotNull("imageView is null", imageView);
             return into(new ImageViewDisplayer(imageView, asBitmap));
         }
 

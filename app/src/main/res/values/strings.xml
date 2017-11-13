@@ -93,4 +93,5 @@
     <string name="summary_lock_kill_app">锁屏后将会清理后台应用，有助于节省电量，但是邮件、聊天、社交类应用被清理后，可能无法接受新消息。\n\n以下应用在锁屏后不会被清理。</string>
     <string name="summary_start_app">允许以下应用被其他应用启动，这可能导致耗电和手机运行缓慢等问题，建议禁止其被动启动。</string>
     <string name="app_intro">以下功能依赖于嵌入系统的几项服务，你需要在xposed installer中激活该模块，并且重启才可以激活上述服务。</string>
+    <string name="title_block_viewer">启动记录</string>
 </resources>

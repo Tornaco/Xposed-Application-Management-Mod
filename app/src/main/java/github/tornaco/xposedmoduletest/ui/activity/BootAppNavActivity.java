@@ -23,7 +23,7 @@ import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
-public class BootAppNavActivity extends LockedActivity {
+public class BootAppNavActivity extends WithRecyclerView {
 
     protected FloatingActionButton fab;
 
@@ -154,10 +154,5 @@ public class BootAppNavActivity extends LockedActivity {
             startActivity(new Intent(this, SettingsDashboardActivity.class));
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected boolean showLockOnCreate() {
-        return XAppGuardManager.defaultInstance().isServiceAvailable();
     }
 }

@@ -4,6 +4,7 @@ package github.tornaco.xposedmoduletest.bean;
 
 // KEEP INCLUDES - put your custom includes here
 // KEEP INCLUDES END
+
 /**
  * Entity mapped to table "BLOCK_RECORD".
  */
@@ -108,10 +109,7 @@ public class BlockRecord {
     @Override
     public String toString() {
         return "BlockRecord{" +
-                "pkgName='" + pkgName + '\'' +
                 ", appName='" + appName + '\'' +
-                ", timeWhen=" + timeWhen +
-                ", howManyTimes=" + howManyTimes +
                 ", allow=" + allow +
                 ", description='" + description + '\'' +
                 ", why='" + why + '\'' +

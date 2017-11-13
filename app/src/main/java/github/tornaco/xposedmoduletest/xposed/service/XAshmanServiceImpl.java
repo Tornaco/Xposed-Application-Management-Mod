@@ -444,7 +444,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public boolean checkService(String servicePkgName, int callerUid) {
         CheckResult res = checkServiceDetailed(servicePkgName, callerUid);
         // Saving res record.
-        logServiceEvent(ServiceEvent.builder()
+        if (res.logRecommended) logServiceEvent(ServiceEvent.builder()
                 .service("Service")
                 .why(res.why)
                 .allowed(res.res)
@@ -498,7 +498,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public boolean checkBroadcast(String action, int receiverUid, int callerUid) {
         CheckResult res = checkBroadcastDetailed(action, receiverUid, callerUid);
         // Saving res record.
-        logBroadcastEvent(BroadcastEvent.builder()
+        if (res.logRecommended) logBroadcastEvent(BroadcastEvent.builder()
                 .action(action)
                 .allowed(res.res)
                 .appName(null)
@@ -523,7 +523,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         String receiverPkgName =
                 mPackagesCache.get(receiverUid);
         if (receiverPkgName == null) {
-            PkgUtil.pkgForUid(getContext(), receiverUid);
+            receiverPkgName = PkgUtil.pkgForUid(getContext(), receiverUid);
         }
         if (TextUtils.isEmpty(receiverPkgName)) return CheckResult.BAD_ARGS;
 
@@ -577,7 +577,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         String receiverPkgName =
                 mPackagesCache.get(receiverUid);
         if (receiverPkgName == null) {
-            PkgUtil.pkgForUid(getContext(), receiverUid);
+            receiverPkgName = PkgUtil.pkgForUid(getContext(), receiverUid);
         }
 
         if (TextUtils.isEmpty(receiverPkgName)) return CheckResult.BAD_ARGS;
@@ -615,10 +615,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     blockRecord.setPkgName(serviceEvent.pkg);
                     blockRecord.setTimeWhen(serviceEvent.when);
                     blockRecord.setAllow(serviceEvent.allowed);
-                    blockRecord.setDescription(serviceEvent.service);
+                    blockRecord.setDescription("SERVICE");
                     blockRecord.setWhy(serviceEvent.why);
 
-                    XLog.logV("logServiceEvent: " + blockRecord);
                     if (isSystemReady()) BlockRecordProvider.insert(getContext(), blockRecord);
                 } catch (Throwable e) {
                     XLog.logF("Fail logServiceEvent: " + e);
@@ -647,9 +646,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     blockRecord.setTimeWhen(broadcastEvent.when);
                     blockRecord.setWhy(broadcastEvent.why);
                     blockRecord.setAllow(broadcastEvent.allowed);
-                    blockRecord.setDescription(broadcastEvent.action);
+                    blockRecord.setDescription("BROADCAST");
 
-                    XLog.logV("logServiceEvent: " + blockRecord);
                     if (isSystemReady()) BlockRecordProvider.insert(getContext(), blockRecord);
                 } catch (Throwable e) {
                     XLog.logF("Fail logBroadcastEvent: " + e);
@@ -694,6 +692,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         registerPackageObserver();
         whiteIMEPackages();
         registerReceiver();
+        cleanUpBlockRecords();
     }
 
     private void construct() {
@@ -712,7 +711,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public void shutdown() {
+        cleanUpBlockRecords();
+    }
 
+    private void cleanUpBlockRecords() {
+        // Clear all block records.
+        try {
+            ContentResolver contentResolver = getContext().getContentResolver();
+            if (contentResolver == null) {
+                // Happen when early start.
+                return;
+            }
+            contentResolver.delete(BlockRecordProvider.CONTENT_URI, "all", null);
+        } catch (Throwable ignored) {
+        }
     }
 
     @Override
@@ -946,18 +958,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @ToString
     private static class CheckResult {
         // Allowed cases.
-        public static final CheckResult DISABLED = new CheckResult(true, "CHECK DISABLED");
-        public static final CheckResult WHITE_LISTED = new CheckResult(true, "WHITE_LISTED");
-        public static final CheckResult SYSTEM_APP = new CheckResult(true, "SYSTEM_APP");
-        public static final CheckResult APP_RUNNING = new CheckResult(true, "APP_RUNNING");
-        public static final CheckResult SAME_CALLER = new CheckResult(true, "SAME_CALLER");
-        public static final CheckResult BAD_ARGS = new CheckResult(true, "BAD_ARGS");
-        public static final CheckResult USER_ALLOWED = new CheckResult(true, "USER_ALLOWED");
+        public static final CheckResult DISABLED = new CheckResult(true, "CHECK DISABLED", true);
+        public static final CheckResult WHITE_LISTED = new CheckResult(true, "WHITE_LISTED", false);
+        public static final CheckResult SYSTEM_APP = new CheckResult(true, "SYSTEM_APP", false);
+        public static final CheckResult APP_RUNNING = new CheckResult(true, "APP_RUNNING", true);
+        public static final CheckResult SAME_CALLER = new CheckResult(true, "SAME_CALLER", true);
+        public static final CheckResult BAD_ARGS = new CheckResult(true, "BAD_ARGS", true);
+        public static final CheckResult USER_ALLOWED = new CheckResult(true, "USER_ALLOWED", true);
 
         // Denied cases.
-        public static final CheckResult DENIED_GENERAL = new CheckResult(true, "DENIED_GENERAL");
+        public static final CheckResult DENIED_GENERAL = new CheckResult(false, "DENIED_GENERAL", true);
 
         private boolean res;
         private String why;
+        private boolean logRecommended;
     }
 }

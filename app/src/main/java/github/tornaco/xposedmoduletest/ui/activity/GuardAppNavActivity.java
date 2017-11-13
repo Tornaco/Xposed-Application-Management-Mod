@@ -21,14 +21,13 @@ import java.util.List;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.loader.PackageLoader;
+import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.adapter.GuardAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
-public class GuardAppNavActivity extends LockedActivity {
+public class GuardAppNavActivity extends WithRecyclerView {
 
     protected FloatingActionButton fab;
 
@@ -125,7 +124,7 @@ public class GuardAppNavActivity extends LockedActivity {
                     @Override
                     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
                         if (XAppGuardManager.defaultInstance().isServiceAvailable())
-                        XAppGuardManager.defaultInstance().setEnabled(isChecked);
+                            XAppGuardManager.defaultInstance().setEnabled(isChecked);
                         else showTips(R.string.title_service_not_connected_settings, false,
                                 null, null);
                     }
@@ -188,10 +187,5 @@ public class GuardAppNavActivity extends LockedActivity {
             startActivity(new Intent(this, SettingsDashboardActivity.class));
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected boolean showLockOnCreate() {
-        return XAppGuardManager.defaultInstance().isServiceAvailable();
     }
 }

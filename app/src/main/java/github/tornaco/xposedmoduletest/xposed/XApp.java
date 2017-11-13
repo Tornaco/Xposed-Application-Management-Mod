@@ -46,9 +46,9 @@ public class XApp extends Application implements Runnable {
         super.onCreate();
 
         xApp = this;
-        Logger.config(Settings.builder().tag("XAppGuard")
+        Logger.config(Settings.builder().tag("XAppGuardApp")
                 .logLevel(XSettings.isDevMode(this)
-                        ? Logger.LogLevel.INFO : Logger.LogLevel.INFO)
+                        ? Logger.LogLevel.DEBUG : Logger.LogLevel.WARN)
                 .build());
         XAppGuardManager.init();
         XAshmanManager.init();

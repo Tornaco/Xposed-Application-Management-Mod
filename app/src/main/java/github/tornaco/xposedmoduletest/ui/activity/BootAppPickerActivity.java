@@ -84,11 +84,6 @@ public class BootAppPickerActivity extends BootAppNavActivity {
     }
 
     @Override
-    protected boolean showLockOnCreate() {
-        return false;
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.picker, menu);
         return true;

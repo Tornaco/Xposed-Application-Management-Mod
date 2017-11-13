@@ -20,10 +20,9 @@ import github.tornaco.xposedmoduletest.loader.StartPackageLoader;
 import github.tornaco.xposedmoduletest.ui.adapter.StartAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
-public class StartAppNavActivity extends LockedActivity {
+public class StartAppNavActivity extends WithRecyclerView {
 
     protected FloatingActionButton fab;
 
@@ -139,7 +138,7 @@ public class StartAppNavActivity extends LockedActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.nav, menu);
+        getMenuInflater().inflate(R.menu.start_block, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -148,14 +147,9 @@ public class StartAppNavActivity extends LockedActivity {
         if (item.getItemId() == android.R.id.home) {
             finish();
         }
-        if (item.getItemId() == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsDashboardActivity.class));
+        if (item.getItemId() == R.id.action_block_record_viewer) {
+            BlockRecordViewerActivity.start(this, null);
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected boolean showLockOnCreate() {
-        return XAppGuardManager.defaultInstance().isServiceAvailable();
     }
 }

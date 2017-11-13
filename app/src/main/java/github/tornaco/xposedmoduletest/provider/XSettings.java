@@ -76,7 +76,7 @@ public class XSettings {
 
     public static boolean isDevMode(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(XKey.DEV_MODE, false);
+                .getBoolean(XKey.DEV_MODE, true);
     }
 
     public static void setInDevMode(Context context, boolean in) {

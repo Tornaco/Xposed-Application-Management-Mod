@@ -9,5 +9,5 @@ import lombok.experimental.Delegate;
 
 public class XIntentFirewallServiceDelegate implements IIntentFirewallBridge {
     @Delegate
-    private final XAshmanServiceAbs mImpl = new XAshmanServiceImpl();
+    private final XAshmanServiceAbs mImpl = new XAshmanServiceImplDev();
 }

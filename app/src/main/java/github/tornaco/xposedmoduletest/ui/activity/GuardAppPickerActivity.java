@@ -79,11 +79,6 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
     }
 
     @Override
-    protected boolean showLockOnCreate() {
-        return false;
-    }
-
-    @Override
     protected void setSummaryView() {
         TextView textView = (TextView) findViewById(R.id.summary);
         textView.setVisibility(View.GONE);

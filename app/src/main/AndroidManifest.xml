@@ -121,6 +121,10 @@
             android:name=".ui.activity.PhotoViewerActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_view_photos" />
+        <activity
+            android:name=".ui.activity.BlockRecordViewerActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_block_viewer" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
