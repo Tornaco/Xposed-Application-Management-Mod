@@ -87,7 +87,8 @@ public class SecureGuardSettings extends GuardSettingsActivity {
                 photoPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        SecureSettingsPermissionRequester.requestCameraPermissionChecked((SecureGuardSettings) getActivity());
+                        SecureGuardSettingsPermissionRequester
+                                .requestCameraPermissionChecked((SecureGuardSettings) getActivity());
                         return true;
                     }
                 });
