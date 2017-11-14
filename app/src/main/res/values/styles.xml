@@ -69,22 +69,6 @@
 
     <style name="AppThemeLight.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="Noter" parent="android:Theme.DeviceDefault.Dialog">
-        <item name="android:windowAnimationStyle">@style/DialogAnim</item>
-    </style>
-
-    <style name="NoterLight" parent="android:Theme.DeviceDefault.Light.Dialog">
-        <item name="android:windowAnimationStyle">@style/DialogAnim</item>
-    </style>
-
-    <style name="NoterLightFullScreen" parent="android:Theme.DeviceDefault.Light">
-        <item name="android:windowAnimationStyle">@style/DialogAnim</item>
-        <item name="android:windowBackground">@color/window_background</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowIsTranslucent">true</item>
-    </style>
-
     <style name="CardCommon" parent="CardView.Light">
         <item name="android:clickable">true</item>
         <item name="android:foreground">?selectableItemBackground</item>
@@ -163,10 +147,5 @@
 
     <style name="ListItemSecondaryText.Light.Single" parent="ListItemSecondaryText.Single">
         <item name="android:textColor">@color/list_item_text_color_light</item>
-    </style>
-
-    <style name="DialogAnim" parent="android:Animation">
-        <item name="@android:windowEnterAnimation">@anim/dialog_enter</item>
-        <item name="@android:windowExitAnimation">@anim/dialog_exit</item>
     </style>
 </resources>

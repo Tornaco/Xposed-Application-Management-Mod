@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.vanniktech.emoji.EmojiTextView;
+
 import java.util.List;
 
 import dev.nick.tiles.tile.Category;
@@ -22,6 +24,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
 import github.tornaco.xposedmoduletest.ui.tiles.AppStart;
 import github.tornaco.xposedmoduletest.ui.tiles.LockKill;
+import github.tornaco.xposedmoduletest.util.EmojiUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import lombok.Getter;
 
@@ -93,6 +96,9 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
                     XAppGuardManager.defaultInstance().isServiceAvailable() ?
                             ContextCompat.getColor(getActivity(), R.color.green)
                             : ContextCompat.getColor(getActivity(), R.color.red));
+
+            EmojiTextView emojiTextView = findView(rootView, R.id.icon1);
+            emojiTextView.setText(EmojiUtil.getEmojiByUnicode(0x1f600));
         }
 
         @Override

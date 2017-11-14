@@ -435,14 +435,15 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Override
     @Deprecated
     public void onActivityResume(Activity activity) {
-        enforceCallingPermissions();
-        if (mServiceHandler == null) {
-            XLog.logV("mServiceHandler@" + serial() + " : " + mServiceHandler);
-            XLog.logV("onActivityResume caller:" + Binder.getCallingUid());
-            XLog.logF("WTF? AppGuardServiceHandler is null @onActivityResume-" + serial());
-            return;
-        }
-        mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_ONACTIVITYRESUME, activity).sendToTarget();
+        throw new IllegalStateException("demerited");
+//        enforceCallingPermissions();
+//        if (mServiceHandler == null) {
+//            XLog.logV("mServiceHandler@" + serial() + " : " + mServiceHandler);
+//            XLog.logV("onActivityResume caller:" + Binder.getCallingUid());
+//            XLog.logF("WTF? AppGuardServiceHandler is null @onActivityResume-" + serial());
+//            return;
+//        }
+//        mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_ONACTIVITYRESUME, activity).sendToTarget();
     }
 
     @Override
@@ -903,7 +904,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             XLog.logV("onPkgResume: " + pkg);
             mTopActivityPkg.setData(pkg);
             if (!onEarlyVerifyConfirm(pkg)) {
-                XLog.logV("onEarlyVerifyConfirm...");
                 return;
             }
             verifyInternal(null, pkg, 0, 0, true, VerifyListenerAdapter.getDefault());

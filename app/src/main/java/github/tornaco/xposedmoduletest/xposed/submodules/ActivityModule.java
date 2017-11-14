@@ -26,8 +26,8 @@ public class ActivityModule extends AppGuardAndroidSubModule {
         hookActivityForApp(lpparam.packageName);
     }
 
-    private void hookActivityForApp(String pkg) {
-        // XLog.logV("hookActivityForApp: " + pkg);
+    private void hookActivityForApp(final String pkg) {
+//        XLog.logV("hookActivityForApp: " + pkg);
         try {
             Set unHooks = XposedBridge.hookAllMethods(Activity.class, "onResume",
                     new XC_MethodHook() {

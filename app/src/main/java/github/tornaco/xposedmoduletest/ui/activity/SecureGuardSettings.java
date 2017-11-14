@@ -10,7 +10,6 @@ import android.preference.Preference;
 import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
 
-import github.tornaco.keyguard.KeyguardStorage;
 import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
@@ -40,9 +39,9 @@ public class SecureGuardSettings extends GuardSettingsActivity {
             addPreferencesFromResource(R.xml.secure);
 
             Preference lockSettingsPref = findPreference("verify_method");
-            lockSettingsPref.setSummary(KeyguardStorage.iaPatternSet(getActivity()) ?
-                    R.string.summary_setup_passcode_set
-                    : R.string.summary_setup_passcode_none_set);
+//            lockSettingsPref.setSummary(KeyguardStorage.iaPatternSet(getActivity()) ?
+//                    R.string.summary_setup_passcode_set
+//                    : R.string.summary_setup_passcode_none_set);//TODO
             lockSettingsPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {

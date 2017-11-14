@@ -24,9 +24,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.keyguard.KeyguardPatternView;
-import com.android.keyguard.KeyguardSecurityCallback;
-
 import org.newstand.logger.Logger;
 
 import dev.tornaco.vangogh.Vangogh;
@@ -42,8 +39,8 @@ import github.tornaco.xposedmoduletest.camera.CameraManager;
 import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerCompat;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
-import github.tornaco.xposedmoduletest.util.StopWatch;
 import github.tornaco.xposedmoduletest.provider.XSettings;
+import github.tornaco.xposedmoduletest.util.StopWatch;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 import github.tornaco.xposedmoduletest.xposed.app.XWatcherAdapter;
@@ -165,33 +162,33 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private void setupPatternLockView() {
-        KeyguardPatternView keyguardPatternView = (KeyguardPatternView) findViewById(R.id.keyguard_pattern_view);
-        keyguardPatternView.setKeyguardCallback(new KeyguardSecurityCallback() {
-            @Override
-            public void dismiss(boolean securityVerified) {
-                onPass();
-            }
-
-            @Override
-            public void userActivity() {
-
-            }
-
-            @Override
-            public boolean isVerifyUnlockOnly() {
-                return false;
-            }
-
-            @Override
-            public void reportUnlockAttempt(boolean success) {
-
-            }
-
-            @Override
-            public void reset() {
-
-            }
-        });
+//        KeyguardPatternView keyguardPatternView = (KeyguardPatternView) findViewById(R.id.keyguard_pattern_view);
+//        keyguardPatternView.setKeyguardCallback(new KeyguardSecurityCallback() {
+//            @Override
+//            public void dismiss(boolean securityVerified) {
+//                onPass();
+//            }
+//
+//            @Override
+//            public void userActivity() {
+//
+//            }
+//
+//            @Override
+//            public boolean isVerifyUnlockOnly() {
+//                return false;
+//            }
+//
+//            @Override
+//            public void reportUnlockAttempt(boolean success) {
+//
+//            }
+//
+//            @Override
+//            public void reset() {
+//
+//            }
+//        });
     }
 
     private void setupLabel() {
@@ -335,9 +332,9 @@ public class VerifyDisplayerActivity extends BaseActivity {
             return;
         }
 
-        KeyguardPatternView keyguardPatternView =
-                (KeyguardPatternView) findViewById(R.id.keyguard_pattern_view);
-        if (keyguardPatternView != null) keyguardPatternView.startAppearAnimation();
+//        KeyguardPatternView keyguardPatternView =
+//                (KeyguardPatternView) findViewById(R.id.keyguard_pattern_view);
+//        if (keyguardPatternView != null) keyguardPatternView.startAppearAnimation();
 
         setupFP();
     }

@@ -14,7 +14,7 @@ script:
 before_script:
 - mkdir -p "$ANDROID_HOME/licenses"
 - cp ./android-sdk-license "$ANDROID_HOME/licenses/"
-- cp ./hiddenapi-25/android.jar "$ANDROID_HOME/platforms/android-25/"
+- cp ./hiddenapi/26/android.jar "$ANDROID_HOME/platforms/android-26/"
 notifications:
   email:
     recipients:

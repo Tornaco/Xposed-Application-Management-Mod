@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.support.multidex.MultiDex;
 
 import com.android.internal.os.BinderInternal;
+import com.vanniktech.emoji.EmojiManager;
+import com.vanniktech.emoji.google.GoogleEmojiProvider;
 
 import org.newstand.logger.Logger;
 import org.newstand.logger.Settings;
@@ -54,6 +56,7 @@ public class XApp extends Application implements Runnable {
         XAshmanManager.init();
         XActivation.reloadAsync(this);
         BinderInternal.addGcWatcher(this);
+        EmojiManager.install(new GoogleEmojiProvider());
         startService(new Intent(this, VerboseLogService.class));
     }
 
