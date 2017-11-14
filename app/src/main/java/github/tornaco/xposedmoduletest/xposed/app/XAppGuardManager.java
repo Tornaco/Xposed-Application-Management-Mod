@@ -63,7 +63,6 @@ public class XAppGuardManager {
 
     private XAppGuardManager() {
         mService = IAppGuardService.Stub.asInterface(ServiceManager.getService(APP_GUARD_SERVICE));
-        Logger.d("XAppGuardManager construct, service: " + mService);
     }
 
     public static void init() {

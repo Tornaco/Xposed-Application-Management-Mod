@@ -23,7 +23,6 @@ public class XAshmanManager {
 
     private XAshmanManager() {
         mService = IAshmanService.Stub.asInterface(ServiceManager.getService(ASH_MAN_SERVICE_NAME));
-        Logger.d("XAshmanManager construct, service: " + mService);
     }
 
     public static void init() {
@@ -107,6 +106,22 @@ public class XAshmanManager {
         } catch (RemoteException e) {
             Logger.e(Logger.getStackTraceString(e));
             return false;
+        }
+    }
+
+    public boolean checkService(String servicePkgName, int callerUid) {
+        try {
+            return mService.checkService(servicePkgName, callerUid);
+        } catch (RemoteException ignored) {
+            return true;
+        }
+    }
+
+    public boolean checkBroadcast(String action, int receiverUid, int callerUid) {
+        try {
+            return mService.checkBroadcast(action, receiverUid, callerUid);
+        } catch (RemoteException ignored) {
+            return true;
         }
     }
 }

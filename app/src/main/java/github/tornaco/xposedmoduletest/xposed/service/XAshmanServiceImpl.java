@@ -452,12 +452,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 .pkg(servicePkgName)
                 .when(System.currentTimeMillis())
                 .build());
+        if (res.logRecommended)
+            XLog.logV("XAshmanService checkService returning: " + res + "for: " +
+                    PkgUtil.loadNameByPkgName(getContext(), servicePkgName));
         return res.res;
     }
 
     private CheckResult checkServiceDetailed(String servicePkgName, int callerUid) {
         // Disabled case.
-        if (!isStartBlockEnabled()) return CheckResult.DISABLED;
+        if (!isStartBlockEnabled()) return CheckResult.SERVICE_CHECK_DISABLED;
 
         if (TextUtils.isEmpty(servicePkgName)) return CheckResult.BAD_ARGS;
 
@@ -487,6 +490,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.SYSTEM_APP;
         }
 
+        if (PkgUtil.isHomeApp(getContext(), servicePkgName)) {
+            return CheckResult.HOME_APP;
+        }
+
+        if (PkgUtil.isDefaultSmsApp(getContext(), servicePkgName)) {
+            return CheckResult.SMS_APP;
+        }
+
         if (PkgUtil.isAppRunning(getContext(), servicePkgName)) {
             return CheckResult.APP_RUNNING;
         }
@@ -507,6 +518,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 .when(System.currentTimeMillis())
                 .why(res.why)
                 .build());
+
+        if (res.logRecommended)
+            XLog.logV("XAshmanService checkBroadcast returning: " + res + " for: " + PkgUtil.loadNameByPkgName(getContext(),
+                    mPackagesCache.get(receiverUid)));
         return res.res;
     }
 
@@ -518,7 +533,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         // Disabled case.
-        if (!isStartBlockEnabled()) return CheckResult.DISABLED;
+        if (!isStartBlockEnabled()) return CheckResult.BROADCAST_CHECK_DISABLED;
 
         String receiverPkgName =
                 mPackagesCache.get(receiverUid);
@@ -547,6 +562,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.SYSTEM_APP;
         }
 
+        if (PkgUtil.isHomeApp(getContext(), receiverPkgName)) {
+            return CheckResult.HOME_APP;
+        }
+
+        if (PkgUtil.isDefaultSmsApp(getContext(), receiverPkgName)) {
+            return CheckResult.SMS_APP;
+        }
+
         if (PkgUtil.isAppRunning(getContext(), receiverPkgName)) {
             return CheckResult.APP_RUNNING;
         }
@@ -572,7 +595,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private CheckResult checkBootCompleteBroadcast(int receiverUid, int callerUid) {
 
         // Disabled case.
-        if (!isBlockBlockEnabled()) return CheckResult.DISABLED;
+        if (!isBlockBlockEnabled()) return CheckResult.BOOT_CHECK_DISABLED;
 
         String receiverPkgName =
                 mPackagesCache.get(receiverUid);
@@ -594,6 +617,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (PkgUtil.isSystemApp(getContext(), receiverPkgName)) {
             return CheckResult.SYSTEM_APP;
+        }
+
+        if (PkgUtil.isHomeApp(getContext(), receiverPkgName)) {
+            return CheckResult.HOME_APP;
+        }
+
+        if (PkgUtil.isDefaultSmsApp(getContext(), receiverPkgName)) {
+            return CheckResult.SMS_APP;
         }
 
         return CheckResult.DENIED_GENERAL;
@@ -680,11 +711,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public void systemReady() {
+        XLog.logF("systemReady@" + getClass().getSimpleName());
         // Update system ready, since we can call providers now.
         mIsSystemReady = true;
 
         checkSafeMode();
-        getConfigFromSettings();
         cachePackages();
         loadBootPackageSettings();
         loadStartPackageSettings();
@@ -693,6 +724,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         whiteIMEPackages();
         registerReceiver();
         cleanUpBlockRecords();
+    }
+
+    @Override
+    public void retrieveSettings() {
+        XLog.logF("retrieveSettings@" + getClass().getSimpleName());
+        getConfigFromSettings();
     }
 
     private void construct() {
@@ -869,21 +906,31 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         String[] cleared = new String[count];
                         for (int i = 0; i < count; i++) {
                             for (String runningPackageName : processes.get(i).pkgList) {
-                                // Check if we can control.
-                                boolean whileApp = isInLockKillWhiteList(runningPackageName);
-                                if (whileApp) continue;
+                                if (runningPackageName == null) continue;
 
-                                if (runningPackageName != null && !WHITE_LIST.contains(runningPackageName)) {
-                                    if (PkgUtil.isSystemApp(getContext(), runningPackageName)) {
-                                        continue;
-                                    }
-                                    if (PkgUtil.isAppRunningForeground(getContext(), runningPackageName)) {
-                                        XLog.logV("App is in foreground, but will kill: " + runningPackageName);
-                                    }
-                                    am.forceStopPackage(runningPackageName);
-                                    cleared[i] = runningPackageName;
-                                    XLog.logV("Force stopped: " + runningPackageName);
+                                // Check if we can control.
+                                boolean whiteApp = isInLockKillWhiteList(runningPackageName)
+                                        || WHITE_LIST.contains(runningPackageName);
+                                if (whiteApp) continue;
+
+                                if (PkgUtil.isSystemApp(getContext(), runningPackageName)) {
+                                    continue;
                                 }
+                                if (PkgUtil.isAppRunningForeground(getContext(), runningPackageName)) {
+                                    XLog.logV("App is in foreground, wont kill: " + runningPackageName);
+                                    continue;
+                                }
+                                if (PkgUtil.isHomeApp(getContext(), runningPackageName)) {
+                                    XLog.logV("App is in isHomeApp, wont kill: " + runningPackageName);
+                                    continue;
+                                }
+                                if (PkgUtil.isDefaultSmsApp(getContext(), runningPackageName)) {
+                                    XLog.logV("App is in isDefaultSmsApp, wont kill: " + runningPackageName);
+                                    continue;
+                                }
+                                am.forceStopPackage(runningPackageName);
+                                cleared[i] = runningPackageName;
+                                XLog.logV("Force stopped: " + runningPackageName);
                             }
                         }
                         return cleared;
@@ -958,11 +1005,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @ToString
     private static class CheckResult {
         // Allowed cases.
-        public static final CheckResult DISABLED = new CheckResult(true, "CHECK DISABLED", true);
+        public static final CheckResult SERVICE_CHECK_DISABLED = new CheckResult(true, "SERVICE_CHECK_DISABLED", true);
+        public static final CheckResult BOOT_CHECK_DISABLED = new CheckResult(true, "BOOT_CHECK_DISABLED", true);
+        public static final CheckResult BROADCAST_CHECK_DISABLED = new CheckResult(true, "BROADCAST_CHECK_DISABLED", true);
+
         public static final CheckResult WHITE_LISTED = new CheckResult(true, "WHITE_LISTED", false);
         public static final CheckResult SYSTEM_APP = new CheckResult(true, "SYSTEM_APP", false);
+        public static final CheckResult HOME_APP = new CheckResult(true, "HOME_APP", true);
+        public static final CheckResult LAUNCHER_APP = new CheckResult(true, "LAUNCHER_APP", true);
+        public static final CheckResult SMS_APP = new CheckResult(true, "SMS_APP", true);
+
         public static final CheckResult APP_RUNNING = new CheckResult(true, "APP_RUNNING", true);
         public static final CheckResult SAME_CALLER = new CheckResult(true, "SAME_CALLER", true);
+
         public static final CheckResult BAD_ARGS = new CheckResult(true, "BAD_ARGS", true);
         public static final CheckResult USER_ALLOWED = new CheckResult(true, "USER_ALLOWED", true);
 

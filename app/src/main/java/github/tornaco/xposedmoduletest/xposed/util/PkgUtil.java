@@ -1,11 +1,16 @@
 package github.tornaco.xposedmoduletest.xposed.util;
 
 import android.app.ActivityManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.os.Binder;
+import android.os.UserHandle;
+import android.provider.Telephony;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -71,6 +76,29 @@ public class PkgUtil {
         }
     }
 
+    public static boolean isLauncherApp(Context context, String packageName) {
+        PackageManager pkgManager = context.getPackageManager();
+        Intent mainIntent = new Intent("android.intent.action.MAIN", null);
+        mainIntent.addCategory("android.intent.category.LAUNCHER");
+        mainIntent.setPackage(packageName);
+        ResolveInfo ri = pkgManager.resolveActivity(mainIntent, 0);
+        return !(ri == null || ri.activityInfo == null);
+    }
+
+    public static boolean isHomeApp(Context context, String packageName) {
+        PackageManager pkgManager = context.getPackageManager();
+        Intent homeIntent = new Intent("android.intent.action.MAIN");
+        homeIntent.addCategory("android.intent.category.HOME");
+        homeIntent.setPackage(packageName);
+        ResolveInfo ri = pkgManager.resolveActivity(homeIntent, 0);
+        return !(ri == null || ri.activityInfo == null);
+    }
+
+    public static boolean isDefaultSmsApp(Context context, String packageName) {
+        String def = Telephony.Sms.getDefaultSmsPackage(context);
+        return def != null && def.equals(packageName);
+    }
+
     @SuppressWarnings("ConstantConditions")
     public static boolean isAppRunning(Context context, String pkg) {
         List<ActivityManager.RunningAppProcessInfo> processes =
@@ -78,10 +106,10 @@ public class PkgUtil {
                         .getRunningAppProcesses();
         int count = processes == null ? 0 : processes.size();
         for (int i = 0; i < count; i++) {
-            XLog.logV("runningPackageName====================");
-            XLog.logV("runningPackageName: " + processes.get(i).processName);
-            XLog.logV("runningPackageName-pkgs: " + Arrays.toString(processes.get(i).pkgList));
-            XLog.logV("runningPackageName====================");
+//            XLog.logV("runningPackageName====================");
+//            XLog.logV("runningPackageName: " + processes.get(i).processName);
+//            XLog.logV("runningPackageName-pkgs: " + Arrays.toString(processes.get(i).pkgList));
+//            XLog.logV("runningPackageName====================");
             for (String runningPackageName : processes.get(i).pkgList) {
                 if (runningPackageName != null && runningPackageName.equals(pkg)) {
                     return true;
@@ -91,34 +119,34 @@ public class PkgUtil {
         return false;
     }
 
-    @SuppressWarnings("ConstantConditions")
-    public static boolean isAppRunningForeground(Context context, String pkg) {
-        List<ActivityManager.RunningAppProcessInfo> processes =
-                ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE))
-                        .getRunningAppProcesses();
-        int count = processes == null ? 0 : processes.size();
-        for (int i = 0; i < count; i++) {
-            ActivityManager.RunningAppProcessInfo proc = processes.get(i);
-            if (proc.importance
-                    == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
-                    && arraysContains(proc.pkgList, pkg))
-                return true;
+    private static String getFirstTask(Context context) {
+
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        if (am == null) return null;
+        List<ActivityManager.RecentTaskInfo> recentTasks =
+                am.getRecentTasksForUser(1, ActivityManager.RECENT_IGNORE_UNAVAILABLE,
+                        UserHandle.getUserId(Binder.getCallingUid()));
+        if (recentTasks.size() > 0) {
+            ActivityManager.RecentTaskInfo recentTaskInfo = recentTasks.get(0);
+            if (recentTaskInfo != null) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                    ComponentName base = recentTaskInfo.baseActivity;
+                    return base == null ? null : base.getPackageName();
+                } else {
+                    ComponentName real = recentTaskInfo.realActivity;
+                    return real == null ? null : real.getPackageName();
+                }
+            }
         }
-        return false;
+        return null;
     }
 
-    @SuppressWarnings("ConstantConditions")
+
+    public static boolean isAppRunningForeground(Context context, String pkg) {
+        return pkg != null && pkg.equals(getFirstTask(context));
+    }
+
     public static boolean isAppRunningForeground(Context context, int uid) {
-        List<ActivityManager.RunningAppProcessInfo> processes =
-                ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE))
-                        .getRunningAppProcesses();
-        int count = processes == null ? 0 : processes.size();
-        for (int i = 0; i < count; i++) {
-            ActivityManager.RunningAppProcessInfo proc = processes.get(i);
-            if (proc.uid == uid && proc.importance
-                    == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
-                return true;
-        }
         return false;
     }
 

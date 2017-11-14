@@ -12,5 +12,8 @@ interface IAshmanService {
     void setLockKillEnabled(boolean enabled);
     boolean isLockKillEnabled();
 
+    // API For Firewall.
+    boolean checkService(String servicePkgName, int callerUid);
 
+    boolean checkBroadcast(String action, int receiverUid, int callerUid);
 }

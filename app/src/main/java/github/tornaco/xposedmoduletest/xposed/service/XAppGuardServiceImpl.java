@@ -172,12 +172,18 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @Override
     public void systemReady() {
+        XLog.logF("systemReady@" + getClass().getSimpleName());
         checkSafeMode();
-        getConfigFromSettings();
         cacheUIDForPackages();
         loadPackageSettings();
         registerPackageObserver();
         registerReceiver();
+    }
+
+    @Override
+    public void retrieveSettings() {
+        XLog.logF("retrieveSettings@" + getClass().getSimpleName());
+        getConfigFromSettings();
     }
 
     private void getConfigFromSettings() {

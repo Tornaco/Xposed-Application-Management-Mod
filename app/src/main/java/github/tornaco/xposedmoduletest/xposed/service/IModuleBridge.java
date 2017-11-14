@@ -15,6 +15,11 @@ public interface IModuleBridge {
 
     void systemReady();
 
+    /**
+     * System is ready, we should retrieve settings now before other service start.
+     */
+    void retrieveSettings();
+
     void publishFeature(String f);
 
     void shutdown();
