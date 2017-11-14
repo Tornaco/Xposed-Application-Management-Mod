@@ -6,5 +6,5 @@
         android:id="@+id/action_open_source"
         android:icon="@drawable/ic_code_white_24dp"
         android:title="@string/title_open_source"
-        app:showAsAction="always" />
+        app:showAsAction="never" />
 </menu>

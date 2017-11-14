@@ -1,8 +1,6 @@
 package github.tornaco.xposedmoduletest.ui.activity;
 
 import android.app.ProgressDialog;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -82,25 +80,5 @@ public class StartAppPickerActivity extends StartAppNavActivity {
     @Override
     protected StartAppListAdapter onCreateAdapter() {
         return new StartAppPickerListAdapter(this);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.picker, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.show_system_app).setChecked(mShowSystemApp);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        mShowSystemApp = !mShowSystemApp;
-        invalidateOptionsMenu();
-        startLoading();
-        return super.onOptionsItemSelected(item);
     }
 }

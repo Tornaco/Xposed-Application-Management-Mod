@@ -714,22 +714,22 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         XLog.logF("systemReady@" + getClass().getSimpleName());
         // Update system ready, since we can call providers now.
         mIsSystemReady = true;
-
         checkSafeMode();
-        cachePackages();
-        loadBootPackageSettings();
-        loadStartPackageSettings();
-        loadLockKillPackageSettings();
-        registerPackageObserver();
-        whiteIMEPackages();
         registerReceiver();
-        cleanUpBlockRecords();
     }
 
     @Override
     public void retrieveSettings() {
         XLog.logF("retrieveSettings@" + getClass().getSimpleName());
         getConfigFromSettings();
+
+        loadBootPackageSettings();
+        loadStartPackageSettings();
+        loadLockKillPackageSettings();
+        registerPackageObserver();
+
+        cachePackages();
+        whiteIMEPackages();
     }
 
     private void construct() {
@@ -1005,9 +1005,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @ToString
     private static class CheckResult {
         // Allowed cases.
-        public static final CheckResult SERVICE_CHECK_DISABLED = new CheckResult(true, "SERVICE_CHECK_DISABLED", true);
-        public static final CheckResult BOOT_CHECK_DISABLED = new CheckResult(true, "BOOT_CHECK_DISABLED", true);
-        public static final CheckResult BROADCAST_CHECK_DISABLED = new CheckResult(true, "BROADCAST_CHECK_DISABLED", true);
+        public static final CheckResult SERVICE_CHECK_DISABLED = new CheckResult(true, "SERVICE_CHECK_DISABLED", false);
+        public static final CheckResult BOOT_CHECK_DISABLED = new CheckResult(true, "BOOT_CHECK_DISABLED", false);
+        public static final CheckResult BROADCAST_CHECK_DISABLED = new CheckResult(true, "BROADCAST_CHECK_DISABLED", false);
 
         public static final CheckResult WHITE_LISTED = new CheckResult(true, "WHITE_LISTED", false);
         public static final CheckResult SYSTEM_APP = new CheckResult(true, "SYSTEM_APP", false);
@@ -1018,7 +1018,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public static final CheckResult APP_RUNNING = new CheckResult(true, "APP_RUNNING", true);
         public static final CheckResult SAME_CALLER = new CheckResult(true, "SAME_CALLER", true);
 
-        public static final CheckResult BAD_ARGS = new CheckResult(true, "BAD_ARGS", true);
+        public static final CheckResult BAD_ARGS = new CheckResult(true, "BAD_ARGS", false);
         public static final CheckResult USER_ALLOWED = new CheckResult(true, "USER_ALLOWED", true);
 
         // Denied cases.

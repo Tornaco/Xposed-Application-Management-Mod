@@ -19,7 +19,7 @@ public class LockKill extends QuickTile {
     public LockKill(final Context context) {
         super(context);
         this.titleRes = R.string.title_app_lock_kill;
-        this.iconRes = R.drawable.ic_restaurant_menu_black_24dp;
+        this.iconRes = R.drawable.ic_airline_seat_individual_suite_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override
             public void onClick(View v) {

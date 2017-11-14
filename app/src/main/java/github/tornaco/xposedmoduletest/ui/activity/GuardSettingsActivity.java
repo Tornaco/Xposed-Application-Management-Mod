@@ -19,7 +19,7 @@ import github.tornaco.xposedmoduletest.R;
  * Email: Tornaco@163.com
  */
 @RuntimePermissions
-public class SettingsActivity extends BaseActivity {
+public class GuardSettingsActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

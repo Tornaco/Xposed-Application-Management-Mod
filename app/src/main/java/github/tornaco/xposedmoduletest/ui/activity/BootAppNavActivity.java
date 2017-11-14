@@ -20,7 +20,6 @@ import github.tornaco.xposedmoduletest.loader.BootPackageLoader;
 import github.tornaco.xposedmoduletest.ui.adapter.BootAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 public class BootAppNavActivity extends WithRecyclerView {
@@ -140,7 +139,7 @@ public class BootAppNavActivity extends WithRecyclerView {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.nav, menu);
+        getMenuInflater().inflate(R.menu.start_block, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -149,9 +148,8 @@ public class BootAppNavActivity extends WithRecyclerView {
         if (item.getItemId() == android.R.id.home) {
             finish();
         }
-
-        if (item.getItemId() == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsDashboardActivity.class));
+        if (item.getItemId() == R.id.action_block_record_viewer) {
+            BlockRecordViewerActivity.start(this, null);
         }
         return super.onOptionsItemSelected(item);
     }

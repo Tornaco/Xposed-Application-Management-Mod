@@ -8,7 +8,7 @@ import android.view.View;
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.ui.activity.AdvancedSettings;
+import github.tornaco.xposedmoduletest.ui.activity.AdvancedGuardSettings;
 
 /**
  * Created by guohao4 on 2017/11/2.
@@ -25,7 +25,7 @@ public class Advanced extends QuickTile {
             @Override
             public void onClick(View v) {
                 super.onClick(v);
-                context.startActivity(new Intent(context, AdvancedSettings.class));
+                context.startActivity(new Intent(context, AdvancedGuardSettings.class));
             }
         };
     }

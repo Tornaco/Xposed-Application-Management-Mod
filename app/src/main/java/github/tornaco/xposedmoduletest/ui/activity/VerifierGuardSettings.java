@@ -12,7 +12,7 @@ import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
  * Email: Tornaco@163.com
  */
 
-public class VerifierSettings extends SettingsActivity {
+public class VerifierGuardSettings extends GuardSettingsActivity {
     @Override
     protected Fragment onCreateSettingsFragment() {
         return new SecureSettingsFragment();

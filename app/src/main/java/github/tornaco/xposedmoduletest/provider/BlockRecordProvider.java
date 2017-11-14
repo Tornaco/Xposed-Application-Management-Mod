@@ -11,7 +11,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import org.newstand.logger.Logger;
 
@@ -106,7 +105,6 @@ public class BlockRecordProvider extends ContentProvider {
     }
 
     public static Uri insert(Context context, BlockRecord blockRecord) {
-        Log.d("XAppGuardApp", "BlockRecordProvider insert: " + blockRecord);
         ContentValues values = new ContentValues();
         values.put(BlockRecordDao.Properties.PkgName.columnName, blockRecord.getPkgName());
         values.put(BlockRecordDao.Properties.AppName.columnName, blockRecord.getAppName());

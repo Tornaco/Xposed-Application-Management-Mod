@@ -3,7 +3,6 @@ package github.tornaco.xposedmoduletest.ui.activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
 
 import github.tornaco.android.common.Collections;
@@ -17,7 +16,7 @@ import github.tornaco.xposedmoduletest.xposed.submodules.SubModule;
  * Email: Tornaco@163.com
  */
 
-public class AdvancedSettings extends SettingsActivity {
+public class AdvancedGuardSettings extends GuardSettingsActivity {
     @Override
     protected Fragment onCreateSettingsFragment() {
         return new SecureSettingsFragment();
@@ -90,16 +89,16 @@ public class AdvancedSettings extends SettingsActivity {
                         }
                     });
 
-            SwitchPreference debugPref = (SwitchPreference) findPreference("dev_mode_enabled");
-            debugPref.setChecked(XAppGuardManager.defaultInstance().isDebug());
-            debugPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    boolean v = (boolean) newValue;
-                    XAppGuardManager.defaultInstance().setDebug(v);
-                    return true;
-                }
-            });
+//            SwitchPreference debugPref = (SwitchPreference) findPreference("dev_mode_enabled");
+//            debugPref.setChecked(XAppGuardManager.defaultInstance().isDebug());
+//            debugPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+//                @Override
+//                public boolean onPreferenceChange(Preference preference, Object newValue) {
+//                    boolean v = (boolean) newValue;
+//                    XAppGuardManager.defaultInstance().setDebug(v);
+//                    return true;
+//                }
+//            });
         }
     }
 }

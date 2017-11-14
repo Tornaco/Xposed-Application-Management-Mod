@@ -15,7 +15,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
  * Email: Tornaco@163.com
  */
 
-public class ExperimentSettings extends SettingsActivity {
+public class ExperimentGuardSettings extends GuardSettingsActivity {
     @Override
     protected Fragment onCreateSettingsFragment() {
         return new SecureSettingsFragment();

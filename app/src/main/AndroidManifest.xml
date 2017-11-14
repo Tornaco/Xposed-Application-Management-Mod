@@ -93,22 +93,22 @@
             android:excludeFromRecents="true"
             android:label="@string/title_picker" />
         <activity
-            android:name=".ui.activity.SecureSettings"
+            android:name=".ui.activity.SecureGuardSettings"
             android:excludeFromRecents="true"
             android:label="@string/title_secure"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
-            android:name=".ui.activity.ExperimentSettings"
+            android:name=".ui.activity.ExperimentGuardSettings"
             android:excludeFromRecents="true"
             android:label="@string/title_exp"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
-            android:name=".ui.activity.AdvancedSettings"
+            android:name=".ui.activity.AdvancedGuardSettings"
             android:excludeFromRecents="true"
             android:label="@string/title_advance"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
-            android:name=".ui.activity.VerifierSettings"
+            android:name=".ui.activity.VerifierGuardSettings"
             android:excludeFromRecents="true"
             android:label="@string/title_verifier"
             android:theme="@style/AppThemeLight.NoActionBar" />

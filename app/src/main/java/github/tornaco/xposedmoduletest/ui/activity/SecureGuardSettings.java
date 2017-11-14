@@ -24,13 +24,13 @@ import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
  */
 
 @RuntimePermissions
-public class SecureSettings extends SettingsActivity {
+public class SecureGuardSettings extends GuardSettingsActivity {
     @Override
     protected Fragment onCreateSettingsFragment() {
         return new SecureSettingsFragment();
     }
 
-    public static class SecureSettingsFragment extends SettingsActivity.SettingsFragment {
+    public static class SecureSettingsFragment extends GuardSettingsActivity.SettingsFragment {
 
         private VerifySettings verifySettings = null;
 
@@ -87,7 +87,7 @@ public class SecureSettings extends SettingsActivity {
                 photoPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        SecureSettingsPermissionRequester.requestCameraPermissionChecked((SecureSettings) getActivity());
+                        SecureSettingsPermissionRequester.requestCameraPermissionChecked((SecureGuardSettings) getActivity());
                         return true;
                     }
                 });

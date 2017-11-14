@@ -27,16 +27,4 @@
             android:title="@string/title_allow_third_verifier" />
 
     </PreferenceCategory>
-
-    <PreferenceCategory android:title="@string/title_app">
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="dev_mode_enabled"
-            android:persistent="false"
-            android:summary="@string/summary_dev_mode"
-            android:title="@string/title_dev_mode" />
-
-    </PreferenceCategory>
-
 </PreferenceScreen>
