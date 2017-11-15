@@ -31,7 +31,6 @@ class XModuleImplSeparable extends XModuleAbs {
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
-        XLog.logV("XXXXXXXXXXXXXXXXXXXXXXXXX: " + lpparam.packageName);
         for (SubModule s : AppGuardSubModuleManager.getInstance().getAllSubModules()) {
             if (s.getInterestedPackages().contains(lpparam.packageName)
                     || s.getInterestedPackages().contains("*")) {

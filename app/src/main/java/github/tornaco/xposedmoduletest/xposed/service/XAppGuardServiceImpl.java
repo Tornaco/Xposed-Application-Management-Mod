@@ -436,14 +436,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Deprecated
     public void onActivityResume(Activity activity) {
         throw new IllegalStateException("demerited");
-//        enforceCallingPermissions();
-//        if (mServiceHandler == null) {
-//            XLog.logV("mServiceHandler@" + serial() + " : " + mServiceHandler);
-//            XLog.logV("onActivityResume caller:" + Binder.getCallingUid());
-//            XLog.logF("WTF? AppGuardServiceHandler is null @onActivityResume-" + serial());
-//            return;
-//        }
-//        mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_ONACTIVITYRESUME, activity).sendToTarget();
     }
 
     @Override

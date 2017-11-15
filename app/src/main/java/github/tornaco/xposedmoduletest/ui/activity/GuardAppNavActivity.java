@@ -1,11 +1,9 @@
 package github.tornaco.xposedmoduletest.ui.activity;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
@@ -21,13 +19,13 @@ import java.util.List;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.loader.PackageLoader;
-import github.tornaco.xposedmoduletest.provider.XSettings;
+import github.tornaco.xposedmoduletest.provider.KeyguardStorage;
 import github.tornaco.xposedmoduletest.ui.adapter.GuardAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 
-public class GuardAppNavActivity extends WithRecyclerView {
+public class GuardAppNavActivity extends NeedLockActivity {
 
     protected FloatingActionButton fab;
 
@@ -42,7 +40,6 @@ public class GuardAppNavActivity extends WithRecyclerView {
         showHomeAsUp();
         initService();
         initView();
-        initFirstRun();
         startLoading();
     }
 
@@ -55,41 +52,23 @@ public class GuardAppNavActivity extends WithRecyclerView {
         return R.layout.app_list;
     }
 
-    private void initFirstRun() {
-        boolean first = XSettings.isFirstRun(this);
-        if (first) {
-            new AlertDialog.Builder(GuardAppNavActivity.this)
-                    .setTitle(R.string.first_run_title)
-                    .setMessage(R.string.message_first_run)
-                    .setCancelable(false)
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            XSettings.setFirstRun(getApplicationContext());
-                        }
-                    })
-                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                        }
-                    })
-                    .show();
-        }
-    }
-
     @Override
     public void onResume() {
         super.onResume();
         startLoading();
+
+        // Check up the pwd.
+        if (!KeyguardStorage.iaPatternSet(getApplicationContext())) {
+            showPasswordSetupTips();
+        }
     }
 
 
     protected void initView() {
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        swipeRefreshLayout = findViewById(R.id.swipe);
         swipeRefreshLayout.setColorSchemeColors(getResources().getIntArray(R.array.polluted_waves));
-        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = findViewById(R.id.fab);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,7 +95,7 @@ public class GuardAppNavActivity extends WithRecyclerView {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                SwitchBar switchBar = (SwitchBar) findViewById(R.id.switchbar);
+                SwitchBar switchBar = findViewById(R.id.switchbar);
                 if (switchBar == null) return;
                 switchBar.setChecked(XAppGuardManager.defaultInstance().isServiceAvailable()
                         && XAppGuardManager.defaultInstance().isEnabled());
@@ -138,6 +117,18 @@ public class GuardAppNavActivity extends WithRecyclerView {
     protected void setSummaryView() {
         TextView textView = (TextView) findViewById(R.id.summary);
         textView.setText(R.string.summary_app_guard);
+    }
+
+    private void showPasswordSetupTips() {
+        showTips(R.string.summary_setup_passcode_none_set,
+                true, getString(R.string.title_setup_passcode_now),
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        startActivity(new Intent(getApplicationContext(),
+                                PatternSetupActivity.class));
+                    }
+                });
     }
 
     protected GuardAppListAdapter onCreateAdapter() {
@@ -187,5 +178,10 @@ public class GuardAppNavActivity extends WithRecyclerView {
             startActivity(new Intent(this, SettingsDashboardActivity.class));
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected boolean isLockNeeded() {
+        return KeyguardStorage.iaPatternSet(this.getApplicationContext());
     }
 }

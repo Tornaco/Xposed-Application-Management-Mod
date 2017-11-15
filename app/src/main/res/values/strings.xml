@@ -25,6 +25,7 @@
     <string name="title_my_act_code">我的授权码</string>
     <string name="title_picker">选取应用</string>
     <string name="title_setup_passcode">密码设置</string>
+    <string name="title_setup_passcode_now">前往设置</string>
     <string name="summary_setup_passcode_none_set">密码尚未设置，应用启动不会经过验证</string>
     <string name="summary_setup_passcode_set">密码已经设置</string>
     <string name="title_setup_code_repeat">确认密码</string>

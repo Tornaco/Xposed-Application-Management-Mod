@@ -23,6 +23,11 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
     private boolean mShowSystemApp;
 
     @Override
+    protected boolean isLockNeeded() {
+        return false;
+    }
+
+    @Override
     protected int getLayoutRes() {
         return R.layout.app_list;
     }

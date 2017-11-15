@@ -50,7 +50,9 @@ public class BaseActivity extends AppCompatActivity implements View {
 
     @Override
     public void showTips(CharSequence tips, boolean infinite, String actionTitle, final Runnable action) {
-        Snackbar.make(findViewById(android.R.id.content), tips,
+        android.view.View base = findViewById(R.id.fab);
+        if (base == null) base = findViewById(android.R.id.content);
+        Snackbar.make(base, tips,
                 infinite ? Snackbar.LENGTH_INDEFINITE : Snackbar.LENGTH_SHORT)
                 .setAction(actionTitle, action == null ? null : new android.view.View.OnClickListener() {
                     @Override
@@ -63,14 +65,17 @@ public class BaseActivity extends AppCompatActivity implements View {
 
     @Override
     public void showTips(@StringRes int tipsRes, boolean infinite, String actionTitle, final Runnable action) {
-        Snackbar.make(findViewById(android.R.id.content), tipsRes,
+        android.view.View base = findViewById(R.id.fab);
+        if (base == null) base = findViewById(android.R.id.content);
+        Snackbar.make(base, tipsRes,
                 infinite ? Snackbar.LENGTH_INDEFINITE : Snackbar.LENGTH_SHORT)
-                .setAction(actionTitle, action == null ? null : new android.view.View.OnClickListener() {
-                    @Override
-                    public void onClick(android.view.View view) {
-                        action.run();
-                    }
-                })
+                .setAction(actionTitle, action == null ? null :
+                        new android.view.View.OnClickListener() {
+                            @Override
+                            public void onClick(android.view.View view) {
+                                action.run();
+                            }
+                        })
                 .show();
     }
 

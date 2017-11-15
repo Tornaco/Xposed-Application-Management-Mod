@@ -37,7 +37,6 @@ import dev.tornaco.vangogh.display.CircleImageEffect;
 import dev.tornaco.vangogh.display.ImageEffect;
 import dev.tornaco.vangogh.display.appliers.ScaleInXYApplier;
 import dev.tornaco.vangogh.media.Image;
-import github.tornaco.android.common.Holder;
 import github.tornaco.android.common.util.ApkUtil;
 import github.tornaco.android.common.util.ColorUtil;
 import github.tornaco.xposedmoduletest.R;
@@ -75,8 +74,6 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private boolean mTakePhoto;
 
-    private final Holder<String> mPsscode = new Holder<>();
-
     private CancellationSignal mCancellationSignal;
 
     private boolean mResNotified = false;
@@ -104,7 +101,6 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private void readSettings() {
         this.mTakePhoto = XSettings.get().takenPhotoEnabled(this);
-        this.mPsscode.setData(XSettings.getPattern(this));
     }
 
     private void showVerifyView() {
@@ -203,7 +199,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
         patternLockView.setEnableHapticFeedback(true);
     }
 
-    private void cancelCheckTask(){
+    private void cancelCheckTask() {
         if (mCheckTask != null) {
             mCheckTask.cancel(true);
         }

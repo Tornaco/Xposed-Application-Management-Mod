@@ -1,10 +1,12 @@
 package github.tornaco.xposedmoduletest.ui.activity;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +22,7 @@ import java.util.List;
 import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
 import github.tornaco.xposedmoduletest.ui.tiles.AppStart;
@@ -39,8 +42,32 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_with_container_with_appbar_template);
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+        initFirstRun();
         getSupportFragmentManager().beginTransaction().replace(R.id.container,
                 onCreateFragment()).commitAllowingStateLoss();
+    }
+
+    private void initFirstRun() {
+        boolean first = XSettings.isFirstRun(this);
+        if (first) {
+            new AlertDialog.Builder(NavigatorActivity.this)
+                    .setTitle(R.string.first_run_title)
+                    .setMessage(R.string.message_first_run)
+                    .setCancelable(false)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            XSettings.setFirstRun(getApplicationContext());
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    })
+                    .show();
+        }
     }
 
     @Override
