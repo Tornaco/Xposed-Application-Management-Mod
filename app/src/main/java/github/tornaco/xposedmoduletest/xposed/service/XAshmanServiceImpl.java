@@ -53,7 +53,7 @@ import github.tornaco.xposedmoduletest.provider.BlockRecordProvider;
 import github.tornaco.xposedmoduletest.provider.BootPackageProvider;
 import github.tornaco.xposedmoduletest.provider.LockKillPackageProvider;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
-import github.tornaco.xposedmoduletest.xposed.service.provider.TorSettings;
+import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.util.Closer;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XLog;
@@ -96,11 +96,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private final SparseArray<String> mPackagesCache = new SparseArray<>();
 
-    private Handler mFirewallHandler;
+    private Handler h;
 
     private AtomicBoolean mBootBlockEnabled = new AtomicBoolean(false);
     private AtomicBoolean mStartBlockEnabled = new AtomicBoolean(false);
     private AtomicBoolean mLockKillEnabled = new AtomicBoolean(false);
+
+    private long mLockKillDelay;
 
     private final Map<String, BootCompletePackage> mBootWhiteListPackages = new HashMap<>();
     private final Map<String, AutoStartPackage> mStartWhiteListPackages = new HashMap<>();
@@ -126,11 +128,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             };
 
     private void onUserPresent() {
-        mFirewallHandler.sendEmptyMessage(IntentFirewallHandlerMessages.MSG_ONSCREENON);
+        h.sendEmptyMessage(IntentFirewallHandlerMessages.MSG_ONSCREENON);
     }
 
     private void onScreenOff() {
-        mFirewallHandler.sendEmptyMessage(IntentFirewallHandlerMessages.MSG_ONSCREENOFF);
+        h.sendEmptyMessage(IntentFirewallHandlerMessages.MSG_ONSCREENOFF);
     }
 
     private BroadcastReceiver mPackageReceiver = new BroadcastReceiver() {
@@ -323,7 +325,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
         try {
             contentResolver.registerContentObserver(BootPackageProvider.CONTENT_URI,
-                    false, new ContentObserver(mFirewallHandler) {
+                    false, new ContentObserver(h) {
                         @Override
                         public void onChange(boolean selfChange, Uri uri) {
                             super.onChange(selfChange, uri);
@@ -341,7 +343,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         try {
             contentResolver.registerContentObserver(AutoStartPackageProvider.CONTENT_URI,
-                    false, new ContentObserver(mFirewallHandler) {
+                    false, new ContentObserver(h) {
                         @Override
                         public void onChange(boolean selfChange, Uri uri) {
                             super.onChange(selfChange, uri);
@@ -359,7 +361,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         try {
             contentResolver.registerContentObserver(LockKillPackageProvider.CONTENT_URI,
-                    false, new ContentObserver(mFirewallHandler) {
+                    false, new ContentObserver(h) {
                         @Override
                         public void onChange(boolean selfChange, Uri uri) {
                             super.onChange(selfChange, uri);
@@ -418,23 +420,30 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private void getConfigFromSettings() {
         try {
-            boolean bootBlockEnabled = (boolean) TorSettings.BOOT_BLOCK_ENABLED_B.readFromSystemSettings(getContext());
+            boolean bootBlockEnabled = (boolean) SystemSettings.BOOT_BLOCK_ENABLED_B.readFromSystemSettings(getContext());
             mBootBlockEnabled.set(bootBlockEnabled);
             XLog.logV("bootBlockEnabled: " + String.valueOf(bootBlockEnabled));
         } catch (Throwable e) {
             XLog.logF("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
         try {
-            boolean startBlockEnabled = (boolean) TorSettings.START_BLOCK_ENABLED_B.readFromSystemSettings(getContext());
+            boolean startBlockEnabled = (boolean) SystemSettings.START_BLOCK_ENABLED_B.readFromSystemSettings(getContext());
             mStartBlockEnabled.set(startBlockEnabled);
             XLog.logV("startBlockEnabled:" + String.valueOf(startBlockEnabled));
         } catch (Throwable e) {
             XLog.logF("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
         try {
-            boolean lockKillEnabled = (boolean) TorSettings.LOCK_KILL_ENABLED_B.readFromSystemSettings(getContext());
+            boolean lockKillEnabled = (boolean) SystemSettings.LOCK_KILL_ENABLED_B.readFromSystemSettings(getContext());
             mLockKillEnabled.set(lockKillEnabled);
             XLog.logV("lockKillEnabled: " + String.valueOf(lockKillEnabled));
+        } catch (Throwable e) {
+            XLog.logF("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            mLockKillDelay = (long) SystemSettings.LOCK_KILL_DELAY_L.readFromSystemSettings(getContext());
+            XLog.logV("mLockKillDelay: " + String.valueOf(mLockKillDelay));
         } catch (Throwable e) {
             XLog.logF("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -733,8 +742,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void construct() {
-        mFirewallHandler = onCreateServiceHandler();
-        XLog.logV("construct, mFirewallHandler: " + mFirewallHandler + " -" + serial());
+        h = onCreateServiceHandler();
+        XLog.logV("construct, h: " + h + " -" + serial());
     }
 
     protected Handler onCreateServiceHandler() {
@@ -773,13 +782,25 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @BinderCall
     public void clearProcess() throws RemoteException {
         enforceCallingPermissions();
-        mFirewallHandler.sendEmptyMessage(IntentFirewallHandlerMessages.MSG_CLEARPROCESS);
+        h.sendEmptyMessage(IntentFirewallHandlerMessages.MSG_CLEARPROCESS);
+    }
+
+    @Override
+    public void setLockKillDelay(long delay) throws RemoteException {
+        enforceCallingPermissions();
+        h.obtainMessage(IntentFirewallHandlerMessages.MSG_SETLOCKKILLDELAY, delay).sendToTarget();
+    }
+
+    @Override
+    public long getLockKillDelay() throws RemoteException {
+        enforceCallingPermissions();
+        return mLockKillDelay;
     }
 
     @Override
     public void setBootBlockEnabled(boolean enabled) {
         enforceCallingPermissions();
-        mFirewallHandler.obtainMessage(IntentFirewallHandlerMessages.MSG_SETBOOTBLOCKENABLED, enabled)
+        h.obtainMessage(IntentFirewallHandlerMessages.MSG_SETBOOTBLOCKENABLED, enabled)
                 .sendToTarget();
     }
 
@@ -792,7 +813,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void setStartBlockEnabled(boolean enabled) {
         enforceCallingPermissions();
-        mFirewallHandler.obtainMessage(IntentFirewallHandlerMessages.MSG_SETSTARTBLOCKENABLED, enabled)
+        h.obtainMessage(IntentFirewallHandlerMessages.MSG_SETSTARTBLOCKENABLED, enabled)
                 .sendToTarget();
     }
 
@@ -805,7 +826,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void setLockKillEnabled(boolean enabled) {
         enforceCallingPermissions();
-        mFirewallHandler.obtainMessage(IntentFirewallHandlerMessages.MSG_SETLOCKKILLENABLED, enabled)
+        h.obtainMessage(IntentFirewallHandlerMessages.MSG_SETLOCKKILLENABLED, enabled)
                 .sendToTarget();
     }
 
@@ -837,6 +858,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         private final Holder<FutureTask<String[]>> mClearingTask = new Holder<>();
 
+        private final Runnable clearProcessRunnable = new Runnable() {
+            @Override
+            public void run() {
+                clearProcess();
+            }
+        };
+
         @Override
         public void handleMessage(Message msg) {
             XLog.logV("handleMessage: " + IntentFirewallHandlerMessages.decodeMessage(msg.what));
@@ -860,27 +888,30 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case IntentFirewallHandlerMessages.MSG_ONSCREENON:
                     HandlerImpl.this.onScreenOn();
                     break;
+                case IntentFirewallHandlerMessages.MSG_SETLOCKKILLDELAY:
+                    HandlerImpl.this.setLockKillDelay((Long) msg.obj);
+                    break;
             }
         }
 
         @Override
         public void setBootBlockEnabled(boolean enabled) {
             if (mBootBlockEnabled.compareAndSet(!enabled, enabled)) {
-                TorSettings.BOOT_BLOCK_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                SystemSettings.BOOT_BLOCK_ENABLED_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 
         @Override
         public void setStartBlockEnabled(boolean enabled) {
             if (mStartBlockEnabled.compareAndSet(!enabled, enabled)) {
-                TorSettings.START_BLOCK_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                SystemSettings.START_BLOCK_ENABLED_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 
         @Override
         public void setLockKillEnabled(boolean enabled) {
             if (mLockKillEnabled.compareAndSet(!enabled, enabled)) {
-                TorSettings.LOCK_KILL_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                SystemSettings.LOCK_KILL_ENABLED_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 
@@ -943,24 +974,29 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         @Override
+        public void setLockKillDelay(long delay) {
+            mLockKillDelay = delay;
+            SystemSettings.LOCK_KILL_DELAY_L.writeToSystemSettings(getContext(), delay);
+        }
+
+        @Override
         public void onScreenOff() {
             if (isLockKillEnabled()) {
-                clearProcess();
+                removeCallbacks(clearProcessRunnable);
+                postDelayed(clearProcessRunnable, mLockKillDelay);
             }
         }
 
         @Override
         public void onScreenOn() {
-            XStopWatch stopWatch = XStopWatch.start("onScreenOn, cancel clear task");
+            removeCallbacks(clearProcessRunnable);
             synchronized (mClearingTask) {
                 if (mClearingTask.getData() != null && (!mClearingTask.getData().isDone()
                         && !mClearingTask.getData().isCancelled())) {
-                    XLog.logV("onScreenOn, Canceling existing clear task...");
                     mClearingTask.getData().cancel(true);
                     mClearingTask.setData(null);
                 }
             }
-            stopWatch.stop();
         }
     }
 

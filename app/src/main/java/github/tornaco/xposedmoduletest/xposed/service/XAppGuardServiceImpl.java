@@ -51,7 +51,7 @@ import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
-import github.tornaco.xposedmoduletest.xposed.service.provider.TorSettings;
+import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.submodules.AppGuardSubModuleManager;
 import github.tornaco.xposedmoduletest.xposed.submodules.SubModule;
 import github.tornaco.xposedmoduletest.xposed.util.Closer;
@@ -188,13 +188,13 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     private void getConfigFromSettings() {
         try {
-            boolean appGuardEnabled = (boolean) TorSettings.APP_GUARD_ENABLED_B.readFromSystemSettings(getContext());
+            boolean appGuardEnabled = (boolean) SystemSettings.APP_GUARD_ENABLED_B.readFromSystemSettings(getContext());
             mEnabled.set(appGuardEnabled);
 
-            boolean uninstallProEnabled = (boolean) TorSettings.UNINSTALL_GUARD_ENABLED_B.readFromSystemSettings(getContext());
+            boolean uninstallProEnabled = (boolean) SystemSettings.UNINSTALL_GUARD_ENABLED_B.readFromSystemSettings(getContext());
             mUninstallProEnabled.set(uninstallProEnabled);
 
-            boolean debug = (boolean) TorSettings.APP_GUARD_DEBUG_MODE_B.readFromSystemSettings(getContext());
+            boolean debug = (boolean) SystemSettings.APP_GUARD_DEBUG_MODE_B.readFromSystemSettings(getContext());
             mDebugEnabled.set(debug);
 
             ContentResolver resolver = getContext().getContentResolver();
@@ -719,14 +719,14 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         @Override
         public void setEnabled(boolean enabled) {
             if (mEnabled.compareAndSet(!enabled, enabled)) {
-                TorSettings.APP_GUARD_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                SystemSettings.APP_GUARD_ENABLED_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 
         @Override
         public void setUninstallInterruptEnabled(boolean enabled) {
             if (mUninstallProEnabled.compareAndSet(!enabled, enabled)) {
-                TorSettings.UNINSTALL_GUARD_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                SystemSettings.UNINSTALL_GUARD_ENABLED_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 
@@ -880,7 +880,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         @Override
         public void setDebug(boolean debug) {
             if (mDebugEnabled.compareAndSet(!debug, debug)) {
-                TorSettings.APP_GUARD_DEBUG_MODE_B.writeToSystemSettings(getContext(), debug);
+                SystemSettings.APP_GUARD_DEBUG_MODE_B.writeToSystemSettings(getContext(), debug);
             }
             XLog.setDebug(debug);
         }

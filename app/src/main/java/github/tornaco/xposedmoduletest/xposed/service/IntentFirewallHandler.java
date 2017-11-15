@@ -17,6 +17,8 @@ interface IntentFirewallHandler {
 
     void clearProcess();
 
+    void setLockKillDelay(long delay);
+
     void onScreenOff();
 
     void onScreenOn();

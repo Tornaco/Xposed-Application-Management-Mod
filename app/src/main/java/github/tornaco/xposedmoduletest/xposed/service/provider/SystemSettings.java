@@ -11,7 +11,7 @@ import android.provider.Settings;
  * Email: Tornaco@163.com
  */
 
-public enum TorSettings implements NameValueReader, NameValueWriter, UriProvider, ContentObservable {
+public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvider, ContentObservable {
 
     APP_GUARD_ENABLED_B(0) {
         @Override
@@ -113,12 +113,29 @@ public enum TorSettings implements NameValueReader, NameValueWriter, UriProvider
             int def = getDefValue();
             return Settings.System.getInt(resolver, name(), def) == 1;
         }
+    },
+
+    LOCK_KILL_DELAY_L(0L) {
+        @Override
+        public boolean writeToSystemSettings(Context context, Object value) {
+            ContentResolver resolver = context.getContentResolver();
+            long delay = (long) value;
+            return resolver != null && Settings.System.putLong(resolver, name(), delay);
+        }
+
+        @Override
+        public Object readFromSystemSettings(Context context) {
+            ContentResolver resolver = context.getContentResolver();
+            if (resolver == null) return getDefValue();
+            long def = getDefValue();
+            return Settings.System.getLong(resolver, name(), def);
+        }
     };
 
 
     private Object defValue;
 
-    TorSettings(Object defValue) {
+    SystemSettings(Object defValue) {
         this.defValue = defValue;
     }
 

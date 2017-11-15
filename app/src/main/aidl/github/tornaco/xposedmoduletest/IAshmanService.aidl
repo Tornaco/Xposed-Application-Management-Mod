@@ -3,6 +3,9 @@ package github.tornaco.xposedmoduletest;
 interface IAshmanService {
     void clearProcess();
 
+    void setLockKillDelay(long delay);
+    long getLockKillDelay();
+
     void setBootBlockEnabled(boolean enabled);
     boolean isBlockBlockEnabled();
 
