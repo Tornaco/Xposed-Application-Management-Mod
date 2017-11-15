@@ -4,7 +4,8 @@ cache: false
 sudo: false
 android:
   components:
-  - build-tools-25.0.2
+  - build-tools-26.0.2
+  - android-26
   - android-25
   - android-24
   - extra-android-m2repository
@@ -15,6 +16,7 @@ before_script:
 - mkdir -p "$ANDROID_HOME/licenses"
 - cp ./android-sdk-license "$ANDROID_HOME/licenses/"
 - cp ./hiddenapi/26/android.jar "$ANDROID_HOME/platforms/android-26/"
+- cp ./hiddenapi/25/android.jar "$ANDROID_HOME/platforms/android-25/"
 notifications:
   email:
     recipients:

@@ -89,7 +89,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
                     });
 
             TextView statusTitle = findView(rootView, android.R.id.title);
-            statusTitle.setText(XAppGuardManager.defaultInstance().isServiceAvailable() ?
+            statusTitle.setText(isServiceAvailable() ?
                     R.string.title_service_connected : R.string.title_service_not_connected);
             ViewGroup header = findView(rootView, R.id.header1);
             header.setBackgroundColor(
@@ -98,7 +98,14 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
                             : ContextCompat.getColor(getActivity(), R.color.red));
 
             EmojiTextView emojiTextView = findView(rootView, R.id.icon1);
-            emojiTextView.setText(EmojiUtil.getEmojiByUnicode(0x1f600));
+            emojiTextView.setText(EmojiUtil.getEmojiByUnicode(
+                    isServiceAvailable() ?
+                            EmojiUtil.HAPPY
+                            : EmojiUtil.UNHAPPY));
+        }
+
+        private boolean isServiceAvailable() {
+            return XAppGuardManager.defaultInstance().isServiceAvailable();
         }
 
         @Override

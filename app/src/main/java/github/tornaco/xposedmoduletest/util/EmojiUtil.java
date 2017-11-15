@@ -11,6 +11,9 @@ import android.support.annotation.RequiresApi;
 
 public class EmojiUtil {
 
+    public static final int HAPPY = 0X1F60F;
+    public static final int UNHAPPY = 0x1F625;
+
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public static String getEmojiByUnicode(int unicode) {
         return new String(Character.toChars(unicode));
