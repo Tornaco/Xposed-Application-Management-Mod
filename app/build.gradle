@@ -96,6 +96,8 @@ dependencies {
 
     // compile 'com.vanniktech:emoji:0.5.1'
     compile 'com.vanniktech:emoji-google:0.5.1'
+
+    compile 'com.andrognito.patternlockview:patternlockview:1.0.0'
 }
 
 

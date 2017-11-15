@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.Vibrator;
@@ -24,7 +25,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.andrognito.patternlockview.PatternLockView;
+import com.andrognito.patternlockview.utils.PatternLockUtils;
+
 import org.newstand.logger.Logger;
+
+import java.util.List;
 
 import dev.tornaco.vangogh.Vangogh;
 import dev.tornaco.vangogh.display.CircleImageEffect;
@@ -39,7 +45,9 @@ import github.tornaco.xposedmoduletest.camera.CameraManager;
 import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerCompat;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
+import github.tornaco.xposedmoduletest.provider.KeyguardStorage;
 import github.tornaco.xposedmoduletest.provider.XSettings;
+import github.tornaco.xposedmoduletest.util.PatternLockViewListenerAdapter;
 import github.tornaco.xposedmoduletest.util.StopWatch;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
@@ -73,6 +81,8 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private boolean mResNotified = false;
     private ScreenBroadcastReceiver mScreenBroadcastReceiver;
+
+    private AsyncTask mCheckTask;
 
     public static void startAsTest(Context c) {
         Intent intent = new Intent(c, VerifyDisplayerActivity.class);
@@ -162,33 +172,41 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private void setupPatternLockView() {
-//        KeyguardPatternView keyguardPatternView = (KeyguardPatternView) findViewById(R.id.keyguard_pattern_view);
-//        keyguardPatternView.setKeyguardCallback(new KeyguardSecurityCallback() {
-//            @Override
-//            public void dismiss(boolean securityVerified) {
-//                onPass();
-//            }
-//
-//            @Override
-//            public void userActivity() {
-//
-//            }
-//
-//            @Override
-//            public boolean isVerifyUnlockOnly() {
-//                return false;
-//            }
-//
-//            @Override
-//            public void reportUnlockAttempt(boolean success) {
-//
-//            }
-//
-//            @Override
-//            public void reset() {
-//
-//            }
-//        });
+        final PatternLockView patternLockView = findViewById(R.id.pattern_lock_view);
+        patternLockView.addPatternLockListener(new PatternLockViewListenerAdapter() {
+            @Override
+            public void onComplete(List<PatternLockView.Dot> pattern) {
+                cancelCheckTask();
+                // Check pattern.
+                mCheckTask = KeyguardStorage.checkPatternAsync(getApplicationContext(),
+                        PatternLockUtils.patternToString(patternLockView, pattern),
+                        new KeyguardStorage.PatternCheckListener() {
+                            @Override
+                            public void onMatch() {
+                                patternLockView.setViewMode(PatternLockView.PatternViewMode.CORRECT);
+                                onPass();
+                            }
+
+                            @Override
+                            public void onMisMatch() {
+                                patternLockView.setViewMode(PatternLockView.PatternViewMode.WRONG);
+                                patternLockView.clearPattern();
+                            }
+                        });
+            }
+
+            @Override
+            public void onCleared() {
+
+            }
+        });
+        patternLockView.setEnableHapticFeedback(true);
+    }
+
+    private void cancelCheckTask(){
+        if (mCheckTask != null) {
+            mCheckTask.cancel(true);
+        }
     }
 
     private void setupLabel() {
@@ -407,6 +425,8 @@ public class VerifyDisplayerActivity extends BaseActivity {
             if (mScreenBroadcastReceiver != null) {
                 unregisterReceiver(mScreenBroadcastReceiver);
             }
+
+            cancelCheckTask();
         } catch (Throwable e) {
             Logger.e("Error onDestroy: " + e);
         }

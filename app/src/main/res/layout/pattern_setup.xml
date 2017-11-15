@@ -55,18 +55,32 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <!--<RelativeLayout-->
-        <!--android:id="@+id/pin_container"-->
-        <!--android:layout_width="@dimen/keyguard_security_width"-->
-        <!--android:layout_height="@dimen/keyguard_security_height"-->
-        <!--android:layout_alignParentBottom="true"-->
-        <!--android:layout_centerHorizontal="true"-->
-        <!--android:layout_marginBottom="@dimen/activity_vertical_margin"-->
-        <!--android:layout_marginTop="@dimen/activity_horizontal_margin">-->
+    <RelativeLayout
+        android:id="@+id/pin_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginTop="@dimen/activity_horizontal_margin">
 
-        <!--<include layout="@layout/keyguard_pattern_view" />-->
+        <com.andrognito.patternlockview.PatternLockView
+            android:id="@+id/pattern_lock_view"
+            android:layout_width="280dp"
+            android:layout_height="280dp"
+            app:aspectRatio="square"
+            app:aspectRatioEnabled="true"
+            app:correctStateColor="@color/green"
+            app:dotAnimationDuration="200"
+            app:dotCount="3"
+            app:dotNormalSize="12dp"
+            app:dotSelectedSize="24dp"
+            app:normalStateColor="@color/black"
+            app:pathEndAnimationDuration="100"
+            app:pathWidth="4dp"
+            app:wrongStateColor="@color/pomegranate" />
 
-    <!--</RelativeLayout>-->
+    </RelativeLayout>
 
 </RelativeLayout>
 

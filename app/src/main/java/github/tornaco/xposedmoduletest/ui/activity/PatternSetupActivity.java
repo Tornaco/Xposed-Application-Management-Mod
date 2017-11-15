@@ -1,51 +1,53 @@
 package github.tornaco.xposedmoduletest.ui.activity;
 
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+
+import com.andrognito.patternlockview.PatternLockView;
+import com.andrognito.patternlockview.listener.PatternLockViewListener;
+import com.andrognito.patternlockview.utils.PatternLockUtils;
+
+import java.util.List;
+
+import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.provider.KeyguardStorage;
+
 /**
  * Created by guohao4 on 2017/10/21.
  * Email: Tornaco@163.com
  */
 
-public class PatternSetupActivity extends BaseActivity {
-//    private KeyguardPatternView keyguardPatternView;
-//
-//    @Override
-//    protected void onCreate(@Nullable Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.pattern_setup);
-//
-//        keyguardPatternView = (KeyguardPatternView) findViewById(R.id.keyguard_pattern_view);
-//        keyguardPatternView.setEditMode(true);
-//        keyguardPatternView.setKeyguardCallback(new KeyguardSecurityCallback() {
-//            @Override
-//            public void dismiss(boolean securityVerified) {
-//                finish();
-//            }
-//
-//            @Override
-//            public void userActivity() {
-//
-//            }
-//
-//            @Override
-//            public boolean isVerifyUnlockOnly() {
-//                return false;
-//            }
-//
-//            @Override
-//            public void reportUnlockAttempt(boolean success) {
-//
-//            }
-//
-//            @Override
-//            public void reset() {
-//
-//            }
-//        });
-//    }
-//
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        keyguardPatternView.startAppearAnimation();
-//    }
+public class PatternSetupActivity extends BaseActivity implements PatternLockViewListener {
+
+    private PatternLockView patternLockView;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.pattern_setup);
+        patternLockView = findViewById(R.id.pattern_lock_view);
+        patternLockView.addPatternLockListener(this);
+        patternLockView.setEnableHapticFeedback(true);
+    }
+
+    @Override
+    public void onStarted() {
+
+    }
+
+    @Override
+    public void onProgress(List<PatternLockView.Dot> progressPattern) {
+
+    }
+
+    @Override
+    public void onComplete(List<PatternLockView.Dot> pattern) {
+        KeyguardStorage.setPattern(getApplicationContext(), PatternLockUtils.patternToString(patternLockView, pattern));
+        finish();
+    }
+
+    @Override
+    public void onCleared() {
+
+    }
 }
