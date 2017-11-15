@@ -41,6 +41,7 @@ import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.android.common.Holder;
 import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.IProcessClearListener;
 import github.tornaco.xposedmoduletest.bean.AutoStartPackage;
 import github.tornaco.xposedmoduletest.bean.AutoStartPackageDaoUtil;
 import github.tornaco.xposedmoduletest.bean.BlockRecord;
@@ -780,9 +781,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void clearProcess() throws RemoteException {
+    public void clearProcess(IProcessClearListener listener) throws RemoteException {
         enforceCallingPermissions();
-        h.sendEmptyMessage(IntentFirewallHandlerMessages.MSG_CLEARPROCESS);
+        h.obtainMessage(IntentFirewallHandlerMessages.MSG_CLEARPROCESS, listener)
+                .sendToTarget();
     }
 
     @Override
@@ -861,7 +863,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         private final Runnable clearProcessRunnable = new Runnable() {
             @Override
             public void run() {
-                clearProcess();
+                clearProcess(null);
             }
         };
 
@@ -871,7 +873,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             super.handleMessage(msg);
             switch (msg.what) {
                 case IntentFirewallHandlerMessages.MSG_CLEARPROCESS:
-                    HandlerImpl.this.clearProcess();
+                    IProcessClearListener listener = msg.obj == null ? null : (IProcessClearListener) msg.obj;
+                    HandlerImpl.this.clearProcess(listener);
                     break;
                 case IntentFirewallHandlerMessages.MSG_SETBOOTBLOCKENABLED:
                     HandlerImpl.this.setBootBlockEnabled((Boolean) msg.obj);
@@ -916,8 +919,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         @Override
-        public void clearProcess() {
+        public void clearProcess(final IProcessClearListener listener) {
             XStopWatch stopWatch = XStopWatch.start("onScreenOn, clear tasks");
+            if (listener != null) try {
+                listener.onPrepareClearing();
+            } catch (RemoteException ignored) {
+
+            }
             synchronized (mClearingTask) {
                 if (mClearingTask.getData() != null && (!mClearingTask.getData().isDone()
                         && !mClearingTask.getData().isCancelled())) {
@@ -934,42 +942,116 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         List<ActivityManager.RunningAppProcessInfo> processes =
                                 am.getRunningAppProcesses();
                         int count = processes == null ? 0 : processes.size();
+
+                        if (listener != null) try {
+                            listener.onStartClearing(count);
+                        } catch (RemoteException ignored) {
+
+                        }
+
                         String[] cleared = new String[count];
                         for (int i = 0; i < count; i++) {
                             for (String runningPackageName : processes.get(i).pkgList) {
-                                if (runningPackageName == null) continue;
+                                if (runningPackageName == null) {
+
+                                    if (listener != null) try {
+                                        listener.onIgnoredPkg(null, "null");
+                                    } catch (RemoteException ignored) {
+
+                                    }
+
+                                    continue;
+                                }
 
                                 // Check if we can control.
                                 boolean whiteApp = isInLockKillWhiteList(runningPackageName)
                                         || WHITE_LIST.contains(runningPackageName);
-                                if (whiteApp) continue;
+                                if (whiteApp) {
+                                    if (listener != null) try {
+                                        listener.onIgnoredPkg(runningPackageName, "white-list");
+                                    } catch (RemoteException ignored) {
+
+                                    }
+
+                                    continue;
+                                }
 
                                 if (PkgUtil.isSystemApp(getContext(), runningPackageName)) {
+
+                                    if (listener != null) try {
+                                        listener.onIgnoredPkg(runningPackageName, "system-app");
+                                    } catch (RemoteException ignored) {
+
+                                    }
+
                                     continue;
                                 }
                                 if (PkgUtil.isAppRunningForeground(getContext(), runningPackageName)) {
+
+                                    if (listener != null) try {
+                                        listener.onIgnoredPkg(runningPackageName, "foreground-app");
+                                    } catch (RemoteException ignored) {
+
+                                    }
+
                                     XLog.logV("App is in foreground, wont kill: " + runningPackageName);
                                     continue;
                                 }
                                 if (PkgUtil.isHomeApp(getContext(), runningPackageName)) {
+
+                                    if (listener != null) try {
+                                        listener.onIgnoredPkg(runningPackageName, "home-app");
+                                    } catch (RemoteException ignored) {
+
+                                    }
+
                                     XLog.logV("App is in isHomeApp, wont kill: " + runningPackageName);
                                     continue;
                                 }
                                 if (PkgUtil.isDefaultSmsApp(getContext(), runningPackageName)) {
+
+                                    if (listener != null) try {
+                                        listener.onIgnoredPkg(runningPackageName, "sms-app");
+                                    } catch (RemoteException ignored) {
+
+                                    }
+
                                     XLog.logV("App is in isDefaultSmsApp, wont kill: " + runningPackageName);
                                     continue;
                                 }
+
+                                if (listener != null) try {
+                                    listener.onClearingPkg(runningPackageName);
+                                } catch (RemoteException ignored) {
+
+                                }
+
                                 am.forceStopPackage(runningPackageName);
                                 cleared[i] = runningPackageName;
                                 XLog.logV("Force stopped: " + runningPackageName);
+
+                                if (listener != null) try {
+                                    listener.onClearedPkg(runningPackageName);
+                                } catch (RemoteException ignored) {
+
+                                }
                             }
                         }
+
+                        if (listener != null) try {
+                            listener.onAllCleared(cleared);
+                        } catch (RemoteException ignored) {
+
+                        }
+
                         return cleared;
                     }
                 });
                 mClearingTask.setData(futureTask);
             }
+
             mWorkingService.execute(mClearingTask.getData());
+
             stopWatch.stop();
         }
 

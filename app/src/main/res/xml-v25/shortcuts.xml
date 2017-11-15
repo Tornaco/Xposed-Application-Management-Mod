@@ -1,0 +1,17 @@
+<shortcuts xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_airline_seat_individual_suite_black_24dp"
+        android:shortcutId="clear"
+        android:shortcutLongLabel="@string/clear_process"
+        android:shortcutShortLabel="@string/clear_process"
+        tools:targetApi="n_mr1">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="github.tornaco.xposedmoduletest.ui.activity.ClearProcessActivity"
+            android:targetPackage="github.tornaco.xposedmoduletest" />
+        <categories android:name="android.shortcut.screencast" />
+    </shortcut>
+    <!-- Specify more shortcuts here. -->
+</shortcuts>

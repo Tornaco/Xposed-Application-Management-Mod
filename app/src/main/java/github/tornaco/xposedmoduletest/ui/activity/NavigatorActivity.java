@@ -26,6 +26,7 @@ import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
 import github.tornaco.xposedmoduletest.ui.tiles.AppStart;
+import github.tornaco.xposedmoduletest.ui.tiles.ClearProgress;
 import github.tornaco.xposedmoduletest.ui.tiles.LockKill;
 import github.tornaco.xposedmoduletest.util.EmojiUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
@@ -142,14 +143,19 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
             category.titleRes = R.string.title_secure;
             category.addTile(new AppGuard(getActivity()));
 
+            Category rest = new Category();
+            rest.titleRes = R.string.title_restrict;
+            rest.addTile(new AppBoot(getActivity()));
+            rest.addTile(new AppStart(getActivity()));
+            rest.addTile(new LockKill(getActivity()));
+
             Category ash = new Category();
             ash.titleRes = R.string.title_clearn;
-            ash.addTile(new AppBoot(getActivity()));
-            ash.addTile(new AppStart(getActivity()));
-            ash.addTile(new LockKill(getActivity()));
+            ash.addTile(new ClearProgress(getActivity()));
 
             categories.add(category);
             categories.add(ash);
+            categories.add(rest);
         }
 
         @SuppressWarnings("unchecked")

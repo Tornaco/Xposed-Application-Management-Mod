@@ -43,10 +43,10 @@ public class XAshmanManager {
         Preconditions.checkNotNull(mService, "Service not available");
     }
 
-    public void clearProcess() {
+    public void clearProcess(IProcessClearListenerAdapter adapter) {
         ensureService();
         try {
-            mService.clearProcess();
+            mService.clearProcess(adapter);
         } catch (RemoteException e) {
             Logger.e(Logger.getStackTraceString(e));
         }

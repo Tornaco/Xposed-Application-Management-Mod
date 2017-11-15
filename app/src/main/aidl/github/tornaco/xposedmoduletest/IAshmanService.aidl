@@ -1,7 +1,10 @@
 package github.tornaco.xposedmoduletest;
 
+import github.tornaco.xposedmoduletest.IProcessClearListener;
+
 interface IAshmanService {
-    void clearProcess();
+
+    void clearProcess(in IProcessClearListener listener);
 
     void setLockKillDelay(long delay);
     long getLockKillDelay();

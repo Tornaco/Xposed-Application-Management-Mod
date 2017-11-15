@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
 import github.tornaco.apigen.CreateMessageIdWithMethods;
+import github.tornaco.xposedmoduletest.IProcessClearListener;
 
 /**
  * Created by guohao4 on 2017/11/1.
@@ -15,7 +16,7 @@ interface IntentFirewallHandler {
 
     void setLockKillEnabled(boolean enabled);
 
-    void clearProcess();
+    void clearProcess(IProcessClearListener listener);
 
     void setLockKillDelay(long delay);
 
