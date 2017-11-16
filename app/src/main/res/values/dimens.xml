@@ -42,6 +42,6 @@
     <dimen name="card_elevation">2dp</dimen>
 
     <dimen name="pattern_lock_size">280dp</dimen>
-    <dimen name="pattern_lock_info_container_padding">24dp</dimen>
+    <dimen name="pattern_lock_info_container_padding">36dp</dimen>
 
 </resources>
