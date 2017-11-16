@@ -53,6 +53,11 @@ public class GuardAppNavActivity extends NeedLockActivity {
     }
 
     @Override
+    protected String getLockLabel() {
+        return getString(R.string.app_lock_need_unlock);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         startLoading();

@@ -12,7 +12,9 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.os.CancellationSignal;
 import android.view.LayoutInflater;
@@ -48,8 +50,8 @@ public class NeedLockActivity extends BaseActivity {
     private LockView mLockView;
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         if (isLockNeeded()) {
 
             if (mLockView != null && mLockView.isAttached()) {
@@ -66,8 +68,13 @@ public class NeedLockActivity extends BaseActivity {
         }
     }
 
+    protected String getLockLabel() {
+        return getString(R.string.input_password,
+                getString(R.string.app_name));
+    }
+
     protected boolean isLockNeeded() {
-        return true;
+        return LockStorage.iaPatternSet(this);
     }
 
     private class LockView {
@@ -179,8 +186,7 @@ public class NeedLockActivity extends BaseActivity {
 
         private void setupLabel() {
             TextView textView = mRootView.findViewById(R.id.label);
-            textView.setText(getString(R.string.input_password,
-                    getString(R.string.app_name)));
+            textView.setText(getLockLabel());
         }
 
         private void setupCamera() {

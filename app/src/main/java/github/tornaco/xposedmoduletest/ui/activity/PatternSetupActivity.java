@@ -17,7 +17,7 @@ import github.tornaco.xposedmoduletest.provider.LockStorage;
  * Email: Tornaco@163.com
  */
 
-public class PatternSetupActivity extends BaseActivity implements PatternLockViewListener {
+public class PatternSetupActivity extends NeedLockActivity implements PatternLockViewListener {
 
     private PatternLockView patternLockView;
 
@@ -28,6 +28,11 @@ public class PatternSetupActivity extends BaseActivity implements PatternLockVie
         patternLockView = findViewById(R.id.pattern_lock_view);
         patternLockView.addPatternLockListener(this);
         patternLockView.setEnableHapticFeedback(true);
+    }
+
+    @Override
+    protected String getLockLabel() {
+        return getString(R.string.input_previous_password);
     }
 
     @Override

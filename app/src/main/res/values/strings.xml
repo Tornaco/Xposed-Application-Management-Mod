@@ -103,4 +103,6 @@
     <string name="summary_verify_on_screenoff">建议开启以提高安全性</string>
     <string name="title_transaction_expire">过期请求，已忽略</string>
     <string name="fail_show_internal_lockview">无法显示内部验证窗口</string>
+    <string name="input_previous_password">请输入原来的密码</string>
+    <string name="app_lock_need_unlock">需要验证密码以继续</string>
 </resources>

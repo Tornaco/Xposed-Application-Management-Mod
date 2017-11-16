@@ -25,7 +25,7 @@ public class SettingsDashboardActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_with_container_with_appbar_template);
+        setContentView(R.layout.container_with_appbar_template);
         setupToolbar();
         showHomeAsUp();
         replaceV4(R.id.container, new Dashboards(), null, false);

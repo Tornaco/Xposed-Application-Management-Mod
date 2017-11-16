@@ -23,7 +23,7 @@ public class GuardSettingsActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_with_container_with_appbar_template);
+        setContentView(R.layout.container_with_appbar_template);
         showHomeAsUp();
         getFragmentManager().beginTransaction().replace(R.id.container,
                 onCreateSettingsFragment()).commitAllowingStateLoss();
