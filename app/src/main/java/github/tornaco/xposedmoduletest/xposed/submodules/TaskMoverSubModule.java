@@ -15,7 +15,6 @@ import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 import github.tornaco.xposedmoduletest.xposed.service.VerifyListener;
 import github.tornaco.xposedmoduletest.xposed.util.XLog;
-import github.tornaco.xposedmoduletest.xposed.util.XStopWatch;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -36,8 +35,6 @@ class TaskMoverSubModule extends AppGuardAndroidSubModule {
                 @Override
                 protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
                     super.beforeHookedMethod(param);
-
-                    XStopWatch stopWatch = XStopWatch.start("hookTaskMover- findTaskToMoveToFrontLocked");
                     try {
                         String pkgName;
                         Object realActivityObj = XposedHelpers.getObjectField(param.args[0], "realActivity");
@@ -75,7 +72,6 @@ class TaskMoverSubModule extends AppGuardAndroidSubModule {
                     } catch (Exception e) {
                         XLog.logV("Error@hookTaskMover- findTaskToMoveToFrontLocked:" + Log.getStackTraceString(e));
                     } finally {
-                        stopWatch.stop();
                     }
                 }
             });

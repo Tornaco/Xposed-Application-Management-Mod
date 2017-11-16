@@ -19,7 +19,7 @@ import java.util.List;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.loader.PackageLoader;
-import github.tornaco.xposedmoduletest.provider.KeyguardStorage;
+import github.tornaco.xposedmoduletest.provider.LockStorage;
 import github.tornaco.xposedmoduletest.ui.adapter.GuardAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
@@ -44,7 +44,7 @@ public class GuardAppNavActivity extends NeedLockActivity {
     }
 
     private void initService() {
-        boolean serviceConnected = XAppGuardManager.defaultInstance().isServiceAvailable();
+        boolean serviceConnected = XAppGuardManager.singleInstance().isServiceAvailable();
         Logger.d("serviceConnected:" + serviceConnected);
     }
 
@@ -58,7 +58,7 @@ public class GuardAppNavActivity extends NeedLockActivity {
         startLoading();
 
         // Check up the pwd.
-        if (!KeyguardStorage.iaPatternSet(getApplicationContext())) {
+        if (!LockStorage.iaPatternSet(getApplicationContext())) {
             showPasswordSetupTips();
         }
     }
@@ -97,13 +97,13 @@ public class GuardAppNavActivity extends NeedLockActivity {
             public void run() {
                 SwitchBar switchBar = findViewById(R.id.switchbar);
                 if (switchBar == null) return;
-                switchBar.setChecked(XAppGuardManager.defaultInstance().isServiceAvailable()
-                        && XAppGuardManager.defaultInstance().isEnabled());
+                switchBar.setChecked(XAppGuardManager.singleInstance().isServiceAvailable()
+                        && XAppGuardManager.singleInstance().isEnabled());
                 switchBar.addOnSwitchChangeListener(new SwitchBar.OnSwitchChangeListener() {
                     @Override
                     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-                        if (XAppGuardManager.defaultInstance().isServiceAvailable())
-                            XAppGuardManager.defaultInstance().setEnabled(isChecked);
+                        if (XAppGuardManager.singleInstance().isServiceAvailable())
+                            XAppGuardManager.singleInstance().setEnabled(isChecked);
                         else showTips(R.string.title_service_not_connected_settings, false,
                                 null, null);
                     }
@@ -182,6 +182,6 @@ public class GuardAppNavActivity extends NeedLockActivity {
 
     @Override
     protected boolean isLockNeeded() {
-        return KeyguardStorage.iaPatternSet(this.getApplicationContext());
+        return LockStorage.iaPatternSet(this.getApplicationContext());
     }
 }

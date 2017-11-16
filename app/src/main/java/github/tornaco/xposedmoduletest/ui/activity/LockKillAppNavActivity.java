@@ -82,13 +82,13 @@ public class LockKillAppNavActivity extends WithRecyclerView {
             public void run() {
                 SwitchBar switchBar = (SwitchBar) findViewById(R.id.switchbar);
                 if (switchBar == null) return;
-                switchBar.setChecked(XAshmanManager.defaultInstance().isServiceAvailable()
-                        && XAshmanManager.defaultInstance().isLockKillEnabled());
+                switchBar.setChecked(XAshmanManager.singleInstance().isServiceAvailable()
+                        && XAshmanManager.singleInstance().isLockKillEnabled());
                 switchBar.addOnSwitchChangeListener(new SwitchBar.OnSwitchChangeListener() {
                     @Override
                     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-                        if (XAshmanManager.defaultInstance().isServiceAvailable())
-                            XAshmanManager.defaultInstance().setLockKillEnabled(isChecked);
+                        if (XAshmanManager.singleInstance().isServiceAvailable())
+                            XAshmanManager.singleInstance().setLockKillEnabled(isChecked);
                         else showTips(R.string.title_service_not_connected_settings, false,
                                 null, null);
                     }

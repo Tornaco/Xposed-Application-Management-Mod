@@ -26,7 +26,7 @@ public class VerifierGuardSettings extends GuardSettingsActivity {
             addPreferencesFromResource(R.xml.verifier);
 
 
-            if (!XAppGuardManager.defaultInstance().isServiceAvailable()) {
+            if (!XAppGuardManager.singleInstance().isServiceAvailable()) {
                 getPreferenceScreen().setEnabled(false);
                 return;
             }

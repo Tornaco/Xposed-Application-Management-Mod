@@ -58,7 +58,6 @@ import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.util.Closer;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XLog;
-import github.tornaco.xposedmoduletest.xposed.util.XStopWatch;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -216,7 +215,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     if (isSystemApp) {
                         addToWhiteList(pkg);
                     }
-                    XLog.logV("Cached pkg:" + pkg + "-" + uid + "-" + isSystemApp);
                     mPackagesCache.put(uid, pkg);
                 }
             });
@@ -225,19 +223,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
-    synchronized private void loadBootPackageSettings() {
-        XLog.logV("loadBootPackageSettings...");
+    synchronized private ValueExtra<Boolean, String> loadBootPackageSettings() {
         ContentResolver contentResolver = getContext().getContentResolver();
         if (contentResolver == null) {
             // Happen when early start.
-            return;
+            return new ValueExtra<>(false, "contentResolver is null");
         }
         Cursor cursor = null;
         try {
             cursor = contentResolver.query(BootPackageProvider.CONTENT_URI, null, null, null, null);
             if (cursor == null) {
-                XLog.logF("Fail query boot pkgs, cursor is null");
-                return;
+                return new ValueExtra<>(false, "cursor is null");
             }
 
             mBootWhiteListPackages.clear();
@@ -251,55 +247,55 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
         } catch (Throwable e) {
             XLog.logF("Fail query boot pkgs:\n" + Log.getStackTraceString(e));
+            return new ValueExtra<>(false, String.valueOf(e));
         } finally {
             Closer.closeQuietly(cursor);
         }
+        return new ValueExtra<>(true, "Read count: " + mBootWhiteListPackages.size());
     }
 
-    synchronized private void loadStartPackageSettings() {
-        XLog.logV("loadStartPackageSettings...");
+    synchronized private ValueExtra<Boolean, String> loadStartPackageSettings() {
         ContentResolver contentResolver = getContext().getContentResolver();
         if (contentResolver == null) {
             // Happen when early start.
-            return;
+            return new ValueExtra<>(false, "contentResolver is null");
         }
         Cursor cursor = null;
         try {
             cursor = contentResolver.query(AutoStartPackageProvider.CONTENT_URI, null, null, null, null);
             if (cursor == null) {
-                XLog.logF("Fail query start pkgs, cursor is null");
-                return;
+                return new ValueExtra<>(false, "cursor is null");
             }
 
             mStartWhiteListPackages.clear();
 
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
                 AutoStartPackage autoStartPackage = AutoStartPackageDaoUtil.readEntity(cursor, 0);
-                XLog.logV("Start pkg reader readEntity of: " + autoStartPackage);
                 String key = autoStartPackage.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
                 mStartWhiteListPackages.put(key, autoStartPackage);
             }
         } catch (Throwable e) {
             XLog.logF("Fail query start pkgs:\n" + Log.getStackTraceString(e));
+            return new ValueExtra<>(false, String.valueOf(e));
         } finally {
             Closer.closeQuietly(cursor);
         }
+
+        return new ValueExtra<>(true, "Read count: " + mStartWhiteListPackages.size());
     }
 
-    synchronized private void loadLockKillPackageSettings() {
-        XLog.logV("loadLockKillPackageSettings...");
+    synchronized private ValueExtra<Boolean, String> loadLockKillPackageSettings() {
         ContentResolver contentResolver = getContext().getContentResolver();
         if (contentResolver == null) {
             // Happen when early start.
-            return;
+            return new ValueExtra<>(false, "contentResolver is null");
         }
         Cursor cursor = null;
         try {
             cursor = contentResolver.query(LockKillPackageProvider.CONTENT_URI, null, null, null, null);
             if (cursor == null) {
-                XLog.logF("Fail query no-kill pkgs, cursor is null");
-                return;
+                return new ValueExtra<>(false, "cursor is null");
             }
 
             mLockKillWhileListPackages.clear();
@@ -313,16 +309,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
         } catch (Throwable e) {
             XLog.logF("Fail query start pkgs:\n" + Log.getStackTraceString(e));
+            XLog.logF("Fail query start pkgs:\n" + Log.getStackTraceString(e));
         } finally {
             Closer.closeQuietly(cursor);
         }
+
+        return new ValueExtra<>(true, "Read count: " + mStartWhiteListPackages.size());
     }
 
-    private void registerPackageObserver() {
+    private ValueExtra<Boolean, String> registerBootPackageObserver() {
         ContentResolver contentResolver = getContext().getContentResolver();
         if (contentResolver == null) {
             // Happen when early start.
-            return;
+            return new ValueExtra<>(false, "contentResolver is null");
         }
         try {
             contentResolver.registerContentObserver(BootPackageProvider.CONTENT_URI,
@@ -340,8 +339,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     });
         } catch (Exception e) {
             XLog.logF("Fail registerContentObserver@BootPackageProvider:\n" + Log.getStackTraceString(e));
+            return new ValueExtra<>(false, String.valueOf(e));
         }
+        return new ValueExtra<>(true, "OK");
+    }
 
+    private ValueExtra<Boolean, String> registerStartPackageObserver() {
+        ContentResolver contentResolver = getContext().getContentResolver();
+        if (contentResolver == null) {
+            // Happen when early start.
+            return new ValueExtra<>(false, "contentResolver is null");
+        }
         try {
             contentResolver.registerContentObserver(AutoStartPackageProvider.CONTENT_URI,
                     false, new ContentObserver(h) {
@@ -358,8 +366,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     });
         } catch (Exception e) {
             XLog.logF("Fail registerContentObserver@AutoStartPackageProvider:\n" + Log.getStackTraceString(e));
+            return new ValueExtra<>(false, String.valueOf(e));
         }
+        return new ValueExtra<>(true, "OK");
+    }
 
+
+    private ValueExtra<Boolean, String> registerLKPackageObserver() {
+        ContentResolver contentResolver = getContext().getContentResolver();
+        if (contentResolver == null) {
+            // Happen when early start.
+            return new ValueExtra<>(false, "contentResolver is null");
+        }
         try {
             contentResolver.registerContentObserver(LockKillPackageProvider.CONTENT_URI,
                     false, new ContentObserver(h) {
@@ -376,8 +394,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     });
         } catch (Exception e) {
             XLog.logF("Fail registerContentObserver@LockKillPackageProvider:\n" + Log.getStackTraceString(e));
+            return new ValueExtra<>(false, String.valueOf(e));
         }
+        return new ValueExtra<>(true, "OK");
     }
+
 
     private void whiteIMEPackages() {
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(INPUT_METHOD_SERVICE);
@@ -726,18 +747,79 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         mIsSystemReady = true;
         checkSafeMode();
         registerReceiver();
+
+        // Try load providers.
+        AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
+            @Override
+            public boolean once() {
+                ValueExtra<Boolean, String> res = loadBootPackageSettings();
+                String extra = res.getExtra();
+                XLog.logV("loadBootPackageSettings, extra: " + extra);
+                return res.getValue();
+            }
+        }, new Runnable() {
+            @Override
+            public void run() {
+                AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
+                    @Override
+                    public boolean once() {
+                        ValueExtra<Boolean, String> res = registerBootPackageObserver();
+                        XLog.logV("registerBootPackageObserver, extra: " + res.getExtra());
+                        return res.getValue();
+                    }
+                });
+            }
+        });
+
+        AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
+            @Override
+            public boolean once() {
+                ValueExtra<Boolean, String> res = loadStartPackageSettings();
+                String extra = res.getExtra();
+                XLog.logV("loadStartPackageSettings, extra: " + extra);
+                return res.getValue();
+            }
+        }, new Runnable() {
+            @Override
+            public void run() {
+                AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
+                    @Override
+                    public boolean once() {
+                        ValueExtra<Boolean, String> res = registerStartPackageObserver();
+                        XLog.logV("registerStartPackageObserver, extra: " + res.getExtra());
+                        return res.getValue();
+                    }
+                });
+            }
+        });
+
+        AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
+            @Override
+            public boolean once() {
+                ValueExtra<Boolean, String> res = loadLockKillPackageSettings();
+                String extra = res.getExtra();
+                XLog.logV("loadLockKillPackageSettings, extra: " + extra);
+                return res.getValue();
+            }
+        }, new Runnable() {
+            @Override
+            public void run() {
+                AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
+                    @Override
+                    public boolean once() {
+                        ValueExtra<Boolean, String> res = registerLKPackageObserver();
+                        XLog.logV("registerLKPackageObserver, extra: " + res.getExtra());
+                        return res.getValue();
+                    }
+                });
+            }
+        });
     }
 
     @Override
     public void retrieveSettings() {
         XLog.logF("retrieveSettings@" + getClass().getSimpleName());
         getConfigFromSettings();
-
-        loadBootPackageSettings();
-        loadStartPackageSettings();
-        loadLockKillPackageSettings();
-        registerPackageObserver();
-
         cachePackages();
         whiteIMEPackages();
     }
@@ -920,7 +1002,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         @Override
         public void clearProcess(final IProcessClearListener listener) {
-            XStopWatch stopWatch = XStopWatch.start("onScreenOn, clear tasks");
             if (listener != null) try {
                 listener.onPrepareClearing();
             } catch (RemoteException ignored) {
@@ -933,7 +1014,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     mClearingTask.getData().cancel(true);
                     mClearingTask.setData(null);
                 }
-                stopWatch.split("cancel old one");
                 FutureTask<String[]> futureTask = new FutureTask<>(new Callable<String[]>() {
                     @Override
                     public String[] call() throws Exception {
@@ -1051,8 +1131,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
 
             mWorkingService.execute(mClearingTask.getData());
-
-            stopWatch.stop();
         }
 
         @Override

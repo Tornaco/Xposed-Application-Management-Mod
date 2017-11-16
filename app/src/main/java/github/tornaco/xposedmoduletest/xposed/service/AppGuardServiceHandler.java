@@ -5,16 +5,13 @@ import android.view.KeyEvent;
 
 import github.tornaco.apigen.CreateMessageIdWithMethods;
 
-import static github.tornaco.xposedmoduletest.xposed.service.AppGuardServiceHandler.BASE;
-
 /**
  * Created by guohao4 on 2017/11/1.
  * Email: Tornaco@163.com
  */
-@CreateMessageIdWithMethods(base = BASE, fallbackMessageDecode = "MSG_TRANSACTION_EXPIRE")
+@CreateMessageIdWithMethods(fallbackMessageDecode = "MSG_TRANSACTION_EXPIRE")
 interface AppGuardServiceHandler {
 
-    int BASE = 0x1;
     int MSG_TRANSACTION_EXPIRE_BASE = 2017;
 
     void setEnabled(boolean enabled);

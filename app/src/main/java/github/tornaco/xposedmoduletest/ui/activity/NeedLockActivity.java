@@ -12,14 +12,13 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.os.Vibrator;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.os.CancellationSignal;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
@@ -33,7 +32,7 @@ import java.util.List;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.camera.CameraManager;
 import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerCompat;
-import github.tornaco.xposedmoduletest.provider.KeyguardStorage;
+import github.tornaco.xposedmoduletest.provider.LockStorage;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.util.PatternLockViewListenerAdapter;
 import github.tornaco.xposedmoduletest.util.ViewAnimatorUtil;
@@ -49,19 +48,21 @@ public class NeedLockActivity extends BaseActivity {
     private LockView mLockView;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onResume() {
+        super.onResume();
         if (isLockNeeded()) {
-            mLockView = new LockView();
-            mLockView.attach(NeedLockActivity.this);
-        }
-    }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mLockView != null) {
-            mLockView.detach(false);
+            if (mLockView != null && mLockView.isAttached()) {
+                return;
+            }
+
+            mLockView = new LockView();
+            try {
+                mLockView.attach(NeedLockActivity.this);
+            } catch (Exception e) {
+                String msg = Logger.getStackTraceString(e);
+                showSimpleDialog(getString(R.string.fail_show_internal_lockview), msg);
+            }
         }
     }
 
@@ -83,11 +84,15 @@ public class NeedLockActivity extends BaseActivity {
 
         private View mRootView;
 
+        private ViewGroup mDecor;
+
+        boolean isAttached() {
+            return (mRootView != null && mRootView.isAttachedToWindow());
+        }
+
         @SuppressLint("InflateParams")
         public void attach(Activity activity) {
             this.activity = activity;
-
-            detach(false);
 
             readSettings();
 
@@ -107,33 +112,18 @@ public class NeedLockActivity extends BaseActivity {
                 return;
             }
 
-            WindowManager wm = getWindowManager();
-
             ViewGroup.LayoutParams params
                     = new WindowManager.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    WindowManager.LayoutParams.TYPE_APPLICATION,
+                    WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG,
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                     PixelFormat.TRANSLUCENT);
 
-            wm.addView(mRootView, params);
+            Window w = activity.getWindow();
+            mDecor = (ViewGroup) w.getDecorView();
 
-//            mRootView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
-//                @Override
-//                public void onViewAttachedToWindow(View v) {
-//                    ViewAnimatorUtil.circularShow(mRootView, new Runnable() {
-//                        @Override
-//                        public void run() {
-//                        }
-//                    });
-//                }
-//
-//                @Override
-//                public void onViewDetachedFromWindow(View v) {
-//                    mRootView.removeOnAttachStateChangeListener(this);
-//                }
-//            });
+            mDecor.addView(mRootView, params);
         }
 
         public void detach(boolean withAnim) {
@@ -149,7 +139,7 @@ public class NeedLockActivity extends BaseActivity {
                 Logger.e("Error onDestroy: " + e);
             }
 
-            if (mRootView != null && mRootView.isAttachedToWindow()) {
+            if (isAttached()) {
 
                 if (withAnim) {
                     ViewAnimatorUtil.circularHide(mRootView, new Animator.AnimatorListener() {
@@ -160,8 +150,9 @@ public class NeedLockActivity extends BaseActivity {
 
                         @Override
                         public void onAnimationEnd(Animator animation) {
-                            WindowManager wm = getWindowManager();
-                            wm.removeView(mRootView);
+                            if (isAttached()) {
+                                mDecor.removeView(mRootView);
+                            }
                         }
 
                         @Override
@@ -247,12 +238,7 @@ public class NeedLockActivity extends BaseActivity {
 
         private boolean isKeyguard() {
             KeyguardManager keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
-            if (keyguardManager != null && keyguardManager.inKeyguardRestrictedInputMode()) {
-                Logger.d("in keyguard true");
-                return true;
-            }
-            Logger.d("in keyguard false");
-            return false;
+            return keyguardManager != null && keyguardManager.inKeyguardRestrictedInputMode();
         }
 
 
@@ -296,9 +282,9 @@ public class NeedLockActivity extends BaseActivity {
                 public void onComplete(List<PatternLockView.Dot> pattern) {
                     cancelCheckTask();
                     // Check pattern.
-                    mCheckTask = KeyguardStorage.checkPatternAsync(getApplicationContext(),
+                    mCheckTask = LockStorage.checkPatternAsync(getApplicationContext(),
                             PatternLockUtils.patternToString(patternLockView, pattern),
-                            new KeyguardStorage.PatternCheckListener() {
+                            new LockStorage.PatternCheckListener() {
                                 @Override
                                 public void onMatch() {
                                     patternLockView.setViewMode(PatternLockView.PatternViewMode.CORRECT);

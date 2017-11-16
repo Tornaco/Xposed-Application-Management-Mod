@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.provider.XSettings;
+import github.tornaco.xposedmoduletest.util.XExecutor;
 
 /**
  * Created by guohao4 on 2017/10/17.
@@ -53,7 +53,7 @@ public class XActivation {
                 LICENSES.addAll(licenseList);
             }
         } catch (Exception e) {
-            Logger.e(Logger.getStackTraceString(e));
+            Logger.e("XActivation reload error: " + e);
         }
     }
 }

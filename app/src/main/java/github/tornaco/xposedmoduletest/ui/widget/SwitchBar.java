@@ -252,7 +252,7 @@ public class SwitchBar extends LinearLayout implements CompoundButton.OnCheckedC
         }
 
         /**
-         * Constructor called defaultInstance {@link #CREATOR}
+         * Constructor called singleInstance {@link #CREATOR}
          */
         private SavedState(Parcel in) {
             super(in);

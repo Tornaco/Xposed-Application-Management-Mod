@@ -130,6 +130,7 @@ public class CreateMessageIdWithMethodsCompiler extends AbstractProcessor {
 
         List<? extends Element> elements = type.getEnclosedElements();
         for (Element e : elements) {
+            if (!e.toString().contains("(")) continue; // This is not a method.
             String fieldName = "MSG_" + e.getSimpleName().toString().toUpperCase();
             subClass.addField(FieldSpec.builder(TypeName.INT, fieldName,
                     Modifier.STATIC, Modifier.FINAL, Modifier.PUBLIC)
@@ -140,7 +141,8 @@ public class CreateMessageIdWithMethodsCompiler extends AbstractProcessor {
             base++;
         }
 
-        decodeMsthodSpecBuilder.addStatement("return $S", type.getAnnotation(CreateMessageIdWithMethods.class).fallbackMessageDecode());
+        decodeMsthodSpecBuilder.addStatement("return $S", type.getAnnotation(CreateMessageIdWithMethods.class)
+                .fallbackMessageDecode());
         subClass.addMethod(decodeMsthodSpecBuilder.build());
 
         JavaFile javaFile = JavaFile.builder(pkg, subClass.build())

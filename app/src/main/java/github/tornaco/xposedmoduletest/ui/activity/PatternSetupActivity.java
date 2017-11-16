@@ -10,7 +10,7 @@ import com.andrognito.patternlockview.utils.PatternLockUtils;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.provider.KeyguardStorage;
+import github.tornaco.xposedmoduletest.provider.LockStorage;
 
 /**
  * Created by guohao4 on 2017/10/21.
@@ -42,7 +42,7 @@ public class PatternSetupActivity extends BaseActivity implements PatternLockVie
 
     @Override
     public void onComplete(List<PatternLockView.Dot> pattern) {
-        KeyguardStorage.setPattern(getApplicationContext(), PatternLockUtils.patternToString(patternLockView, pattern));
+        LockStorage.setPattern(getApplicationContext(), PatternLockUtils.patternToString(patternLockView, pattern));
         finish();
     }
 

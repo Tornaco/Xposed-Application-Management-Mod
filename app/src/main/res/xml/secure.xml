@@ -32,12 +32,14 @@
             android:defaultValue="false"
             android:key="ver_on_home"
             android:persistent="false"
+            android:summary="@string/summary_verify_on_home"
             android:title="@string/title_ver_on_home" />
 
         <SwitchPreference
             android:defaultValue="true"
             android:key="ver_on_screenoff"
             android:persistent="false"
+            android:summary="@string/summary_verify_on_screenoff"
             android:title="@string/title_ver_on_screenoff" />
     </PreferenceCategory>
 

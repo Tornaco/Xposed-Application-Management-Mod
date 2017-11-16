@@ -44,10 +44,9 @@ import github.tornaco.xposedmoduletest.camera.CameraManager;
 import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerCompat;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
-import github.tornaco.xposedmoduletest.provider.KeyguardStorage;
+import github.tornaco.xposedmoduletest.provider.LockStorage;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.util.PatternLockViewListenerAdapter;
-import github.tornaco.xposedmoduletest.util.StopWatch;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 import github.tornaco.xposedmoduletest.xposed.app.XWatcherAdapter;
@@ -119,29 +118,29 @@ public class VerifyDisplayerActivity extends BaseActivity {
         setTitle(null);
 
         // Check if our passcode has been set.
-        if (!testMode && XSettings.getPattern(this) == null) {
+        if (!testMode && !LockStorage.iaPatternSet(getApplicationContext())) {
             Toast.makeText(this, R.string.summary_setup_passcode_none_set, Toast.LENGTH_SHORT).show();
             onPass();
             return;
         }
 
-        setupLabel();
+        setupLabel(getString(R.string.input_password, ApkUtil.loadNameByPkgName(this, pkg)));
         setupIcon();
         setupLockView();
         setupCamera();
 
-        XAppGuardManager.defaultInstance().watch(new XWatcherAdapter() {
+        XAppGuardManager.singleInstance().watch(new XWatcherAdapter() {
             @Override
             public void onUserLeaving(String reason) throws RemoteException {
                 super.onUserLeaving(reason);
-                XAppGuardManager.defaultInstance().unWatch(this);
+                XAppGuardManager.singleInstance().unWatch(this);
             }
         });
     }
 
     private void setupIcon() {
         if (XSettings.get().showAppIconEnabled(this)) {
-            ImageView imageView = (ImageView) findViewById(R.id.icon);
+            ImageView imageView = findViewById(R.id.icon);
             Vangogh.with(this)
                     .load(pkg)
                     .placeHolder(0)
@@ -174,9 +173,9 @@ public class VerifyDisplayerActivity extends BaseActivity {
             public void onComplete(List<PatternLockView.Dot> pattern) {
                 cancelCheckTask();
                 // Check pattern.
-                mCheckTask = KeyguardStorage.checkPatternAsync(getApplicationContext(),
+                mCheckTask = LockStorage.checkPatternAsync(getApplicationContext(),
                         PatternLockUtils.patternToString(patternLockView, pattern),
-                        new KeyguardStorage.PatternCheckListener() {
+                        new LockStorage.PatternCheckListener() {
                             @Override
                             public void onMatch() {
                                 patternLockView.setViewMode(PatternLockView.PatternViewMode.CORRECT);
@@ -187,6 +186,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
                             public void onMisMatch() {
                                 patternLockView.setViewMode(PatternLockView.PatternViewMode.WRONG);
                                 patternLockView.clearPattern();
+                                takePhoto();
                             }
                         });
             }
@@ -199,15 +199,30 @@ public class VerifyDisplayerActivity extends BaseActivity {
         patternLockView.setEnableHapticFeedback(true);
     }
 
+    private void takePhoto() {
+        if (mTakePhoto)
+            CameraManager.get().captureSaveAsync(new CameraManager.PictureCallback() {
+                @Override
+                public void onImageReady(String path) {
+                    Logger.d("CameraManager- onImageReady@" + path);
+                }
+
+                @Override
+                public void onFail(Exception e) {
+                    Logger.d("CameraManager- onFail@" + e);
+                }
+            });
+    }
+
     private void cancelCheckTask() {
         if (mCheckTask != null) {
             mCheckTask.cancel(true);
         }
     }
 
-    private void setupLabel() {
-        TextView textView = (TextView) findViewById(R.id.label);
-        textView.setText(getString(R.string.input_password, ApkUtil.loadNameByPkgName(this, pkg)));
+    private void setupLabel(String label) {
+        TextView textView = findViewById(R.id.label);
+        textView.setText(label);
     }
 
     private void setupCamera() {
@@ -250,22 +265,19 @@ public class VerifyDisplayerActivity extends BaseActivity {
                         public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
                             super.onAuthenticationHelp(helpMsgId, helpString);
                             Logger.i("onAuthenticationHelp:" + helpString);
-                            // mLabelView.setText(helpString);
                         }
 
                         @Override
                         public void onAuthenticationFailed() {
                             super.onAuthenticationFailed();
                             Logger.d("onAuthenticationFailed");
-                            // vibrate();
+                            takePhoto();
                         }
 
                         @Override
                         public void onAuthenticationError(int errMsgId, CharSequence errString) {
                             super.onAuthenticationError(errMsgId, errString);
                             Logger.d("onAuthenticationError:" + errString);
-                            // mLabelView.setText(errString);
-                            // vibrate();
                         }
                     });
         }
@@ -280,12 +292,12 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     @SuppressWarnings("ConstantConditions")
     private void applyColor(int color) {
-        AppBarLayout appBar = (AppBarLayout) findViewById(R.id.appbar);
+        AppBarLayout appBar = findViewById(R.id.appbar);
         if (appBar != null) appBar.setBackgroundColor(color);
-        ViewGroup infoContainer = (ViewGroup) findViewById(R.id.info);
+        ViewGroup infoContainer = findViewById(R.id.info);
         infoContainer.setBackgroundColor(color);
         getWindow().setStatusBarColor(ColorUtil.colorBurn(color));
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
             toolbar.setBackgroundColor(color);
             setSupportActionBar(toolbar);
@@ -306,13 +318,17 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private void onPass() {
         if (testMode || mResNotified) return;
-        StopWatch stopWatch = StopWatch.start("onPass");
+
         mResNotified = true;
         cancelFP();
-        stopWatch.split("cancelFP");
-        XAppGuardManager.defaultInstance().setResult(tid, XAppVerifyMode.MODE_ALLOWED);
-        stopWatch.split("setResult");
-        finish();
+        try {
+            if (!checkTransaction()) {
+                return;
+            }
+            XAppGuardManager.singleInstance().setResult(tid, XAppVerifyMode.MODE_ALLOWED);
+        } finally {
+            finish();
+        }
     }
 
     private void cancelFP() {
@@ -338,6 +354,11 @@ public class VerifyDisplayerActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
+        if (!checkTransaction()) {
+            finish();
+            return;
+        }
+
         if (isKeyguard()) {
             this.mScreenBroadcastReceiver = new ScreenBroadcastReceiver();
             IntentFilter intentFilter = new IntentFilter();
@@ -346,11 +367,17 @@ public class VerifyDisplayerActivity extends BaseActivity {
             return;
         }
 
-//        KeyguardPatternView keyguardPatternView =
-//                (KeyguardPatternView) findViewById(R.id.keyguard_pattern_view);
-//        if (keyguardPatternView != null) keyguardPatternView.startAppearAnimation();
-
         setupFP();
+    }
+
+    private boolean checkTransaction() {
+        if (!testMode && tid < 0) {
+            setupLabel(getString(R.string.title_transaction_expire));
+            finish();
+            return false;
+        }
+        return XAppGuardManager.singleInstance().isServiceAvailable()
+                && XAppGuardManager.singleInstance().isTransactionValid(tid);
     }
 
     private void onFail() {
@@ -359,7 +386,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
         }
         mResNotified = true;
         cancelFP();
-        XAppGuardManager.defaultInstance().setResult(tid, XAppVerifyMode.MODE_DENIED);
+        XAppGuardManager.singleInstance().setResult(tid, XAppVerifyMode.MODE_DENIED);
         if (injectHome) {
             Intent intent = new Intent("android.intent.action.MAIN");
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

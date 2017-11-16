@@ -15,7 +15,6 @@ import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 import github.tornaco.xposedmoduletest.xposed.service.VerifyListener;
 import github.tornaco.xposedmoduletest.xposed.util.XLog;
-import github.tornaco.xposedmoduletest.xposed.util.XStopWatch;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -91,7 +90,6 @@ class ActivityStartSubModule extends AppGuardAndroidSubModule {
                 @Override
                 protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
                     super.beforeHookedMethod(param);
-                    XStopWatch stopWatch = XStopWatch.start("hookStartActivityMayWait- startActivityMayWaitMethod");
                     try {
                         Intent intent =
                                 finalIntentIndex > 0 ?
@@ -110,7 +108,6 @@ class ActivityStartSubModule extends AppGuardAndroidSubModule {
 
                         // Package has been passed.
                         if (!getAppGuardBridge().onEarlyVerifyConfirm(pkgName)) {
-                            XLog.logV("onEarlyVerifyConfirmed...");
                             return;
                         }
 
@@ -135,7 +132,6 @@ class ActivityStartSubModule extends AppGuardAndroidSubModule {
                         // replacing did not work.. but no reason to crash the VM! Log the error and go on.
                         XLog.logV("Error@startActivityMayWaitMethod:" + Log.getStackTraceString(e));
                     } finally {
-                        stopWatch.stop();
                     }
                 }
             });

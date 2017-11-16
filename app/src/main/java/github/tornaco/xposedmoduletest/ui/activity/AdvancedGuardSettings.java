@@ -29,7 +29,7 @@ public class AdvancedGuardSettings extends GuardSettingsActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.advanced);
 
-            if (!XAppGuardManager.defaultInstance().isServiceAvailable()) {
+            if (!XAppGuardManager.singleInstance().isServiceAvailable()) {
                 getPreferenceScreen().setEnabled(false);
                 return;
             }
@@ -67,13 +67,13 @@ public class AdvancedGuardSettings extends GuardSettingsActivity {
 //            });
 
             final StringBuilder moduleStatus = new StringBuilder();
-            Collections.consumeRemaining(XAppGuardManager.defaultInstance().getSubModules(),
+            Collections.consumeRemaining(XAppGuardManager.singleInstance().getSubModules(),
                     new Consumer<String>() {
                         @Override
                         public void accept(String s) {
                             moduleStatus.append(s)
                                     .append(": ")
-                                    .append(SubModule.SubModuleStatus.valueOf(XAppGuardManager.defaultInstance().getSubModuleStatus(s)))
+                                    .append(SubModule.SubModuleStatus.valueOf(XAppGuardManager.singleInstance().getSubModuleStatus(s)))
                                     .append("\n");
                         }
                     });
@@ -84,18 +84,18 @@ public class AdvancedGuardSettings extends GuardSettingsActivity {
                     .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                         @Override
                         public boolean onPreferenceClick(Preference preference) {
-                            XAppGuardManager.defaultInstance().mockCrash();
+                            XAppGuardManager.singleInstance().mockCrash();
                             return true;
                         }
                     });
 
 //            SwitchPreference debugPref = (SwitchPreference) findPreference("dev_mode_enabled");
-//            debugPref.setChecked(XAppGuardManager.defaultInstance().isDebug());
+//            debugPref.setChecked(XAppGuardManager.singleInstance().isDebug());
 //            debugPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
 //                @Override
 //                public boolean onPreferenceChange(Preference preference, Object newValue) {
 //                    boolean v = (boolean) newValue;
-//                    XAppGuardManager.defaultInstance().setDebug(v);
+//                    XAppGuardManager.singleInstance().setDebug(v);
 //                    return true;
 //                }
 //            });

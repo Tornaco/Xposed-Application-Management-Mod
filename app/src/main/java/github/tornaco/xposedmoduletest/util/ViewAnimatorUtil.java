@@ -48,6 +48,8 @@ public class ViewAnimatorUtil {
             anim.addListener(listener);
         }
 
+        anim.setDuration(500);
+
         anim.start();
     }
 

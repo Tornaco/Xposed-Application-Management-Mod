@@ -14,6 +14,7 @@ public class EmojiUtil {
     public static final int HAPPY = 0X1F60F;
     public static final int UNHAPPY = 0x1F625;
     public static final int BOOST = 0x1F680;
+    public static final int SHEEP = 0x1F40F;
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public static String getEmojiByUnicode(int unicode) {

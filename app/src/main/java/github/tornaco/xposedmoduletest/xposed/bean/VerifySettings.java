@@ -22,7 +22,7 @@ import lombok.ToString;
 @ToString
 public class VerifySettings implements Parcelable, Cloneable {
 
-    public static final String KEY_SETTINGS = "tornaco.app_guard_verify";
+    public static final String KEY_SETTINGS = "tornaco.ag_verify";
 
     private boolean verifyOnScreenOff;
     private boolean verifyOnHome;

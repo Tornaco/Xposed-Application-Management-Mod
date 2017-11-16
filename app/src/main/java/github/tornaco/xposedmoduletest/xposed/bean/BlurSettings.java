@@ -22,7 +22,7 @@ import lombok.ToString;
 @ToString
 public class BlurSettings implements Parcelable, Cloneable {
 
-    public static final String KEY_SETTINGS = "tornaco.app_guard_blur";
+    public static final String KEY_SETTINGS = "tornaco.ag_blur";
 
     private boolean enabled;
     private int policy;

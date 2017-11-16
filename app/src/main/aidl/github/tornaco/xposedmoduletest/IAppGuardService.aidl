@@ -22,6 +22,8 @@ interface IAppGuardService {
 
     void setResult(int transactionID, int res);
 
+    boolean isTransactionValid(int transactionID);
+
     void watch(in IAppGuardWatcher w);
     void unWatch(in IAppGuardWatcher w);
 

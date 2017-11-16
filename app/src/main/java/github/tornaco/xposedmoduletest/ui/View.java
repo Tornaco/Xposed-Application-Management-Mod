@@ -18,6 +18,8 @@ public interface View {
 
     void finish();
 
+    void showSimpleDialog(String title, String message);
+
     void showTips(CharSequence tips, boolean infinite, String actionTitle, Runnable action);
 
     void showTips(@StringRes int tipsRes, boolean infinite, String actionTitle, Runnable action);

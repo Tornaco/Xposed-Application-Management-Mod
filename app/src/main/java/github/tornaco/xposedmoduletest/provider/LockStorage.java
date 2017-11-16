@@ -14,20 +14,20 @@ import java.util.concurrent.Executors;
  * Email: Tornaco@163.com
  */
 
-public class KeyguardStorage {
+public class LockStorage {
 
     private static ExecutorService checkService = Executors.newCachedThreadPool();
 
     private static final String PATTERN_SEC = "key_pattern_enc";
 
-    private KeyguardStorage() {
+    private LockStorage() {
     }
 
     public static boolean iaPatternSet(Context context) {
         return !TextUtils.isEmpty(getPattern(context));
     }
 
-    public static String getPattern(Context context) {
+    private static String getPattern(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getString(PATTERN_SEC, null);
     }

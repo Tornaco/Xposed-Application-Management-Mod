@@ -39,7 +39,7 @@ public class SecureGuardSettings extends GuardSettingsActivity {
             addPreferencesFromResource(R.xml.secure);
 
             Preference lockSettingsPref = findPreference("verify_method");
-//            lockSettingsPref.setSummary(KeyguardStorage.iaPatternSet(getActivity()) ?
+//            lockSettingsPref.setSummary(LockStorage.iaPatternSet(getActivity()) ?
 //                    R.string.summary_setup_passcode_set
 //                    : R.string.summary_setup_passcode_none_set);//TODO
             lockSettingsPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -51,9 +51,9 @@ public class SecureGuardSettings extends GuardSettingsActivity {
             });
 
 
-            if (XAppGuardManager.defaultInstance().isServiceAvailable()) {
+            if (XAppGuardManager.singleInstance().isServiceAvailable()) {
 
-                verifySettings = XAppGuardManager.defaultInstance().getVerifySettings();
+                verifySettings = XAppGuardManager.singleInstance().getVerifySettings();
                 if (verifySettings == null) verifySettings = new VerifySettings();
 
                 final boolean verifyOnHome = verifySettings.isVerifyOnHome();
@@ -63,7 +63,7 @@ public class SecureGuardSettings extends GuardSettingsActivity {
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean v = (boolean) newValue;
                         verifySettings.setVerifyOnHome(v);
-                        XAppGuardManager.defaultInstance().setVerifySettings(verifySettings);
+                        XAppGuardManager.singleInstance().setVerifySettings(verifySettings);
                         return true;
                     }
                 });
@@ -76,7 +76,7 @@ public class SecureGuardSettings extends GuardSettingsActivity {
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean v = (boolean) newValue;
                         verifySettings.setVerifyOnScreenOff(v);
-                        XAppGuardManager.defaultInstance().setVerifySettings(verifySettings);
+                        XAppGuardManager.singleInstance().setVerifySettings(verifySettings);
                         return true;
                     }
                 });

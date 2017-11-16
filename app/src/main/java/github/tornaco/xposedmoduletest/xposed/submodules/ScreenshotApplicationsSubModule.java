@@ -17,7 +17,6 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.util.XBitmapUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XLog;
-import github.tornaco.xposedmoduletest.xposed.util.XStopWatch;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -63,7 +62,6 @@ public class ScreenshotApplicationsSubModule extends AppGuardAndroidSubModule {
     private void onScreenshotApplications(XC_MethodHook.MethodHookParam param) throws RemoteException {
         IBinder token = (IBinder) param.args[0];
         ComponentName activityClassForToken = ActivityManagerNative.getDefault().getActivityClassForToken(token);
-        XStopWatch stopWatch = XStopWatch.start("onScreenshotApplications");
         String pkgName = activityClassForToken == null ? null : activityClassForToken.getPackageName();
         if (TextUtils.isEmpty(pkgName)) {
             return;
@@ -71,13 +69,10 @@ public class ScreenshotApplicationsSubModule extends AppGuardAndroidSubModule {
         if (getAppGuardBridge().isBlurForPkg(pkgName)
                 && param.getResult() != null) {
             Bitmap res = (Bitmap) param.getResult();
-            stopWatch.split("Blur bitmap start");
             Bitmap blured = (XBitmapUtil.createBlurredBitmap(res,
                     XBitmapUtil.BLUR_RADIUS, XBitmapUtil.BITMAP_SCALE));
             if (blured != null)
                 param.setResult(blured);
-            stopWatch.split("Blur bitmap end");
         }
-        stopWatch.stop();
     }
 }

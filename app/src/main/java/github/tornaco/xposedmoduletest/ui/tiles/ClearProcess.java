@@ -8,19 +8,17 @@ import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.ClearProcessActivity;
-import github.tornaco.xposedmoduletest.util.EmojiUtil;
 
 /**
  * Created by guohao4 on 2017/11/10.
  * Email: Tornaco@163.com
  */
 
-public class ClearProgress extends QuickTile {
+public class ClearProcess extends QuickTile {
 
-    public ClearProgress(final Context context) {
+    public ClearProcess(final Context context) {
         super(context);
-        this.title = context.getResources().getString(R.string.clear_process,
-                EmojiUtil.getEmojiByUnicode(EmojiUtil.BOOST));
+        this.titleRes = R.string.clear_process;
         this.iconRes = R.drawable.ic_memory_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override

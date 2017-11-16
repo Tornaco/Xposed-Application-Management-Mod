@@ -104,6 +104,10 @@ public class BlockRecordProvider extends ContentProvider {
         }
     }
 
+    /**
+     * @deprecated Do not use provider for record saving fot better battery usage.
+     */
+    @Deprecated
     public static Uri insert(Context context, BlockRecord blockRecord) {
         ContentValues values = new ContentValues();
         values.put(BlockRecordDao.Properties.PkgName.columnName, blockRecord.getPkgName());

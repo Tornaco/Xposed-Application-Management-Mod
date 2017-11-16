@@ -30,7 +30,6 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -59,7 +58,6 @@ import github.tornaco.xposedmoduletest.xposed.util.XLog;
 import lombok.Synchronized;
 
 import static github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager.Feature.FEATURE_COUNT;
-import static github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager.META_DATA_KEY_APP_GUARD_VERIFY_DISPLAYER;
 
 /**
  * Created by guohao4 on 2017/10/23.
@@ -134,7 +132,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 case Intent.ACTION_PACKAGE_REPLACED:
                     String packageName = intent.getData().getSchemeSpecificPart();
                     if (packageName == null) return;
-                    parsePackageAsync(packageName);
+                    cacheUIDForPackages();
                     break;
             }
         }
@@ -175,8 +173,30 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         XLog.logF("systemReady@" + getClass().getSimpleName());
         checkSafeMode();
         cacheUIDForPackages();
-        loadPackageSettings();
-        registerPackageObserver();
+
+        // Try read providers.
+        AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
+            @Override
+            public boolean once() {
+                ValueExtra<Boolean, String> res = readPackageProvider();
+                String extra = res.getExtra();
+                XLog.logV("readPackageProvider, extra: " + extra);
+                return res.getValue();
+            }
+        }, new Runnable() {
+            @Override
+            public void run() {
+                AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
+                    @Override
+                    public boolean once() {
+                        ValueExtra<Boolean, String> res = registerPackageObserver();
+                        XLog.logV("registerPackageObserver, extra: " + res.getExtra());
+                        return res.getValue();
+                    }
+                });
+            }
+        });
+
         registerReceiver();
     }
 
@@ -223,42 +243,40 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         getContext().registerReceiver(mPackageReceiver, intentFilter);
     }
 
-    synchronized private void loadPackageSettings() {
-        XLog.logV("loadPackageSettings...");
+    synchronized private ValueExtra<Boolean, String> readPackageProvider() {
         ContentResolver contentResolver = getContext().getContentResolver();
         if (contentResolver == null) {
             // Happen when early start.
-            return;
+            return new ValueExtra<>(false, "contentResolver is null");
         }
         Cursor cursor = null;
         try {
             cursor = contentResolver.query(AppGuardPackageProvider.CONTENT_URI, null, null, null, null);
             if (cursor == null) {
-                XLog.logF("Fail query guard pkgs, cursor is null");
-                return;
+                return new ValueExtra<>(false, "cursor is null");
             }
 
             mGuardPackages.clear();
 
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
                 PackageInfo packageInfo = PackageInfoDaoUtil.readEntity(cursor, 0);
-                XLog.logV("Guard pkg reader, readEntity of: " + packageInfo);
                 String key = packageInfo.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
                 mGuardPackages.put(key, packageInfo);
             }
         } catch (Throwable e) {
-            XLog.logF("Fail query guard  pkgs:\n" + Log.getStackTraceString(e));
+            return new ValueExtra<>(false, String.valueOf(e));
         } finally {
             Closer.closeQuietly(cursor);
         }
+        return new ValueExtra<>(true, String.valueOf("Read count: " + mGuardPackages.size()));
     }
 
-    private void registerPackageObserver() {
+    private ValueExtra<Boolean, String> registerPackageObserver() {
         ContentResolver contentResolver = getContext().getContentResolver();
         if (contentResolver == null) {
             // Happen when early start.
-            return;
+            return new ValueExtra<>(false, "contentResolver is null");
         }
         try {
             contentResolver.registerContentObserver(AppGuardPackageProvider.CONTENT_URI,
@@ -269,14 +287,16 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                             mWorkingService.execute(new Runnable() {
                                 @Override
                                 public void run() {
-                                    loadPackageSettings();
+                                    readPackageProvider();
                                 }
                             });
                         }
                     });
         } catch (Exception e) {
             XLog.logF("Fail registerContentObserver@AppGuardPackageProvider:\n" + Log.getStackTraceString(e));
+            return new ValueExtra<>(false, String.valueOf(e));
         }
+        return new ValueExtra<>(true, "OK");
     }
 
     private void cacheUIDForPackages() {
@@ -284,17 +304,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         try {
             ApplicationInfo applicationInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID, 0);
             sClientUID = applicationInfo.uid;
-            XLog.logV("sClientUID:" + sClientUID);
-
-            // Filter all apps.
-            List<ApplicationInfo> applicationInfos = pm.getInstalledApplications(0);
-            Collections.consumeRemaining(applicationInfos, new Consumer<ApplicationInfo>() {
-                @Override
-                public void accept(ApplicationInfo applicationInfo) {
-                    String pkg = applicationInfo.packageName;
-                    parsePackage(pkg);
-                }
-            });
         } catch (Exception ignored) {
             XLog.logD("Can not get UID for our client:" + ignored);
         }
@@ -315,7 +324,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @Override
     public boolean interruptPackageRemoval(String pkg) {
-        return mUninstallProEnabled.get();
+        boolean enabled = isUninstallInterruptEnabled();
+        return enabled && !onEarlyVerifyConfirm(pkg);
     }
 
     @Override
@@ -348,8 +358,16 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             return false;
         } // Passed.
         PackageInfo p = mGuardPackages.get(pkg);
-        if (p == null) return false;
-        return p.getGuard();
+        if (p == null) {
+            XLog.logV("onEarlyVerifyConfirm, false@not-in-guard-list:" + pkg);
+            return false;
+        }
+        if (!p.getGuard()) {
+            XLog.logV("onEarlyVerifyConfirm, false@not-in-guard-value-list:" + pkg);
+            return false;
+        }
+
+        return true;
     }
 
     @Override
@@ -478,9 +496,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @Override
     @BinderCall
-    public boolean isUninstallInterruptEnabled() throws RemoteException {
+    public boolean isUninstallInterruptEnabled() {
         enforceCallingPermissions();
-        return mUninstallProEnabled.get();
+        return isEnabled() && mUninstallProEnabled.get();
     }
 
     @Override
@@ -532,6 +550,13 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     @Override
+    public boolean isTransactionValid(int transactionID) {
+        enforceCallingPermissions();
+        Transaction transaction = mTransactionMap.get(transactionID);
+        return transaction != null;
+    }
+
+    @Override
     @BinderCall
     public void watch(IAppGuardWatcher w) throws RemoteException {
         XLog.logD("iWatcher.watch-" + w);
@@ -577,38 +602,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         enforceCallingPermissions();
         return mDebugEnabled.get();
     }
-
-    private void parsePackageAsync(final String... pkg) {
-        mWorkingService.execute(new Runnable() {
-            @Override
-            public void run() {
-                parsePackage(pkg);
-            }
-        });
-    }
-
-    private void parsePackage(final String... pkg) {
-        final PackageManager pm = getContext().getPackageManager();
-
-        Collections.consumeRemaining(pkg, new Consumer<String>() {
-            @Override
-            public void accept(String s) {
-                ApplicationInfo applicationInfo;
-                try {
-                    applicationInfo = pm.getApplicationInfo(s, PackageManager.GET_META_DATA);
-                    if (applicationInfo.metaData == null) return;
-                    String displayerName =
-                            applicationInfo.metaData.getString(META_DATA_KEY_APP_GUARD_VERIFY_DISPLAYER);
-                    if (TextUtils.isEmpty(displayerName)) return;
-                    int uid = applicationInfo.uid;
-                    XLog.logD("Verifier pkg:" + displayerName + ", uid:" + uid);
-                } catch (Exception ignored) {
-
-                }
-            }
-        });
-    }
-
 
     protected void enforceCallingPermissions() {
         int callingUID = Binder.getCallingUid();
@@ -692,9 +685,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 case AppGuardServiceHandlerMessages.MSG_VERIFY:
                     AppGuardServiceHandlerImpl.this.verify((VerifyArgs) msg.obj);
                     break;
-                case AppGuardServiceHandlerMessages.MSG_MSG_TRANSACTION_EXPIRE_BASE:
-                    AppGuardServiceHandlerImpl.this.setResult(wht, XAppVerifyMode.MODE_IGNORED);
-                    break;
                 case AppGuardServiceHandlerMessages.MSG_ONKEYEVENT:
                     AppGuardServiceHandlerImpl.this.onKeyEvent((KeyEvent) msg.obj);
                     break;
@@ -711,7 +701,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                     onActivityPackageResume((String) msg.obj);
                     break;
                 default:
-                    XLog.logF("Unknown msg:" + wht);
+                    AppGuardServiceHandlerImpl.this.setResult((Integer) msg.obj,
+                            XAppVerifyMode.MODE_IGNORED);
                     break;
             }
         }
@@ -801,9 +792,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         }
 
         private void onNewTransaction(int transaction) {
-            sendMessageDelayed(obtainMessage(MSG_TRANSACTION_EXPIRE_BASE
-                            + transaction,
-                    transaction), TRANSACTION_EXPIRE_TIME);
+            sendMessageDelayed(obtainMessage(MSG_TRANSACTION_EXPIRE_BASE + transaction, transaction), TRANSACTION_EXPIRE_TIME);
         }
 
         @Override
@@ -886,6 +875,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         }
 
         @Override
+        @Deprecated
         public void onActivityResume(Activity activity) {
             XLog.logV("onActivityResume: " + activity);
             onActivityPackageResume(activity.getPackageName());

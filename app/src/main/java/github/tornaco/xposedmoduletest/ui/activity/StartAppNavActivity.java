@@ -82,13 +82,13 @@ public class StartAppNavActivity extends WithRecyclerView {
             public void run() {
                 SwitchBar switchBar = (SwitchBar) findViewById(R.id.switchbar);
                 if (switchBar == null) return;
-                switchBar.setChecked(XAshmanManager.defaultInstance().isServiceAvailable()
-                        && XAshmanManager.defaultInstance().isStartBlockEnabled());
+                switchBar.setChecked(XAshmanManager.singleInstance().isServiceAvailable()
+                        && XAshmanManager.singleInstance().isStartBlockEnabled());
                 switchBar.addOnSwitchChangeListener(new SwitchBar.OnSwitchChangeListener() {
                     @Override
                     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-                        if (XAshmanManager.defaultInstance().isServiceAvailable())
-                            XAshmanManager.defaultInstance().setStartBlockEnabled(isChecked);
+                        if (XAshmanManager.singleInstance().isServiceAvailable())
+                            XAshmanManager.singleInstance().setStartBlockEnabled(isChecked);
                         else showTips(R.string.title_service_not_connected_settings, false,
                                 null, null);
                     }

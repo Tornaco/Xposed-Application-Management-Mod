@@ -5,6 +5,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 
 import java.io.File;
+import java.util.Observable;
 
 import github.tornaco.xposedmoduletest.ui.Themes;
 
@@ -13,8 +14,7 @@ import github.tornaco.xposedmoduletest.ui.Themes;
  * Email: Tornaco@163.com
  */
 
-public class XSettings {
-
+public class XSettings extends Observable {
 
     private static XSettings sMe = new XSettings();
 
@@ -48,18 +48,6 @@ public class XSettings {
     public static File getPhotosDir(Context context) {
         return new File(context.getFilesDir()
                 + File.separator + "photos");
-    }
-
-    @Nullable
-    public static String getPattern(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getString(XKey.PATTERN_SEC, null);
-    }
-
-    public void setPattern(Context context, String code) {
-        PreferenceManager.getDefaultSharedPreferences(context)
-                .edit().putString(XKey.PATTERN_SEC, code)
-                .apply();
     }
 
     public static void setActivateCode(Context context, String code) {

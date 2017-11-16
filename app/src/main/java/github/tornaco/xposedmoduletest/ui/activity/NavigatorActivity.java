@@ -26,7 +26,7 @@ import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
 import github.tornaco.xposedmoduletest.ui.tiles.AppStart;
-import github.tornaco.xposedmoduletest.ui.tiles.ClearProgress;
+import github.tornaco.xposedmoduletest.ui.tiles.ClearProcess;
 import github.tornaco.xposedmoduletest.ui.tiles.LockKill;
 import github.tornaco.xposedmoduletest.util.EmojiUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
@@ -121,19 +121,19 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
                     R.string.title_service_connected : R.string.title_service_not_connected);
             ViewGroup header = findView(rootView, R.id.header1);
             header.setBackgroundColor(
-                    XAppGuardManager.defaultInstance().isServiceAvailable() ?
+                    XAppGuardManager.singleInstance().isServiceAvailable() ?
                             ContextCompat.getColor(getActivity(), R.color.green)
                             : ContextCompat.getColor(getActivity(), R.color.red));
 
             EmojiTextView emojiTextView = findView(rootView, R.id.icon1);
             emojiTextView.setText(EmojiUtil.getEmojiByUnicode(
                     isServiceAvailable() ?
-                            EmojiUtil.HAPPY
+                            EmojiUtil.SHEEP
                             : EmojiUtil.UNHAPPY));
         }
 
         private boolean isServiceAvailable() {
-            return XAppGuardManager.defaultInstance().isServiceAvailable();
+            return XAppGuardManager.singleInstance().isServiceAvailable();
         }
 
         @Override
@@ -151,7 +151,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
 
             Category ash = new Category();
             ash.titleRes = R.string.title_clearn;
-            ash.addTile(new ClearProgress(getActivity()));
+            ash.addTile(new ClearProcess(getActivity()));
 
             categories.add(category);
             categories.add(ash);

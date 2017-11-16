@@ -38,7 +38,7 @@ public class ActivityModule extends AppGuardAndroidSubModule {
                             Activity activity = (Activity) param.thisObject;
                             String pkgName = activity.getPackageName();
                             XAppGuardManager.init();
-                            XAppGuardManager manager = XAppGuardManager.defaultInstance();
+                            XAppGuardManager manager = XAppGuardManager.singleInstance();
                             if (manager.isServiceAvailable()) {
                                 manager.onActivityPackageResume(pkgName);
                             }

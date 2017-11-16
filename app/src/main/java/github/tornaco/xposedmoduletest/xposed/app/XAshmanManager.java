@@ -31,7 +31,7 @@ public class XAshmanManager {
         }
     }
 
-    public static XAshmanManager defaultInstance() {
+    public static XAshmanManager singleInstance() {
         return sMe;
     }
 
@@ -48,7 +48,7 @@ public class XAshmanManager {
         try {
             mService.clearProcess(adapter);
         } catch (RemoteException e) {
-            Logger.e(Logger.getStackTraceString(e));
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 

@@ -38,7 +38,7 @@
     <string name="first_run_title">XXXXX？!</string>
     <string name="message_first_run">软件现在还在测试阶段，可能不稳定，尤其是介于现在的ROM众多繁杂适配难以一下全部囊括，使用中如果遇到问题，麻烦尽量帮忙查看Xposed Installer内的log，反馈出来，这样才会使其发展的更好，如果支持的话请给好评，尽量不要抱怨。\n\n安装完成激活XPOSED模块后请完全重启。\n\n如果你是第一次使用，建议点击菜单，查看项目wiki获取相关使用教程。</string>
     <string name="title_use_fp">使用指纹</string>
-    <string name="title_ver_on_home">返回HOME应用需要验证</string>
+    <string name="title_ver_on_home">应用切换时重新验证</string>
     <string name="summary_always_need_verify">默认机制是当屏幕熄灭重新点亮时，之前验证过的应用才会需要重新验证，如果启用了此选项，将会每次都需要验证</string>
     <string name="title_reboot_take_effect">某些设置项可能需要重启才会生效</string>
     <string name="title_passcode_wrong">密码错误，请重试</string>
@@ -89,7 +89,7 @@
     <string name="title_app_auto_start">应用关联启动管理</string>
     <string name="title_clearn">加速</string>
     <string name="title_app_lock_kill">锁屏清理应用</string>
-    <string name="clear_process">清理内存%1$s</string>
+    <string name="clear_process">清理内存</string>
     <string name="summary_app_guard">以下应用在启动时需要经过密码验证。</string>
     <string name="summary_boot_app">允许以下应用开机自动启动（接收开机广播）。</string>
     <string name="summary_lock_kill_app">锁屏后将会清理后台应用，有助于节省电量，但是邮件、聊天、社交类应用被清理后，可能无法接受新消息。\n\n以下应用在锁屏后不会被清理。</string>
@@ -97,6 +97,10 @@
     <string name="app_intro">以下功能依赖于嵌入系统的几项服务，你需要在xposed installer中激活该模块，并且重启才可以激活上述服务。</string>
     <string name="title_block_viewer">启动记录</string>
     <string name="title_restrict">限制</string>
-    <string name="done">完成%1$s</string>
-    <string name="clearing_process">清理%1$s</string>
+    <string name="done">完成</string>
+    <string name="clearing_process">正在杀掉%1$s...</string>
+    <string name="summary_verify_on_home">该功能目前还不稳定，某些应用可能无法适用，如果发现问题请关闭该选项</string>
+    <string name="summary_verify_on_screenoff">建议开启以提高安全性</string>
+    <string name="title_transaction_expire">过期请求，已忽略</string>
+    <string name="fail_show_internal_lockview">无法显示内部验证窗口</string>
 </resources>
