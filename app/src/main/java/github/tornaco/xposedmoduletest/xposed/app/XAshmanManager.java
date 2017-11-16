@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.app;
 
+import android.content.ComponentName;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 
@@ -151,7 +152,7 @@ public class XAshmanManager {
         }
     }
 
-    public boolean checkService(String servicePkgName, int callerUid) {
+    public boolean checkService(ComponentName servicePkgName, int callerUid) {
         try {
             return mService.checkService(servicePkgName, callerUid);
         } catch (RemoteException ignored) {

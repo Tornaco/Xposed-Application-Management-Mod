@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.ui.activity;
+package github.tornaco.xposedmoduletest.ui.activity.ag;
 
 import android.app.Fragment;
 import android.os.Bundle;

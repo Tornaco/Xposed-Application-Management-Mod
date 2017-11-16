@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
+import android.content.ComponentName;
 import android.os.RemoteException;
 
 /**
@@ -9,7 +10,7 @@ import android.os.RemoteException;
 
 public interface IIntentFirewallBridge extends IModuleBridge {
     // API For Firewall.
-    boolean checkService(String servicePkgName, int callerUid) throws RemoteException;
+    boolean checkService(ComponentName service, int callerUid) throws RemoteException;
 
     boolean checkBroadcast(String action, int receiverUid, int callerUid) throws RemoteException;
 }

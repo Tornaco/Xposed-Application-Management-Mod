@@ -22,7 +22,7 @@ interface IAshmanService {
     boolean isLockKillEnabled();
 
     // API For Firewall.
-    boolean checkService(String servicePkgName, int callerUid);
+    boolean checkService(in ComponentName servicePkgName, int callerUid);
 
     boolean checkBroadcast(String action, int receiverUid, int callerUid);
 

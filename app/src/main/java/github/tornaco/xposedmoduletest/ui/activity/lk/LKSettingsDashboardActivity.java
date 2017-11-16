@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.ui.activity;
+package github.tornaco.xposedmoduletest.ui.activity.lk;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -8,6 +8,7 @@ import java.util.List;
 import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.lk.General;
 
 /**

@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.ui.activity;
+package github.tornaco.xposedmoduletest.ui.activity.lk;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,40 +12,32 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import org.newstand.logger.Logger;
-
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.bean.PackageInfo;
-import github.tornaco.xposedmoduletest.loader.PackageLoader;
-import github.tornaco.xposedmoduletest.provider.LockStorage;
-import github.tornaco.xposedmoduletest.ui.adapter.GuardAppListAdapter;
+import github.tornaco.xposedmoduletest.bean.LockKillPackage;
+import github.tornaco.xposedmoduletest.loader.LockKillPackageLoader;
+import github.tornaco.xposedmoduletest.ui.activity.WithRecyclerView;
+import github.tornaco.xposedmoduletest.ui.adapter.LockKillAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
-public class GuardAppNavActivity extends NeedLockActivity {
+public class LockKillAppNavActivity extends WithRecyclerView {
 
     protected FloatingActionButton fab;
 
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    protected GuardAppListAdapter guardAppListAdapter;
+    protected LockKillAppListAdapter lockKillAppListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutRes());
         showHomeAsUp();
-        initService();
         initView();
         startLoading();
-    }
-
-    private void initService() {
-        boolean serviceConnected = XAppGuardManager.singleInstance().isServiceAvailable();
-        Logger.d("serviceConnected:" + serviceConnected);
     }
 
     protected int getLayoutRes() {
@@ -53,40 +45,29 @@ public class GuardAppNavActivity extends NeedLockActivity {
     }
 
     @Override
-    protected String getLockLabel() {
-        return getString(R.string.app_lock_need_unlock);
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         startLoading();
-
-        // Check up the pwd.
-        if (!LockStorage.iaPatternSet(getApplicationContext())) {
-            showPasswordSetupTips();
-        }
     }
 
-
     protected void initView() {
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        swipeRefreshLayout = findViewById(R.id.swipe);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
         swipeRefreshLayout.setColorSchemeColors(getResources().getIntArray(R.array.polluted_waves));
-        fab = findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(GuardAppNavActivity.this, GuardAppPickerActivity.class));
+                startActivity(new Intent(LockKillAppNavActivity.this, LockKillAppPickerActivity.class));
             }
         });
 
-        guardAppListAdapter = onCreateAdapter();
+        lockKillAppListAdapter = onCreateAdapter();
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(guardAppListAdapter);
+        recyclerView.setAdapter(lockKillAppListAdapter);
 
 
         swipeRefreshLayout.setOnRefreshListener(
@@ -100,15 +81,15 @@ public class GuardAppNavActivity extends NeedLockActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                SwitchBar switchBar = findViewById(R.id.switchbar);
+                SwitchBar switchBar = (SwitchBar) findViewById(R.id.switchbar);
                 if (switchBar == null) return;
-                switchBar.setChecked(XAppGuardManager.singleInstance().isServiceAvailable()
-                        && XAppGuardManager.singleInstance().isEnabled());
+                switchBar.setChecked(XAshmanManager.singleInstance().isServiceAvailable()
+                        && XAshmanManager.singleInstance().isLockKillEnabled());
                 switchBar.addOnSwitchChangeListener(new SwitchBar.OnSwitchChangeListener() {
                     @Override
                     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-                        if (XAppGuardManager.singleInstance().isServiceAvailable())
-                            XAppGuardManager.singleInstance().setEnabled(isChecked);
+                        if (XAshmanManager.singleInstance().isServiceAvailable())
+                            XAshmanManager.singleInstance().setLockKillEnabled(isChecked);
                         else showTips(R.string.title_service_not_connected_settings, false,
                                 null, null);
                     }
@@ -116,28 +97,18 @@ public class GuardAppNavActivity extends NeedLockActivity {
                 switchBar.show();
             }
         });
+
         setSummaryView();
     }
 
+
     protected void setSummaryView() {
         TextView textView = (TextView) findViewById(R.id.summary);
-        textView.setText(R.string.summary_app_guard);
+        textView.setText(R.string.summary_lock_kill_app);
     }
 
-    private void showPasswordSetupTips() {
-        showTips(R.string.summary_setup_passcode_none_set,
-                true, getString(R.string.title_setup_passcode_now),
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        startActivity(new Intent(getApplicationContext(),
-                                PatternSetupActivity.class));
-                    }
-                });
-    }
-
-    protected GuardAppListAdapter onCreateAdapter() {
-        return new GuardAppListAdapter(this) {
+    protected LockKillAppListAdapter onCreateAdapter() {
+        return new LockKillAppListAdapter(this) {
             @Override
             protected void onPackageRemoved(String p) {
                 super.onPackageRemoved(p);
@@ -151,25 +122,25 @@ public class GuardAppNavActivity extends NeedLockActivity {
         XExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                final List<PackageInfo> res = performLoading();
+                final List<LockKillPackage> res = performLoading();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         swipeRefreshLayout.setRefreshing(false);
-                        guardAppListAdapter.update(res);
+                        lockKillAppListAdapter.update(res);
                     }
                 });
             }
         });
     }
 
-    protected List<PackageInfo> performLoading() {
-        return PackageLoader.Impl.create(this).loadStoredGuarded();
+    protected List<LockKillPackage> performLoading() {
+        return LockKillPackageLoader.Impl.create(this).loadStoredKilled();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.nav, menu);
+        getMenuInflater().inflate(R.menu.lk, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -178,15 +149,9 @@ public class GuardAppNavActivity extends NeedLockActivity {
         if (item.getItemId() == android.R.id.home) {
             finish();
         }
-
         if (item.getItemId() == R.id.action_settings) {
-            startActivity(new Intent(this, GuardSettingsDashboardActivity.class));
+            startActivity(new Intent(this, LKSettingsDashboardActivity.class));
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected boolean isLockNeeded() {
-        return LockStorage.iaPatternSet(this.getApplicationContext());
     }
 }

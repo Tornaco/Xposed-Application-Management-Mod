@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.ui.activity;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
@@ -23,6 +24,7 @@ import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.provider.XSettings;
+import github.tornaco.xposedmoduletest.ui.activity.app.AppDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.ag.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.ag.AppGuard;
 import github.tornaco.xposedmoduletest.ui.tiles.ag.AppStart;
@@ -81,8 +83,8 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_open_source) {
-            navigateToWebPage(getString(R.string.app_source_url));
+        if (item.getItemId() == R.id.action_settings) {
+            startActivity(new Intent(this, AppDashboardActivity.class));
         }
         return super.onOptionsItemSelected(item);
     }

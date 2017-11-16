@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.xposed.service;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -477,8 +478,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public boolean checkService(String servicePkgName, int callerUid) {
-        CheckResult res = checkServiceDetailed(servicePkgName, callerUid);
+    public boolean checkService(ComponentName serviceComp, int callerUid) {
+        if (serviceComp == null) return true;
+        String appPkg = serviceComp.getPackageName();
+        CheckResult res = checkServiceDetailed(appPkg, callerUid);
         // Saving res record.
         if (!res.res) logServiceEventToMemory(
                 ServiceEvent.builder()
@@ -486,12 +489,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         .why(res.why)
                         .allowed(res.res)
                         .appName(null)
-                        .pkg(servicePkgName)
+                        .pkg(appPkg)
                         .when(System.currentTimeMillis())
                         .build());
         if (res.logRecommended)
-            XLog.logV("XAshmanService checkService returning: " + res + "for: " +
-                    PkgUtil.loadNameByPkgName(getContext(), servicePkgName));
+            XLog.logVOnExecutor("XAshmanService checkService returning: " + res + "for: " +
+                            PkgUtil.loadNameByPkgName(getContext(), appPkg)
+                            + ", comp: " + serviceComp,
+                    mLoggingService);
         return res.res;
     }
 
@@ -558,8 +563,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         .build());
 
         if (res.logRecommended)
-            XLog.logV("XAshmanService checkBroadcast returning: " + res + " for: " + PkgUtil.loadNameByPkgName(getContext(),
-                    mPackagesCache.get(receiverUid)));
+            XLog.logVOnExecutor("XAshmanService checkBroadcast returning: "
+                    + res + " for: "
+                    + PkgUtil.loadNameByPkgName(getContext(),
+                    mPackagesCache.get(receiverUid)), mLoggingService);
         return res.res;
     }
 

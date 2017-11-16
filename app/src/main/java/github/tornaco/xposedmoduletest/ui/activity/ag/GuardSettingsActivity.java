@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.ui.activity;
+package github.tornaco.xposedmoduletest.ui.activity.ag;
 
 import android.Manifest;
 import android.annotation.TargetApi;
@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 
 /**
  * Created by guohao4 on 2017/9/7.

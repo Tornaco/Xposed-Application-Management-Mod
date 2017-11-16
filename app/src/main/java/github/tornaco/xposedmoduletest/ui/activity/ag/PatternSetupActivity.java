@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.ui.activity;
+package github.tornaco.xposedmoduletest.ui.activity.ag;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,6 +11,7 @@ import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.provider.LockStorage;
+import github.tornaco.xposedmoduletest.ui.activity.NeedLockActivity;
 
 /**
  * Created by guohao4 on 2017/10/21.

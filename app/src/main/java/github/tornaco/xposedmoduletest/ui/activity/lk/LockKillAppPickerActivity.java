@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.ui.activity;
+package github.tornaco.xposedmoduletest.ui.activity.lk;
 
 import android.app.ProgressDialog;
 import android.view.View;

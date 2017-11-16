@@ -34,8 +34,7 @@ public class IFWSubModule extends IntentFirewallAndroidSubModule {
                     super.beforeHookedMethod(param);
                     ComponentName componentName = (ComponentName) param.args[0];
                     int callerID = (int) param.args[2];
-                    String pkg = componentName.getPackageName();
-                    param.setResult(getIntentFirewallBridge().checkService(pkg, callerID));
+                    param.setResult(getIntentFirewallBridge().checkService(componentName, callerID));
                 }
             });
 

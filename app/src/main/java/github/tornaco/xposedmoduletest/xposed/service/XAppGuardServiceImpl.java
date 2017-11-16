@@ -629,7 +629,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     private static Intent buildVerifyIntent(boolean injectHome, int transId, String pkg) {
         Intent intent = new Intent(XAppGuardManager.ACTION_APP_GUARD_VERIFY_DISPLAYER);
         intent.setClassName(BuildConfig.APPLICATION_ID,
-                "github.tornaco.xposedmoduletest.ui.activity.VerifyDisplayerActivity");
+                "github.tornaco.xposedmoduletest.ui.activity.ag.VerifyDisplayerActivity");
         intent.putExtra(XAppGuardManager.EXTRA_PKG_NAME, pkg);
         intent.putExtra(XAppGuardManager.EXTRA_TRANS_ID, transId);
         intent.putExtra(XAppGuardManager.EXTRA_INJECT_HOME_WHEN_FAIL_ID, injectHome);

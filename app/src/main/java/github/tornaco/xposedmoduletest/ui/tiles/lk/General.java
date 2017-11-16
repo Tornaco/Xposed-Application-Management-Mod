@@ -7,7 +7,7 @@ import android.view.View;
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.ui.activity.GeneralLKSettings;
+import github.tornaco.xposedmoduletest.ui.activity.lk.GeneralLKSettings;
 
 /**
  * Created by guohao4 on 2017/11/16.
