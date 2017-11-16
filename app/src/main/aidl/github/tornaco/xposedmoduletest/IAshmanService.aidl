@@ -2,6 +2,9 @@ package github.tornaco.xposedmoduletest;
 
 import github.tornaco.xposedmoduletest.IProcessClearListener;
 
+import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
+
+
 interface IAshmanService {
 
     void clearProcess(in IProcessClearListener listener);
@@ -22,4 +25,8 @@ interface IAshmanService {
     boolean checkService(String servicePkgName, int callerUid);
 
     boolean checkBroadcast(String action, int receiverUid, int callerUid);
+
+    List<BlockRecord2> getBlockRecords();
+
+    void clearBlockRecords();
 }

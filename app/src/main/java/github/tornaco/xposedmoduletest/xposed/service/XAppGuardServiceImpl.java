@@ -324,8 +324,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @Override
     public boolean interruptPackageRemoval(String pkg) {
-        boolean enabled = isUninstallInterruptEnabled();
-        return enabled && !onEarlyVerifyConfirm(pkg);
+        return isUninstallInterruptEnabled() && onEarlyVerifyConfirm(pkg);
     }
 
     @Override

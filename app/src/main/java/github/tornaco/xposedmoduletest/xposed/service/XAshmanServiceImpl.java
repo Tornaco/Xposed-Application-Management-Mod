@@ -23,6 +23,8 @@ import android.util.SparseArray;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
 
+import com.google.common.collect.Lists;
+
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -54,6 +56,7 @@ import github.tornaco.xposedmoduletest.provider.BlockRecordProvider;
 import github.tornaco.xposedmoduletest.provider.BootPackageProvider;
 import github.tornaco.xposedmoduletest.provider.LockKillPackageProvider;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.util.Closer;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -95,6 +98,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final ExecutorService mLoggingService = Executors.newSingleThreadExecutor();
 
     private final SparseArray<String> mPackagesCache = new SparseArray<>();
+
+    private final Map<String, BlockRecord2> mBlockRecords = new HashMap<>();
 
     private Handler h;
 
@@ -475,14 +480,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public boolean checkService(String servicePkgName, int callerUid) {
         CheckResult res = checkServiceDetailed(servicePkgName, callerUid);
         // Saving res record.
-        if (res.logRecommended) logServiceEvent(ServiceEvent.builder()
-                .service("Service")
-                .why(res.why)
-                .allowed(res.res)
-                .appName(null)
-                .pkg(servicePkgName)
-                .when(System.currentTimeMillis())
-                .build());
+        if (!res.res) logServiceEventToMemory(
+                ServiceEvent.builder()
+                        .service("Service")
+                        .why(res.why)
+                        .allowed(res.res)
+                        .appName(null)
+                        .pkg(servicePkgName)
+                        .when(System.currentTimeMillis())
+                        .build());
         if (res.logRecommended)
             XLog.logV("XAshmanService checkService returning: " + res + "for: " +
                     PkgUtil.loadNameByPkgName(getContext(), servicePkgName));
@@ -540,20 +546,37 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public boolean checkBroadcast(String action, int receiverUid, int callerUid) {
         CheckResult res = checkBroadcastDetailed(action, receiverUid, callerUid);
         // Saving res record.
-        if (res.logRecommended) logBroadcastEvent(BroadcastEvent.builder()
-                .action(action)
-                .allowed(res.res)
-                .appName(null)
-                .receiver(receiverUid)
-                .caller(callerUid)
-                .when(System.currentTimeMillis())
-                .why(res.why)
-                .build());
+        if (!res.res) logBroadcastEventToMemory(
+                BroadcastEvent.builder()
+                        .action(action)
+                        .allowed(res.res)
+                        .appName(null)
+                        .receiver(receiverUid)
+                        .caller(callerUid)
+                        .when(System.currentTimeMillis())
+                        .why(res.why)
+                        .build());
 
         if (res.logRecommended)
             XLog.logV("XAshmanService checkBroadcast returning: " + res + " for: " + PkgUtil.loadNameByPkgName(getContext(),
                     mPackagesCache.get(receiverUid)));
         return res.res;
+    }
+
+
+    @Override
+    public List<BlockRecord2> getBlockRecords() throws RemoteException {
+        enforceCallingPermissions();
+        synchronized (mBlockRecords) {
+            return Lists.newArrayList(mBlockRecords.values());
+        }
+    }
+
+    @Override
+    public void clearBlockRecords() throws RemoteException {
+        enforceCallingPermissions();
+        h.removeMessages(IntentFirewallHandlerMessages.MSG_CLEARBLOCKRECORDS);
+        h.obtainMessage(IntentFirewallHandlerMessages.MSG_CLEARBLOCKRECORDS).sendToTarget();
     }
 
     private CheckResult checkBroadcastDetailed(String action, int receiverUid, int callerUid) {
@@ -665,6 +688,30 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return Intent.ACTION_BOOT_COMPLETED.equals(action);
     }
 
+    private void logServiceEventToMemory(final ServiceEvent serviceEvent) {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                BlockRecord2 old = getBlockRecord(serviceEvent.pkg);
+                long oldTimes = old == null ? 0 : old.getHowManyTimes();
+                BlockRecord2 blockRecord2 = BlockRecord2.builder()
+                        .pkgName(serviceEvent.pkg)
+                        .appName(String.valueOf(
+                                PkgUtil.loadNameByPkgName(getContext(),
+                                        serviceEvent.pkg)))
+                        .howManyTimes(oldTimes + 1)
+                        .timeWhen(System.currentTimeMillis())
+                        .build();
+                addBlockRecord(blockRecord2);
+            }
+        };
+        mLoggingService.execute(r);
+    }
+
+    /**
+     * @deprecated Use {@link #logServiceEventToMemory(ServiceEvent)} instead.
+     */
+    @Deprecated
     private void logServiceEvent(final ServiceEvent serviceEvent) {
         Runnable r = new Runnable() {
             @Override
@@ -689,6 +736,38 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         mLoggingService.execute(r);
     }
 
+    private void logBroadcastEventToMemory(final BroadcastEvent broadcastEvent) {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+
+                String receiverPkgName =
+                        mPackagesCache.get(broadcastEvent.receiver);
+                if (receiverPkgName == null) {
+                    receiverPkgName = PkgUtil.pkgForUid(getContext(), broadcastEvent.receiver);
+                    if (receiverPkgName == null) return;
+                }
+
+                BlockRecord2 old = getBlockRecord(receiverPkgName);
+                long oldTimes = old == null ? 0 : old.getHowManyTimes();
+                BlockRecord2 blockRecord2 = BlockRecord2.builder()
+                        .pkgName(receiverPkgName)
+                        .appName(String.valueOf(
+                                PkgUtil.loadNameByPkgName(getContext(),
+                                        receiverPkgName)))
+                        .howManyTimes(oldTimes + 1)
+                        .timeWhen(System.currentTimeMillis())
+                        .build();
+                addBlockRecord(blockRecord2);
+            }
+        };
+        mLoggingService.execute(r);
+    }
+
+    /**
+     * @deprecated Use {@link #logBroadcastEventToMemory(BroadcastEvent)} instead.
+     */
+    @Deprecated
     private void logBroadcastEvent(final BroadcastEvent broadcastEvent) {
         Runnable r = new Runnable() {
             @Override
@@ -829,6 +908,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         XLog.logV("construct, h: " + h + " -" + serial());
     }
 
+
     protected Handler onCreateServiceHandler() {
         return new HandlerImpl();
     }
@@ -937,6 +1017,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 + ", does not require permission to interact with XIntentFirewallService");
     }
 
+    private void addBlockRecord(BlockRecord2 blockRecord2) {
+        synchronized (mBlockRecords) {
+            mBlockRecords.put(blockRecord2.getPkgName(), blockRecord2);
+        }
+    }
+
+    private BlockRecord2 getBlockRecord(String pkg) {
+        synchronized (mBlockRecords) {
+            return mBlockRecords.get(pkg);
+        }
+    }
+
     @SuppressLint("HandlerLeak")
     private class HandlerImpl extends Handler implements IntentFirewallHandler {
 
@@ -975,6 +1067,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     break;
                 case IntentFirewallHandlerMessages.MSG_SETLOCKKILLDELAY:
                     HandlerImpl.this.setLockKillDelay((Long) msg.obj);
+                    break;
+                case IntentFirewallHandlerMessages.MSG_CLEARBLOCKRECORDS:
+                    clearBlockRecords();
                     break;
             }
         }
@@ -1134,9 +1229,23 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         @Override
+        public void clearBlockRecords() {
+            Runnable clear = new Runnable() {
+                @Override
+                public void run() {
+                    synchronized (mBlockRecords) {
+                        mBlockRecords.clear();
+                    }
+                }
+            };
+            mWorkingService.execute(clear);
+        }
+
+        @Override
         public void setLockKillDelay(long delay) {
             mLockKillDelay = delay;
             SystemSettings.LOCK_KILL_DELAY_L.writeToSystemSettings(getContext(), delay);
+            XLog.logV("setLockKillDelay to: " + mLockKillDelay);
         }
 
         @Override

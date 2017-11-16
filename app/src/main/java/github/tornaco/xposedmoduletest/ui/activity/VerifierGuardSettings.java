@@ -23,7 +23,7 @@ public class VerifierGuardSettings extends GuardSettingsActivity {
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.verifier);
+            addPreferencesFromResource(R.xml.ag_verifier);
 
 
             if (!XAppGuardManager.singleInstance().isServiceAvailable()) {

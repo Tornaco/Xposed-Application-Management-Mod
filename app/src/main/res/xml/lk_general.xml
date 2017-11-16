@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/title_general_settings">
+
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/lk_delay_entries"
+            android:entryValues="@array/lk_delay_seconds"
+            android:key="key_lk_delay"
+            android:title="@string/lk_delay" />
+    </PreferenceCategory>
+</PreferenceScreen>

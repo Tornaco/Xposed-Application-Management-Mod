@@ -11,10 +11,10 @@ import android.view.MenuItem;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.bean.BlockRecord;
-import github.tornaco.xposedmoduletest.loader.BlockRecordLoader;
-import github.tornaco.xposedmoduletest.ui.adapter.BlockRecordListAdapter;
+import github.tornaco.xposedmoduletest.loader.BlockRecord2Loader;
+import github.tornaco.xposedmoduletest.ui.adapter.BlockRecord2ListAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 
 public class BlockRecordViewerActivity extends WithRecyclerView {
 
@@ -22,7 +22,7 @@ public class BlockRecordViewerActivity extends WithRecyclerView {
 
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    protected BlockRecordListAdapter lockKillAppListAdapter;
+    protected BlockRecord2ListAdapter lockKillAppListAdapter;
 
     private String mTargetPkgName;
 
@@ -73,8 +73,8 @@ public class BlockRecordViewerActivity extends WithRecyclerView {
     }
 
 
-    protected BlockRecordListAdapter onCreateAdapter() {
-        return new BlockRecordListAdapter(this);
+    protected BlockRecord2ListAdapter onCreateAdapter() {
+        return new BlockRecord2ListAdapter(this);
     }
 
     protected void startLoading() {
@@ -86,7 +86,7 @@ public class BlockRecordViewerActivity extends WithRecyclerView {
         XExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                final List<BlockRecord> res = performLoading();
+                final List<BlockRecord2> res = performLoading();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -98,8 +98,8 @@ public class BlockRecordViewerActivity extends WithRecyclerView {
         });
     }
 
-    protected List<BlockRecord> performLoading() {
-        return BlockRecordLoader.Impl.create(this).loadAll(mTargetPkgName);
+    protected List<BlockRecord2> performLoading() {
+        return BlockRecord2Loader.Impl.create().loadAll(mTargetPkgName);
     }
 
     @Override

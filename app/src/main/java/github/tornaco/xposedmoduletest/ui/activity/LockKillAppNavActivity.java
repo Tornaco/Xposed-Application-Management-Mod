@@ -139,7 +139,7 @@ public class LockKillAppNavActivity extends WithRecyclerView {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.start_block, menu);
+        getMenuInflater().inflate(R.menu.lk, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -148,8 +148,8 @@ public class LockKillAppNavActivity extends WithRecyclerView {
         if (item.getItemId() == android.R.id.home) {
             finish();
         }
-        if (item.getItemId() == R.id.action_block_record_viewer) {
-            BlockRecordViewerActivity.start(this, null);
+        if (item.getItemId() == R.id.action_settings) {
+            startActivity(new Intent(this, LKSettingsDashboardActivity.class));
         }
         return super.onOptionsItemSelected(item);
     }

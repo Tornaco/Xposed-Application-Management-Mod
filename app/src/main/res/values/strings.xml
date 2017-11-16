@@ -105,4 +105,7 @@
     <string name="fail_show_internal_lockview">无法显示内部验证窗口</string>
     <string name="input_previous_password">请输入原来的密码</string>
     <string name="app_lock_need_unlock">需要验证密码以继续</string>
+    <string name="title_general_settings">基本设置</string>
+    <string name="lk_delay">清理延时</string>
+    <string name="block_record_summary">已经阻止%1$s次，最近阻止%2$s</string>
 </resources>

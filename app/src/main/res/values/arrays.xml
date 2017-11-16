@@ -20,4 +20,22 @@
         <item>BLACK</item>
     </string-array>
 
+    <string-array name="lk_delay_entries">
+        <item>立即</item>
+        <item>锁屏5秒后</item>
+        <item>锁屏10秒后</item>
+        <item>锁30秒后</item>
+        <item>锁屏1分钟后</item>
+        <item>锁屏5分钟后</item>
+    </string-array>
+
+    <string-array name="lk_delay_seconds">
+        <item>0</item>
+        <item>5</item>
+        <item>10</item>
+        <item>30</item>
+        <item>60</item>
+        <item>300</item>
+    </string-array>
+
 </resources>

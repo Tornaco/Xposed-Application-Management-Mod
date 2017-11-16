@@ -37,7 +37,8 @@
         android:paddingStart="@dimen/dashboard_category_title_margin_start"
         android:singleLine="true"
         android:text="@string/app_name"
-        android:textAppearance="@style/TextAppearance.CategoryTitle" />
+        android:textAppearance="@style/TextAppearance.CategoryTitle"
+        android:textColor="?colorAccent" />
 
     <dev.nick.tiles.tile.ContainerView
         android:id="@+id/category_content"

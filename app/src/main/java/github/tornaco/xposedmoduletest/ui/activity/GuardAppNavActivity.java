@@ -180,7 +180,7 @@ public class GuardAppNavActivity extends NeedLockActivity {
         }
 
         if (item.getItemId() == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsDashboardActivity.class));
+            startActivity(new Intent(this, GuardSettingsDashboardActivity.class));
         }
         return super.onOptionsItemSelected(item);
     }

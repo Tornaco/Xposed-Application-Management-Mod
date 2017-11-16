@@ -36,7 +36,7 @@ public class SecureGuardSettings extends GuardSettingsActivity {
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.secure);
+            addPreferencesFromResource(R.xml.ag_secure);
 
             Preference lockSettingsPref = findPreference("verify_method");
 //            lockSettingsPref.setSummary(LockStorage.iaPatternSet(getActivity()) ?

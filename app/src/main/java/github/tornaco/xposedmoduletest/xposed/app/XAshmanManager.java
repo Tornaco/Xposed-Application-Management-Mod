@@ -7,7 +7,11 @@ import com.google.common.base.Preconditions;
 
 import org.newstand.logger.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import github.tornaco.xposedmoduletest.IAshmanService;
+import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 
 /**
  * Created by guohao4 on 2017/11/9.
@@ -57,7 +61,7 @@ public class XAshmanManager {
         try {
             mService.setBootBlockEnabled(enabled);
         } catch (RemoteException e) {
-            Logger.e(Logger.getStackTraceString(e));
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -66,7 +70,7 @@ public class XAshmanManager {
         try {
             return mService.isBlockBlockEnabled();
         } catch (RemoteException e) {
-            Logger.e(Logger.getStackTraceString(e));
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return false;
         }
     }
@@ -76,7 +80,7 @@ public class XAshmanManager {
         try {
             mService.setStartBlockEnabled(enabled);
         } catch (RemoteException e) {
-            Logger.e(Logger.getStackTraceString(e));
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -85,7 +89,7 @@ public class XAshmanManager {
         try {
             return mService.isStartBlockEnabled();
         } catch (RemoteException e) {
-            Logger.e(Logger.getStackTraceString(e));
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return false;
         }
     }
@@ -95,7 +99,26 @@ public class XAshmanManager {
         try {
             mService.setLockKillEnabled(enabled);
         } catch (RemoteException e) {
-            Logger.e(Logger.getStackTraceString(e));
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public List<BlockRecord2> getBlockRecords() {
+        ensureService();
+        try {
+            return mService.getBlockRecords();
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return new ArrayList<>(0);
+        }
+    }
+
+    public void clearBlockRecords() {
+        ensureService();
+        try {
+            mService.clearBlockRecords();
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -104,8 +127,27 @@ public class XAshmanManager {
         try {
             return mService.isLockKillEnabled();
         } catch (RemoteException e) {
-            Logger.e(Logger.getStackTraceString(e));
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return false;
+        }
+    }
+
+    public void setLockKillDelay(long delay) {
+        ensureService();
+        try {
+            mService.setLockKillDelay(delay);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public long getLockKillDelay() {
+        ensureService();
+        try {
+            return mService.getLockKillDelay();
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return 0L;
         }
     }
 

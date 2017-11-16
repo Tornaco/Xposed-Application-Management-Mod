@@ -23,11 +23,12 @@ import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.provider.XSettings;
-import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
-import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
-import github.tornaco.xposedmoduletest.ui.tiles.AppStart;
-import github.tornaco.xposedmoduletest.ui.tiles.ClearProcess;
-import github.tornaco.xposedmoduletest.ui.tiles.LockKill;
+import github.tornaco.xposedmoduletest.ui.tiles.ag.AppBoot;
+import github.tornaco.xposedmoduletest.ui.tiles.ag.AppGuard;
+import github.tornaco.xposedmoduletest.ui.tiles.ag.AppStart;
+import github.tornaco.xposedmoduletest.ui.tiles.ag.ClearProcess;
+import github.tornaco.xposedmoduletest.ui.tiles.ag.LockKill;
+import github.tornaco.xposedmoduletest.ui.widget.EmojiToast;
 import github.tornaco.xposedmoduletest.util.EmojiUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import lombok.Getter;
@@ -107,6 +108,28 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
         }
 
         private void setupView() {
+            findView(rootView, R.id.card).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    EmojiToast.show(rootView.getContext(),
+                            EmojiUtil.getEmojiByUnicode(EmojiUtil.HEIHEIHEI));
+                    // Save system toast frame.
+//                    int frameId = android.R.drawable.toast_frame;
+//                    Bitmap b = BitmapFactory.decodeResource(getResources(), frameId);
+//                    OutputStream fos = null;
+//                    try {
+//                        fos = com.google.common.io.Files.asByteSink(new File(Environment.getExternalStorageDirectory()
+//                                + File.separator + "toast_frame.png")).openStream();
+//                        b.compress(Bitmap.CompressFormat.PNG, 100, fos);
+//
+//
+//                    } catch (IOException ignored) {
+//                    } finally {
+//                        Closer.closeQuietly(fos);
+//                    }
+                }
+            });
+
             findView(rootView, R.id.button)
                     .setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -128,8 +151,8 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
             EmojiTextView emojiTextView = findView(rootView, R.id.icon1);
             emojiTextView.setText(EmojiUtil.getEmojiByUnicode(
                     isServiceAvailable() ?
-                            EmojiUtil.SHEEP
-                            : EmojiUtil.UNHAPPY));
+                            EmojiUtil.HEIHEIHEI
+                            : EmojiUtil.DOG));
         }
 
         private boolean isServiceAvailable() {

@@ -19,7 +19,7 @@ public class BlockRecordDao extends AbstractDao<BlockRecord, Integer> {
     public static final String TABLENAME = "BLOCK_RECORD";
 
     /**
-     * Properties of entity BlockRecord.<br/>
+     * Properties of entity BlockRecord2.<br/>
      * Can be used for QueryBuilder and for referencing column names.
     */
     public static class Properties {

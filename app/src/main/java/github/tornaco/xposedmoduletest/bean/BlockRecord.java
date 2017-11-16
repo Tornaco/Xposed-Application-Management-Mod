@@ -108,7 +108,7 @@ public class BlockRecord {
 
     @Override
     public String toString() {
-        return "BlockRecord{" +
+        return "BlockRecord2{" +
                 ", appName='" + appName + '\'' +
                 ", allow=" + allow +
                 ", description='" + description + '\'' +

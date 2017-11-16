@@ -26,7 +26,7 @@ public class ExperimentGuardSettings extends GuardSettingsActivity {
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.exp);
+            addPreferencesFromResource(R.xml.ag_exp);
 
 
             if (!XAppGuardManager.singleInstance().isServiceAvailable()) {

@@ -27,7 +27,7 @@ public class AdvancedGuardSettings extends GuardSettingsActivity {
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.advanced);
+            addPreferencesFromResource(R.xml.ag_advanced);
 
             if (!XAppGuardManager.singleInstance().isServiceAvailable()) {
                 getPreferenceScreen().setEnabled(false);

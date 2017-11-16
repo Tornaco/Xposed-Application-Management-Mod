@@ -18,6 +18,8 @@ interface IntentFirewallHandler {
 
     void clearProcess(IProcessClearListener listener);
 
+    void clearBlockRecords();
+
     void setLockKillDelay(long delay);
 
     void onScreenOff();
