@@ -73,7 +73,8 @@ public class AdvancedGuardSettings extends GuardSettingsActivity {
                         public void accept(String s) {
                             moduleStatus.append(s)
                                     .append(": ")
-                                    .append(SubModule.SubModuleStatus.valueOf(XAppGuardManager.singleInstance().getSubModuleStatus(s)))
+                                    .append(SubModule.SubModuleStatus.valueOf(XAppGuardManager.singleInstance()
+                                            .getSubModuleStatus(s)))
                                     .append("\n");
                         }
                     });

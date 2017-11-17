@@ -1154,7 +1154,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                     } catch (RemoteException ignored) {
 
                                     }
-
+                                    XLog.logV("App is in white-listed, wont kill: " + runningPackageName);
                                     continue;
                                 }
 
@@ -1165,7 +1165,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                     } catch (RemoteException ignored) {
 
                                     }
-
+                                    XLog.logV("App is in system app, wont kill: " + runningPackageName);
                                     continue;
                                 }
                                 if (PkgUtil.isAppRunningForeground(getContext(), runningPackageName)) {

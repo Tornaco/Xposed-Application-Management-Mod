@@ -3,11 +3,15 @@ package github.tornaco.xposedmoduletest.ui.activity.comp;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,12 +19,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.common.collect.Lists;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.loader.ComponentLoader;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
+import github.tornaco.xposedmoduletest.ui.adapter.ComponentListAdapter;
+import github.tornaco.xposedmoduletest.ui.adapter.ReceiverSettingsAdapter;
+import github.tornaco.xposedmoduletest.ui.adapter.ServiceSettingsAdapter;
+import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
+import lombok.Getter;
 
 public class ComponentEditorActivity extends BaseActivity {
 
@@ -92,8 +104,8 @@ public class ComponentEditorActivity extends BaseActivity {
 
     private void initPages() {
         mFragments.clear();
-        mFragments.add(ComponentListFragment.newInstance());
-        mFragments.add(ComponentListFragment.newInstance());
+        mFragments.add(ServiceListFragment.newInstance(mPackageName));
+        mFragments.add(ReceiverListFragment.newInstance(mPackageName));
     }
 
     private boolean internalResolveIntent() {
@@ -128,17 +140,91 @@ public class ComponentEditorActivity extends BaseActivity {
     private static final int FRAGMENT_COUNT = 2;
     private final List<ComponentListFragment> mFragments = new ArrayList<>(FRAGMENT_COUNT);
 
+    public static class ReceiverListFragment extends ComponentListFragment {
+
+        public static ReceiverListFragment newInstance(String pkg) {
+            ReceiverListFragment fragment = new ReceiverListFragment();
+            Bundle bundle = new Bundle(1);
+            bundle.putString(EXTRA_PKG, pkg);
+            fragment.setArguments(bundle);
+            return fragment;
+        }
+
+        @Override
+        protected List performLoading() {
+            return ComponentLoader.Impl.create(getActivity().getApplicationContext())
+                    .loadReceiverSettings(getTargePpackageName());
+        }
+
+        @Override
+        protected ComponentListAdapter onCreateAdapter() {
+            return new ReceiverSettingsAdapter(getActivity());
+        }
+    }
+
+    public static class ServiceListFragment extends ComponentListFragment {
+
+        public static ServiceListFragment newInstance(String pkg) {
+            ServiceListFragment fragment = new ServiceListFragment();
+            Bundle bundle = new Bundle(1);
+            bundle.putString(EXTRA_PKG, pkg);
+            fragment.setArguments(bundle);
+            return fragment;
+        }
+
+        @Override
+        protected List performLoading() {
+            return ComponentLoader.Impl.create(getActivity().getApplicationContext())
+                    .loadServiceSettings(getTargePpackageName());
+        }
+
+        @Override
+        protected ServiceSettingsAdapter onCreateAdapter() {
+            return new ServiceSettingsAdapter(getActivity());
+        }
+    }
+
+    @Getter
     public static class ComponentListFragment extends Fragment {
+
+        private SwipeRefreshLayout swipeRefreshLayout;
+        private ComponentListAdapter componentListAdapter;
+
+        private String targePpackageName;
+
         public ComponentListFragment() {
         }
 
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static ComponentListFragment newInstance() {
-            ComponentListFragment fragment = new ComponentListFragment();
-            return fragment;
+        protected void startLoading() {
+            swipeRefreshLayout.setRefreshing(true);
+            XExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    final List res = performLoading();
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            swipeRefreshLayout.setRefreshing(false);
+                            //noinspection unchecked
+                            componentListAdapter.update(res);
+                        }
+                    });
+                }
+            });
+        }
+
+        protected List performLoading() {
+            return Lists.newArrayListWithCapacity(0);
+        }
+
+        protected ComponentListAdapter onCreateAdapter() {
+            return null;
+        }
+
+        @Override
+        public void onAttach(Context context) {
+            super.onAttach(context);
+            this.targePpackageName = getArguments().getString(EXTRA_PKG);
         }
 
         @Override
@@ -149,8 +235,31 @@ public class ComponentEditorActivity extends BaseActivity {
             return rootView;
         }
 
-        private void setupView(View rootView) {
+        @Override
+        public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+            startLoading();
+        }
 
+        void setupView(View rootView) {
+            RecyclerView recyclerView = rootView.findViewById(R.id.recycler_view);
+            swipeRefreshLayout = rootView.findViewById(R.id.swipe);
+            swipeRefreshLayout.setColorSchemeColors(getResources().getIntArray(R.array.polluted_waves));
+
+            componentListAdapter = onCreateAdapter();
+            recyclerView.setHasFixedSize(true);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
+                    LinearLayoutManager.VERTICAL, false));
+            recyclerView.setAdapter(componentListAdapter);
+
+
+            swipeRefreshLayout.setOnRefreshListener(
+                    new SwipeRefreshLayout.OnRefreshListener() {
+                        @Override
+                        public void onRefresh() {
+                            startLoading();
+                        }
+                    });
         }
     }
 

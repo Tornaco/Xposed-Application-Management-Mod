@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.util;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
@@ -46,5 +47,13 @@ public class ComponentUtil {
         } catch (PackageManager.NameNotFoundException e) {
             return Lists.newArrayListWithCapacity(0);
         }
+    }
+
+    public static ComponentName getComponentName(ActivityInfo activityInfo) {
+        return new ComponentName(activityInfo.packageName, activityInfo.name);
+    }
+
+    public static ComponentName getComponentName(ServiceInfo serviceInfo) {
+        return new ComponentName(serviceInfo.packageName, serviceInfo.name);
     }
 }

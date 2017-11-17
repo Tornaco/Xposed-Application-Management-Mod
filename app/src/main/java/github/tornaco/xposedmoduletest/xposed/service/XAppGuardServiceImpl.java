@@ -324,13 +324,54 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @Override
     public boolean interruptPackageRemoval(String pkg) {
-        return isUninstallInterruptEnabled() && onEarlyVerifyConfirm(pkg);
+        boolean enabled = isUninstallInterruptEnabled();
+        if (!enabled) {
+            XLog.logV("interruptPackageRemoval false: not enabled.");
+            return false;
+        }
+        boolean confirm = onInterruptConfirm(pkg);
+        if (!confirm) {
+            XLog.logV("interruptPackageRemoval false: not confirmed.");
+            return false;
+        }
+        return true;
     }
 
     @Override
     protected void dump(FileDescriptor fd, PrintWriter fout, String[] args) {
         enforceCallingPermissions();
         super.dump(fd, fout, args);
+    }
+
+    private boolean onInterruptConfirm(String pkg) {
+        if (pkg == null) {
+            XLog.logV("onEarlyVerifyConfirm, false@pkg-null");
+            return false;
+        }
+        if (mIsSafeMode) {
+            XLog.logV("onEarlyVerifyConfirm, false@safe-mode:" + pkg);
+            return false;
+        }
+        if (!mEnabled.get()) {
+            XLog.logV("onEarlyVerifyConfirm, false@disabled:" + pkg);
+            return false;
+        }
+        if (PREBUILT_WHITE_LIST.contains(pkg)) {
+            XLog.logV("onEarlyVerifyConfirm, false@prebuilt-w-list:" + pkg);
+            return false;
+        } // White list.
+
+        PackageInfo p = mGuardPackages.get(pkg);
+        if (p == null) {
+            XLog.logV("onEarlyVerifyConfirm, false@not-in-guard-list:" + pkg);
+            return false;
+        }
+        if (!p.getGuard()) {
+            XLog.logV("onEarlyVerifyConfirm, false@not-in-guard-value-list:" + pkg);
+            return false;
+        }
+
+        return true;
     }
 
     @Override

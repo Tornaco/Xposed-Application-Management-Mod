@@ -21,7 +21,7 @@ abstract class AbsSubModule implements SubModule {
 
     @Getter
     @Setter
-    private SubModuleStatus status;
+    private SubModuleStatus status = SubModuleStatus.UNKNOWN;
 
     @Getter
     @Setter

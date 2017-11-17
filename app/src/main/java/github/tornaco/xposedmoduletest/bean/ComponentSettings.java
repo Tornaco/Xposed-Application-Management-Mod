@@ -1,5 +1,7 @@
 package github.tornaco.xposedmoduletest.bean;
 
+import android.content.ComponentName;
+
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
@@ -73,6 +75,21 @@ public class ComponentSettings {
     }
 
     // KEEP METHODS - put your custom methods here
+    public boolean is(ComponentName componentName) {
+        return componentName.getPackageName().equals(packageName)
+                && componentName.getClassName().equals(className);
+    }
+
+    @Override
+    public String toString() {
+        return "ComponentSettings{" +
+                "id=" + id +
+                ", packageName='" + packageName + '\'' +
+                ", className='" + className + '\'' +
+                ", allow=" + allow +
+                '}';
+    }
+
     // KEEP METHODS END
 
 }
