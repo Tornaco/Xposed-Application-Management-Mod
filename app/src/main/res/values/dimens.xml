@@ -22,6 +22,7 @@
     <dimen name="list_item_main_text_size">@dimen/text_size_medium</dimen>
     <dimen name="list_item_secondary_text_size">@dimen/text_size_micro</dimen>
 
+    <dimen name="thumbnail_size_small">36dp</dimen>
     <dimen name="thumbnail_size">42dp</dimen>
     <dimen name="thumbnail_size_large">52dp</dimen>
     <dimen name="common_item_min_height">72dp</dimen>
@@ -43,5 +44,6 @@
 
     <dimen name="pattern_lock_size">280dp</dimen>
     <dimen name="pattern_lock_info_container_padding">36dp</dimen>
+    <dimen name="appbar_padding_top">8dp</dimen>
 
 </resources>

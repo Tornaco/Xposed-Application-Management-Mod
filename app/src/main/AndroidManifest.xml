@@ -48,7 +48,6 @@
             android:excludeFromRecents="true"
             android:label="@string/title_setup_code_new"
             android:theme="@style/AppThemeLight.NoActionBar" />
-
         <activity
             android:name=".ui.activity.NavigatorActivity"
             android:excludeFromRecents="true"
@@ -59,7 +58,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.activity.ag.GuardAppNavActivity"
             android:excludeFromRecents="true"
@@ -143,6 +141,12 @@
         <activity
             android:name=".ui.activity.ClearProcessActivity"
             android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.comp.ComponentEditorActivity"
+            android:label="@string/title_component_editor"
+            android:excludeFromRecents="true"
+            android:parentActivityName=".ui.activity.BaseActivity"
+            android:theme="@style/AppThemeLight.NoActionBar" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -153,7 +157,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
         <provider
             android:name=".provider.AppGuardPackageProvider"
             android:authorities="github.tornaco.xposedmoduletest.app_guard_package_provider"

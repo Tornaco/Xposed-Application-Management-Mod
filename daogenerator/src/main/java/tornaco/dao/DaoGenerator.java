@@ -1,7 +1,8 @@
 package tornaco.dao;
 
-import de.greenrobot.daogenerator.Entity;
-import de.greenrobot.daogenerator.Schema;
+
+import org.greenrobot.greendao.generator.Entity;
+import org.greenrobot.greendao.generator.Schema;
 
 public class DaoGenerator {
 
@@ -10,14 +11,18 @@ public class DaoGenerator {
     public static void main(String[] args) throws Exception {
         Schema sch = new Schema(VERSION, "github.tornaco.xposedmoduletest.bean");
         sch.setDefaultJavaPackageDao("github.tornaco.xposedmoduletest.bean");
+
         sch.enableKeepSectionsByDefault();
+
         createPackageInfo(sch);
         createAccessInfo(sch);
         createBootCompletePackage(sch);
         createAutoStartPackage(sch);
         createLockClearPackage(sch);
         createBlockRecord(sch);
-        new de.greenrobot.daogenerator.DaoGenerator().generateAll(sch, "./app/src/main/java");
+        createComponentSettings(sch);
+
+        new org.greenrobot.greendao.generator.DaoGenerator().generateAll(sch, "../app/src/main/java");
     }
 
     private static void createPackageInfo(Schema sch) {
@@ -28,6 +33,9 @@ public class DaoGenerator {
         pkgInfo.addLongProperty("addAt");
         pkgInfo.addBooleanProperty("guard");
         pkgInfo.addByteProperty("flags");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Entity");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Generated");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Id");
     }
 
     private static void createAccessInfo(Schema sch) {
@@ -37,6 +45,9 @@ public class DaoGenerator {
         accessInfo.addStringProperty("url");
         accessInfo.addStringProperty("appName");
         accessInfo.addStringProperty("pkgName");
+        accessInfo.addImport("org.greenrobot.greendao.annotation.Entity");
+        accessInfo.addImport("org.greenrobot.greendao.annotation.Generated");
+        accessInfo.addImport("org.greenrobot.greendao.annotation.Id");
     }
 
     private static void createBootCompletePackage(Schema sch) {
@@ -45,6 +56,9 @@ public class DaoGenerator {
         pkgInfo.addStringProperty("pkgName");
         pkgInfo.addStringProperty("appName");
         pkgInfo.addBooleanProperty("allow");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Entity");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Generated");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Id");
     }
 
     private static void createAutoStartPackage(Schema sch) {
@@ -53,6 +67,9 @@ public class DaoGenerator {
         pkgInfo.addStringProperty("pkgName");
         pkgInfo.addStringProperty("appName");
         pkgInfo.addBooleanProperty("allow");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Entity");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Generated");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Id");
     }
 
     private static void createLockClearPackage(Schema sch) {
@@ -61,6 +78,9 @@ public class DaoGenerator {
         pkgInfo.addStringProperty("pkgName");
         pkgInfo.addStringProperty("appName");
         pkgInfo.addBooleanProperty("kill");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Entity");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Generated");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Id");
     }
 
     private static void createBlockRecord(Schema sch) {
@@ -73,6 +93,23 @@ public class DaoGenerator {
         pkgInfo.addBooleanProperty("allow");
         pkgInfo.addStringProperty("description");
         pkgInfo.addStringProperty("why");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Entity");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Generated");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Id");
     }
 
+    private static void createComponentSettings(Schema sch) {
+        Entity pkgInfo = sch.addEntity("ComponentSettings");
+        pkgInfo.addIntProperty("id").primaryKey();
+        pkgInfo.addStringProperty("packageName");
+        pkgInfo.addStringProperty("className");
+        pkgInfo.addBooleanProperty("allow");
+//        import org.greenrobot.greendao.annotation.Entity;
+//        import org.greenrobot.greendao.annotation.Generated;
+//        import org.greenrobot.greendao.annotation.Id;
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Entity");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Generated");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Id");
+    }
 }
+

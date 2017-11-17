@@ -3,9 +3,9 @@ package github.tornaco.xposedmoduletest.bean;
 import android.content.Context;
 import android.support.annotation.Nullable;
 
+import org.greenrobot.greendao.identityscope.IdentityScopeType;
 import org.newstand.logger.Logger;
 
-import de.greenrobot.dao.identityscope.IdentityScopeType;
 
 /**
  * Created by guohao4 on 2017/10/18.

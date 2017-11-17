@@ -19,6 +19,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.AutoStartPackage;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
 import github.tornaco.xposedmoduletest.provider.AutoStartPackageProvider;
+import github.tornaco.xposedmoduletest.ui.activity.comp.ComponentEditorActivity;
 import tornaco.lib.widget.CheckableImageView;
 
 /**
@@ -64,23 +65,31 @@ public class StartAppListAdapter extends RecyclerView.Adapter<StartAppListAdapte
 
     @Override
     public void onBindViewHolder(final AppViewHolder holder, int position) {
-        final AutoStartPackage AutoStartPackage = autoStartPackages.get(position);
-        holder.getLineOneTextView().setText(AutoStartPackage.getAppName());
+        final AutoStartPackage autoStartPackage = autoStartPackages.get(position);
+        holder.getLineOneTextView().setText(autoStartPackage.getAppName());
         holder.getCheckableImageView().setChecked(false);
-        holder.getLineTwoTextView().setText(String.valueOf(AutoStartPackage.getPkgName()));
+        holder.getLineTwoTextView().setText(String.valueOf(autoStartPackage.getPkgName()));
         Vangogh.with(context)
-                .load(AutoStartPackage.getPkgName())
+                .load(autoStartPackage.getPkgName())
                 .skipMemoryCache(true)
                 .usingLoader(vangoghAppLoader)
                 .applier(new FadeOutFadeInApplier())
                 .placeHolder(0)
                 .fallback(R.mipmap.ic_launcher_round)
                 .into(holder.getCheckableImageView());
+
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                removePkgAsync(AutoStartPackage);
+                removePkgAsync(autoStartPackage);
                 return true;
+            }
+        });
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ComponentEditorActivity.start(context, autoStartPackage.getPkgName());
             }
         });
     }

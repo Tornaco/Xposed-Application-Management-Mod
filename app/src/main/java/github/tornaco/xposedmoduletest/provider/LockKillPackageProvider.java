@@ -50,7 +50,7 @@ public class LockKillPackageProvider extends ContentProvider {
         switch (MATCHER.match(uri)) {
             case PKGS:
                 LockKillPackageDao dao = daoSession.getLockKillPackageDao();
-                SQLiteDatabase db = dao.getDatabase();
+                SQLiteDatabase db = (SQLiteDatabase) dao.getDatabase().getRawDatabase();
                 int count = db.delete(LockKillPackageDao.TABLENAME, selection, selectionArgs);
                 ContentResolver resolver = resolverChecked();
                 if (resolver != null) resolver.notifyChange(uri, null);
@@ -81,7 +81,7 @@ public class LockKillPackageProvider extends ContentProvider {
         switch (MATCHER.match(uri)) {
             case PKGS:
                 LockKillPackageDao dao = daoSession.getLockKillPackageDao();
-                SQLiteDatabase db = dao.getDatabase();
+                SQLiteDatabase db = (SQLiteDatabase) dao.getDatabase().getRawDatabase();
                 long rowid = db.insert(LockKillPackageDao.TABLENAME, null, values);
                 Uri insertUri = ContentUris.withAppendedId(uri, rowid);
                 ContentResolver resolver = resolverChecked();
@@ -125,7 +125,7 @@ public class LockKillPackageProvider extends ContentProvider {
         switch (MATCHER.match(uri)) {
             case PKGS:
                 LockKillPackageDao dao = daoSession.getLockKillPackageDao();
-                SQLiteDatabase db = dao.getDatabase();
+                SQLiteDatabase db = (SQLiteDatabase) dao.getDatabase().getRawDatabase();
                 return db.query(LockKillPackageDao.TABLENAME, projection, selection, selectionArgs,
                         null, null, sortOrder);
             default:
@@ -143,7 +143,7 @@ public class LockKillPackageProvider extends ContentProvider {
             case PKGS:
                 int count;
                 LockKillPackageDao dao = daoSession.getLockKillPackageDao();
-                SQLiteDatabase db = dao.getDatabase();
+                SQLiteDatabase db = (SQLiteDatabase) dao.getDatabase().getRawDatabase();
                 count = db.update(LockKillPackageDao.TABLENAME, values, selection, selectionArgs);
                 ContentResolver resolver = resolverChecked();
                 if (resolver != null) resolver.notifyChange(uri, null);

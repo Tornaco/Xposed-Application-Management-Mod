@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'org.greenrobot.greendao' // apply plugin
 
 android {
 
@@ -40,6 +41,10 @@ android {
     }
 }
 
+greendao {
+    schemaVersion 1000
+}
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
@@ -55,6 +60,7 @@ dependencies {
     implementation 'com.github.Tornaco:AndroidCommon:v1.0'
     implementation 'com.github.Tornaco:CheckableImageView:1.0'
 
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     provided project(':api-gen-annotations')
     annotationProcessor project(':api-gen-compiler')
 
@@ -78,7 +84,7 @@ dependencies {
     implementation "org.jsoup:jsoup:${rootProject.ext.jsoupVersion}"
 
     implementation project(':vangoghcore')
-   // compile project(':keyguard')
+    // compile project(':keyguard')
     implementation project(':tiles')
 
     implementation 'si.virag:fuzzydateformatter:1.1.0'
@@ -98,6 +104,7 @@ dependencies {
 
     implementation 'com.andrognito.patternlockview:patternlockview:1.0.0'
 }
+
 
 
 

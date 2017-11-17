@@ -50,7 +50,7 @@ public class AppGuardPackageProvider extends ContentProvider {
         switch (MATCHER.match(uri)) {
             case PKGS:
                 PackageInfoDao dao = daoSession.getPackageInfoDao();
-                SQLiteDatabase db = dao.getDatabase();
+                SQLiteDatabase db = (SQLiteDatabase) dao.getDatabase().getRawDatabase();
                 int count = db.delete(PackageInfoDao.TABLENAME, selection, selectionArgs);
                 ContentResolver resolver = resolverChecked();
                 if (resolver != null) resolver.notifyChange(uri, null);
@@ -81,7 +81,7 @@ public class AppGuardPackageProvider extends ContentProvider {
         switch (MATCHER.match(uri)) {
             case PKGS:
                 PackageInfoDao dao = daoSession.getPackageInfoDao();
-                SQLiteDatabase db = dao.getDatabase();
+                SQLiteDatabase db = (SQLiteDatabase) dao.getDatabase().getRawDatabase();
                 long rowid = db.insert(PackageInfoDao.TABLENAME, null, values);
                 Uri insertUri = ContentUris.withAppendedId(uri, rowid);
                 ContentResolver resolver = resolverChecked();
@@ -125,7 +125,7 @@ public class AppGuardPackageProvider extends ContentProvider {
         switch (MATCHER.match(uri)) {
             case PKGS:
                 PackageInfoDao dao = daoSession.getPackageInfoDao();
-                SQLiteDatabase db = dao.getDatabase();
+                SQLiteDatabase db = (SQLiteDatabase) dao.getDatabase().getRawDatabase();
                 return db.query(PackageInfoDao.TABLENAME, projection, selection, selectionArgs,
                         null, null, sortOrder);
             default:
@@ -143,7 +143,7 @@ public class AppGuardPackageProvider extends ContentProvider {
             case PKGS:
                 int count;
                 PackageInfoDao dao = daoSession.getPackageInfoDao();
-                SQLiteDatabase db = dao.getDatabase();
+                SQLiteDatabase db = (SQLiteDatabase) dao.getDatabase().getRawDatabase();
                 count = db.update(PackageInfoDao.TABLENAME, values, selection, selectionArgs);
                 ContentResolver resolver = resolverChecked();
                 if (resolver != null) resolver.notifyChange(uri, null);

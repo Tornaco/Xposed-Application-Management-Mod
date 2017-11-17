@@ -50,7 +50,7 @@ public class BootPackageProvider extends ContentProvider {
         switch (MATCHER.match(uri)) {
             case PKGS:
                 BootCompletePackageDao dao = daoSession.getBootCompletePackageDao();
-                SQLiteDatabase db = dao.getDatabase();
+                SQLiteDatabase db = (SQLiteDatabase) dao.getDatabase().getRawDatabase();
                 int count = db.delete(BootCompletePackageDao.TABLENAME, selection, selectionArgs);
                 ContentResolver resolver = resolverChecked();
                 if (resolver != null) resolver.notifyChange(uri, null);
@@ -81,7 +81,7 @@ public class BootPackageProvider extends ContentProvider {
         switch (MATCHER.match(uri)) {
             case PKGS:
                 BootCompletePackageDao dao = daoSession.getBootCompletePackageDao();
-                SQLiteDatabase db = dao.getDatabase();
+                SQLiteDatabase db = (SQLiteDatabase) dao.getDatabase().getRawDatabase();
                 long rowid = db.insert(BootCompletePackageDao.TABLENAME, null, values);
                 Uri insertUri = ContentUris.withAppendedId(uri, rowid);
                 ContentResolver resolver = resolverChecked();
@@ -125,7 +125,7 @@ public class BootPackageProvider extends ContentProvider {
         switch (MATCHER.match(uri)) {
             case PKGS:
                 BootCompletePackageDao dao = daoSession.getBootCompletePackageDao();
-                SQLiteDatabase db = dao.getDatabase();
+                SQLiteDatabase db = (SQLiteDatabase) dao.getDatabase().getRawDatabase();
                 return db.query(BootCompletePackageDao.TABLENAME, projection, selection, selectionArgs,
                         null, null, sortOrder);
             default:
@@ -143,7 +143,7 @@ public class BootPackageProvider extends ContentProvider {
             case PKGS:
                 int count;
                 BootCompletePackageDao dao = daoSession.getBootCompletePackageDao();
-                SQLiteDatabase db = dao.getDatabase();
+                SQLiteDatabase db = (SQLiteDatabase) dao.getDatabase().getRawDatabase();
                 count = db.update(BootCompletePackageDao.TABLENAME, values, selection, selectionArgs);
                 ContentResolver resolver = resolverChecked();
                 if (resolver != null) resolver.notifyChange(uri, null);

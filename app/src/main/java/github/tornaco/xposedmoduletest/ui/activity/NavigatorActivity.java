@@ -16,8 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.vanniktech.emoji.EmojiTextView;
-
 import java.util.List;
 
 import dev.nick.tiles.tile.Category;
@@ -150,11 +148,11 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
                             ContextCompat.getColor(getActivity(), R.color.green)
                             : ContextCompat.getColor(getActivity(), R.color.red));
 
-            EmojiTextView emojiTextView = findView(rootView, R.id.icon1);
-            emojiTextView.setText(EmojiUtil.getEmojiByUnicode(
-                    isServiceAvailable() ?
-                            EmojiUtil.HEIHEIHEI
-                            : EmojiUtil.DOG));
+//            EmojiTextView emojiTextView = findView(rootView, R.id.icon1);
+//            emojiTextView.setText(EmojiUtil.getEmojiByUnicode(
+//                    isServiceAvailable() ?
+//                            EmojiUtil.HEIHEIHEI
+//                            : EmojiUtil.DOG));
         }
 
         private boolean isServiceAvailable() {

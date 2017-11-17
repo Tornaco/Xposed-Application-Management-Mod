@@ -1,0 +1,13 @@
+Error:Gradle: A problem occurred configuring root project 'XposedModuleTest'.
+> Could not resolve all files for configuration ':classpath'.
+   > Could not resolve com.android.tools.build:gradle:3.0.0.
+     Required by:
+         project :
+      > Could not resolve com.android.tools.build:gradle:3.0.0.
+         > Could not get resource 'https://maven.google.com/com/android/tools/build/gradle/3.0.0/gradle-3.0.0.pom'.
+            > Could not GET 'https://maven.google.com/com/android/tools/build/gradle/3.0.0/gradle-3.0.0.pom'.
+               > Remote host closed connection during handshake
+
+
+               Error:Execution failed for task ':app:greendao'.
+               > Error processing "BootCompletePackage": Can't resolve qualified name for Object. Try to not use on-demand imports or specify qualified name explicitly (line 86)

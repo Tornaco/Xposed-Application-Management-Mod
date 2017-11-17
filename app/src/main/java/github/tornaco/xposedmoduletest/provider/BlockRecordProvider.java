@@ -56,7 +56,7 @@ public class BlockRecordProvider extends ContentProvider {
                     dao.deleteAll();
                     return 0;
                 }
-                SQLiteDatabase db = dao.getDatabase();
+                SQLiteDatabase db = (SQLiteDatabase) dao.getDatabase().getRawDatabase();
                 int count = db.delete(BlockRecordDao.TABLENAME, selection, selectionArgs);
                 ContentResolver resolver = resolverChecked();
                 if (resolver != null) resolver.notifyChange(uri, null);
@@ -87,7 +87,7 @@ public class BlockRecordProvider extends ContentProvider {
         switch (MATCHER.match(uri)) {
             case PKGS:
                 BlockRecordDao dao = daoSession.getBlockRecordDao();
-                SQLiteDatabase db = dao.getDatabase();
+                SQLiteDatabase db = (SQLiteDatabase) dao.getDatabase().getRawDatabase();
                 Cursor cursor = db.query(BlockRecordDao.TABLENAME, null, null, null, null, null, null);
                 int count = cursor == null ? 0 : cursor.getCount();
                 if (count >= 1000) {
@@ -144,7 +144,7 @@ public class BlockRecordProvider extends ContentProvider {
         switch (MATCHER.match(uri)) {
             case PKGS:
                 BlockRecordDao dao = daoSession.getBlockRecordDao();
-                SQLiteDatabase db = dao.getDatabase();
+                SQLiteDatabase db = (SQLiteDatabase) dao.getDatabase().getRawDatabase();
                 return db.query(BlockRecordDao.TABLENAME, projection, selection, selectionArgs,
                         null, null, sortOrder);
             default:
@@ -162,7 +162,7 @@ public class BlockRecordProvider extends ContentProvider {
             case PKGS:
                 int count;
                 BlockRecordDao dao = daoSession.getBlockRecordDao();
-                SQLiteDatabase db = dao.getDatabase();
+                SQLiteDatabase db = (SQLiteDatabase) dao.getDatabase().getRawDatabase();
                 count = db.update(BlockRecordDao.TABLENAME, values, selection, selectionArgs);
                 ContentResolver resolver = resolverChecked();
                 if (resolver != null) resolver.notifyChange(uri, null);
