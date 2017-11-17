@@ -17,6 +17,8 @@ before_script:
 - cp ./android-sdk-license "$ANDROID_HOME/licenses/"
 - cp ./hiddenapi/26/android.jar "$ANDROID_HOME/platforms/android-26/"
 - cp ./hiddenapi/25/android.jar "$ANDROID_HOME/platforms/android-25/"
+after_script:
+- tree app/
 notifications:
   email:
     recipients:
