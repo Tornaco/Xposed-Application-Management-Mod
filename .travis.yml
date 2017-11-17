@@ -33,7 +33,7 @@ deploy:
   provider: releases
   api_key:
     secure: X+GW206d6MM62TgdzKjsg0MAHlG3ePNtKRxtY5sW/zXrjEcoT5RGwA+j2GissO2uhFKkFPemUzR2HJQ2GbA00dQghF13r/7Pyhi1Ufwb7KXqaGNq7danFA9naC+zZuTpFuz+2iTkfn28JAC+ciRHmSFePcX95HiTxbXd+KN0DTsnsKcdyuNKirADcGGaG+oVIrtG2opSDG0vIiwXsgvL88c+VtYj6Yy6Bz/FRQrzxqv281bnTjThDn1s4e323z4qC7qOMd+lih7GnpAxi2AcR4El86gorO2qMmvWVfnH4fx9T9IsJ+AluD/0H9BxjfBEpj9AW04d9wF/OrXfic5yQ4iyd3se1fmRrxtPraz4XuaU3zP6ZIst/Sw0qTVkRwPF5cP58eiYXn+QOpuQ3xcTJAA0I5vRZrK4UAWcQFFsHJ2STJM/t2VgAgnlmnYk3RPh94/GyXQOSxlvBLdpMuJcJ029U4Xr+BjW0XeN0jqpmcWrzHi8Lok0GnEj2zKm1d51CtHvw5w88uyaNAUFualR4vrCImJ9GdYW3zBD+4w2ssSxqyQAkr4nW6ZJScnU108UGZYtA9Qe8+H95L1zVfSLnGfHv4uTkQP4jF7v6u8FZPeWDvfcLQi+FJqOalkXr3vA2Shc1LvScAuzokhzsfxuJGgsBy6pfIfprDmapWjyu5Y=
-  file: app/build/outputs/apk/app-release.apk
+  file: app/build/outputs/apk/release/app-release.apk
   skip_cleanup: true
   on:
     repo: Tornaco/XAppGuard
