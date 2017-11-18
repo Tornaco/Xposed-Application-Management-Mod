@@ -1,24 +1,26 @@
 package github.tornaco.xposedmoduletest.loader;
 
-import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.support.annotation.NonNull;
 
 import com.google.common.collect.Lists;
 
+import org.newstand.logger.Logger;
+
 import java.util.List;
 
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
-import github.tornaco.xposedmoduletest.bean.ComponentSettings;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.model.ReceiverInfoSettings;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettings;
 import github.tornaco.xposedmoduletest.util.ComponentUtil;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import lombok.AllArgsConstructor;
 
 /**
@@ -46,27 +48,45 @@ public interface ComponentLoader {
         @NonNull
         @Override
         public List<ReceiverInfoSettings> loadReceiverSettings(String pkg) {
+            final PackageManager pm = context.getPackageManager();
+            final XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
             final DaoSession daoSession = DaoManager.getInstance().getSession(context);
             final ContentResolver resolver = context.getContentResolver();
-            if (daoSession == null || resolver == null) return Lists.newArrayListWithCapacity(0);
+
+            if (daoSession == null || resolver == null || xAshmanManager == null)
+                return Lists.newArrayListWithCapacity(0);
+
             List<ActivityInfo> activityInfos = ComponentUtil.getBroadcasts(context, pkg);
             if (Collections.isNullOrEmpty(activityInfos)) return Lists.newArrayListWithCapacity(0);
+
             final List<ReceiverInfoSettings> out = Lists.newArrayList();
-            final List<ComponentSettings> csa = daoSession.getComponentSettingsDao().loadAll();
             Collections.consumeRemaining(activityInfos, new Consumer<ActivityInfo>() {
                 @Override
                 public void accept(ActivityInfo activityInfo) {
+                    try {
 
-                    ReceiverInfoSettings settings = new ReceiverInfoSettings();
-                    settings.setActivityInfo(activityInfo);
+                        ReceiverInfoSettings settings = new ReceiverInfoSettings();
+                        settings.setActivityInfo(activityInfo);
 
-                    // Check if this comp is allowed.
-                    ComponentSettings cs = findComponentSettingsFrom(csa,
-                            ComponentUtil.getComponentName(activityInfo));
 
-                    settings.setAllowed(cs == null || cs.getAllow());
+                        settings.setDisplayName(ComponentUtil.getComponentName(activityInfo)
+                                .getShortClassName());
 
-                    out.add(settings);
+                        CharSequence labelCS = pm.getText(activityInfo.packageName,
+                                activityInfo.labelRes, activityInfo.applicationInfo);
+                        String serviceLabel = labelCS == null
+                                ? settings.getDisplayName()
+                                : labelCS.toString();
+                        settings.setServiceLabel(serviceLabel);
+
+                        settings.setAllowed(xAshmanManager.getComponentEnabledSetting(
+                                ComponentUtil.getComponentName(activityInfo))
+                                <= PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
+
+                        out.add(settings);
+                    } catch (Throwable e) {
+                        Logger.e("Error handing activityInfo: " + e);
+                    }
                 }
             });
             return out;
@@ -75,38 +95,46 @@ public interface ComponentLoader {
         @NonNull
         @Override
         public List<ServiceInfoSettings> loadServiceSettings(String pkg) {
+            final PackageManager pm = context.getPackageManager();
+            final XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
             final DaoSession daoSession = DaoManager.getInstance().getSession(context);
             final ContentResolver resolver = context.getContentResolver();
-            if (daoSession == null || resolver == null) return Lists.newArrayListWithCapacity(0);
+
+            if (daoSession == null || resolver == null || xAshmanManager == null)
+                return Lists.newArrayListWithCapacity(0);
+
             List<ServiceInfo> serviceInfos = ComponentUtil.getServices(context, pkg);
             if (Collections.isNullOrEmpty(serviceInfos)) return Lists.newArrayListWithCapacity(0);
+
             final List<ServiceInfoSettings> out = Lists.newArrayList();
-            final List<ComponentSettings> csa = daoSession.getComponentSettingsDao().loadAll();
             Collections.consumeRemaining(serviceInfos, new Consumer<ServiceInfo>() {
                 @Override
                 public void accept(ServiceInfo serviceInfo) {
 
-                    ServiceInfoSettings settings = new ServiceInfoSettings();
-                    settings.setServiceInfo(serviceInfo);
+                    try {
+                        ServiceInfoSettings settings = new ServiceInfoSettings();
+                        settings.setServiceInfo(serviceInfo);
 
-                    // Check if this comp is allowed.
-                    ComponentSettings cs = findComponentSettingsFrom(csa,
-                            ComponentUtil.getComponentName(serviceInfo));
+                        settings.setDisplayName(ComponentUtil.getComponentName(serviceInfo)
+                                .getShortClassName());
 
-                    settings.setAllowed(cs == null || cs.getAllow());
+                        CharSequence labelCS = pm.getText(serviceInfo.packageName,
+                                serviceInfo.labelRes, serviceInfo.applicationInfo);
+                        String serviceLabel = labelCS == null
+                                ? settings.getDisplayName()
+                                : labelCS.toString();
+                        settings.setServiceLabel(serviceLabel);
+                        settings.setAllowed(xAshmanManager.getComponentEnabledSetting(
+                                ComponentUtil.getComponentName(serviceInfo))
+                                <= PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
 
-                    out.add(settings);
+                        out.add(settings);
+                    } catch (Throwable e) {
+                        Logger.e("Error handing serviceInfo: " + e);
+                    }
                 }
             });
             return out;
-        }
-
-        private static ComponentSettings findComponentSettingsFrom(List<ComponentSettings> settings,
-                                                                   final ComponentName target) {
-            for (ComponentSettings cs : settings) {
-                if (cs.is(target)) return cs;
-            }
-            return null;
         }
     }
 }

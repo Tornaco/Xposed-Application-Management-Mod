@@ -98,7 +98,7 @@
     <string name="title_block_viewer">启动记录</string>
     <string name="title_restrict">限制</string>
     <string name="done">完成</string>
-    <string name="clearing_process">正在杀掉%1$s...</string>
+    <string name="clearing_process">正在杀掉%1$s…</string>
     <string name="summary_verify_on_home">该功能目前还不稳定，某些应用可能无法适用，如果发现问题请关闭该选项</string>
     <string name="summary_verify_on_screenoff">建议开启以提高安全性</string>
     <string name="title_transaction_expire">过期请求，已忽略</string>
@@ -111,5 +111,6 @@
     <string name="title_component_editor">组件控制- %1$s</string>
     <string name="tab_text_1">服务</string>
     <string name="tab_text_2">广播</string>
-    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="summary_service_info_process"><b>进程</b> %1$s</string>
+    <string name="summary_service_info_comp"><b>组件名称</b> %1$s</string>
 </resources>

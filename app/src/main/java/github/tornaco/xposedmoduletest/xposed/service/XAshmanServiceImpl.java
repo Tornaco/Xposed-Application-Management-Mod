@@ -114,6 +114,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final Map<String, AutoStartPackage> mStartWhiteListPackages = new HashMap<>();
     private final Map<String, LockKillPackage> mLockKillWhileListPackages = new HashMap<>();
 
+
     // Safe mode is the last clear place user can stay.
     private boolean mIsSafeMode = false;
 
@@ -566,7 +567,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XLog.logVOnExecutor("XAshmanService checkBroadcast returning: "
                     + res + " for: "
                     + PkgUtil.loadNameByPkgName(getContext(),
-                    mPackagesCache.get(receiverUid)), mLoggingService);
+                    mPackagesCache.get(receiverUid))
+                    + " action: " + action, mLoggingService);
         return res.res;
     }
 
@@ -584,6 +586,23 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         enforceCallingPermissions();
         h.removeMessages(IntentFirewallHandlerMessages.MSG_CLEARBLOCKRECORDS);
         h.obtainMessage(IntentFirewallHandlerMessages.MSG_CLEARBLOCKRECORDS).sendToTarget();
+    }
+
+    @Override
+    public void setComponentEnabledSetting(ComponentName componentName, int newState, int flags) throws RemoteException {
+        enforceCallingPermissions();
+        h.obtainMessage(IntentFirewallHandlerMessages.MSG_SETCOMPONENTENABLEDSETTING, newState, flags, componentName).sendToTarget();
+    }
+
+    @Override
+    public int getComponentEnabledSetting(ComponentName componentName) throws RemoteException {
+        long id = Binder.clearCallingIdentity();
+        try {
+            PackageManager pm = getContext().getPackageManager();
+            return pm.getComponentEnabledSetting(componentName);
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
     }
 
     private CheckResult checkBroadcastDetailed(String action, int receiverUid, int callerUid) {
@@ -1076,7 +1095,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     HandlerImpl.this.setLockKillDelay((Long) msg.obj);
                     break;
                 case IntentFirewallHandlerMessages.MSG_CLEARBLOCKRECORDS:
-                    clearBlockRecords();
+                    HandlerImpl.this.clearBlockRecords();
+                    break;
+                case IntentFirewallHandlerMessages.MSG_SETCOMPONENTENABLEDSETTING:
+                    HandlerImpl.this.setComponentEnabledSetting((ComponentName) msg.obj, msg.arg1, msg.arg2);
                     break;
             }
         }
@@ -1154,7 +1176,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                     } catch (RemoteException ignored) {
 
                                     }
-                                    XLog.logV("App is in white-listed, wont kill: " + runningPackageName);
+                                     XLog.logV("App is in white-listed, wont kill: " + runningPackageName);
                                     continue;
                                 }
 
@@ -1165,7 +1187,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                     } catch (RemoteException ignored) {
 
                                     }
-                                    XLog.logV("App is in system app, wont kill: " + runningPackageName);
+                                    // XLog.logV("App is in system app, wont kill: " + runningPackageName);
                                     continue;
                                 }
                                 if (PkgUtil.isAppRunningForeground(getContext(), runningPackageName)) {
@@ -1273,6 +1295,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     mClearingTask.setData(null);
                 }
             }
+        }
+
+        @Override
+        public void setComponentEnabledSetting(ComponentName componentName, int newState, int flags) {
+            PackageManager pm = getContext().getPackageManager();
+            pm.setComponentEnabledSetting(componentName, newState, flags);
+        }
+
+        @Override
+        public int getComponentEnabledSetting(ComponentName componentName) {
+            PackageManager pm = getContext().getPackageManager();
+            return pm.getComponentEnabledSetting(componentName);
         }
     }
 

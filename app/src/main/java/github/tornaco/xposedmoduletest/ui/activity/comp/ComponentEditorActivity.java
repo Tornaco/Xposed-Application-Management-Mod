@@ -34,9 +34,10 @@ import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import lombok.Getter;
 
-public class ComponentEditorActivity extends BaseActivity {
+public class ComponentEditorActivity extends BaseActivity implements LoadingListener {
 
     private static final String EXTRA_PKG = "ce_extra_pkg";
+    private static final String EXTRA_INDEX = "ce_extra_index";
 
     public static void start(Context context, String pkg) {
         Intent intent = new Intent(context, ComponentEditorActivity.class);
@@ -102,10 +103,19 @@ public class ComponentEditorActivity extends BaseActivity {
         });
     }
 
+    private static final int INDEX_SERVICE = 0;
+    private static final int INDEX_BROADCAST = 1;
+
+    @SuppressWarnings("ConstantConditions")
+    void setTabTitle(int index, String title) {
+        TabLayout tabLayout = findViewById(R.id.tabs);
+        tabLayout.getTabAt(index).setText(title);
+    }
+
     private void initPages() {
         mFragments.clear();
-        mFragments.add(ServiceListFragment.newInstance(mPackageName));
-        mFragments.add(ReceiverListFragment.newInstance(mPackageName));
+        mFragments.add(ServiceListFragment.newInstance(mPackageName, 0));
+        mFragments.add(ReceiverListFragment.newInstance(mPackageName, 1));
     }
 
     private boolean internalResolveIntent() {
@@ -140,12 +150,20 @@ public class ComponentEditorActivity extends BaseActivity {
     private static final int FRAGMENT_COUNT = 2;
     private final List<ComponentListFragment> mFragments = new ArrayList<>(FRAGMENT_COUNT);
 
+    @Override
+    public void onLoadingComplete(int index, List data) {
+        setTabTitle(index, index == INDEX_SERVICE ?
+                getString(R.string.tab_text_1) + "[" + data.size() + "]"
+                : getString(R.string.tab_text_2) + "[" + data.size() + "]");
+    }
+
     public static class ReceiverListFragment extends ComponentListFragment {
 
-        public static ReceiverListFragment newInstance(String pkg) {
+        public static ReceiverListFragment newInstance(String pkg, int index) {
             ReceiverListFragment fragment = new ReceiverListFragment();
-            Bundle bundle = new Bundle(1);
+            Bundle bundle = new Bundle(2);
             bundle.putString(EXTRA_PKG, pkg);
+            bundle.putInt(EXTRA_INDEX, index);
             fragment.setArguments(bundle);
             return fragment;
         }
@@ -153,7 +171,7 @@ public class ComponentEditorActivity extends BaseActivity {
         @Override
         protected List performLoading() {
             return ComponentLoader.Impl.create(getActivity().getApplicationContext())
-                    .loadReceiverSettings(getTargePpackageName());
+                    .loadReceiverSettings(getTargetPackageName());
         }
 
         @Override
@@ -164,10 +182,11 @@ public class ComponentEditorActivity extends BaseActivity {
 
     public static class ServiceListFragment extends ComponentListFragment {
 
-        public static ServiceListFragment newInstance(String pkg) {
+        public static ServiceListFragment newInstance(String pkg, int index) {
             ServiceListFragment fragment = new ServiceListFragment();
-            Bundle bundle = new Bundle(1);
+            Bundle bundle = new Bundle(2);
             bundle.putString(EXTRA_PKG, pkg);
+            bundle.putInt(EXTRA_INDEX, index);
             fragment.setArguments(bundle);
             return fragment;
         }
@@ -175,7 +194,7 @@ public class ComponentEditorActivity extends BaseActivity {
         @Override
         protected List performLoading() {
             return ComponentLoader.Impl.create(getActivity().getApplicationContext())
-                    .loadServiceSettings(getTargePpackageName());
+                    .loadServiceSettings(getTargetPackageName());
         }
 
         @Override
@@ -190,7 +209,11 @@ public class ComponentEditorActivity extends BaseActivity {
         private SwipeRefreshLayout swipeRefreshLayout;
         private ComponentListAdapter componentListAdapter;
 
-        private String targePpackageName;
+        private String targetPackageName;
+        private int index;
+
+        @Getter
+        private LoadingListener loadingListener;
 
         public ComponentListFragment() {
         }
@@ -207,6 +230,7 @@ public class ComponentEditorActivity extends BaseActivity {
                             swipeRefreshLayout.setRefreshing(false);
                             //noinspection unchecked
                             componentListAdapter.update(res);
+                            loadingListener.onLoadingComplete(index, res);
                         }
                     });
                 }
@@ -224,7 +248,9 @@ public class ComponentEditorActivity extends BaseActivity {
         @Override
         public void onAttach(Context context) {
             super.onAttach(context);
-            this.targePpackageName = getArguments().getString(EXTRA_PKG);
+            this.targetPackageName = getArguments().getString(EXTRA_PKG);
+            this.index = getArguments().getInt(EXTRA_INDEX, -1);
+            this.loadingListener = (LoadingListener) getActivity();
         }
 
         @Override
@@ -285,4 +311,8 @@ public class ComponentEditorActivity extends BaseActivity {
             return FRAGMENT_COUNT;
         }
     }
+}
+
+interface LoadingListener {
+    void onLoadingComplete(int tab, List data);
 }

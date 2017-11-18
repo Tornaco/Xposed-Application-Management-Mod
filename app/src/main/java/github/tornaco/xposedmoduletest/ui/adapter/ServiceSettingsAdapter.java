@@ -2,12 +2,16 @@ package github.tornaco.xposedmoduletest.ui.adapter;
 
 import android.content.ComponentName;
 import android.content.Context;
-import android.widget.CompoundButton;
+import android.content.pm.PackageManager;
+import android.view.View;
+import android.widget.Switch;
 
-import github.tornaco.xposedmoduletest.bean.ComponentSettings;
+import org.newstand.logger.Logger;
+
+import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettings;
-import github.tornaco.xposedmoduletest.provider.ComponentsProvider;
 import github.tornaco.xposedmoduletest.util.ComponentUtil;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
  * Created by guohao4 on 2017/11/17.
@@ -20,25 +24,45 @@ public class ServiceSettingsAdapter extends ComponentListAdapter<ServiceInfoSett
         super(context);
     }
 
+    private final XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
+
     @Override
     public void onBindViewHolder(ComponentHolder holder, int position) {
         super.onBindViewHolder(holder, position);
 
         final ServiceInfoSettings serviceInfoSettings = getData().get(position);
-        holder.getTitleView().setText(serviceInfoSettings.getServiceInfo().name);
-        holder.getSummaryView().setText(serviceInfoSettings.getServiceInfo().toString());
+
+        holder.getTitleView().setText(serviceInfoSettings.getDisplayName());
+
+        String processName = serviceInfoSettings.getServiceInfo().processName;
+        String serviceLabel = serviceInfoSettings.getServiceLabel();
+
+
+        holder.getSummaryView().setText(getContext().getString(R.string.summary_service_info_process,
+                processName));
+        holder.getSummaryView2().setText(getContext().getString(R.string.summary_service_info_comp,
+                serviceLabel));
+
+        if (!xAshmanManager.isServiceAvailable()) {
+            return;
+        }
+
         holder.getCompSwitch().setChecked(serviceInfoSettings.isAllowed());
 
-        holder.getCompSwitch().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        holder.getCompSwitch().setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                serviceInfoSettings.setAllowed(!serviceInfoSettings.isAllowed());
-                ComponentSettings componentSettings = new ComponentSettings();
-                componentSettings.setAllow(serviceInfoSettings.isAllowed());
+            public void onClick(View v) {
                 ComponentName componentName = ComponentUtil.getComponentName(serviceInfoSettings.getServiceInfo());
-                componentSettings.setClassName(componentName.getClassName());
-                componentSettings.setPackageName(componentName.getPackageName());
-                ComponentsProvider.insertOrUpdate(getContext(), componentSettings);
+                Switch s = (Switch) v;
+                boolean checked = s.isChecked();
+
+                Logger.d("checked: " + checked);
+                serviceInfoSettings.setAllowed(checked);
+
+                xAshmanManager.setComponentEnabledSetting(componentName,
+                        checked ?
+                                PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                                : PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
             }
         });
     }

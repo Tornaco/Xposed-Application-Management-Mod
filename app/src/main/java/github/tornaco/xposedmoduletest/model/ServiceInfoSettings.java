@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.experimental.Delegate;
 
 /**
  * Created by guohao4 on 2017/11/17.
@@ -17,8 +16,10 @@ import lombok.experimental.Delegate;
 @NoArgsConstructor
 @ToString
 public class ServiceInfoSettings {
-    @Delegate
     private ServiceInfo serviceInfo;
+
+    private String serviceLabel;
+    private String displayName;
 
     private boolean allowed;
 }

@@ -49,7 +49,7 @@ public class ComponentListAdapter<T>
     }
 
     @LayoutRes
-    private int getTemplateLayoutRes() {
+    int getTemplateLayoutRes() {
         return R.layout.comp_list_item;
     }
 
@@ -68,15 +68,24 @@ public class ComponentListAdapter<T>
         private ImageView iconView;
         private TextView titleView;
         private TextView summaryView;
+        private TextView summaryView2;
         private Switch compSwitch;
 
         ComponentHolder(View itemView) {
             super(itemView);
 
             this.iconView = itemView.findViewById(R.id.icon);
-            this.titleView = itemView.findViewById(android.R.id.title);
-            this.summaryView = itemView.findViewById(android.R.id.text1);
+            this.titleView = itemView.findViewById(R.id.title);
+            this.summaryView = itemView.findViewById(R.id.status);
+            this.summaryView2 = itemView.findViewById(R.id.status2);
             this.compSwitch = itemView.findViewById(R.id.comp_switch);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    compSwitch.performClick();
+                }
+            });
         }
     }
 }

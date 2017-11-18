@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed.app;
 
 import android.content.ComponentName;
+import android.content.pm.PackageManager;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 
@@ -156,6 +157,7 @@ public class XAshmanManager {
         try {
             return mService.checkService(servicePkgName, callerUid);
         } catch (RemoteException ignored) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(ignored));
             return true;
         }
     }
@@ -164,7 +166,25 @@ public class XAshmanManager {
         try {
             return mService.checkBroadcast(action, receiverUid, callerUid);
         } catch (RemoteException ignored) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(ignored));
             return true;
+        }
+    }
+
+    public void setComponentEnabledSetting(ComponentName componentName, int newState, int flags) {
+        try {
+            mService.setComponentEnabledSetting(componentName, newState, flags);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public int getComponentEnabledSetting(ComponentName componentName) {
+        try {
+            return mService.getComponentEnabledSetting(componentName);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return Integer.MIN_VALUE + PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
         }
     }
 }

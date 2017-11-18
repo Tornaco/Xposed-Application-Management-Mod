@@ -29,4 +29,8 @@ interface IAshmanService {
     List<BlockRecord2> getBlockRecords();
 
     void clearBlockRecords();
+
+    void setComponentEnabledSetting(in ComponentName componentName, int newState, int flags);
+
+    int getComponentEnabledSetting(in ComponentName componentName);
 }

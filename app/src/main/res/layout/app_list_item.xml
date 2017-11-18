@@ -15,7 +15,7 @@
         android:gravity="center_vertical"
         android:minHeight="@dimen/common_item_min_height"
         android:paddingEnd="?android:attr/scrollbarSize"
-        android:paddingStart="@dimen/activity_horizontal_margin">
+        android:paddingStart="@dimen/activity_horizontal_margin_large">
 
         <tornaco.lib.widget.CheckableImageView
             android:id="@+id/checkable_img_view"

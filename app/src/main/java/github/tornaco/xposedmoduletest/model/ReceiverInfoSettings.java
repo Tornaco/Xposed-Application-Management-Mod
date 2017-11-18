@@ -19,4 +19,7 @@ public class ReceiverInfoSettings {
     private ActivityInfo activityInfo;
 
     private boolean allowed;
+
+    private String serviceLabel;
+    private String displayName;
 }

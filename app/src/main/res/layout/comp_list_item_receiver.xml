@@ -7,9 +7,9 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:layout_margin="3dp"
-    card_view:contentPadding="5dp"
     card_view:cardCornerRadius="1dp"
-    card_view:cardElevation="1dp">
+    card_view:cardElevation="1dp"
+    card_view:contentPadding="5dp">
 
     <RelativeLayout
         android:id="@+id/tile_root"
@@ -27,7 +27,7 @@
             android:layout_marginRight="@dimen/dashboard_tile_image_margin_end"
             android:layout_marginStart="@dimen/dashboard_tile_image_margin_start"
             android:scaleType="fitXY"
-            android:src="@drawable/ic_room_service_black_24dp"
+            android:src="@drawable/ic_remove_red_eye_black_24dp"
             android:tint="@color/grey" />
 
         <RelativeLayout
@@ -53,10 +53,10 @@
                 android:id="@+id/status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="3dp"
                 android:layout_alignLeft="@android:id/title"
                 android:layout_alignStart="@android:id/title"
                 android:layout_below="@id/title"
+                android:padding="3dp"
                 android:text="@string/app_wiki_url"
                 android:textAppearance="@style/TextAppearance.TileSubTitle" />
 
@@ -64,10 +64,10 @@
                 android:id="@+id/status2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="3dp"
                 android:layout_alignLeft="@android:id/title"
                 android:layout_alignStart="@android:id/title"
                 android:layout_below="@id/status"
+                android:padding="3dp"
                 android:text="@string/app_wiki_url"
                 android:textAppearance="@style/TextAppearance.TileSubTitle" />
 
