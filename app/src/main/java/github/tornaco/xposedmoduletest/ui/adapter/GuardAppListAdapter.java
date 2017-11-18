@@ -20,6 +20,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
 import github.tornaco.xposedmoduletest.provider.AppGuardPackageProvider;
+import lombok.Getter;
 import tornaco.lib.widget.CheckableImageView;
 
 /**
@@ -40,6 +41,7 @@ public class GuardAppListAdapter extends RecyclerView.Adapter<GuardAppListAdapte
         vangoghAppLoader = new VangoghAppLoader(context);
     }
 
+    @Getter
     final List<PackageInfo> packageInfos = new ArrayList<>();
 
     public void update(Collection<PackageInfo> src) {
@@ -54,10 +56,6 @@ public class GuardAppListAdapter extends RecyclerView.Adapter<GuardAppListAdapte
     public AppViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(getTemplateLayoutRes(), parent, false);
         return new AppViewHolder(view);
-    }
-
-    public List<PackageInfo> getPackageInfos() {
-        return packageInfos;
     }
 
     @LayoutRes
@@ -133,7 +131,7 @@ public class GuardAppListAdapter extends RecyclerView.Adapter<GuardAppListAdapte
         return sections.toArray(new String[0]);
     }
 
-    static class AppViewHolder extends RecyclerView.ViewHolder {
+    public static class AppViewHolder extends RecyclerView.ViewHolder {
         private TextView lineOneTextView;
         private TextView lineTwoTextView;
         private CheckableImageView checkableImageView;

@@ -26,7 +26,7 @@ import github.tornaco.xposedmoduletest.ui.activity.app.AppDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.ag.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.ag.AppGuard;
 import github.tornaco.xposedmoduletest.ui.tiles.ag.AppStart;
-import github.tornaco.xposedmoduletest.ui.tiles.ag.ClearProcess;
+import github.tornaco.xposedmoduletest.ui.tiles.ag.ComponentManager;
 import github.tornaco.xposedmoduletest.ui.tiles.ag.LockKill;
 import github.tornaco.xposedmoduletest.ui.widget.EmojiToast;
 import github.tornaco.xposedmoduletest.util.EmojiUtil;
@@ -174,7 +174,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
 
             Category ash = new Category();
             ash.titleRes = R.string.title_clearn;
-            ash.addTile(new ClearProcess(getActivity()));
+            ash.addTile(new ComponentManager(getActivity()));
 
             categories.add(category);
             categories.add(ash);

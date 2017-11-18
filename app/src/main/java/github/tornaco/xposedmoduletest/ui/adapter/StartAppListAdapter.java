@@ -89,13 +89,6 @@ public class StartAppListAdapter extends RecyclerView.Adapter<StartAppListAdapte
                 return true;
             }
         });
-
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ComponentEditorActivity.start(context, autoStartPackage.getPkgName());
-            }
-        });
     }
 
     private void removePkgAsync(AutoStartPackage pkg) {

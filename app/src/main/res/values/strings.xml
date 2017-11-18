@@ -113,4 +113,5 @@
     <string name="tab_text_2">广播</string>
     <string name="summary_service_info_process"><b>进程</b> %1$s</string>
     <string name="summary_service_info_comp"><b>组件名称</b> %1$s</string>
+    <string name="title_component_manager">应用组件管理</string>
 </resources>

@@ -7,24 +7,24 @@ import android.view.View;
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.ui.activity.ClearProcessActivity;
+import github.tornaco.xposedmoduletest.ui.activity.comp.PackageViewerActivity;
 
 /**
  * Created by guohao4 on 2017/11/10.
  * Email: Tornaco@163.com
  */
 
-public class ClearProcess extends QuickTile {
+public class ComponentManager extends QuickTile {
 
-    public ClearProcess(final Context context) {
+    public ComponentManager(final Context context) {
         super(context);
-        this.titleRes = R.string.clear_process;
-        this.iconRes = R.drawable.ic_memory_black_24dp;
+        this.titleRes = R.string.title_component_manager;
+        this.iconRes = R.drawable.ic_bubble_chart_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override
             public void onClick(View v) {
                 super.onClick(v);
-                context.startActivity(new Intent(context, ClearProcessActivity.class));
+                context.startActivity(new Intent(context, PackageViewerActivity.class));
             }
         };
     }
