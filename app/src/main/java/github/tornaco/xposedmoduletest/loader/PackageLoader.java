@@ -26,6 +26,9 @@ import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 public interface PackageLoader {
 
     @NonNull
+    List<PackageInfo> loadInstalledNoGuard(boolean showSystem);
+
+    @NonNull
     List<PackageInfo> loadInstalled(boolean showSystem);
 
     @NonNull
@@ -49,6 +52,48 @@ public interface PackageLoader {
         @NonNull
         @Override
         public List<PackageInfo> loadInstalled(boolean showSystem) {
+            List<PackageInfo> out = new ArrayList<>();
+            PackageManager pm = this.context.getPackageManager();
+            List<android.content.pm.PackageInfo> packages;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                packages = pm.getInstalledPackages(PackageManager.MATCH_UNINSTALLED_PACKAGES);
+            } else {
+                packages = pm.getInstalledPackages(PackageManager.GET_UNINSTALLED_PACKAGES);
+            }
+
+            for (android.content.pm.PackageInfo packageInfo : packages) {
+                String name = packageInfo.applicationInfo.loadLabel(pm).toString();
+                if (!TextUtils.isEmpty(name)) {
+                    name = name.replace(" ", "");
+                } else {
+                    Logger.w("Ignored app with empty name:%s", packageInfo);
+                    continue;
+                }
+
+                // Ignore our self.
+                if (this.context.getPackageName().equals(packageInfo.packageName)) {
+                    continue;
+                }
+
+                boolean isSystemApp = (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
+                if (isSystemApp && !showSystem) continue;
+
+                PackageInfo p = new PackageInfo();
+                p.setGuard(false);
+                p.setAppName(name);
+                p.setPkgName(packageInfo.packageName);
+
+                out.add(p);
+
+            }
+            java.util.Collections.sort(out, new PinyinComparator());
+
+            return out;
+        }
+
+        @NonNull
+        @Override
+        public List<PackageInfo> loadInstalledNoGuard(boolean showSystem) {
 
             List<PackageInfo> guards = loadStoredGuarded();
 

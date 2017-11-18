@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -153,6 +154,11 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
 //                    isServiceAvailable() ?
 //                            EmojiUtil.HEIHEIHEI
 //                            : EmojiUtil.DOG));
+
+            ImageView imageView = findView(rootView, R.id.icon1);
+            imageView.setImageResource(isServiceAvailable()
+                    ? R.drawable.ic_check_circle_black_24dp
+                    : R.drawable.ic_error_black_24dp);
         }
 
         private boolean isServiceAvailable() {
@@ -173,7 +179,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
             rest.addTile(new LockKill(getActivity()));
 
             Category ash = new Category();
-            ash.titleRes = R.string.title_clearn;
+            ash.titleRes = R.string.title_control;
             ash.addTile(new ComponentManager(getActivity()));
 
             categories.add(category);

@@ -57,6 +57,10 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
         <activity
             android:name=".ui.activity.ag.GuardAppNavActivity"
@@ -151,6 +155,11 @@
             android:excludeFromRecents="true"
             android:label="@string/title_component_manager" />
 
+        <activity
+            android:name=".ui.activity.DonateActivity"
+            android:label="@string/title_activity_donate"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -160,32 +169,26 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
         <provider
             android:name=".provider.AppGuardPackageProvider"
             android:authorities="github.tornaco.xposedmoduletest.app_guard_package_provider"
             android:exported="true" />
-
         <provider
             android:name=".provider.BootPackageProvider"
             android:authorities="github.tornaco.xposedmoduletest.boot_package_provider"
             android:exported="true" />
-
         <provider
             android:name=".provider.AutoStartPackageProvider"
             android:authorities="github.tornaco.xposedmoduletest.auto_start_package_provider"
             android:exported="true" />
-
         <provider
             android:name=".provider.LockKillPackageProvider"
             android:authorities="github.tornaco.xposedmoduletest.lock_kill_package_provider"
             android:exported="true" />
-
         <provider
             android:name=".provider.BlockRecordProvider"
             android:authorities="github.tornaco.xposedmoduletest.block_record_provider"
             android:exported="true" />
-
         <provider
             android:name=".provider.ComponentsProvider"
             android:authorities="github.tornaco.xposedmoduletest.components_provider"
@@ -194,6 +197,7 @@
         <service
             android:name=".service.VerboseLogService"
             android:exported="false" />
+
     </application>
 
 </manifest>

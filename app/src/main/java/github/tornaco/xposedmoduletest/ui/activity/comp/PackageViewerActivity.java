@@ -2,6 +2,10 @@ package github.tornaco.xposedmoduletest.ui.activity.comp;
 
 import android.view.View;
 
+import java.util.List;
+
+import github.tornaco.xposedmoduletest.bean.PackageInfo;
+import github.tornaco.xposedmoduletest.loader.PackageLoader;
 import github.tornaco.xposedmoduletest.ui.activity.ag.GuardAppPickerActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.GuardAppListAdapter;
 
@@ -30,5 +34,10 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
                 });
             }
         };
+    }
+
+    @Override
+    protected List<PackageInfo> performLoading() {
+        return PackageLoader.Impl.create(this).loadInstalled(mShowSystemApp);
     }
 }

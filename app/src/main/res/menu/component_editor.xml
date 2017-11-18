@@ -2,9 +2,30 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="github.tornaco.xposedmoduletest.ui.activity.comp.ComponentEditorActivity">
-    <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/title_settings"
-        app:showAsAction="never" />
+    <group android:orderInCategory="100">
+        <item
+            android:id="@+id/action_export_service_settings"
+            android:orderInCategory="100"
+            android:title="@string/title_export_service_settings"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/action_export_broadcast_settings"
+            android:orderInCategory="101"
+            android:title="@string/title_export_broadcast_settings"
+            app:showAsAction="never" />
+    </group>
+
+
+    <group android:orderInCategory="101">
+        <item
+            android:id="@+id/action_import_service_settings"
+            android:orderInCategory="102"
+            android:title="@string/title_import_service_settings"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/action_import_broadcast_settings"
+            android:orderInCategory="103"
+            android:title="@string/title_import_broadcast_settings"
+            app:showAsAction="never" />
+    </group>
 </menu>

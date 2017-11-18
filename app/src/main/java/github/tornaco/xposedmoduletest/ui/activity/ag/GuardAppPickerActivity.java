@@ -20,7 +20,7 @@ import github.tornaco.xposedmoduletest.util.XExecutor;
 
 public class GuardAppPickerActivity extends GuardAppNavActivity {
 
-    private boolean mShowSystemApp;
+    protected boolean mShowSystemApp;
 
     @Override
     protected boolean isLockNeeded() {
@@ -75,7 +75,7 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
     }
 
     protected List<PackageInfo> performLoading() {
-        return PackageLoader.Impl.create(this).loadInstalled(mShowSystemApp);
+        return PackageLoader.Impl.create(this).loadInstalledNoGuard(mShowSystemApp);
     }
 
     @Override

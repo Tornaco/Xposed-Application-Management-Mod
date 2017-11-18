@@ -1,7 +1,9 @@
 package github.tornaco.xposedmoduletest.model;
 
+import android.content.ComponentName;
 import android.content.pm.ActivityInfo;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,4 +24,11 @@ public class ReceiverInfoSettings {
 
     private String serviceLabel;
     private String displayName;
+
+    @AllArgsConstructor
+    @Getter
+    public static class Export {
+        private boolean allowed;
+        private ComponentName componentName;
+    }
 }

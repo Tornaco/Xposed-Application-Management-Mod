@@ -4,14 +4,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,8 +27,11 @@ import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 
+import github.tornaco.android.common.util.ColorUtil;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.ComponentLoader;
+import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
+import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.ComponentListAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.ReceiverSettingsAdapter;
@@ -77,6 +83,8 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
         }
         initView();
 
+        initColor();
+
         initPages();
     }
 
@@ -118,6 +126,30 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
         mFragments.add(ReceiverListFragment.newInstance(mPackageName, 1));
     }
 
+    private void initColor() {
+        // Apply theme color.
+        int color = ContextCompat.getColor(this, XSettings.getThemes(this).getThemeColorRes());
+
+        // Apply palette color.
+        PaletteColorPicker.pickPrimaryColor(this, new PaletteColorPicker.PickReceiver() {
+            @Override
+            public void onColorReady(int color) {
+                applyColor(color);
+            }
+        }, mPackageName, color);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    private void applyColor(int color) {
+        AppBarLayout appBar = findViewById(R.id.appbar);
+        if (appBar != null) appBar.setBackgroundColor(color);
+        getWindow().setStatusBarColor(ColorUtil.colorBurn(color));
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            toolbar.setBackgroundColor(color);
+        }
+    }
+
     private boolean internalResolveIntent() {
         Intent intent = getIntent();
         if (intent == null) return false;
@@ -134,13 +166,15 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_export_service_settings) {
+            showSimpleDialog(null, ComponentLoader.Impl.create(this).formatServiceSettings(mPackageName));
+            return true;
+        }
+
+        if (id == R.id.action_export_broadcast_settings) {
+            showSimpleDialog(null, ComponentLoader.Impl.create(this).formatReceiverSettings(mPackageName));
             return true;
         }
 

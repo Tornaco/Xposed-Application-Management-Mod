@@ -2,7 +2,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <shortcut
         android:enabled="true"
-        android:icon="@drawable/ic_airline_seat_individual_suite_black_24dp"
+        android:icon="@drawable/ic_directions_run_grey_18dp"
         android:shortcutId="clear"
         android:shortcutLongLabel="@string/clear_process"
         android:shortcutShortLabel="@string/clear_process"

@@ -18,7 +18,7 @@ public class PackageLoaderTest {
     @Test
     public void loadInstalled() throws Exception {
         Collections.consumeRemaining(PackageLoader.Impl.create(InstrumentationRegistry.getTargetContext())
-                .loadInstalled(false), new Consumer<PackageInfo>() {
+                .loadInstalledNoGuard(false), new Consumer<PackageInfo>() {
             @Override
             public void accept(PackageInfo packageInfo) {
                 Logger.d("PackageInfo:" + packageInfo.getPkgName());

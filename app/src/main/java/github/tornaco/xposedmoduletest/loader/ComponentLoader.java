@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.google.common.collect.Lists;
 
@@ -18,7 +19,9 @@ import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.model.ReceiverInfoSettings;
+import github.tornaco.xposedmoduletest.model.ReceiverInfoSettingsList;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettings;
+import github.tornaco.xposedmoduletest.model.ServiceInfoSettingsList;
 import github.tornaco.xposedmoduletest.util.ComponentUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import lombok.AllArgsConstructor;
@@ -35,6 +38,12 @@ public interface ComponentLoader {
 
     @NonNull
     List<ServiceInfoSettings> loadServiceSettings(String pkg);
+
+    @Nullable
+    String formatServiceSettings(String pkg);
+
+    @Nullable
+    String formatReceiverSettings(String pkg);
 
     @AllArgsConstructor
     class Impl implements ComponentLoader {
@@ -135,6 +144,41 @@ public interface ComponentLoader {
                 }
             });
             return out;
+        }
+
+        @Override
+        @Nullable
+        public String formatServiceSettings(String pkg) {
+            List<ServiceInfoSettings> serviceInfoSettings = loadServiceSettings(pkg);
+            if (Collections.isNullOrEmpty(serviceInfoSettings)) return null;
+            final List<ServiceInfoSettings.Export> exports = Lists.newArrayList();
+            Collections.consumeRemaining(serviceInfoSettings, new Consumer<ServiceInfoSettings>() {
+                @Override
+                public void accept(ServiceInfoSettings serviceInfoSettings) {
+                    exports.add(new ServiceInfoSettings.Export(serviceInfoSettings.isAllowed(),
+                            ComponentUtil.getComponentName(serviceInfoSettings.getServiceInfo())));
+                }
+            });
+            ServiceInfoSettingsList serviceInfoSettingsList = new ServiceInfoSettingsList(exports);
+            return serviceInfoSettingsList.toJson();
+        }
+
+        @Nullable
+        @Override
+        public String formatReceiverSettings(String pkg) {
+            List<ReceiverInfoSettings> receiverInfoSettingsList = loadReceiverSettings(pkg);
+            if (Collections.isNullOrEmpty(receiverInfoSettingsList)) return null;
+            final List<ReceiverInfoSettings.Export> exports = Lists.newArrayList();
+            Collections.consumeRemaining(receiverInfoSettingsList,
+                    new Consumer<ReceiverInfoSettings>() {
+                        @Override
+                        public void accept(ReceiverInfoSettings settings) {
+                            exports.add(new ReceiverInfoSettings.Export(settings.isAllowed(),
+                                    ComponentUtil.getComponentName(settings.getActivityInfo())));
+                        }
+                    });
+            ReceiverInfoSettingsList list = new ReceiverInfoSettingsList(exports);
+            return list.toJson();
         }
     }
 }

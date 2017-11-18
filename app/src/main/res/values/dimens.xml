@@ -45,5 +45,7 @@
     <dimen name="pattern_lock_size">280dp</dimen>
     <dimen name="pattern_lock_info_container_padding">36dp</dimen>
     <dimen name="appbar_padding_top">8dp</dimen>
+    <dimen name="app_bar_height">180dp</dimen>
+    <dimen name="text_margin">16dp</dimen>
 
 </resources>
