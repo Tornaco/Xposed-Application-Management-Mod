@@ -8,9 +8,10 @@ import java.util.List;
 import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
+import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.ag.AppDeveloper;
 import github.tornaco.xposedmoduletest.ui.tiles.ag.AppDonate;
+import github.tornaco.xposedmoduletest.ui.tiles.ag.OpenSource;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppVersion;
 
 /**
@@ -18,7 +19,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.AppVersion;
  * Email: Tornaco@163.com
  */
 
-public class AppDashboardActivity extends BaseActivity {
+public class AppDashboardActivity extends WithWithCustomTabActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,12 +39,13 @@ public class AppDashboardActivity extends BaseActivity {
 
             personal.addTile(new AppDeveloper(getActivity()));
             personal.addTile(new AppVersion(getActivity()));
+            personal.addTile(new OpenSource(getActivity()));
 
             Category support = new Category();
             support.titleRes = R.string.title_support;
             support.addTile(new AppDonate(getActivity()));
 
-            categories.add(support);
+            // categories.add(support);
             categories.add(personal);
         }
     }

@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:drawable/toast_frame"
+    android:background="@android:color/transparent"
     android:orientation="vertical">
 
     <com.vanniktech.emoji.EmojiTextView
@@ -13,5 +13,5 @@
         android:layout_weight="1"
         android:shadowRadius="2.75"
         android:textColor="@color/black"
-        android:textSize="18sp" />
+        android:textSize="64sp" />
 </LinearLayout>

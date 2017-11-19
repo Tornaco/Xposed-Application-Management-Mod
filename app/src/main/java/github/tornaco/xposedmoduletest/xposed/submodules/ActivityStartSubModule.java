@@ -53,6 +53,10 @@ class ActivityStartSubModule extends AppGuardAndroidSubModule {
                                 intentIndex = i;
                             }
                         }
+
+                        if (activityOptsIndex >= 0 && intentIndex >= 0) {
+                            break;
+                        }
                     }
                 }
             }
@@ -68,7 +72,7 @@ class ActivityStartSubModule extends AppGuardAndroidSubModule {
                 XLog.logV("*** FATAL more than 1 startActivityMayWait method ***");
                 setStatus(SubModuleStatus.ERROR);
                 setErrorMessage("*** FATAL more than 1 startActivityMayWait method ***");
-                return;
+                // return;
             }
 
             if (intentIndex < 0) {

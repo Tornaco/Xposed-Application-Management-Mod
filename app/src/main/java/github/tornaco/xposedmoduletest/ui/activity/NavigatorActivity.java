@@ -113,7 +113,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
                 @Override
                 public void onClick(View v) {
                     EmojiToast.show(rootView.getContext(),
-                            EmojiUtil.getEmojiByUnicode(EmojiUtil.HEIHEIHEI));
+                            EmojiUtil.randomEmoji());
                     // Save system toast frame.
 //                    int frameId = android.R.drawable.toast_frame;
 //                    Bitmap b = BitmapFactory.decodeResource(getResources(), frameId);

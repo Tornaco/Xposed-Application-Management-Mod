@@ -103,6 +103,9 @@ public class XApp extends Application implements Runnable {
                             new Emoji(EmojiUtil.HEIHEIHEI, R.drawable.d_heiheihei),
                             new Emoji(EmojiUtil.DOG, R.drawable.doge_lv),
                             new Emoji(EmojiUtil.FIVE_MORE, R.drawable.c_fivey),
+                            new Emoji(EmojiUtil.ZHOUMEI, R.drawable.tieba_emotion_52),
+                            new Emoji(EmojiUtil.HONGLIAN, R.drawable.tieba_emotion_16),
+                            new Emoji(EmojiUtil.ERHA, R.drawable.d_erha),
                     };
                 }
 
