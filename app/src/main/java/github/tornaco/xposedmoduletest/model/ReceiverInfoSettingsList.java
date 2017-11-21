@@ -15,9 +15,15 @@ import lombok.ToString;
  * Email: Tornaco@163.com
  */
 @Getter
-@AllArgsConstructor
 @ToString
+@AllArgsConstructor
 public class ReceiverInfoSettingsList {
+    public static final int VERSION = -1;
+
+    private int version = VERSION;
+
+    private String packageName;
+
     private List<ReceiverInfoSettings.Export> exports;
 
     public String toJson() {

@@ -31,6 +31,15 @@ public class PkgUtil {
         }
     }
 
+    public static int loadVersionByPkgName(Context context, String pkg) {
+        PackageManager pm = context.getPackageManager();
+        try {
+            ApplicationInfo info = pm.getApplicationInfo(pkg, 0);
+            return info == null ? -1 : info.versionCode;
+        } catch (PackageManager.NameNotFoundException var4) {
+            return -1;
+        }
+    }
 
     public static CharSequence loadNameByPkgName(Context context, String pkg) {
         PackageManager pm = context.getPackageManager();

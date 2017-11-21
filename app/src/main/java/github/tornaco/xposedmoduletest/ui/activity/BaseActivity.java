@@ -5,11 +5,13 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -60,6 +62,52 @@ public class BaseActivity extends AppCompatActivity implements View {
                 .setMessage(message)
                 .setCancelable(true)
                 .setPositiveButton(android.R.string.ok, null)
+                .show();
+    }
+
+    @Override
+    public void showDialog(int title, String message, int positive, int negative, boolean cancelable,
+                           @Nullable final Runnable ok, @Nullable final Runnable cancel) {
+        new AlertDialog.Builder(BaseActivity.this)
+                .setTitle(title)
+                .setMessage(message)
+                .setCancelable(cancelable)
+                .setPositiveButton(positive, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (ok != null) ok.run();
+                    }
+                })
+                .setNegativeButton(negative, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (cancel != null) cancel.run();
+                    }
+                })
+                .show();
+
+    }
+
+    @Override
+    public void showDialog(String title, String message, String positive, String negative,
+                           final boolean cancelable,
+                           @Nullable final Runnable ok, @Nullable final Runnable cancel) {
+        new AlertDialog.Builder(BaseActivity.this)
+                .setTitle(title)
+                .setMessage(message)
+                .setCancelable(cancelable)
+                .setPositiveButton(positive, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (ok != null) ok.run();
+                    }
+                })
+                .setNegativeButton(negative, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (cancel != null) cancel.run();
+                    }
+                })
                 .show();
     }
 

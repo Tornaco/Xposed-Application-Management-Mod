@@ -214,4 +214,7 @@
     <string name="donate_intro">%1$s\n如果你喜欢我的作品，欢迎你以下列方式（微信/支付宝）进行捐赠，金额请随意，一分也是爱。当捐赠金额超过2元时，我会通过支付宝捐助1元给贫困儿童。\n你的支持就是我的动力！！！\n%2$s\n\n捐赠时尽量备注自己的昵称%3$s</string>
     <string name="title_developer">开发者</string>
     <string name="title_support">支持我</string>
+    <string name="title_export">导出</string>
+    <string name="title_export_success">成功</string>
+    <string name="title_export_fail">无法导出</string>
 </resources>

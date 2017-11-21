@@ -103,6 +103,8 @@ dependencies {
     implementation 'com.vanniktech:emoji-google:0.5.1'
 
     implementation 'com.andrognito.patternlockview:patternlockview:1.0.0'
+
+    implementation 'com.nononsenseapps:filepicker:4.1.0'
 }
 
 

@@ -24,6 +24,7 @@ import github.tornaco.xposedmoduletest.model.ServiceInfoSettings;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettingsList;
 import github.tornaco.xposedmoduletest.util.ComponentUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import lombok.AllArgsConstructor;
 
 /**
@@ -159,7 +160,8 @@ public interface ComponentLoader {
                             ComponentUtil.getComponentName(serviceInfoSettings.getServiceInfo())));
                 }
             });
-            ServiceInfoSettingsList serviceInfoSettingsList = new ServiceInfoSettingsList(exports);
+            ServiceInfoSettingsList serviceInfoSettingsList = new ServiceInfoSettingsList(
+                    PkgUtil.loadVersionByPkgName(context, pkg), pkg, exports);
             return serviceInfoSettingsList.toJson();
         }
 
@@ -177,7 +179,7 @@ public interface ComponentLoader {
                                     ComponentUtil.getComponentName(settings.getActivityInfo())));
                         }
                     });
-            ReceiverInfoSettingsList list = new ReceiverInfoSettingsList(exports);
+            ReceiverInfoSettingsList list = new ReceiverInfoSettingsList(PkgUtil.loadVersionByPkgName(context, pkg), pkg, exports);
             return list.toJson();
         }
     }

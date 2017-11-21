@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 
 import com.google.common.collect.Lists;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +38,7 @@ import github.tornaco.xposedmoduletest.ui.adapter.ComponentListAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.ReceiverSettingsAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.ServiceSettingsAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import lombok.Getter;
 
@@ -169,16 +171,60 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
         int id = item.getItemId();
 
         if (id == R.id.action_export_service_settings) {
-            showSimpleDialog(null, ComponentLoader.Impl.create(this).formatServiceSettings(mPackageName));
+            final String formated = ComponentLoader.Impl.create(this).formatServiceSettings(mPackageName);
+            showDialog(R.string.title_export_broadcast_settings,
+                    formated,
+                    android.R.string.cancel,
+                    R.string.title_export,
+                    false,
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            String path = getServiceConfigPath();
+                            boolean res = FileUtil.writeString(formated, path);
+                            showSimpleDialog(getString(res ? R.string.title_export_success
+                                            : R.string.title_export_fail),
+                                    path);
+                        }
+                    },
+                    null);
             return true;
         }
 
         if (id == R.id.action_export_broadcast_settings) {
-            showSimpleDialog(null, ComponentLoader.Impl.create(this).formatReceiverSettings(mPackageName));
+            final String formated = ComponentLoader.Impl.create(this).formatServiceSettings(mPackageName);
+            showDialog(R.string.title_export_broadcast_settings,
+                    formated,
+                    android.R.string.cancel,
+                    R.string.title_export,
+                    false,
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            String path = getBroadcastConfigPath();
+                            boolean res = FileUtil.writeString(formated, path);
+                            showSimpleDialog(getString(res ? R.string.title_export_success
+                                            : R.string.title_export_fail),
+                                    path);
+                        }
+                    },
+                    null);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private String getServiceConfigPath() {
+        if (getExternalCacheDir() == null) return null;
+        return getExternalCacheDir().getPath() + File.separator
+                + mPackageName + ".service_config"; // com.android.mms.service_config
+    }
+
+    private String getBroadcastConfigPath() {
+        if (getExternalCacheDir() == null) return null;
+        return getExternalCacheDir().getPath() + File.separator
+                + mPackageName + ".broadcast_config"; // com.android.mms.broadcast_config
     }
 
     private static final int FRAGMENT_COUNT = 2;

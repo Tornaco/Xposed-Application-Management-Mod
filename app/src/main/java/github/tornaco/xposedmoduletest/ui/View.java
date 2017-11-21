@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.ui;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 
 /**
@@ -19,6 +20,18 @@ public interface View {
     void finish();
 
     void showSimpleDialog(String title, String message);
+
+    void showDialog(String title, String message,
+                    String positive, String negative,
+                    boolean cancelable,
+                    @Nullable Runnable ok,
+                    @Nullable Runnable cancel);
+
+    void showDialog(@StringRes int title, String message,
+                    int positive, int negative,
+                    boolean cancelable,
+                    @Nullable Runnable ok,
+                    @Nullable Runnable cancel);
 
     void showTips(CharSequence tips, boolean infinite, String actionTitle, Runnable action);
 
