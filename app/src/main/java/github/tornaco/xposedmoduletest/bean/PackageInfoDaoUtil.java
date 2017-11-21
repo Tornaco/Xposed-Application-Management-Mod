@@ -18,8 +18,10 @@ public class PackageInfoDaoUtil {
                 cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // pkgName
                 cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // appName
                 cursor.isNull(offset + 3) ? null : cursor.getLong(offset + 3), // addAt
-                cursor.isNull(offset + 4) ? null : cursor.getShort(offset + 4) != 0, // guard
-                cursor.isNull(offset + 5) ? null : (byte) cursor.getShort(offset + 5) // flags
+                cursor.isNull(offset + 4) ? null : cursor.getInt(offset + 4), // versionCode
+                cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // ext
+                cursor.isNull(offset + 6) ? null : cursor.getShort(offset + 6) != 0, // guard
+                cursor.isNull(offset + 7) ? null : (byte) cursor.getShort(offset + 7) // flags
         );
     }
 }

@@ -1,13 +1,11 @@
 package github.tornaco.xposedmoduletest.ui.tiles.ag;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.View;
 
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.ui.activity.DonateActivity;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 
 /**

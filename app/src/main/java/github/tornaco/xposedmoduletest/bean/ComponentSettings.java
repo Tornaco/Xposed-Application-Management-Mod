@@ -89,7 +89,6 @@ public class ComponentSettings {
                 ", allow=" + allow +
                 '}';
     }
-
     // KEEP METHODS END
 
 }

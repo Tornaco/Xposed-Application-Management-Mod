@@ -27,7 +27,8 @@ import lombok.Getter;
 
 public class LockKillPackageProvider extends ContentProvider {
 
-    public static final Uri CONTENT_URI = Uri.parse("content://github.tornaco.xposedmoduletest.lock_kill_package_provider/pkgs");
+    public static final Uri CONTENT_URI =
+            Uri.parse("content://github.tornaco.xposedmoduletest.lock_kill_package_provider/pkgs");
 
     private static final UriMatcher MATCHER = new UriMatcher(
             UriMatcher.NO_MATCH);

@@ -31,6 +31,8 @@ public class DaoGenerator {
         pkgInfo.addStringProperty("pkgName");
         pkgInfo.addStringProperty("appName");
         pkgInfo.addLongProperty("addAt");
+        pkgInfo.addIntProperty("versionCode");
+        pkgInfo.addStringProperty("ext");
         pkgInfo.addBooleanProperty("guard");
         pkgInfo.addByteProperty("flags");
         pkgInfo.addImport("org.greenrobot.greendao.annotation.Entity");

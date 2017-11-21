@@ -24,7 +24,6 @@ import static android.content.pm.PackageManager.GET_SERVICES;
 public class ComponentUtil {
 
 
-
     public static List<ServiceInfo> getServices(Context context, String pkg) {
         PackageManager pm = context.getPackageManager();
         try {

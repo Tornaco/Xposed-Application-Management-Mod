@@ -1176,7 +1176,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                     } catch (RemoteException ignored) {
 
                                     }
-                                     XLog.logV("App is in white-listed, wont kill: " + runningPackageName);
+                                    XLog.logV("App is in white-listed, wont kill: " + runningPackageName);
                                     continue;
                                 }
 

@@ -13,5 +13,5 @@
         android:layout_weight="1"
         android:shadowRadius="2.75"
         android:textColor="@color/black"
-        android:textSize="64sp" />
+        android:textSize="18sp" />
 </LinearLayout>

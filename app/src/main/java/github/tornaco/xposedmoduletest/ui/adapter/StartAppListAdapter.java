@@ -20,7 +20,6 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.AutoStartPackage;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
 import github.tornaco.xposedmoduletest.provider.AutoStartPackageProvider;
-import github.tornaco.xposedmoduletest.ui.activity.comp.ComponentEditorActivity;
 import tornaco.lib.widget.CheckableImageView;
 
 /**

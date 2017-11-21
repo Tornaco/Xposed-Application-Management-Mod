@@ -67,8 +67,8 @@ public class GuardAppListAdapter extends RecyclerView.Adapter<GuardAppListAdapte
     public void onBindViewHolder(final AppViewHolder holder, int position) {
         final PackageInfo packageInfo = packageInfos.get(position);
         holder.getLineOneTextView().setText(packageInfo.getAppName());
+        holder.getLineTwoTextView().setText(String.valueOf(packageInfo.getVersionCode()));
         holder.getCheckableImageView().setChecked(false);
-        holder.getLineTwoTextView().setText(String.valueOf(packageInfo.getPkgName()));
         Vangogh.with(context)
                 .load(packageInfo.getPkgName())
                 .skipMemoryCache(true)

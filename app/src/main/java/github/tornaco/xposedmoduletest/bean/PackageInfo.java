@@ -20,6 +20,8 @@ public class PackageInfo {
     private String pkgName;
     private String appName;
     private Long addAt;
+    private Integer versionCode;
+    private String ext;
     private Boolean guard;
     private Byte flags;
 
@@ -34,12 +36,14 @@ public class PackageInfo {
         this.id = id;
     }
 
-    @Generated(hash = 1342387697)
-    public PackageInfo(Integer id, String pkgName, String appName, Long addAt, Boolean guard, Byte flags) {
+    @Generated(hash = 1229310922)
+    public PackageInfo(Integer id, String pkgName, String appName, Long addAt, Integer versionCode, String ext, Boolean guard, Byte flags) {
         this.id = id;
         this.pkgName = pkgName;
         this.appName = appName;
         this.addAt = addAt;
+        this.versionCode = versionCode;
+        this.ext = ext;
         this.guard = guard;
         this.flags = flags;
     }
@@ -74,6 +78,22 @@ public class PackageInfo {
 
     public void setAddAt(Long addAt) {
         this.addAt = addAt;
+    }
+
+    public Integer getVersionCode() {
+        return versionCode;
+    }
+
+    public void setVersionCode(Integer versionCode) {
+        this.versionCode = versionCode;
+    }
+
+    public String getExt() {
+        return ext;
+    }
+
+    public void setExt(String ext) {
+        this.ext = ext;
     }
 
     public Boolean getGuard() {
