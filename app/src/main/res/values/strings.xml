@@ -217,4 +217,7 @@
     <string name="title_export">导出</string>
     <string name="title_export_success">成功</string>
     <string name="title_export_fail">无法导出</string>
+    <string name="title_import_fail">导入失败</string>
+    <string name="title_import_success">导入成功</string>
+    <string name="title_copy_to_clipboard">复制到剪贴板</string>
 </resources>

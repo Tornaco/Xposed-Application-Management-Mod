@@ -128,6 +128,8 @@ public interface PackageLoader {
                 PackageInfo p = new PackageInfo();
                 p.setGuard(false);
                 p.setAppName(name);
+                p.setVersionCode(packageInfo.versionCode);
+                p.setExt(packageInfo.versionName);
                 p.setPkgName(packageInfo.packageName);
 
                 if (!guards.contains(p)) out.add(p);

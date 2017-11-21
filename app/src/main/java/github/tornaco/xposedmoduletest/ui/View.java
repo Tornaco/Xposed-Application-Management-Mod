@@ -28,10 +28,11 @@ public interface View {
                     @Nullable Runnable cancel);
 
     void showDialog(@StringRes int title, String message,
-                    int positive, int negative,
+                    int positive, int negative, int neutral,
                     boolean cancelable,
                     @Nullable Runnable ok,
-                    @Nullable Runnable cancel);
+                    @Nullable Runnable cancel,
+                    @Nullable Runnable net);
 
     void showTips(CharSequence tips, boolean infinite, String actionTitle, Runnable action);
 

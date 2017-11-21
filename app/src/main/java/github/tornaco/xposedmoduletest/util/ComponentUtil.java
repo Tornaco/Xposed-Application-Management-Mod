@@ -13,6 +13,15 @@ import org.newstand.logger.Logger;
 
 import java.util.List;
 
+import github.tornaco.android.common.Collections;
+import github.tornaco.android.common.Consumer;
+import github.tornaco.xposedmoduletest.model.ReceiverInfoSettings;
+import github.tornaco.xposedmoduletest.model.ReceiverInfoSettingsList;
+import github.tornaco.xposedmoduletest.model.ServiceInfoSettings;
+import github.tornaco.xposedmoduletest.model.ServiceInfoSettingsList;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
+
 import static android.content.pm.PackageManager.GET_RECEIVERS;
 import static android.content.pm.PackageManager.GET_SERVICES;
 
@@ -22,7 +31,6 @@ import static android.content.pm.PackageManager.GET_SERVICES;
  */
 
 public class ComponentUtil {
-
 
     public static List<ServiceInfo> getServices(Context context, String pkg) {
         PackageManager pm = context.getPackageManager();
@@ -70,5 +78,57 @@ public class ComponentUtil {
 
     public static ComponentName getComponentName(ServiceInfo serviceInfo) {
         return new ComponentName(serviceInfo.packageName, serviceInfo.name);
+    }
+
+    public static boolean applyBatch(Context context, ServiceInfoSettingsList serviceInfoSettingsList) {
+        final XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
+        if (xAshmanManager == null) return false;
+        if (serviceInfoSettingsList == null) return false;
+        String pkg = serviceInfoSettingsList.getPackageName();
+        int version = serviceInfoSettingsList.getVersion();
+        if (version != PkgUtil.loadVersionByPkgName(context, pkg)) {
+            Logger.w("Different version of app config applying... for " + pkg);
+        }
+        List<ServiceInfoSettings.Export> exports = serviceInfoSettingsList.getExports();
+        if (exports == null) return false;
+        Collections.consumeRemaining(exports, new Consumer<ServiceInfoSettings.Export>() {
+            @Override
+            public void accept(ServiceInfoSettings.Export export) {
+                ComponentName c = export.getComponentName();
+                boolean allowed = export.isAllowed();
+                // Apply to ASH Man.
+                xAshmanManager.setComponentEnabledSetting(c,
+                        allowed ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                                : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                        0);
+            }
+        });
+        return true;
+    }
+
+    public static boolean applyBatch(Context context, ReceiverInfoSettingsList receiverInfoSettingsList) {
+        final XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
+        if (xAshmanManager == null) return false;
+        if (receiverInfoSettingsList == null) return false;
+        String pkg = receiverInfoSettingsList.getPackageName();
+        int version = receiverInfoSettingsList.getVersion();
+        if (version != PkgUtil.loadVersionByPkgName(context, pkg)) {
+            Logger.w("Different version of app config applying... for " + pkg);
+        }
+        List<ReceiverInfoSettings.Export> exports = receiverInfoSettingsList.getExports();
+        if (exports == null) return false;
+        Collections.consumeRemaining(exports, new Consumer<ReceiverInfoSettings.Export>() {
+            @Override
+            public void accept(ReceiverInfoSettings.Export export) {
+                ComponentName c = export.getComponentName();
+                boolean allowed = export.isAllowed();
+                // Apply to ASH Man.
+                xAshmanManager.setComponentEnabledSetting(c,
+                        allowed ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                                : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                        0);
+            }
+        });
+        return true;
     }
 }

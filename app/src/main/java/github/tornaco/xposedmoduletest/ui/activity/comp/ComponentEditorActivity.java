@@ -1,8 +1,15 @@
 package github.tornaco.xposedmoduletest.ui.activity.comp;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
@@ -23,29 +30,43 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.common.collect.Lists;
+import com.nononsenseapps.filepicker.FilePickerActivity;
+import com.nononsenseapps.filepicker.Utils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import github.tornaco.android.common.Collections;
+import github.tornaco.android.common.Consumer;
 import github.tornaco.android.common.util.ColorUtil;
+import github.tornaco.permission.requester.RequiresPermission;
+import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.ComponentLoader;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
+import github.tornaco.xposedmoduletest.model.ReceiverInfoSettingsList;
+import github.tornaco.xposedmoduletest.model.ServiceInfoSettingsList;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.ComponentListAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.ReceiverSettingsAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.ServiceSettingsAdapter;
+import github.tornaco.xposedmoduletest.util.ComponentUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import lombok.Getter;
 
-public class ComponentEditorActivity extends BaseActivity implements LoadingListener {
+@RuntimePermissions
+public class ComponentEditorActivity extends BaseActivity implements LoadingListener, ObserableHost {
 
     private static final String EXTRA_PKG = "ce_extra_pkg";
     private static final String EXTRA_INDEX = "ce_extra_index";
+
+    private final Set<Runnable> dataChangeActions = new HashSet<>(TAB_COUNT);
 
     public static void start(Context context, String pkg) {
         Intent intent = new Intent(context, ComponentEditorActivity.class);
@@ -115,6 +136,7 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
 
     private static final int INDEX_SERVICE = 0;
     private static final int INDEX_BROADCAST = 1;
+    private static final int TAB_COUNT = 2;
 
     @SuppressWarnings("ConstantConditions")
     void setTabTitle(int index, String title) {
@@ -174,8 +196,9 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
             final String formated = ComponentLoader.Impl.create(this).formatServiceSettings(mPackageName);
             showDialog(R.string.title_export_broadcast_settings,
                     formated,
-                    android.R.string.cancel,
                     R.string.title_export,
+                    android.R.string.cancel,
+                    R.string.title_copy_to_clipboard,
                     false,
                     new Runnable() {
                         @Override
@@ -187,7 +210,16 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
                                     path);
                         }
                     },
-                    null);
+                    null,
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            ClipboardManager cmb = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                            if (cmb != null) {
+                                cmb.setPrimaryClip(ClipData.newPlainText("service_config", formated));
+                            }
+                        }
+                    });
             return true;
         }
 
@@ -195,8 +227,9 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
             final String formated = ComponentLoader.Impl.create(this).formatServiceSettings(mPackageName);
             showDialog(R.string.title_export_broadcast_settings,
                     formated,
-                    android.R.string.cancel,
                     R.string.title_export,
+                    android.R.string.cancel,
+                    R.string.title_copy_to_clipboard,
                     false,
                     new Runnable() {
                         @Override
@@ -208,11 +241,120 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
                                     path);
                         }
                     },
-                    null);
+                    null,
+                    new Runnable(
+                    ) {
+                        @Override
+                        public void run() {
+                            ClipboardManager cmb = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                            if (cmb != null) {
+                                cmb.setPrimaryClip(ClipData.newPlainText("broadcast_config", formated));
+                            }
+                        }
+                    });
+            return true;
+        }
+
+        if (id == R.id.action_import_service_settings) {
+            ComponentEditorActivityPermissionRequester.onRequestImportServiceConfigChecked(this);
+            return true;
+        }
+
+        if (id == R.id.action_import_broadcast_settings) {
+            ComponentEditorActivityPermissionRequester.onRequestImportBroadcastConfigChecked(this);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        ComponentEditorActivityPermissionRequester.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @RequiresPermission({Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE})
+    @RequiresPermission.OnDenied("onPermissionDenied")
+    void onRequestImportServiceConfig() {
+        pickSingleFile(this, REQUEST_CODE_PICK_SERVICE_CONFIG);
+    }
+
+    @RequiresPermission({Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE})
+    @RequiresPermission.OnDenied("onPermissionDenied")
+    void onRequestImportBroadcastConfig() {
+        pickSingleFile(this, REQUEST_CODE_PICK_BROADCAST_CONFIG);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_PICK_SERVICE_CONFIG && resultCode == Activity.RESULT_OK) {
+            // Use the provided utility method to parse the result
+            List<Uri> files = Utils.getSelectedFilesFromResult(data);
+            File file = Utils.getFileForUri(files.get(0));
+            onServiceConfigPick(file);
+        }
+        if (requestCode == REQUEST_CODE_PICK_BROADCAST_CONFIG && resultCode == Activity.RESULT_OK) {
+            // Use the provided utility method to parse the result
+            List<Uri> files = Utils.getSelectedFilesFromResult(data);
+            File file = Utils.getFileForUri(files.get(0));
+            onBroadcastConfigPick(file);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void onServiceConfigPick(File f) {
+        try {
+            ServiceInfoSettingsList serviceInfoSettingsList = ServiceInfoSettingsList.fromJson(FileUtil.readString(f.getPath()));
+            boolean ok = ComponentUtil.applyBatch(getContext(), serviceInfoSettingsList);
+            showTips(ok ? R.string.title_import_success : R.string.title_import_fail, false, null, null);
+        } catch (Throwable e) {
+            showTips(R.string.title_import_fail, false, null, null);
+        } finally {
+            notifyChanged();
+        }
+    }
+
+    private void onBroadcastConfigPick(File f) {
+        try {
+            ReceiverInfoSettingsList receiverInfoSettingsList = ReceiverInfoSettingsList.fromJson(FileUtil.readString(f.getPath()));
+            boolean ok = ComponentUtil.applyBatch(getContext(), receiverInfoSettingsList);
+            showTips(ok ? R.string.title_import_success : R.string.title_import_fail, false, null, null);
+        } catch (Throwable e) {
+            showTips(R.string.title_import_fail, false, null, null);
+        } finally {
+            notifyChanged();
+        }
+    }
+
+    private static final int REQUEST_CODE_PICK_SERVICE_CONFIG = 0x111;
+    private static final int REQUEST_CODE_PICK_BROADCAST_CONFIG = 0x112;
+
+    // FIXME Copy to File utils.
+    private static void pickSingleFile(Activity activity, int code) {
+        // This always works
+        Intent i = new Intent(activity, FilePickerActivity.class);
+        // This works if you defined the intent filter
+        // Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+
+        // Set these depending on your use case. These are the defaults.
+        i.putExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false);
+        i.putExtra(FilePickerActivity.EXTRA_ALLOW_CREATE_DIR, false);
+        i.putExtra(FilePickerActivity.EXTRA_MODE, FilePickerActivity.MODE_FILE);
+
+        // Configure initial directory by specifying a String.
+        // You could specify a String like "/storage/emulated/0/", but that can
+        // dangerous. Always use Android's API calls to get paths to the SD-card or
+        // internal memory.
+        i.putExtra(FilePickerActivity.EXTRA_START_PATH, Environment.getExternalStorageDirectory().getPath());
+
+        activity.startActivityForResult(i, code);
+    }
+
+    void onPermissionDenied() {
+        showTips("onPermissionDenied", false, null, null);
     }
 
     private String getServiceConfigPath() {
@@ -235,6 +377,27 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
         setTabTitle(index, index == INDEX_SERVICE ?
                 getString(R.string.tab_text_1) + "[" + data.size() + "]"
                 : getString(R.string.tab_text_2) + "[" + data.size() + "]");
+    }
+
+    @Override
+    public void registerOnDataChangeListener(Runnable action) {
+        if (!dataChangeActions.contains(action)) dataChangeActions.add(action);
+    }
+
+    @Override
+    public void unRegisterOnDataChangeListener(Runnable action) {
+        dataChangeActions.remove(action);
+    }
+
+    @Override
+    public void notifyChanged() {
+        Collections.consumeRemaining(dataChangeActions,
+                new Consumer<Runnable>() {
+                    @Override
+                    public void accept(Runnable runnable) {
+                        runnable.run();
+                    }
+                });
     }
 
     public static class ReceiverListFragment extends ComponentListFragment {
@@ -298,6 +461,13 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
         public ComponentListFragment() {
         }
 
+        Runnable loadingRunnable = new Runnable() {
+            @Override
+            public void run() {
+                startLoading();
+            }
+        };
+
         protected void startLoading() {
             swipeRefreshLayout.setRefreshing(true);
             XExecutor.execute(new Runnable() {
@@ -331,6 +501,15 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
             this.targetPackageName = getArguments().getString(EXTRA_PKG);
             this.index = getArguments().getInt(EXTRA_INDEX, -1);
             this.loadingListener = (LoadingListener) getActivity();
+            ObserableHost host = (ObserableHost) getActivity();
+            host.registerOnDataChangeListener(loadingRunnable);
+        }
+
+        @Override
+        public void onDetach() {
+            super.onDetach();
+            ObserableHost host = (ObserableHost) getActivity();
+            host.unRegisterOnDataChangeListener(loadingRunnable);
         }
 
         @Override
@@ -395,4 +574,12 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
 
 interface LoadingListener {
     void onLoadingComplete(int tab, List data);
+}
+
+interface ObserableHost {
+    void registerOnDataChangeListener(Runnable action);
+
+    void unRegisterOnDataChangeListener(Runnable action);
+
+    void notifyChanged();
 }

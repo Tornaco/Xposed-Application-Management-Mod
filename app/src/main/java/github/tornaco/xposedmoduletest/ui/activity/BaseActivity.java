@@ -66,8 +66,8 @@ public class BaseActivity extends AppCompatActivity implements View {
     }
 
     @Override
-    public void showDialog(int title, String message, int positive, int negative, boolean cancelable,
-                           @Nullable final Runnable ok, @Nullable final Runnable cancel) {
+    public void showDialog(int title, String message, int positive, final int negative, int neutral, boolean cancelable,
+                           @Nullable final Runnable ok, @Nullable final Runnable cancel, @Nullable final Runnable net) {
         new AlertDialog.Builder(BaseActivity.this)
                 .setTitle(title)
                 .setMessage(message)
@@ -82,6 +82,12 @@ public class BaseActivity extends AppCompatActivity implements View {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (cancel != null) cancel.run();
+                    }
+                })
+                .setNeutralButton(neutral, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (net != null) net.run();
                     }
                 })
                 .show();

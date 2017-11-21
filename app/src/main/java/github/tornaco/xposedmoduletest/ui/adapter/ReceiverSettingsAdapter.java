@@ -38,12 +38,10 @@ public class ReceiverSettingsAdapter extends ComponentListAdapter<ReceiverInfoSe
 
         final ReceiverInfoSettings receiverInfoSettings = getData().get(position);
 
-
         holder.getTitleView().setText(receiverInfoSettings.getDisplayName());
 
         String processName = receiverInfoSettings.getActivityInfo().processName;
         String serviceLabel = receiverInfoSettings.getServiceLabel();
-
 
         holder.getSummaryView().setText(getContext().getString(R.string.summary_service_info_process,
                 processName));
