@@ -48,6 +48,7 @@ public class PayListBrowserFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getActivity().setTitle(R.string.title_pay_list);
+        startLoading();
     }
 
     public void setupView(View root) {
@@ -169,10 +170,10 @@ public class PayListBrowserFragment extends Fragment {
             final PayExtra item = data.get(position);
             holder.title.setText(item.getNick());
             String descriptionText = item.getAd();
-            // Hook ugly.
-            if (descriptionText.contains("[fivemore]")) {
-                descriptionText = EmojiUtil.getEmojiByUnicode(EmojiUtil.ERHA);
-            }
+            descriptionText = descriptionText.replace("[fivemore]", EmojiUtil.getEmojiByUnicode(EmojiUtil.FIVE_MORE))
+                    .replace("[erha]", EmojiUtil.getEmojiByUnicode(EmojiUtil.ERHA))
+                    .replace("[heiheihei]", EmojiUtil.getEmojiByUnicode(EmojiUtil.HEIHEIHEI))
+                    .replace("[zhoumei]", EmojiUtil.getEmojiByUnicode(EmojiUtil.ZHOUMEI));
             holder.description.setText(descriptionText);
         }
 
