@@ -67,6 +67,18 @@ public class XSettings extends Observable {
                 .getBoolean(XKey.DEV_MODE, true);
     }
 
+    public static boolean isStartBlockNotify(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(XKey.START_BLOCK_NOTIFY_ENABLED, true);
+    }
+
+    public static void setStartBlockNotify(Context context, boolean enabled) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(XKey.START_BLOCK_NOTIFY_ENABLED, enabled)
+                .apply();
+    }
+
     public static void setInDevMode(Context context, boolean in) {
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit()

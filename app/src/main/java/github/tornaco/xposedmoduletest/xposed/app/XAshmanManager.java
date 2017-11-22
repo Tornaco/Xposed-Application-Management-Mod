@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.IAshmanService;
+import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 
 /**
@@ -154,6 +155,7 @@ public class XAshmanManager {
     }
 
     public boolean checkService(ComponentName servicePkgName, int callerUid) {
+        ensureService();
         try {
             return mService.checkService(servicePkgName, callerUid);
         } catch (RemoteException ignored) {
@@ -163,6 +165,7 @@ public class XAshmanManager {
     }
 
     public boolean checkBroadcast(String action, int receiverUid, int callerUid) {
+        ensureService();
         try {
             return mService.checkBroadcast(action, receiverUid, callerUid);
         } catch (RemoteException ignored) {
@@ -172,6 +175,7 @@ public class XAshmanManager {
     }
 
     public void setComponentEnabledSetting(ComponentName componentName, int newState, int flags) {
+        ensureService();
         try {
             mService.setComponentEnabledSetting(componentName, newState, flags);
         } catch (RemoteException e) {
@@ -180,11 +184,30 @@ public class XAshmanManager {
     }
 
     public int getComponentEnabledSetting(ComponentName componentName) {
+        ensureService();
         try {
             return mService.getComponentEnabledSetting(componentName);
         } catch (RemoteException e) {
             Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return Integer.MIN_VALUE + PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
+        }
+    }
+
+    public void watch(IAshmanWatcher w) {
+        ensureService();
+        try {
+            mService.watch(w);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public void unWatch(IAshmanWatcher w) {
+        ensureService();
+        try {
+            mService.unWatch(w);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 }

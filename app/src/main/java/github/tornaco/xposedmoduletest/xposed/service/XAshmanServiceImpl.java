@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
@@ -117,7 +118,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final Map<String, LockKillPackage> mLockKillWhileListPackages = new HashMap<>();
 
     private final Set<AshManHandler.WatcherClient> mWatcherClients = new HashSet<>();
-
 
     // Safe mode is the last clear place user can stay.
     private boolean mIsSafeMode = false;
@@ -752,6 +752,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
         };
         mLoggingService.execute(r);
+
+        h.obtainMessage(AshManHandlerMessages.MSG_NOTIFYSTARTBLOCK, serviceEvent.getPkg()).sendToTarget();
     }
 
     /**
@@ -793,6 +795,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     receiverPkgName = PkgUtil.pkgForUid(getContext(), broadcastEvent.receiver);
                     if (receiverPkgName == null) return;
                 }
+
+                h.obtainMessage(AshManHandlerMessages.MSG_NOTIFYSTARTBLOCK, receiverPkgName).sendToTarget();
 
                 BlockRecord2 old = getBlockRecord(receiverPkgName);
                 long oldTimes = old == null ? 0 : old.getHowManyTimes();
@@ -954,7 +958,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         XLog.logV("construct, h: " + h + " -" + serial());
     }
 
-
     protected Handler onCreateServiceHandler() {
         return new HandlerImpl();
     }
@@ -1048,9 +1051,78 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    protected void dump(FileDescriptor fd, PrintWriter fout, String[] args) {
-        enforceCallingPermissions();
+    protected void dump(FileDescriptor fd, final PrintWriter fout, String[] args) {
         super.dump(fd, fout, args);
+        // For secure and CTS.
+        if (getContext().checkCallingOrSelfPermission(Manifest.permission.DUMP) != PackageManager.PERMISSION_GRANTED) {
+            fout.println("Permission denial: can not dump Ashman service from pid= " + Binder.getCallingPid()
+                    + ", uid= " + Binder.getCallingUid());
+            return;
+        }
+
+        synchronized (this) {
+            // Dump switch.
+            fout.println("Start block enabled: " + mStartBlockEnabled.get());
+            fout.println("Boot block enabled: " + mBootBlockEnabled.get());
+            fout.println("LK enabled: " + mLockKillEnabled.get());
+            fout.println("LK delay: " + mLockKillDelay);
+
+            // Dump while list.
+            fout.println("White list: ");
+            Object[] whileListObjects = WHITE_LIST.toArray();
+            Collections.consumeRemaining(whileListObjects, new Consumer<Object>() {
+                @Override
+                public void accept(Object o) {
+                    fout.println(o);
+                }
+            });
+
+            // Dump boot list.
+            fout.println("Boot list: ");
+            Object[] bootListObjects = mBootWhiteListPackages.values().toArray();
+            Collections.consumeRemaining(bootListObjects, new Consumer<Object>() {
+                @Override
+                public void accept(Object o) {
+                    fout.println(o);
+                }
+            });
+
+            // Dump start list.
+            fout.println("Start list: ");
+            Object[] startListObjects = mStartWhiteListPackages.values().toArray();
+            Collections.consumeRemaining(startListObjects, new Consumer<Object>() {
+                @Override
+                public void accept(Object o) {
+                    fout.println(o);
+                }
+            });
+
+            // Dump lk list.
+            fout.println("LK list: ");
+            Object[] lkListObjects = mLockKillWhileListPackages.values().toArray();
+            Collections.consumeRemaining(lkListObjects, new Consumer<Object>() {
+                @Override
+                public void accept(Object o) {
+                    fout.println(o);
+                }
+            });
+
+            // Dump watcher.
+            fout.println("Watcher list: ");
+            Object[] watcherListObjects = mWatcherClients.toArray();
+            Collections.consumeRemaining(watcherListObjects, new Consumer<Object>() {
+                @Override
+                public void accept(Object o) {
+                    fout.println(o);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void dump(FileDescriptor fd, String[] args) {
+        super.dump(fd, args);
+        enforceCallingPermissions();
     }
 
     protected void enforceCallingPermissions() {
@@ -1125,6 +1197,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     break;
                 case AshManHandlerMessages.MSG_UNWATCH:
                     HandlerImpl.this.unWatch((WatcherClient) msg.obj);
+                    break;
+                case AshManHandlerMessages.MSG_NOTIFYSTARTBLOCK:
+                    notifyStartBlock((String) msg.obj);
                     break;
             }
         }
@@ -1202,7 +1277,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                     } catch (RemoteException ignored) {
 
                                     }
-                                    XLog.logV("App is in white-listed, wont kill: " + runningPackageName);
+                                    // XLog.logV("App is in white-listed, wont kill: " + runningPackageName);
                                     continue;
                                 }
 
@@ -1349,6 +1424,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         @Override
         public void notifyStartBlock(final String pkg) {
+            if (pkg == null) return;
             Runnable r = new Runnable() {
                 @Override
                 public void run() {
@@ -1357,10 +1433,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         @Override
                         public void accept(Object o) {
                             WatcherClient w = (WatcherClient) o;
+                            if (!w.isAlive()) {
+                                return; // FIXME Try remove from set.
+                            }
                             try {
                                 w.getWatcher().onStartBlocked(pkg);
                             } catch (RemoteException ignored) {
-
                             }
                         }
                     });

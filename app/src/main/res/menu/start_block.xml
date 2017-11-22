@@ -7,4 +7,12 @@
         android:icon="@drawable/ic_build_white_24dp"
         android:title="@string/title_block_viewer"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_start_block_notify"
+        android:checkable="true"
+        android:checked="true"
+        android:icon="@drawable/ic_noti_start_block"
+        android:title="@string/title_start_block_notify"
+        app:showAsAction="never" />
 </menu>

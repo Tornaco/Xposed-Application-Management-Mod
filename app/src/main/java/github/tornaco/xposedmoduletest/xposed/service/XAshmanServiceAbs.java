@@ -2,6 +2,9 @@ package github.tornaco.xposedmoduletest.xposed.service;
 
 import android.content.Context;
 
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
+
 import github.tornaco.apigen.GithubCommitSha;
 import github.tornaco.xposedmoduletest.IAshmanService;
 import lombok.Getter;
@@ -22,5 +25,10 @@ abstract class XAshmanServiceAbs extends IAshmanService.Stub
     @Override
     public void attachContext(Context context) {
         setContext(context);
+    }
+
+    @Override
+    protected void dump(FileDescriptor fd, PrintWriter fout, String[] args) {
+        super.dump(fd, fout, args);
     }
 }

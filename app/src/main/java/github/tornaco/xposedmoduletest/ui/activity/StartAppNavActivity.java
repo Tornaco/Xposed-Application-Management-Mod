@@ -17,6 +17,7 @@ import java.util.List;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.AutoStartPackage;
 import github.tornaco.xposedmoduletest.loader.StartPackageLoader;
+import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.adapter.StartAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
@@ -137,6 +138,15 @@ public class StartAppNavActivity extends WithRecyclerView {
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem menuItem = menu.findItem(R.id.action_start_block_notify);
+        if (menuItem != null) {
+            menuItem.setCheckable(XSettings.isStartBlockNotify(this));
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.start_block, menu);
         return super.onCreateOptionsMenu(menu);
@@ -149,6 +159,10 @@ public class StartAppNavActivity extends WithRecyclerView {
         }
         if (item.getItemId() == R.id.action_block_record_viewer) {
             BlockRecordViewerActivity.start(this, null);
+        }
+        if (item.getItemId() == R.id.action_start_block_notify) {
+            boolean checked = item.isChecked();
+            XSettings.setStartBlockNotify(this, checked);
         }
         return super.onOptionsItemSelected(item);
     }

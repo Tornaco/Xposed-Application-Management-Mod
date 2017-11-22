@@ -20,9 +20,8 @@ import org.newstand.logger.Settings;
 import github.tornaco.apigen.BuildHostInfo;
 import github.tornaco.apigen.GithubCommitSha;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.license.XActivation;
 import github.tornaco.xposedmoduletest.provider.XSettings;
-import github.tornaco.xposedmoduletest.service.VerboseLogService;
+import github.tornaco.xposedmoduletest.service.WatchDogService;
 import github.tornaco.xposedmoduletest.util.EmojiUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -52,7 +51,6 @@ public class XApp extends Application implements Runnable {
     @Override
     public void onCreate() {
         super.onCreate();
-
         xApp = this;
         Logger.config(Settings.builder().tag("XAppGuardApp")
                 .logLevel(XSettings.isDevMode(this)
@@ -60,24 +58,9 @@ public class XApp extends Application implements Runnable {
                 .build());
         XAppGuardManager.init();
         XAshmanManager.init();
-        XActivation.reloadAsync(this);
         BinderInternal.addGcWatcher(this);
         EmojiManager.install(new MyEmojiProvider());
-        startService(new Intent(this, VerboseLogService.class));
-    }
-
-    public void hideAppIcon(boolean enable) {
-//        PackageManager pm = getPackageManager();
-//        ComponentName enabled = enable ? new ComponentName(this,
-//                GuardAppNavActivityNoLauncher.class) : new ComponentName(this, GuardAppNavActivity.class);
-//        ComponentName disabled = enable ? new ComponentName(this,
-//                GuardAppNavActivity.class) : new ComponentName(this, GuardAppNavActivityNoLauncher.class);
-//        Logger.d(enabled);
-//        Logger.d(disabled);
-//        pm.setComponentEnabledSetting(enabled,
-//                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-//        pm.setComponentEnabledSetting(disabled,
-//                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+        startService(new Intent(this, WatchDogService.class));
     }
 
     @Override
@@ -85,6 +68,7 @@ public class XApp extends Application implements Runnable {
         Logger.v("onGC");
     }
 
+    // JUST FOR FUN !!!!!!!!!!!!!!!!!!!!!!!!!!
     private class MyEmojiProvider implements EmojiProvider {
 
         private GoogleEmojiProvider googleEmojiProvider = new GoogleEmojiProvider();

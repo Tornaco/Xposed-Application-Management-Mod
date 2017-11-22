@@ -211,8 +211,14 @@
             android:exported="true" />
 
         <service
-            android:name=".service.VerboseLogService"
-            android:exported="false" />
+            android:name=".service.WatchDogService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="github.tornaco.xposed.app_guard.watch_dog" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
 
     </application>
 
