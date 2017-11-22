@@ -622,7 +622,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         enforceCallingPermissions();
         Preconditions.checkNotNull(w, "IAshmanWatcher is null");
         AshManHandler.WatcherClient watcherClient = new AshManHandler.WatcherClient(w);
-        h.obtainMessage(AshManHandlerMessages.MSG_UNWTCH, watcherClient).sendToTarget();
+        h.obtainMessage(AshManHandlerMessages.MSG_UNWATCH, watcherClient).sendToTarget();
     }
 
     private CheckResult checkBroadcastDetailed(String action, int receiverUid, int callerUid) {
@@ -1123,7 +1123,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_WATCH:
                     HandlerImpl.this.watch((WatcherClient) msg.obj);
                     break;
-                case AshManHandlerMessages.MSG_UNWTCH:
+                case AshManHandlerMessages.MSG_UNWATCH:
                     HandlerImpl.this.unWatch((WatcherClient) msg.obj);
                     break;
             }
