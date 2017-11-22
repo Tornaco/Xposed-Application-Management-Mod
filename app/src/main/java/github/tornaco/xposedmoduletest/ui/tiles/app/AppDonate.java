@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.ui.tiles.ag;
+package github.tornaco.xposedmoduletest.ui.tiles.app;
 
 import android.content.Context;
 import android.content.Intent;

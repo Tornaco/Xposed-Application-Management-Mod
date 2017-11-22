@@ -24,6 +24,7 @@ import android.util.SparseArray;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import java.io.FileDescriptor;
@@ -44,6 +45,7 @@ import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.android.common.Holder;
 import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
 import github.tornaco.xposedmoduletest.bean.AutoStartPackage;
 import github.tornaco.xposedmoduletest.bean.AutoStartPackageDaoUtil;
@@ -114,6 +116,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final Map<String, AutoStartPackage> mStartWhiteListPackages = new HashMap<>();
     private final Map<String, LockKillPackage> mLockKillWhileListPackages = new HashMap<>();
 
+    private final Set<AshManHandler.WatcherClient> mWatcherClients = new HashSet<>();
+
 
     // Safe mode is the last clear place user can stay.
     private boolean mIsSafeMode = false;
@@ -135,11 +139,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             };
 
     private void onUserPresent() {
-        h.sendEmptyMessage(IntentFirewallHandlerMessages.MSG_ONSCREENON);
+        h.sendEmptyMessage(AshManHandlerMessages.MSG_ONSCREENON);
     }
 
     private void onScreenOff() {
-        h.sendEmptyMessage(IntentFirewallHandlerMessages.MSG_ONSCREENOFF);
+        h.sendEmptyMessage(AshManHandlerMessages.MSG_ONSCREENOFF);
     }
 
     private BroadcastReceiver mPackageReceiver = new BroadcastReceiver() {
@@ -443,7 +447,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         mIsSafeMode = getContext().getPackageManager().isSafeMode();
     }
 
-    public boolean isSystemReady() {
+    private boolean isSystemReady() {
         return mIsSystemReady;
     }
 
@@ -584,14 +588,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void clearBlockRecords() throws RemoteException {
         enforceCallingPermissions();
-        h.removeMessages(IntentFirewallHandlerMessages.MSG_CLEARBLOCKRECORDS);
-        h.obtainMessage(IntentFirewallHandlerMessages.MSG_CLEARBLOCKRECORDS).sendToTarget();
+        h.removeMessages(AshManHandlerMessages.MSG_CLEARBLOCKRECORDS);
+        h.obtainMessage(AshManHandlerMessages.MSG_CLEARBLOCKRECORDS).sendToTarget();
     }
 
     @Override
     public void setComponentEnabledSetting(ComponentName componentName, int newState, int flags) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(IntentFirewallHandlerMessages.MSG_SETCOMPONENTENABLEDSETTING, newState, flags, componentName).sendToTarget();
+        h.obtainMessage(AshManHandlerMessages.MSG_SETCOMPONENTENABLEDSETTING, newState, flags, componentName).sendToTarget();
     }
 
     @Override
@@ -603,6 +607,22 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         } finally {
             Binder.restoreCallingIdentity(id);
         }
+    }
+
+    @Override
+    public void watch(IAshmanWatcher w) throws RemoteException {
+        enforceCallingPermissions();
+        Preconditions.checkNotNull(w, "IAshmanWatcher is null");
+        AshManHandler.WatcherClient watcherClient = new AshManHandler.WatcherClient(w);
+        h.obtainMessage(AshManHandlerMessages.MSG_WATCH, watcherClient).sendToTarget();
+    }
+
+    @Override
+    public void unWatch(IAshmanWatcher w) throws RemoteException {
+        enforceCallingPermissions();
+        Preconditions.checkNotNull(w, "IAshmanWatcher is null");
+        AshManHandler.WatcherClient watcherClient = new AshManHandler.WatcherClient(w);
+        h.obtainMessage(AshManHandlerMessages.MSG_UNWTCH, watcherClient).sendToTarget();
     }
 
     private CheckResult checkBroadcastDetailed(String action, int receiverUid, int callerUid) {
@@ -971,14 +991,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @BinderCall
     public void clearProcess(IProcessClearListener listener) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(IntentFirewallHandlerMessages.MSG_CLEARPROCESS, listener)
+        h.obtainMessage(AshManHandlerMessages.MSG_CLEARPROCESS, listener)
                 .sendToTarget();
     }
 
     @Override
     public void setLockKillDelay(long delay) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(IntentFirewallHandlerMessages.MSG_SETLOCKKILLDELAY, delay).sendToTarget();
+        h.obtainMessage(AshManHandlerMessages.MSG_SETLOCKKILLDELAY, delay).sendToTarget();
     }
 
     @Override
@@ -990,7 +1010,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void setBootBlockEnabled(boolean enabled) {
         enforceCallingPermissions();
-        h.obtainMessage(IntentFirewallHandlerMessages.MSG_SETBOOTBLOCKENABLED, enabled)
+        h.obtainMessage(AshManHandlerMessages.MSG_SETBOOTBLOCKENABLED, enabled)
                 .sendToTarget();
     }
 
@@ -1003,7 +1023,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void setStartBlockEnabled(boolean enabled) {
         enforceCallingPermissions();
-        h.obtainMessage(IntentFirewallHandlerMessages.MSG_SETSTARTBLOCKENABLED, enabled)
+        h.obtainMessage(AshManHandlerMessages.MSG_SETSTARTBLOCKENABLED, enabled)
                 .sendToTarget();
     }
 
@@ -1016,7 +1036,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void setLockKillEnabled(boolean enabled) {
         enforceCallingPermissions();
-        h.obtainMessage(IntentFirewallHandlerMessages.MSG_SETLOCKKILLENABLED, enabled)
+        h.obtainMessage(AshManHandlerMessages.MSG_SETLOCKKILLENABLED, enabled)
                 .sendToTarget();
     }
 
@@ -1056,7 +1076,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @SuppressLint("HandlerLeak")
-    private class HandlerImpl extends Handler implements IntentFirewallHandler {
+    private class HandlerImpl extends Handler implements AshManHandler {
 
         private final Holder<FutureTask<String[]>> mClearingTask = new Holder<>();
 
@@ -1069,36 +1089,42 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         @Override
         public void handleMessage(Message msg) {
-            XLog.logV("handleMessage: " + IntentFirewallHandlerMessages.decodeMessage(msg.what));
+            XLog.logV("handleMessage: " + AshManHandlerMessages.decodeMessage(msg.what));
             super.handleMessage(msg);
             switch (msg.what) {
-                case IntentFirewallHandlerMessages.MSG_CLEARPROCESS:
+                case AshManHandlerMessages.MSG_CLEARPROCESS:
                     IProcessClearListener listener = msg.obj == null ? null : (IProcessClearListener) msg.obj;
                     HandlerImpl.this.clearProcess(listener);
                     break;
-                case IntentFirewallHandlerMessages.MSG_SETBOOTBLOCKENABLED:
+                case AshManHandlerMessages.MSG_SETBOOTBLOCKENABLED:
                     HandlerImpl.this.setBootBlockEnabled((Boolean) msg.obj);
                     break;
-                case IntentFirewallHandlerMessages.MSG_SETSTARTBLOCKENABLED:
+                case AshManHandlerMessages.MSG_SETSTARTBLOCKENABLED:
                     HandlerImpl.this.setStartBlockEnabled((Boolean) msg.obj);
                     break;
-                case IntentFirewallHandlerMessages.MSG_SETLOCKKILLENABLED:
+                case AshManHandlerMessages.MSG_SETLOCKKILLENABLED:
                     HandlerImpl.this.setLockKillEnabled((Boolean) msg.obj);
                     break;
-                case IntentFirewallHandlerMessages.MSG_ONSCREENOFF:
+                case AshManHandlerMessages.MSG_ONSCREENOFF:
                     HandlerImpl.this.onScreenOff();
                     break;
-                case IntentFirewallHandlerMessages.MSG_ONSCREENON:
+                case AshManHandlerMessages.MSG_ONSCREENON:
                     HandlerImpl.this.onScreenOn();
                     break;
-                case IntentFirewallHandlerMessages.MSG_SETLOCKKILLDELAY:
+                case AshManHandlerMessages.MSG_SETLOCKKILLDELAY:
                     HandlerImpl.this.setLockKillDelay((Long) msg.obj);
                     break;
-                case IntentFirewallHandlerMessages.MSG_CLEARBLOCKRECORDS:
+                case AshManHandlerMessages.MSG_CLEARBLOCKRECORDS:
                     HandlerImpl.this.clearBlockRecords();
                     break;
-                case IntentFirewallHandlerMessages.MSG_SETCOMPONENTENABLEDSETTING:
+                case AshManHandlerMessages.MSG_SETCOMPONENTENABLEDSETTING:
                     HandlerImpl.this.setComponentEnabledSetting((ComponentName) msg.obj, msg.arg1, msg.arg2);
+                    break;
+                case AshManHandlerMessages.MSG_WATCH:
+                    HandlerImpl.this.watch((WatcherClient) msg.obj);
+                    break;
+                case AshManHandlerMessages.MSG_UNWTCH:
+                    HandlerImpl.this.unWatch((WatcherClient) msg.obj);
                     break;
             }
         }
@@ -1307,6 +1333,40 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public int getComponentEnabledSetting(ComponentName componentName) {
             PackageManager pm = getContext().getPackageManager();
             return pm.getComponentEnabledSetting(componentName);
+        }
+
+        @Override
+        public void watch(WatcherClient w) {
+            if (!mWatcherClients.contains(w)) {
+                mWatcherClients.add(w);
+            }
+        }
+
+        @Override
+        public void unWatch(WatcherClient w) {
+            mWatcherClients.remove(w);
+        }
+
+        @Override
+        public void notifyStartBlock(final String pkg) {
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    Object[] objects = mWatcherClients.toArray();
+                    Collections.consumeRemaining(objects, new Consumer<Object>() {
+                        @Override
+                        public void accept(Object o) {
+                            WatcherClient w = (WatcherClient) o;
+                            try {
+                                w.getWatcher().onStartBlocked(pkg);
+                            } catch (RemoteException ignored) {
+
+                            }
+                        }
+                    });
+                }
+            };
+            mWorkingService.execute(r);
         }
     }
 

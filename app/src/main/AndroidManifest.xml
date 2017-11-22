@@ -161,6 +161,11 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
 
         <activity
+            android:name=".ui.activity.extra.PayListBrowserActivity"
+            android:label="@string/title_pay_list"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+
+        <activity
             android:name="com.nononsenseapps.filepicker.FilePickerActivity"
             android:label="@string/app_name"
             android:theme="@style/FilePickerTheme">

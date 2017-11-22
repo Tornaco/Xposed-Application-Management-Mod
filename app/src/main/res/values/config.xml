@@ -2,4 +2,5 @@
 <resources>
     <string name="app_wiki_url">https://github.com/Tornaco/XAppGuard/wiki</string>
     <string name="app_source_url">https://github.com/Tornaco/XAppGuard</string>
+    <string name="pay_list_url">https://raw.githubusercontent.com/Tornaco/Tor-Data/master/pay_list_screec_rec_plus</string>
 </resources>

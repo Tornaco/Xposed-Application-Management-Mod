@@ -220,4 +220,7 @@
     <string name="title_import_fail">导入失败</string>
     <string name="title_import_success">导入成功</string>
     <string name="title_copy_to_clipboard">复制到剪贴板</string>
+
+    <string name="title_pay_list">感谢人员</string>
+
 </resources>

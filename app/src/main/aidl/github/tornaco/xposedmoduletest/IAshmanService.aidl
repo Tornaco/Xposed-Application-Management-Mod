@@ -1,7 +1,7 @@
 package github.tornaco.xposedmoduletest;
 
 import github.tornaco.xposedmoduletest.IProcessClearListener;
-
+import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 
 
@@ -33,4 +33,7 @@ interface IAshmanService {
     void setComponentEnabledSetting(in ComponentName componentName, int newState, int flags);
 
     int getComponentEnabledSetting(in ComponentName componentName);
+
+    void watch(in IAshmanWatcher w);
+    void unWatch(in IAshmanWatcher w);
 }

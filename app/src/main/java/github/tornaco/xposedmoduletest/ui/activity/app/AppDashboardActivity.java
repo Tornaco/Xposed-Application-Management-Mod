@@ -9,10 +9,11 @@ import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
-import github.tornaco.xposedmoduletest.ui.tiles.ag.AppDeveloper;
-import github.tornaco.xposedmoduletest.ui.tiles.ag.AppDonate;
-import github.tornaco.xposedmoduletest.ui.tiles.ag.OpenSource;
+import github.tornaco.xposedmoduletest.ui.tiles.app.AppDeveloper;
+import github.tornaco.xposedmoduletest.ui.tiles.app.AppDonate;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppVersion;
+import github.tornaco.xposedmoduletest.ui.tiles.app.OpenSource;
+import github.tornaco.xposedmoduletest.ui.tiles.app.PayListTile;
 
 /**
  * Created by guohao4 on 2017/11/2.
@@ -44,8 +45,9 @@ public class AppDashboardActivity extends WithWithCustomTabActivity {
             Category support = new Category();
             support.titleRes = R.string.title_support;
             support.addTile(new AppDonate(getActivity()));
+            support.addTile(new PayListTile(getActivity()));
 
-            // categories.add(support);
+            categories.add(support);
             categories.add(personal);
         }
     }
