@@ -141,7 +141,7 @@ public class StartAppNavActivity extends WithRecyclerView {
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem menuItem = menu.findItem(R.id.action_start_block_notify);
         if (menuItem != null) {
-            menuItem.setCheckable(XSettings.isStartBlockNotify(this));
+            menuItem.setChecked(XSettings.isStartBlockNotify(this));
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -162,6 +162,8 @@ public class StartAppNavActivity extends WithRecyclerView {
         }
         if (item.getItemId() == R.id.action_start_block_notify) {
             boolean checked = item.isChecked();
+            checked = !checked;
+            item.setChecked(checked);
             XSettings.setStartBlockNotify(this, checked);
         }
         return super.onOptionsItemSelected(item);

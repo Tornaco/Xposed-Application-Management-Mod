@@ -223,6 +223,6 @@
 
     <string name="title_pay_list">感谢人员</string>
     <string name="notification_app_auto_start_blocked">%1$s已经被阻止关联启动</string>
-    <string name="title_start_block_notify">启动禁止通知</string>
+    <string name="title_start_block_notify">启动被首次禁止通知</string>
 
 </resources>

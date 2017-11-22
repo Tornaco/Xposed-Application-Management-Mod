@@ -9,6 +9,7 @@ import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
+import github.tornaco.xposedmoduletest.ui.tiles.app.AppDevMode;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppDeveloper;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppDonate;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppVersion;
@@ -34,8 +35,12 @@ public class AppDashboardActivity extends WithWithCustomTabActivity {
         @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
-            Category personal = new Category();
 
+            Category settings = new Category();
+            settings.titleRes = R.string.title_general_settings;
+            settings.addTile(new AppDevMode(getActivity()));
+
+            Category personal = new Category();
             personal.titleRes = R.string.title_about;
 
             personal.addTile(new AppDeveloper(getActivity()));
@@ -47,6 +52,7 @@ public class AppDashboardActivity extends WithWithCustomTabActivity {
             support.addTile(new AppDonate(getActivity()));
             support.addTile(new PayListTile(getActivity()));
 
+            categories.add(settings);
             categories.add(support);
             categories.add(personal);
         }

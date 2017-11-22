@@ -216,6 +216,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
             boolean debug = (boolean) SystemSettings.APP_GUARD_DEBUG_MODE_B.readFromSystemSettings(getContext());
             mDebugEnabled.set(debug);
+            XLog.setDebug(debug);
 
             ContentResolver resolver = getContext().getContentResolver();
             if (resolver == null) return;

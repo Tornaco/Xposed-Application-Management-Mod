@@ -5,6 +5,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.view.View;
 import android.widget.TextView;
 
+import org.newstand.logger.Logger;
+
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.util.EmojiUtil;
 
@@ -30,6 +32,9 @@ public class DonateActivity extends BaseActivity {
         String fivemore = duplicateString(EmojiUtil.getEmojiByUnicode(EmojiUtil.FIVE_MORE), 16);
         textView.setText(getString(R.string.donate_intro, fivemore, fivemore,
                 duplicateString(EmojiUtil.getEmojiByUnicode(EmojiUtil.DOG), 3)));
+
+        // For DEBUG.
+        Logger.e("WUMAO: " + EmojiUtil.getEmojiByUnicode(EmojiUtil.FIVE_MORE));
     }
 
 
