@@ -21,7 +21,6 @@ import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.PayExtraLoader;
 import github.tornaco.xposedmoduletest.model.PayExtra;
-import github.tornaco.xposedmoduletest.util.EmojiUtil;
 
 
 /**
@@ -170,10 +169,6 @@ public class PayListBrowserFragment extends Fragment {
             final PayExtra item = data.get(position);
             holder.title.setText(item.getNick());
             String descriptionText = item.getAd();
-            descriptionText = descriptionText.replace("[fivemore]", EmojiUtil.getEmojiByUnicode(EmojiUtil.FIVE_MORE))
-                    .replace("[erha]", EmojiUtil.getEmojiByUnicode(EmojiUtil.ERHA))
-                    .replace("[heiheihei]", EmojiUtil.getEmojiByUnicode(EmojiUtil.HEIHEIHEI))
-                    .replace("[zhoumei]", EmojiUtil.getEmojiByUnicode(EmojiUtil.ZHOUMEI));
             holder.description.setText(descriptionText);
         }
 

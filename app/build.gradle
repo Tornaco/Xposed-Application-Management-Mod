@@ -72,8 +72,10 @@ dependencies {
 
     testImplementation 'junit:junit:4.12'
 
-    compile 'com.google.guava:guava:20.0'
+    implementation 'com.google.guava:guava:20.0'
     provided 'de.robv.android.xposed:api:82'
+
+    implementation 'com.jaredrummler:android-shell:1.0.0'
 
     implementation "org.greenrobot:greendao:${rootProject.ext.greendaoVersion}"
     implementation "com.squareup.retrofit2:retrofit:${rootProject.ext.retrofitVersion}"
@@ -89,8 +91,6 @@ dependencies {
 
     implementation 'si.virag:fuzzydateformatter:1.1.0'
 
-    implementation 'com.google.android.gms:play-services-ads:11.0.4'
-
     implementation 'com.novoda:simple-chrome-custom-tabs:0.1.5'
 
     implementation files('libs/flyme_fingerprint.jar')
@@ -99,15 +99,12 @@ dependencies {
     // debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.4'
     // releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
 
-    // compile 'com.vanniktech:emoji:0.5.1'
-    implementation 'com.vanniktech:emoji-google:0.5.1'
-
     implementation 'com.andrognito.patternlockview:patternlockview:1.0.0'
 
     implementation 'com.nononsenseapps:filepicker:4.1.0'
 
     // Fix this.
-    compile 'com.koushikdutta.async:androidasync:2.1.9'
+    implementation 'com.koushikdutta.async:androidasync:2.1.9'
 }
 
 

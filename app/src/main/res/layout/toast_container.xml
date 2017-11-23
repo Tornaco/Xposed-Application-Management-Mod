@@ -5,7 +5,7 @@
     android:background="@android:color/transparent"
     android:orientation="vertical">
 
-    <com.vanniktech.emoji.EmojiTextView
+    <TextView
         android:id="@+id/content_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

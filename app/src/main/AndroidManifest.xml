@@ -202,10 +202,6 @@
             android:authorities="github.tornaco.xposedmoduletest.lock_kill_package_provider"
             android:exported="true" />
         <provider
-            android:name=".provider.BlockRecordProvider"
-            android:authorities="github.tornaco.xposedmoduletest.block_record_provider"
-            android:exported="true" />
-        <provider
             android:name=".provider.ComponentsProvider"
             android:authorities="github.tornaco.xposedmoduletest.components_provider"
             android:exported="true" />

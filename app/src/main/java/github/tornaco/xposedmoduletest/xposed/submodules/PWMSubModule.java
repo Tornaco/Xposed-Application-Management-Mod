@@ -9,7 +9,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.util.XLog;
 
 /**
@@ -17,7 +16,8 @@ import github.tornaco.xposedmoduletest.xposed.util.XLog;
  * Email: Tornaco@163.com
  */
 
-class PWMSubModule extends AppGuardAndroidSubModule {
+class PWMSubModule extends AndroidSubModuleModule {
+
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         hookPWM(lpparam);
@@ -34,11 +34,10 @@ class PWMSubModule extends AppGuardAndroidSubModule {
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             super.afterHookedMethod(param);
                             KeyEvent keyEvent = (KeyEvent) param.args[0];
-                            getAppGuardBridge().onKeyEvent(keyEvent);
+                            getBridge().onKeyEvent(keyEvent);
                         }
                     });
             XLog.logV("hookPWM OK:" + unHooks);
-            getBridge().publishFeature(XAppGuardManager.Feature.HOME);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
             XLog.logV("Fail hookPWM:" + e);

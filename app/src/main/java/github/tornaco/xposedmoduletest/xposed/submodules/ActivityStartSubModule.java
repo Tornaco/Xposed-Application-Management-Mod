@@ -62,29 +62,29 @@ class ActivityStartSubModule extends AppGuardAndroidSubModule {
             }
 
             if (startActivityMayWaitMethod == null) {
-                XLog.logV("*** FATAL can not find startActivityMayWait method ***");
+                XLog.logF("*** FATAL can not find startActivityMayWait method ***");
                 setStatus(SubModuleStatus.ERROR);
                 setErrorMessage("*** FATAL can not find startActivityMayWait method ***");
                 return;
             }
 
             if (matchCount > 1) {
-                XLog.logV("*** FATAL more than 1 startActivityMayWait method ***");
+                XLog.logF("*** FATAL more than 1 startActivityMayWait method ***");
                 setStatus(SubModuleStatus.ERROR);
                 setErrorMessage("*** FATAL more than 1 startActivityMayWait method ***");
                 // return;
             }
 
             if (intentIndex < 0) {
-                XLog.logV("*** FATAL can not find intentIndex ***");
+                XLog.logF("*** FATAL can not find intentIndex ***");
                 setStatus(SubModuleStatus.ERROR);
                 setErrorMessage("*** FATAL can not find intentIndex ***");
                 return;
             }
 
-            XLog.logV("startActivityMayWait method:" + startActivityMayWaitMethod);
-            XLog.logV("intentIndex index:" + intentIndex);
-            XLog.logV("activityOptsIndex index:" + activityOptsIndex);
+            XLog.logF("startActivityMayWait method:" + startActivityMayWaitMethod);
+            XLog.logF("intentIndex index:" + intentIndex);
+            XLog.logF("activityOptsIndex index:" + activityOptsIndex);
 
             final int finalActivityOptsIndex = activityOptsIndex;
             final int finalIntentIndex = intentIndex;
@@ -127,23 +127,23 @@ class ActivityStartSubModule extends AppGuardAndroidSubModule {
                                         if (res == XAppVerifyMode.MODE_ALLOWED) try {
                                             XposedBridge.invokeOriginalMethod(finalStartActivityMayWaitMethod, param.thisObject, param.args);
                                         } catch (Exception e) {
-                                            XLog.logD("Error@" + Log.getStackTraceString(e));
+                                            XLog.logF("Error@" + Log.getStackTraceString(e));
                                         }
                                     }
                                 });
                         param.setResult(ActivityManager.START_SUCCESS);
                     } catch (Throwable e) {
                         // replacing did not work.. but no reason to crash the VM! Log the error and go on.
-                        XLog.logV("Error@startActivityMayWaitMethod:" + Log.getStackTraceString(e));
+                        XLog.logF("Error@startActivityMayWaitMethod:" + Log.getStackTraceString(e));
                     } finally {
                     }
                 }
             });
-            XLog.logV("hookStartActivityMayWait OK: " + unhook);
+            XLog.logF("hookStartActivityMayWait OK: " + unhook);
             getBridge().publishFeature(XAppGuardManager.Feature.START);
             setStatus(unhookToStatus(unhook));
         } catch (Exception e) {
-            XLog.logV("Fail hookStartActivityMayWait:" + e);
+            XLog.logF("Fail hookStartActivityMayWait:" + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

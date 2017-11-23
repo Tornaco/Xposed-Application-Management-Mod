@@ -93,7 +93,6 @@ public class WatchDogService extends Service implements Handler.Callback, WatchD
 
     @Override
     public boolean handleMessage(Message msg) {
-        Logger.d("WatchDogService handle message: " + WatchDogMessages.decodeMessage(msg.what));
         switch (msg.what) {
             case WatchDogMessages.MSG_ONSTARTBLOCKED:
                 onStartBlocked((String) msg.obj);
@@ -104,8 +103,6 @@ public class WatchDogService extends Service implements Handler.Callback, WatchD
 
     @Override
     public void onStartBlocked(String pkg) {
-        Logger.d("WatchDogService onStartBlocked: " + pkg);
-
         if (isAppNotified(pkg) || !XSettings.isStartBlockNotify(this)) return;
 
         String appName = String.valueOf(PkgUtil.loadNameByPkgName(this, pkg));

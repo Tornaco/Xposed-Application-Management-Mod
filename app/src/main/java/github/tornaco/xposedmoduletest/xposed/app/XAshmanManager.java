@@ -14,6 +14,7 @@ import java.util.List;
 
 import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
+import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 
 /**
@@ -22,11 +23,19 @@ import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
  */
 
 public class XAshmanManager {
+
     public static final String ASH_MAN_SERVICE_NAME = "user.tor_ash";
 
     private IAshmanService mService;
 
     private static XAshmanManager sMe;
+
+    private static final Singleton<XAshmanManager> sManager = new Singleton<XAshmanManager>() {
+        @Override
+        protected XAshmanManager create() {
+            return null;
+        }
+    };
 
     private XAshmanManager() {
         mService = IAshmanService.Stub.asInterface(ServiceManager.getService(ASH_MAN_SERVICE_NAME));

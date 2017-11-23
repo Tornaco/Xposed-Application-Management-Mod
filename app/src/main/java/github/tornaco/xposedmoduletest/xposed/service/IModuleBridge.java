@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
 import android.content.Context;
+import android.view.KeyEvent;
 
 /**
  * Created by guohao4 on 2017/11/1.
@@ -23,6 +24,8 @@ public interface IModuleBridge {
     void publishFeature(String f);
 
     void shutdown();
+
+    void onKeyEvent(KeyEvent event);
 
     String serial();
 }

@@ -17,11 +17,13 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.KeyEvent;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
 
@@ -44,19 +46,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
-import github.tornaco.android.common.Holder;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
 import github.tornaco.xposedmoduletest.bean.AutoStartPackage;
 import github.tornaco.xposedmoduletest.bean.AutoStartPackageDaoUtil;
-import github.tornaco.xposedmoduletest.bean.BlockRecord;
 import github.tornaco.xposedmoduletest.bean.BootCompletePackage;
 import github.tornaco.xposedmoduletest.bean.BootCompletePackageDaoUtil;
 import github.tornaco.xposedmoduletest.bean.LockKillPackage;
 import github.tornaco.xposedmoduletest.bean.LockKillPackageDaoUtil;
 import github.tornaco.xposedmoduletest.provider.AutoStartPackageProvider;
-import github.tornaco.xposedmoduletest.provider.BlockRecordProvider;
 import github.tornaco.xposedmoduletest.provider.BootPackageProvider;
 import github.tornaco.xposedmoduletest.provider.LockKillPackageProvider;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -68,6 +67,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XLog;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
@@ -194,6 +194,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     if (isIME(pkg)) {
                         addToWhiteList(pkg);
                     }
+                    if (PkgUtil.isHomeApp(getContext(), pkg)) {
+                        addToWhiteList(pkg);
+                    }
+                    if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
+                        addToWhiteList(pkg);
+                    }
                 } catch (Exception ignored) {
 
                 }
@@ -224,6 +230,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     if (TextUtils.isEmpty(pkg)) return;
                     boolean isSystemApp = (applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
                     if (isSystemApp) {
+                        addToWhiteList(pkg);
+                    }
+                    if (PkgUtil.isHomeApp(getContext(), pkg)) {
+                        addToWhiteList(pkg);
+                    }
+                    if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
                         addToWhiteList(pkg);
                     }
                     mPackagesCache.put(uid, pkg);
@@ -756,34 +768,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         h.obtainMessage(AshManHandlerMessages.MSG_NOTIFYSTARTBLOCK, serviceEvent.getPkg()).sendToTarget();
     }
 
-    /**
-     * @deprecated Use {@link #logServiceEventToMemory(ServiceEvent)} instead.
-     */
-    @Deprecated
-    private void logServiceEvent(final ServiceEvent serviceEvent) {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    BlockRecord blockRecord = new BlockRecord();
-                    blockRecord.setAppName(String.valueOf(
-                            PkgUtil.loadNameByPkgName(getContext(),
-                                    serviceEvent.pkg)));
-                    blockRecord.setPkgName(serviceEvent.pkg);
-                    blockRecord.setTimeWhen(serviceEvent.when);
-                    blockRecord.setAllow(serviceEvent.allowed);
-                    blockRecord.setDescription("SERVICE");
-                    blockRecord.setWhy(serviceEvent.why);
-
-                    if (isSystemReady()) BlockRecordProvider.insert(getContext(), blockRecord);
-                } catch (Throwable e) {
-                    XLog.logF("Fail logServiceEvent: " + e);
-                }
-            }
-        };
-        mLoggingService.execute(r);
-    }
-
     private void logBroadcastEventToMemory(final BroadcastEvent broadcastEvent) {
         Runnable r = new Runnable() {
             @Override
@@ -809,40 +793,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         .timeWhen(System.currentTimeMillis())
                         .build();
                 addBlockRecord(blockRecord2);
-            }
-        };
-        mLoggingService.execute(r);
-    }
-
-    /**
-     * @deprecated Use {@link #logBroadcastEventToMemory(BroadcastEvent)} instead.
-     */
-    @Deprecated
-    private void logBroadcastEvent(final BroadcastEvent broadcastEvent) {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    String receiverPkgName =
-                            mPackagesCache.get(broadcastEvent.receiver);
-                    if (receiverPkgName == null) {
-                        receiverPkgName = PkgUtil.pkgForUid(getContext(), broadcastEvent.receiver);
-                    }
-
-                    BlockRecord blockRecord = new BlockRecord();
-                    blockRecord.setAppName(String.valueOf(
-                            PkgUtil.loadNameByPkgName(getContext(),
-                                    receiverPkgName)));
-                    blockRecord.setPkgName(receiverPkgName);
-                    blockRecord.setTimeWhen(broadcastEvent.when);
-                    blockRecord.setWhy(broadcastEvent.why);
-                    blockRecord.setAllow(broadcastEvent.allowed);
-                    blockRecord.setDescription("BROADCAST");
-
-                    if (isSystemReady()) BlockRecordProvider.insert(getContext(), blockRecord);
-                } catch (Throwable e) {
-                    XLog.logF("Fail logBroadcastEvent: " + e);
-                }
             }
         };
         mLoggingService.execute(r);
@@ -969,20 +919,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public void shutdown() {
-        cleanUpBlockRecords();
     }
 
-    private void cleanUpBlockRecords() {
-        // Clear all block records.
-        try {
-            ContentResolver contentResolver = getContext().getContentResolver();
-            if (contentResolver == null) {
-                // Happen when early start.
-                return;
-            }
-            contentResolver.delete(BlockRecordProvider.CONTENT_URI, "all", null);
-        } catch (Throwable ignored) {
-        }
+    @Override
+    public void onKeyEvent(KeyEvent event) {
+        h.removeMessages(AshManHandlerMessages.MSG_ONKEYEVENT);
+        h.obtainMessage(AshManHandlerMessages.MSG_ONKEYEVENT, event).sendToTarget();
     }
 
     @Override
@@ -1150,8 +1092,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @SuppressLint("HandlerLeak")
     private class HandlerImpl extends Handler implements AshManHandler {
 
-        private final Holder<FutureTask<String[]>> mClearingTask = new Holder<>();
-
         private final Runnable clearProcessRunnable = new Runnable() {
             @Override
             public void run() {
@@ -1199,7 +1139,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     HandlerImpl.this.unWatch((WatcherClient) msg.obj);
                     break;
                 case AshManHandlerMessages.MSG_NOTIFYSTARTBLOCK:
-                    notifyStartBlock((String) msg.obj);
+                    HandlerImpl.this.notifyStartBlock((String) msg.obj);
+                    break;
+                case AshManHandlerMessages.MSG_ONKEYEVENT:
+                    HandlerImpl.this.onKeyEvent((KeyEvent) msg.obj);
                     break;
             }
         }
@@ -1227,135 +1170,130 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         @Override
         public void clearProcess(final IProcessClearListener listener) {
+
             if (listener != null) try {
                 listener.onPrepareClearing();
             } catch (RemoteException ignored) {
 
             }
-            synchronized (mClearingTask) {
-                if (mClearingTask.getData() != null && (!mClearingTask.getData().isDone()
-                        && !mClearingTask.getData().isCancelled())) {
-                    XLog.logV("clearProcess, Canceling existing clear task...");
-                    mClearingTask.getData().cancel(true);
-                    mClearingTask.setData(null);
-                }
-                FutureTask<String[]> futureTask = new FutureTask<>(new Callable<String[]>() {
-                    @Override
-                    public String[] call() throws Exception {
-                        ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
-                        if (am == null) return null;
-                        List<ActivityManager.RunningAppProcessInfo> processes =
-                                am.getRunningAppProcesses();
-                        int count = processes == null ? 0 : processes.size();
+            FutureTask<String[]> futureTask = new FutureTask<>(new SignalCallable<String[]>() {
 
-                        if (listener != null) try {
-                            listener.onStartClearing(count);
-                        } catch (RemoteException ignored) {
+                @Override
+                public String[] call() throws Exception {
 
-                        }
+                    PowerManager power = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
+                    ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
+                    if (am == null) return null;
+                    List<ActivityManager.RunningAppProcessInfo> processes =
+                            am.getRunningAppProcesses();
+                    int count = processes == null ? 0 : processes.size();
 
-                        String[] cleared = new String[count];
-                        for (int i = 0; i < count; i++) {
-                            for (String runningPackageName : processes.get(i).pkgList) {
-                                if (runningPackageName == null) {
+                    if (listener != null) try {
+                        listener.onStartClearing(count);
+                    } catch (RemoteException ignored) {
 
-                                    if (listener != null) try {
-                                        listener.onIgnoredPkg(null, "null");
-                                    } catch (RemoteException ignored) {
-
-                                    }
-
-                                    continue;
-                                }
-
-                                // Check if we can control.
-                                boolean whiteApp = isInLockKillWhiteList(runningPackageName)
-                                        || WHITE_LIST.contains(runningPackageName);
-                                if (whiteApp) {
-                                    if (listener != null) try {
-                                        listener.onIgnoredPkg(runningPackageName, "white-list");
-                                    } catch (RemoteException ignored) {
-
-                                    }
-                                    // XLog.logV("App is in white-listed, wont kill: " + runningPackageName);
-                                    continue;
-                                }
-
-                                if (PkgUtil.isSystemApp(getContext(), runningPackageName)) {
-
-                                    if (listener != null) try {
-                                        listener.onIgnoredPkg(runningPackageName, "system-app");
-                                    } catch (RemoteException ignored) {
-
-                                    }
-                                    // XLog.logV("App is in system app, wont kill: " + runningPackageName);
-                                    continue;
-                                }
-                                if (PkgUtil.isAppRunningForeground(getContext(), runningPackageName)) {
-
-                                    if (listener != null) try {
-                                        listener.onIgnoredPkg(runningPackageName, "foreground-app");
-                                    } catch (RemoteException ignored) {
-
-                                    }
-
-                                    XLog.logV("App is in foreground, wont kill: " + runningPackageName);
-                                    continue;
-                                }
-                                if (PkgUtil.isHomeApp(getContext(), runningPackageName)) {
-
-                                    if (listener != null) try {
-                                        listener.onIgnoredPkg(runningPackageName, "home-app");
-                                    } catch (RemoteException ignored) {
-
-                                    }
-
-                                    XLog.logV("App is in isHomeApp, wont kill: " + runningPackageName);
-                                    continue;
-                                }
-                                if (PkgUtil.isDefaultSmsApp(getContext(), runningPackageName)) {
-
-                                    if (listener != null) try {
-                                        listener.onIgnoredPkg(runningPackageName, "sms-app");
-                                    } catch (RemoteException ignored) {
-
-                                    }
-
-                                    XLog.logV("App is in isDefaultSmsApp, wont kill: " + runningPackageName);
-                                    continue;
-                                }
-
-                                if (listener != null) try {
-                                    listener.onClearingPkg(runningPackageName);
-                                } catch (RemoteException ignored) {
-
-                                }
-
-                                am.forceStopPackage(runningPackageName);
-                                cleared[i] = runningPackageName;
-                                XLog.logV("Force stopped: " + runningPackageName);
-
-                                if (listener != null) try {
-                                    listener.onClearedPkg(runningPackageName);
-                                } catch (RemoteException ignored) {
-
-                                }
-                            }
-                        }
-
-                        if (listener != null) try {
-                            listener.onAllCleared(cleared);
-                        } catch (RemoteException ignored) {
-
-                        }
-
-                        return cleared;
                     }
-                });
-                mClearingTask.setData(futureTask);
-            }
 
-            mWorkingService.execute(mClearingTask.getData());
+                    String[] cleared = new String[count];
+
+                    for (int i = 0; i < count; i++) {
+
+                        // Check if canceled.
+                        if (power != null && power.isInteractive()) {
+                            XLog.logF("isInteractive, skip clearing");
+                            return cleared;
+                        }
+
+                        ActivityManager.RunningAppProcessInfo runningAppProcessInfo = processes.get(i);
+                        String runningPackageName = mPackagesCache.get(runningAppProcessInfo.uid);
+                        if (runningPackageName == null) {
+                            if (listener != null) try {
+                                listener.onIgnoredPkg(null, "null");
+                            } catch (RemoteException ignored) {
+
+                            }
+                            continue;
+                        }
+
+                        // Check if we can control.
+                        boolean whiteApp = isInLockKillWhiteList(runningPackageName)
+                                || WHITE_LIST.contains(runningPackageName);
+                        if (whiteApp) {
+                            if (listener != null) try {
+                                listener.onIgnoredPkg(runningPackageName, "white-list");
+                            } catch (RemoteException ignored) {
+
+                            }
+                            // XLog.logV("App is in white-listed, wont kill: " + runningPackageName);
+                            continue;
+                        }
+                        if (PkgUtil.isAppRunningForeground(getContext(), runningPackageName)) {
+
+                            if (listener != null) try {
+                                listener.onIgnoredPkg(runningPackageName, "foreground-app");
+                            } catch (RemoteException ignored) {
+
+                            }
+
+                            XLog.logV("App is in foreground, wont kill: " + runningPackageName);
+                            continue;
+                        }
+                        if (PkgUtil.isHomeApp(getContext(), runningPackageName)) {
+                            addToWhiteList(runningPackageName);
+                            if (listener != null) try {
+                                listener.onIgnoredPkg(runningPackageName, "home-app");
+                            } catch (RemoteException ignored) {
+
+                            }
+
+                            XLog.logV("App is in isHomeApp, wont kill: " + runningPackageName);
+                            continue;
+                        }
+                        if (PkgUtil.isDefaultSmsApp(getContext(), runningPackageName)) {
+                            addToWhiteList(runningPackageName);
+                            if (listener != null) try {
+                                listener.onIgnoredPkg(runningPackageName, "sms-app");
+                            } catch (RemoteException ignored) {
+
+                            }
+
+                            XLog.logV("App is in isDefaultSmsApp, wont kill: " + runningPackageName);
+                            continue;
+                        }
+
+                        if (listener != null) try {
+                            listener.onClearingPkg(runningPackageName);
+                        } catch (RemoteException ignored) {
+
+                        }
+
+                        // Clearing using kill command.
+                        if (power != null && power.isInteractive()) {
+                            XLog.logF("isInteractive, skip clearing");
+                            return cleared;
+                        }
+                        PkgUtil.kill(getContext(), runningAppProcessInfo);
+
+                        cleared[i] = runningPackageName;
+                        XLog.logV("Force stopped: " + runningPackageName);
+
+                        if (listener != null) try {
+                            listener.onClearedPkg(runningPackageName);
+                        } catch (RemoteException ignored) {
+
+                        }
+                    }
+
+                    if (listener != null) try {
+                        listener.onAllCleared(cleared);
+                    } catch (RemoteException ignored) {
+
+                    }
+
+                    return cleared;
+                }
+            });
+            mWorkingService.execute(futureTask);
         }
 
         @Override
@@ -1388,14 +1326,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         @Override
         public void onScreenOn() {
-            removeCallbacks(clearProcessRunnable);
-            synchronized (mClearingTask) {
-                if (mClearingTask.getData() != null && (!mClearingTask.getData().isDone()
-                        && !mClearingTask.getData().isCancelled())) {
-                    mClearingTask.getData().cancel(true);
-                    mClearingTask.setData(null);
-                }
+            cancelProcessClearing("SCREEN ON");
+        }
+
+        @Override
+        public void onKeyEvent(KeyEvent event) {
+            if (event.getKeyCode() == KeyEvent.KEYCODE_POWER && event.getAction() == KeyEvent.ACTION_UP) {
+                cancelProcessClearing("POWER KEY");
             }
+        }
+
+        private void cancelProcessClearing(String why) {
+            XLog.logV("cancelProcessClearing: " + why);
+            removeCallbacks(clearProcessRunnable);
         }
 
         @Override
@@ -1511,5 +1454,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         private boolean res;
         private String why;
         private boolean logRecommended;
+    }
+
+    @Getter
+    @Setter
+    private abstract class SignalCallable<V> implements Callable<V> {
+        boolean canceled = false;
     }
 }

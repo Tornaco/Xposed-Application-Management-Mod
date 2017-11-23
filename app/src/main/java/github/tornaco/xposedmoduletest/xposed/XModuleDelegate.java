@@ -16,6 +16,6 @@ public class XModuleDelegate extends XModuleAbs {
 
     public XModuleDelegate() {
         mImpl = new XModuleImplSeparable();
-        XposedBridge.log(String.format("Init XModuleDelegate with impl %s:", mImpl));
+        XposedBridge.log(String.format("Init XModuleDelegate with impl %s: ", mImpl));
     }
 }

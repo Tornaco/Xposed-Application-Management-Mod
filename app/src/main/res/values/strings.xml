@@ -12,7 +12,7 @@
     <string name="title_dev_mode">开发者模式</string>
     <string name="title_exp">实验</string>
     <string name="title_advance">高级</string>
-    <string name="summary_dev_mode">激活日志输出，启用某些实验性能，非开发者无需启用此项设置</string>
+    <string name="summary_dev_mode">激活日志输出，启用某些实验性能，耗电会增加，非开发者无需启用此项设置</string>
     <string name="summary_take_photo">当密码输入错误时，尝试保存一张前置摄像头的照片，注意，能否保存成功一定程度上取决于你设备的相机预览开启速度以及输入者手速</string>
     <string name="summary_manage_overlay">我们将使用系统对话框的形式展示解锁界面，因此你必须在系统设置内打开叠加层才能使用最基本的功能</string>
     <string name="title_basic">基本</string>
@@ -211,7 +211,7 @@
         "when a user tries to pick up one of cards.\n\n"
     </string>
     <string name="action_settings">设置</string>
-    <string name="donate_intro">%1$s\n如果你喜欢我的作品，欢迎你以下列方式（微信/支付宝）进行捐赠，金额请随意，一分也是爱。当捐赠金额超过2元时，我会通过支付宝捐助1元给贫困儿童。\n你的支持就是我的动力！！！\n%2$s\n\n捐赠时尽量备注自己的昵称%3$s</string>
+    <string name="donate_intro">如果你喜欢我的作品，欢迎你以下列方式（微信/支付宝）进行捐赠，金额请随意，一分也是爱。当捐赠金额超过2元时，我会通过支付宝捐助1元给贫困儿童。\n你的支持就是我的动力！！！捐赠时尽量备注自己的昵称</string>
     <string name="title_developer">开发者</string>
     <string name="title_support">支持我</string>
     <string name="title_export">导出</string>

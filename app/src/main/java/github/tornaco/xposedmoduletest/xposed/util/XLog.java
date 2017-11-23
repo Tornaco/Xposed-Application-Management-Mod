@@ -4,6 +4,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import de.robv.android.xposed.XposedBridge;
+import github.tornaco.xposedmoduletest.BuildConfig;
 
 /**
  * Created by guohao4 on 2017/10/25.
@@ -12,9 +13,11 @@ import de.robv.android.xposed.XposedBridge;
 
 public abstract class XLog {
 
-    private static final String TAG = "XAppGuard-";
+    private static final String TAG_D = "XAppGuard-DEBUG-";
+    private static final String TAG_V = "XAppGuard-VERBOSE-";
+    private static final String TAG_F = "XAppGuard-FUCK-";
 
-    private static final AtomicBoolean DEBUG = new AtomicBoolean(true);
+    private static final AtomicBoolean DEBUG = new AtomicBoolean(BuildConfig.DEBUG);
 
     public static void setDebug(boolean debug) {
         XLog.DEBUG.set(debug);
@@ -25,23 +28,27 @@ public abstract class XLog {
     }
 
     public static void logV(Object log) {
-        if (DEBUG.get()) XposedBridge.log(TAG + String.valueOf(log));
+        if (DEBUG.get()) XposedBridge.log(TAG_V + String.valueOf(log));
     }
 
-    public static void logVOnExecutor(final Object log, ExecutorService executorService) {
+    public static void logVOnExecutor(final Object log,
+                                      ExecutorService executorService) {
         if (DEBUG.get()) executorService.execute(new Runnable() {
             @Override
             public void run() {
-                XposedBridge.log(TAG + String.valueOf(log));
+                XposedBridge.log(TAG_V + String.valueOf(log));
             }
         });
     }
 
     public static void logD(Object log) {
-        if (DEBUG.get()) XposedBridge.log(TAG + String.valueOf(log));
+        if (DEBUG.get()) XposedBridge.log(TAG_D + String.valueOf(log));
     }
 
+    /**
+     * Log anyway, fuck it.
+     */
     public static void logF(Object log) {
-        XposedBridge.log(TAG + String.valueOf(log));
+        if (DEBUG.get()) XposedBridge.log(TAG_F + String.valueOf(log));
     }
 }

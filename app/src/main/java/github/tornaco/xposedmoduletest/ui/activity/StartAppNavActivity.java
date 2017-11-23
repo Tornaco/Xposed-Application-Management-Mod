@@ -139,10 +139,10 @@ public class StartAppNavActivity extends WithRecyclerView {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem menuItem = menu.findItem(R.id.action_start_block_notify);
-        if (menuItem != null) {
-            menuItem.setChecked(XSettings.isStartBlockNotify(this));
-        }
+//        MenuItem menuItem = menu.findItem(R.id.action_start_block_notify);
+//        if (menuItem != null) {
+//            menuItem.setChecked(XSettings.isStartBlockNotify(this));
+//        }
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -160,12 +160,12 @@ public class StartAppNavActivity extends WithRecyclerView {
         if (item.getItemId() == R.id.action_block_record_viewer) {
             BlockRecordViewerActivity.start(this, null);
         }
-        if (item.getItemId() == R.id.action_start_block_notify) {
-            boolean checked = item.isChecked();
-            checked = !checked;
-            item.setChecked(checked);
-            XSettings.setStartBlockNotify(this, checked);
-        }
+//        if (item.getItemId() == R.id.action_start_block_notify) {
+//            boolean checked = item.isChecked();
+//            checked = !checked;
+//            item.setChecked(checked);
+//            XSettings.setStartBlockNotify(this, checked);
+//        }
         return super.onOptionsItemSelected(item);
     }
 }

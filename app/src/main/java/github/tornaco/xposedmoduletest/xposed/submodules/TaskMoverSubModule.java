@@ -28,7 +28,7 @@ class TaskMoverSubModule extends AppGuardAndroidSubModule {
     }
 
     private void hookTaskMover(XC_LoadPackage.LoadPackageParam lpparam) {
-        XLog.logV("hookTaskMover...");
+        XLog.logF("hookTaskMover...");
         try {
             final Method moveToFront = methodForTaskMover(lpparam);
             XC_MethodHook.Unhook unhook = XposedBridge.hookMethod(moveToFront, new XC_MethodHook() {
@@ -48,7 +48,7 @@ class TaskMoverSubModule extends AppGuardAndroidSubModule {
 
                         if (TextUtils.isEmpty(pkgName)) return;
 
-                        XLog.logV("findTaskToMoveToFrontLocked:" + pkgName);
+                        XLog.logF("findTaskToMoveToFrontLocked:" + pkgName);
 
                         // Package has been passed.
                         if (!getAppGuardBridge().onEarlyVerifyConfirm(pkgName)) return;
@@ -70,16 +70,16 @@ class TaskMoverSubModule extends AppGuardAndroidSubModule {
                         param.setResult(null);
 
                     } catch (Exception e) {
-                        XLog.logV("Error@hookTaskMover- findTaskToMoveToFrontLocked:" + Log.getStackTraceString(e));
+                        XLog.logF("Error@hookTaskMover- findTaskToMoveToFrontLocked:" + Log.getStackTraceString(e));
                     } finally {
                     }
                 }
             });
-            XLog.logV("hookTaskMover OK:" + unhook);
+            XLog.logF("hookTaskMover OK:" + unhook);
             setStatus(unhookToStatus(unhook));
             getBridge().publishFeature(XAppGuardManager.Feature.RECENT);
         } catch (Exception e) {
-            XLog.logV("hookTaskMover" + Log.getStackTraceString(e));
+            XLog.logF("hookTaskMover" + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

@@ -30,7 +30,7 @@ abstract class AbsSubModule implements SubModule {
     @Override
     public void onBridgeCreate(IModuleBridge bridge) {
         this.bridge = bridge;
-        XLog.logV("onBridgeCreate@" + bridge.serial() + ", assign to:" + getClass().getName());
+        XLog.logV("onBridgeCreate@" + bridge.serial() + ", assign to: " + getClass().getName());
     }
 
     @Override

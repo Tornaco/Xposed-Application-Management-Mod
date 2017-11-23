@@ -166,4 +166,23 @@ public class PkgUtil {
         }
         return false;
     }
+
+    public static void kill(Context context, ActivityManager.RunningAppProcessInfo runningAppProcessInfo) {
+        XLog.logV("kill: " + runningAppProcessInfo);
+        // Process.sendSignalQuiet(runningAppProcessInfo.pid, Process.SIGNAL_KILL);
+        if (runningAppProcessInfo.pkgList == null || runningAppProcessInfo.pkgList.length < 1) {
+            XLog.logF("Invalid package for: " + runningAppProcessInfo);
+            return;
+        }
+        try {
+            String pkg = runningAppProcessInfo.pkgList[0];
+            ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+            if (am != null) {
+                am.forceStopPackage(pkg);
+                XLog.logF("Force stopped: " + pkg);
+            }
+        } catch (Exception e) {
+            XLog.logF("Fail force-stop: " + e);
+        }
+    }
 }

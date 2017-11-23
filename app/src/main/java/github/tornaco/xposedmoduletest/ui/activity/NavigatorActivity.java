@@ -29,8 +29,6 @@ import github.tornaco.xposedmoduletest.ui.tiles.ag.AppGuard;
 import github.tornaco.xposedmoduletest.ui.tiles.ag.AppStart;
 import github.tornaco.xposedmoduletest.ui.tiles.ag.ComponentManager;
 import github.tornaco.xposedmoduletest.ui.tiles.ag.LockKill;
-import github.tornaco.xposedmoduletest.ui.widget.EmojiToast;
-import github.tornaco.xposedmoduletest.util.EmojiUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import lombok.Getter;
 
@@ -112,22 +110,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
             findView(rootView, R.id.card).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    EmojiToast.show(rootView.getContext(),
-                            EmojiUtil.randomEmoji());
-                    // Save system toast frame.
-//                    int frameId = android.R.drawable.toast_frame;
-//                    Bitmap b = BitmapFactory.decodeResource(getResources(), frameId);
-//                    OutputStream fos = null;
-//                    try {
-//                        fos = com.google.common.io.Files.asByteSink(new File(Environment.getExternalStorageDirectory()
-//                                + File.separator + "toast_frame.png")).openStream();
-//                        b.compress(Bitmap.CompressFormat.PNG, 100, fos);
-//
-//
-//                    } catch (IOException ignored) {
-//                    } finally {
-//                        Closer.closeQuietly(fos);
-//                    }
                 }
             });
 

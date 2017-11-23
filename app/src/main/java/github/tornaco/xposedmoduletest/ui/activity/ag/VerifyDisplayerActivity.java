@@ -287,7 +287,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
     private void vibrate() {
         Vibrator vibrator = (Vibrator) VerifyDisplayerActivity.this.getSystemService(VIBRATOR_SERVICE);
         if (vibrator != null) {
-            vibrator.vibrate(200);
+            vibrator.vibrate(new long[]{10, 20, 20}, -1);
         }
     }
 
