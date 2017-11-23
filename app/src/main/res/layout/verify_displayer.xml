@@ -13,13 +13,13 @@
         android:layout_alignParentTop="true"
         android:theme="@style/AppThemeLight.AppBarOverlay">
 
-        <github.tornaco.xposedmoduletest.camera.SoftwareCameraPreview
-            android:id="@+id/surface"
-            android:layout_width="1px"
-            android:layout_height="1px"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:visibility="gone" />
+        <!--<github.tornaco.xposedmoduletest.camera.SoftwareCameraPreview-->
+            <!--android:id="@+id/surface"-->
+            <!--android:layout_width="1px"-->
+            <!--android:layout_height="1px"-->
+            <!--android:layout_alignParentEnd="true"-->
+            <!--android:layout_centerVertical="true"-->
+            <!--android:visibility="gone" />-->
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
