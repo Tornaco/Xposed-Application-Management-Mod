@@ -76,7 +76,6 @@ public class BootAppListAdapter extends RecyclerView.Adapter<BootAppListAdapter.
                 .skipMemoryCache(true)
                 .usingLoader(vangoghAppLoader)
                 .applier(new FadeOutFadeInApplier())
-                .effect(circleImageEffect)
                 .placeHolder(0)
                 .fallback(R.mipmap.ic_launcher_round)
                 .into(holder.getCheckableImageView());

@@ -76,7 +76,6 @@ public class GuardAppListAdapter extends RecyclerView.Adapter<GuardAppListAdapte
                 .applier(new FadeOutFadeInApplier())
                 .placeHolder(0)
                 .fallback(R.mipmap.ic_launcher_round)
-                .effect(circleImageEffect)
                 .into(holder.getCheckableImageView());
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override

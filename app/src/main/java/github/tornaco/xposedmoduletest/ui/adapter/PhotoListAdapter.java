@@ -68,7 +68,6 @@ public class PhotoListAdapter extends RecyclerView.Adapter<PhotoListAdapter.Acce
                 .skipMemoryCache(true)
                 .applier(new ResAnimationApplier(context, R.anim.grow_fade_in))
                 .placeHolder(0)
-                .effect(new CircleImageEffect())
                 .fallback(R.mipmap.ic_launcher_round)
                 .into(holder.imageView);
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {

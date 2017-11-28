@@ -76,7 +76,6 @@ public class LockKillAppListAdapter extends RecyclerView.Adapter<LockKillAppList
                 .skipMemoryCache(true)
                 .usingLoader(vangoghAppLoader)
                 .applier(new FadeOutFadeInApplier())
-                .effect(circleImageEffect)
                 .placeHolder(0)
                 .fallback(R.mipmap.ic_launcher_round)
                 .into(holder.getCheckableImageView());
