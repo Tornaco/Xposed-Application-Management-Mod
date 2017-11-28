@@ -91,7 +91,7 @@ public class AdvancedGuardSettings extends GuardSettingsActivity {
                     });
 
 //            SwitchPreference debugPref = (SwitchPreference) findPreference("dev_mode_enabled");
-//            debugPref.setChecked(XAppGuardManager.singleInstance().isDebug());
+//            debugPref.setChecked(XAppGuardManager.singleInstance().isLoggable());
 //            debugPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
 //                @Override
 //                public boolean onPreferenceChange(Preference preference, Object newValue) {

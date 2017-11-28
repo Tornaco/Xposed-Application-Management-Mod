@@ -17,11 +17,9 @@ public class AppGuardSubModuleManager {
     private final Set<SubModule> SUBS = new HashSet<>();
 
     private AppGuardSubModuleManager() {
-        SUBS.add(new ActivityThreadModule());
-        SUBS.add(new ActivityModule());
+        SUBS.add(new ASFSubModule());
         SUBS.add(new FPSubModule());
         SUBS.add(new ScreenshotApplicationsSubModule());
-        SUBS.add(new PWMSubModule());
         SUBS.add(new PackageInstallerSubModule());
         SUBS.add(new PMSSubModule());
         SUBS.add(new TaskMoverSubModuleDelegate());

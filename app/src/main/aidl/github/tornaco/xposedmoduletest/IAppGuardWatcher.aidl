@@ -4,5 +4,4 @@ package github.tornaco.xposedmoduletest;
 
 interface IAppGuardWatcher {
     void onServiceException(String trace);
-    void onUserLeaving(String reason);
 }

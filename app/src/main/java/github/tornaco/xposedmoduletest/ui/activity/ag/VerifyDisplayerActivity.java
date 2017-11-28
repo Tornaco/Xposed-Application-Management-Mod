@@ -129,14 +129,6 @@ public class VerifyDisplayerActivity extends BaseActivity {
         setupIcon();
         setupLockView();
         setupCamera();
-
-        XAppGuardManager.singleInstance().watch(new XWatcherAdapter() {
-            @Override
-            public void onUserLeaving(String reason) throws RemoteException {
-                super.onUserLeaving(reason);
-                XAppGuardManager.singleInstance().unWatch(this);
-            }
-        });
     }
 
     private void setupIcon() {
@@ -228,9 +220,9 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private void setupCamera() {
         // Setup camera preview.
-        View softwareCameraPreview = findViewById(R.id.surface);
-        if (softwareCameraPreview != null)
-            softwareCameraPreview.setVisibility(mTakePhoto ? View.VISIBLE : View.GONE);
+//        View softwareCameraPreview = findViewById(R.id.surface);
+//        if (softwareCameraPreview != null)
+//            softwareCameraPreview.setVisibility(mTakePhoto ? View.VISIBLE : View.GONE);
     }
 
     private final class ScreenBroadcastReceiver extends BroadcastReceiver {

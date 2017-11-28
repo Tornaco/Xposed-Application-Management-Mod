@@ -30,20 +30,6 @@ public class XWatcherMainThreadAdapter extends XWatcherAdapter {
         });
     }
 
-    @Override
-    public final void onUserLeaving(final String reason) throws RemoteException {
-        super.onUserLeaving(reason);
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                onUserLeavingMainThread(reason);
-            }
-        });
-    }
-
-    protected void onUserLeavingMainThread(String reason) {
-
-    }
 
     protected void onServiceExceptionMainThread(String trace) {
 

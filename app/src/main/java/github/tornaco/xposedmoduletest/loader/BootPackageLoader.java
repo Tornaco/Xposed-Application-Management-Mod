@@ -16,6 +16,7 @@ import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.bean.BootCompletePackage;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
+import github.tornaco.xposedmoduletest.util.PinyinComparator;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
@@ -85,7 +86,7 @@ public interface BootPackageLoader {
 
                 if (!blocked.contains(p)) out.add(p);
             }
-            java.util.Collections.sort(out, new PinyinComparator());
+            java.util.Collections.sort(out, new BootComparator());
 
             return out;
         }
@@ -119,9 +120,9 @@ public interface BootPackageLoader {
         }
     }
 
-    class PinyinComparator implements Comparator<BootCompletePackage> {
+    class BootComparator implements Comparator<BootCompletePackage> {
         public int compare(BootCompletePackage o1, BootCompletePackage o2) {
-            return 1;
+            return new PinyinComparator().compare(o1.getAppName(), o2.getAppName());
         }
     }
 }

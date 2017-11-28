@@ -9,7 +9,7 @@ import android.view.KeyEvent;
 import github.tornaco.apigen.CreateMessageIdWithMethods;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
-import github.tornaco.xposedmoduletest.xposed.util.XLog;
+import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
 import lombok.Getter;
 
 /**
@@ -34,8 +34,6 @@ interface AshManHandler {
     void onScreenOff();
 
     void onScreenOn();
-
-    void onKeyEvent(KeyEvent event);
 
     /**
      * Set the enabled setting for a package component (activity, receiver, service, provider).
@@ -70,6 +68,11 @@ interface AshManHandler {
 
     void notifyStartBlock(String pkg);
 
+    /**
+     * Set policy flags for specific UID.
+     */
+    void setNetworkPolicyUidPolicy(int uid, int policy);
+
     @Getter
     class WatcherClient implements IBinder.DeathRecipient {
 
@@ -96,7 +99,7 @@ interface AshManHandler {
         public void binderDied() {
             alive = false;
             unLinkToDeath();
-            XLog.logF("WatcherClient, binder die...");
+            XPosedLog.wtf("WatcherClient, binder die...");
         }
 
         @Override

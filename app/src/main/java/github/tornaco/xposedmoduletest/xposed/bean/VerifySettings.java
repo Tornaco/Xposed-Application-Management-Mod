@@ -25,12 +25,10 @@ public class VerifySettings implements Parcelable, Cloneable {
     public static final String KEY_SETTINGS = "tornaco.ag_verify";
 
     private boolean verifyOnScreenOff;
-    private boolean verifyOnHome;
     private boolean verifyOnAppSwitch;
 
     protected VerifySettings(Parcel in) {
         verifyOnScreenOff = in.readByte() != 0;
-        verifyOnHome = in.readByte() != 0;
         verifyOnAppSwitch = in.readByte() != 0;
     }
 
@@ -54,7 +52,6 @@ public class VerifySettings implements Parcelable, Cloneable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeByte((byte) (verifyOnScreenOff ? 1 : 0));
-        dest.writeByte((byte) (verifyOnHome ? 1 : 0));
         dest.writeByte((byte) (verifyOnAppSwitch ? 1 : 0));
     }
 

@@ -5,7 +5,7 @@ import android.os.Message;
 import android.util.Log;
 
 import de.robv.android.xposed.XposedBridge;
-import github.tornaco.xposedmoduletest.xposed.util.XLog;
+import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
 
 /**
  * Created by guohao4 on 2017/10/27.
@@ -21,7 +21,7 @@ class XAppGuardServiceImplDev extends XAppGuardServiceImpl {
     @Override
     protected void enforceCallingPermissions() {
         // super.enforceCallingPermissions();
-        XLog.logV("Skip enforce permission on DEV version!");
+        XPosedLog.verbose("Skip enforce permission on DEV version!");
     }
 
     @Override
@@ -55,6 +55,6 @@ class XAppGuardServiceImplDev extends XAppGuardServiceImpl {
                 + String.valueOf(e) + "\n"
                 + Log.getStackTraceString(e);
         XposedBridge.log(logMsg);
-        XLog.logD(logMsg);
+        XPosedLog.debug(logMsg);
     }
 }

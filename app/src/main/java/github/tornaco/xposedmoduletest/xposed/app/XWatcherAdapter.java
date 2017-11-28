@@ -15,8 +15,5 @@ public class XWatcherAdapter extends IAppGuardWatcher.Stub {
 
     }
 
-    @Override
-    public void onUserLeaving(String reason) throws RemoteException {
 
-    }
 }

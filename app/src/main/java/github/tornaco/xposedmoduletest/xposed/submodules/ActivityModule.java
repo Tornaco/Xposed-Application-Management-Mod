@@ -11,23 +11,23 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.xposed.util.XLog;
+import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
 
 /**
  * Created by guohao4 on 2017/11/7.
  * Email: Tornaco@163.com
  */
-
+@Deprecated
 public class ActivityModule extends AppGuardAndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        // XLog.logV("ActivityModule handleLoadingPackage@" + lpparam.packageName);
+        // XPosedLog.verbose("ActivityModule handleLoadingPackage@" + lpparam.packageName);
         hookActivityForApp(lpparam.packageName);
     }
 
     private void hookActivityForApp(final String pkg) {
-//        XLog.logV("hookActivityForApp: " + pkg);
+//        XPosedLog.verbose("hookActivityForApp: " + pkg);
         try {
             Set unHooks = XposedBridge.hookAllMethods(Activity.class, "onResume",
                     new XC_MethodHook() {
@@ -46,9 +46,9 @@ public class ActivityModule extends AppGuardAndroidSubModule {
                     });
             getBridge().publishFeature(XAppGuardManager.Feature.RESUME);
             setStatus(unhooksToStatus(unHooks));
-            // XLog.logV("hookActivityForApp OK:" + unHooks);
+            // XPosedLog.verbose("hookActivityForApp OK:" + unHooks);
         } catch (Throwable e) {
-            XLog.logV("Fail hookActivityForApp: " + pkg + ", error:" + e);
+            XPosedLog.verbose("Fail hookActivityForApp: " + pkg + ", error:" + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

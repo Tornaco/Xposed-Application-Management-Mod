@@ -11,12 +11,12 @@ import com.jaredrummler.android.shell.Shell;
 class ShellCommandExecutor {
 
     public static boolean execute(String command) {
-        XLog.logF("ShellCommandExecutor execute command: " + command);
+        XPosedLog.wtf("ShellCommandExecutor execute command: " + command);
         CommandResult result = Shell.SH.run(command);
-        XLog.logF("STD getStdout: " + result.getStdout());
-        XLog.logF("STD getStderr: " + result.getStderr());
-        XLog.logF("STD isSuccessful: " + result.isSuccessful());
-        XLog.logF("STD exitCode: " + result.exitCode);
+        XPosedLog.wtf("STD getStdout: " + result.getStdout());
+        XPosedLog.wtf("STD getStderr: " + result.getStderr());
+        XPosedLog.wtf("STD isSuccessful: " + result.isSuccessful());
+        XPosedLog.wtf("STD exitCode: " + result.exitCode);
         return result.isSuccessful();
     }
 }

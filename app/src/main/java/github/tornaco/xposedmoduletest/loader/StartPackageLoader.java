@@ -121,7 +121,7 @@ public interface StartPackageLoader {
 
     class PinyinComparator implements Comparator<AutoStartPackage> {
         public int compare(AutoStartPackage o1, AutoStartPackage o2) {
-            return 1;
+            return new github.tornaco.xposedmoduletest.util.PinyinComparator().compare(o1.getAppName(), o2.getAppName());
         }
     }
 }

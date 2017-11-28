@@ -16,7 +16,7 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.util.XBitmapUtil;
-import github.tornaco.xposedmoduletest.xposed.util.XLog;
+import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -33,7 +33,7 @@ public class ScreenshotApplicationsSubModule extends AppGuardAndroidSubModule {
      * @see #onScreenshotApplications(XC_MethodHook.MethodHookParam)
      */
     private void hookScreenshotApplications(XC_LoadPackage.LoadPackageParam lpparam) {
-        XLog.logV("hookScreenshotApplications...");
+        XPosedLog.verbose("hookScreenshotApplications...");
         try {
             Class clz = XposedHelpers.findClass("com.android.server.wm.WindowManagerService",
                     lpparam.classLoader);
@@ -45,15 +45,15 @@ public class ScreenshotApplicationsSubModule extends AppGuardAndroidSubModule {
                             try {
                                 onScreenshotApplications(param);
                             } catch (Exception e) {
-                                XLog.logV("Fail onScreenshotApplications:" + e);
+                                XPosedLog.verbose("Fail onScreenshotApplications:" + e);
                             }
                         }
                     });
-            XLog.logV("hookScreenshotApplications OK:" + unHooks);
+            XPosedLog.verbose("hookScreenshotApplications OK:" + unHooks);
             getBridge().publishFeature(XAppGuardManager.Feature.BLUR);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XLog.logV("Fail hookScreenshotApplications:" + e);
+            XPosedLog.verbose("Fail hookScreenshotApplications:" + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

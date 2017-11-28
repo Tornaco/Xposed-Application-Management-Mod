@@ -14,7 +14,6 @@ import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.provider.XKey;
-import github.tornaco.xposedmoduletest.ui.activity.PhotoViewerActivity;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 
@@ -57,13 +56,13 @@ public class SecureGuardSettings extends GuardSettingsActivity {
                 verifySettings = XAppGuardManager.singleInstance().getVerifySettings();
                 if (verifySettings == null) verifySettings = new VerifySettings();
 
-                final boolean verifyOnHome = verifySettings.isVerifyOnHome();
+                final boolean verifyOnHome = verifySettings.isVerifyOnAppSwitch();
                 SwitchPreference homePref = (SwitchPreference) findPreference("ver_on_home");
                 homePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean v = (boolean) newValue;
-                        verifySettings.setVerifyOnHome(v);
+                        verifySettings.setVerifyOnAppSwitch(v);
                         XAppGuardManager.singleInstance().setVerifySettings(verifySettings);
                         return true;
                     }
@@ -84,23 +83,25 @@ public class SecureGuardSettings extends GuardSettingsActivity {
 
 
                 SwitchPreference photoPref = (SwitchPreference) findPreference(XKey.TAKE_PHOTO_ENABLED);
-                photoPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        SecureGuardSettingsPermissionRequester
-                                .requestCameraPermissionChecked((SecureGuardSettings) getActivity());
-                        return true;
-                    }
-                });
 
-                findPreference("key_view_photos")
-                        .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                            @Override
-                            public boolean onPreferenceClick(Preference preference) {
-                                startActivity(new Intent(getActivity(), PhotoViewerActivity.class));
-                                return true;
-                            }
-                        });
+                if (photoPref != null)
+                    photoPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object newValue) {
+                            SecureGuardSettingsPermissionRequester
+                                    .requestCameraPermissionChecked((SecureGuardSettings) getActivity());
+                            return true;
+                        }
+                    });
+
+//                findPreference("key_view_photos")
+//                        .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+//                            @Override
+//                            public boolean onPreferenceClick(Preference preference) {
+//                                startActivity(new Intent(getActivity(), PhotoViewerActivity.class));
+//                                return true;
+//                            }
+//                        });
 
             } else {
                 getPreferenceScreen().setEnabled(false);

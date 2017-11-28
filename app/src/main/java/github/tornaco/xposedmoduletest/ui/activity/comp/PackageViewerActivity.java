@@ -1,9 +1,11 @@
 package github.tornaco.xposedmoduletest.ui.activity.comp;
 
 import android.view.View;
+import android.widget.TextView;
 
 import java.util.List;
 
+import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.loader.PackageLoader;
 import github.tornaco.xposedmoduletest.ui.activity.ag.GuardAppPickerActivity;
@@ -34,6 +36,14 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
                 });
             }
         };
+    }
+
+    @Override
+    protected void setSummaryView() {
+        super.setSummaryView();
+        TextView textView = findViewById(R.id.summary);
+        textView.setVisibility(View.VISIBLE);
+        textView.setText(R.string.summary_comp_edit);
     }
 
     @Override

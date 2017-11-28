@@ -230,6 +230,7 @@ public class XAppGuardManager {
         }
     }
 
+    @Deprecated
     public void injectHomeEvent() {
         ensureService();
         try {
@@ -258,6 +259,7 @@ public class XAppGuardManager {
         return false;
     }
 
+    @Deprecated
     public void onActivityPackageResume(String pkg) {
         ensureService();
         try {

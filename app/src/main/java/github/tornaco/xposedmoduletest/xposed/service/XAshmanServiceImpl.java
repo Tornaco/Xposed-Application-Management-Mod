@@ -13,6 +13,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.net.NetworkPolicyManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
@@ -23,7 +24,6 @@ import android.os.ServiceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.KeyEvent;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
 
@@ -63,7 +63,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.util.Closer;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
-import github.tornaco.xposedmoduletest.xposed.util.XLog;
+import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -80,6 +80,8 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private static final Set<String> WHITE_LIST = new HashSet<>();
+    // Installed in system/, not contains system-packages and persist packages.
+    private static final Set<String> SYSTEM_APPS = new HashSet<>();
 
     static {
         WHITE_LIST.add("android");
@@ -92,6 +94,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         WHITE_LIST.add("com.cyanogenmod.trebuchet");
         WHITE_LIST.add("de.robv.android.xposed.installer");
         WHITE_LIST.add("android.providers.telephony");
+        WHITE_LIST.add("com.android.smspush");
+        WHITE_LIST.add("com.android.providers.downloads.ui");
+        WHITE_LIST.add("com.android.providers.contacts");
+        WHITE_LIST.add("com.android.providers.media");
+        WHITE_LIST.add("com.android.providers.calendar");
     }
 
     private UUID mSerialUUID = UUID.randomUUID();
@@ -189,8 +196,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     int uid = applicationInfo.uid;
                     String pkg = applicationInfo.packageName;
                     if (TextUtils.isEmpty(pkg)) return;
-                    XLog.logV("Cached pkg:" + pkg + "-" + uid);
+
+                    XPosedLog.verbose("Cached pkg:" + pkg + "-" + uid);
                     mPackagesCache.put(uid, pkg);
+
                     if (isIME(pkg)) {
                         addToWhiteList(pkg);
                     }
@@ -208,15 +217,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void cachePackages() {
-        PackageManager pm = this.getContext().getPackageManager();
+        final PackageManager pm = this.getContext().getPackageManager();
 
         // Retrieve our package first.
         try {
             ApplicationInfo applicationInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID, 0);
             sClientUID = applicationInfo.uid;
-            XLog.logV("sClientUID:" + sClientUID);
+            XPosedLog.verbose("sClientUID:" + sClientUID);
         } catch (PackageManager.NameNotFoundException e) {
-            XLog.logD("Can not get UID for our client:" + e);
+            XPosedLog.debug("Can not get UID for our client:" + e);
         }
 
         try {
@@ -228,13 +237,40 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     String pkg = applicationInfo.packageName;
                     int uid = applicationInfo.uid;
                     if (TextUtils.isEmpty(pkg)) return;
+
+                    // Add system apps to system list.
                     boolean isSystemApp = (applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
                     if (isSystemApp) {
-                        addToWhiteList(pkg);
+
+                        // Check if persist.
+                        boolean isPersist = (applicationInfo.flags & ApplicationInfo.FLAG_PERSISTENT) != 0;
+                        if (isPersist) {
+                            addToWhiteList(pkg);
+                            return;
+                        }
+                        // Check if is system package.
+                        try {
+                            @SuppressLint("PackageManagerGetSignatures") boolean isSystemPackage =
+                                    PkgUtil.isSystemPackage(getContext().getResources(),
+                                            pm,
+                                            pm.getPackageInfo(pkg, PackageManager.GET_SIGNATURES));
+                            if (isSystemPackage) {
+                                XPosedLog.verbose("Adding system package: " + pkg);
+                                addToWhiteList(pkg);
+                                return;
+                            }
+
+                        } catch (Throwable e) {
+                            XPosedLog.wtf("Fail check isSystemPackage: " + Log.getStackTraceString(e));
+                        }
+
+                        addToSystemApps(pkg);
                     }
+
                     if (PkgUtil.isHomeApp(getContext(), pkg)) {
                         addToWhiteList(pkg);
                     }
+
                     if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
                         addToWhiteList(pkg);
                     }
@@ -242,7 +278,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 }
             });
         } catch (Exception ignored) {
-            XLog.logD("Can not get UID for our client:" + ignored);
+            XPosedLog.debug("Can not get UID for our client:" + ignored);
         }
     }
 
@@ -263,13 +299,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
                 BootCompletePackage bootCompletePackage = BootCompletePackageDaoUtil.readEntity(cursor, 0);
-                XLog.logV("Boot pkg reader readEntity of: " + bootCompletePackage);
+                XPosedLog.verbose("Boot pkg reader readEntity of: " + bootCompletePackage);
                 String key = bootCompletePackage.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
                 mBootWhiteListPackages.put(key, bootCompletePackage);
             }
         } catch (Throwable e) {
-            XLog.logF("Fail query boot pkgs:\n" + Log.getStackTraceString(e));
+            XPosedLog.wtf("Fail query boot pkgs:\n" + Log.getStackTraceString(e));
             return new ValueExtra<>(false, String.valueOf(e));
         } finally {
             Closer.closeQuietly(cursor);
@@ -299,7 +335,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 mStartWhiteListPackages.put(key, autoStartPackage);
             }
         } catch (Throwable e) {
-            XLog.logF("Fail query start pkgs:\n" + Log.getStackTraceString(e));
+            XPosedLog.wtf("Fail query start pkgs:\n" + Log.getStackTraceString(e));
             return new ValueExtra<>(false, String.valueOf(e));
         } finally {
             Closer.closeQuietly(cursor);
@@ -325,14 +361,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
                 LockKillPackage lockKillPackage = LockKillPackageDaoUtil.readEntity(cursor, 0);
-                XLog.logV("Lock kill white list pkg reader readEntity of: " + lockKillPackage);
+                XPosedLog.verbose("Lock kill white list pkg reader readEntity of: " + lockKillPackage);
                 String key = lockKillPackage.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
                 mLockKillWhileListPackages.put(key, lockKillPackage);
             }
         } catch (Throwable e) {
-            XLog.logF("Fail query start pkgs:\n" + Log.getStackTraceString(e));
-            XLog.logF("Fail query start pkgs:\n" + Log.getStackTraceString(e));
+            XPosedLog.wtf("Fail query start pkgs:\n" + Log.getStackTraceString(e));
+            XPosedLog.wtf("Fail query start pkgs:\n" + Log.getStackTraceString(e));
         } finally {
             Closer.closeQuietly(cursor);
         }
@@ -361,7 +397,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         }
                     });
         } catch (Exception e) {
-            XLog.logF("Fail registerContentObserver@BootPackageProvider:\n" + Log.getStackTraceString(e));
+            XPosedLog.wtf("Fail registerContentObserver@BootPackageProvider:\n" + Log.getStackTraceString(e));
             return new ValueExtra<>(false, String.valueOf(e));
         }
         return new ValueExtra<>(true, "OK");
@@ -388,7 +424,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         }
                     });
         } catch (Exception e) {
-            XLog.logF("Fail registerContentObserver@AutoStartPackageProvider:\n" + Log.getStackTraceString(e));
+            XPosedLog.wtf("Fail registerContentObserver@AutoStartPackageProvider:\n" + Log.getStackTraceString(e));
             return new ValueExtra<>(false, String.valueOf(e));
         }
         return new ValueExtra<>(true, "OK");
@@ -416,7 +452,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         }
                     });
         } catch (Exception e) {
-            XLog.logF("Fail registerContentObserver@LockKillPackageProvider:\n" + Log.getStackTraceString(e));
+            XPosedLog.wtf("Fail registerContentObserver@LockKillPackageProvider:\n" + Log.getStackTraceString(e));
             return new ValueExtra<>(false, String.valueOf(e));
         }
         return new ValueExtra<>(true, "OK");
@@ -430,7 +466,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         for (InputMethodInfo inputMethodInfo : methodInfos) {
             String pkg = inputMethodInfo.getPackageName();
             addToWhiteList(pkg);
-            XLog.logV("whiteIMEPackages: " + pkg);
+            XPosedLog.verbose("whiteIMEPackages: " + pkg);
         }
     }
 
@@ -455,6 +491,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
+    private static boolean isInSystemAppList(String pkg) {
+        return SYSTEM_APPS.contains(pkg);
+    }
+
+    private synchronized static void addToSystemApps(String pkg) {
+        if (!SYSTEM_APPS.contains(pkg)) {
+            SYSTEM_APPS.add(pkg);
+        }
+    }
+
     private void checkSafeMode() {
         mIsSafeMode = getContext().getPackageManager().isSafeMode();
     }
@@ -467,30 +513,30 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         try {
             boolean bootBlockEnabled = (boolean) SystemSettings.BOOT_BLOCK_ENABLED_B.readFromSystemSettings(getContext());
             mBootBlockEnabled.set(bootBlockEnabled);
-            XLog.logV("bootBlockEnabled: " + String.valueOf(bootBlockEnabled));
+            XPosedLog.verbose("bootBlockEnabled: " + String.valueOf(bootBlockEnabled));
         } catch (Throwable e) {
-            XLog.logF("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XPosedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
         try {
             boolean startBlockEnabled = (boolean) SystemSettings.START_BLOCK_ENABLED_B.readFromSystemSettings(getContext());
             mStartBlockEnabled.set(startBlockEnabled);
-            XLog.logV("startBlockEnabled:" + String.valueOf(startBlockEnabled));
+            XPosedLog.verbose("startBlockEnabled:" + String.valueOf(startBlockEnabled));
         } catch (Throwable e) {
-            XLog.logF("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XPosedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
         try {
             boolean lockKillEnabled = (boolean) SystemSettings.LOCK_KILL_ENABLED_B.readFromSystemSettings(getContext());
             mLockKillEnabled.set(lockKillEnabled);
-            XLog.logV("lockKillEnabled: " + String.valueOf(lockKillEnabled));
+            XPosedLog.verbose("lockKillEnabled: " + String.valueOf(lockKillEnabled));
         } catch (Throwable e) {
-            XLog.logF("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XPosedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
         try {
             mLockKillDelay = (long) SystemSettings.LOCK_KILL_DELAY_L.readFromSystemSettings(getContext());
-            XLog.logV("mLockKillDelay: " + String.valueOf(mLockKillDelay));
+            XPosedLog.verbose("mLockKillDelay: " + String.valueOf(mLockKillDelay));
         } catch (Throwable e) {
-            XLog.logF("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XPosedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
     }
 
@@ -510,7 +556,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         .when(System.currentTimeMillis())
                         .build());
         if (res.logRecommended)
-            XLog.logVOnExecutor("XAshmanService checkService returning: " + res + "for: " +
+            XPosedLog.verboseOn("XAshmanService checkService returning: " + res + "for: " +
                             PkgUtil.loadNameByPkgName(getContext(), appPkg)
                             + ", comp: " + serviceComp,
                     mLoggingService);
@@ -545,10 +591,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.SAME_CALLER;
         }
 
-        if (PkgUtil.isSystemApp(getContext(), servicePkgName)) {
-            return CheckResult.SYSTEM_APP;
-        }
-
         if (PkgUtil.isHomeApp(getContext(), servicePkgName)) {
             return CheckResult.HOME_APP;
         }
@@ -580,7 +622,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         .build());
 
         if (res.logRecommended)
-            XLog.logVOnExecutor("XAshmanService checkBroadcast returning: "
+            XPosedLog.verboseOn("XAshmanService checkBroadcast returning: "
                     + res + " for: "
                     + PkgUtil.loadNameByPkgName(getContext(),
                     mPackagesCache.get(receiverUid))
@@ -637,6 +679,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         h.obtainMessage(AshManHandlerMessages.MSG_UNWATCH, watcherClient).sendToTarget();
     }
 
+    @Override
+    public void setNetworkPolicyUidPolicy(int uid, int policy) throws RemoteException {
+        enforceCallingPermissions();
+        h.obtainMessage(AshManHandlerMessages.MSG_SETNETWORKPOLICYUIDPOLICY, uid, policy).sendToTarget();
+    }
+
     private CheckResult checkBroadcastDetailed(String action, int receiverUid, int callerUid) {
 
         // Check if this is a boot complete action.
@@ -668,10 +716,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         // Broadcast from/to same app is allowed.
         if (callerUid == receiverUid) {
             return CheckResult.SAME_CALLER;
-        }
-
-        if (PkgUtil.isSystemApp(getContext(), receiverPkgName)) {
-            return CheckResult.SYSTEM_APP;
         }
 
         if (PkgUtil.isHomeApp(getContext(), receiverPkgName)) {
@@ -725,10 +769,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (isInWhiteList(receiverPkgName)) {
             return CheckResult.WHITE_LISTED;
-        }
-
-        if (PkgUtil.isSystemApp(getContext(), receiverPkgName)) {
-            return CheckResult.SYSTEM_APP;
         }
 
         if (PkgUtil.isHomeApp(getContext(), receiverPkgName)) {
@@ -821,7 +861,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public void systemReady() {
-        XLog.logF("systemReady@" + getClass().getSimpleName());
+        XPosedLog.wtf("systemReady@" + getClass().getSimpleName());
         // Update system ready, since we can call providers now.
         mIsSystemReady = true;
         checkSafeMode();
@@ -833,7 +873,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             public boolean once() {
                 ValueExtra<Boolean, String> res = loadBootPackageSettings();
                 String extra = res.getExtra();
-                XLog.logV("loadBootPackageSettings, extra: " + extra);
+                XPosedLog.verbose("loadBootPackageSettings, extra: " + extra);
                 return res.getValue();
             }
         }, new Runnable() {
@@ -843,7 +883,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     @Override
                     public boolean once() {
                         ValueExtra<Boolean, String> res = registerBootPackageObserver();
-                        XLog.logV("registerBootPackageObserver, extra: " + res.getExtra());
+                        XPosedLog.verbose("registerBootPackageObserver, extra: " + res.getExtra());
                         return res.getValue();
                     }
                 });
@@ -855,7 +895,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             public boolean once() {
                 ValueExtra<Boolean, String> res = loadStartPackageSettings();
                 String extra = res.getExtra();
-                XLog.logV("loadStartPackageSettings, extra: " + extra);
+                XPosedLog.verbose("loadStartPackageSettings, extra: " + extra);
                 return res.getValue();
             }
         }, new Runnable() {
@@ -865,7 +905,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     @Override
                     public boolean once() {
                         ValueExtra<Boolean, String> res = registerStartPackageObserver();
-                        XLog.logV("registerStartPackageObserver, extra: " + res.getExtra());
+                        XPosedLog.verbose("registerStartPackageObserver, extra: " + res.getExtra());
                         return res.getValue();
                     }
                 });
@@ -877,7 +917,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             public boolean once() {
                 ValueExtra<Boolean, String> res = loadLockKillPackageSettings();
                 String extra = res.getExtra();
-                XLog.logV("loadLockKillPackageSettings, extra: " + extra);
+                XPosedLog.verbose("loadLockKillPackageSettings, extra: " + extra);
                 return res.getValue();
             }
         }, new Runnable() {
@@ -887,7 +927,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     @Override
                     public boolean once() {
                         ValueExtra<Boolean, String> res = registerLKPackageObserver();
-                        XLog.logV("registerLKPackageObserver, extra: " + res.getExtra());
+                        XPosedLog.verbose("registerLKPackageObserver, extra: " + res.getExtra());
                         return res.getValue();
                     }
                 });
@@ -897,7 +937,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public void retrieveSettings() {
-        XLog.logF("retrieveSettings@" + getClass().getSimpleName());
+        XPosedLog.wtf("retrieveSettings@" + getClass().getSimpleName());
         getConfigFromSettings();
         cachePackages();
         whiteIMEPackages();
@@ -905,7 +945,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private void construct() {
         h = onCreateServiceHandler();
-        XLog.logV("construct, h: " + h + " -" + serial());
+        XPosedLog.verbose("construct, h: " + h + " -" + serial());
     }
 
     protected Handler onCreateServiceHandler() {
@@ -922,9 +962,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void onKeyEvent(KeyEvent event) {
-        h.removeMessages(AshManHandlerMessages.MSG_ONKEYEVENT);
-        h.obtainMessage(AshManHandlerMessages.MSG_ONKEYEVENT, event).sendToTarget();
+    public void onPackageMoveToFront(String who) {
+
     }
 
     @Override
@@ -1019,6 +1058,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 }
             });
 
+            // Dump System list.
+            fout.println("System list: ");
+            Object[] systemListObjects = SYSTEM_APPS.toArray();
+            Collections.consumeRemaining(systemListObjects, new Consumer<Object>() {
+                @Override
+                public void accept(Object o) {
+                    fout.println(o);
+                }
+            });
+
             // Dump boot list.
             fout.println("Boot list: ");
             Object[] bootListObjects = mBootWhiteListPackages.values().toArray();
@@ -1069,7 +1118,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     protected void enforceCallingPermissions() {
         int callingUID = Binder.getCallingUid();
-        XLog.logV("enforceCallingPermissions@uid:" + callingUID);
+        XPosedLog.verbose("enforceCallingPermissions@uid:" + callingUID);
         if (callingUID == android.os.Process.myUid() || (sClientUID > 0 && sClientUID == callingUID)) {
             return;
         }
@@ -1101,7 +1150,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         @Override
         public void handleMessage(Message msg) {
-            XLog.logV("handleMessage: " + AshManHandlerMessages.decodeMessage(msg.what));
+            XPosedLog.verbose("handleMessage: " + AshManHandlerMessages.decodeMessage(msg.what));
             super.handleMessage(msg);
             switch (msg.what) {
                 case AshManHandlerMessages.MSG_CLEARPROCESS:
@@ -1141,8 +1190,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_NOTIFYSTARTBLOCK:
                     HandlerImpl.this.notifyStartBlock((String) msg.obj);
                     break;
-                case AshManHandlerMessages.MSG_ONKEYEVENT:
-                    HandlerImpl.this.onKeyEvent((KeyEvent) msg.obj);
+                case AshManHandlerMessages.MSG_SETNETWORKPOLICYUIDPOLICY:
+                    HandlerImpl.this.setNetworkPolicyUidPolicy(msg.arg1, msg.arg2);
                     break;
             }
         }
@@ -1200,7 +1249,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
                         // Check if canceled.
                         if (power != null && power.isInteractive()) {
-                            XLog.logF("isInteractive, skip clearing");
+                            XPosedLog.wtf("isInteractive, skip clearing");
                             return cleared;
                         }
 
@@ -1224,7 +1273,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             } catch (RemoteException ignored) {
 
                             }
-                            // XLog.logV("App is in white-listed, wont kill: " + runningPackageName);
+                            // XPosedLog.verbose("App is in white-listed, wont kill: " + runningPackageName);
                             continue;
                         }
                         if (PkgUtil.isAppRunningForeground(getContext(), runningPackageName)) {
@@ -1235,7 +1284,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
                             }
 
-                            XLog.logV("App is in foreground, wont kill: " + runningPackageName);
+                            XPosedLog.verbose("App is in foreground, wont kill: " + runningPackageName);
                             continue;
                         }
                         if (PkgUtil.isHomeApp(getContext(), runningPackageName)) {
@@ -1246,7 +1295,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
                             }
 
-                            XLog.logV("App is in isHomeApp, wont kill: " + runningPackageName);
+                            XPosedLog.verbose("App is in isHomeApp, wont kill: " + runningPackageName);
                             continue;
                         }
                         if (PkgUtil.isDefaultSmsApp(getContext(), runningPackageName)) {
@@ -1257,7 +1306,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
                             }
 
-                            XLog.logV("App is in isDefaultSmsApp, wont kill: " + runningPackageName);
+                            XPosedLog.verbose("App is in isDefaultSmsApp, wont kill: " + runningPackageName);
                             continue;
                         }
 
@@ -1269,13 +1318,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
                         // Clearing using kill command.
                         if (power != null && power.isInteractive()) {
-                            XLog.logF("isInteractive, skip clearing");
+                            XPosedLog.wtf("isInteractive, skip clearing");
                             return cleared;
                         }
                         PkgUtil.kill(getContext(), runningAppProcessInfo);
 
                         cleared[i] = runningPackageName;
-                        XLog.logV("Force stopped: " + runningPackageName);
+                        XPosedLog.verbose("Force stopped: " + runningPackageName);
 
                         if (listener != null) try {
                             listener.onClearedPkg(runningPackageName);
@@ -1313,7 +1362,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setLockKillDelay(long delay) {
             mLockKillDelay = delay;
             SystemSettings.LOCK_KILL_DELAY_L.writeToSystemSettings(getContext(), delay);
-            XLog.logV("setLockKillDelay to: " + mLockKillDelay);
+            XPosedLog.verbose("setLockKillDelay to: " + mLockKillDelay);
         }
 
         @Override
@@ -1329,15 +1378,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             cancelProcessClearing("SCREEN ON");
         }
 
-        @Override
-        public void onKeyEvent(KeyEvent event) {
-            if (event.getKeyCode() == KeyEvent.KEYCODE_POWER && event.getAction() == KeyEvent.ACTION_UP) {
-                cancelProcessClearing("POWER KEY");
-            }
-        }
-
         private void cancelProcessClearing(String why) {
-            XLog.logV("cancelProcessClearing: " + why);
+            XPosedLog.verbose("cancelProcessClearing: " + why);
             removeCallbacks(clearProcessRunnable);
         }
 
@@ -1389,6 +1431,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             };
             mWorkingService.execute(r);
         }
+
+        @Override
+        public void setNetworkPolicyUidPolicy(int uid, int policy) {
+            NetworkPolicyManager.from(getContext()).setUidPolicy(uid, policy);
+        }
     }
 
     @Builder
@@ -1437,6 +1484,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public static final CheckResult BROADCAST_CHECK_DISABLED = new CheckResult(true, "BROADCAST_CHECK_DISABLED", false);
 
         public static final CheckResult WHITE_LISTED = new CheckResult(true, "WHITE_LISTED", false);
+
         public static final CheckResult SYSTEM_APP = new CheckResult(true, "SYSTEM_APP", false);
         public static final CheckResult HOME_APP = new CheckResult(true, "HOME_APP", true);
         public static final CheckResult LAUNCHER_APP = new CheckResult(true, "LAUNCHER_APP", true);

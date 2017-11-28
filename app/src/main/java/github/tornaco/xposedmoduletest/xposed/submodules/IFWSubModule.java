@@ -10,7 +10,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.util.XLog;
+import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
 
 /**
  * Created by guohao4 on 2017/11/9.
@@ -24,7 +24,7 @@ public class IFWSubModule extends IntentFirewallAndroidSubModule {
     }
 
     private void hookIntentFireWall(XC_LoadPackage.LoadPackageParam lpparam) {
-        XLog.logV("hookIntentFireWall...");
+        XPosedLog.verbose("hookIntentFireWall...");
         try {
             Class ams = XposedHelpers.findClass("com.android.server.firewall.IntentFirewall",
                     lpparam.classLoader);
@@ -49,11 +49,11 @@ public class IFWSubModule extends IntentFirewallAndroidSubModule {
                     param.setResult(getIntentFirewallBridge().checkBroadcast(action, recUid, callerUid));
                 }
             });
-            XLog.logV("hookIntentFireWall OK:" + unHooks);
+            XPosedLog.verbose("hookIntentFireWall OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
             setStatus(unhooksToStatus(unHooks2));
         } catch (Exception e) {
-            XLog.logV("Fail hook hookIntentFireWall");
+            XPosedLog.verbose("Fail hook hookIntentFireWall");
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

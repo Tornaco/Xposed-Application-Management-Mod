@@ -219,4 +219,13 @@ public class XAshmanManager {
             Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
+
+    public void setNetworkPolicyUidPolicy(int uid, int policy) {
+        ensureService();
+        try {
+            mService.setNetworkPolicyUidPolicy(uid, policy);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
 }

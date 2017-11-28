@@ -1,7 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -22,7 +21,6 @@ import android.os.ServiceManager;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 
 import com.google.common.base.Preconditions;
 
@@ -54,7 +52,7 @@ import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.submodules.AppGuardSubModuleManager;
 import github.tornaco.xposedmoduletest.xposed.submodules.SubModule;
 import github.tornaco.xposedmoduletest.xposed.util.Closer;
-import github.tornaco.xposedmoduletest.xposed.util.XLog;
+import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
 import lombok.Synchronized;
 
 import static github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager.Feature.FEATURE_COUNT;
@@ -146,12 +144,12 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Override
     public void publish() {
         try {
-            XLog.logD("published by uid: " + Binder.getCallingUid());
+            XPosedLog.debug("published by uid: " + Binder.getCallingUid());
             construct();
             ServiceManager.addService(XAppGuardManager.APP_GUARD_SERVICE, asBinder());
             publishFeature(XAppGuardManager.Feature.BASE);
         } catch (Exception e) {
-            XLog.logD("*** FATAL*** Fail publish our svc:" + e);
+            XPosedLog.debug("*** FATAL*** Fail publish our svc:" + e);
         }
     }
 
@@ -161,7 +159,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     private void construct() {
         mServiceHandler = onCreateServiceHandler();
-        XLog.logV("construct, mServiceHandler: " + mServiceHandler + " -" + serial());
+        XPosedLog.verbose("construct, mServiceHandler: " + mServiceHandler + " -" + serial());
     }
 
     protected Handler onCreateServiceHandler() {
@@ -170,7 +168,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @Override
     public void systemReady() {
-        XLog.logF("systemReady@" + getClass().getSimpleName());
+        XPosedLog.wtf("systemReady@" + getClass().getSimpleName());
         checkSafeMode();
         cacheUIDForPackages();
 
@@ -180,7 +178,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             public boolean once() {
                 ValueExtra<Boolean, String> res = readPackageProvider();
                 String extra = res.getExtra();
-                XLog.logV("readPackageProvider, extra: " + extra);
+                XPosedLog.verbose("readPackageProvider, extra: " + extra);
                 return res.getValue();
             }
         }, new Runnable() {
@@ -190,7 +188,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                     @Override
                     public boolean once() {
                         ValueExtra<Boolean, String> res = registerPackageObserver();
-                        XLog.logV("registerPackageObserver, extra: " + res.getExtra());
+                        XPosedLog.verbose("registerPackageObserver, extra: " + res.getExtra());
                         return res.getValue();
                     }
                 });
@@ -202,7 +200,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @Override
     public void retrieveSettings() {
-        XLog.logF("retrieveSettings@" + getClass().getSimpleName());
+        XPosedLog.wtf("retrieveSettings@" + getClass().getSimpleName());
         getConfigFromSettings();
     }
 
@@ -216,26 +214,27 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
             boolean debug = (boolean) SystemSettings.APP_GUARD_DEBUG_MODE_B.readFromSystemSettings(getContext());
             mDebugEnabled.set(debug);
-            XLog.setDebug(debug);
 
             ContentResolver resolver = getContext().getContentResolver();
             if (resolver == null) return;
             mBlurSettings = BlurSettings.from(Settings.System.getString(resolver, BlurSettings.KEY_SETTINGS));
             mVerifySettings = VerifySettings.from(Settings.System.getString(resolver, VerifySettings.KEY_SETTINGS));
 
-            XLog.logV(String.valueOf(mBlurSettings));
-            XLog.logV(String.valueOf(mVerifySettings));
-            XLog.logV(String.valueOf(mEnabled));
+            XPosedLog.verbose(String.valueOf(mBlurSettings));
+            XPosedLog.verbose(String.valueOf(mVerifySettings));
+            XPosedLog.verbose(String.valueOf(mEnabled));
         } catch (Throwable e) {
-            XLog.logF("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XPosedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
     }
 
     private void registerReceiver() {
-        getContext().registerReceiver(mScreenReceiver,
-                new IntentFilter(Intent.ACTION_SCREEN_OFF));
-
         IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        intentFilter.addAction(Intent.ACTION_USER_PRESENT);
+        getContext().registerReceiver(mScreenReceiver, intentFilter);
+
+        intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
         intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
@@ -294,7 +293,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                         }
                     });
         } catch (Exception e) {
-            XLog.logF("Fail registerContentObserver@AppGuardPackageProvider:\n" + Log.getStackTraceString(e));
+            XPosedLog.wtf("Fail registerContentObserver@AppGuardPackageProvider:\n" + Log.getStackTraceString(e));
             return new ValueExtra<>(false, String.valueOf(e));
         }
         return new ValueExtra<>(true, "OK");
@@ -306,7 +305,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             ApplicationInfo applicationInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID, 0);
             sClientUID = applicationInfo.uid;
         } catch (Exception ignored) {
-            XLog.logD("Can not get UID for our client:" + ignored);
+            XPosedLog.debug("Can not get UID for our client:" + ignored);
         }
     }
 
@@ -320,19 +319,19 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @Override
     public void shutdown() {
-        XLog.logD("shutdown...");
+        XPosedLog.debug("shutdown...");
     }
 
     @Override
     public boolean interruptPackageRemoval(String pkg) {
         boolean enabled = isUninstallInterruptEnabled();
         if (!enabled) {
-            XLog.logV("interruptPackageRemoval false: not enabled.");
+            XPosedLog.verbose("interruptPackageRemoval false: not enabled.");
             return false;
         }
         boolean confirm = onInterruptConfirm(pkg);
         if (!confirm) {
-            XLog.logV("interruptPackageRemoval false: not confirmed.");
+            XPosedLog.verbose("interruptPackageRemoval false: not confirmed.");
             return false;
         }
         return true;
@@ -346,29 +345,29 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     private boolean onInterruptConfirm(String pkg) {
         if (pkg == null) {
-            XLog.logV("onEarlyVerifyConfirm, false@pkg-null");
+            XPosedLog.verbose("onEarlyVerifyConfirm, false@pkg-null");
             return false;
         }
         if (mIsSafeMode) {
-            XLog.logV("onEarlyVerifyConfirm, false@safe-mode:" + pkg);
+            XPosedLog.verbose("onEarlyVerifyConfirm, false@safe-mode:" + pkg);
             return false;
         }
         if (!mEnabled.get()) {
-            XLog.logV("onEarlyVerifyConfirm, false@disabled:" + pkg);
+            XPosedLog.verbose("onEarlyVerifyConfirm, false@disabled:" + pkg);
             return false;
         }
         if (PREBUILT_WHITE_LIST.contains(pkg)) {
-            XLog.logV("onEarlyVerifyConfirm, false@prebuilt-w-list:" + pkg);
+            XPosedLog.verbose("onEarlyVerifyConfirm, false@prebuilt-w-list:" + pkg);
             return false;
         } // White list.
 
         PackageInfo p = mGuardPackages.get(pkg);
         if (p == null) {
-            XLog.logV("onEarlyVerifyConfirm, false@not-in-guard-list:" + pkg);
+            XPosedLog.verbose("onEarlyVerifyConfirm, false@not-in-guard-list:" + pkg);
             return false;
         }
         if (!p.getGuard()) {
-            XLog.logV("onEarlyVerifyConfirm, false@not-in-guard-value-list:" + pkg);
+            XPosedLog.verbose("onEarlyVerifyConfirm, false@not-in-guard-value-list:" + pkg);
             return false;
         }
 
@@ -378,33 +377,33 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Override
     public boolean onEarlyVerifyConfirm(String pkg) {
         if (pkg == null) {
-            XLog.logV("onEarlyVerifyConfirm, false@pkg-null");
+            XPosedLog.verbose("onEarlyVerifyConfirm, false@pkg-null");
             return false;
         }
         if (mIsSafeMode) {
-            XLog.logV("onEarlyVerifyConfirm, false@safe-mode:" + pkg);
+            XPosedLog.verbose("onEarlyVerifyConfirm, false@safe-mode:" + pkg);
             return false;
         }
         if (!mEnabled.get()) {
-            XLog.logV("onEarlyVerifyConfirm, false@disabled:" + pkg);
+            XPosedLog.verbose("onEarlyVerifyConfirm, false@disabled:" + pkg);
             return false;
         }
         if (PREBUILT_WHITE_LIST.contains(pkg)) {
-            XLog.logV("onEarlyVerifyConfirm, false@prebuilt-w-list:" + pkg);
+            XPosedLog.verbose("onEarlyVerifyConfirm, false@prebuilt-w-list:" + pkg);
             return false;
         } // White list.
 
         if (mVerifiedPackages.contains(pkg)) {
-            XLog.logV("onEarlyVerifyConfirm, false@verified-list:" + pkg);
+            XPosedLog.verbose("onEarlyVerifyConfirm, false@verified-list:" + pkg);
             return false;
         } // Passed.
         PackageInfo p = mGuardPackages.get(pkg);
         if (p == null) {
-            XLog.logV("onEarlyVerifyConfirm, false@not-in-guard-list:" + pkg);
+            XPosedLog.verbose("onEarlyVerifyConfirm, false@not-in-guard-list:" + pkg);
             return false;
         }
         if (!p.getGuard()) {
-            XLog.logV("onEarlyVerifyConfirm, false@not-in-guard-value-list:" + pkg);
+            XPosedLog.verbose("onEarlyVerifyConfirm, false@not-in-guard-value-list:" + pkg);
             return false;
         }
 
@@ -419,10 +418,10 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     private void verifyInternal(Bundle options, String pkg, int uid, int pid,
                                 boolean injectHomeOnFail, VerifyListener listener) {
         if (mServiceHandler == null) {
-            XLog.logF("WTF? AppGuardServiceHandler is null?");
+            XPosedLog.wtf("WTF? AppGuardServiceHandler is null?");
             return;
         }
-        XLog.logV("verifyInternal: " + pkg);
+        XPosedLog.verbose("verifyInternal: " + pkg);
         VerifyArgs args = VerifyArgs.builder()
                 .bnds(options)
                 .pid(pid)
@@ -434,20 +433,19 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_VERIFY, args).sendToTarget();
     }
 
+
     @Override
-    public void onKeyEvent(KeyEvent event) {
-        mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_ONKEYEVENT, event).sendToTarget();
+    @BinderCall(restrict = "hooks")
+    public void onPackageMoveToFront(String who) {
+        if (BuildConfig.APPLICATION_ID.equals(who)) return;
+        XPosedLog.verbose("onPackageMoveToFront: " + who);
+        onActivityPackageResume(who);
     }
 
     @Override
     @BinderCall(restrict = "anyone")
-    public void onActivityPackageResume(String pkg) throws RemoteException {
-        if (mServiceHandler == null) {
-            XLog.logV("mServiceHandler@" + serial() + " : " + mServiceHandler);
-            XLog.logV("onActivityPackageResume caller:" + Binder.getCallingUid());
-            XLog.logF("WTF? AppGuardServiceHandler is null @onActivityPackageResume-" + serial());
-            return;
-        }
+    public void onActivityPackageResume(String pkg) {
+        if (mServiceHandler == null) return;
         mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_ONACTIVITYPACKAGERESUME, pkg).sendToTarget();
     }
 
@@ -489,12 +487,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             Binder.restoreCallingIdentity(id);
         }
         return status.getData();
-    }
-
-    @Override
-    @Deprecated
-    public void onActivityResume(Activity activity) {
-        throw new IllegalStateException("demerited");
     }
 
     @Override
@@ -600,7 +592,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Override
     @BinderCall
     public void watch(IAppGuardWatcher w) throws RemoteException {
-        XLog.logD("iWatcher.watch-" + w);
+        XPosedLog.debug("iWatcher.watch-" + w);
         enforceCallingPermissions();
         mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_WATCH, w).sendToTarget();
     }
@@ -608,7 +600,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Override
     @BinderCall
     public void unWatch(IAppGuardWatcher w) throws RemoteException {
-        XLog.logD("iWatcher.unWatch-" + w);
+        XPosedLog.debug("iWatcher.unWatch-" + w);
         mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_UNWATCH, w).sendToTarget();
     }
 
@@ -627,9 +619,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     @Override
+    @Deprecated
     public void injectHomeEvent() throws RemoteException {
-        enforceCallingPermissions();
-        mServiceHandler.sendEmptyMessage(AppGuardServiceHandlerMessages.MSG_INJECTHOMEEVENT);
+        throw new IllegalStateException("injectHomeEvent is Deprecated api");
     }
 
     @Override
@@ -646,7 +638,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     protected void enforceCallingPermissions() {
         int callingUID = Binder.getCallingUid();
-        XLog.logV("enforceCallingPermissions@uid:" + callingUID);
+        XPosedLog.verbose("enforceCallingPermissions@uid:" + callingUID);
         if (callingUID == android.os.Process.myUid() || (sClientUID > 0 && sClientUID == callingUID)) {
             return;
         }
@@ -658,14 +650,14 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         if (mVerifySettings != null) {
             boolean verifyOnScreenOff = mVerifySettings.isVerifyOnScreenOff();
             if (verifyOnScreenOff) {
-                XLog.logV("SCREEN OFF, Clearing passed pkgs...");
+                XPosedLog.verbose("SCREEN OFF, Clearing passed pkgs...");
                 mVerifiedPackages.clear();
             }
         }
     }
 
     private void onUserPresent() {
-        XLog.logV("onUserPresent");
+        mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_ONUSERPRESENT).sendToTarget();
     }
 
     private static Intent buildVerifyIntent(boolean injectHome, int transId, String pkg) {
@@ -697,7 +689,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             int wht = msg.what;
-            XLog.logV("handleMessage@" + AppGuardServiceHandlerMessages.decodeMessage(wht));
+            XPosedLog.verbose("handleMessage@" + AppGuardServiceHandlerMessages.decodeMessage(wht));
             switch (wht) {
                 case AppGuardServiceHandlerMessages.MSG_SETENABLED:
                     AppGuardServiceHandlerImpl.this.setEnabled(msg.arg1 == 1);
@@ -726,20 +718,14 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 case AppGuardServiceHandlerMessages.MSG_VERIFY:
                     AppGuardServiceHandlerImpl.this.verify((VerifyArgs) msg.obj);
                     break;
-                case AppGuardServiceHandlerMessages.MSG_ONKEYEVENT:
-                    AppGuardServiceHandlerImpl.this.onKeyEvent((KeyEvent) msg.obj);
-                    break;
-                case AppGuardServiceHandlerMessages.MSG_INJECTHOMEEVENT:
-                    AppGuardServiceHandlerImpl.this.injectHomeEvent();
-                    break;
                 case AppGuardServiceHandlerMessages.MSG_SETDEBUG:
                     AppGuardServiceHandlerImpl.this.setDebug((Boolean) msg.obj);
                     break;
-                case AppGuardServiceHandlerMessages.MSG_ONACTIVITYRESUME:
-                    AppGuardServiceHandlerImpl.this.onActivityResume((Activity) msg.obj);
-                    break;
                 case AppGuardServiceHandlerMessages.MSG_ONACTIVITYPACKAGERESUME:
-                    onActivityPackageResume((String) msg.obj);
+                    AppGuardServiceHandlerImpl.this.onActivityPackageResume((String) msg.obj);
+                    break;
+                case AppGuardServiceHandlerMessages.MSG_ONUSERPRESENT:
+                    AppGuardServiceHandlerImpl.this.onUserPresent();
                     break;
                 default:
                     AppGuardServiceHandlerImpl.this.setResult((Integer) msg.obj,
@@ -794,7 +780,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         public void setResult(int transactionID, int res) {
             Transaction transaction = mTransactionMap.remove(transactionID);
             if (transaction == null) {
-                XLog.logD("Can not find transaction for:" + transactionID);
+                XPosedLog.debug("Can not find transaction for:" + transactionID);
                 return;
             }
             if (res == XAppVerifyMode.MODE_ALLOWED) {
@@ -806,7 +792,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
         @Override
         public void verify(VerifyArgs args) {
-            XLog.logD("onVerify:" + args);
+            XPosedLog.debug("onVerify:" + args);
             int tid = TransactionFactory.transactionID();
             int uid = args.uid;
             int pid = args.pid;
@@ -827,7 +813,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             try {
                 getContext().startActivity(intent, bnds);
             } catch (ActivityNotFoundException anf) {
-                XLog.logD("*** FATAL ERROR *** ActivityNotFoundException!!!");
+                XPosedLog.debug("*** FATAL ERROR *** ActivityNotFoundException!!!");
                 setResult(tid, XAppVerifyMode.MODE_ALLOWED);
             }
         }
@@ -842,7 +828,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             synchronized (mWatchers) { //FIXME Link to death~~~
                 if (!mWatchers.contains(w)) {
                     mWatchers.add(w);
-                    XLog.logD("iWatcher.watch-OK " + w);
+                    XPosedLog.debug("iWatcher.watch-OK " + w);
                 }
             }
         }
@@ -854,34 +840,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             synchronized (mWatchers) { //FIXME Link to death~~~
                 if (mWatchers.contains(w)) {
                     mWatchers.remove(w);
-                    XLog.logD("iWatcher.unWatch-OK " + w);
+                    XPosedLog.debug("iWatcher.unWatch-OK " + w);
                 }
             }
-        }
-
-        private void notifyWatcherUserLeaving(final String reason) {
-            XLog.logV("notifyWatcherUserLeaving:" + reason);
-            mWorkingService.execute(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized (mWatchers) {
-                        Collections.consumeRemaining(mWatchers, new Consumer<IAppGuardWatcher>() {
-                            @Override
-                            public void accept(final IAppGuardWatcher iWatcher) {
-                                try {
-                                    iWatcher.onUserLeaving(reason);
-                                    XLog.logD("iWatcher.onKeyEvent-" + reason);
-                                } catch (Throwable ignored) {
-                                }
-
-                            }
-                        });
-
-                        // FIXME. FFFFFF?
-                        mWatchers.clear();
-                    }
-                }
-            });
         }
 
         @Override
@@ -889,60 +850,41 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             throw new IllegalStateException("Let's CRASH, bye bye you...");
         }
 
-        @Override
-        public void onKeyEvent(KeyEvent keyEvent) {
-            if (keyEvent.getAction() == KeyEvent.ACTION_UP
-                    && (keyEvent.getKeyCode() == KeyEvent.KEYCODE_HOME
-                    || keyEvent.getKeyCode() == KeyEvent.KEYCODE_APP_SWITCH)) {
-                onHomeOrRecent();
-            }
-            if (keyEvent.getAction() == KeyEvent.ACTION_UP
-                    && (keyEvent.getKeyCode() == KeyEvent.KEYCODE_POWER)) {
-                onPowerKey();
-            }
-        }
-
-        @Override
-        public void injectHomeEvent() {
-            KeyEventSender.injectHomeKey();
-        }
 
         @Override
         public void setDebug(boolean debug) {
             if (mDebugEnabled.compareAndSet(!debug, debug)) {
                 SystemSettings.APP_GUARD_DEBUG_MODE_B.writeToSystemSettings(getContext(), debug);
             }
-            XLog.setDebug(debug);
-        }
-
-        @Override
-        @Deprecated
-        public void onActivityResume(Activity activity) {
-            XLog.logV("onActivityResume: " + activity);
-            onActivityPackageResume(activity.getPackageName());
         }
 
         @Override
         public void onActivityPackageResume(String pkg) {
-            XLog.logV("onPkgResume: " + pkg);
+            onAppSwitchedTo(pkg);
             mTopActivityPkg.setData(pkg);
+        }
+
+        @Override
+        public void onUserPresent() {
+            String pkg = mTopActivityPkg.getData();
+            if (pkg == null) {
+                return;
+            }
             if (!onEarlyVerifyConfirm(pkg)) {
                 return;
             }
             verifyInternal(null, pkg, 0, 0, true, VerifyListenerAdapter.getDefault());
         }
 
-        private void onPowerKey() {
-        }
-
-        private void onHomeOrRecent() {
-            notifyWatcherUserLeaving("Home");
-
+        /**
+         * @param who Only Keep the switched package.
+         */
+        private void onAppSwitchedTo(String who) {
             if (mVerifySettings != null) {
-                boolean clearOnHome = mVerifySettings.isVerifyOnHome();
-                if (clearOnHome) {
-                    XLog.logV("onHomeOrRecent, clearing...");
+                boolean clearOnAppSwitch = mVerifySettings.isVerifyOnAppSwitch();
+                if (clearOnAppSwitch) {
                     mVerifiedPackages.clear();
+                    mVerifiedPackages.add(who);
                 }
             }
         }

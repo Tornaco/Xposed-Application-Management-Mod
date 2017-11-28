@@ -1,14 +1,20 @@
 package github.tornaco.xposedmoduletest.xposed.util;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.pm.Signature;
+import android.content.res.Resources;
 import android.os.Binder;
+import android.os.Build;
 import android.os.UserHandle;
+import android.print.PrintManager;
 import android.provider.Telephony;
 
 import java.util.List;
@@ -69,6 +75,20 @@ public class PkgUtil {
         return null;
     }
 
+    public static int uidForPkg(Context context, String pkg) {
+        PackageManager pm = context.getPackageManager();
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                return pm.getApplicationInfo(pkg, PackageManager.MATCH_UNINSTALLED_PACKAGES).uid;
+            } else {
+                return pm.getApplicationInfo(pkg, PackageManager.GET_UNINSTALLED_PACKAGES).uid;
+            }
+        } catch (Exception ignored) {
+
+        }
+        return -1;
+    }
+
     public static boolean isSystemApp(Context context, int uid) {
         return uid <= 1000
                 || isSystemApp(context, pkgForUid(context, uid));
@@ -115,10 +135,10 @@ public class PkgUtil {
                         .getRunningAppProcesses();
         int count = processes == null ? 0 : processes.size();
         for (int i = 0; i < count; i++) {
-//            XLog.logV("runningPackageName====================");
-//            XLog.logV("runningPackageName: " + processes.get(i).processName);
-//            XLog.logV("runningPackageName-pkgs: " + Arrays.toString(processes.get(i).pkgList));
-//            XLog.logV("runningPackageName====================");
+//            XPosedLog.verbose("runningPackageName====================");
+//            XPosedLog.verbose("runningPackageName: " + processes.get(i).processName);
+//            XPosedLog.verbose("runningPackageName-pkgs: " + Arrays.toString(processes.get(i).pkgList));
+//            XPosedLog.verbose("runningPackageName====================");
             for (String runningPackageName : processes.get(i).pkgList) {
                 if (runningPackageName != null && runningPackageName.equals(pkg)) {
                     return true;
@@ -150,7 +170,6 @@ public class PkgUtil {
         return null;
     }
 
-
     public static boolean isAppRunningForeground(Context context, String pkg) {
         return pkg != null && pkg.equals(getFirstTask(context));
     }
@@ -168,10 +187,8 @@ public class PkgUtil {
     }
 
     public static void kill(Context context, ActivityManager.RunningAppProcessInfo runningAppProcessInfo) {
-        XLog.logV("kill: " + runningAppProcessInfo);
         // Process.sendSignalQuiet(runningAppProcessInfo.pid, Process.SIGNAL_KILL);
         if (runningAppProcessInfo.pkgList == null || runningAppProcessInfo.pkgList.length < 1) {
-            XLog.logF("Invalid package for: " + runningAppProcessInfo);
             return;
         }
         try {
@@ -179,10 +196,84 @@ public class PkgUtil {
             ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
             if (am != null) {
                 am.forceStopPackage(pkg);
-                XLog.logF("Force stopped: " + pkg);
             }
-        } catch (Exception e) {
-            XLog.logF("Fail force-stop: " + e);
+        } catch (Exception ignored) {
+        }
+    }
+
+
+    /**
+     * Determine whether a package is a "system package", in which case certain things (like
+     * disabling notifications or disabling the package altogether) should be disallowed.
+     */
+
+    private static Signature[] sSystemSignature;
+    private static String sPermissionControllerPackageName;
+    private static String sServicesSystemSharedLibPackageName;
+    private static String sSharedSystemSharedLibPackageName;
+
+    public static boolean isSystemPackage(Resources resources, PackageManager pm, PackageInfo pkg) {
+        if (sSystemSignature == null) {
+            sSystemSignature = new Signature[]{getSystemSignature(pm)};
+        }
+        if (sPermissionControllerPackageName == null) {
+            try {
+                sPermissionControllerPackageName = pm.getPermissionControllerPackageName();
+            } catch (Throwable e) {
+                XPosedLog.wtf("getPermissionControllerPackageName err: " + e);
+            }
+        }
+        if (sServicesSystemSharedLibPackageName == null) {
+            try {
+                sServicesSystemSharedLibPackageName = pm.getServicesSystemSharedLibraryPackageName();
+            } catch (Throwable e) {
+                XPosedLog.wtf("getServicesSystemSharedLibraryPackageName err: " + e);
+            }
+        }
+        if (sSharedSystemSharedLibPackageName == null) {
+            try {
+                sSharedSystemSharedLibPackageName = pm.getSharedSystemSharedLibraryPackageName();
+            } catch (Throwable e) {
+                XPosedLog.wtf("getSharedSystemSharedLibraryPackageName err: " + e);
+            }
+        }
+        return (sSystemSignature[0] != null
+                && sSystemSignature[0].equals(getFirstSignature(pkg)))
+                || pkg.packageName.equals(sPermissionControllerPackageName)
+                || pkg.packageName.equals(sServicesSystemSharedLibPackageName)
+                || pkg.packageName.equals(sSharedSystemSharedLibPackageName)
+                || pkg.packageName.equals(PrintManager.PRINT_SPOOLER_PACKAGE_NAME)
+                || isDeviceProvisioningPackage(resources, pkg.packageName);
+    }
+
+    private static Signature getFirstSignature(PackageInfo pkg) {
+        if (pkg != null && pkg.signatures != null && pkg.signatures.length > 0) {
+            return pkg.signatures[0];
+        }
+        return null;
+    }
+
+    private static Signature getSystemSignature(PackageManager pm) {
+        try {
+            @SuppressLint("PackageManagerGetSignatures") final PackageInfo sys
+                    = pm.getPackageInfo("android", PackageManager.GET_SIGNATURES);
+            return getFirstSignature(sys);
+        } catch (PackageManager.NameNotFoundException ignored) {
+        }
+        return null;
+    }
+
+    /**
+     * Returns {@code true} if the supplied package is the device provisioning app. Otherwise,
+     * returns {@code false}.
+     */
+    public static boolean isDeviceProvisioningPackage(Resources resources, String packageName) {
+        try {
+            String deviceProvisioningPackage = resources.getString(
+                    com.android.internal.R.string.config_deviceProvisioningPackage);
+            return deviceProvisioningPackage.equals(packageName);
+        } catch (Throwable e) {
+            return false;
         }
     }
 }

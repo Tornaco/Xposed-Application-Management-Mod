@@ -36,4 +36,7 @@ interface IAshmanService {
 
     void watch(in IAshmanWatcher w);
     void unWatch(in IAshmanWatcher w);
+
+    // Network policy API.
+    void setNetworkPolicyUidPolicy(int uid, int policy);
 }

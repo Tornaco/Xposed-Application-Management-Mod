@@ -1,6 +1,5 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
-import android.app.Activity;
 import android.os.Bundle;
 
 /**
@@ -18,6 +17,4 @@ public interface IAppGuardBridge extends IModuleBridge {
     void verify(Bundle options, String pkg, int uid, int pid, VerifyListener listener);
 
     boolean isBlurForPkg(String pkg);
-
-    void onActivityResume(Activity activity);
 }

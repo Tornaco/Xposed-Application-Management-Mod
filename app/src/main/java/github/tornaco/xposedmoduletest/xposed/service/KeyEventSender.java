@@ -9,7 +9,7 @@ import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 
 import de.robv.android.xposed.XposedHelpers;
-import github.tornaco.xposedmoduletest.xposed.util.XLog;
+import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
 
 /**
  * Created by guohao4 on 2017/11/7.
@@ -19,13 +19,13 @@ import github.tornaco.xposedmoduletest.xposed.util.XLog;
 class KeyEventSender {
 
     static boolean injectInputEvent(InputEvent event, int mode) {
-        XLog.logV("injectInputEvent: " + event);
+        XPosedLog.verbose("injectInputEvent: " + event);
         InputManager inputManager = InputManager.getInstance();
         try {
             return (boolean) XposedHelpers.callMethod(inputManager,
                     "injectInputEvent", event, mode);
         } catch (Throwable e) {
-            XLog.logF("Fail injectInputEvent: " + event
+            XPosedLog.wtf("Fail injectInputEvent: " + event
                     + ", error: " + Log.getStackTraceString(e));
             return false;
         }

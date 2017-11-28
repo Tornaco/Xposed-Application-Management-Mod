@@ -16,6 +16,7 @@ import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
+import github.tornaco.xposedmoduletest.util.PinyinComparator;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
@@ -168,7 +169,7 @@ public interface PackageLoader {
 
     class PinyinComparator implements Comparator<PackageInfo> {
         public int compare(PackageInfo o1, PackageInfo o2) {
-            return 1;
+            return new github.tornaco.xposedmoduletest.util.PinyinComparator().compare(o1.getAppName(), o2.getAppName());
         }
     }
 }

@@ -9,7 +9,7 @@ import github.tornaco.xposedmoduletest.xposed.service.XIntentFirewallServiceDele
 import github.tornaco.xposedmoduletest.xposed.submodules.AppGuardSubModuleManager;
 import github.tornaco.xposedmoduletest.xposed.submodules.IntentFirewallSubModuleManager;
 import github.tornaco.xposedmoduletest.xposed.submodules.SubModule;
-import github.tornaco.xposedmoduletest.xposed.util.XLog;
+import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -35,10 +35,10 @@ class XModuleImplSeparable extends XModuleAbs {
             if (s.getInterestedPackages().contains(lpparam.packageName)
                     || s.getInterestedPackages().contains("*")) {
                 try {
-                    // XLog.logF("Invoking submodule@handleLoadPackage: " + s.name());
+                    // XPosedLog.wtf("Invoking submodule@handleLoadPackage: " + s.name());
                     s.handleLoadingPackage(lpparam.packageName, lpparam);
                 } catch (Throwable e) {
-                    XLog.logF("Error call handleLoadingPackage singleInstance submodule:" + s
+                    XPosedLog.wtf("Error call handleLoadingPackage singleInstance submodule:" + s
                             + " , trace: " + Log.getStackTraceString(e));
                 }
             }
@@ -48,10 +48,10 @@ class XModuleImplSeparable extends XModuleAbs {
             if (s.getInterestedPackages().contains(lpparam.packageName)
                     || s.getInterestedPackages().contains("*")) {
                 try {
-                    // XLog.logF("Invoking submodule@handleLoadPackage: " + s.name());
+                    // XPosedLog.wtf("Invoking submodule@handleLoadPackage: " + s.name());
                     s.handleLoadingPackage(lpparam.packageName, lpparam);
                 } catch (Throwable e) {
-                    XLog.logF("Error call handleLoadingPackage singleInstance submodule:" + s
+                    XPosedLog.wtf("Error call handleLoadingPackage singleInstance submodule:" + s
                             + " , trace: " + Log.getStackTraceString(e));
                 }
             }

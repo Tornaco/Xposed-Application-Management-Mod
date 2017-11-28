@@ -8,7 +8,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.util.XLog;
+import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -23,7 +23,7 @@ class AMSSubModule3 extends AndroidSubModuleModule {
     }
 
     private void hookAMSShutdown(XC_LoadPackage.LoadPackageParam lpparam) {
-        XLog.logV("hookAMSShutdown...");
+        XPosedLog.verbose("hookAMSShutdown...");
         try {
             Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService",
                     lpparam.classLoader);
@@ -34,10 +34,10 @@ class AMSSubModule3 extends AndroidSubModuleModule {
                     getBridge().shutdown();
                 }
             });
-            XLog.logV("hookAMSShutdown OK:" + unHooks);
+            XPosedLog.verbose("hookAMSShutdown OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XLog.logV("Fail hookAMSShutdown");
+            XPosedLog.verbose("Fail hookAMSShutdown");
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

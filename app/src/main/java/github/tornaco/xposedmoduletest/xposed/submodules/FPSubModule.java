@@ -10,7 +10,7 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.xposed.util.XLog;
+import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -30,7 +30,7 @@ class FPSubModule extends AndroidSubModuleModule {
     // http://androidxref.com/6.0.1_r10/xref/frameworks/base/services/core/java/com/android/server/fingerprint/FingerprintService.java
     @Deprecated
     private void hookFPService(XC_LoadPackage.LoadPackageParam lpparam) {
-        XLog.logV("hookFPService...");
+        XPosedLog.verbose("hookFPService...");
         try {
             Set unHooks = XposedBridge.hookAllMethods(
                     XposedHelpers.findClass("com.android.server.fingerprint.FingerprintService",
@@ -45,11 +45,11 @@ class FPSubModule extends AndroidSubModuleModule {
                             }
                         }
                     });
-            XLog.logV("hookFPService OK:" + unHooks);
+            XPosedLog.verbose("hookFPService OK:" + unHooks);
             getBridge().publishFeature(XAppGuardManager.Feature.FP);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XLog.logV("Fail hookFPService" + e);
+            XPosedLog.verbose("Fail hookFPService" + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

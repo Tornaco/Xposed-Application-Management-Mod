@@ -1,8 +1,5 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
-import android.app.Activity;
-import android.view.KeyEvent;
-
 import github.tornaco.apigen.CreateMessageIdWithMethods;
 
 /**
@@ -32,13 +29,9 @@ interface AppGuardServiceHandler {
 
     void mockCrash();
 
-    void onKeyEvent(KeyEvent keyEvent);
-
-    void injectHomeEvent();
-
     void setDebug(boolean debug);
 
-    void onActivityResume(Activity activity);
-
     void onActivityPackageResume(String pkg);
+
+    void onUserPresent();
 }
