@@ -70,7 +70,7 @@
     <string name="title_btn_size">按钮大小</string>
     <string name="title_text_size">文字大小</string>
     <string name="title_app_uninstall_pro">阻止卸载</string>
-    <string name="summary_app_uninstall_pro">阻止任何方式（adb/installer）卸载已经加锁的应用，而且如果想卸载AppGuard必须先禁用应用锁</string>
+    <string name="summary_app_uninstall_pro">阻止任何方式（adb/installer）卸载已经加锁的应用，而且如果想卸载AppGuard必须先禁用应用锁。某些设备可能无效。</string>
     <string name="title_hide_app_icon">隐藏桌面图标</string>
     <string name="title_secure">安全</string>
     <string name="title_personal">个人</string>

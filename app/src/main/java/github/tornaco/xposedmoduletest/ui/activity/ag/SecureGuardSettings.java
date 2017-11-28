@@ -39,9 +39,6 @@ public class SecureGuardSettings extends GuardSettingsActivity {
             addPreferencesFromResource(R.xml.ag_secure);
 
             Preference lockSettingsPref = findPreference("verify_method");
-//            lockSettingsPref.setSummary(LockStorage.iaPatternSet(getActivity()) ?
-//                    R.string.summary_setup_passcode_set
-//                    : R.string.summary_setup_passcode_none_set);//TODO
             lockSettingsPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {

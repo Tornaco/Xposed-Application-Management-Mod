@@ -34,38 +34,6 @@ public class AdvancedGuardSettings extends GuardSettingsActivity {
                 return;
             }
 
-
-            findPreference("key_test_noter")
-                    .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                        @Override
-                        public boolean onPreferenceClick(Preference preference) {
-                            VerifyDisplayerActivity.startAsTest(getActivity());
-                            return true;
-                        }
-                    });
-
-//            SwitchPreference hideAppIcon = (SwitchPreference) findPreference("key_hide_app_icon");
-//            hideAppIcon.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-//                @Override
-//                public boolean onPreferenceChange(Preference preference, Object newValue) {
-//                    boolean enabled = (boolean) newValue;
-//                    XApp.getApp().hideAppIcon(enabled);
-//                    ProgressDialog p = new ProgressDialog(getActivity());
-//                    p.setMessage("&*^$%$(-)$##@%%%%^-^");
-//                    p.setIndeterminate(true);
-//                    p.setCancelable(false);
-//                    p.show();
-//                    BaseActivity b = (BaseActivity) getActivity();
-//                    b.getUIThreadHandler().postDelayed(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            getActivity().finishAffinity();
-//                        }
-//                    }, 8 * 1000);
-//                    return true;
-//                }
-//            });
-
             final StringBuilder moduleStatus = new StringBuilder();
             Collections.consumeRemaining(XAppGuardManager.singleInstance().getSubModules(),
                     new Consumer<String>() {
@@ -89,17 +57,6 @@ public class AdvancedGuardSettings extends GuardSettingsActivity {
                             return true;
                         }
                     });
-
-//            SwitchPreference debugPref = (SwitchPreference) findPreference("dev_mode_enabled");
-//            debugPref.setChecked(XAppGuardManager.singleInstance().isLoggable());
-//            debugPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-//                @Override
-//                public boolean onPreferenceChange(Preference preference, Object newValue) {
-//                    boolean v = (boolean) newValue;
-//                    XAppGuardManager.singleInstance().setDebug(v);
-//                    return true;
-//                }
-//            });
         }
     }
 }

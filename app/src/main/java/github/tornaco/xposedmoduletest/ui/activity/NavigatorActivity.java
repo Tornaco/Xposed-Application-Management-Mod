@@ -113,14 +113,14 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
                 }
             });
 
-            findView(rootView, R.id.button)
-                    .setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            WithWithCustomTabActivity withWithCustomTabActivity = (WithWithCustomTabActivity) getActivity();
-                            withWithCustomTabActivity.navigateToWebPage(getString(R.string.app_wiki_url));
-                        }
-                    });
+//            findView(rootView, R.id.button)
+//                    .setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View v) {
+//                            WithWithCustomTabActivity withWithCustomTabActivity = (WithWithCustomTabActivity) getActivity();
+//                            withWithCustomTabActivity.navigateToWebPage(getString(R.string.app_wiki_url));
+//                        }
+//                    });
 
             TextView statusTitle = findView(rootView, android.R.id.title);
             statusTitle.setText(isServiceAvailable() ?
