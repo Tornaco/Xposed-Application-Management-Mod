@@ -14,8 +14,6 @@ import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
 
 /**
  * ActivityStack move to front.
- * Created by guohao4 on 2017/10/31.
- * Email: Tornaco@163.com
  */
 
 class ASFSubModule extends AndroidSubModuleModule {

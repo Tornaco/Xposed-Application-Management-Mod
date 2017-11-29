@@ -9,6 +9,7 @@ import org.newstand.logger.Logger;
 
 import github.tornaco.xposedmoduletest.IAppGuardService;
 import github.tornaco.xposedmoduletest.IAppGuardWatcher;
+import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.submodules.SubModule;
@@ -57,22 +58,22 @@ public class XAppGuardManager {
         }
     }
 
-    private static XAppGuardManager sMe;
+    private static final Singleton<XAppGuardManager> sManager =
+            new Singleton<XAppGuardManager>() {
+                @Override
+                protected XAppGuardManager create() {
+                    return new XAppGuardManager();
+                }
+            };
 
-    private IAppGuardService mService;
+    private final IAppGuardService mService;
 
     private XAppGuardManager() {
         mService = IAppGuardService.Stub.asInterface(ServiceManager.getService(APP_GUARD_SERVICE));
     }
 
-    public static void init() {
-        if (sMe == null || !sMe.isServiceAvailable()) {
-            sMe = new XAppGuardManager();
-        }
-    }
-
     public static XAppGuardManager singleInstance() {
-        return sMe;
+        return sManager.get();
     }
 
     public boolean isServiceAvailable() {
@@ -107,8 +108,8 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.setVerifySettings(settings);
-        } catch (RemoteException ignored) {
-
+        } catch (RemoteException e) {
+            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -116,7 +117,8 @@ public class XAppGuardManager {
         ensureService();
         try {
             return mService.getVerifySettings();
-        } catch (RemoteException ignored) {
+        } catch (RemoteException e) {
+            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
             return null;
         }
     }
@@ -125,8 +127,8 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.setBlurSettings(settings);
-        } catch (RemoteException ignored) {
-
+        } catch (RemoteException e) {
+            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -134,7 +136,8 @@ public class XAppGuardManager {
         ensureService();
         try {
             return mService.getBlurSettings();
-        } catch (RemoteException ignored) {
+        } catch (RemoteException e) {
+            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
             return null;
         }
     }
@@ -143,8 +146,8 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.watch(w);
-        } catch (RemoteException ignored) {
-
+        } catch (RemoteException e) {
+            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -152,8 +155,8 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.unWatch(w);
-        } catch (RemoteException ignored) {
-
+        } catch (RemoteException e) {
+            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -198,7 +201,8 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.mockCrash();
-        } catch (RemoteException ignored) {
+        } catch (RemoteException e) {
+            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
         }
     }
 

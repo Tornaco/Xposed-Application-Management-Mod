@@ -37,7 +37,6 @@ public class ActivityModule extends AppGuardAndroidSubModule {
                             // Make a binder call crossing process.
                             Activity activity = (Activity) param.thisObject;
                             String pkgName = activity.getPackageName();
-                            XAppGuardManager.init();
                             XAppGuardManager manager = XAppGuardManager.singleInstance();
                             if (manager.isServiceAvailable()) {
                                 manager.onActivityPackageResume(pkgName);
