@@ -4,7 +4,6 @@ import android.content.ComponentName;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.view.KeyEvent;
 
 import github.tornaco.apigen.CreateMessageIdWithMethods;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
@@ -24,6 +23,8 @@ interface AshManHandler {
     void setStartBlockEnabled(boolean enabled);
 
     void setLockKillEnabled(boolean enabled);
+
+    void setRFKillEnabled(boolean enabled);
 
     void clearProcess(IProcessClearListener listener);
 

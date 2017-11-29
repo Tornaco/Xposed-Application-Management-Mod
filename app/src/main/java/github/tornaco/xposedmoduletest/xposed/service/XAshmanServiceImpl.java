@@ -17,6 +17,8 @@ import android.net.NetworkPolicyManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.RemoteException;
@@ -46,6 +48,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
+import github.tornaco.android.common.Holder;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
@@ -112,17 +115,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private final Map<String, BlockRecord2> mBlockRecords = new HashMap<>();
 
-    private Handler h;
+    private Handler h, lazyH;
 
     private AtomicBoolean mBootBlockEnabled = new AtomicBoolean(false);
     private AtomicBoolean mStartBlockEnabled = new AtomicBoolean(false);
     private AtomicBoolean mLockKillEnabled = new AtomicBoolean(false);
+    private AtomicBoolean mRootActivityFinishKillEnabled = new AtomicBoolean(false);
 
     private long mLockKillDelay;
 
     private final Map<String, BootCompletePackage> mBootWhiteListPackages = new HashMap<>();
     private final Map<String, AutoStartPackage> mStartWhiteListPackages = new HashMap<>();
     private final Map<String, LockKillPackage> mLockKillWhileListPackages = new HashMap<>();
+    private final Map<String, LockKillPackage> mRFKillWhileListPackages = new HashMap<>();
 
     private final Set<AshManHandler.WatcherClient> mWatcherClients = new HashSet<>();
 
@@ -538,6 +543,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         try {
+            boolean rootKillEnabled = (boolean) SystemSettings.ROOT_ACTIVITY_KILL_ENABLED_B.readFromSystemSettings(getContext());
+            mRootActivityFinishKillEnabled.set(rootKillEnabled);
+            XPosedLog.verbose("rootKillEnabled: " + String.valueOf(rootKillEnabled));
+        } catch (Throwable e) {
+            XPosedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
             mLockKillDelay = (long) SystemSettings.LOCK_KILL_DELAY_L.readFromSystemSettings(getContext());
             XPosedLog.verbose("mLockKillDelay: " + String.valueOf(mLockKillDelay));
         } catch (Throwable e) {
@@ -546,6 +559,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @InternalCall
     public boolean checkService(ComponentName serviceComp, int callerUid) {
         if (serviceComp == null) return true;
         String appPkg = serviceComp.getPackageName();
@@ -612,6 +626,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @InternalCall
     public boolean checkBroadcast(String action, int receiverUid, int callerUid) {
         CheckResult res = checkBroadcastDetailed(action, receiverUid, callerUid);
         // Saving res record.
@@ -636,8 +651,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @InternalCall
+    public void onActivityDestroy(Intent intent) {
+        lazyH.obtainMessage(AshManLZHandlerMessages.MSG_ONACTIVITYDESTROY, intent).sendToTarget();
+    }
+
+    @Override
     @BinderCall
-    public boolean isPackageStartBlockEnabled(String pkg) throws RemoteException {
+    public boolean isPackageStartBlockEnabled(String pkg) {
         enforceCallingPermissions();
         // If this app is not in good condition, but user
         // does not block, we also allow it to start.
@@ -662,7 +683,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public boolean isPackageBootBlockEnabled(String pkg) throws RemoteException {
+    public boolean isPackageBootBlockEnabled(String pkg) {
         enforceCallingPermissions();
         // If this app is not in good condition, but user
         // does not block, we also allow it to start.
@@ -687,7 +708,32 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public boolean isPackageLockKillEnabled(String pkg) throws RemoteException {
+    public boolean isPackageLockKillEnabled(String pkg) {
+        enforceCallingPermissions();
+        // If this app is not in good condition, but user
+        // does not block, we also allow it to start.
+        boolean allowedByUser = isInLockKillWhiteList(pkg);
+        if (allowedByUser) {
+            return false;
+        }
+
+        if (isInWhiteList(pkg)) {
+            return false;
+        }
+
+        if (PkgUtil.isHomeApp(getContext(), pkg)) {
+            return false;
+        }
+
+        if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    @BinderCall
+    public boolean isPackageRFKillEnabled(String pkg) {
         enforceCallingPermissions();
         // If this app is not in good condition, but user
         // does not block, we also allow it to start.
@@ -1041,7 +1087,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private void construct() {
         h = onCreateServiceHandler();
-        XPosedLog.verbose("construct, h: " + h + " -" + serial());
+        HandlerThread hr = new HandlerThread("ASHMAN-LAZY-H");
+        hr.start();
+        lazyH = new LazyHandler(hr.getLooper());
+        XPosedLog.verbose("construct, h: " + h
+                + ", lazyH: " + lazyH
+                + " -" + serial());
     }
 
     protected Handler onCreateServiceHandler() {
@@ -1058,8 +1109,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @InternalCall
     public void onPackageMoveToFront(String who) {
-
+        lazyH.removeMessages(AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONT);
+        lazyH.obtainMessage(AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONT, who).sendToTarget();
     }
 
     @Override
@@ -1127,6 +1180,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    public void setRFKillEnabled(boolean enabled) throws RemoteException {
+        enforceCallingPermissions();
+        h.obtainMessage(AshManHandlerMessages.MSG_SETRFKILLENABLED, enabled)
+                .sendToTarget();
+    }
+
+    @Override
+    public boolean isRFKillEnabled() throws RemoteException {
+        enforceCallingPermissions();
+        return !mIsSafeMode && mRootActivityFinishKillEnabled.get();
+    }
+
+    @Override
     @BinderCall
     protected void dump(FileDescriptor fd, final PrintWriter fout, String[] args) {
         super.dump(fd, fout, args);
@@ -1142,6 +1208,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             fout.println("Start block enabled: " + mStartBlockEnabled.get());
             fout.println("Boot block enabled: " + mBootBlockEnabled.get());
             fout.println("LK enabled: " + mLockKillEnabled.get());
+            fout.println("RF kill enabled: " + mRootActivityFinishKillEnabled.get());
             fout.println("LK delay: " + mLockKillDelay);
 
             // Dump while list.
@@ -1246,7 +1313,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         @Override
         public void handleMessage(Message msg) {
-            XPosedLog.verbose("handleMessage: " + AshManHandlerMessages.decodeMessage(msg.what));
+            XPosedLog.verbose("HandlerImpl handleMessage: " + AshManHandlerMessages.decodeMessage(msg.what));
             super.handleMessage(msg);
             switch (msg.what) {
                 case AshManHandlerMessages.MSG_CLEARPROCESS:
@@ -1261,6 +1328,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     break;
                 case AshManHandlerMessages.MSG_SETLOCKKILLENABLED:
                     HandlerImpl.this.setLockKillEnabled((Boolean) msg.obj);
+                    break;
+                case AshManHandlerMessages.MSG_SETRFKILLENABLED:
+                    HandlerImpl.this.setRFKillEnabled((Boolean) msg.obj);
                     break;
                 case AshManHandlerMessages.MSG_ONSCREENOFF:
                     HandlerImpl.this.onScreenOff();
@@ -1310,6 +1380,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setLockKillEnabled(boolean enabled) {
             if (mLockKillEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.LOCK_KILL_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setRFKillEnabled(boolean enabled) {
+            if (mRootActivityFinishKillEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.ROOT_ACTIVITY_KILL_ENABLED_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 
@@ -1531,6 +1608,61 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         @Override
         public void setNetworkPolicyUidPolicy(int uid, int policy) {
             NetworkPolicyManager.from(getContext()).setUidPolicy(uid, policy);
+        }
+    }
+
+    private class LazyHandler extends Handler implements AshManLZHandler {
+
+        private final Holder<String> mTopPackage = new Holder<>();
+
+        LazyHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void onActivityDestroy(Intent intent) {
+            boolean isMainIntent = PkgUtil.isMainIntent(intent);
+
+            String packageName = PkgUtil.packageNameOf(intent);
+            if (packageName == null) return;
+
+            if (!isPackageRFKillEnabled(packageName)) {
+                return;
+            }
+
+            XPosedLog.verbose("onActivityDestroy, packageName: " + packageName
+                    + ", isMainIntent: " + isMainIntent + ", topPkg: " + getTopPackage());
+
+            boolean maybeRootActivityFinish = isMainIntent && !packageName.equals(getTopPackage());
+
+            if (maybeRootActivityFinish) {
+                XPosedLog.verbose("Killing maybeRootActivityFinish: " + packageName);
+                PkgUtil.kill(getContext(), packageName);
+            }
+        }
+
+        @Override
+        public void onPackageMoveToFront(String who) {
+            mTopPackage.setData(who);
+        }
+
+        private String getTopPackage() {
+            return mTopPackage.getData();
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            XPosedLog.verbose("LazyHandler handle message: "
+                    + AshManLZHandlerMessages.decodeMessage(msg.what));
+            switch (msg.what) {
+                case AshManLZHandlerMessages.MSG_ONACTIVITYDESTROY:
+                    LazyHandler.this.onActivityDestroy((Intent) msg.obj);
+                    break;
+                case AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONT:
+                    LazyHandler.this.onPackageMoveToFront((String) msg.obj);
+                    break;
+            }
         }
     }
 

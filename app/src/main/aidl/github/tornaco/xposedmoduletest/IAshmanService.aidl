@@ -21,6 +21,9 @@ interface IAshmanService {
     void setLockKillEnabled(boolean enabled);
     boolean isLockKillEnabled();
 
+    void setRFKillEnabled(boolean enabled);
+    boolean isRFKillEnabled();
+
     // API For Firewall.
     boolean checkService(in ComponentName servicePkgName, int callerUid);
 
@@ -29,6 +32,7 @@ interface IAshmanService {
     boolean isPackageStartBlockEnabled(String pkg);
     boolean isPackageBootBlockEnabled(String pkg);
     boolean isPackageLockKillEnabled(String pkg);
+    boolean isPackageRFKillEnabled(String pkg);
 
     List<String> getWhiteListPackages();
 

@@ -24,7 +24,7 @@ class ASFSubModule extends AndroidSubModuleModule {
     }
 
     private void hookActivityStack(XC_LoadPackage.LoadPackageParam lpparam) {
-        XPosedLog.verbose("hookActivityStack...");
+        XPosedLog.verbose("ASFSubModule hookActivityStack...");
         try {
             Class stackClass = XposedHelpers.findClass("com.android.server.am.ActivityStack",
                     lpparam.classLoader);
@@ -34,7 +34,6 @@ class ASFSubModule extends AndroidSubModuleModule {
             XC_MethodHook.Unhook unHooks = XposedBridge.hookMethod(toHook, new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-
                     super.afterHookedMethod(param);
                     Object taskRecord = XposedHelpers.callMethod(param.thisObject, "topTask");
                     if (taskRecord == null) return;
@@ -53,10 +52,10 @@ class ASFSubModule extends AndroidSubModuleModule {
                     getBridge().onPackageMoveToFront(pkgName);
                 }
             });
-            XPosedLog.verbose("hookActivityStack OK:" + unHooks);
+            XPosedLog.verbose("ASFSubModule hookActivityStack OK:" + unHooks);
             setStatus(unhookToStatus(unHooks));
         } catch (Exception e) {
-            XPosedLog.verbose("Fail hook hookActivityStack" + Log.getStackTraceString(e));
+            XPosedLog.verbose("ASFSubModule Fail hook hookActivityStack" + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

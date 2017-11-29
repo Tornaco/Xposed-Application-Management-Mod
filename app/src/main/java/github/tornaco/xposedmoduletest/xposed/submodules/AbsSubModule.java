@@ -1,7 +1,5 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
-import android.content.Intent;
-
 import java.util.Set;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -46,11 +44,5 @@ abstract class AbsSubModule implements SubModule {
     static SubModuleStatus unhookToStatus(XC_MethodHook.Unhook unHooks) {
         if (unHooks == null) return SubModuleStatus.ERROR;
         return SubModuleStatus.READY;
-    }
-
-    static boolean isLauncherIntent(Intent intent) {
-        return intent != null
-                && intent.getCategories() != null
-                && intent.getCategories().contains("android.intent.category.HOME");
     }
 }

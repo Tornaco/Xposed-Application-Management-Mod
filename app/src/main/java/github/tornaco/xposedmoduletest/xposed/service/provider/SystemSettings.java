@@ -81,6 +81,23 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
         }
     },
 
+    ROOT_ACTIVITY_KILL_ENABLED_B(0) {
+        @Override
+        public boolean writeToSystemSettings(Context context, Object value) {
+            ContentResolver resolver = context.getContentResolver();
+            boolean enabled = (boolean) value;
+            return resolver != null && Settings.System.putInt(resolver, name(), enabled ? 1 : 0);
+        }
+
+        @Override
+        public Object readFromSystemSettings(Context context) {
+            ContentResolver resolver = context.getContentResolver();
+            if (resolver == null) return getDefValue();
+            int def = getDefValue();
+            return Settings.System.getInt(resolver, name(), def) == 1;
+        }
+    },
+
     BOOT_BLOCK_ENABLED_B(0) {
         @Override
         public boolean writeToSystemSettings(Context context, Object value) {

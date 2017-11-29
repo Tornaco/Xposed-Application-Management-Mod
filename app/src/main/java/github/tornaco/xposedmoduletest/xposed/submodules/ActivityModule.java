@@ -10,7 +10,6 @@ import java.util.Set;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
 
 /**
@@ -18,18 +17,16 @@ import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
  * Email: Tornaco@163.com
  */
 @Deprecated
-public class ActivityModule extends AppGuardAndroidSubModule {
+public class ActivityModule extends AndroidSubModuleModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        // XPosedLog.verbose("ActivityModule handleLoadingPackage@" + lpparam.packageName);
         hookActivityForApp(lpparam.packageName);
     }
 
     private void hookActivityForApp(final String pkg) {
-//        XPosedLog.verbose("hookActivityForApp: " + pkg);
         try {
-            Set unHooks = XposedBridge.hookAllMethods(Activity.class, "onResume",
+            Set unHooks = XposedBridge.hookAllMethods(Activity.class, "onDestroy",
                     new XC_MethodHook() {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -37,15 +34,10 @@ public class ActivityModule extends AppGuardAndroidSubModule {
                             // Make a binder call crossing process.
                             Activity activity = (Activity) param.thisObject;
                             String pkgName = activity.getPackageName();
-                            XAppGuardManager manager = XAppGuardManager.singleInstance();
-                            if (manager.isServiceAvailable()) {
-                                manager.onActivityPackageResume(pkgName);
-                            }
+                            XPosedLog.wtf("onDestroy: " + activity);
                         }
                     });
-            getBridge().publishFeature(XAppGuardManager.Feature.RESUME);
             setStatus(unhooksToStatus(unHooks));
-            // XPosedLog.verbose("hookActivityForApp OK:" + unHooks);
         } catch (Throwable e) {
             XPosedLog.verbose("Fail hookActivityForApp: " + pkg + ", error:" + e);
             setStatus(SubModuleStatus.ERROR);

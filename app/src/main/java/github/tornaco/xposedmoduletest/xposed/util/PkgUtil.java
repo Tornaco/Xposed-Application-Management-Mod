@@ -105,6 +105,22 @@ public class PkgUtil {
         }
     }
 
+    public static boolean isHomeIntent(Intent intent) {
+        return intent != null && intent.hasCategory(Intent.CATEGORY_HOME);
+    }
+
+    public static boolean isMainIntent(Intent intent) {
+        return intent != null
+                && Intent.ACTION_MAIN.equals(intent.getAction())
+                && intent.hasCategory(Intent.CATEGORY_LAUNCHER);
+    }
+
+    public static String packageNameOf(Intent intent) {
+        if (intent == null) return null;
+        if (intent.getComponent() == null) return null;
+        return intent.getComponent().getPackageName();
+    }
+
     public static boolean isLauncherApp(Context context, String packageName) {
         PackageManager pkgManager = context.getPackageManager();
         Intent mainIntent = new Intent("android.intent.action.MAIN", null);
@@ -193,6 +209,14 @@ public class PkgUtil {
         }
         try {
             String pkg = runningAppProcessInfo.pkgList[0];
+            kill(context, pkg);
+        } catch (Exception ignored) {
+        }
+    }
+
+    public static void kill(Context context, String pkg) {
+        if (pkg==null) return;
+        try {
             ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
             if (am != null) {
                 am.forceStopPackage(pkg);

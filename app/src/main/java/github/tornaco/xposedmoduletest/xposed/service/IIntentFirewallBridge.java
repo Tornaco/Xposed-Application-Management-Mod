@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
 import android.content.ComponentName;
+import android.content.Intent;
 import android.os.RemoteException;
 
 /**
@@ -13,4 +14,6 @@ public interface IIntentFirewallBridge extends IModuleBridge {
     boolean checkService(ComponentName service, int callerUid) throws RemoteException;
 
     boolean checkBroadcast(String action, int receiverUid, int callerUid) throws RemoteException;
+
+    void onActivityDestroy(Intent intent);
 }

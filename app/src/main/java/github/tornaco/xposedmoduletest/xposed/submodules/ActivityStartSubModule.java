@@ -14,6 +14,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 import github.tornaco.xposedmoduletest.xposed.service.VerifyListener;
+import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
 
 /**
@@ -105,7 +106,7 @@ class ActivityStartSubModule extends AppGuardAndroidSubModule {
                         if (componentName == null) return;
                         final String pkgName = componentName.getPackageName();
 
-                        boolean isHomeIntent = isLauncherIntent(intent);
+                        boolean isHomeIntent = PkgUtil.isHomeIntent(intent);
                         if (isHomeIntent) {
                             return;
                         }
