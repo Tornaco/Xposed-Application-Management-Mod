@@ -157,6 +157,23 @@ public class XAshmanManager {
         }
     }
 
+    public void setRFKillEnabled(boolean enabled) {
+        try {
+            mService.setRFKillEnabled(enabled);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public boolean isRFKillEnabled() {
+        try {
+            return mService.isRFKillEnabled();
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return false;
+        }
+    }
+
     public boolean checkService(ComponentName servicePkgName, int callerUid) {
         ensureService();
         try {
@@ -244,6 +261,15 @@ public class XAshmanManager {
     public boolean isPackageLockKillEnabled(String pkg) {
         try {
             return mService.isPackageLockKillEnabled(pkg);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return false;
+        }
+    }
+
+    public boolean isPackageRFKillEnabled(String pkg) {
+        try {
+            return mService.isPackageRFKillEnabled(pkg);
         } catch (RemoteException e) {
             Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return false;

@@ -74,6 +74,17 @@ public class RFKillPackage {
     }
 
     // KEEP METHODS - put your custom methods here
+
+    @Override
+    public String toString() {
+        return "RFKillPackage{" +
+                "id=" + id +
+                ", pkgName='" + pkgName + '\'' +
+                ", appName='" + appName + '\'' +
+                ", kill=" + kill +
+                '}';
+    }
+
     // KEEP METHODS END
 
 }

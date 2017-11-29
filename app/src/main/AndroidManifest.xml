@@ -77,11 +77,11 @@
             android:excludeFromRecents="true"
             android:label="@string/title_picker" />
         <activity
-            android:name=".ui.activity.StartAppNavActivity"
+            android:name=".ui.activity.start.StartAppNavActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_app_auto_start" />
         <activity
-            android:name=".ui.activity.StartAppPickerActivity"
+            android:name=".ui.activity.start.StartAppPickerActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_picker" />
         <activity
@@ -90,6 +90,14 @@
             android:label="@string/title_app_lock_kill" />
         <activity
             android:name=".ui.activity.lk.LockKillAppPickerActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_picker" />
+        <activity
+            android:name=".ui.activity.rf.RFKillAppNavActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_app_rf_kill" />
+        <activity
+            android:name=".ui.activity.rf.RFKillAppPickerActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_picker" />
         <activity

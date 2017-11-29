@@ -89,6 +89,7 @@
     <string name="title_app_auto_start">应用关联启动管理</string>
     <string name="title_clearn">加速</string>
     <string name="title_app_lock_kill">锁屏清理应用</string>
+    <string name="title_app_rf_kill">应用后台管理</string>
     <string name="clear_process">清理内存</string>
     <string name="summary_app_guard">以下应用在启动时需要经过密码验证。</string>
     <string name="summary_boot_app">允许以下应用开机自动启动，其他非系统核心应用将自动被禁止。</string>

@@ -58,9 +58,12 @@ import github.tornaco.xposedmoduletest.bean.BootCompletePackage;
 import github.tornaco.xposedmoduletest.bean.BootCompletePackageDaoUtil;
 import github.tornaco.xposedmoduletest.bean.LockKillPackage;
 import github.tornaco.xposedmoduletest.bean.LockKillPackageDaoUtil;
+import github.tornaco.xposedmoduletest.bean.RFKillPackage;
+import github.tornaco.xposedmoduletest.bean.RFKillPackageDaoUtil;
 import github.tornaco.xposedmoduletest.provider.AutoStartPackageProvider;
 import github.tornaco.xposedmoduletest.provider.BootPackageProvider;
 import github.tornaco.xposedmoduletest.provider.LockKillPackageProvider;
+import github.tornaco.xposedmoduletest.provider.RFKillPackageProvider;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
@@ -127,7 +130,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final Map<String, BootCompletePackage> mBootWhiteListPackages = new HashMap<>();
     private final Map<String, AutoStartPackage> mStartWhiteListPackages = new HashMap<>();
     private final Map<String, LockKillPackage> mLockKillWhileListPackages = new HashMap<>();
-    private final Map<String, LockKillPackage> mRFKillWhileListPackages = new HashMap<>();
+    private final Map<String, RFKillPackage> mRFKillWhileListPackages = new HashMap<>();
 
     private final Set<AshManHandler.WatcherClient> mWatcherClients = new HashSet<>();
 
@@ -377,13 +380,43 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 mLockKillWhileListPackages.put(key, lockKillPackage);
             }
         } catch (Throwable e) {
-            XPosedLog.wtf("Fail query start pkgs:\n" + Log.getStackTraceString(e));
-            XPosedLog.wtf("Fail query start pkgs:\n" + Log.getStackTraceString(e));
+            XPosedLog.wtf("Fail query lk pkgs:\n" + Log.getStackTraceString(e));
         } finally {
             Closer.closeQuietly(cursor);
         }
 
-        return new ValueExtra<>(true, "Read count: " + mStartWhiteListPackages.size());
+        return new ValueExtra<>(true, "Read count: " + mLockKillWhileListPackages.size());
+    }
+
+    synchronized private ValueExtra<Boolean, String> loadRFKillPackageSettings() {
+        ContentResolver contentResolver = getContext().getContentResolver();
+        if (contentResolver == null) {
+            // Happen when early start.
+            return new ValueExtra<>(false, "contentResolver is null");
+        }
+        Cursor cursor = null;
+        try {
+            cursor = contentResolver.query(RFKillPackageProvider.CONTENT_URI, null, null, null, null);
+            if (cursor == null) {
+                return new ValueExtra<>(false, "cursor is null");
+            }
+
+            mRFKillWhileListPackages.clear();
+
+            for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+                RFKillPackage rfKillPackage = RFKillPackageDaoUtil.readEntity(cursor, 0);
+                XPosedLog.verbose("RF kill white list pkg reader readEntity of: " + rfKillPackage);
+                String key = rfKillPackage.getPkgName();
+                if (TextUtils.isEmpty(key)) continue;
+                mRFKillWhileListPackages.put(key, rfKillPackage);
+            }
+        } catch (Throwable e) {
+            XPosedLog.wtf("Fail query rf pkgs:\n" + Log.getStackTraceString(e));
+        } finally {
+            Closer.closeQuietly(cursor);
+        }
+
+        return new ValueExtra<>(true, "Read count: " + mRFKillWhileListPackages.size());
     }
 
     private ValueExtra<Boolean, String> registerBootPackageObserver() {
@@ -463,6 +496,33 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     });
         } catch (Exception e) {
             XPosedLog.wtf("Fail registerContentObserver@LockKillPackageProvider:\n" + Log.getStackTraceString(e));
+            return new ValueExtra<>(false, String.valueOf(e));
+        }
+        return new ValueExtra<>(true, "OK");
+    }
+
+    private ValueExtra<Boolean, String> registerRFKPackageObserver() {
+        ContentResolver contentResolver = getContext().getContentResolver();
+        if (contentResolver == null) {
+            // Happen when early start.
+            return new ValueExtra<>(false, "contentResolver is null");
+        }
+        try {
+            contentResolver.registerContentObserver(RFKillPackageProvider.CONTENT_URI,
+                    false, new ContentObserver(h) {
+                        @Override
+                        public void onChange(boolean selfChange, Uri uri) {
+                            super.onChange(selfChange, uri);
+                            mWorkingService.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    loadRFKillPackageSettings();
+                                }
+                            });
+                        }
+                    });
+        } catch (Exception e) {
+            XPosedLog.wtf("Fail registerContentObserver@RFKillPackageProvider:\n" + Log.getStackTraceString(e));
             return new ValueExtra<>(false, String.valueOf(e));
         }
         return new ValueExtra<>(true, "OK");
@@ -737,7 +797,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         enforceCallingPermissions();
         // If this app is not in good condition, but user
         // does not block, we also allow it to start.
-        boolean allowedByUser = isInLockKillWhiteList(pkg);
+        boolean allowedByUser = isInRFKillWhiteList(pkg);
         if (allowedByUser) {
             return false;
         }
@@ -888,6 +948,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private boolean isInLockKillWhiteList(String pkg) {
         LockKillPackage lockKillPackage = mLockKillWhileListPackages.get(pkg);
         return lockKillPackage != null && !lockKillPackage.getKill();
+    }
+
+    private boolean isInRFKillWhiteList(String pkg) {
+        RFKillPackage rfKillPackage = mRFKillWhileListPackages.get(pkg);
+        return rfKillPackage != null && !rfKillPackage.getKill();
     }
 
     private CheckResult checkBootCompleteBroadcast(int receiverUid, int callerUid) {
@@ -1075,6 +1140,28 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 });
             }
         });
+
+        AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
+            @Override
+            public boolean once() {
+                ValueExtra<Boolean, String> res = loadRFKillPackageSettings();
+                String extra = res.getExtra();
+                XPosedLog.verbose("loadRFKillPackageSettings, extra: " + extra);
+                return res.getValue();
+            }
+        }, new Runnable() {
+            @Override
+            public void run() {
+                AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
+                    @Override
+                    public boolean once() {
+                        ValueExtra<Boolean, String> res = registerRFKPackageObserver();
+                        XPosedLog.verbose("registerRFKPackageObserver, extra: " + res.getExtra());
+                        return res.getValue();
+                    }
+                });
+            }
+        });
     }
 
     @Override
@@ -1255,6 +1342,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             fout.println("LK list: ");
             Object[] lkListObjects = mLockKillWhileListPackages.values().toArray();
             Collections.consumeRemaining(lkListObjects, new Consumer<Object>() {
+                @Override
+                public void accept(Object o) {
+                    fout.println(o);
+                }
+            });
+
+            // Dump rf list.
+            fout.println("RF list: ");
+            Object[] rfListObjects = mRFKillWhileListPackages.values().toArray();
+            Collections.consumeRemaining(rfListObjects, new Consumer<Object>() {
                 @Override
                 public void accept(Object o) {
                     fout.println(o);

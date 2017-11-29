@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.ui.activity;
+package github.tornaco.xposedmoduletest.ui.activity.rf;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,21 +15,22 @@ import android.widget.TextView;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.bean.AutoStartPackage;
-import github.tornaco.xposedmoduletest.loader.StartPackageLoader;
-import github.tornaco.xposedmoduletest.provider.XSettings;
-import github.tornaco.xposedmoduletest.ui.adapter.StartAppListAdapter;
+import github.tornaco.xposedmoduletest.bean.RFKillPackage;
+import github.tornaco.xposedmoduletest.loader.RFKillPackageLoader;
+import github.tornaco.xposedmoduletest.ui.activity.WithRecyclerView;
+import github.tornaco.xposedmoduletest.ui.activity.lk.LKSettingsDashboardActivity;
+import github.tornaco.xposedmoduletest.ui.adapter.RFKillAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
-public class StartAppNavActivity extends WithRecyclerView {
+public class RFKillAppNavActivity extends WithRecyclerView {
 
     protected FloatingActionButton fab;
 
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    protected StartAppListAdapter bootAppListAdapter;
+    protected RFKillAppListAdapter rFKillAppListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,23 +52,23 @@ public class StartAppNavActivity extends WithRecyclerView {
     }
 
     protected void initView() {
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        swipeRefreshLayout = findViewById(R.id.swipe);
         swipeRefreshLayout.setColorSchemeColors(getResources().getIntArray(R.array.polluted_waves));
-        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = findViewById(R.id.fab);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(StartAppNavActivity.this, StartAppPickerActivity.class));
+                startActivity(new Intent(RFKillAppNavActivity.this, RFKillAppPickerActivity.class));
             }
         });
 
-        bootAppListAdapter = onCreateAdapter();
+        rFKillAppListAdapter = onCreateAdapter();
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(bootAppListAdapter);
+        recyclerView.setAdapter(rFKillAppListAdapter);
 
 
         swipeRefreshLayout.setOnRefreshListener(
@@ -81,15 +82,15 @@ public class StartAppNavActivity extends WithRecyclerView {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                SwitchBar switchBar = (SwitchBar) findViewById(R.id.switchbar);
+                SwitchBar switchBar = findViewById(R.id.switchbar);
                 if (switchBar == null) return;
                 switchBar.setChecked(XAshmanManager.singleInstance().isServiceAvailable()
-                        && XAshmanManager.singleInstance().isStartBlockEnabled());
+                        && XAshmanManager.singleInstance().isRFKillEnabled());
                 switchBar.addOnSwitchChangeListener(new SwitchBar.OnSwitchChangeListener() {
                     @Override
                     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
                         if (XAshmanManager.singleInstance().isServiceAvailable())
-                            XAshmanManager.singleInstance().setStartBlockEnabled(isChecked);
+                            XAshmanManager.singleInstance().setRFKillEnabled(isChecked);
                         else showTips(R.string.title_service_not_connected_settings, false,
                                 null, null);
                     }
@@ -97,17 +98,18 @@ public class StartAppNavActivity extends WithRecyclerView {
                 switchBar.show();
             }
         });
+
         setSummaryView();
     }
 
+
     protected void setSummaryView() {
-        TextView textView = (TextView) findViewById(R.id.summary);
-        textView.setText(R.string.summary_start_app);
+        TextView textView = findViewById(R.id.summary);
+        textView.setText(R.string.summary_lock_kill_app);
     }
 
-
-    protected StartAppListAdapter onCreateAdapter() {
-        return new StartAppListAdapter(this) {
+    protected RFKillAppListAdapter onCreateAdapter() {
+        return new RFKillAppListAdapter(this) {
             @Override
             protected void onPackageRemoved(String p) {
                 super.onPackageRemoved(p);
@@ -121,34 +123,25 @@ public class StartAppNavActivity extends WithRecyclerView {
         XExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                final List<AutoStartPackage> res = performLoading();
+                final List<RFKillPackage> res = performLoading();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         swipeRefreshLayout.setRefreshing(false);
-                        bootAppListAdapter.update(res);
+                        rFKillAppListAdapter.update(res);
                     }
                 });
             }
         });
     }
 
-    protected List<AutoStartPackage> performLoading() {
-        return StartPackageLoader.Impl.create(this).loadInstalled(false);
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-//        MenuItem menuItem = menu.findItem(R.id.action_start_block_notify);
-//        if (menuItem != null) {
-//            menuItem.setChecked(XSettings.isStartBlockNotify(this));
-//        }
-        return super.onPrepareOptionsMenu(menu);
+    protected List<RFKillPackage> performLoading() {
+        return RFKillPackageLoader.Impl.create(this).loadInstalled(false);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.start_block, menu);
+        getMenuInflater().inflate(R.menu.lk, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -157,15 +150,9 @@ public class StartAppNavActivity extends WithRecyclerView {
         if (item.getItemId() == android.R.id.home) {
             finish();
         }
-        if (item.getItemId() == R.id.action_block_record_viewer) {
-            BlockRecordViewerActivity.start(this, null);
+        if (item.getItemId() == R.id.action_settings) {
+            startActivity(new Intent(this, LKSettingsDashboardActivity.class));
         }
-//        if (item.getItemId() == R.id.action_start_block_notify) {
-//            boolean checked = item.isChecked();
-//            checked = !checked;
-//            item.setChecked(checked);
-//            XSettings.setStartBlockNotify(this, checked);
-//        }
         return super.onOptionsItemSelected(item);
     }
 }

@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.ui.activity.lk;
+package github.tornaco.xposedmoduletest.ui.activity.start;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,21 +15,22 @@ import android.widget.TextView;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.bean.LockKillPackage;
-import github.tornaco.xposedmoduletest.loader.LockKillPackageLoader;
+import github.tornaco.xposedmoduletest.bean.AutoStartPackage;
+import github.tornaco.xposedmoduletest.loader.StartPackageLoader;
+import github.tornaco.xposedmoduletest.ui.activity.BlockRecordViewerActivity;
 import github.tornaco.xposedmoduletest.ui.activity.WithRecyclerView;
-import github.tornaco.xposedmoduletest.ui.adapter.LockKillAppListAdapter;
+import github.tornaco.xposedmoduletest.ui.adapter.StartAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
-public class LockKillAppNavActivity extends WithRecyclerView {
+public class StartAppNavActivity extends WithRecyclerView {
 
     protected FloatingActionButton fab;
 
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    protected LockKillAppListAdapter lockKillAppListAdapter;
+    protected StartAppListAdapter bootAppListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,23 +52,23 @@ public class LockKillAppNavActivity extends WithRecyclerView {
     }
 
     protected void initView() {
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        swipeRefreshLayout = findViewById(R.id.swipe);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
         swipeRefreshLayout.setColorSchemeColors(getResources().getIntArray(R.array.polluted_waves));
-        fab = findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(LockKillAppNavActivity.this, LockKillAppPickerActivity.class));
+                startActivity(new Intent(StartAppNavActivity.this, StartAppPickerActivity.class));
             }
         });
 
-        lockKillAppListAdapter = onCreateAdapter();
+        bootAppListAdapter = onCreateAdapter();
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(lockKillAppListAdapter);
+        recyclerView.setAdapter(bootAppListAdapter);
 
 
         swipeRefreshLayout.setOnRefreshListener(
@@ -81,15 +82,15 @@ public class LockKillAppNavActivity extends WithRecyclerView {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                SwitchBar switchBar = findViewById(R.id.switchbar);
+                SwitchBar switchBar = (SwitchBar) findViewById(R.id.switchbar);
                 if (switchBar == null) return;
                 switchBar.setChecked(XAshmanManager.singleInstance().isServiceAvailable()
-                        && XAshmanManager.singleInstance().isLockKillEnabled());
+                        && XAshmanManager.singleInstance().isStartBlockEnabled());
                 switchBar.addOnSwitchChangeListener(new SwitchBar.OnSwitchChangeListener() {
                     @Override
                     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
                         if (XAshmanManager.singleInstance().isServiceAvailable())
-                            XAshmanManager.singleInstance().setLockKillEnabled(isChecked);
+                            XAshmanManager.singleInstance().setStartBlockEnabled(isChecked);
                         else showTips(R.string.title_service_not_connected_settings, false,
                                 null, null);
                     }
@@ -97,18 +98,17 @@ public class LockKillAppNavActivity extends WithRecyclerView {
                 switchBar.show();
             }
         });
-
         setSummaryView();
     }
 
-
     protected void setSummaryView() {
-        TextView textView = findViewById(R.id.summary);
-        textView.setText(R.string.summary_lock_kill_app);
+        TextView textView = (TextView) findViewById(R.id.summary);
+        textView.setText(R.string.summary_start_app);
     }
 
-    protected LockKillAppListAdapter onCreateAdapter() {
-        return new LockKillAppListAdapter(this) {
+
+    protected StartAppListAdapter onCreateAdapter() {
+        return new StartAppListAdapter(this) {
             @Override
             protected void onPackageRemoved(String p) {
                 super.onPackageRemoved(p);
@@ -122,25 +122,34 @@ public class LockKillAppNavActivity extends WithRecyclerView {
         XExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                final List<LockKillPackage> res = performLoading();
+                final List<AutoStartPackage> res = performLoading();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         swipeRefreshLayout.setRefreshing(false);
-                        lockKillAppListAdapter.update(res);
+                        bootAppListAdapter.update(res);
                     }
                 });
             }
         });
     }
 
-    protected List<LockKillPackage> performLoading() {
-        return LockKillPackageLoader.Impl.create(this).loadInstalled(false);
+    protected List<AutoStartPackage> performLoading() {
+        return StartPackageLoader.Impl.create(this).loadInstalled(false);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+//        MenuItem menuItem = menu.findItem(R.id.action_start_block_notify);
+//        if (menuItem != null) {
+//            menuItem.setChecked(XSettings.isStartBlockNotify(this));
+//        }
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.lk, menu);
+        getMenuInflater().inflate(R.menu.start_block, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -149,9 +158,15 @@ public class LockKillAppNavActivity extends WithRecyclerView {
         if (item.getItemId() == android.R.id.home) {
             finish();
         }
-        if (item.getItemId() == R.id.action_settings) {
-            startActivity(new Intent(this, LKSettingsDashboardActivity.class));
+        if (item.getItemId() == R.id.action_block_record_viewer) {
+            BlockRecordViewerActivity.start(this, null);
         }
+//        if (item.getItemId() == R.id.action_start_block_notify) {
+//            boolean checked = item.isChecked();
+//            checked = !checked;
+//            item.setChecked(checked);
+//            XSettings.setStartBlockNotify(this, checked);
+//        }
         return super.onOptionsItemSelected(item);
     }
 }

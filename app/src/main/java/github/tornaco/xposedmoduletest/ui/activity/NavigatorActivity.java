@@ -30,6 +30,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.ag.AppGuard;
 import github.tornaco.xposedmoduletest.ui.tiles.ag.AppStart;
 import github.tornaco.xposedmoduletest.ui.tiles.ag.ComponentManager;
 import github.tornaco.xposedmoduletest.ui.tiles.ag.LockKill;
+import github.tornaco.xposedmoduletest.ui.tiles.ag.RFKill;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import lombok.Getter;
 
@@ -145,6 +146,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
             rest.addTile(new AppBoot(getActivity()));
             rest.addTile(new AppStart(getActivity()));
             rest.addTile(new LockKill(getActivity()));
+            rest.addTile(new RFKill(getActivity()));
 
             Category ash = new Category();
             ash.titleRes = R.string.title_control;
