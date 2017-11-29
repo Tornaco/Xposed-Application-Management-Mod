@@ -19,6 +19,7 @@ public class DaoGenerator {
         createBootCompletePackage(sch);
         createAutoStartPackage(sch);
         createLockClearPackage(sch);
+        createRFClearPackage(sch);
         createBlockRecord(sch);
         createComponentSettings(sch);
 
@@ -76,6 +77,17 @@ public class DaoGenerator {
 
     private static void createLockClearPackage(Schema sch) {
         Entity pkgInfo = sch.addEntity("LockKillPackage");
+        pkgInfo.addIntProperty("id").primaryKey();
+        pkgInfo.addStringProperty("pkgName");
+        pkgInfo.addStringProperty("appName");
+        pkgInfo.addBooleanProperty("kill");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Entity");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Generated");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Id");
+    }
+
+    private static void createRFClearPackage(Schema sch) {
+        Entity pkgInfo = sch.addEntity("RFKillPackage");
         pkgInfo.addIntProperty("id").primaryKey();
         pkgInfo.addStringProperty("pkgName");
         pkgInfo.addStringProperty("appName");

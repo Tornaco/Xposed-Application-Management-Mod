@@ -72,11 +72,11 @@ public class DaoManager {
 
         @Override
         public void onUpgrade(Database db, int oldVersion, int newVersion) {
-            Logger.i("greenDAO Upgrading schema from version "
+            Logger.w("greenDAO Upgrading schema from version "
                     + oldVersion + " to "
                     + newVersion);
             if (oldVersion == 1001) {
-
+                RFKillPackageDao.createTable(db, true);
             } else {
                 dropAllTables(db, true);
                 onCreate(db);

@@ -200,6 +200,10 @@
             android:authorities="github.tornaco.xposedmoduletest.lock_kill_package_provider"
             android:exported="true" />
         <provider
+            android:name=".provider.RFKillPackageProvider"
+            android:authorities="github.tornaco.xposedmoduletest.rf_kill_package_provider"
+            android:exported="true" />
+        <provider
             android:name=".provider.ComponentsProvider"
             android:authorities="github.tornaco.xposedmoduletest.components_provider"
             android:exported="true" />

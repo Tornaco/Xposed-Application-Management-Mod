@@ -40,9 +40,9 @@ public class XApp extends Application implements Runnable {
     public void onCreate() {
         super.onCreate();
         xApp = this;
-        Logger.config(Settings.builder().tag("XAppGuardApp")
+        Logger.config(Settings.builder().tag("X-APM-")
                 .logLevel(XSettings.isDevMode(this)
-                        ? Logger.LogLevel.DEBUG : Logger.LogLevel.WARN)
+                        ? Logger.LogLevel.VERBOSE : Logger.LogLevel.WARN)
                 .build());
         BinderInternal.addGcWatcher(this);
     }

@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.bean;
 
+
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
@@ -10,10 +11,10 @@ import org.greenrobot.greendao.annotation.Id;
 // KEEP INCLUDES END
 
 /**
- * Entity mapped to table "LOCK_KILL_PACKAGE".
+ * Entity mapped to table "RFKILL_PACKAGE".
  */
 @Entity
-public class LockKillPackage {
+public class RFKillPackage {
 
     @Id
     private Integer id;
@@ -24,16 +25,16 @@ public class LockKillPackage {
     // KEEP FIELDS - put your custom fields here
     // KEEP FIELDS END
 
-    @Generated(hash = 1702703589)
-    public LockKillPackage() {
+    @Generated(hash = 2091509942)
+    public RFKillPackage() {
     }
 
-    public LockKillPackage(Integer id) {
+    public RFKillPackage(Integer id) {
         this.id = id;
     }
 
-    @Generated(hash = 1760576630)
-    public LockKillPackage(Integer id, String pkgName, String appName, Boolean kill) {
+    @Generated(hash = 1088547898)
+    public RFKillPackage(Integer id, String pkgName, String appName, Boolean kill) {
         this.id = id;
         this.pkgName = pkgName;
         this.appName = appName;
@@ -73,16 +74,6 @@ public class LockKillPackage {
     }
 
     // KEEP METHODS - put your custom methods here
-
-    @Override
-    public String toString() {
-        return "LockKillPackage{" +
-                "id=" + id +
-                ", pkgName='" + pkgName + '\'' +
-                ", appName='" + appName + '\'' +
-                ", kill=" + kill +
-                '}';
-    }
     // KEEP METHODS END
 
 }
