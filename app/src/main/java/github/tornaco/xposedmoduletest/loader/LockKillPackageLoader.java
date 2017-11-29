@@ -1,7 +1,6 @@
 package github.tornaco.xposedmoduletest.loader;
 
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -12,12 +11,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import github.tornaco.android.common.Consumer;
-import github.tornaco.xposedmoduletest.bean.DaoManager;
-import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.bean.LockKillPackage;
 import github.tornaco.xposedmoduletest.util.PinyinComparator;
-import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
  * Created by guohao4 on 2017/10/18.
@@ -27,13 +23,7 @@ import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 public interface LockKillPackageLoader {
 
     @NonNull
-    List<LockKillPackage> loadInstalled(boolean showSystem);
-
-    @NonNull
-    List<LockKillPackage> loadStored();
-
-    @NonNull
-    List<LockKillPackage> loadStoredKilled();
+    List<LockKillPackage> loadInstalled(boolean blocked);
 
     class Impl implements LockKillPackageLoader {
 
@@ -49,11 +39,15 @@ public interface LockKillPackageLoader {
 
         @NonNull
         @Override
-        public List<LockKillPackage> loadInstalled(boolean showSystem) {
-
-            List<LockKillPackage> guards = loadStoredKilled();
+        public List<LockKillPackage> loadInstalled(boolean willBeKill) {
 
             List<LockKillPackage> out = new ArrayList<>();
+
+            XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
+            if (!xAshmanManager.isServiceAvailable()) return out;
+
+            List<String> whitelist = xAshmanManager.getWhiteListPackages();
+
             PackageManager pm = this.context.getPackageManager();
             List<android.content.pm.PackageInfo> packages;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
@@ -71,52 +65,25 @@ public interface LockKillPackageLoader {
                     continue;
                 }
 
-                // Ignore our self.
-                if (this.context.getPackageName().equals(packageInfo.packageName)) {
+                String packageName = packageInfo.packageName;
+
+                if (whitelist.contains(packageName)) continue;
+
+                // Ignore that will not be killed.
+                if (willBeKill != xAshmanManager.isPackageLockKillEnabled(packageInfo.packageName)) {
                     continue;
                 }
-
-                boolean isSystemApp = (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
-                if (isSystemApp && !showSystem) continue;
 
                 LockKillPackage p = new LockKillPackage();
                 p.setKill(true);
                 p.setAppName(name);
-                p.setPkgName(packageInfo.packageName);
+                p.setPkgName(packageName);
 
-                if (!guards.contains(p)) out.add(p);
+                out.add(p);
             }
             java.util.Collections.sort(out, new LockComparator());
 
             return out;
-        }
-
-        @NonNull
-        @Override
-        public List<LockKillPackage> loadStored() {
-            final List<LockKillPackage> out = new ArrayList<>();
-            DaoSession daoSession = DaoManager.getInstance().getSession(context);
-            if (daoSession == null)
-                return out;
-            List<LockKillPackage> all = daoSession.getLockKillPackageDao().loadAll();
-            if (all != null) {
-                github.tornaco.android.common.Collections.consumeRemaining(all,
-                        new Consumer<LockKillPackage>() {
-                            @Override
-                            public void accept(LockKillPackage LockKillPackage) {
-                                if (PkgUtil.isPkgInstalled(context, LockKillPackage.getPkgName())) {
-                                    out.add(LockKillPackage);
-                                }
-                            }
-                        });
-            }
-            return out;
-        }
-
-        @NonNull
-        @Override
-        public List<LockKillPackage> loadStoredKilled() {
-            return loadStored();
         }
     }
 

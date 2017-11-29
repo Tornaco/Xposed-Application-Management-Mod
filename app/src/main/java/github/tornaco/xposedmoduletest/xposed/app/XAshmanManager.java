@@ -6,6 +6,7 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 import org.newstand.logger.Logger;
 
@@ -226,6 +227,42 @@ public class XAshmanManager {
             mService.setNetworkPolicyUidPolicy(uid, policy);
         } catch (RemoteException e) {
             Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public boolean isPackageStartBlockEnabled(String pkg) {
+        try {
+            return mService.isPackageStartBlockEnabled(pkg);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return false;
+        }
+    }
+
+    public boolean isPackageBootBlockEnabled(String pkg) {
+        try {
+            return mService.isPackageBootBlockEnabled(pkg);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return false;
+        }
+    }
+
+    public boolean isPackageLockKillEnabled(String pkg) {
+        try {
+            return mService.isPackageLockKillEnabled(pkg);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return false;
+        }
+    }
+
+    public List<String> getWhiteListPackages() {
+        try {
+            return mService.getWhiteListPackages();
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return Lists.newArrayListWithCapacity(0);
         }
     }
 }

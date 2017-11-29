@@ -51,10 +51,10 @@ public class BootAppNavActivity extends WithRecyclerView {
 
 
     protected void initView() {
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        swipeRefreshLayout = findViewById(R.id.swipe);
         swipeRefreshLayout.setColorSchemeColors(getResources().getIntArray(R.array.polluted_waves));
-        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = findViewById(R.id.fab);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,7 +81,7 @@ public class BootAppNavActivity extends WithRecyclerView {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                SwitchBar switchBar = (SwitchBar) findViewById(R.id.switchbar);
+                SwitchBar switchBar = findViewById(R.id.switchbar);
                 if (switchBar == null) return;
                 switchBar.setChecked(XAshmanManager.singleInstance().isServiceAvailable()
                         && XAshmanManager.singleInstance().isBlockBlockEnabled());
@@ -102,7 +102,7 @@ public class BootAppNavActivity extends WithRecyclerView {
 
 
     protected void setSummaryView() {
-        TextView textView = (TextView) findViewById(R.id.summary);
+        TextView textView = findViewById(R.id.summary);
         textView.setText(R.string.summary_boot_app);
     }
 
@@ -134,7 +134,7 @@ public class BootAppNavActivity extends WithRecyclerView {
     }
 
     protected List<BootCompletePackage> performLoading() {
-        return BootPackageLoader.Impl.create(this).loadStoredDisAllowed();
+        return BootPackageLoader.Impl.create(this).loadInstalled(false);
     }
 
     @Override

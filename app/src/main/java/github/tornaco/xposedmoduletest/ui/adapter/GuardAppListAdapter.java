@@ -60,14 +60,13 @@ public class GuardAppListAdapter extends RecyclerView.Adapter<GuardAppListAdapte
 
     @LayoutRes
     private int getTemplateLayoutRes() {
-        return R.layout.app_list_item;
+        return R.layout.app_list_item_1;
     }
 
     @Override
     public void onBindViewHolder(final AppViewHolder holder, int position) {
         final PackageInfo packageInfo = packageInfos.get(position);
         holder.getLineOneTextView().setText(packageInfo.getAppName());
-        holder.getLineTwoTextView().setText(packageInfo.getExt());
         holder.getCheckableImageView().setChecked(false);
         Vangogh.with(context)
                 .load(packageInfo.getPkgName())
@@ -132,22 +131,16 @@ public class GuardAppListAdapter extends RecyclerView.Adapter<GuardAppListAdapte
 
     public static class AppViewHolder extends RecyclerView.ViewHolder {
         private TextView lineOneTextView;
-        private TextView lineTwoTextView;
         private CheckableImageView checkableImageView;
 
         AppViewHolder(View itemView) {
             super(itemView);
-            lineOneTextView = (TextView) itemView.findViewById(android.R.id.title);
-            lineTwoTextView = (TextView) itemView.findViewById(android.R.id.text1);
-            checkableImageView = (CheckableImageView) itemView.findViewById(R.id.checkable_img_view);
+            lineOneTextView = itemView.findViewById(android.R.id.title);
+            checkableImageView = itemView.findViewById(R.id.checkable_img_view);
         }
 
         TextView getLineOneTextView() {
             return lineOneTextView;
-        }
-
-        TextView getLineTwoTextView() {
-            return lineTwoTextView;
         }
 
         CheckableImageView getCheckableImageView() {

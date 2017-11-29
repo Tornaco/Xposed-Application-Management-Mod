@@ -17,8 +17,6 @@ import github.tornaco.xposedmoduletest.util.XExecutor;
 
 public class BootAppPickerActivity extends BootAppNavActivity {
 
-    private boolean mShowSystemApp;
-
     @Override
     protected int getLayoutRes() {
         return R.layout.app_list;
@@ -68,12 +66,12 @@ public class BootAppPickerActivity extends BootAppNavActivity {
     }
 
     protected void setSummaryView() {
-        TextView textView = (TextView) findViewById(R.id.summary);
+        TextView textView = findViewById(R.id.summary);
         textView.setVisibility(View.GONE);
     }
 
     protected List<BootCompletePackage> performLoading() {
-        return BootPackageLoader.Impl.create(this).loadInstalled(mShowSystemApp);
+        return BootPackageLoader.Impl.create(this).loadInstalled(true);
     }
 
     @Override

@@ -274,6 +274,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
                         addToWhiteList(pkg);
                     }
+
+                    if (isIME(pkg)) {
+                        addToWhiteList(pkg);
+                    }
+
                     mPackagesCache.put(uid, pkg);
                 }
             });
@@ -630,8 +635,90 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return res.res;
     }
 
+    @Override
+    @BinderCall
+    public boolean isPackageStartBlockEnabled(String pkg) throws RemoteException {
+        enforceCallingPermissions();
+        // If this app is not in good condition, but user
+        // does not block, we also allow it to start.
+        boolean allowedByUser = isStartAllowedByUser(pkg);
+        if (allowedByUser) {
+            return false;
+        }
+
+        if (isInWhiteList(pkg)) {
+            return false;
+        }
+
+        if (PkgUtil.isHomeApp(getContext(), pkg)) {
+            return false;
+        }
+
+        if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
+            return false;
+        }
+        return true;
+    }
 
     @Override
+    @BinderCall
+    public boolean isPackageBootBlockEnabled(String pkg) throws RemoteException {
+        enforceCallingPermissions();
+        // If this app is not in good condition, but user
+        // does not block, we also allow it to start.
+        boolean allowedByUser = isBootAllowedByUser(pkg);
+        if (allowedByUser) {
+            return false;
+        }
+
+        if (isInWhiteList(pkg)) {
+            return false;
+        }
+
+        if (PkgUtil.isHomeApp(getContext(), pkg)) {
+            return false;
+        }
+
+        if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    @BinderCall
+    public boolean isPackageLockKillEnabled(String pkg) throws RemoteException {
+        enforceCallingPermissions();
+        // If this app is not in good condition, but user
+        // does not block, we also allow it to start.
+        boolean allowedByUser = isInLockKillWhiteList(pkg);
+        if (allowedByUser) {
+            return false;
+        }
+
+        if (isInWhiteList(pkg)) {
+            return false;
+        }
+
+        if (PkgUtil.isHomeApp(getContext(), pkg)) {
+            return false;
+        }
+
+        if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    @BinderCall
+    public List<String> getWhiteListPackages() throws RemoteException {
+        enforceCallingPermissions();
+        return Lists.newArrayList(WHITE_LIST);
+    }
+
+    @Override
+    @BinderCall
     public List<BlockRecord2> getBlockRecords() throws RemoteException {
         enforceCallingPermissions();
         synchronized (mBlockRecords) {
@@ -640,6 +727,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @BinderCall
     public void clearBlockRecords() throws RemoteException {
         enforceCallingPermissions();
         h.removeMessages(AshManHandlerMessages.MSG_CLEARBLOCKRECORDS);
@@ -647,12 +735,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @BinderCall
     public void setComponentEnabledSetting(ComponentName componentName, int newState, int flags) throws RemoteException {
         enforceCallingPermissions();
         h.obtainMessage(AshManHandlerMessages.MSG_SETCOMPONENTENABLEDSETTING, newState, flags, componentName).sendToTarget();
     }
 
     @Override
+    @BinderCall
     public int getComponentEnabledSetting(ComponentName componentName) throws RemoteException {
         long id = Binder.clearCallingIdentity();
         try {
@@ -672,6 +762,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @BinderCall
     public void unWatch(IAshmanWatcher w) throws RemoteException {
         enforceCallingPermissions();
         Preconditions.checkNotNull(w, "IAshmanWatcher is null");
@@ -680,6 +771,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @BinderCall
     public void setNetworkPolicyUidPolicy(int uid, int policy) throws RemoteException {
         enforceCallingPermissions();
         h.obtainMessage(AshManHandlerMessages.MSG_SETNETWORKPOLICYUIDPOLICY, uid, policy).sendToTarget();
@@ -702,6 +794,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
         if (TextUtils.isEmpty(receiverPkgName)) return CheckResult.BAD_ARGS;
 
+        // Broadcast from/to same app is allowed.
+        if (callerUid == receiverUid) {
+            return CheckResult.SAME_CALLER;
+        }
+
+        return checkBroadcastDetailed(receiverPkgName);
+    }
+
+    private CheckResult checkBroadcastDetailed(String receiverPkgName) {
         // If this app is not in good condition, but user
         // does not block, we also allow it to start.
         boolean allowedByUser = isStartAllowedByUser(receiverPkgName);
@@ -711,11 +812,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (isInWhiteList(receiverPkgName)) {
             return CheckResult.WHITE_LISTED;
-        }
-
-        // Broadcast from/to same app is allowed.
-        if (callerUid == receiverUid) {
-            return CheckResult.SAME_CALLER;
         }
 
         if (PkgUtil.isHomeApp(getContext(), receiverPkgName)) {

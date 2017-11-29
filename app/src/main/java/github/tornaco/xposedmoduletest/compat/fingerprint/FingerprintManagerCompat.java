@@ -266,10 +266,15 @@ public final class FingerprintManagerCompat {
 
     private static class FlymeFingerprintManagerCompatImpl implements FingerprintManagerCompatImpl {
 
-        final boolean USE_FLYME_SDK;
+        private boolean USE_FLYME_SDK;
 
         FlymeFingerprintManagerCompatImpl() {
-            USE_FLYME_SDK = FingerprintManagerCompatApiFlyme.isHardwareDetected(null);
+            try {
+                USE_FLYME_SDK = FingerprintManagerCompatApiFlyme.isHardwareDetected(null);
+            } catch (Throwable ignored) {
+
+            }
+            Logger.d("FUCKING FLYME!!!");
             Logger.d("USE_FLYME_SDK:" + USE_FLYME_SDK);
         }
 

@@ -18,8 +18,6 @@ import github.tornaco.xposedmoduletest.util.XExecutor;
 
 public class LockKillAppPickerActivity extends LockKillAppNavActivity {
 
-    private boolean mShowSystemApp;
-
     @Override
     protected int getLayoutRes() {
         return R.layout.app_list;
@@ -30,7 +28,7 @@ public class LockKillAppPickerActivity extends LockKillAppNavActivity {
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         super.initView();
-        SwitchBar switchBar = (SwitchBar) findViewById(R.id.switchbar);
+        SwitchBar switchBar = findViewById(R.id.switchbar);
         switchBar.hide();
         fab.setImageResource(R.drawable.ic_check_black_24dp);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -69,12 +67,12 @@ public class LockKillAppPickerActivity extends LockKillAppNavActivity {
     }
 
     protected void setSummaryView() {
-        TextView textView = (TextView) findViewById(R.id.summary);
+        TextView textView = findViewById(R.id.summary);
         textView.setVisibility(View.GONE);
     }
 
     protected List<LockKillPackage> performLoading() {
-        return LockKillPackageLoader.Impl.create(this).loadInstalled(mShowSystemApp);
+        return LockKillPackageLoader.Impl.create(this).loadInstalled(true);
     }
 
     @Override

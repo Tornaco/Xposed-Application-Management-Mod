@@ -1,7 +1,6 @@
 package github.tornaco.xposedmoduletest.loader;
 
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -12,12 +11,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.bean.BootCompletePackage;
-import github.tornaco.xposedmoduletest.bean.DaoManager;
-import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.util.PinyinComparator;
-import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
  * Created by guohao4 on 2017/10/18.
@@ -27,13 +23,7 @@ import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 public interface BootPackageLoader {
 
     @NonNull
-    List<BootCompletePackage> loadInstalled(boolean showSystem);
-
-    @NonNull
-    List<BootCompletePackage> loadStored();
-
-    @NonNull
-    List<BootCompletePackage> loadStoredDisAllowed();
+    List<BootCompletePackage> loadInstalled(boolean blocked);
 
     class Impl implements BootPackageLoader {
 
@@ -49,11 +39,14 @@ public interface BootPackageLoader {
 
         @NonNull
         @Override
-        public List<BootCompletePackage> loadInstalled(boolean showSystem) {
-
-            List<BootCompletePackage> blocked = loadStoredDisAllowed();
-
+        public List<BootCompletePackage> loadInstalled(boolean blocked) {
             List<BootCompletePackage> out = new ArrayList<>();
+
+            XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
+            if (!xAshmanManager.isServiceAvailable()) return out;
+
+            List<String> whitelist = xAshmanManager.getWhiteListPackages();
+
             PackageManager pm = this.context.getPackageManager();
             List<android.content.pm.PackageInfo> packages;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
@@ -71,52 +64,26 @@ public interface BootPackageLoader {
                     continue;
                 }
 
-                // Ignore our self.
-                if (this.context.getPackageName().equals(packageInfo.packageName)) {
+                String packageName = packageInfo.packageName;
+
+                if (whitelist.contains(packageName)) continue;
+
+                // Ignores that will not be blocked.
+                if (blocked != xAshmanManager.isPackageBootBlockEnabled(packageName)) {
                     continue;
                 }
-
-                boolean isSystemApp = (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
-                if (isSystemApp && !showSystem) continue;
 
                 BootCompletePackage p = new BootCompletePackage();
                 p.setAllow(false);
                 p.setAppName(name);
-                p.setPkgName(packageInfo.packageName);
+                p.setPkgName(packageName);
 
-                if (!blocked.contains(p)) out.add(p);
+                out.add(p);
             }
+
             java.util.Collections.sort(out, new BootComparator());
 
             return out;
-        }
-
-        @NonNull
-        @Override
-        public List<BootCompletePackage> loadStored() {
-            final List<BootCompletePackage> out = new ArrayList<>();
-            DaoSession daoSession = DaoManager.getInstance().getSession(context);
-            if (daoSession == null)
-                return out;
-            List<BootCompletePackage> all = daoSession.getBootCompletePackageDao().loadAll();
-            if (all != null) {
-                github.tornaco.android.common.Collections.consumeRemaining(all,
-                        new Consumer<BootCompletePackage>() {
-                            @Override
-                            public void accept(BootCompletePackage bootCompletePackage) {
-                                if (PkgUtil.isPkgInstalled(context, bootCompletePackage.getPkgName())) {
-                                    out.add(bootCompletePackage);
-                                }
-                            }
-                        });
-            }
-            return out;
-        }
-
-        @NonNull
-        @Override
-        public List<BootCompletePackage> loadStoredDisAllowed() {
-            return loadStored();
         }
     }
 

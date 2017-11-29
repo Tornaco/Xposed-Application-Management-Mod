@@ -21,6 +21,7 @@ import java.util.List;
 
 import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.app.AppDashboardActivity;
@@ -52,7 +53,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
         boolean first = XSettings.isFirstRun(this);
         if (first) {
             new AlertDialog.Builder(NavigatorActivity.this)
-                    .setTitle(R.string.first_run_title)
+                    .setTitle(BuildConfig.VERSION_NAME)
                     .setMessage(R.string.message_first_run)
                     .setCancelable(false)
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -113,15 +114,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
                 }
             });
 
-//            findView(rootView, R.id.button)
-//                    .setOnClickListener(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View v) {
-//                            WithWithCustomTabActivity withWithCustomTabActivity = (WithWithCustomTabActivity) getActivity();
-//                            withWithCustomTabActivity.navigateToWebPage(getString(R.string.app_wiki_url));
-//                        }
-//                    });
-
             TextView statusTitle = findView(rootView, android.R.id.title);
             statusTitle.setText(isServiceAvailable() ?
                     R.string.title_service_connected : R.string.title_service_not_connected);
@@ -130,12 +122,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
                     XAppGuardManager.singleInstance().isServiceAvailable() ?
                             ContextCompat.getColor(getActivity(), R.color.green)
                             : ContextCompat.getColor(getActivity(), R.color.red));
-
-//            EmojiTextView emojiTextView = findView(rootView, R.id.icon1);
-//            emojiTextView.setText(EmojiUtil.getEmojiByUnicode(
-//                    isServiceAvailable() ?
-//                            EmojiUtil.HEIHEIHEI
-//                            : EmojiUtil.DOG));
 
             ImageView imageView = findView(rootView, R.id.icon1);
             imageView.setImageResource(isServiceAvailable()
@@ -165,8 +151,8 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
             ash.addTile(new ComponentManager(getActivity()));
 
             categories.add(category);
-            categories.add(ash);
             categories.add(rest);
+            categories.add(ash);
         }
 
         @SuppressWarnings("unchecked")

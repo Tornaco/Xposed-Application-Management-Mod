@@ -135,7 +135,7 @@ public class LockKillAppNavActivity extends WithRecyclerView {
     }
 
     protected List<LockKillPackage> performLoading() {
-        return LockKillPackageLoader.Impl.create(this).loadStoredKilled();
+        return LockKillPackageLoader.Impl.create(this).loadInstalled(false);
     }
 
     @Override

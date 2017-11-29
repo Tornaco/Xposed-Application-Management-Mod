@@ -73,6 +73,17 @@ public class LockKillPackage {
     }
 
     // KEEP METHODS - put your custom methods here
+
+    @Override
+    public String toString() {
+        return "LockKillPackage{" +
+                "id=" + id +
+                ", pkgName='" + pkgName + '\'' +
+                ", appName='" + appName + '\'' +
+                ", kill=" + kill +
+                '}';
+    }
+
     // KEEP METHODS END
 
 }

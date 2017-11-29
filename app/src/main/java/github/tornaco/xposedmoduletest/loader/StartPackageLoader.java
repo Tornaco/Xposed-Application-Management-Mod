@@ -1,7 +1,6 @@
 package github.tornaco.xposedmoduletest.loader;
 
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -12,11 +11,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.bean.AutoStartPackage;
-import github.tornaco.xposedmoduletest.bean.DaoManager;
-import github.tornaco.xposedmoduletest.bean.DaoSession;
-import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
  * Created by guohao4 on 2017/10/18.
@@ -26,13 +22,7 @@ import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 public interface StartPackageLoader {
 
     @NonNull
-    List<AutoStartPackage> loadInstalled(boolean showSystem);
-
-    @NonNull
-    List<AutoStartPackage> loadStored();
-
-    @NonNull
-    List<AutoStartPackage> loadStoredDisAllowed();
+    List<AutoStartPackage> loadInstalled(boolean block);
 
     class Impl implements StartPackageLoader {
 
@@ -48,11 +38,15 @@ public interface StartPackageLoader {
 
         @NonNull
         @Override
-        public List<AutoStartPackage> loadInstalled(boolean showSystem) {
-
-            List<AutoStartPackage> guards = loadStoredDisAllowed();
+        public List<AutoStartPackage> loadInstalled(boolean block) {
 
             List<AutoStartPackage> out = new ArrayList<>();
+
+            XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
+            if (!xAshmanManager.isServiceAvailable()) return out;
+
+            List<String> whitelist = xAshmanManager.getWhiteListPackages();
+
             PackageManager pm = this.context.getPackageManager();
             List<android.content.pm.PackageInfo> packages;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
@@ -70,52 +64,25 @@ public interface StartPackageLoader {
                     continue;
                 }
 
-                // Ignore our self.
-                if (this.context.getPackageName().equals(packageInfo.packageName)) {
+                String packageName = packageInfo.packageName;
+
+                if (whitelist.contains(packageName)) continue;
+
+                if (block != xAshmanManager.isPackageStartBlockEnabled(packageName)) {
                     continue;
                 }
-
-                boolean isSystemApp = (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
-                if (isSystemApp && !showSystem) continue;
 
                 AutoStartPackage p = new AutoStartPackage();
                 p.setAllow(false);
                 p.setAppName(name);
-                p.setPkgName(packageInfo.packageName);
+                p.setPkgName(packageName);
 
-                if (!guards.contains(p)) out.add(p);
+                out.add(p);
             }
+
             java.util.Collections.sort(out, new PinyinComparator());
 
             return out;
-        }
-
-        @NonNull
-        @Override
-        public List<AutoStartPackage> loadStored() {
-            final List<AutoStartPackage> out = new ArrayList<>();
-            DaoSession daoSession = DaoManager.getInstance().getSession(context);
-            if (daoSession == null)
-                return out;
-            List<AutoStartPackage> all = daoSession.getAutoStartPackageDao().loadAll();
-            if (all != null) {
-                github.tornaco.android.common.Collections.consumeRemaining(all,
-                        new Consumer<AutoStartPackage>() {
-                            @Override
-                            public void accept(AutoStartPackage autoStartPackage) {
-                                if (PkgUtil.isPkgInstalled(context, autoStartPackage.getPkgName())) {
-                                    out.add(autoStartPackage);
-                                }
-                            }
-                        });
-            }
-            return out;
-        }
-
-        @NonNull
-        @Override
-        public List<AutoStartPackage> loadStoredDisAllowed() {
-            return loadStored();
         }
     }
 

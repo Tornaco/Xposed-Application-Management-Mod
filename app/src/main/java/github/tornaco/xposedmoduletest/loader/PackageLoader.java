@@ -16,7 +16,6 @@ import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
-import github.tornaco.xposedmoduletest.util.PinyinComparator;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
@@ -153,10 +152,13 @@ public interface PackageLoader {
                     @Override
                     public void accept(PackageInfo packageInfo) {
                         if (PkgUtil.isPkgInstalled(context, packageInfo.getPkgName())) {
+                            packageInfo.setExt(String.valueOf(PkgUtil.loadVersionByPkgName(context,
+                                    packageInfo.getPkgName())));
                             out.add(packageInfo);
                         }
                     }
                 });
+            java.util.Collections.sort(out, new PinyinComparator());
             return out;
         }
 

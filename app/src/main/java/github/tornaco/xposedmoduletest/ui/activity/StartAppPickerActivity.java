@@ -18,8 +18,6 @@ import github.tornaco.xposedmoduletest.util.XExecutor;
 
 public class StartAppPickerActivity extends StartAppNavActivity {
 
-    private boolean mShowSystemApp;
-
     @Override
     protected int getLayoutRes() {
         return R.layout.app_list;
@@ -74,7 +72,7 @@ public class StartAppPickerActivity extends StartAppNavActivity {
     }
 
     protected List<AutoStartPackage> performLoading() {
-        return StartPackageLoader.Impl.create(this).loadInstalled(mShowSystemApp);
+        return StartPackageLoader.Impl.create(this).loadInstalled(true);
     }
 
     @Override

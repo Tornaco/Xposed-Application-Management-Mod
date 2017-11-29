@@ -37,7 +37,7 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         super.initView();
-        SwitchBar switchBar = (SwitchBar) findViewById(R.id.switchbar);
+        SwitchBar switchBar = findViewById(R.id.switchbar);
         switchBar.hide();
         fab.setImageResource(R.drawable.ic_check_black_24dp);
         fab.setOnClickListener(new View.OnClickListener() {

@@ -62,7 +62,7 @@ public class LockKillAppListAdapter extends RecyclerView.Adapter<LockKillAppList
 
     @LayoutRes
     private int getTemplateLayoutRes() {
-        return R.layout.app_list_item;
+        return R.layout.app_list_item_1;
     }
 
     @Override
@@ -70,7 +70,6 @@ public class LockKillAppListAdapter extends RecyclerView.Adapter<LockKillAppList
         final LockKillPackage LockKillPackage = LockKillPackages.get(position);
         holder.getLineOneTextView().setText(LockKillPackage.getAppName());
         holder.getCheckableImageView().setChecked(false);
-        holder.getLineTwoTextView().setText(String.valueOf(LockKillPackage.getPkgName()));
         Vangogh.with(context)
                 .load(LockKillPackage.getPkgName())
                 .skipMemoryCache(true)
@@ -134,22 +133,16 @@ public class LockKillAppListAdapter extends RecyclerView.Adapter<LockKillAppList
 
     static class AppViewHolder extends RecyclerView.ViewHolder {
         private TextView lineOneTextView;
-        private TextView lineTwoTextView;
         private CheckableImageView checkableImageView;
 
         AppViewHolder(View itemView) {
             super(itemView);
-            lineOneTextView = (TextView) itemView.findViewById(android.R.id.title);
-            lineTwoTextView = (TextView) itemView.findViewById(android.R.id.text1);
-            checkableImageView = (CheckableImageView) itemView.findViewById(R.id.checkable_img_view);
+            lineOneTextView = itemView.findViewById(android.R.id.title);
+            checkableImageView = itemView.findViewById(R.id.checkable_img_view);
         }
 
         TextView getLineOneTextView() {
             return lineOneTextView;
-        }
-
-        TextView getLineTwoTextView() {
-            return lineTwoTextView;
         }
 
         CheckableImageView getCheckableImageView() {

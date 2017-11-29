@@ -238,7 +238,7 @@ public class NeedLockActivity extends BaseActivity {
         private void vibrate() {
             Vibrator vibrator = (Vibrator) activity.getSystemService(VIBRATOR_SERVICE);
             if (vibrator != null) {
-                vibrator.vibrate(200);
+                vibrator.vibrate(new long[]{10, 20, 20}, -1);
             }
         }
 
