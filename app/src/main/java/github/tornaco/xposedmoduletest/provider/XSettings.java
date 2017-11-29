@@ -8,6 +8,7 @@ import java.io.File;
 import java.util.Observable;
 
 import github.tornaco.xposedmoduletest.ui.Themes;
+import github.tornaco.xposedmoduletest.xposed.XAppBuildHostInfo;
 
 /**
  * Created by guohao4 on 2017/10/19.
@@ -25,22 +26,36 @@ public class XSettings extends Observable {
         return sMe;
     }
 
-    public boolean takenPhotoEnabled(Context context) {
+    public static boolean isNewBuild(Context context) {
+        try {
+            String buildDateOld = PreferenceManager.getDefaultSharedPreferences(context)
+                    .getString(XKey.BUILD_DATE, null);
+            return buildDateOld != null
+                    && !buildDateOld.equals(XAppBuildHostInfo.BUILD_DATE);
+        } finally {
+            PreferenceManager.getDefaultSharedPreferences(context)
+                    .edit()
+                    .putString(XKey.BUILD_DATE, XAppBuildHostInfo.BUILD_DATE)
+                    .apply();
+        }
+    }
+
+    public static boolean takenPhotoEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(XKey.TAKE_PHOTO_ENABLED, true);
     }
 
-    public boolean fpEnabled(Context context) {
+    public static boolean fpEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(XKey.FP_ENABLED, false);
     }
 
-    public boolean cropEnabled(Context context) {
+    public static boolean cropEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(XKey.CROP_CIRCLE_ENABLED, false);
     }
 
-    public boolean showAppIconEnabled(Context context) {
+    public static boolean showAppIconEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(XKey.SHOW_APP_ICON_ENABLED, false);
     }

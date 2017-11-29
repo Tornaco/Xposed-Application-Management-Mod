@@ -35,7 +35,6 @@ public class XApp extends Application implements Runnable {
         MultiDex.install(this);
     }
 
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -49,5 +48,6 @@ public class XApp extends Application implements Runnable {
 
     @Override
     public void run() {
+        // empty.
     }
 }

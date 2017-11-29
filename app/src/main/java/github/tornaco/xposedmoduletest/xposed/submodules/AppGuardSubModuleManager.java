@@ -17,13 +17,13 @@ public class AppGuardSubModuleManager {
     private final Set<SubModule> SUBS = new HashSet<>();
 
     private AppGuardSubModuleManager() {
-        SUBS.add(new ASFSubModule());
         SUBS.add(new FPSubModule());
         SUBS.add(new ScreenshotApplicationsSubModule());
         SUBS.add(new PackageInstallerSubModule());
         SUBS.add(new PMSSubModule());
         SUBS.add(new TaskMoverSubModuleDelegate());
         SUBS.add(new ActivityStartSubModuleDelegate());
+        SUBS.add(new AMSSubModule5());
         SUBS.add(new AMSSubModule4());
         SUBS.add(new AMSSubModule3());
         SUBS.add(new AMSSubModule2());

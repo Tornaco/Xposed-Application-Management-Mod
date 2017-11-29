@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -32,6 +33,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.ag.ComponentManager;
 import github.tornaco.xposedmoduletest.ui.tiles.ag.LockKill;
 import github.tornaco.xposedmoduletest.ui.tiles.ag.RFKill;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import lombok.Getter;
 
 /**
@@ -109,25 +111,45 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
         }
 
         private void setupView() {
-            findView(rootView, R.id.card).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                }
-            });
 
             TextView statusTitle = findView(rootView, android.R.id.title);
+            ImageView imageView = findView(rootView, R.id.icon1);
+
+            ViewGroup btnContainer = findView(rootView, R.id.button_container);
+            Button button = findView(rootView, R.id.button);
+
+            boolean isNewBuild = XSettings.isNewBuild(getActivity());
+            btnContainer.setVisibility(isNewBuild && XAshmanManager.singleInstance().isServiceAvailable()
+                    ? View.VISIBLE : View.GONE);
+
             statusTitle.setText(isServiceAvailable() ?
                     R.string.title_service_connected : R.string.title_service_not_connected);
-            ViewGroup header = findView(rootView, R.id.header1);
-            header.setBackgroundColor(
-                    XAppGuardManager.singleInstance().isServiceAvailable() ?
-                            ContextCompat.getColor(getActivity(), R.color.green)
-                            : ContextCompat.getColor(getActivity(), R.color.red));
 
-            ImageView imageView = findView(rootView, R.id.icon1);
-            imageView.setImageResource(isServiceAvailable()
-                    ? R.drawable.ic_check_circle_black_24dp
-                    : R.drawable.ic_error_black_24dp);
+            TextView summaryView = findView(rootView, android.R.id.text1);
+
+            if (isNewBuild) {
+                summaryView.setText(R.string.app_intro_need_restart);
+                ViewGroup header = findView(rootView, R.id.header1);
+                header.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.red));
+                imageView.setImageResource(R.drawable.ic_error_black_24dp);
+
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        XAshmanManager.singleInstance().restart();
+                    }
+                });
+            } else {
+                summaryView.setText(R.string.app_intro);
+                ViewGroup header = findView(rootView, R.id.header1);
+                header.setBackgroundColor(
+                        XAppGuardManager.singleInstance().isServiceAvailable() ?
+                                ContextCompat.getColor(getActivity(), R.color.green)
+                                : ContextCompat.getColor(getActivity(), R.color.red));
+                imageView.setImageResource(isServiceAvailable()
+                        ? R.drawable.ic_check_circle_black_24dp
+                        : R.drawable.ic_error_black_24dp);
+            }
         }
 
         private boolean isServiceAvailable() {

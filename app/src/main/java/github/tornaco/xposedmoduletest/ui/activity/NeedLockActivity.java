@@ -181,7 +181,7 @@ public class NeedLockActivity extends BaseActivity {
 
 
         private void readSettings() {
-            this.mTakePhoto = XSettings.get().takenPhotoEnabled(activity);
+            this.mTakePhoto = XSettings.takenPhotoEnabled(activity);
         }
 
         private void setupLabel() {
@@ -198,7 +198,7 @@ public class NeedLockActivity extends BaseActivity {
 
         private void setupFP() {
             cancelFP();
-            if (XSettings.get().fpEnabled(activity)) {
+            if (XSettings.fpEnabled(activity)) {
                 mCancellationSignal = setupFingerPrint(
                         new FingerprintManagerCompat.AuthenticationCallback() {
                             @Override

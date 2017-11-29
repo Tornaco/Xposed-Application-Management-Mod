@@ -9,7 +9,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,7 +18,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.os.CancellationSignal;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -50,7 +48,6 @@ import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.util.PatternLockViewListenerAdapter;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
-import github.tornaco.xposedmoduletest.xposed.app.XWatcherAdapter;
 
 import static github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager.EXTRA_INJECT_HOME_WHEN_FAIL_ID;
 import static github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager.EXTRA_PKG_NAME;
@@ -132,7 +129,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private void setupIcon() {
-        if (XSettings.get().showAppIconEnabled(this)) {
+        if (XSettings.showAppIconEnabled(this)) {
             ImageView imageView = findViewById(R.id.icon);
             Vangogh.with(this)
                     .load(pkg)
@@ -141,7 +138,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
                     .usingLoader(new VangoghAppLoader(this))
                     .applier(new ScaleInXYApplier())
                     // FIXME Make it simple.
-                    .effect(XSettings.get().cropEnabled(this)
+                    .effect(XSettings.cropEnabled(this)
                             ? new CircleImageEffect() : new ImageEffect() {
                         @NonNull
                         @Override

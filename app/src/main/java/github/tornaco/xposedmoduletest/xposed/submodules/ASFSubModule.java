@@ -15,7 +15,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
 /**
  * ActivityStack move to front.
  */
-
+@Deprecated
 class ASFSubModule extends AndroidSubModuleModule {
 
     @Override

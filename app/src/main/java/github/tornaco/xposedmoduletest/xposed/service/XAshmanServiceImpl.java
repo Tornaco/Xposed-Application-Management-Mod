@@ -29,6 +29,7 @@ import android.util.SparseArray;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
 
+import com.android.internal.os.Zygote;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -84,6 +85,9 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
  */
 
 public class XAshmanServiceImpl extends XAshmanServiceAbs {
+
+    private static final boolean DEBUG_BROADCAST = false;
+    private static final boolean DEBUG_SERVICE = false;
 
     private static final Set<String> WHITE_LIST = new HashSet<>();
     // Installed in system/, not contains system-packages and persist packages.
@@ -634,7 +638,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         .pkg(appPkg)
                         .when(System.currentTimeMillis())
                         .build());
-        if (res.logRecommended)
+        if (DEBUG_SERVICE && res.logRecommended)
             XPosedLog.verboseOn("XAshmanService checkService returning: " + res + "for: " +
                             PkgUtil.loadNameByPkgName(getContext(), appPkg)
                             + ", comp: " + serviceComp,
@@ -701,7 +705,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         .why(res.why)
                         .build());
 
-        if (res.logRecommended)
+        if (DEBUG_BROADCAST && res.logRecommended)
             XPosedLog.verboseOn("XAshmanService checkBroadcast returning: "
                     + res + " for: "
                     + PkgUtil.loadNameByPkgName(getContext(),
@@ -881,6 +885,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public void setNetworkPolicyUidPolicy(int uid, int policy) throws RemoteException {
         enforceCallingPermissions();
         h.obtainMessage(AshManHandlerMessages.MSG_SETNETWORKPOLICYUIDPOLICY, uid, policy).sendToTarget();
+    }
+
+    @Override
+    public void restart() throws RemoteException {
+        enforceCallingPermissions();
+        lazyH.post(new Runnable() {
+            @Override
+            public void run() {
+                Zygote.execShell("stop; start");
+            }
+        });
     }
 
     private CheckResult checkBroadcastDetailed(String action, int receiverUid, int callerUid) {
@@ -1720,21 +1735,34 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void onActivityDestroy(Intent intent) {
             boolean isMainIntent = PkgUtil.isMainIntent(intent);
 
-            String packageName = PkgUtil.packageNameOf(intent);
+            final String packageName = PkgUtil.packageNameOf(intent);
             if (packageName == null) return;
 
-            if (!isPackageRFKillEnabled(packageName)) {
-                return;
-            }
 
             XPosedLog.verbose("onActivityDestroy, packageName: " + packageName
                     + ", isMainIntent: " + isMainIntent + ", topPkg: " + getTopPackage());
 
-            boolean maybeRootActivityFinish = isMainIntent && !packageName.equals(getTopPackage());
+            if (!isPackageRFKillEnabled(packageName)) {
+                XPosedLog.verbose("PackageRFKill not enabled");
+                return;
+            }
+
+            boolean maybeRootActivityFinish = !packageName.equals(getTopPackage());
 
             if (maybeRootActivityFinish) {
-                XPosedLog.verbose("Killing maybeRootActivityFinish: " + packageName);
-                PkgUtil.kill(getContext(), packageName);
+                postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        XPosedLog.verbose("Killing maybeRootActivityFinish: " + packageName);
+
+                        if (packageName.equals(getTopPackage())) {
+                            XPosedLog.verbose("Top package is now him, let it go~");
+                            return;
+                        }
+
+                        PkgUtil.kill(getContext(), packageName);
+                    }
+                }, 1000);
             }
         }
 

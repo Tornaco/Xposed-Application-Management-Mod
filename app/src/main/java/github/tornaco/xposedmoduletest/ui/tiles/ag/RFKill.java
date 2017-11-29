@@ -19,7 +19,7 @@ public class RFKill extends QuickTile {
     public RFKill(final Context context) {
         super(context);
         this.titleRes = R.string.title_app_rf_kill;
-        this.iconRes = R.drawable.ic_account_circle_black_24dp;
+        this.iconRes = R.drawable.ic_do_not_disturb_on_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override
             public void onClick(View v) {

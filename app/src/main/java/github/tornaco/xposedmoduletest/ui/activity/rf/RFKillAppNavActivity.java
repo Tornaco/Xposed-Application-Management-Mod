@@ -105,7 +105,7 @@ public class RFKillAppNavActivity extends WithRecyclerView {
 
     protected void setSummaryView() {
         TextView textView = findViewById(R.id.summary);
-        textView.setText(R.string.summary_lock_kill_app);
+        textView.setText(R.string.summary_rf_kill_app);
     }
 
     protected RFKillAppListAdapter onCreateAdapter() {

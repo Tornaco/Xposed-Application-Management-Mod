@@ -49,4 +49,7 @@ interface IAshmanService {
 
     // Network policy API.
     void setNetworkPolicyUidPolicy(int uid, int policy);
+
+    // Power API.
+    void restart();
 }

@@ -437,7 +437,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Override
     @BinderCall(restrict = "hooks")
     public void onPackageMoveToFront(String who) {
-        if (BuildConfig.APPLICATION_ID.equals(who)) return;
         XPosedLog.verbose("onPackageMoveToFront: " + who);
         onActivityPackageResume(who);
     }

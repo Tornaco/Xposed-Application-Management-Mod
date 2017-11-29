@@ -99,6 +99,22 @@
                     android:background="@color/dividerLight"
                     android:visibility="visible" />
 
+                <RelativeLayout
+                    android:id="@+id/button_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_below="@+id/divider2"
+                    android:visibility="gone">
+
+                    <Button
+                        android:id="@+id/button"
+                        style="@style/ActionButton.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:text="@string/title_restart_android" />
+                </RelativeLayout>
+
             </RelativeLayout>
 
 

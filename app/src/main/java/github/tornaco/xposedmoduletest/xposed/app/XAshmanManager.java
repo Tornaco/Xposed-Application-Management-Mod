@@ -284,4 +284,12 @@ public class XAshmanManager {
             return Lists.newArrayListWithCapacity(0);
         }
     }
+
+    public void restart() {
+        try {
+            mService.restart();
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
 }
