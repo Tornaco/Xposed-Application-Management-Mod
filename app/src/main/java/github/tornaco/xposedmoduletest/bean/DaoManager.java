@@ -1,10 +1,16 @@
 package github.tornaco.xposedmoduletest.bean;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.Nullable;
 
+import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.identityscope.IdentityScopeType;
 import org.newstand.logger.Logger;
+
+import github.tornaco.xposedmoduletest.util.Singleton;
+
+import static github.tornaco.xposedmoduletest.bean.DaoMaster.dropAllTables;
 
 
 /**
@@ -12,20 +18,32 @@ import org.newstand.logger.Logger;
  * Email: Tornaco@163.com
  */
 
-public enum DaoManager {
+public class DaoManager {
 
-    Instance;
+    private static final String DB_NAME = "guard_db";
+
+    private static final Singleton<DaoManager> sManager
+            = new Singleton<DaoManager>() {
+        @Override
+        protected DaoManager create() {
+            return new DaoManager();
+        }
+    };
+
+    private DaoManager() {
+
+    }
 
     private DaoSession session;
 
     public static DaoManager getInstance() {
-        return Instance;
+        return sManager.get();
     }
 
     private void init(Context context) {
         try {
-            DaoMaster.DevOpenHelper devOpenHelper = new DaoMaster.DevOpenHelper(context, "guard_db", null);
-            DaoMaster daoMaster = new DaoMaster(devOpenHelper.getWritableDatabase());
+            MyOpenHelper openHelper = new MyOpenHelper(context, DB_NAME, null);
+            DaoMaster daoMaster = new DaoMaster(openHelper.getWritableDatabase());
             session = daoMaster.newSession(IdentityScopeType.None);
         } catch (Throwable e) {
             Logger.e("Fail init session:" + Logger.getStackTraceString(e));
@@ -37,5 +55,32 @@ public enum DaoManager {
     synchronized DaoSession getSession(Context context) {
         if (session == null) init(context);
         return session;
+    }
+
+    /**
+     * WARNING: Drops all table on Upgrade! Use only during development.
+     */
+    public static class MyOpenHelper extends DaoMaster.OpenHelper {
+
+        MyOpenHelper(Context context, String name) {
+            super(context, name);
+        }
+
+        MyOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory) {
+            super(context, name, factory);
+        }
+
+        @Override
+        public void onUpgrade(Database db, int oldVersion, int newVersion) {
+            Logger.i("greenDAO Upgrading schema from version "
+                    + oldVersion + " to "
+                    + newVersion);
+            if (oldVersion == 1001) {
+
+            } else {
+                dropAllTables(db, true);
+                onCreate(db);
+            }
+        }
     }
 }
