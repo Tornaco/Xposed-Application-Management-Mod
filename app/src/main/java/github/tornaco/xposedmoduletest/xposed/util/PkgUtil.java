@@ -26,6 +26,12 @@ import java.util.List;
 
 public class PkgUtil {
 
+    public static boolean isApplicationStateDisabled(int state) {
+        return state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+                || state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER
+                || state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED;
+    }
+
     public static boolean isPkgInstalled(Context context, String pkg) {
         PackageManager pm = context.getPackageManager();
 
@@ -215,7 +221,7 @@ public class PkgUtil {
     }
 
     public static void kill(Context context, String pkg) {
-        if (pkg==null) return;
+        if (pkg == null) return;
         try {
             ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
             if (am != null) {

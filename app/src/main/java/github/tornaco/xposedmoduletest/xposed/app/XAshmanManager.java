@@ -213,6 +213,23 @@ public class XAshmanManager {
         }
     }
 
+    public int getApplicationEnabledSetting(String packageName) {
+        try {
+            return mService.getApplicationEnabledSetting(packageName);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return Integer.MIN_VALUE + PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
+        }
+    }
+
+    public void setApplicationEnabledSetting(String packageName, int newState, int flags) {
+        try {
+            mService.setApplicationEnabledSetting(packageName, newState, flags);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
     public void watch(IAshmanWatcher w) {
         ensureService();
         try {

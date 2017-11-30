@@ -10,8 +10,8 @@ android {
         applicationId "github.tornaco.xposedmoduletest"
         minSdkVersion rootProject.ext.minSdkVersion as int
         targetSdkVersion rootProject.ext.compileSdkVersion as int
-        versionCode 204
-        versionName "2.0-BETA-4"
+        versionCode 205
+        versionName "2.0-BETA-5"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -74,8 +74,6 @@ dependencies {
 
     implementation 'com.google.guava:guava:20.0'
     provided 'de.robv.android.xposed:api:82'
-
-    implementation 'com.jaredrummler:android-shell:1.0.0'
 
     implementation "org.greenrobot:greendao:${rootProject.ext.greendaoVersion}"
     implementation "com.squareup.retrofit2:retrofit:${rootProject.ext.retrofitVersion}"

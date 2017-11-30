@@ -16,6 +16,7 @@ import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
@@ -24,6 +25,9 @@ import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
  */
 
 public interface PackageLoader {
+
+    byte FLAG_APP_ENABLED = 0x1;
+    byte FLAG_APP_DISABLED = 0x2;
 
     @NonNull
     List<PackageInfo> loadInstalledNoGuard(boolean showSystem);
@@ -53,7 +57,9 @@ public interface PackageLoader {
         @Override
         public List<PackageInfo> loadInstalled(boolean showSystem) {
             List<PackageInfo> out = new ArrayList<>();
+
             PackageManager pm = this.context.getPackageManager();
+
             List<android.content.pm.PackageInfo> packages;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
                 packages = pm.getInstalledPackages(PackageManager.MATCH_UNINSTALLED_PACKAGES);
@@ -78,12 +84,19 @@ public interface PackageLoader {
                 boolean isSystemApp = (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
                 if (isSystemApp && !showSystem) continue;
 
+                int state = PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
+                if (XAshmanManager.singleInstance().isServiceAvailable()) {
+                    state = XAshmanManager.singleInstance().getApplicationEnabledSetting(packageInfo.packageName);
+                    Logger.d("PackageLoader state for: " + packageInfo.packageName + " is: " + state);
+                }
+
                 PackageInfo p = new PackageInfo();
                 p.setGuard(false);
                 p.setAppName(name);
                 p.setVersionCode(packageInfo.versionCode);
                 p.setExt(packageInfo.versionName);
                 p.setPkgName(packageInfo.packageName);
+                p.setFlags((byte) state);
 
                 out.add(p);
 
@@ -148,16 +161,17 @@ public interface PackageLoader {
                 return out;
             List<PackageInfo> all = daoSession.getPackageInfoDao().loadAll();
             if (all != null)
-                github.tornaco.android.common.Collections.consumeRemaining(all, new Consumer<PackageInfo>() {
-                    @Override
-                    public void accept(PackageInfo packageInfo) {
-                        if (PkgUtil.isPkgInstalled(context, packageInfo.getPkgName())) {
-                            packageInfo.setExt(String.valueOf(PkgUtil.loadVersionByPkgName(context,
-                                    packageInfo.getPkgName())));
-                            out.add(packageInfo);
-                        }
-                    }
-                });
+                github.tornaco.android.common.Collections.consumeRemaining(all,
+                        new Consumer<PackageInfo>() {
+                            @Override
+                            public void accept(PackageInfo packageInfo) {
+                                if (PkgUtil.isPkgInstalled(context, packageInfo.getPkgName())) {
+                                    packageInfo.setExt(String.valueOf(PkgUtil.loadVersionByPkgName(context,
+                                            packageInfo.getPkgName())));
+                                    out.add(packageInfo);
+                                }
+                            }
+                        });
             java.util.Collections.sort(out, new PinyinComparator());
             return out;
         }
@@ -170,7 +184,13 @@ public interface PackageLoader {
     }
 
     class PinyinComparator implements Comparator<PackageInfo> {
+
         public int compare(PackageInfo o1, PackageInfo o2) {
+            int state1 = o1.getFlags() == null ? PackageManager.COMPONENT_ENABLED_STATE_DEFAULT : o1.getFlags();
+            int state2 = o2.getFlags() == null ? PackageManager.COMPONENT_ENABLED_STATE_DEFAULT : o2.getFlags();
+            if (state1 != state2) {
+                return state1 < state2 ? 1 : -1;
+            }
             return new github.tornaco.xposedmoduletest.util.PinyinComparator().compare(o1.getAppName(), o2.getAppName());
         }
     }

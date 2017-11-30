@@ -24,7 +24,9 @@ public class CircleImageEffect implements ImageEffect {
     public Image process(Context context, @NonNull Image image) {
         if (image.asBitmap(context) == null) return image;
         return new BitmapImage(createCircleImage(image.asBitmap(context),
-                Math.min(image.asBitmap(context).getWidth(), image.asBitmap(context).getHeight())), "circle");
+                Math.min(image.asBitmap(context).getWidth(),
+                        image.asBitmap(context).getHeight())),
+                "circle");
     }
 
     private static Bitmap createCircleImage(Bitmap source, int min) {
@@ -33,7 +35,9 @@ public class CircleImageEffect implements ImageEffect {
             paint.setAntiAlias(true);
             Bitmap target = Bitmap.createBitmap(min, min, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(target);
-            canvas.drawCircle(min / 2, min / 2, min / 2, paint);
+            int radius = min / 2;
+            radius = (int) ((float) radius * 0.96f);
+            canvas.drawCircle(min / 2, min / 2, radius, paint);
             paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
             canvas.drawBitmap(source, 0, 0, paint);
             source = null;

@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.List;
 
 import dev.tornaco.vangogh.Vangogh;
-import dev.tornaco.vangogh.display.CircleImageEffect;
 import dev.tornaco.vangogh.display.appliers.FadeOutFadeInApplier;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
@@ -33,8 +32,6 @@ public class GuardAppListAdapter extends RecyclerView.Adapter<GuardAppListAdapte
 
     private Context context;
     private VangoghAppLoader vangoghAppLoader;
-
-    private CircleImageEffect circleImageEffect = new CircleImageEffect();
 
     public GuardAppListAdapter(Context context) {
         this.context = context;
@@ -139,11 +136,11 @@ public class GuardAppListAdapter extends RecyclerView.Adapter<GuardAppListAdapte
             checkableImageView = itemView.findViewById(R.id.checkable_img_view);
         }
 
-        TextView getLineOneTextView() {
+        public TextView getLineOneTextView() {
             return lineOneTextView;
         }
 
-        CheckableImageView getCheckableImageView() {
+        public CheckableImageView getCheckableImageView() {
             return checkableImageView;
         }
     }

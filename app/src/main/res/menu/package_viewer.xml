@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_disable_app"
+        android:title="@string/title_disable_app"
+        android:visible="false"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_enable_app"
+        android:title="@string/title_enable_app"
+        android:visible="false"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_comp_edit"
+        android:title="@string/title_comp_edit"
+        app:showAsAction="never" />
+</menu>

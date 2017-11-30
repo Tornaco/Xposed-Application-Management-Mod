@@ -63,6 +63,33 @@ interface AshManHandler {
     int getComponentEnabledSetting(
             ComponentName componentName);
 
+    /**
+     * Set the enabled setting for an application
+     * This setting will override any enabled state which may have been set by the application in
+     * its manifest.  It also overrides the enabled state set in the manifest for any of the
+     * application's components.  It does not override any enabled state set by
+     * {@link #setComponentEnabledSetting} for any of the application's components.
+     *
+     * @param packageName The package name of the application to enable
+     * @param newState    The new enabled state for the application.
+     * @param flags       Optional behavior flags.
+     */
+    void setApplicationEnabledSetting(String packageName,
+                                      int newState, int flags);
+
+    /**
+     * Return the enabled setting for an application. This returns
+     * the last value set by
+     * {@link #setApplicationEnabledSetting(String, int, int)}; in most
+     * cases this value will be {@link PackageManager#COMPONENT_ENABLED_STATE_DEFAULT} since
+     * the value originally specified in the manifest has not been modified.
+     *
+     * @param packageName The package name of the application to retrieve.
+     * @return Returns the current enabled state for the application.
+     * @throws IllegalArgumentException if the named package does not exist.
+     */
+    int getApplicationEnabledSetting(String packageName);
+
     void watch(WatcherClient w);
 
     void unWatch(WatcherClient w);

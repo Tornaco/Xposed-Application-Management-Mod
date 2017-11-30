@@ -22,7 +22,7 @@ public abstract class XPosedLog {
         NONE;
     }
 
-    private static final String TAG_PREFIX = "X-APM-";
+    private static final String TAG_PREFIX = "X-APM-S-";
 
     private static LogLevel sLevel = BuildConfig.DEBUG ? LogLevel.ALL : LogLevel.WARN;
 

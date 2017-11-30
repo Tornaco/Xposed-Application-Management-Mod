@@ -44,6 +44,10 @@ interface IAshmanService {
 
     int getComponentEnabledSetting(in ComponentName componentName);
 
+    int getApplicationEnabledSetting(String packageName);
+
+    void setApplicationEnabledSetting(String packageName, int newState, int flags);
+
     void watch(in IAshmanWatcher w);
     void unWatch(in IAshmanWatcher w);
 

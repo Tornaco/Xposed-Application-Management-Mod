@@ -856,6 +856,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @BinderCall
     public int getComponentEnabledSetting(ComponentName componentName) throws RemoteException {
+        enforceCallingPermissions();
         long id = Binder.clearCallingIdentity();
         try {
             PackageManager pm = getContext().getPackageManager();
@@ -863,6 +864,25 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         } finally {
             Binder.restoreCallingIdentity(id);
         }
+    }
+
+    @Override
+    public int getApplicationEnabledSetting(final String packageName) throws RemoteException {
+        enforceCallingPermissions();
+        long id = Binder.clearCallingIdentity();
+        try {
+            PackageManager pm = getContext().getPackageManager();
+            return pm.getApplicationEnabledSetting(packageName);
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
+
+    }
+
+    @Override
+    public void setApplicationEnabledSetting(String packageName, int newState, int flags) throws RemoteException {
+        enforceCallingPermissions();
+        h.obtainMessage(AshManHandlerMessages.MSG_SETAPPLICATIONENABLEDSETTING, newState, flags, packageName).sendToTarget();
     }
 
     @Override
@@ -1471,6 +1491,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETCOMPONENTENABLEDSETTING:
                     HandlerImpl.this.setComponentEnabledSetting((ComponentName) msg.obj, msg.arg1, msg.arg2);
                     break;
+                case AshManHandlerMessages.MSG_SETAPPLICATIONENABLEDSETTING:
+                    HandlerImpl.this.setApplicationEnabledSetting((String) msg.obj, msg.arg1, msg.arg2);
+                    break;
                 case AshManHandlerMessages.MSG_WATCH:
                     HandlerImpl.this.watch((WatcherClient) msg.obj);
                     break;
@@ -1690,6 +1713,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public int getComponentEnabledSetting(ComponentName componentName) {
             PackageManager pm = getContext().getPackageManager();
             return pm.getComponentEnabledSetting(componentName);
+        }
+
+        @Override
+        public void setApplicationEnabledSetting(String packageName, int newState, int flags) {
+            PackageManager pm = getContext().getPackageManager();
+            pm.setApplicationEnabledSetting(packageName, newState, flags);
+        }
+
+        @Override
+        public int getApplicationEnabledSetting(String packageName) {
+            PackageManager pm = getContext().getPackageManager();
+            return pm.getApplicationEnabledSetting(packageName);
         }
 
         @Override

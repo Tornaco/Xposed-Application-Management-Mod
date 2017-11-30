@@ -232,5 +232,9 @@
     <string name="notification_app_auto_start_blocked">%1$s已经被阻止关联启动</string>
     <string name="title_start_block_notify">启动被首次禁止通知</string>
     <string name="summary_comp_edit">禁用或启用某个应用的某些组件，禁用的组件将无法被启动，可能会导致该应用运行出现异常。</string>
+    <string name="title_package_disabled">（已冻结）</string>
+    <string name="title_disable_app">冻结</string>
+    <string name="title_enable_app">解冻</string>
+    <string name="title_comp_edit">编辑组件</string>
 
 </resources>
