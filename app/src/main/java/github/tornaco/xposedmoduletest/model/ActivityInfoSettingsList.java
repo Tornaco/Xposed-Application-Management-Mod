@@ -17,14 +17,14 @@ import lombok.ToString;
 @Getter
 @ToString
 @AllArgsConstructor
-public class ReceiverInfoSettingsList {
+public class ActivityInfoSettingsList {
     public static final int VERSION = -1;
 
     private int version = VERSION;
 
     private String packageName;
 
-    private List<ReceiverInfoSettings.Export> exports;
+    private List<ActivityInfoSettings.Export> exports;
 
     public String toJson() {
         Gson gson = new Gson();
@@ -32,8 +32,8 @@ public class ReceiverInfoSettingsList {
     }
 
     @Nullable
-    public static ReceiverInfoSettingsList fromJson(String jsonStr) {
+    public static ActivityInfoSettingsList fromJson(String jsonStr) {
         Gson gson = new Gson();
-        return gson.fromJson(jsonStr, ReceiverInfoSettingsList.class);
+        return gson.fromJson(jsonStr, ActivityInfoSettingsList.class);
     }
 }

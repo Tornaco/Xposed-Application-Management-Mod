@@ -9,7 +9,7 @@ import android.widget.Switch;
 import org.newstand.logger.Logger;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.model.ServiceInfoSettings;
+import github.tornaco.xposedmoduletest.model.ActivityInfoSettings;
 import github.tornaco.xposedmoduletest.util.ComponentUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
@@ -18,25 +18,30 @@ import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
  * Email: Tornaco@163.com
  */
 
-public class ServiceSettingsAdapter extends ComponentListAdapter<ServiceInfoSettings> {
+public class ActivitySettingsAdapter extends ComponentListAdapter<ActivityInfoSettings> {
 
-    public ServiceSettingsAdapter(Context context) {
+    public ActivitySettingsAdapter(Context context) {
         super(context);
+        xAshmanManager = XAshmanManager.singleInstance();
     }
 
-    private final XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
+    private XAshmanManager xAshmanManager;
+
+    @Override
+    int getTemplateLayoutRes() {
+        return R.layout.comp_list_item_activity;
+    }
 
     @Override
     public void onBindViewHolder(ComponentHolder holder, int position) {
         super.onBindViewHolder(holder, position);
 
-        final ServiceInfoSettings serviceInfoSettings = getData().get(position);
+        final ActivityInfoSettings activityInfoSettings = getData().get(position);
 
-        holder.getTitleView().setText(serviceInfoSettings.getDisplayName());
+        holder.getTitleView().setText(activityInfoSettings.getDisplayName());
 
-        String processName = serviceInfoSettings.getServiceInfo().processName;
-        String serviceLabel = serviceInfoSettings.getServiceLabel();
-
+        String processName = activityInfoSettings.getActivityInfo().processName;
+        String serviceLabel = activityInfoSettings.getServiceLabel();
 
         holder.getSummaryView().setText(getContext().getString(R.string.summary_service_info_process,
                 processName));
@@ -47,17 +52,15 @@ public class ServiceSettingsAdapter extends ComponentListAdapter<ServiceInfoSett
             return;
         }
 
-        holder.getCompSwitch().setChecked(serviceInfoSettings.isAllowed());
+        holder.getCompSwitch().setChecked(activityInfoSettings.isAllowed());
 
         holder.getCompSwitch().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ComponentName componentName = ComponentUtil.getComponentName(serviceInfoSettings.getServiceInfo());
                 Switch s = (Switch) v;
                 boolean checked = s.isChecked();
-
-                serviceInfoSettings.setAllowed(checked);
-
+                activityInfoSettings.setAllowed(checked);
+                ComponentName componentName = ComponentUtil.getComponentName(activityInfoSettings.getActivityInfo());
                 xAshmanManager.setComponentEnabledSetting(componentName,
                         checked ?
                                 PackageManager.COMPONENT_ENABLED_STATE_ENABLED

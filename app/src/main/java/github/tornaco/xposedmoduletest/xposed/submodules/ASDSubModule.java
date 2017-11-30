@@ -15,7 +15,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
  * ActivityStack move to back.
  */
 
-class ASBSubModule extends IntentFirewallAndroidSubModule {
+class ASDSubModule extends IntentFirewallAndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
@@ -23,26 +23,27 @@ class ASBSubModule extends IntentFirewallAndroidSubModule {
     }
 
     private void hookActivityStack(XC_LoadPackage.LoadPackageParam lpparam) {
-        XPosedLog.verbose("ASBSubModule hookActivityStack...");
+        XPosedLog.verbose("ASDSubModule hookActivityStack...");
         try {
             Class stackClass = XposedHelpers.findClass("com.android.server.am.ActivityStack",
                     lpparam.classLoader);
 
             @SuppressWarnings("unchecked")
-            Set unHooks = XposedBridge.hookAllMethods(stackClass, "destroyActivityLocked", new XC_MethodHook() {
+            Set unHooks = XposedBridge.hookAllMethods(stackClass,
+                    "destroyActivityLocked", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
                     Object ar = param.args[0];
                     Intent intent = (Intent) XposedHelpers.getObjectField(ar, "intent");
                     if (intent == null) return;
-                    getIntentFirewallBridge().onActivityDestroy(intent);
+                    getIntentFirewallBridge().onActivityDestroy(intent, "destroyActivityLocked");
                 }
             });
-            XPosedLog.verbose("ASBSubModule hookActivityStack OK:" + unHooks);
+            XPosedLog.verbose("ASDSubModule hookActivityStack OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XPosedLog.verbose("ASBSubModule Fail hook hookActivityStack" + Log.getStackTraceString(e));
+            XPosedLog.verbose("ASDSubModule Fail hook hookActivityStack" + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

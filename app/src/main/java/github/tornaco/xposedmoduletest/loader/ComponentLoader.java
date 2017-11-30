@@ -1,6 +1,5 @@
 package github.tornaco.xposedmoduletest.loader;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -16,10 +15,8 @@ import java.util.List;
 
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
-import github.tornaco.xposedmoduletest.bean.DaoManager;
-import github.tornaco.xposedmoduletest.bean.DaoSession;
-import github.tornaco.xposedmoduletest.model.ReceiverInfoSettings;
-import github.tornaco.xposedmoduletest.model.ReceiverInfoSettingsList;
+import github.tornaco.xposedmoduletest.model.ActivityInfoSettings;
+import github.tornaco.xposedmoduletest.model.ActivityInfoSettingsList;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettings;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettingsList;
 import github.tornaco.xposedmoduletest.util.ComponentUtil;
@@ -35,7 +32,10 @@ import lombok.AllArgsConstructor;
 public interface ComponentLoader {
 
     @NonNull
-    List<ReceiverInfoSettings> loadReceiverSettings(String pkg);
+    List<ActivityInfoSettings> loadActivitySettings(String pkg);
+
+    @NonNull
+    List<ActivityInfoSettings> loadReceiverSettings(String pkg);
 
     @NonNull
     List<ServiceInfoSettings> loadServiceSettings(String pkg);
@@ -45,6 +45,9 @@ public interface ComponentLoader {
 
     @Nullable
     String formatReceiverSettings(String pkg);
+
+    @Nullable
+    String formatActivitySettings(String pkg);
 
     @AllArgsConstructor
     class Impl implements ComponentLoader {
@@ -57,25 +60,67 @@ public interface ComponentLoader {
 
         @NonNull
         @Override
-        public List<ReceiverInfoSettings> loadReceiverSettings(String pkg) {
+        public List<ActivityInfoSettings> loadActivitySettings(String pkg) {
             final PackageManager pm = context.getPackageManager();
             final XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
-            final DaoSession daoSession = DaoManager.getInstance().getSession(context);
-            final ContentResolver resolver = context.getContentResolver();
 
-            if (daoSession == null || resolver == null || xAshmanManager == null)
+            if (xAshmanManager == null)
                 return Lists.newArrayListWithCapacity(0);
 
-            List<ActivityInfo> activityInfos = ComponentUtil.getBroadcasts(context, pkg);
+            List<ActivityInfo> activityInfos = ComponentUtil.getActivities(context, pkg);
             if (Collections.isNullOrEmpty(activityInfos)) return Lists.newArrayListWithCapacity(0);
 
-            final List<ReceiverInfoSettings> out = Lists.newArrayList();
+            final List<ActivityInfoSettings> out = Lists.newArrayList();
             Collections.consumeRemaining(activityInfos, new Consumer<ActivityInfo>() {
                 @Override
                 public void accept(ActivityInfo activityInfo) {
                     try {
 
-                        ReceiverInfoSettings settings = new ReceiverInfoSettings();
+                        ActivityInfoSettings settings = new ActivityInfoSettings();
+                        settings.setActivityInfo(activityInfo);
+
+                        settings.setDisplayName(ComponentUtil.getComponentName(activityInfo)
+                                .getShortClassName());
+
+                        CharSequence labelCS = pm.getText(activityInfo.packageName,
+                                activityInfo.labelRes, activityInfo.applicationInfo);
+                        String serviceLabel = labelCS == null
+                                ? settings.getDisplayName()
+                                : labelCS.toString();
+                        settings.setServiceLabel(serviceLabel);
+
+                        settings.setAllowed(xAshmanManager.getComponentEnabledSetting(
+                                ComponentUtil.getComponentName(activityInfo))
+                                <= PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
+
+                        out.add(settings);
+                    } catch (Throwable e) {
+                        Logger.e("Error handing activityInfo: " + e);
+                    }
+                }
+            });
+            return out;
+        }
+
+        @NonNull
+        @Override
+        public List<ActivityInfoSettings> loadReceiverSettings(String pkg) {
+            final PackageManager pm = context.getPackageManager();
+            final XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
+
+            if (xAshmanManager == null)
+                return Lists.newArrayListWithCapacity(0);
+
+            List<ActivityInfo> activityInfos = ComponentUtil.getBroadcasts(context, pkg);
+            if (Collections.isNullOrEmpty(activityInfos)) return Lists.newArrayListWithCapacity(0);
+
+            final List<ActivityInfoSettings> out = Lists.newArrayList();
+            Collections.consumeRemaining(activityInfos, new Consumer<ActivityInfo>() {
+                @Override
+                public void accept(ActivityInfo activityInfo) {
+                    try {
+
+                        ActivityInfoSettings settings = new ActivityInfoSettings();
                         settings.setActivityInfo(activityInfo);
 
 
@@ -107,10 +152,8 @@ public interface ComponentLoader {
         public List<ServiceInfoSettings> loadServiceSettings(String pkg) {
             final PackageManager pm = context.getPackageManager();
             final XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
-            final DaoSession daoSession = DaoManager.getInstance().getSession(context);
-            final ContentResolver resolver = context.getContentResolver();
 
-            if (daoSession == null || resolver == null || xAshmanManager == null)
+            if (xAshmanManager == null)
                 return Lists.newArrayListWithCapacity(0);
 
             List<ServiceInfo> serviceInfos = ComponentUtil.getServices(context, pkg);
@@ -168,18 +211,36 @@ public interface ComponentLoader {
         @Nullable
         @Override
         public String formatReceiverSettings(String pkg) {
-            List<ReceiverInfoSettings> receiverInfoSettingsList = loadReceiverSettings(pkg);
-            if (Collections.isNullOrEmpty(receiverInfoSettingsList)) return null;
-            final List<ReceiverInfoSettings.Export> exports = Lists.newArrayList();
-            Collections.consumeRemaining(receiverInfoSettingsList,
-                    new Consumer<ReceiverInfoSettings>() {
+            List<ActivityInfoSettings> activityInfoSettingsList = loadReceiverSettings(pkg);
+            if (Collections.isNullOrEmpty(activityInfoSettingsList)) return null;
+            final List<ActivityInfoSettings.Export> exports = Lists.newArrayList();
+            Collections.consumeRemaining(activityInfoSettingsList,
+                    new Consumer<ActivityInfoSettings>() {
                         @Override
-                        public void accept(ReceiverInfoSettings settings) {
-                            exports.add(new ReceiverInfoSettings.Export(settings.isAllowed(),
+                        public void accept(ActivityInfoSettings settings) {
+                            exports.add(new ActivityInfoSettings.Export(settings.isAllowed(),
                                     ComponentUtil.getComponentName(settings.getActivityInfo())));
                         }
                     });
-            ReceiverInfoSettingsList list = new ReceiverInfoSettingsList(PkgUtil.loadVersionByPkgName(context, pkg), pkg, exports);
+            ActivityInfoSettingsList list = new ActivityInfoSettingsList(PkgUtil.loadVersionByPkgName(context, pkg), pkg, exports);
+            return list.toJson();
+        }
+
+        @Nullable
+        @Override
+        public String formatActivitySettings(String pkg) {
+            List<ActivityInfoSettings> activityInfoSettingsList = loadActivitySettings(pkg);
+            if (Collections.isNullOrEmpty(activityInfoSettingsList)) return null;
+            final List<ActivityInfoSettings.Export> exports = Lists.newArrayList();
+            Collections.consumeRemaining(activityInfoSettingsList,
+                    new Consumer<ActivityInfoSettings>() {
+                        @Override
+                        public void accept(ActivityInfoSettings settings) {
+                            exports.add(new ActivityInfoSettings.Export(settings.isAllowed(),
+                                    ComponentUtil.getComponentName(settings.getActivityInfo())));
+                        }
+                    });
+            ActivityInfoSettingsList list = new ActivityInfoSettingsList(PkgUtil.loadVersionByPkgName(context, pkg), pkg, exports);
             return list.toJson();
         }
     }

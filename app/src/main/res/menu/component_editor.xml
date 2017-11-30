@@ -13,6 +13,11 @@
             android:orderInCategory="101"
             android:title="@string/title_export_broadcast_settings"
             app:showAsAction="never" />
+        <item
+            android:id="@+id/action_export_activity_settings"
+            android:orderInCategory="102"
+            android:title="@string/title_export_activity_settings"
+            app:showAsAction="never" />
     </group>
 
 
@@ -27,5 +32,11 @@
             android:orderInCategory="103"
             android:title="@string/title_import_broadcast_settings"
             app:showAsAction="never" />
+        <item
+            android:id="@+id/action_import_activity_settings"
+            android:orderInCategory="104"
+            android:title="@string/title_import_activity_settings"
+            app:showAsAction="never" />
     </group>
 </menu>
+

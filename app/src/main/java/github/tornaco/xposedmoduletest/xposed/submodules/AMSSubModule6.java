@@ -1,6 +1,9 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
+import android.app.ActivityManagerNative;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.os.IBinder;
 import android.util.Log;
 
 import java.util.Set;
@@ -9,7 +12,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
 
 /**
@@ -17,33 +19,35 @@ import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
  * Email: Tornaco@163.com
  */
 
-// Hook hookSetFocusedActivityLocked settings.
-class AMSSubModule5 extends AndroidSubModuleModule {
+// Hook hookMoveActivityTaskToBack settings.
+class AMSSubModule6 extends IntentFirewallAndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        hookSetFocusedActivityLocked(lpparam);
+        hookMoveActivityTaskToBack(lpparam);
     }
 
-    private void hookSetFocusedActivityLocked(XC_LoadPackage.LoadPackageParam lpparam) {
-        XPosedLog.verbose("hookSetFocusedActivityLocked...");
+    private void hookMoveActivityTaskToBack(XC_LoadPackage.LoadPackageParam lpparam) {
+        XPosedLog.verbose("hookMoveActivityTaskToBack...");
         try {
             Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService",
                     lpparam.classLoader);
-            Set unHooks = XposedBridge.hookAllMethods(ams, "setFocusedActivityLocked", new XC_MethodHook() {
+            Set unHooks = XposedBridge.hookAllMethods(ams, "moveActivityTaskToBack", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
-                    Object ar = param.args[0];
-                    Intent intent = (Intent) XposedHelpers.getObjectField(ar, "intent");
-                    if (intent == null) return;
-                    getBridge().onPackageMoveToFront(PkgUtil.packageNameOf(intent));
+                    IBinder token = (IBinder) param.args[0];
+                    ComponentName comp = ActivityManagerNative.getDefault().getActivityClassForToken(token);
+                    if (comp == null) return;
+                    Intent intent = new Intent();
+                    intent.setComponent(comp);
+                    getIntentFirewallBridge().onActivityDestroy(intent, "moveActivityTaskToBack");
                 }
             });
-            XPosedLog.verbose("hookSetFocusedActivityLocked OK:" + unHooks);
+            XPosedLog.verbose("hookMoveActivityTaskToBack OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XPosedLog.verbose("Fail hookSetFocusedActivityLocked: " + Log.getStackTraceString(e));
+            XPosedLog.verbose("Fail hookMoveActivityTaskToBack: " + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

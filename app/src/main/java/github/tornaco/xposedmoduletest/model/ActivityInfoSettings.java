@@ -17,7 +17,7 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor
 @ToString
-public class ReceiverInfoSettings {
+public class ActivityInfoSettings {
     private ActivityInfo activityInfo;
 
     private boolean allowed;

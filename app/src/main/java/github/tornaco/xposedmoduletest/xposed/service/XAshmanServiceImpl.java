@@ -716,7 +716,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @InternalCall
-    public void onActivityDestroy(Intent intent) {
+    public void onActivityDestroy(Intent intent, String reason) {
+        XPosedLog.verbose("onActivityDestroy: " + intent + ", reason: " + reason);
+        if (!isRFKillEnabled()) return;
         lazyH.obtainMessage(AshManLZHandlerMessages.MSG_ONACTIVITYDESTROY, intent).sendToTarget();
     }
 
@@ -1231,18 +1233,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @BinderCall
     public void setLockKillDelay(long delay) throws RemoteException {
         enforceCallingPermissions();
         h.obtainMessage(AshManHandlerMessages.MSG_SETLOCKKILLDELAY, delay).sendToTarget();
     }
 
     @Override
+    @BinderCall
     public long getLockKillDelay() throws RemoteException {
         enforceCallingPermissions();
         return mLockKillDelay;
     }
 
     @Override
+    @BinderCall
     public void setBootBlockEnabled(boolean enabled) {
         enforceCallingPermissions();
         h.obtainMessage(AshManHandlerMessages.MSG_SETBOOTBLOCKENABLED, enabled)
@@ -1250,12 +1255,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @BinderCall
     public boolean isBlockBlockEnabled() {
         enforceCallingPermissions();
         return !mIsSafeMode && mBootBlockEnabled.get();
     }
 
     @Override
+    @BinderCall
     public void setStartBlockEnabled(boolean enabled) {
         enforceCallingPermissions();
         h.obtainMessage(AshManHandlerMessages.MSG_SETSTARTBLOCKENABLED, enabled)
@@ -1263,12 +1270,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @BinderCall
     public boolean isStartBlockEnabled() {
         enforceCallingPermissions();
         return !mIsSafeMode && mStartBlockEnabled.get();
     }
 
     @Override
+    @BinderCall
     public void setLockKillEnabled(boolean enabled) {
         enforceCallingPermissions();
         h.obtainMessage(AshManHandlerMessages.MSG_SETLOCKKILLENABLED, enabled)
@@ -1276,12 +1285,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @BinderCall
     public boolean isLockKillEnabled() {
         enforceCallingPermissions();
         return !mIsSafeMode && mLockKillEnabled.get();
     }
 
     @Override
+    @BinderCall
     public void setRFKillEnabled(boolean enabled) throws RemoteException {
         enforceCallingPermissions();
         h.obtainMessage(AshManHandlerMessages.MSG_SETRFKILLENABLED, enabled)
@@ -1289,7 +1300,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public boolean isRFKillEnabled() throws RemoteException {
+    @BinderCall
+    public boolean isRFKillEnabled() {
         enforceCallingPermissions();
         return !mIsSafeMode && mRootActivityFinishKillEnabled.get();
     }

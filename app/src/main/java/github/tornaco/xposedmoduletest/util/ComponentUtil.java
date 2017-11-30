@@ -15,13 +15,14 @@ import java.util.List;
 
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
-import github.tornaco.xposedmoduletest.model.ReceiverInfoSettings;
-import github.tornaco.xposedmoduletest.model.ReceiverInfoSettingsList;
+import github.tornaco.xposedmoduletest.model.ActivityInfoSettings;
+import github.tornaco.xposedmoduletest.model.ActivityInfoSettingsList;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettings;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettingsList;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
+import static android.content.pm.PackageManager.GET_ACTIVITIES;
 import static android.content.pm.PackageManager.GET_RECEIVERS;
 import static android.content.pm.PackageManager.GET_SERVICES;
 
@@ -52,6 +53,26 @@ public class ComponentUtil {
         }
     }
 
+    public static List<ActivityInfo> getActivities(Context context, String pkg) {
+        PackageManager pm = context.getPackageManager();
+        try {
+            PackageInfo packageInfo = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                packageInfo = pm.getPackageInfo(pkg, GET_ACTIVITIES | PackageManager.MATCH_DISABLED_COMPONENTS);
+            } else {
+                packageInfo = pm.getPackageInfo(pkg, GET_ACTIVITIES | PackageManager.GET_DISABLED_COMPONENTS);
+            }
+            if (packageInfo == null) return Lists.newArrayListWithCapacity(0);
+            ActivityInfo[] activityInfos = packageInfo.activities;
+            if (activityInfos == null || activityInfos.length == 0)
+                return Lists.newArrayListWithCapacity(0);
+            return Lists.newArrayList(activityInfos);
+        } catch (PackageManager.NameNotFoundException e) {
+            Logger.e("getActivities: " + Logger.getStackTraceString(e));
+            return Lists.newArrayListWithCapacity(0);
+        }
+    }
+
     public static List<ActivityInfo> getBroadcasts(Context context, String pkg) {
         PackageManager pm = context.getPackageManager();
         try {
@@ -67,7 +88,7 @@ public class ComponentUtil {
                 return Lists.newArrayListWithCapacity(0);
             return Lists.newArrayList(activityInfos);
         } catch (PackageManager.NameNotFoundException e) {
-            Logger.e("getServices: " + Logger.getStackTraceString(e));
+            Logger.e("getBroadcasts: " + Logger.getStackTraceString(e));
             return Lists.newArrayListWithCapacity(0);
         }
     }
@@ -106,20 +127,20 @@ public class ComponentUtil {
         return true;
     }
 
-    public static boolean applyBatch(Context context, ReceiverInfoSettingsList receiverInfoSettingsList) {
+    public static boolean applyBatch(Context context, ActivityInfoSettingsList activityInfoSettingsList) {
         final XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
         if (xAshmanManager == null) return false;
-        if (receiverInfoSettingsList == null) return false;
-        String pkg = receiverInfoSettingsList.getPackageName();
-        int version = receiverInfoSettingsList.getVersion();
+        if (activityInfoSettingsList == null) return false;
+        String pkg = activityInfoSettingsList.getPackageName();
+        int version = activityInfoSettingsList.getVersion();
         if (version != PkgUtil.loadVersionByPkgName(context, pkg)) {
             Logger.w("Different version of app config applying... for " + pkg);
         }
-        List<ReceiverInfoSettings.Export> exports = receiverInfoSettingsList.getExports();
+        List<ActivityInfoSettings.Export> exports = activityInfoSettingsList.getExports();
         if (exports == null) return false;
-        Collections.consumeRemaining(exports, new Consumer<ReceiverInfoSettings.Export>() {
+        Collections.consumeRemaining(exports, new Consumer<ActivityInfoSettings.Export>() {
             @Override
-            public void accept(ReceiverInfoSettings.Export export) {
+            public void accept(ActivityInfoSettings.Export export) {
                 ComponentName c = export.getComponentName();
                 boolean allowed = export.isAllowed();
                 // Apply to ASH Man.

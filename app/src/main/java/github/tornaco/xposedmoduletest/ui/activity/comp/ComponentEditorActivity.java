@@ -47,10 +47,11 @@ import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.ComponentLoader;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
-import github.tornaco.xposedmoduletest.model.ReceiverInfoSettingsList;
+import github.tornaco.xposedmoduletest.model.ActivityInfoSettingsList;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettingsList;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
+import github.tornaco.xposedmoduletest.ui.adapter.ActivitySettingsAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.ComponentListAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.ReceiverSettingsAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.ServiceSettingsAdapter;
@@ -136,7 +137,8 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
 
     private static final int INDEX_SERVICE = 0;
     private static final int INDEX_BROADCAST = 1;
-    private static final int TAB_COUNT = 2;
+    private static final int INDEX_ACTIVITY = 2;
+    private static final int TAB_COUNT = 3;
 
     @SuppressWarnings("ConstantConditions")
     void setTabTitle(int index, String title) {
@@ -146,8 +148,9 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
 
     private void initPages() {
         mFragments.clear();
-        mFragments.add(ServiceListFragment.newInstance(mPackageName, 0));
-        mFragments.add(ReceiverListFragment.newInstance(mPackageName, 1));
+        mFragments.add(ServiceListFragment.newInstance(mPackageName, INDEX_SERVICE));
+        mFragments.add(ReceiverListFragment.newInstance(mPackageName, INDEX_BROADCAST));
+        mFragments.add(ActivityListFragment.newInstance(mPackageName, INDEX_ACTIVITY));
     }
 
     private void initColor() {
@@ -224,7 +227,7 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
         }
 
         if (id == R.id.action_export_broadcast_settings) {
-            final String formated = ComponentLoader.Impl.create(this).formatServiceSettings(mPackageName);
+            final String formated = ComponentLoader.Impl.create(this).formatReceiverSettings(mPackageName);
             showDialog(R.string.title_export_broadcast_settings,
                     formated,
                     R.string.title_export,
@@ -255,6 +258,38 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
             return true;
         }
 
+        if (id == R.id.action_export_activity_settings) {
+            final String formated = ComponentLoader.Impl.create(this).formatActivitySettings(mPackageName);
+            showDialog(R.string.title_export_activity_settings,
+                    formated,
+                    R.string.title_export,
+                    android.R.string.cancel,
+                    R.string.title_copy_to_clipboard,
+                    false,
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            String path = getActivityConfigPath();
+                            boolean res = FileUtil.writeString(formated, path);
+                            showSimpleDialog(getString(res ? R.string.title_export_success
+                                            : R.string.title_export_fail),
+                                    path);
+                        }
+                    },
+                    null,
+                    new Runnable(
+                    ) {
+                        @Override
+                        public void run() {
+                            ClipboardManager cmb = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                            if (cmb != null) {
+                                cmb.setPrimaryClip(ClipData.newPlainText("activity_config", formated));
+                            }
+                        }
+                    });
+            return true;
+        }
+
         if (id == R.id.action_import_service_settings) {
             ComponentEditorActivityPermissionRequester.onRequestImportServiceConfigChecked(this);
             return true;
@@ -262,6 +297,11 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
 
         if (id == R.id.action_import_broadcast_settings) {
             ComponentEditorActivityPermissionRequester.onRequestImportBroadcastConfigChecked(this);
+            return true;
+        }
+
+        if (id == R.id.action_import_activity_settings) {
+            ComponentEditorActivityPermissionRequester.onRequestImportActivityConfigChecked(this);
             return true;
         }
 
@@ -288,6 +328,13 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
         pickSingleFile(this, REQUEST_CODE_PICK_BROADCAST_CONFIG);
     }
 
+    @RequiresPermission({Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE})
+    @RequiresPermission.OnDenied("onPermissionDenied")
+    void onRequestImportActivityConfig() {
+        pickSingleFile(this, REQUEST_CODE_PICK_ACTIVITY_CONFIG);
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_PICK_SERVICE_CONFIG && resultCode == Activity.RESULT_OK) {
@@ -301,6 +348,12 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
             List<Uri> files = Utils.getSelectedFilesFromResult(data);
             File file = Utils.getFileForUri(files.get(0));
             onBroadcastConfigPick(file);
+        }
+        if (requestCode == REQUEST_CODE_PICK_ACTIVITY_CONFIG && resultCode == Activity.RESULT_OK) {
+            // Use the provided utility method to parse the result
+            List<Uri> files = Utils.getSelectedFilesFromResult(data);
+            File file = Utils.getFileForUri(files.get(0));
+            onActivityConfigPick(file);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -319,8 +372,20 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
 
     private void onBroadcastConfigPick(File f) {
         try {
-            ReceiverInfoSettingsList receiverInfoSettingsList = ReceiverInfoSettingsList.fromJson(FileUtil.readString(f.getPath()));
-            boolean ok = ComponentUtil.applyBatch(getContext(), receiverInfoSettingsList);
+            ActivityInfoSettingsList activityInfoSettingsList = ActivityInfoSettingsList.fromJson(FileUtil.readString(f.getPath()));
+            boolean ok = ComponentUtil.applyBatch(getContext(), activityInfoSettingsList);
+            showTips(ok ? R.string.title_import_success : R.string.title_import_fail, false, null, null);
+        } catch (Throwable e) {
+            showTips(R.string.title_import_fail, false, null, null);
+        } finally {
+            notifyChanged();
+        }
+    }
+
+    private void onActivityConfigPick(File f) {
+        try {
+            ActivityInfoSettingsList activityInfoSettingsList = ActivityInfoSettingsList.fromJson(FileUtil.readString(f.getPath()));
+            boolean ok = ComponentUtil.applyBatch(getContext(), activityInfoSettingsList);
             showTips(ok ? R.string.title_import_success : R.string.title_import_fail, false, null, null);
         } catch (Throwable e) {
             showTips(R.string.title_import_fail, false, null, null);
@@ -331,6 +396,7 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
 
     private static final int REQUEST_CODE_PICK_SERVICE_CONFIG = 0x111;
     private static final int REQUEST_CODE_PICK_BROADCAST_CONFIG = 0x112;
+    private static final int REQUEST_CODE_PICK_ACTIVITY_CONFIG = 0x113;
 
     // FIXME Copy to File utils.
     private static void pickSingleFile(Activity activity, int code) {
@@ -369,14 +435,28 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
                 + mPackageName + ".broadcast_config"; // com.android.mms.broadcast_config
     }
 
-    private static final int FRAGMENT_COUNT = 2;
+    private String getActivityConfigPath() {
+        if (getExternalCacheDir() == null) return null;
+        return getExternalCacheDir().getPath() + File.separator
+                + mPackageName + ".activity_config"; // com.android.mms.activity_config
+    }
+
+    private static final int FRAGMENT_COUNT = TAB_COUNT;
     private final List<ComponentListFragment> mFragments = new ArrayList<>(FRAGMENT_COUNT);
 
     @Override
     public void onLoadingComplete(int index, List data) {
-        setTabTitle(index, index == INDEX_SERVICE ?
-                getString(R.string.tab_text_1) + "[" + data.size() + "]"
-                : getString(R.string.tab_text_2) + "[" + data.size() + "]");
+        switch (index) {
+            case INDEX_ACTIVITY:
+                setTabTitle(index, getString(R.string.tab_text_3) + "[" + data.size() + "]");
+                break;
+            case INDEX_BROADCAST:
+                setTabTitle(index, getString(R.string.tab_text_2) + "[" + data.size() + "]");
+                break;
+            case INDEX_SERVICE:
+                setTabTitle(index, getString(R.string.tab_text_1) + "[" + data.size() + "]");
+                break;
+        }
     }
 
     @Override
@@ -398,6 +478,29 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
                         runnable.run();
                     }
                 });
+    }
+
+    public static class ActivityListFragment extends ComponentListFragment {
+
+        public static ActivityListFragment newInstance(String pkg, int index) {
+            ActivityListFragment fragment = new ActivityListFragment();
+            Bundle bundle = new Bundle(2);
+            bundle.putString(EXTRA_PKG, pkg);
+            bundle.putInt(EXTRA_INDEX, index);
+            fragment.setArguments(bundle);
+            return fragment;
+        }
+
+        @Override
+        protected List performLoading() {
+            return ComponentLoader.Impl.create(getActivity().getApplicationContext())
+                    .loadActivitySettings(getTargetPackageName());
+        }
+
+        @Override
+        protected ComponentListAdapter onCreateAdapter() {
+            return new ActivitySettingsAdapter(getActivity());
+        }
     }
 
     public static class ReceiverListFragment extends ComponentListFragment {

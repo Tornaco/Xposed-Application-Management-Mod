@@ -9,7 +9,7 @@ import android.widget.Switch;
 import org.newstand.logger.Logger;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.model.ReceiverInfoSettings;
+import github.tornaco.xposedmoduletest.model.ActivityInfoSettings;
 import github.tornaco.xposedmoduletest.util.ComponentUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
@@ -18,7 +18,7 @@ import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
  * Email: Tornaco@163.com
  */
 
-public class ReceiverSettingsAdapter extends ComponentListAdapter<ReceiverInfoSettings> {
+public class ReceiverSettingsAdapter extends ComponentListAdapter<ActivityInfoSettings> {
 
     public ReceiverSettingsAdapter(Context context) {
         super(context);
@@ -36,12 +36,12 @@ public class ReceiverSettingsAdapter extends ComponentListAdapter<ReceiverInfoSe
     public void onBindViewHolder(ComponentHolder holder, int position) {
         super.onBindViewHolder(holder, position);
 
-        final ReceiverInfoSettings receiverInfoSettings = getData().get(position);
+        final ActivityInfoSettings activityInfoSettings = getData().get(position);
 
-        holder.getTitleView().setText(receiverInfoSettings.getDisplayName());
+        holder.getTitleView().setText(activityInfoSettings.getDisplayName());
 
-        String processName = receiverInfoSettings.getActivityInfo().processName;
-        String serviceLabel = receiverInfoSettings.getServiceLabel();
+        String processName = activityInfoSettings.getActivityInfo().processName;
+        String serviceLabel = activityInfoSettings.getServiceLabel();
 
         holder.getSummaryView().setText(getContext().getString(R.string.summary_service_info_process,
                 processName));
@@ -52,16 +52,15 @@ public class ReceiverSettingsAdapter extends ComponentListAdapter<ReceiverInfoSe
             return;
         }
 
-        holder.getCompSwitch().setChecked(receiverInfoSettings.isAllowed());
+        holder.getCompSwitch().setChecked(activityInfoSettings.isAllowed());
 
         holder.getCompSwitch().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Switch s = (Switch) v;
                 boolean checked = s.isChecked();
-                Logger.d("checked: " + checked);
-                receiverInfoSettings.setAllowed(checked);
-                ComponentName componentName = ComponentUtil.getComponentName(receiverInfoSettings.getActivityInfo());
+                activityInfoSettings.setAllowed(checked);
+                ComponentName componentName = ComponentUtil.getComponentName(activityInfoSettings.getActivityInfo());
                 xAshmanManager.setComponentEnabledSetting(componentName,
                         checked ?
                                 PackageManager.COMPONENT_ENABLED_STATE_ENABLED
