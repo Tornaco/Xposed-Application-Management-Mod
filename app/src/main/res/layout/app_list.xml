@@ -5,6 +5,35 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppThemeLight.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppThemeLight.PopupOverlay" />
+
+        <TextView
+            android:id="@+id/summary"
+            style="@style/BottomSummaryTextLight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/switchbar"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_horizontal_margin_marco"
+            android:paddingEnd="@dimen/activity_vertical_margin"
+            android:paddingStart="@dimen/activity_vertical_margin"
+            android:paddingTop="@dimen/activity_horizontal_margin"
+            android:text="@string/summary_app_guard"
+            android:visibility="visible" />
+
+    </android.support.design.widget.AppBarLayout>
+
     <github.tornaco.xposedmoduletest.ui.widget.SwitchBar
         android:id="@+id/switchbar"
         android:layout_width="match_parent"
@@ -13,31 +42,20 @@
         android:background="@drawable/switchbar_background"
         android:theme="?attr/switchBarTheme" />
 
-    <TextView
-        android:id="@+id/summary"
-        style="@style/BottomSummaryText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/switchbar"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/activity_horizontal_margin_marco"
-        android:paddingEnd="@dimen/activity_vertical_margin"
-        android:paddingStart="@dimen/activity_vertical_margin"
-        android:paddingTop="@dimen/activity_horizontal_margin"
-        android:text="@string/summary_app_guard"
-        android:visibility="visible" />
-
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_below="@+id/summary">
+        android:layout_below="@+id/app_bar"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:layout_marginStart="@dimen/activity_horizontal_margin">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view"
-            android:background="@color/card_background"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            app:fastScrollEnabled="true"
+            android:scrollbarStyle="insideInset"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
     </android.support.v4.widget.SwipeRefreshLayout>
 

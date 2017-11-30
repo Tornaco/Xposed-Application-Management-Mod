@@ -34,6 +34,7 @@ public class BootAppNavActivity extends WithRecyclerView {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutRes());
+        setupToolbar();
         showHomeAsUp();
         initView();
         startLoading();

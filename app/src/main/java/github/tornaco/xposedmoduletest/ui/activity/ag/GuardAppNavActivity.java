@@ -38,6 +38,7 @@ public class GuardAppNavActivity extends NeedLockActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutRes());
+        setupToolbar();
         showHomeAsUp();
         initService();
         initView();

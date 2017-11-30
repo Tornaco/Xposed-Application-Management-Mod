@@ -62,42 +62,52 @@
         </activity>
         <activity
             android:name=".ui.activity.ag.GuardAppNavActivity"
+            android:theme="@style/AppThemeLight.NoActionBar"
             android:excludeFromRecents="true"
             android:label="@string/title_app_guard" />
         <activity
             android:name=".ui.activity.ag.GuardAppPickerActivity"
+            android:theme="@style/AppThemeLight.NoActionBar"
             android:excludeFromRecents="true"
             android:label="@string/title_picker" />
         <activity
             android:name=".ui.activity.BootAppNavActivity"
+            android:theme="@style/AppThemeLight.NoActionBar"
             android:excludeFromRecents="true"
             android:label="@string/title_app_boot" />
         <activity
             android:name=".ui.activity.BootAppPickerActivity"
+            android:theme="@style/AppThemeLight.NoActionBar"
             android:excludeFromRecents="true"
             android:label="@string/title_picker" />
         <activity
             android:name=".ui.activity.start.StartAppNavActivity"
+            android:theme="@style/AppThemeLight.NoActionBar"
             android:excludeFromRecents="true"
             android:label="@string/title_app_auto_start" />
         <activity
             android:name=".ui.activity.start.StartAppPickerActivity"
+            android:theme="@style/AppThemeLight.NoActionBar"
             android:excludeFromRecents="true"
             android:label="@string/title_picker" />
         <activity
             android:name=".ui.activity.lk.LockKillAppNavActivity"
+            android:theme="@style/AppThemeLight.NoActionBar"
             android:excludeFromRecents="true"
             android:label="@string/title_app_lock_kill" />
         <activity
             android:name=".ui.activity.lk.LockKillAppPickerActivity"
+            android:theme="@style/AppThemeLight.NoActionBar"
             android:excludeFromRecents="true"
             android:label="@string/title_picker" />
         <activity
             android:name=".ui.activity.rf.RFKillAppNavActivity"
+            android:theme="@style/AppThemeLight.NoActionBar"
             android:excludeFromRecents="true"
             android:label="@string/title_app_rf_kill" />
         <activity
             android:name=".ui.activity.rf.RFKillAppPickerActivity"
+            android:theme="@style/AppThemeLight.NoActionBar"
             android:excludeFromRecents="true"
             android:label="@string/title_picker" />
         <activity
@@ -158,6 +168,7 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.comp.PackageViewerActivity"
+            android:theme="@style/AppThemeLight.NoActionBar"
             android:excludeFromRecents="true"
             android:label="@string/title_component_manager" />
 

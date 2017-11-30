@@ -46,8 +46,8 @@ public class BaseActivity extends AppCompatActivity implements View {
     }
 
     protected void setupToolbar(int resId) {
-        Toolbar toolbar = (Toolbar) findViewById(resId);
-        setSupportActionBar(toolbar);
+        Toolbar toolbar = findViewById(resId);
+        if (toolbar != null) setSupportActionBar(toolbar);
     }
 
     @Override

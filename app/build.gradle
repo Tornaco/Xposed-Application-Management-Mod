@@ -54,6 +54,7 @@ dependencies {
     implementation rootProject.ext.supportCardView
     implementation rootProject.ext.supportDesign
     implementation rootProject.ext.supportPelette
+    implementation rootProject.ext.supportRecyclerView
 
 
     implementation 'com.github.Tornaco:Logger:1.1.3'
@@ -88,8 +89,6 @@ dependencies {
     implementation project(':tiles')
 
     implementation 'si.virag:fuzzydateformatter:1.1.0'
-
-    implementation 'com.novoda:simple-chrome-custom-tabs:0.1.5'
 
     implementation files('libs/flyme_fingerprint.jar')
     // compile files('libs/flymeapi.jar')
