@@ -218,7 +218,7 @@
         "when a user tries to pick up one of cards.\n\n"
     </string>
     <string name="action_settings">设置</string>
-    <string name="donate_intro">如果你喜欢我的作品，欢迎你以下列方式（微信/支付宝）进行捐赠，金额请随意，一分也是爱。当捐赠金额超过2元时，我会通过支付宝捐助1元给贫困儿童。\n你的支持就是我的动力！！！捐赠时尽量备注自己的昵称</string>
+    <string name="donate_intro">如果你喜欢我的作品，欢迎你以下列方式（微信/支付宝）进行捐赠，金额请随意，一分也是爱。\n你的支持就是我的动力！！！捐赠时尽量备注自己的昵称。</string>
     <string name="title_developer">开发者</string>
     <string name="title_support">支持我</string>
     <string name="title_export">导出</string>

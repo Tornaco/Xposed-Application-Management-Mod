@@ -152,8 +152,8 @@ public class PkgUtil {
         int count = processes == null ? 0 : processes.size();
         for (int i = 0; i < count; i++) {
 //            XPosedLog.verbose("runningPackageName====================");
-//            XPosedLog.verbose("runningPackageName: " + processes.get(i).processName);
-//            XPosedLog.verbose("runningPackageName-pkgs: " + Arrays.toString(processes.get(i).pkgList));
+//            XPosedLog.verbose("runningPackageName: " + processes.getSingleton(i).processName);
+//            XPosedLog.verbose("runningPackageName-pkgs: " + Arrays.toString(processes.getSingleton(i).pkgList));
 //            XPosedLog.verbose("runningPackageName====================");
             for (String runningPackageName : processes.get(i).pkgList) {
                 if (runningPackageName != null && runningPackageName.equals(pkg)) {

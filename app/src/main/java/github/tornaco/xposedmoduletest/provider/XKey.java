@@ -14,7 +14,7 @@ public interface XKey {
     String TAKE_PHOTO_ENABLED = "key_take_photo_enabled";
     String START_BLOCK_NOTIFY_ENABLED = "key_start_block_notify";
     String ACTIVATE_CODE = "key_act_code";
-    String DEV_MODE = "dev_mode_enabled";
+    String DEV_MODE = "dev_mode_enabled_c";
     String FP_ENABLED = "fp_enabled";
     String THEME = "theme";
     String FIRST_RUN = "first_ru" + BuildConfig.VERSION_NAME;

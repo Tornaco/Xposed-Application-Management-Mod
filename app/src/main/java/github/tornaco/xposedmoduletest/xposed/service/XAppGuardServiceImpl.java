@@ -212,8 +212,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             boolean uninstallProEnabled = (boolean) SystemSettings.UNINSTALL_GUARD_ENABLED_B.readFromSystemSettings(getContext());
             mUninstallProEnabled.set(uninstallProEnabled);
 
-            boolean debug = (boolean) SystemSettings.APP_GUARD_DEBUG_MODE_B.readFromSystemSettings(getContext());
+            boolean debug = (boolean) SystemSettings.APP_GUARD_DEBUG_MODE_B_S.readFromSystemSettings(getContext());
             mDebugEnabled.set(debug);
+            XPosedLog.setLogLevel(debug ? XPosedLog.LogLevel.ALL : XPosedLog.LogLevel.WARN);
 
             ContentResolver resolver = getContext().getContentResolver();
             if (resolver == null) return;
@@ -305,7 +306,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             ApplicationInfo applicationInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID, 0);
             sClientUID = applicationInfo.uid;
         } catch (Exception ignored) {
-            XPosedLog.debug("Can not get UID for our client:" + ignored);
+            XPosedLog.debug("Can not getSingleton UID for our client:" + ignored);
         }
     }
 
@@ -853,8 +854,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         @Override
         public void setDebug(boolean debug) {
             if (mDebugEnabled.compareAndSet(!debug, debug)) {
-                SystemSettings.APP_GUARD_DEBUG_MODE_B.writeToSystemSettings(getContext(), debug);
+                SystemSettings.APP_GUARD_DEBUG_MODE_B_S.writeToSystemSettings(getContext(), debug);
             }
+            XPosedLog.setLogLevel(debug ? XPosedLog.LogLevel.ALL : XPosedLog.LogLevel.WARN);
         }
 
         @Override

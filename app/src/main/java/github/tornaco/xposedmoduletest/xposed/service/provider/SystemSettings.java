@@ -30,7 +30,7 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
         }
     },
 
-    APP_GUARD_DEBUG_MODE_B(0) {
+    APP_GUARD_DEBUG_MODE_B_S(0) {
         @Override
         public boolean writeToSystemSettings(Context context, Object value) {
             ContentResolver resolver = context.getContentResolver();

@@ -12,6 +12,7 @@ import org.newstand.logger.Settings;
 
 import github.tornaco.apigen.BuildHostInfo;
 import github.tornaco.apigen.GithubCommitSha;
+import github.tornaco.xposedmoduletest.license.RemoteConfigs;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 
 /**
@@ -39,11 +40,14 @@ public class XApp extends Application implements Runnable {
     public void onCreate() {
         super.onCreate();
         xApp = this;
-        Logger.config(Settings.builder().tag("X-APM-")
+        Logger.config(Settings.builder().tag("X-APM-C")
                 .logLevel(XSettings.isDevMode(this)
                         ? Logger.LogLevel.VERBOSE : Logger.LogLevel.WARN)
                 .build());
         BinderInternal.addGcWatcher(this);
+
+        // Let's init.
+        Logger.d(RemoteConfigs.getSingleton().getConfig());
     }
 
     @Override

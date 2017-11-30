@@ -3,6 +3,9 @@ package github.tornaco.xposedmoduletest.ui.tiles.app;
 import android.content.Context;
 import android.widget.RelativeLayout;
 
+import org.newstand.logger.Logger;
+import org.newstand.logger.Settings;
+
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.SwitchTileView;
 import github.tornaco.xposedmoduletest.R;
@@ -27,6 +30,10 @@ public class AppDevMode extends QuickTile {
                 super.onBindActionView(container);
                 setChecked(XAppGuardManager.singleInstance().isServiceAvailable() && XAppGuardManager.singleInstance().isDebug());
                 XSettings.setInDevMode(context, isChecked());
+                Logger.config(Settings.builder().tag("X-APM-C")
+                        .logLevel(isChecked()
+                                ? Logger.LogLevel.VERBOSE : Logger.LogLevel.WARN)
+                        .build());
             }
 
             @Override

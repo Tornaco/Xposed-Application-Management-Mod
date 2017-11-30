@@ -196,7 +196,7 @@ public class OsUtil {
         if (OsUtil.isAtLeastM()) {
             // It is safe to cache the PERMISSION_GRANTED result as the process gets killed if the
             // user revokes the permission setting. However, PERMISSION_DENIED should not be
-            // cached as the process does not get killed if the user enables the permission setting.
+            // cached as the process does not getSingleton killed if the user enables the permission setting.
             if (!sPermissions.containsKey(permission)
                     || sPermissions.get(permission) == PackageManager.PERMISSION_DENIED) {
                 final Context context = XApp.getApp().getApplicationContext();

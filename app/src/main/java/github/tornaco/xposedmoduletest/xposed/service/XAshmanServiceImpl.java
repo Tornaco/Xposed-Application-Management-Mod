@@ -237,7 +237,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             sClientUID = applicationInfo.uid;
             XPosedLog.verbose("sClientUID:" + sClientUID);
         } catch (PackageManager.NameNotFoundException e) {
-            XPosedLog.debug("Can not get UID for our client:" + e);
+            XPosedLog.debug("Can not getSingleton UID for our client:" + e);
         }
 
         try {
@@ -295,7 +295,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 }
             });
         } catch (Exception ignored) {
-            XPosedLog.debug("Can not get UID for our client:" + ignored);
+            XPosedLog.debug("Can not getSingleton UID for our client:" + ignored);
         }
     }
 

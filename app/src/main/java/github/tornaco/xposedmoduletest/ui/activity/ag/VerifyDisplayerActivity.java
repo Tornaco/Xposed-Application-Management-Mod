@@ -97,7 +97,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private void readSettings() {
-//        this.mTakePhoto = XSettings.get().takenPhotoEnabled(this);
+//        this.mTakePhoto = XSettings.getSingleton().takenPhotoEnabled(this);
     }
 
     private void showVerifyView() {

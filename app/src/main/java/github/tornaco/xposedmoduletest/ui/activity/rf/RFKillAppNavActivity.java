@@ -141,7 +141,7 @@ public class RFKillAppNavActivity extends WithRecyclerView {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.lk, menu);
+        // getMenuInflater().inflate(R.menu.lk, menu);
         return super.onCreateOptionsMenu(menu);
     }
 

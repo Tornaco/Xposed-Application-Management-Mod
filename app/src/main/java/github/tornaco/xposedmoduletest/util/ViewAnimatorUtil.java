@@ -24,11 +24,11 @@ public class ViewAnimatorUtil {
     public static void circularHide(final View view, Animator.AnimatorListener listener) {
         if (view.getWindowToken() == null) return;
 
-        // get the center for the clipping circle
+        // getSingleton the center for the clipping circle
         int cx = (view.getLeft() + view.getRight()) / 2;
         int cy = (view.getTop() + view.getBottom()) / 2;
 
-        // get the initial radius for the clipping circle
+        // getSingleton the initial radius for the clipping circle
         int initialRadius = view.getWidth();
 
         // create the animation (the final radius is zero)
@@ -55,11 +55,11 @@ public class ViewAnimatorUtil {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static void circularShow(final View view, final Runnable runnable) {
-        // get the center for the clipping circle
+        // getSingleton the center for the clipping circle
         int cx = (view.getLeft() + view.getRight()) / 2;
         int cy = (view.getTop() + view.getBottom()) / 2;
 
-        // get the final radius for the clipping circle
+        // getSingleton the final radius for the clipping circle
         int finalRadius = view.getWidth();
 
         // create and start the animator for this view

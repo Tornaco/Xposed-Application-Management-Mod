@@ -412,7 +412,7 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
 
         // Configure initial directory by specifying a String.
         // You could specify a String like "/storage/emulated/0/", but that can
-        // dangerous. Always use Android's API calls to get paths to the SD-card or
+        // dangerous. Always use Android's API calls to getSingleton paths to the SD-card or
         // internal memory.
         i.putExtra(FilePickerActivity.EXTRA_START_PATH, Environment.getExternalStorageDirectory().getPath());
 
