@@ -87,6 +87,9 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
         if (item.getItemId() == R.id.action_settings) {
             startActivity(new Intent(this, AppDashboardActivity.class));
         }
+        if (item.getItemId() == R.id.action_help) {
+            navigateToWebPage(getString(R.string.app_wiki_url));
+        }
         return super.onOptionsItemSelected(item);
     }
 
