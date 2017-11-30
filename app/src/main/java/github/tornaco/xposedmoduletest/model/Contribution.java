@@ -9,7 +9,7 @@ import lombok.Getter;
  */
 @Builder
 @Getter
-public class PayExtra {
+public class Contribution {
     private String nick;
     private String ad;
     private String date;

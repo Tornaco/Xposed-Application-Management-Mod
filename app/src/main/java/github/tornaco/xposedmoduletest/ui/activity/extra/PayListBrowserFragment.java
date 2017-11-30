@@ -19,8 +19,8 @@ import java.util.List;
 import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.loader.PayExtraLoader;
-import github.tornaco.xposedmoduletest.model.PayExtra;
+import github.tornaco.xposedmoduletest.license.Contributions;
+import github.tornaco.xposedmoduletest.model.Contribution;
 
 
 /**
@@ -70,8 +70,8 @@ public class PayListBrowserFragment extends Fragment {
     @RequiresPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     void startLoading() {
         swipeRefreshLayout.setRefreshing(true);
-        new PayExtraLoader().loadAsync(getString(R.string.pay_list_url),
-                new PayExtraLoader.Callback() {
+        Contributions.loadAsync(getString(R.string.pay_list_url),
+                new Contributions.Callback() {
                     @Override
                     public void onError(final Throwable e) {
                         if (getActivity() == null) return;
@@ -84,7 +84,7 @@ public class PayListBrowserFragment extends Fragment {
                     }
 
                     @Override
-                    public void onSuccess(final List<PayExtra> extras) {
+                    public void onSuccess(final List<Contribution> extras) {
                         if (getActivity() == null) return;
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
@@ -117,32 +117,29 @@ public class PayListBrowserFragment extends Fragment {
     class TwoLinesViewHolder extends RecyclerView.ViewHolder {
 
         TextView title;
-        TextView description;
         ImageView thumbnail;
 
         TwoLinesViewHolder(final View itemView) {
             super(itemView);
             title = itemView.findViewById(android.R.id.title);
-            description = itemView.findViewById(android.R.id.text1);
             thumbnail = itemView.findViewById(R.id.avatar);
             thumbnail.setImageResource(R.drawable.ic_header_avatar);
         }
     }
 
-
     private class Adapter extends RecyclerView.Adapter<TwoLinesViewHolder> {
 
-        private final List<PayExtra> data;
+        private final List<Contribution> data;
 
-        public Adapter(List<PayExtra> data) {
+        public Adapter(List<Contribution> data) {
             this.data = data;
         }
 
         public Adapter() {
-            this(new ArrayList<PayExtra>());
+            this(new ArrayList<Contribution>());
         }
 
-        public void update(List<PayExtra> data) {
+        public void update(List<Contribution> data) {
             this.data.clear();
             this.data.addAll(data);
             notifyDataSetChanged();
@@ -153,23 +150,21 @@ public class PayListBrowserFragment extends Fragment {
             notifyItemRemoved(position);
         }
 
-        public void add(PayExtra PayExtra, int position) {
-            this.data.add(position, PayExtra);
+        public void add(Contribution Contribution, int position) {
+            this.data.add(position, Contribution);
             notifyItemInserted(position);
         }
 
         @Override
         public TwoLinesViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
-            final View view = LayoutInflater.from(getContext()).inflate(R.layout.simple_card_item, parent, false);
+            final View view = LayoutInflater.from(getContext()).inflate(R.layout.contribute_card_item, parent, false);
             return new TwoLinesViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(final TwoLinesViewHolder holder, int position) {
-            final PayExtra item = data.get(position);
+            final Contribution item = data.get(position);
             holder.title.setText(item.getNick());
-            String descriptionText = item.getAd();
-            holder.description.setText(descriptionText);
         }
 
         @Override
