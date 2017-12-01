@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.xposed.service;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.KeyguardManager;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -56,6 +57,7 @@ import github.tornaco.xposedmoduletest.xposed.util.Closer;
 import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
 import lombok.Synchronized;
 
+import static android.content.Context.KEYGUARD_SERVICE;
 import static github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager.Feature.FEATURE_COUNT;
 
 /**
@@ -522,6 +524,13 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         return false;
     }
 
+    private boolean isDeviceLocked() {
+        KeyguardManager keyguardManager = (KeyguardManager)
+                getContext()
+                        .getSystemService(KEYGUARD_SERVICE);
+        return keyguardManager != null && keyguardManager.isKeyguardLocked();
+    }
+
     @Override
     @BinderCall
     public void setInterruptFPEventVBEnabled(int event, boolean enabled) throws RemoteException {
@@ -555,12 +564,16 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @Override
     public boolean interruptFPSuccessVibrate() {
-        return mInterruptFPSuccessVB.get();
+        boolean isKeyguard = isDeviceLocked();
+        XPosedLog.verbose("Device is locked: " + isKeyguard);
+        return !isKeyguard && mInterruptFPSuccessVB.get();
     }
 
     @Override
     public boolean interruptFPErrorVibrate() {
-        return mInterruptFPERRORVB.get();
+        boolean isKeyguard = isDeviceLocked();
+        XPosedLog.verbose("Device is locked: " + isKeyguard);
+        return !isKeyguard && mInterruptFPERRORVB.get();
     }
 
     @Override

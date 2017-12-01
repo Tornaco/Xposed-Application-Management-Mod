@@ -561,6 +561,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private static boolean isInWhiteList(String pkg) {
+        if (pkg == null) return false;
+        // Do not block qcom app.
+        if (pkg.contains("com.qualcomm.qti")
+                || pkg.contains("com.qti.smq")) {
+            return true;
+        }
         return WHITE_LIST.contains(pkg);
     }
 
@@ -755,6 +761,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (pkgName.contains("com.google.android")) {
             XPosedLog.verbose("It is maybe from google apps list, allow component setting.");
+            return true;
+        }
+
+        if (pkgName.contains("com.qualcomm.qti")
+                || pkgName.contains("com.qti.smq")) {
+            XPosedLog.verbose("It is maybe from qcom apps list, allow component setting.");
             return true;
         }
 

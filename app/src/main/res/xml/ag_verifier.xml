@@ -6,16 +6,14 @@
         <SwitchPreference
             android:defaultValue="true"
             android:key="unlock_vibrate_enabled"
-            android:title="@string/title_unlock_vibrate_enabled"
             android:persistent="false"
-            android:summary="@string/summary_unlock_vibrate_enabled" />
+            android:title="@string/title_unlock_vibrate_enabled" />
 
         <SwitchPreference
             android:defaultValue="true"
             android:key="error_vibrate_enabled"
             android:persistent="false"
-            android:title="@string/title_error_vibrate_enabled"
-            android:summary="@string/summary_error_vibrate_enabled" />
+            android:title="@string/title_error_vibrate_enabled" />
 
     </PreferenceCategory>
 

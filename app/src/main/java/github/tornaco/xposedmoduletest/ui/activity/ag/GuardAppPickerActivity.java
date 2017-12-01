@@ -98,7 +98,10 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.show_system_app).setChecked(mShowSystemApp);
-        menu.findItem(R.id.action_info).setVisible(false);
+        MenuItem item = menu.findItem(R.id.action_info);
+        if (item != null) {
+            item.setVisible(false);
+        }
         return true;
     }
 
