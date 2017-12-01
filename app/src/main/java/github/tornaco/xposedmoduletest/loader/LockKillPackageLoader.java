@@ -67,6 +67,14 @@ public interface LockKillPackageLoader {
 
                 String packageName = packageInfo.packageName;
 
+                if (packageName.contains("com.qualcomm.qti")
+                        || packageName.contains("com.qti.smq")) {
+                    continue;
+                }
+                if (packageName.contains("com.google.android")) {
+                    continue;
+                }
+
                 if (whitelist.contains(packageName)) continue;
 
                 // Ignore that will not be killed.

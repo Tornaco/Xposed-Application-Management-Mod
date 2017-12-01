@@ -90,8 +90,8 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 
 public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
-    private static final boolean DEBUG_BROADCAST = false;
-    private static final boolean DEBUG_SERVICE = false;
+    private static final boolean DEBUG_BROADCAST = true;
+    private static final boolean DEBUG_SERVICE = true;
 
     private static final Set<String> WHITE_LIST = new HashSet<>();
     // Installed in system/, not contains system-packages and persist packages.
@@ -113,6 +113,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         WHITE_LIST.add("com.android.providers.contacts");
         WHITE_LIST.add("com.android.providers.media");
         WHITE_LIST.add("com.android.providers.calendar");
+        WHITE_LIST.add("com.android.vending");
+        // FIXME???
+         WHITE_LIST.add("com.ghostflying.locationreportenabler");
     }
 
     private UUID mSerialUUID = UUID.randomUUID();
@@ -352,6 +355,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
                 AutoStartPackage autoStartPackage = AutoStartPackageDaoUtil.readEntity(cursor, 0);
+                XPosedLog.verbose("Start white list pkg reader readEntity of: " + autoStartPackage);
                 String key = autoStartPackage.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
                 mStartWhiteListPackages.put(key, autoStartPackage);
@@ -565,6 +569,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         // Do not block qcom app.
         if (pkg.contains("com.qualcomm.qti")
                 || pkg.contains("com.qti.smq")) {
+            return true;
+        }
+        if (pkg.contains("com.google.android")) {
             return true;
         }
         return WHITE_LIST.contains(pkg);
@@ -1131,9 +1138,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         .howManyTimes(oldTimes + 1)
                         .timeWhen(System.currentTimeMillis())
                         .build();
+                XPosedLog.verbose("SVC BlockRecord2: " + blockRecord2);
                 addBlockRecord(blockRecord2);
             }
         };
+
         mLoggingService.execute(r);
 
         h.obtainMessage(AshManHandlerMessages.MSG_NOTIFYSTARTBLOCK, serviceEvent.getPkg()).sendToTarget();
@@ -1163,6 +1172,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         .howManyTimes(oldTimes + 1)
                         .timeWhen(System.currentTimeMillis())
                         .build();
+                XPosedLog.verbose("BRD BlockRecord2: " + blockRecord2);
                 addBlockRecord(blockRecord2);
             }
         };

@@ -69,6 +69,14 @@ public interface RFKillPackageLoader {
 
                 if (whitelist.contains(packageName)) continue;
 
+                if (packageName.contains("com.qualcomm.qti")
+                        || packageName.contains("com.qti.smq")) {
+                    continue;
+                }
+                if (packageName.contains("com.google.android")) {
+                    continue;
+                }
+
                 // Ignore that will not be killed.
                 if (willBeKill != xAshmanManager.isPackageRFKillEnabled(packageInfo.packageName)) {
                     continue;
