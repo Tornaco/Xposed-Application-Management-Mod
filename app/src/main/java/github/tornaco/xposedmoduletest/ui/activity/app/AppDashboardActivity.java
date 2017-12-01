@@ -7,6 +7,7 @@ import java.util.List;
 
 import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.license.RemoteConfigs;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
@@ -50,7 +51,7 @@ public class AppDashboardActivity extends WithWithCustomTabActivity {
 
             Category support = new Category();
             support.titleRes = R.string.title_support;
-            if (RemoteConfigs.getSingleton().getConfig().isDonate()) {
+            if (!BuildConfig.DEBUG && RemoteConfigs.getSingleton().getConfig().isDonate()) {
                 support.addTile(new AppDonate(getActivity()));
             }
             support.addTile(new PayListTile(getActivity()));

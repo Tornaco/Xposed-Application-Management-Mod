@@ -1,20 +1,22 @@
 package github.tornaco.xposedmoduletest.ui.activity.comp;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import java.util.List;
 
-import dev.tornaco.vangogh.display.ImageEffect;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.loader.PackageLoader;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.ag.GuardAppPickerActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.GuardAppListAdapter;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -67,7 +69,7 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
 
     private void showPopMenu(final PackageInfo packageInfo, boolean isDisabledCurrently, View anchor) {
         PopupMenu popupMenu = new PopupMenu(PackageViewerActivity.this, anchor);
-        popupMenu.inflate(R.menu.package_viewer);
+        popupMenu.inflate(R.menu.package_viewer_pop);
         if (isDisabledCurrently) {
             popupMenu.getMenu().findItem(R.id.action_enable_app).setVisible(true);
         } else {
@@ -100,9 +102,36 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
     @Override
     protected void setSummaryView() {
         super.setSummaryView();
+        String who = getClass().getSimpleName();
+        boolean showInfo = AppSettings.isShowInfoEnabled(this, who);
         TextView textView = findViewById(R.id.summary);
-        textView.setVisibility(View.VISIBLE);
-        textView.setText(R.string.summary_comp_edit);
+        if (!showInfo) {
+            textView.setVisibility(View.GONE);
+        } else {
+            textView.setText(R.string.summary_comp_edit);
+            textView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.package_viewer_nav, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.show_system_app).setChecked(mShowSystemApp);
+        menu.findItem(R.id.action_info).setVisible(true);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_settings_package_viewer) {
+            startActivity(new Intent(this, CompSettingsDashboardActivity.class));
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

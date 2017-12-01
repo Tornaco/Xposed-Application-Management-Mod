@@ -17,6 +17,7 @@ import java.util.List;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.BootCompletePackage;
 import github.tornaco.xposedmoduletest.loader.BootPackageLoader;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.adapter.BootAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
@@ -103,8 +104,15 @@ public class BootAppNavActivity extends WithRecyclerView {
 
 
     protected void setSummaryView() {
+        String who = getClass().getSimpleName();
+        boolean showInfo = AppSettings.isShowInfoEnabled(this, who);
         TextView textView = findViewById(R.id.summary);
-        textView.setText(R.string.summary_boot_app);
+        if (!showInfo) {
+            textView.setVisibility(View.GONE);
+        } else {
+            textView.setText(R.string.summary_boot_app);
+            textView.setVisibility(View.VISIBLE);
+        }
     }
 
     protected BootAppListAdapter onCreateAdapter() {
@@ -151,6 +159,11 @@ public class BootAppNavActivity extends WithRecyclerView {
         }
         if (item.getItemId() == R.id.action_block_record_viewer) {
             BlockRecordViewerActivity.start(this, null);
+        }
+        if (item.getItemId() == R.id.action_info) {
+            String who = getClass().getSimpleName();
+            AppSettings.setShowInfo(this, who, !AppSettings.isShowInfoEnabled(this, who));
+            setSummaryView();
         }
         return super.onOptionsItemSelected(item);
     }

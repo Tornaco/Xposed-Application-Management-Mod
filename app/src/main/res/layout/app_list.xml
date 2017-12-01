@@ -19,6 +19,14 @@
             app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/AppThemeLight.PopupOverlay" />
 
+        <github.tornaco.xposedmoduletest.ui.widget.SwitchBar
+            android:id="@+id/switchbar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            android:layout_below="@+id/app_bar"
+            android:background="@drawable/switchbar_background"
+            android:theme="?attr/switchBarTheme" />
+
         <TextView
             android:id="@+id/summary"
             style="@style/BottomSummaryTextLight"
@@ -34,14 +42,6 @@
             android:visibility="visible" />
 
     </android.support.design.widget.AppBarLayout>
-
-    <github.tornaco.xposedmoduletest.ui.widget.SwitchBar
-        android:id="@+id/switchbar"
-        android:layout_width="match_parent"
-        android:layout_height="?actionBarSize"
-        android:layout_alignParentTop="true"
-        android:background="@drawable/switchbar_background"
-        android:theme="?attr/switchBarTheme" />
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe"

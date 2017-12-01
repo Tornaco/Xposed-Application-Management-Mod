@@ -24,7 +24,7 @@ import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.provider.XSettings;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.app.AppDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.ag.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.ag.AppGuard;
@@ -53,7 +53,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
     }
 
     private void initFirstRun() {
-        boolean first = XSettings.isFirstRun(this);
+        boolean first = AppSettings.isFirstRun(this);
         if (first) {
             new AlertDialog.Builder(NavigatorActivity.this)
                     .setTitle(BuildConfig.VERSION_NAME)
@@ -62,7 +62,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            XSettings.setFirstRun(getApplicationContext());
+                            AppSettings.setFirstRun(getApplicationContext());
                         }
                     })
                     .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -121,7 +121,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
             ViewGroup btnContainer = findView(rootView, R.id.button_container);
             Button button = findView(rootView, R.id.button);
 
-            boolean isNewBuild = XSettings.isNewBuild(getActivity());
+            boolean isNewBuild = AppSettings.isNewBuild(getActivity());
             btnContainer.setVisibility(isNewBuild && XAshmanManager.singleInstance().isServiceAvailable()
                     ? View.VISIBLE : View.GONE);
 

@@ -16,4 +16,9 @@ public interface IIntentFirewallBridge extends IModuleBridge {
     boolean checkBroadcast(String action, int receiverUid, int callerUid) throws RemoteException;
 
     void onActivityDestroy(Intent intent, String reason);
+
+    boolean checkComponentSetting(ComponentName componentName,
+                                  int newState,
+                                  int flags,
+                                  int callingUid);
 }

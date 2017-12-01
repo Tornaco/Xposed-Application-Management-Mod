@@ -17,10 +17,10 @@ import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
  * Email: Tornaco@163.com
  */
 
-class FPSubModule extends AndroidSubModuleModule {
+class FPSubModule extends AppGuardAndroidSubModule {
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        hookFPService(lpparam);
+        hookFPUtil(lpparam);
     }
 
     /**
@@ -50,6 +50,56 @@ class FPSubModule extends AndroidSubModuleModule {
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
             XPosedLog.verbose("Fail hookFPService" + e);
+            setStatus(SubModuleStatus.ERROR);
+            setErrorMessage(Log.getStackTraceString(e));
+        }
+    }
+
+    private void hookFPUtil(XC_LoadPackage.LoadPackageParam lpparam) {
+        XPosedLog.verbose("hookFPUtil ...");
+
+        try {
+            Set unHooks = XposedBridge.hookAllMethods(
+                    XposedHelpers.findClass("com.android.server.fingerprint.FingerprintUtils",
+                            lpparam.classLoader),
+                    "vibrateFingerprintSuccess", new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            super.beforeHookedMethod(param);
+                            if (getAppGuardBridge().interruptFPSuccessVibrate()) {
+                                param.setResult(null);
+                                XPosedLog.verbose("vibrateFingerprintSuccess blocked.");
+                            }
+                        }
+                    });
+            XPosedLog.verbose("hookFPUtil @SUCCESS OK:" + unHooks);
+            getBridge().publishFeature(XAppGuardManager.Feature.FP);
+            setStatus(unhooksToStatus(unHooks));
+        } catch (Exception e) {
+            XPosedLog.verbose("Fail hookFPUtil @SUCCESS: " + e);
+            setStatus(SubModuleStatus.ERROR);
+            setErrorMessage(Log.getStackTraceString(e));
+        }
+
+        try {
+            Set unHooks = XposedBridge.hookAllMethods(
+                    XposedHelpers.findClass("com.android.server.fingerprint.FingerprintUtils",
+                            lpparam.classLoader),
+                    "vibrateFingerprintError", new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            super.beforeHookedMethod(param);
+                            if (getAppGuardBridge().interruptFPErrorVibrate()) {
+                                param.setResult(null);
+                                XPosedLog.verbose("vibrateFingerprintError blocked.");
+                            }
+                        }
+                    });
+            XPosedLog.verbose("hookFPUtil @ERROR OK:" + unHooks);
+            getBridge().publishFeature(XAppGuardManager.Feature.FP);
+            setStatus(unhooksToStatus(unHooks));
+        } catch (Exception e) {
+            XPosedLog.verbose("Fail hookFPUtil @ERROR: " + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

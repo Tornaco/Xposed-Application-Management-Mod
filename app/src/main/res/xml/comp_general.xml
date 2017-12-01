@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/title_general_settings">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="comp_setting_block"
+            android:persistent="false"
+            android:summary="@string/summary_component_block"
+            android:title="@string/title_component_block" />
+    </PreferenceCategory>
+</PreferenceScreen>

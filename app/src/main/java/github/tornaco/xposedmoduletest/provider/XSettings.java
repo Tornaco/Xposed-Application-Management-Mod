@@ -8,7 +8,6 @@ import java.io.File;
 import java.util.Observable;
 
 import github.tornaco.xposedmoduletest.ui.Themes;
-import github.tornaco.xposedmoduletest.xposed.XAppBuildHostInfo;
 
 /**
  * Created by guohao4 on 2017/10/19.
@@ -24,20 +23,6 @@ public class XSettings extends Observable {
 
     public static XSettings get() {
         return sMe;
-    }
-
-    public static boolean isNewBuild(Context context) {
-        try {
-            String buildDateOld = PreferenceManager.getDefaultSharedPreferences(context)
-                    .getString(XKey.BUILD_DATE, null);
-            return buildDateOld != null
-                    && !buildDateOld.equals(XAppBuildHostInfo.BUILD_DATE);
-        } finally {
-            PreferenceManager.getDefaultSharedPreferences(context)
-                    .edit()
-                    .putString(XKey.BUILD_DATE, XAppBuildHostInfo.BUILD_DATE)
-                    .apply();
-        }
     }
 
     public static boolean takenPhotoEnabled(Context context) {
@@ -99,22 +84,6 @@ public class XSettings extends Observable {
                 .edit()
                 .putBoolean(XKey.DEV_MODE, in)
                 .apply();
-    }
-
-    public static boolean isFirstRun(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(XKey.FIRST_RUN, true);
-    }
-
-    public static boolean setFirstRun(Context context) {
-        boolean first = isFirstRun(context);
-        if (first) {
-            PreferenceManager.getDefaultSharedPreferences(context)
-                    .edit()
-                    .putBoolean(XKey.FIRST_RUN, false)
-                    .apply();
-        }
-        return first;
     }
 
     public static Themes getThemes(Context c) {

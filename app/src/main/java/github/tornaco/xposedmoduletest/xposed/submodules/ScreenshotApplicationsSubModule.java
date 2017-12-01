@@ -45,15 +45,15 @@ public class ScreenshotApplicationsSubModule extends AppGuardAndroidSubModule {
                             try {
                                 onScreenshotApplications(param);
                             } catch (Exception e) {
-                                XPosedLog.verbose("Fail onScreenshotApplications:" + e);
+                                XPosedLog.verbose("Fail onScreenshotApplications: " + e);
                             }
                         }
                     });
-            XPosedLog.verbose("hookScreenshotApplications OK:" + unHooks);
+            XPosedLog.verbose("hookScreenshotApplications OK: " + unHooks);
             getBridge().publishFeature(XAppGuardManager.Feature.BLUR);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XPosedLog.verbose("Fail hookScreenshotApplications:" + e);
+            XPosedLog.verbose("Fail hookScreenshotApplications: " + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }
@@ -66,13 +66,17 @@ public class ScreenshotApplicationsSubModule extends AppGuardAndroidSubModule {
         if (TextUtils.isEmpty(pkgName)) {
             return;
         }
+        XPosedLog.verbose("onScreenshotApplications: " + pkgName);
         if (getAppGuardBridge().isBlurForPkg(pkgName)
                 && param.getResult() != null) {
+            XPosedLog.verbose("onScreenshotApplications, bluring...");
             Bitmap res = (Bitmap) param.getResult();
             Bitmap blured = (XBitmapUtil.createBlurredBitmap(res,
                     XBitmapUtil.BLUR_RADIUS, XBitmapUtil.BITMAP_SCALE));
             if (blured != null)
                 param.setResult(blured);
+        } else {
+            XPosedLog.verbose("onScreenshotApplications, blur is disabled...");
         }
     }
 }

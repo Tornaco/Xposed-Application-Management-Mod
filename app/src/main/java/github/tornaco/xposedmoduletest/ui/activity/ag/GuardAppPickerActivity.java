@@ -85,7 +85,7 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
 
     @Override
     protected void setSummaryView() {
-        TextView textView = (TextView) findViewById(R.id.summary);
+        TextView textView = findViewById(R.id.summary);
         textView.setVisibility(View.GONE);
     }
 
@@ -98,14 +98,17 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.show_system_app).setChecked(mShowSystemApp);
+        menu.findItem(R.id.action_info).setVisible(false);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        mShowSystemApp = !mShowSystemApp;
-        invalidateOptionsMenu();
-        startLoading();
+        if (item.getItemId() == R.id.show_system_app) {
+            mShowSystemApp = !mShowSystemApp;
+            invalidateOptionsMenu();
+            startLoading();
+        }
         return super.onOptionsItemSelected(item);
     }
 }

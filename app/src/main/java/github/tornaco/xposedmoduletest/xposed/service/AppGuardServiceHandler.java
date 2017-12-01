@@ -34,4 +34,6 @@ interface AppGuardServiceHandler {
     void onActivityPackageResume(String pkg);
 
     void onUserPresent();
+
+    void setInterruptFPEventVBEnabled(int event, boolean enabled);
 }

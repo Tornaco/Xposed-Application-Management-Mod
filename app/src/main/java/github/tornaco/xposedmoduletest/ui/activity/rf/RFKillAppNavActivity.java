@@ -17,6 +17,7 @@ import java.util.List;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.RFKillPackage;
 import github.tornaco.xposedmoduletest.loader.RFKillPackageLoader;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.WithRecyclerView;
 import github.tornaco.xposedmoduletest.ui.activity.lk.LKSettingsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.RFKillAppListAdapter;
@@ -105,8 +106,15 @@ public class RFKillAppNavActivity extends WithRecyclerView {
 
 
     protected void setSummaryView() {
+        String who = getClass().getSimpleName();
+        boolean showInfo = AppSettings.isShowInfoEnabled(this, who);
         TextView textView = findViewById(R.id.summary);
-        textView.setText(R.string.summary_rf_kill_app);
+        if (!showInfo) {
+            textView.setVisibility(View.GONE);
+        } else {
+            textView.setText(R.string.summary_rf_kill_app);
+            textView.setVisibility(View.VISIBLE);
+        }
     }
 
     protected RFKillAppListAdapter onCreateAdapter() {
@@ -142,7 +150,7 @@ public class RFKillAppNavActivity extends WithRecyclerView {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // getMenuInflater().inflate(R.menu.lk, menu);
+        getMenuInflater().inflate(R.menu.rf, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -153,6 +161,11 @@ public class RFKillAppNavActivity extends WithRecyclerView {
         }
         if (item.getItemId() == R.id.action_settings) {
             startActivity(new Intent(this, LKSettingsDashboardActivity.class));
+        }
+        if (item.getItemId() == R.id.action_info) {
+            String who = getClass().getSimpleName();
+            AppSettings.setShowInfo(this, who, !AppSettings.isShowInfoEnabled(this, who));
+            setSummaryView();
         }
         return super.onOptionsItemSelected(item);
     }

@@ -56,4 +56,8 @@ interface IAshmanService {
 
     // Power API.
     void restart();
+
+    // Extra API.
+    void setCompSettingBlockEnabled(boolean enabled);
+    boolean isCompSettingBlockEnabledEnabled();
 }

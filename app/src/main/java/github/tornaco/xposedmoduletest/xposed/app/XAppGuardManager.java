@@ -58,6 +58,11 @@ public class XAppGuardManager {
         }
     }
 
+    public interface FPEvent {
+        int SUCCESS = 0x1;
+        int ERROR = 0x2;
+    }
+
     private static final Singleton<XAppGuardManager> sManager =
             new Singleton<XAppGuardManager>() {
                 @Override
@@ -274,6 +279,7 @@ public class XAppGuardManager {
     }
 
     public String[] getSubModules() {
+        ensureService();
         try {
             return mService.getSubModules();
         } catch (RemoteException e) {
@@ -283,6 +289,7 @@ public class XAppGuardManager {
     }
 
     public int getSubModuleStatus(String token) {
+        ensureService();
         try {
             return mService.getSubModuleStatus(token);
         } catch (RemoteException e) {
@@ -291,5 +298,22 @@ public class XAppGuardManager {
         return SubModule.SubModuleStatus.UNKNOWN.ordinal();
     }
 
+    public boolean isInterruptFPEventVBEnabled(int event) {
+        ensureService();
+        try {
+            return mService.isInterruptFPEventVBEnabled(event);
+        } catch (RemoteException e) {
+            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
+            return false;
+        }
+    }
 
+    public void setInterruptFPEventVBEnabled(int event, boolean enabled) {
+        ensureService();
+        try {
+            mService.setInterruptFPEventVBEnabled(event, enabled);
+        } catch (RemoteException e) {
+            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
 }

@@ -17,4 +17,8 @@ public interface IAppGuardBridge extends IModuleBridge {
     void verify(Bundle options, String pkg, int uid, int pid, VerifyListener listener);
 
     boolean isBlurForPkg(String pkg);
+
+    boolean interruptFPSuccessVibrate();
+
+    boolean interruptFPErrorVibrate();
 }

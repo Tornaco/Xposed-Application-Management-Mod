@@ -17,6 +17,7 @@ import java.util.List;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.AutoStartPackage;
 import github.tornaco.xposedmoduletest.loader.StartPackageLoader;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.BlockRecordViewerActivity;
 import github.tornaco.xposedmoduletest.ui.activity.WithRecyclerView;
 import github.tornaco.xposedmoduletest.ui.adapter.StartAppListAdapter;
@@ -53,10 +54,10 @@ public class StartAppNavActivity extends WithRecyclerView {
     }
 
     protected void initView() {
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        swipeRefreshLayout = findViewById(R.id.swipe);
         swipeRefreshLayout.setColorSchemeColors(getResources().getIntArray(R.array.polluted_waves));
-        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = findViewById(R.id.fab);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,7 +84,7 @@ public class StartAppNavActivity extends WithRecyclerView {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                SwitchBar switchBar = (SwitchBar) findViewById(R.id.switchbar);
+                SwitchBar switchBar = findViewById(R.id.switchbar);
                 if (switchBar == null) return;
                 switchBar.setChecked(XAshmanManager.singleInstance().isServiceAvailable()
                         && XAshmanManager.singleInstance().isStartBlockEnabled());
@@ -103,8 +104,15 @@ public class StartAppNavActivity extends WithRecyclerView {
     }
 
     protected void setSummaryView() {
-        TextView textView = (TextView) findViewById(R.id.summary);
-        textView.setText(R.string.summary_start_app);
+        String who = getClass().getSimpleName();
+        boolean showInfo = AppSettings.isShowInfoEnabled(this, who);
+        TextView textView = findViewById(R.id.summary);
+        if (!showInfo) {
+            textView.setVisibility(View.GONE);
+        } else {
+            textView.setText(R.string.summary_start_app);
+            textView.setVisibility(View.VISIBLE);
+        }
     }
 
 
@@ -161,6 +169,11 @@ public class StartAppNavActivity extends WithRecyclerView {
         }
         if (item.getItemId() == R.id.action_block_record_viewer) {
             BlockRecordViewerActivity.start(this, null);
+        }
+        if (item.getItemId() == R.id.action_info) {
+            String who = getClass().getSimpleName();
+            AppSettings.setShowInfo(this, who, !AppSettings.isShowInfoEnabled(this, who));
+            setSummaryView();
         }
 //        if (item.getItemId() == R.id.action_start_block_notify) {
 //            boolean checked = item.isChecked();

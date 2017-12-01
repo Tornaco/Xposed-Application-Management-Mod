@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <PreferenceCategory android:title="@string/title_feedback">
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="unlock_vibrate_enabled"
+            android:title="@string/title_unlock_vibrate_enabled"
+            android:persistent="false"
+            android:summary="@string/summary_unlock_vibrate_enabled" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="error_vibrate_enabled"
+            android:persistent="false"
+            android:title="@string/title_error_vibrate_enabled"
+            android:summary="@string/summary_error_vibrate_enabled" />
+
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="@string/title_themes">
 
         <ListPreference

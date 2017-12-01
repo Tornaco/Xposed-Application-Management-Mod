@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.ui.activity.start;
 
 import android.app.ProgressDialog;
+import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
 
@@ -28,7 +29,7 @@ public class StartAppPickerActivity extends StartAppNavActivity {
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         super.initView();
-        SwitchBar switchBar = (SwitchBar) findViewById(R.id.switchbar);
+        SwitchBar switchBar = findViewById(R.id.switchbar);
         switchBar.hide();
         fab.setImageResource(R.drawable.ic_check_black_24dp);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -67,8 +68,14 @@ public class StartAppPickerActivity extends StartAppNavActivity {
     }
 
     protected void setSummaryView() {
-        TextView textView = (TextView) findViewById(R.id.summary);
+        TextView textView = findViewById(R.id.summary);
         textView.setVisibility(View.GONE);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_info).setVisible(false);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     protected List<AutoStartPackage> performLoading() {

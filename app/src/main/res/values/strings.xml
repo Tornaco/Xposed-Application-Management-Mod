@@ -70,7 +70,7 @@
     <string name="title_btn_size">按钮大小</string>
     <string name="title_text_size">文字大小</string>
     <string name="title_app_uninstall_pro">阻止卸载</string>
-    <string name="summary_app_uninstall_pro">阻止任何方式（adb/installer）卸载已经加锁的应用，而且如果想卸载AppGuard必须先禁用应用锁。某些设备可能无效。</string>
+    <string name="summary_app_uninstall_pro">阻止任何方式（adb/installer）卸载已经加锁的应用，而且如果想卸载[应用锁]必须先禁用应用锁。某些设备可能无效。</string>
     <string name="title_hide_app_icon">隐藏桌面图标</string>
     <string name="title_secure">安全</string>
     <string name="title_personal">个人</string>
@@ -94,7 +94,7 @@
     <string name="summary_app_guard">以下应用在启动时需要经过密码验证。</string>
     <string name="summary_boot_app"><b>允许</b>以下应用开机自动启动，其他非系统核心应用将自动被禁止。</string>
     <string name="summary_lock_kill_app">以下应用在锁屏后<b>不会</b>被清理，其他非系统核心应用将会被强制关闭。</string>
-    <string name="summary_rf_kill_app">以下应用在返回键退出或者退栈（例如即刻/淘宝）<b>一小会</b>后<b>不会</b>被清理，其他非系统核心应用会被强制关闭。\n注意：目前对微博等返回键直接启动HOME的应用无效:(</string>
+    <string name="summary_rf_kill_app">以下应用在返回键退出或者退栈（例如即刻/淘宝）<b>一小会</b>后<b>不会</b>被清理，其他非系统核心应用会被强制关闭。\n目前对微博等返回键直接启动HOME的应用无效。</string>
     <string name="summary_start_app"><b>允许</b>以下应用被其他应用启动，其他非系统核心应用将自动被禁止。</string>
     <string name="app_intro">以下功能依赖于嵌入系统的几项服务，你需要在xposed installer中激活该模块，并且重启才可以激活上述服务。</string>
     <string name="app_intro_need_restart">应用更新后需要重新启动，否则应用管理将无法正常工作。</string>
@@ -231,10 +231,17 @@
     <string name="title_pay_list">感谢人员</string>
     <string name="notification_app_auto_start_blocked">%1$s已经被阻止关联启动</string>
     <string name="title_start_block_notify">启动被首次禁止通知</string>
-    <string name="summary_comp_edit">禁用或启用某个应用的某些组件，禁用的组件将无法被启动，可能会导致该应用运行出现异常。</string>
+    <string name="summary_comp_edit">禁用或启用某个应用的某些组件，禁用的组件将无法被启动运行，你可以进入设置修改是否允许其被自己重新启用。\n\n注意，禁用其组件可能会导致该应用运行出现异常。</string>
     <string name="title_package_disabled">（已冻结）</string>
     <string name="title_disable_app">冻结</string>
     <string name="title_enable_app">解冻</string>
     <string name="title_comp_edit">编辑组件</string>
+    <string name="title_feedback">反馈</string>
+    <string name="title_unlock_vibrate_enabled">解锁成功震动</string>
+    <string name="title_error_vibrate_enabled">解锁失败震动</string>
+    <string name="summary_unlock_vibrate_enabled">同时会修改屏幕解锁的设置</string>
+    <string name="summary_error_vibrate_enabled">同时会修改屏幕解锁的设置</string>
+    <string name="title_component_block">阻止应用启用组件</string>
+    <string name="summary_component_block">某些应用会主动启用自己的组件，顽固，勾选后可以阻止该行为</string>
 
 </resources>

@@ -17,6 +17,7 @@ import java.util.List;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.LockKillPackage;
 import github.tornaco.xposedmoduletest.loader.LockKillPackageLoader;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.WithRecyclerView;
 import github.tornaco.xposedmoduletest.ui.adapter.LockKillAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
@@ -104,8 +105,15 @@ public class LockKillAppNavActivity extends WithRecyclerView {
 
 
     protected void setSummaryView() {
+        String who = getClass().getSimpleName();
+        boolean showInfo = AppSettings.isShowInfoEnabled(this, who);
         TextView textView = findViewById(R.id.summary);
-        textView.setText(R.string.summary_lock_kill_app);
+        if (!showInfo) {
+            textView.setVisibility(View.GONE);
+        } else {
+            textView.setText(R.string.summary_lock_kill_app);
+            textView.setVisibility(View.VISIBLE);
+        }
     }
 
     protected LockKillAppListAdapter onCreateAdapter() {
@@ -152,6 +160,11 @@ public class LockKillAppNavActivity extends WithRecyclerView {
         }
         if (item.getItemId() == R.id.action_settings) {
             startActivity(new Intent(this, LKSettingsDashboardActivity.class));
+        }
+        if (item.getItemId() == R.id.action_info) {
+            String who = getClass().getSimpleName();
+            AppSettings.setShowInfo(this, who, !AppSettings.isShowInfoEnabled(this, who));
+            setSummaryView();
         }
         return super.onOptionsItemSelected(item);
     }

@@ -239,7 +239,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private void setupFP() {
         cancelFP();
-        if (XSettings.get().fpEnabled(this)) {
+        if (XSettings.fpEnabled(this)) {
             mCancellationSignal = setupFingerPrint(
                     new FingerprintManagerCompat.AuthenticationCallback() {
                         @Override
@@ -274,10 +274,13 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private void vibrate() {
-        Vibrator vibrator = (Vibrator) VerifyDisplayerActivity.this.getSystemService(VIBRATOR_SERVICE);
-        if (vibrator != null) {
-            vibrator.vibrate(new long[]{10, 20, 20}, -1);
-        }
+//        if (XAppGuardManager.singleInstance().isInterruptFPEventVBEnabled(XAppGuardManager.FPEvent.SUCCESS)) {
+//            Logger.w("vibrating...");
+//            Vibrator vibrator = (Vibrator) VerifyDisplayerActivity.this.getSystemService(VIBRATOR_SERVICE);
+//            if (vibrator != null) {
+//                vibrator.vibrate(new long[]{10, 20, 20}, -1);
+//            }
+//        }
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -410,6 +413,10 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private boolean resolveIntent(Intent intent) {
+        // Service is not available, ignore.
+        if (!XAppGuardManager.singleInstance().isServiceAvailable()) {
+            return false;
+        }
         Logger.d("before resolveIntent: %s, %s", pkg, tid);
         if (intent == null) return false;
         pkg = intent.getStringExtra(EXTRA_PKG_NAME);

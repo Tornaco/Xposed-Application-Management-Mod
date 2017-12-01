@@ -2,15 +2,21 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
-
     <item
         android:id="@+id/action_info"
-        tools:ignore="AlwaysShowAction"
         android:icon="@drawable/ic_info_white_24dp"
         android:title="@string/app_name"
-        app:showAsAction="always" />
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/show_system_app"
+        android:checkable="true"
+        android:checked="false"
+        android:title="@string/title_show_system_app" />
+
+    <item
+        android:id="@+id/action_settings_package_viewer"
+        android:icon="@drawable/ic_build_white_24dp"
         android:title="@string/title_settings"
         app:showAsAction="never" />
 </menu>

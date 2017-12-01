@@ -128,6 +128,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private AtomicBoolean mStartBlockEnabled = new AtomicBoolean(false);
     private AtomicBoolean mLockKillEnabled = new AtomicBoolean(false);
     private AtomicBoolean mRootActivityFinishKillEnabled = new AtomicBoolean(false);
+    private AtomicBoolean mCompSettingBlockEnabled = new AtomicBoolean(false);
 
     private long mLockKillDelay;
 
@@ -607,9 +608,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         try {
-            boolean rootKillEnabled = (boolean) SystemSettings.ROOT_ACTIVITY_KILL_ENABLED_B.readFromSystemSettings(getContext());
+            boolean rootKillEnabled = (boolean) SystemSettings.ROOT_ACTIVITY_KILL_ENABLED_B
+                    .readFromSystemSettings(getContext());
             mRootActivityFinishKillEnabled.set(rootKillEnabled);
             XPosedLog.verbose("rootKillEnabled: " + String.valueOf(rootKillEnabled));
+        } catch (Throwable e) {
+            XPosedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            boolean compSettingBlockEnabled = (boolean) SystemSettings.COMP_SETTING_BLOCK_ENABLED_B
+                    .readFromSystemSettings(getContext());
+            mCompSettingBlockEnabled.set(compSettingBlockEnabled);
+            XPosedLog.verbose("compSettingBlockEnabled: " + String.valueOf(compSettingBlockEnabled));
         } catch (Throwable e) {
             XPosedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -712,6 +723,33 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     mPackagesCache.get(receiverUid))
                     + " action: " + action, mLoggingService);
         return res.res;
+    }
+
+    @Override
+    @InternalCall
+    public boolean checkComponentSetting(ComponentName componentName, int newState,
+                                         int flags, int callingUid) {
+        XPosedLog.verbose("checkComponentSetting: " + componentName
+                + ", calling uid: " + callingUid
+                + ", state: " + newState);
+        if (newState != PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                && newState != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT) {
+            XPosedLog.verbose("It is not enable state, allow component setting.");
+        }
+        if (callingUid == sClientUID || callingUid <= 1000
+                || callingUid == android.os.Process.myUid()) {
+            // Do not block system settings.
+            XPosedLog.verbose("It is us or the system, allow component setting.");
+            return true;
+        }
+
+        if (!isCompSettingBlockEnabledEnabled()) {
+            XPosedLog.verbose("Block is not enabled, allow component setting.");
+            return true;
+        }
+
+        XPosedLog.verbose("Block component setting.");
+        return false;
     }
 
     @Override
@@ -915,9 +953,24 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         lazyH.post(new Runnable() {
             @Override
             public void run() {
-                Zygote.execShell("stop; start");
+                Zygote.execShell("reboot"); //FIXME Change to soft reboot?
             }
         });
+    }
+
+    @Override
+    @BinderCall
+    public void setCompSettingBlockEnabled(boolean enabled) throws RemoteException {
+        enforceCallingPermissions();
+        h.obtainMessage(AshManHandlerMessages.MSG_SETCOMPSETTINGBLOCKENABLED, enabled)
+                .sendToTarget();
+    }
+
+    @Override
+    @BinderCall
+    public boolean isCompSettingBlockEnabledEnabled() {
+        enforceCallingPermissions();
+        return mCompSettingBlockEnabled.get();
     }
 
     private CheckResult checkBroadcastDetailed(String action, int receiverUid, int callerUid) {
@@ -1343,6 +1396,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             fout.println("Boot block enabled: " + mBootBlockEnabled.get());
             fout.println("LK enabled: " + mLockKillEnabled.get());
             fout.println("RF kill enabled: " + mRootActivityFinishKillEnabled.get());
+            fout.println("CompSettingBlockEnabled enabled: " + mCompSettingBlockEnabled.get());
             fout.println("LK delay: " + mLockKillDelay);
 
             // Dump while list.
@@ -1476,6 +1530,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETRFKILLENABLED:
                     HandlerImpl.this.setRFKillEnabled((Boolean) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_SETCOMPSETTINGBLOCKENABLED:
+                    HandlerImpl.this.setCompSettingBlockEnabled((Boolean) msg.obj);
+                    break;
                 case AshManHandlerMessages.MSG_ONSCREENOFF:
                     HandlerImpl.this.onScreenOff();
                     break;
@@ -1534,6 +1591,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setRFKillEnabled(boolean enabled) {
             if (mRootActivityFinishKillEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.ROOT_ACTIVITY_KILL_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setCompSettingBlockEnabled(boolean enabled) {
+            if (mCompSettingBlockEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.COMP_SETTING_BLOCK_ENABLED_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 
@@ -1809,7 +1873,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
                         PkgUtil.kill(getContext(), packageName);
                     }
-                }, 1000);
+                }, 666);
             }
         }
 

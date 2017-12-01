@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.ui.activity.lk;
 
 import android.app.ProgressDialog;
+import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
 
@@ -69,6 +70,13 @@ public class LockKillAppPickerActivity extends LockKillAppNavActivity {
     protected void setSummaryView() {
         TextView textView = findViewById(R.id.summary);
         textView.setVisibility(View.GONE);
+    }
+
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_info).setVisible(false);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     protected List<LockKillPackage> performLoading() {

@@ -42,4 +42,7 @@ interface IAppGuardService {
 
     String[] getSubModules();
     int getSubModuleStatus(String token);
+
+    boolean isInterruptFPEventVBEnabled(int event);
+    void setInterruptFPEventVBEnabled(int event, boolean enabled);
 }

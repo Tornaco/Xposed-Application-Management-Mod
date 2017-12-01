@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
@@ -70,6 +71,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     private AtomicBoolean mEnabled = new AtomicBoolean(false);
     private AtomicBoolean mUninstallProEnabled = new AtomicBoolean(false);
     private AtomicBoolean mDebugEnabled = new AtomicBoolean(false);
+
+    private AtomicBoolean mInterruptFPSuccessVB = new AtomicBoolean(false);
+    private AtomicBoolean mInterruptFPERRORVB = new AtomicBoolean(false);
 
     private BlurSettings mBlurSettings;
     private VerifySettings mVerifySettings;
@@ -212,6 +216,12 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             boolean uninstallProEnabled = (boolean) SystemSettings.UNINSTALL_GUARD_ENABLED_B.readFromSystemSettings(getContext());
             mUninstallProEnabled.set(uninstallProEnabled);
 
+            boolean interruptFPS = (boolean) SystemSettings.INTERRUPT_FP_SUCCESS_VB_ENABLED_B.readFromSystemSettings(getContext());
+            mInterruptFPSuccessVB.set(interruptFPS);
+
+            boolean interruptFPE = (boolean) SystemSettings.INTERRUPT_FP_ERROR_VB_ENABLED_B.readFromSystemSettings(getContext());
+            mInterruptFPERRORVB.set(interruptFPE);
+
             boolean debug = (boolean) SystemSettings.APP_GUARD_DEBUG_MODE_B_S.readFromSystemSettings(getContext());
             mDebugEnabled.set(debug);
             XPosedLog.setLogLevel(debug ? XPosedLog.LogLevel.ALL : XPosedLog.LogLevel.WARN);
@@ -221,9 +231,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             mBlurSettings = BlurSettings.from(Settings.System.getString(resolver, BlurSettings.KEY_SETTINGS));
             mVerifySettings = VerifySettings.from(Settings.System.getString(resolver, VerifySettings.KEY_SETTINGS));
 
-            XPosedLog.verbose(String.valueOf(mBlurSettings));
-            XPosedLog.verbose(String.valueOf(mVerifySettings));
-            XPosedLog.verbose(String.valueOf(mEnabled));
+            XPosedLog.verbose("mBlurSettings: " + String.valueOf(mBlurSettings));
+            XPosedLog.verbose("mVerifySettings: " + String.valueOf(mVerifySettings));
+            XPosedLog.verbose("mUninstallProEnabled: " + String.valueOf(mUninstallProEnabled));
+            XPosedLog.verbose("mInterruptFPSuccessVB: " + String.valueOf(mInterruptFPSuccessVB));
+            XPosedLog.verbose("mEnabled: " + String.valueOf(mEnabled));
         } catch (Throwable e) {
             XPosedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -340,8 +352,17 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @Override
     protected void dump(FileDescriptor fd, PrintWriter fout, String[] args) {
-        enforceCallingPermissions();
         super.dump(fd, fout, args);
+        // For secure and CTS.
+        if (getContext().checkCallingOrSelfPermission(Manifest.permission.DUMP) != PackageManager.PERMISSION_GRANTED) {
+            fout.println("Permission denial: can not dump AppGuard service from pid= " + Binder.getCallingPid()
+                    + ", uid= " + Binder.getCallingUid());
+            return;
+        }
+        synchronized (this) {
+            fout.println("mInterruptFPSuccessVB enabled: " + mInterruptFPSuccessVB.get());
+            fout.println("mInterruptFPERRORVB enabled: " + mInterruptFPERRORVB.get());
+        }
     }
 
     private boolean onInterruptConfirm(String pkg) {
@@ -490,12 +511,34 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     @Override
+    public boolean isInterruptFPEventVBEnabled(int event) throws RemoteException {
+        enforceCallingPermissions();
+        switch (event) {
+            case XAppGuardManager.FPEvent.SUCCESS:
+                return interruptFPSuccessVibrate();
+            case XAppGuardManager.FPEvent.ERROR:
+                return interruptFPErrorVibrate();
+        }
+        return false;
+    }
+
+    @Override
+    @BinderCall
+    public void setInterruptFPEventVBEnabled(int event, boolean enabled) throws RemoteException {
+        enforceCallingPermissions();
+        mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages
+                .MSG_SETINTERRUPTFPEVENTVBENABLED, event, event, enabled)
+                .sendToTarget();
+    }
+
+    @Override
     public String serial() {
         return mSerialUUID.toString();
     }
 
     @Override
     public boolean isBlurForPkg(String pkg) {
+        XPosedLog.verbose("isBlurForPkg? " + mBlurSettings);
         if (mBlurSettings == null) return false;
         int policy = mBlurSettings.getPolicy();
         switch (policy) {
@@ -508,6 +551,16 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             default:
                 return false;
         }
+    }
+
+    @Override
+    public boolean interruptFPSuccessVibrate() {
+        return mInterruptFPSuccessVB.get();
+    }
+
+    @Override
+    public boolean interruptFPErrorVibrate() {
+        return mInterruptFPERRORVB.get();
     }
 
     @Override
@@ -727,6 +780,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 case AppGuardServiceHandlerMessages.MSG_ONUSERPRESENT:
                     AppGuardServiceHandlerImpl.this.onUserPresent();
                     break;
+                case AppGuardServiceHandlerMessages.MSG_SETINTERRUPTFPEVENTVBENABLED:
+                    AppGuardServiceHandlerImpl.this.setInterruptFPEventVBEnabled(msg.arg1, (Boolean) msg.obj);
+                    break;
                 default:
                     AppGuardServiceHandlerImpl.this.setResult((Integer) msg.obj,
                             XAppVerifyMode.MODE_IGNORED);
@@ -875,6 +931,24 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 return;
             }
             verifyInternal(null, pkg, 0, 0, true, VerifyListenerAdapter.getDefault());
+        }
+
+        @Override
+        public void setInterruptFPEventVBEnabled(int event, boolean enabled) {
+            switch (event) {
+                case XAppGuardManager.FPEvent.SUCCESS:
+                    if (mInterruptFPSuccessVB.compareAndSet(!enabled, enabled)) {
+                        SystemSettings.INTERRUPT_FP_SUCCESS_VB_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                    }
+                    break;
+                case XAppGuardManager.FPEvent.ERROR:
+                    if (mInterruptFPERRORVB.compareAndSet(!enabled, enabled)) {
+                        SystemSettings.INTERRUPT_FP_ERROR_VB_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
 
         /**

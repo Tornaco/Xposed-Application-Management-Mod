@@ -2,6 +2,8 @@ package github.tornaco.xposedmoduletest.ui.activity.ag;
 
 import android.app.Fragment;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
 
 import github.tornaco.xposedmoduletest.R;
@@ -25,10 +27,30 @@ public class VerifierGuardSettings extends GuardSettingsActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.ag_verifier);
 
-
             if (!XAppGuardManager.singleInstance().isServiceAvailable()) {
                 getPreferenceScreen().setEnabled(false);
-                return;
+            } else {
+                SwitchPreference switchPreference = (SwitchPreference) findPreference("unlock_vibrate_enabled");
+                switchPreference.setChecked(!XAppGuardManager.singleInstance().isInterruptFPEventVBEnabled(XAppGuardManager.FPEvent.SUCCESS));
+                switchPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        boolean interrupt = !(boolean) newValue;
+                        XAppGuardManager.singleInstance().setInterruptFPEventVBEnabled(XAppGuardManager.FPEvent.SUCCESS, interrupt);
+                        return true;
+                    }
+                });
+
+                switchPreference = (SwitchPreference) findPreference("error_vibrate_enabled");
+                switchPreference.setChecked(!XAppGuardManager.singleInstance().isInterruptFPEventVBEnabled(XAppGuardManager.FPEvent.ERROR));
+                switchPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        boolean interrupt = !(boolean) newValue;
+                        XAppGuardManager.singleInstance().setInterruptFPEventVBEnabled(XAppGuardManager.FPEvent.ERROR, interrupt);
+                        return true;
+                    }
+                });
             }
 
         }

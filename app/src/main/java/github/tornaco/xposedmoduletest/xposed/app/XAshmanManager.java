@@ -258,6 +258,7 @@ public class XAshmanManager {
     }
 
     public boolean isPackageStartBlockEnabled(String pkg) {
+        ensureService();
         try {
             return mService.isPackageStartBlockEnabled(pkg);
         } catch (RemoteException e) {
@@ -267,6 +268,7 @@ public class XAshmanManager {
     }
 
     public boolean isPackageBootBlockEnabled(String pkg) {
+        ensureService();
         try {
             return mService.isPackageBootBlockEnabled(pkg);
         } catch (RemoteException e) {
@@ -276,6 +278,7 @@ public class XAshmanManager {
     }
 
     public boolean isPackageLockKillEnabled(String pkg) {
+        ensureService();
         try {
             return mService.isPackageLockKillEnabled(pkg);
         } catch (RemoteException e) {
@@ -285,6 +288,7 @@ public class XAshmanManager {
     }
 
     public boolean isPackageRFKillEnabled(String pkg) {
+        ensureService();
         try {
             return mService.isPackageRFKillEnabled(pkg);
         } catch (RemoteException e) {
@@ -294,6 +298,7 @@ public class XAshmanManager {
     }
 
     public List<String> getWhiteListPackages() {
+        ensureService();
         try {
             return mService.getWhiteListPackages();
         } catch (RemoteException e) {
@@ -303,10 +308,30 @@ public class XAshmanManager {
     }
 
     public void restart() {
+        ensureService();
         try {
             mService.restart();
         } catch (RemoteException e) {
             Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public void setCompSettingBlockEnabled(boolean enabled) {
+        ensureService();
+        try {
+            mService.setCompSettingBlockEnabled(enabled);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public boolean isCompSettingBlockEnabledEnabled() {
+        ensureService();
+        try {
+            return mService.isCompSettingBlockEnabledEnabled();
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return false;
         }
     }
 }

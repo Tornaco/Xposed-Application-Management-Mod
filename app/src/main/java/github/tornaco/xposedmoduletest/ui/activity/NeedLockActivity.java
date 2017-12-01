@@ -38,6 +38,7 @@ import github.tornaco.xposedmoduletest.provider.LockStorage;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.util.PatternLockViewListenerAdapter;
 import github.tornaco.xposedmoduletest.util.ViewAnimatorUtil;
+import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 
 /**
  * Created by guohao4 on 2017/11/15.
@@ -236,10 +237,13 @@ public class NeedLockActivity extends BaseActivity {
         }
 
         private void vibrate() {
-            Vibrator vibrator = (Vibrator) activity.getSystemService(VIBRATOR_SERVICE);
-            if (vibrator != null) {
-                vibrator.vibrate(new long[]{10, 20, 20}, -1);
-            }
+//            if (XAppGuardManager.singleInstance().isServiceAvailable()
+//                    && XAppGuardManager.singleInstance().isInterruptFPEventVBEnabled(XAppGuardManager.FPEvent.SUCCESS)) {
+//                Vibrator vibrator = (Vibrator) activity.getSystemService(VIBRATOR_SERVICE);
+//                if (vibrator != null) {
+//                    vibrator.vibrate(new long[]{10, 20, 20}, -1);
+//                }
+//            }
         }
 
         private boolean isKeyguard() {

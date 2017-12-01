@@ -5,12 +5,8 @@
 
     <item
         android:id="@+id/action_info"
-        tools:ignore="AlwaysShowAction"
         android:icon="@drawable/ic_info_white_24dp"
         android:title="@string/app_name"
-        app:showAsAction="always" />
-    <item
-        android:id="@+id/action_settings"
-        android:title="@string/title_settings"
-        app:showAsAction="never" />
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
 </menu>

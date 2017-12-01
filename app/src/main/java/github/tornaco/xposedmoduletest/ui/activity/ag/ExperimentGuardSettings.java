@@ -48,6 +48,9 @@ public class ExperimentGuardSettings extends GuardSettingsActivity {
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     boolean v = (boolean) newValue;
                     finalBlurSettings.setEnabled(v);
+                    if (finalBlurSettings.getPolicy() != XAppGuardManager.BlurPolicy.BLUR_ALL) {
+                        finalBlurSettings.setPolicy(XAppGuardManager.BlurPolicy.BLUR_WATCHED);
+                    }
                     XAppGuardManager.singleInstance().setBlurSettings(finalBlurSettings);
                     return true;
                 }

@@ -19,6 +19,7 @@ import java.util.List;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.loader.PackageLoader;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.provider.LockStorage;
 import github.tornaco.xposedmoduletest.ui.activity.NeedLockActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.GuardAppListAdapter;
@@ -122,8 +123,15 @@ public class GuardAppNavActivity extends NeedLockActivity {
     }
 
     protected void setSummaryView() {
-        TextView textView = (TextView) findViewById(R.id.summary);
-        textView.setText(R.string.summary_app_guard);
+        String who = getClass().getSimpleName();
+        boolean showInfo = AppSettings.isShowInfoEnabled(this, who);
+        TextView textView = findViewById(R.id.summary);
+        if (!showInfo) {
+            textView.setVisibility(View.GONE);
+        } else {
+            textView.setText(R.string.summary_app_guard);
+            textView.setVisibility(View.VISIBLE);
+        }
     }
 
     private void showPasswordSetupTips() {
@@ -171,7 +179,7 @@ public class GuardAppNavActivity extends NeedLockActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.nav, menu);
+        getMenuInflater().inflate(R.menu.guard_list, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -183,6 +191,12 @@ public class GuardAppNavActivity extends NeedLockActivity {
 
         if (item.getItemId() == R.id.action_settings) {
             startActivity(new Intent(this, GuardSettingsDashboardActivity.class));
+        }
+
+        if (item.getItemId() == R.id.action_info) {
+            String who = getClass().getSimpleName();
+            AppSettings.setShowInfo(this, who, !AppSettings.isShowInfoEnabled(this, who));
+            setSummaryView();
         }
         return super.onOptionsItemSelected(item);
     }
