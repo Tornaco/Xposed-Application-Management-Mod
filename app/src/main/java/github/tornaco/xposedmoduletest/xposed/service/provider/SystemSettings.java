@@ -98,7 +98,7 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
         }
     },
 
-    COMP_SETTING_BLOCK_ENABLED_B(1) {
+    COMP_SETTING_BLOCK_ENABLED_B(0) {
         @Override
         public boolean writeToSystemSettings(Context context, Object value) {
             ContentResolver resolver = context.getContentResolver();

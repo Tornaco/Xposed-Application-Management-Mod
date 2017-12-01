@@ -32,9 +32,12 @@ import android.view.inputmethod.InputMethodManager;
 import com.android.internal.os.Zygote;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -69,6 +72,7 @@ import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.util.Closer;
+import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
 import lombok.AllArgsConstructor;
@@ -735,7 +739,25 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (newState != PackageManager.COMPONENT_ENABLED_STATE_ENABLED
                 && newState != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT) {
             XPosedLog.verbose("It is not enable state, allow component setting.");
+            return true;
         }
+        if (componentName == null) return true;
+
+        String pkgName = componentName.getPackageName();
+
+        //noinspection ConstantConditions
+        if (pkgName == null) return true;
+
+        if (isInWhiteList(pkgName)) {
+            XPosedLog.verbose("It is from while list, allow component setting.");
+            return true;
+        }
+
+        if (pkgName.contains("com.google.android")) {
+            XPosedLog.verbose("It is maybe from google apps list, allow component setting.");
+            return true;
+        }
+
         if (callingUid == sClientUID || callingUid <= 1000
                 || callingUid == android.os.Process.myUid()) {
             // Do not block system settings.
@@ -1838,9 +1860,25 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         private final Holder<String> mTopPackage = new Holder<>();
 
+//        private StringListStorage mCompSettingPkgs;
+
         LazyHandler(Looper looper) {
             super(looper);
+
+//            try {
+//                File dataDir = Environment.getDataDirectory();
+//                File systemDir = new File(dataDir, "system/tor/apm/");
+//                File compStorageFile = new File(systemDir, "comp_setting_uids.config");
+//                mCompSettingPkgs = new StringListStorage(compStorageFile.getPath());
+//                XPosedLog.verbose("StringListStorage: " + mCompSettingPkgs);
+//            } catch (Throwable e) {
+//                XPosedLog.wtf("Fail init StringListStorage: " + e);
+//            }
         }
+
+//        public boolean isCompSettingByUs(String pkg) {
+//            return mCompSettingPkgs != null && mCompSettingPkgs.contains(pkg);
+//        }
 
         @Override
         public void onActivityDestroy(Intent intent) {
@@ -1882,6 +1920,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             mTopPackage.setData(who);
         }
 
+        @Override
+        public void onCompSetting(String pkg, boolean enable) {
+
+        }
+
         private String getTopPackage() {
             return mTopPackage.getData();
         }
@@ -1897,6 +1940,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     break;
                 case AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONT:
                     LazyHandler.this.onPackageMoveToFront((String) msg.obj);
+                    break;
+                case AshManLZHandlerMessages.MSG_ONCOMPSETTING:
+                    LazyHandler.this.onCompSetting((String) msg.obj, msg.arg1 == 1);
                     break;
             }
         }
@@ -1972,5 +2018,105 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Setter
     private abstract class SignalCallable<V> implements Callable<V> {
         boolean canceled = false;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @ToString
+    private class StringList {
+        private List<String> uids;
+
+        private boolean contains(String str) {
+            return uids != null && uids.contains(str);
+        }
+
+        public void add(String str) {
+            if (uids == null) {
+                uids = new ArrayList<>();
+            }
+            uids.add(str);
+            XPosedLog.verbose("StringList Adding: " + str);
+        }
+
+        public void remove(String s) {
+            XPosedLog.verbose("StringList Remove: " + s);
+            if (uids == null) {
+                uids = new ArrayList<>();
+                return;
+            }
+            uids.remove(s);
+        }
+    }
+
+    @ToString
+    private class StringListStorage {
+
+        @Getter
+        private StringList stringList;
+
+        private String filePath;
+
+        StringListStorage(String filePath) {
+            this.filePath = filePath;
+            asyncRead();
+        }
+
+        public boolean contains(String s) {
+            return stringList != null && stringList.contains(s);
+        }
+
+        public void add(String s) {
+            if (stringList == null) {
+                stringList = new StringList(new ArrayList<String>());
+            }
+            stringList.add(s);
+            asyncWrite();
+        }
+
+        public void remove(String s) {
+            if (stringList == null) {
+                return;
+            }
+            stringList.remove(s);
+            asyncWrite();
+        }
+
+        void asyncRead() {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized (StringListStorage.this) {
+                        try {
+                            File file = new File(filePath);
+                            if (!file.exists()) return;
+                            String content = FileUtil.readString(filePath);
+                            XPosedLog.verbose("StringListStorage, content: " + content);
+                            stringList = new Gson()
+                                    .fromJson(content, StringList.class);
+                        } catch (Exception e) {
+                            XPosedLog.wtf("StringListStorage asyncRead error: " + e);
+                        }
+                    }
+                }
+            }).start();
+        }
+
+        void asyncWrite() {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized (StringListStorage.this) {
+                        if (stringList == null) return;
+                        try {
+                            String content = new Gson().toJson(stringList);
+                            FileUtil.writeString(content, filePath);
+                        } catch (Exception e) {
+                            XPosedLog.wtf("StringListStorage asyncWrite error: " + e);
+                        }
+                    }
+                }
+            }).start();
+        }
     }
 }
