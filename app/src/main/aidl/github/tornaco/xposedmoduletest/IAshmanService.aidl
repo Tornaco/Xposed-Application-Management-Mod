@@ -12,6 +12,9 @@ interface IAshmanService {
     void setLockKillDelay(long delay);
     long getLockKillDelay();
 
+    void setWhiteSysAppEnabled(boolean enabled);
+    boolean isWhiteSysAppEnabled();
+
     void setBootBlockEnabled(boolean enabled);
     boolean isBlockBlockEnabled();
 

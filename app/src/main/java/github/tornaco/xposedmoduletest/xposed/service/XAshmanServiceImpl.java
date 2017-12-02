@@ -83,7 +83,6 @@ import lombok.Setter;
 import lombok.ToString;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
-import static android.content.pm.PackageManager.MATCH_UNINSTALLED_PACKAGES;
 
 /**
  * Created by guohao4 on 2017/11/9.
@@ -116,6 +115,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         WHITE_LIST.add("com.android.providers.media");
         WHITE_LIST.add("com.android.providers.calendar");
         WHITE_LIST.add("com.android.vending");
+        WHITE_LIST.add("com.miui.core");
         // FIXME???
         WHITE_LIST.add("com.ghostflying.locationreportenabler");
     }
@@ -134,6 +134,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private Handler h, lazyH;
 
+    private AtomicBoolean mWhiteSysAppEnabled = new AtomicBoolean(true);
     private AtomicBoolean mBootBlockEnabled = new AtomicBoolean(false);
     private AtomicBoolean mStartBlockEnabled = new AtomicBoolean(false);
     private AtomicBoolean mLockKillEnabled = new AtomicBoolean(false);
@@ -255,8 +256,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             // Filter all apps.
             List<ApplicationInfo> applicationInfos =
                     android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N ?
-                            pm.getInstalledApplications(MATCH_UNINSTALLED_PACKAGES)
-                            : pm.getInstalledApplications(PackageManager.GET_UNINSTALLED_PACKAGES);
+                            pm.getInstalledApplications(android.content.pm.PackageManager.MATCH_UNINSTALLED_PACKAGES)
+                            : pm.getInstalledApplications(android.content.pm.PackageManager.GET_UNINSTALLED_PACKAGES);
             Collections.consumeRemaining(applicationInfos,
                     new Consumer<ApplicationInfo>() {
                         @Override
@@ -603,6 +604,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private void getConfigFromSettings() {
         try {
+            boolean whiteSysApp = (boolean) SystemSettings.ASH_WHITE_SYS_APP_ENABLED_B.readFromSystemSettings(getContext());
+            mWhiteSysAppEnabled.set(whiteSysApp);
+            XPosedLog.verbose("whiteSysAapp: " + String.valueOf(whiteSysApp));
+        } catch (Throwable e) {
+            XPosedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+        try {
             boolean bootBlockEnabled = (boolean) SystemSettings.BOOT_BLOCK_ENABLED_B.readFromSystemSettings(getContext());
             mBootBlockEnabled.set(bootBlockEnabled);
             XPosedLog.verbose("bootBlockEnabled: " + String.valueOf(bootBlockEnabled));
@@ -697,6 +705,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.WHITE_LISTED;
         }
 
+        if (isWhiteSysAppEnabled() && isInSystemAppList(servicePkgName)) {
+            return CheckResult.SYSTEM_APP;
+        }
+
         // Service from/to same app is allowed.
         if (servicePkgName.equals(callerPkgName)) {
             return CheckResult.SAME_CALLER;
@@ -768,6 +780,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return true;
         }
 
+        if (isWhiteSysAppEnabled() && isInSystemAppList(pkgName)) {
+            XPosedLog.verbose("It is from system app list, allow component setting.");
+            return true;
+        }
+
         if (pkgName.contains("com.google.android")) {
             XPosedLog.verbose("It is maybe from google apps list, allow component setting.");
             return true;
@@ -813,6 +830,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         if (isInWhiteList(pkg)) {
+            return false;
+        }
+
+        if (isWhiteSysAppEnabled() && isInSystemAppList(pkg)) {
             return false;
         }
 
@@ -982,6 +1003,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 public void accept(String s) {
                     if (isBootAllowedByUser(s)) return;
                     if (isInWhiteList(s)) return;
+                    if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
                     outList.add(s);
                 }
             });
@@ -995,6 +1017,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Collection<BootCompletePackage> packages = mBootWhiteListPackages.values();
             if (packages.size() == 0) {
                 return new String[0];
+            }
+            if (isWhiteSysAppEnabled()) {
+                final List<String> noSys = Lists.newArrayList();
+                Collections.consumeRemaining(packages.toArray(),
+                        new Consumer<Object>() {
+                            @Override
+                            public void accept(Object o) {
+                                BootCompletePackage p = (BootCompletePackage) o;
+                                if (isInSystemAppList(p.getPkgName())) {
+                                    noSys.add(p.getPkgName());
+                                }
+                            }
+                        });
+                return convertObjectArrayToStringArray(noSys.toArray());
             }
             return convertObjectArrayToStringArray(packages.toArray());
         }
@@ -1071,6 +1107,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 public void accept(String s) {
                     if (isStartAllowedByUser(s)) return;
                     if (isInWhiteList(s)) return;
+                    if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
                     outList.add(s);
                 }
             });
@@ -1084,6 +1121,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Collection<AutoStartPackage> packages = mStartWhiteListPackages.values();
             if (packages.size() == 0) {
                 return new String[0];
+            }
+            if (isWhiteSysAppEnabled()) {
+                final List<String> noSys = Lists.newArrayList();
+                Collections.consumeRemaining(packages.toArray(),
+                        new Consumer<Object>() {
+                            @Override
+                            public void accept(Object o) {
+                                AutoStartPackage p = (AutoStartPackage) o;
+                                if (isInSystemAppList(p.getPkgName())) {
+                                    noSys.add(p.getPkgName());
+                                }
+                            }
+                        });
+                return convertObjectArrayToStringArray(noSys.toArray());
             }
             return convertObjectArrayToStringArray(packages.toArray());
         }
@@ -1160,6 +1211,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 public void accept(String s) {
                     if (isInLockKillWhiteList(s)) return;
                     if (isInWhiteList(s)) return;
+                    if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
                     outList.add(s);
                 }
             });
@@ -1173,6 +1225,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Collection<LockKillPackage> packages = mLockKillWhileListPackages.values();
             if (packages.size() == 0) {
                 return new String[0];
+            }
+            if (isWhiteSysAppEnabled()) {
+                final List<String> noSys = Lists.newArrayList();
+                Collections.consumeRemaining(packages.toArray(),
+                        new Consumer<Object>() {
+                            @Override
+                            public void accept(Object o) {
+                                LockKillPackage p = (LockKillPackage) o;
+                                if (isInSystemAppList(p.getPkgName())) {
+                                    noSys.add(p.getPkgName());
+                                }
+                            }
+                        });
+                return convertObjectArrayToStringArray(noSys.toArray());
             }
             return convertObjectArrayToStringArray(packages.toArray());
         }
@@ -1249,6 +1315,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 public void accept(String s) {
                     if (isInRFKillWhiteList(s)) return;
                     if (isInWhiteList(s)) return;
+                    if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
                     outList.add(s);
                 }
             });
@@ -1262,6 +1329,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Collection<RFKillPackage> packages = mRFKillWhileListPackages.values();
             if (packages.size() == 0) {
                 return new String[0];
+            }
+            if (isWhiteSysAppEnabled()) {
+                final List<String> noSys = Lists.newArrayList();
+                Collections.consumeRemaining(packages.toArray(),
+                        new Consumer<Object>() {
+                            @Override
+                            public void accept(Object o) {
+                                RFKillPackage p = (RFKillPackage) o;
+                                if (isInSystemAppList(p.getPkgName())) {
+                                    noSys.add(p.getPkgName());
+                                }
+                            }
+                        });
+                return convertObjectArrayToStringArray(noSys.toArray());
             }
             return convertObjectArrayToStringArray(packages.toArray());
         }
@@ -1356,6 +1437,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.WHITE_LISTED;
         }
 
+        if (isWhiteSysAppEnabled() && isInSystemAppList(receiverPkgName)) {
+            return CheckResult.SYSTEM_APP;
+        }
+
         if (PkgUtil.isHomeApp(getContext(), receiverPkgName)) {
             return CheckResult.HOME_APP;
         }
@@ -1412,6 +1497,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (isInWhiteList(receiverPkgName)) {
             return CheckResult.WHITE_LISTED;
+        }
+
+        if (isWhiteSysAppEnabled() && isInSystemAppList(receiverPkgName)) {
+            return CheckResult.SYSTEM_APP;
         }
 
         if (PkgUtil.isHomeApp(getContext(), receiverPkgName)) {
@@ -1669,6 +1758,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    public void setWhiteSysAppEnabled(boolean enabled) throws RemoteException {
+        enforceCallingPermissions();
+        h.obtainMessage(AshManHandlerMessages.MSG_SETWHITESYSAPPENABLED, enabled)
+                .sendToTarget();
+    }
+
+    @Override
+    public boolean isWhiteSysAppEnabled() {
+        enforceCallingPermissions();
+        return mWhiteSysAppEnabled.get();
+    }
+
+    @Override
     @BinderCall
     public void setBootBlockEnabled(boolean enabled) {
         enforceCallingPermissions();
@@ -1741,6 +1843,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         synchronized (this) {
             // Dump switch.
+            fout.println("White system app enabled: " + mWhiteSysAppEnabled.get());
             fout.println("Start block enabled: " + mStartBlockEnabled.get());
             fout.println("Boot block enabled: " + mBootBlockEnabled.get());
             fout.println("LK enabled: " + mLockKillEnabled.get());
@@ -1867,6 +1970,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     IProcessClearListener listener = msg.obj == null ? null : (IProcessClearListener) msg.obj;
                     HandlerImpl.this.clearProcess(listener);
                     break;
+                case AshManHandlerMessages.MSG_SETWHITESYSAPPENABLED:
+                    HandlerImpl.this.setWhiteSysAppEnabled((Boolean) msg.obj);
+                    break;
                 case AshManHandlerMessages.MSG_SETBOOTBLOCKENABLED:
                     HandlerImpl.this.setBootBlockEnabled((Boolean) msg.obj);
                     break;
@@ -1912,6 +2018,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETNETWORKPOLICYUIDPOLICY:
                     HandlerImpl.this.setNetworkPolicyUidPolicy(msg.arg1, msg.arg2);
                     break;
+            }
+        }
+
+        @Override
+        public void setWhiteSysAppEnabled(boolean enabled) {
+            if (mWhiteSysAppEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.ASH_WHITE_SYS_APP_ENABLED_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 
@@ -2321,8 +2434,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public static final CheckResult BROADCAST_CHECK_DISABLED = new CheckResult(true, "BROADCAST_CHECK_DISABLED", false);
 
         public static final CheckResult WHITE_LISTED = new CheckResult(true, "WHITE_LISTED", false);
-
         public static final CheckResult SYSTEM_APP = new CheckResult(true, "SYSTEM_APP", false);
+
         public static final CheckResult HOME_APP = new CheckResult(true, "HOME_APP", true);
         public static final CheckResult LAUNCHER_APP = new CheckResult(true, "LAUNCHER_APP", true);
         public static final CheckResult SMS_APP = new CheckResult(true, "SMS_APP", true);

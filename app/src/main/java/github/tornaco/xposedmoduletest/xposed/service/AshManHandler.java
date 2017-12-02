@@ -18,6 +18,8 @@ import lombok.Getter;
 @CreateMessageIdWithMethods(fallbackMessageDecode = "UNKNOWN")
 interface AshManHandler {
 
+    void setWhiteSysAppEnabled(boolean enabled);
+
     void setBootBlockEnabled(boolean enabled);
 
     void setStartBlockEnabled(boolean enabled);

@@ -30,10 +30,6 @@ public class AppDevMode extends QuickTile {
                 super.onBindActionView(container);
                 setChecked(XAppGuardManager.singleInstance().isServiceAvailable() && XAppGuardManager.singleInstance().isDebug());
                 XSettings.setInDevMode(context, isChecked());
-                Logger.config(Settings.builder().tag("X-APM-C")
-                        .logLevel(isChecked()
-                                ? Logger.LogLevel.VERBOSE : Logger.LogLevel.WARN)
-                        .build());
             }
 
             @Override
@@ -42,6 +38,11 @@ public class AppDevMode extends QuickTile {
                 if (XAppGuardManager.singleInstance().isServiceAvailable()) {
                     XAppGuardManager.singleInstance().setDebug(checked);
                     XSettings.setInDevMode(context, checked);
+
+                    Logger.config(Settings.builder().tag("X-APM-C")
+                            .logLevel(isChecked()
+                                    ? Logger.LogLevel.VERBOSE : Logger.LogLevel.WARN)
+                            .build());
                 }
             }
         };

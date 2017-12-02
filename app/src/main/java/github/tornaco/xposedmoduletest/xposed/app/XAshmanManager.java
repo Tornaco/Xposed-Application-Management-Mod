@@ -424,4 +424,21 @@ public class XAshmanManager {
             Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
+
+    public void setWhiteSysAppEnabled(boolean enabled) {
+        try {
+            mService.setWhiteSysAppEnabled(enabled);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public boolean isWhiteSysAppEnabled() {
+        try {
+            return mService.isWhiteSysAppEnabled();
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return true;
+        }
+    }
 }

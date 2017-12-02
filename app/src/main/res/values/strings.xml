@@ -247,5 +247,9 @@
     <string name="summary_app_recent_blur_radius">加大模糊算法半径参数可以降低资源消耗，减少算法处理时间，但是会造成生成的图像变更加模糊</string>
     <string name="title_system_app">系统应用</string>
     <string name="message_saving_changes">保存设置</string>
+    <string name="title_common_settings">通用设置</string>
+    <string name="title_app_settings">限制设置</string>
+    <string name="title_white_system_app">不限制任何系统应用</string>
+    <string name="summary_white_system_app">不对任何的系统应用做自启动，关联启动，强行清理等限制处理</string>
 
 </resources>

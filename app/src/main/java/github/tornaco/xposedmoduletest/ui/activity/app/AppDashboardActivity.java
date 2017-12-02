@@ -17,6 +17,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.AppDonate;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppVersion;
 import github.tornaco.xposedmoduletest.ui.tiles.app.OpenSource;
 import github.tornaco.xposedmoduletest.ui.tiles.app.PayListTile;
+import github.tornaco.xposedmoduletest.ui.tiles.app.WhiteSystemApp;
 
 /**
  * Created by guohao4 on 2017/11/2.
@@ -38,6 +39,10 @@ public class AppDashboardActivity extends WithWithCustomTabActivity {
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
 
+            Category systemProtect = new Category();
+            systemProtect.titleRes = R.string.title_app_settings;
+            systemProtect.addTile(new WhiteSystemApp(getActivity()));
+
             Category settings = new Category();
             settings.titleRes = R.string.title_general_settings;
             settings.addTile(new AppDevMode(getActivity()));
@@ -56,6 +61,7 @@ public class AppDashboardActivity extends WithWithCustomTabActivity {
             }
             support.addTile(new PayListTile(getActivity()));
 
+            categories.add(systemProtect);
             categories.add(settings);
             categories.add(support);
             categories.add(personal);
