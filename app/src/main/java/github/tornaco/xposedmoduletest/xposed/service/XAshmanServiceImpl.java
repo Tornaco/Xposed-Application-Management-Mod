@@ -91,8 +91,8 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 
 public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
-    private static final boolean DEBUG_BROADCAST = true;
-    private static final boolean DEBUG_SERVICE = true;
+    private static final boolean DEBUG_BROADCAST = false;
+    private static final boolean DEBUG_SERVICE = false;
 
     private static final Set<String> WHITE_LIST = new HashSet<>();
     // Installed in system/, not contains system-packages and persist packages.
@@ -115,6 +115,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         WHITE_LIST.add("com.android.providers.media");
         WHITE_LIST.add("com.android.providers.calendar");
         WHITE_LIST.add("com.android.vending");
+        WHITE_LIST.add("com.android.mtp");
         WHITE_LIST.add("com.miui.core");
         // FIXME???
         WHITE_LIST.add("com.ghostflying.locationreportenabler");
@@ -2066,6 +2067,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         @Override
         public void clearProcess(final IProcessClearListener listener) {
 
+            XPosedLog.verbose("clearProcess!!!");
+
             if (listener != null) try {
                 listener.onPrepareClearing();
             } catch (RemoteException ignored) {
@@ -2112,7 +2115,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
                         // Check if we can control.
                         boolean whiteApp = isInLockKillWhiteList(runningPackageName)
-                                || WHITE_LIST.contains(runningPackageName);
+                                || isInWhiteList(runningPackageName)
+                                || (isWhiteSysAppEnabled() && isInSystemAppList(runningPackageName));
                         if (whiteApp) {
                             if (listener != null) try {
                                 listener.onIgnoredPkg(runningPackageName, "white-list");
