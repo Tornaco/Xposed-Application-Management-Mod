@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.ui.activity.start;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -22,6 +23,7 @@ import github.tornaco.xposedmoduletest.ui.activity.BlockRecordViewerActivity;
 import github.tornaco.xposedmoduletest.ui.activity.WithRecyclerView;
 import github.tornaco.xposedmoduletest.ui.adapter.StartAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
+import github.tornaco.xposedmoduletest.util.SpannableUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
@@ -110,9 +112,12 @@ public class StartAppNavActivity extends WithRecyclerView {
         if (!showInfo) {
             textView.setVisibility(View.GONE);
         } else {
-            textView.setText(XAshmanManager.singleInstance().isServiceAvailable()
+            int normalColor = ContextCompat.getColor(getActivity(), R.color.white);
+            int highlightColor = ContextCompat.getColor(getActivity(), R.color.amber);
+            int strId = XAshmanManager.singleInstance().isServiceAvailable()
                     && XAshmanManager.singleInstance().isWhiteSysAppEnabled()
-                    ? R.string.summary_start_app_include_system : R.string.summary_start_app);
+                    ? R.string.summary_start_app_include_system : R.string.summary_start_app;
+            textView.setText(SpannableUtil.buildHighLightString(getActivity(), normalColor, highlightColor, strId));
             textView.setVisibility(View.VISIBLE);
         }
     }

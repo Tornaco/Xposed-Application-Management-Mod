@@ -91,16 +91,23 @@
     <string name="title_app_lock_kill">锁屏清理应用</string>
     <string name="title_app_rf_kill">应用后台限制</string>
     <string name="clear_process">清理内存</string>
+
     <string name="summary_app_guard">以下应用在启动时需要经过密码验证。</string>
-    <string name="summary_boot_app"><b>允许</b><i>以下应用</i>开机自动启动，其他非核心应用将自动被禁止。</string>
-    <string name="summary_boot_app_include_system"><b>允许</b><i>以下应用</i>与<i>系统应用</i>开机自动启动，其他非核心应用将自动被禁止。</string>
-    <string name="summary_lock_kill_app"><i>以下应用</i>在锁屏后<b>不会</b>被清理，其他非系统核心应用将会被强制关闭。</string>
-    <string name="summary_lock_kill_app_include_system"><i>以下应用</i>以及<i>系统应用</i>在锁屏后<b>不会</b>被清理，其他非核心应用将会被强制关闭。</string>
-    <string name="summary_rf_kill_app"><i>以下应用</i>在返回键退出或者退栈（例如即刻/淘宝）<b>一小会</b>后<b>不会</b>被清理，其他非核心应用会被强制关闭。\n目前对微博等返回键直接启动HOME的应用无效。</string>
-    <string name="summary_rf_kill_app_include_system"><i>以下应用</i>以及<i>系统应用</i>在返回键退出或者退栈（例如即刻/淘宝）<b>一小会</b>后<b>不会</b>被清理，其他非核心应用会被强制关闭。\n目前对微博等返回键直接启动HOME的应用无效。</string>
-    <string name="summary_start_app"><b>允许</b><i>以下应用</i>被其他应用启动，其他非核心应用将自动被禁止。</string>
-    <string name="summary_start_app_include_system"><b>允许</b><i>以下应用</i>以及<i>系统应用</i>被其他应用启动，其他非核心应用将自动被禁止。</string>
-    <string name="app_intro">以下功能依赖于嵌入系统的几项服务，你需要在<i>xposed installer</i>中激活该模块，并且重启才可以激活上述服务。</string>
+
+    <string name="summary_boot_app">"<b>允许</b> @以下应用 开机自动启动，其他非核心应用将自动被禁止。"</string>
+    <string name="summary_boot_app_include_system">"<b>允许</b>@以下应用 与 @系统应用 开机自动启动，其他非核心应用将自动被禁止。"</string>
+
+    <string name="summary_lock_kill_app">" @以下应用 在锁屏后<b>不会</b>被清理，其他非系统核心应用将会被强制关闭。"</string>
+    <string name="summary_lock_kill_app_include_system">" @以下应用 以及 @系统应用 在锁屏后<b>不会</b>被清理，其他非核心应用将会被强制关闭。"</string>
+
+    <string name="summary_rf_kill_app">" @以下应用 在返回键退出或者退栈（例如即刻/淘宝）<b>一小会</b>后<b>不会</b>被清理，其他非核心应用会被强制关闭。\n目前对微博等返回键直接启动HOME的应用无效。"</string>
+    <string name="summary_rf_kill_app_include_system">" @以下应用 以及 @系统应用 在返回键退出或者退栈（例如即刻/淘宝）<b>一小会</b>后<b>不会</b>被清理，其他非核心应用会被强制关闭。\n目前对微博等返回键直接启动HOME的应用无效。"</string>
+
+    <string name="summary_start_app">"<b>允许</b> @以下应用 被其他应用启动，其他非核心应用将自动被禁止。"</string>
+    <string name="summary_start_app_include_system">"<b>允许</b> @以下应用 以及 @系统应用 被其他应用启动，其他非核心应用将自动被禁止。"</string>
+
+    <string name="app_intro">以下功能依赖于嵌入系统的几项服务，你需要在 @Xposed 中激活该模块，并且重启才可以激活上述服务。</string>
+
     <string name="app_intro_need_restart">应用更新后需要重新启动，否则应用管理可能无法正常工作。</string>
     <string name="title_restart_android">立即重启</string>
     <string name="title_block_viewer">启动记录</string>
