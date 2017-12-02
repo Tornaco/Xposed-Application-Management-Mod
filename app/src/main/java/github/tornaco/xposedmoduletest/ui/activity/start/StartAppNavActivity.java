@@ -110,7 +110,9 @@ public class StartAppNavActivity extends WithRecyclerView {
         if (!showInfo) {
             textView.setVisibility(View.GONE);
         } else {
-            textView.setText(R.string.summary_start_app);
+            textView.setText(XAshmanManager.singleInstance().isServiceAvailable()
+                    && XAshmanManager.singleInstance().isWhiteSysAppEnabled()
+                    ? R.string.summary_start_app_include_system : R.string.summary_start_app);
             textView.setVisibility(View.VISIBLE);
         }
     }

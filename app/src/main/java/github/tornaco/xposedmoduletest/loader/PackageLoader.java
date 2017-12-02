@@ -97,6 +97,7 @@ public interface PackageLoader {
                 p.setExt(packageInfo.versionName);
                 p.setPkgName(packageInfo.packageName);
                 p.setFlags((byte) state);
+                p.setSystemApp(PkgUtil.isSystemApp(context, packageInfo.packageName));
 
                 out.add(p);
 
@@ -144,6 +145,7 @@ public interface PackageLoader {
                 p.setVersionCode(packageInfo.versionCode);
                 p.setExt(packageInfo.versionName);
                 p.setPkgName(packageInfo.packageName);
+                p.setSystemApp(PkgUtil.isSystemApp(context, packageInfo.packageName));
 
                 if (!guards.contains(p)) out.add(p);
             }
@@ -168,6 +170,7 @@ public interface PackageLoader {
                                 if (PkgUtil.isPkgInstalled(context, packageInfo.getPkgName())) {
                                     packageInfo.setExt(String.valueOf(PkgUtil.loadVersionByPkgName(context,
                                             packageInfo.getPkgName())));
+                                    packageInfo.setSystemApp(PkgUtil.isSystemApp(context, packageInfo.getPkgName()));
                                     out.add(packageInfo);
                                 }
                             }

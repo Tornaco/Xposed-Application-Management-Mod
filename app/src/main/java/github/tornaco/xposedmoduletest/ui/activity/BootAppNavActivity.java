@@ -110,7 +110,9 @@ public class BootAppNavActivity extends WithRecyclerView {
         if (!showInfo) {
             textView.setVisibility(View.GONE);
         } else {
-            textView.setText(R.string.summary_boot_app);
+            textView.setText(XAshmanManager.singleInstance().isServiceAvailable()
+                    && XAshmanManager.singleInstance().isWhiteSysAppEnabled()
+                    ? R.string.summary_boot_app : R.string.summary_boot_app);
             textView.setVisibility(View.VISIBLE);
         }
     }

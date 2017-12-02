@@ -1025,7 +1025,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             @Override
                             public void accept(Object o) {
                                 BootCompletePackage p = (BootCompletePackage) o;
-                                if (isInSystemAppList(p.getPkgName())) {
+                                if (!isInSystemAppList(p.getPkgName())) {
                                     noSys.add(p.getPkgName());
                                 }
                             }
@@ -1129,7 +1129,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             @Override
                             public void accept(Object o) {
                                 AutoStartPackage p = (AutoStartPackage) o;
-                                if (isInSystemAppList(p.getPkgName())) {
+                                if (!isInSystemAppList(p.getPkgName())) {
                                     noSys.add(p.getPkgName());
                                 }
                             }
@@ -1233,7 +1233,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             @Override
                             public void accept(Object o) {
                                 LockKillPackage p = (LockKillPackage) o;
-                                if (isInSystemAppList(p.getPkgName())) {
+                                if (!isInSystemAppList(p.getPkgName())) {
                                     noSys.add(p.getPkgName());
                                 }
                             }
@@ -1337,7 +1337,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             @Override
                             public void accept(Object o) {
                                 RFKillPackage p = (RFKillPackage) o;
-                                if (isInSystemAppList(p.getPkgName())) {
+                                if (!isInSystemAppList(p.getPkgName())) {
                                     noSys.add(p.getPkgName());
                                 }
                             }

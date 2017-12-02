@@ -65,6 +65,8 @@ public class GuardAppListAdapter extends RecyclerView.Adapter<GuardAppListAdapte
     @Override
     public void onBindViewHolder(final AppViewHolder holder, int position) {
         final PackageInfo packageInfo = packageInfos.get(position);
+        holder.getSystemAppIndicator().setVisibility(packageInfo.isSystemApp()
+                ? View.VISIBLE : View.GONE);
         holder.getLineOneTextView().setText(packageInfo.getAppName());
         holder.getCheckableImageView().setChecked(false);
         Vangogh.with(context)
@@ -108,22 +110,16 @@ public class GuardAppListAdapter extends RecyclerView.Adapter<GuardAppListAdapte
         return String.valueOf(appName.charAt(0));
     }
 
+    @Getter
     public static class AppViewHolder extends RecyclerView.ViewHolder {
-        private TextView lineOneTextView;
+        private TextView lineOneTextView, systemAppIndicator;
         private CheckableImageView checkableImageView;
 
         AppViewHolder(View itemView) {
             super(itemView);
             lineOneTextView = itemView.findViewById(android.R.id.title);
+            systemAppIndicator = itemView.findViewById(android.R.id.text1);
             checkableImageView = itemView.findViewById(R.id.checkable_img_view);
-        }
-
-        public TextView getLineOneTextView() {
-            return lineOneTextView;
-        }
-
-        public CheckableImageView getCheckableImageView() {
-            return checkableImageView;
         }
     }
 }

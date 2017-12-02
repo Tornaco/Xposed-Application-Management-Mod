@@ -45,7 +45,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.container_with_appbar_template);
+        setContentView(R.layout.navigator);
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         initFirstRun();
         getSupportFragmentManager().beginTransaction().replace(R.id.container,
@@ -56,13 +56,20 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
         boolean first = AppSettings.isFirstRun(this);
         if (first) {
             new AlertDialog.Builder(NavigatorActivity.this)
-                    .setTitle(BuildConfig.VERSION_NAME)
-                    .setMessage(R.string.message_first_run)
+                    .setTitle(R.string.title_app_update_log)
+                    .setMessage(getString(R.string.update_log_209)
+                            + "\n\n" + getString(R.string.message_first_run))
                     .setCancelable(false)
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    .setNeutralButton(R.string.no_remind, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             AppSettings.setFirstRun(getApplicationContext());
+                        }
+                    })
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
                         }
                     })
                     .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {

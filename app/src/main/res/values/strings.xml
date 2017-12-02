@@ -36,7 +36,7 @@
     <string name="title_donate">捐赠</string>
     <string name="title_show_system_app">显示系统应用</string>
     <string name="first_run_title">XXXXX？!</string>
-    <string name="message_first_run">软件现在还在测试阶段，可能不稳定，尤其是介于现在的ROM众多繁杂适配难以一下全部囊括，使用中如果遇到问题，麻烦尽量帮忙查看Xposed Installer内的log，反馈出来，这样才会使其发展的更好，如果支持的话请给好评，尽量不要抱怨。\n\n安装完成激活XPOSED模块后请完全重启。\n\n如果你是第一次使用，建议点击菜单，查看项目wiki获取相关使用教程。</string>
+    <string name="message_first_run">软件现在还在测试阶段，可能不稳定，尤其是介于现在的ROM众多繁杂适配难以一下全部囊括。\n使用中如果遇到问题，麻烦尽量帮忙查看Xposed Installer内的log，反馈出来，这样才会使其发展的更好。\n如果支持的话请给好评，感谢！</string>
     <string name="title_use_fp">使用指纹</string>
     <string name="title_ver_on_home">应用切换时重新验证</string>
     <string name="summary_always_need_verify">默认机制是当屏幕熄灭重新点亮时，之前验证过的应用才会需要重新验证，如果启用了此选项，将会每次都需要验证</string>
@@ -92,12 +92,16 @@
     <string name="title_app_rf_kill">应用后台限制</string>
     <string name="clear_process">清理内存</string>
     <string name="summary_app_guard">以下应用在启动时需要经过密码验证。</string>
-    <string name="summary_boot_app"><b>允许</b>以下应用开机自动启动，其他非系统核心应用将自动被禁止。</string>
-    <string name="summary_lock_kill_app">以下应用在锁屏后<b>不会</b>被清理，其他非系统核心应用将会被强制关闭。</string>
-    <string name="summary_rf_kill_app">以下应用在返回键退出或者退栈（例如即刻/淘宝）<b>一小会</b>后<b>不会</b>被清理，其他非系统核心应用会被强制关闭。\n目前对微博等返回键直接启动HOME的应用无效。</string>
-    <string name="summary_start_app"><b>允许</b>以下应用被其他应用启动，其他非系统核心应用将自动被禁止。</string>
-    <string name="app_intro">以下功能依赖于嵌入系统的几项服务，你需要在xposed installer中激活该模块，并且重启才可以激活上述服务。</string>
-    <string name="app_intro_need_restart">应用更新后需要重新启动，否则应用管理将无法正常工作。</string>
+    <string name="summary_boot_app"><b>允许</b><i>以下应用</i>开机自动启动，其他非核心应用将自动被禁止。</string>
+    <string name="summary_boot_app_include_system"><b>允许</b><i>以下应用</i>与<i>系统应用</i>开机自动启动，其他非核心应用将自动被禁止。</string>
+    <string name="summary_lock_kill_app"><i>以下应用</i>在锁屏后<b>不会</b>被清理，其他非系统核心应用将会被强制关闭。</string>
+    <string name="summary_lock_kill_app_include_system"><i>以下应用</i>以及<i>系统应用</i>在锁屏后<b>不会</b>被清理，其他非核心应用将会被强制关闭。</string>
+    <string name="summary_rf_kill_app"><i>以下应用</i>在返回键退出或者退栈（例如即刻/淘宝）<b>一小会</b>后<b>不会</b>被清理，其他非核心应用会被强制关闭。\n目前对微博等返回键直接启动HOME的应用无效。</string>
+    <string name="summary_rf_kill_app_include_system"><i>以下应用</i>以及<i>系统应用</i>在返回键退出或者退栈（例如即刻/淘宝）<b>一小会</b>后<b>不会</b>被清理，其他非核心应用会被强制关闭。\n目前对微博等返回键直接启动HOME的应用无效。</string>
+    <string name="summary_start_app"><b>允许</b><i>以下应用</i>被其他应用启动，其他非核心应用将自动被禁止。</string>
+    <string name="summary_start_app_include_system"><b>允许</b><i>以下应用</i>以及<i>系统应用</i>被其他应用启动，其他非核心应用将自动被禁止。</string>
+    <string name="app_intro">以下功能依赖于嵌入系统的几项服务，你需要在<i>xposed installer</i>中激活该模块，并且重启才可以激活上述服务。</string>
+    <string name="app_intro_need_restart">应用更新后需要重新启动，否则应用管理可能无法正常工作。</string>
     <string name="title_restart_android">立即重启</string>
     <string name="title_block_viewer">启动记录</string>
     <string name="title_restrict">限制</string>
@@ -251,5 +255,7 @@
     <string name="title_app_settings">限制设置</string>
     <string name="title_white_system_app">不限制任何系统应用</string>
     <string name="summary_white_system_app">不对任何的系统应用做自启动，关联启动，强行清理等限制处理</string>
+    <string name="title_app_update_log">更新日志</string>
+    <string name="no_remind">同意并记住</string>
 
 </resources>

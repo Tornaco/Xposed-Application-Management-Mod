@@ -111,7 +111,10 @@ public class LockKillAppNavActivity extends WithRecyclerView {
         if (!showInfo) {
             textView.setVisibility(View.GONE);
         } else {
-            textView.setText(R.string.summary_lock_kill_app);
+            textView.setText(XAshmanManager.singleInstance().isServiceAvailable()
+                    && XAshmanManager.singleInstance().isWhiteSysAppEnabled() ?
+                    R.string.summary_lock_kill_app_include_system :
+                    R.string.summary_lock_kill_app);
             textView.setVisibility(View.VISIBLE);
         }
     }
