@@ -16,6 +16,7 @@ import github.tornaco.xposedmoduletest.ui.adapter.LockKillAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.LockKillAppPickerListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 public class LockKillAppPickerActivity extends LockKillAppNavActivity {
 
@@ -49,7 +50,11 @@ public class LockKillAppPickerActivity extends LockKillAppNavActivity {
                                     @Override
                                     public void accept(LockKillPackage packageInfo) {
                                         if (!packageInfo.getKill()) {
-                                            LockKillPackageProvider.insert(getApplicationContext(), packageInfo);
+                                            XAshmanManager.singleInstance()
+                                                    .addOrRemoveLKApps(
+                                                            new String[]{packageInfo.getPkgName()},
+                                                            XAshmanManager.Op.ADD
+                                                    );
                                         }
                                     }
                                 });

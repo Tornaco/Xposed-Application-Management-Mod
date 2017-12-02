@@ -25,7 +25,6 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
 
@@ -38,6 +37,8 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -82,6 +83,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
+import static android.content.pm.PackageManager.MATCH_UNINSTALLED_PACKAGES;
 
 /**
  * Created by guohao4 on 2017/11/9.
@@ -115,7 +117,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         WHITE_LIST.add("com.android.providers.calendar");
         WHITE_LIST.add("com.android.vending");
         // FIXME???
-         WHITE_LIST.add("com.ghostflying.locationreportenabler");
+        WHITE_LIST.add("com.ghostflying.locationreportenabler");
     }
 
     private UUID mSerialUUID = UUID.randomUUID();
@@ -125,7 +127,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final ExecutorService mWorkingService = Executors.newCachedThreadPool();
     private final ExecutorService mLoggingService = Executors.newSingleThreadExecutor();
 
-    private final SparseArray<String> mPackagesCache = new SparseArray<>();
+    @SuppressLint("UseSparseArrays")
+    private final Map<Integer, String> mPackagesCache = new HashMap<>();
 
     private final Map<String, BlockRecord2> mBlockRecords = new HashMap<>();
 
@@ -243,65 +246,70 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         try {
             ApplicationInfo applicationInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID, 0);
             sClientUID = applicationInfo.uid;
-            XPosedLog.verbose("sClientUID:" + sClientUID);
+            XPosedLog.verbose("Our client app uid: " + sClientUID);
         } catch (PackageManager.NameNotFoundException e) {
-            XPosedLog.debug("Can not getSingleton UID for our client:" + e);
+            XPosedLog.debug("Can not get client UID for our client:" + e);
         }
 
         try {
             // Filter all apps.
-            List<ApplicationInfo> applicationInfos = pm.getInstalledApplications(0);
-            Collections.consumeRemaining(applicationInfos, new Consumer<ApplicationInfo>() {
-                @Override
-                public void accept(ApplicationInfo applicationInfo) {
-                    String pkg = applicationInfo.packageName;
-                    int uid = applicationInfo.uid;
-                    if (TextUtils.isEmpty(pkg)) return;
+            List<ApplicationInfo> applicationInfos =
+                    android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N ?
+                            pm.getInstalledApplications(MATCH_UNINSTALLED_PACKAGES)
+                            : pm.getInstalledApplications(PackageManager.GET_UNINSTALLED_PACKAGES);
+            Collections.consumeRemaining(applicationInfos,
+                    new Consumer<ApplicationInfo>() {
+                        @Override
+                        public void accept(ApplicationInfo applicationInfo) {
+                            String pkg = applicationInfo.packageName;
+                            int uid = applicationInfo.uid;
+                            if (TextUtils.isEmpty(pkg)) return;
 
-                    // Add system apps to system list.
-                    boolean isSystemApp = (applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
-                    if (isSystemApp) {
+                            // Add to package cache.
+                            mPackagesCache.put(uid, pkg);
 
-                        // Check if persist.
-                        boolean isPersist = (applicationInfo.flags & ApplicationInfo.FLAG_PERSISTENT) != 0;
-                        if (isPersist) {
-                            addToWhiteList(pkg);
-                            return;
-                        }
-                        // Check if is system package.
-                        try {
-                            @SuppressLint("PackageManagerGetSignatures") boolean isSystemPackage =
-                                    PkgUtil.isSystemPackage(getContext().getResources(),
-                                            pm,
-                                            pm.getPackageInfo(pkg, PackageManager.GET_SIGNATURES));
-                            if (isSystemPackage) {
-                                XPosedLog.verbose("Adding system package: " + pkg);
-                                addToWhiteList(pkg);
-                                return;
+                            // Add system apps to system list.
+                            boolean isSystemApp = (applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
+                            if (isSystemApp) {
+
+                                // Check if persist.
+                                boolean isPersist = (applicationInfo.flags & ApplicationInfo.FLAG_PERSISTENT) != 0;
+                                if (isPersist) {
+                                    addToWhiteList(pkg);
+                                    return;
+                                }
+                                // Check if is system package.
+                                try {
+                                    @SuppressLint("PackageManagerGetSignatures") boolean isSystemPackage =
+                                            PkgUtil.isSystemPackage(getContext().getResources(),
+                                                    pm,
+                                                    pm.getPackageInfo(pkg, PackageManager.GET_SIGNATURES));
+                                    if (isSystemPackage) {
+                                        XPosedLog.verbose("Adding system package: " + pkg);
+                                        addToWhiteList(pkg);
+                                        return;
+                                    }
+
+                                } catch (Throwable e) {
+                                    XPosedLog.wtf("Fail check isSystemPackage: " + Log.getStackTraceString(e));
+                                }
+
+                                addToSystemApps(pkg);
                             }
 
-                        } catch (Throwable e) {
-                            XPosedLog.wtf("Fail check isSystemPackage: " + Log.getStackTraceString(e));
+                            if (PkgUtil.isHomeApp(getContext(), pkg)) {
+                                addToWhiteList(pkg);
+                            }
+
+                            if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
+                                addToWhiteList(pkg);
+                            }
+
+                            if (isIME(pkg)) {
+                                addToWhiteList(pkg);
+                            }
                         }
-
-                        addToSystemApps(pkg);
-                    }
-
-                    if (PkgUtil.isHomeApp(getContext(), pkg)) {
-                        addToWhiteList(pkg);
-                    }
-
-                    if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
-                        addToWhiteList(pkg);
-                    }
-
-                    if (isIME(pkg)) {
-                        addToWhiteList(pkg);
-                    }
-
-                    mPackagesCache.put(uid, pkg);
-                }
-            });
+                    });
         } catch (Exception ignored) {
             XPosedLog.debug("Can not getSingleton UID for our client:" + ignored);
         }
@@ -319,8 +327,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (cursor == null) {
                 return new ValueExtra<>(false, "cursor is null");
             }
-
-            mBootWhiteListPackages.clear();
 
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
                 BootCompletePackage bootCompletePackage = BootCompletePackageDaoUtil.readEntity(cursor, 0);
@@ -350,8 +356,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (cursor == null) {
                 return new ValueExtra<>(false, "cursor is null");
             }
-
-            mStartWhiteListPackages.clear();
 
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
                 AutoStartPackage autoStartPackage = AutoStartPackageDaoUtil.readEntity(cursor, 0);
@@ -383,8 +387,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 return new ValueExtra<>(false, "cursor is null");
             }
 
-            mLockKillWhileListPackages.clear();
-
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
                 LockKillPackage lockKillPackage = LockKillPackageDaoUtil.readEntity(cursor, 0);
                 XPosedLog.verbose("Lock kill white list pkg reader readEntity of: " + lockKillPackage);
@@ -413,8 +415,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (cursor == null) {
                 return new ValueExtra<>(false, "cursor is null");
             }
-
-            mRFKillWhileListPackages.clear();
 
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
                 RFKillPackage rfKillPackage = RFKillPackageDaoUtil.readEntity(cursor, 0);
@@ -735,11 +735,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (DEBUG_BROADCAST && res.logRecommended)
             XPosedLog.verboseOn("XAshmanService checkBroadcast returning: "
-                    + res + " for: "
-                    + PkgUtil.loadNameByPkgName(getContext(), mPackagesCache.get(receiverUid))
-                    + " receiverUid: " + receiverUid
-                    + " callerUid: " + callerUid
-                    + " action: " + action,
+                            + res + " for: "
+                            + PkgUtil.loadNameByPkgName(getContext(), mPackagesCache.get(receiverUid))
+                            + " receiverUid: " + receiverUid
+                            + " callerUid: " + callerUid
+                            + " action: " + action,
                     mLoggingService);
         return res.res;
     }
@@ -803,85 +803,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         lazyH.obtainMessage(AshManLZHandlerMessages.MSG_ONACTIVITYDESTROY, intent).sendToTarget();
     }
 
-    @Override
-    @BinderCall
-    public boolean isPackageStartBlockEnabled(String pkg) {
-        enforceCallingPermissions();
-        // If this app is not in good condition, but user
-        // does not block, we also allow it to start.
-        boolean allowedByUser = isStartAllowedByUser(pkg);
-        if (allowedByUser) {
-            return false;
-        }
-
-        if (isInWhiteList(pkg)) {
-            return false;
-        }
-
-        if (PkgUtil.isHomeApp(getContext(), pkg)) {
-            return false;
-        }
-
-        if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    @BinderCall
-    public boolean isPackageBootBlockEnabled(String pkg) {
-        enforceCallingPermissions();
-        // If this app is not in good condition, but user
-        // does not block, we also allow it to start.
-        boolean allowedByUser = isBootAllowedByUser(pkg);
-        if (allowedByUser) {
-            return false;
-        }
-
-        if (isInWhiteList(pkg)) {
-            return false;
-        }
-
-        if (PkgUtil.isHomeApp(getContext(), pkg)) {
-            return false;
-        }
-
-        if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    @BinderCall
-    public boolean isPackageLockKillEnabled(String pkg) {
-        enforceCallingPermissions();
-        // If this app is not in good condition, but user
-        // does not block, we also allow it to start.
-        boolean allowedByUser = isInLockKillWhiteList(pkg);
-        if (allowedByUser) {
-            return false;
-        }
-
-        if (isInWhiteList(pkg)) {
-            return false;
-        }
-
-        if (PkgUtil.isHomeApp(getContext(), pkg)) {
-            return false;
-        }
-
-        if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    @BinderCall
-    public boolean isPackageRFKillEnabled(String pkg) {
-        enforceCallingPermissions();
+    private boolean isPackageRFKillEnabled(String pkg) {
+        if (!isRFKillEnabled()) return false;
         // If this app is not in good condition, but user
         // does not block, we also allow it to start.
         boolean allowedByUser = isInRFKillWhiteList(pkg);
@@ -901,13 +824,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return false;
         }
         return true;
-    }
-
-    @Override
-    @BinderCall
-    public List<String> getWhiteListPackages() throws RemoteException {
-        enforceCallingPermissions();
-        return Lists.newArrayList(WHITE_LIST);
     }
 
     @Override
@@ -1016,6 +932,393 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return mCompSettingBlockEnabled.get();
     }
 
+    private static String[] convertObjectArrayToStringArray(Object[] objArr) {
+        if (objArr == null || objArr.length == 0) {
+            return new String[0];
+        }
+        String[] out = new String[objArr.length];
+        for (int i = 0; i < objArr.length; i++) {
+            Object o = objArr[i];
+            if (o == null) continue;
+            String pkg = String.valueOf(o);
+            if (o instanceof AutoStartPackage) {
+                pkg = ((AutoStartPackage) o).getPkgName();
+            } else if (o instanceof BootCompletePackage) {
+                pkg = ((BootCompletePackage) o).getPkgName();
+            } else if (o instanceof LockKillPackage) {
+                pkg = ((LockKillPackage) o).getPkgName();
+            } else if (o instanceof RFKillPackage) {
+                pkg = ((RFKillPackage) o).getPkgName();
+            }
+            out[i] = pkg;
+        }
+        return out;
+    }
+
+    @Override
+    public String[] getWhiteListApps(int filterOptions) throws RemoteException {
+        XPosedLog.verbose("getWhiteListApps: " + filterOptions);
+        enforceCallingPermissions();
+        Object[] data = WHITE_LIST.toArray(); // FIXME, no sync protect?
+        return convertObjectArrayToStringArray(data);
+    }
+
+    @Override
+    public String[] getBootBlockApps(boolean block) throws RemoteException {
+        XPosedLog.verbose("getBootBlockApps: " + block);
+        enforceCallingPermissions();
+        if (block) {
+            Collection<String> packages = mPackagesCache.values();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+
+            final List<String> outList = Lists.newArrayList();
+
+            // Remove those not in blocked list.
+            String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
+            Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
+                @Override
+                public void accept(String s) {
+                    if (isBootAllowedByUser(s)) return;
+                    if (isInWhiteList(s)) return;
+                    outList.add(s);
+                }
+            });
+
+            if (outList.size() == 0) {
+                return new String[0];
+            }
+            Object[] objArr = outList.toArray();
+            return convertObjectArrayToStringArray(objArr);
+        } else {
+            Collection<BootCompletePackage> packages = mBootWhiteListPackages.values();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+            return convertObjectArrayToStringArray(packages.toArray());
+        }
+    }
+
+    @Override
+    public void addOrRemoveBootBlockApps(String[] packages, int op) throws RemoteException {
+        XPosedLog.verbose("addOrRemoveBootBlockApps: " + Arrays.toString(packages));
+        enforceCallingPermissions();
+        if (packages == null || packages.length == 0) return;
+        switch (op) {
+            case XAshmanManager.Op.ADD:
+                try {
+                    Collections.consumeRemaining(packages, new Consumer<String>() {
+                        @Override
+                        public void accept(String s) {
+                            try {
+                                BootCompletePackage b = new BootCompletePackage();
+                                b.setPkgName(s);
+                                b.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(getContext(), s)));
+                                mBootWhiteListPackages.put(s, b);
+                                BootPackageProvider.insert(getContext(), b);
+                            } catch (Throwable e) {
+                                XPosedLog.wtf("Fail add boot pkg: " + s);
+                            }
+                        }
+                    });
+                } catch (Throwable e) {
+                    XPosedLog.wtf("Fail add boot packages...");
+                    throw new IllegalStateException(e);
+                }
+                break;
+            case XAshmanManager.Op.REMOVE:
+                try {
+                    Collections.consumeRemaining(packages, new Consumer<String>() {
+                        @Override
+                        public void accept(String s) {
+                            try {
+                                BootCompletePackage b = new BootCompletePackage();
+                                b.setPkgName(s);
+                                mBootWhiteListPackages.remove(s);
+                                BootPackageProvider.delete(getContext(), b);
+                            } catch (Throwable e) {
+                                XPosedLog.wtf("Fail delete boot pkg: " + s);
+                            }
+                        }
+                    });
+                } catch (Throwable e) {
+                    XPosedLog.wtf("Fail remove boot packages...");
+                    throw new IllegalStateException(e);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public String[] getStartBlockApps(boolean block) throws RemoteException {
+        XPosedLog.verbose("getStartBlockApps: " + block);
+        enforceCallingPermissions();
+        if (block) {
+            Collection<String> packages = mPackagesCache.values();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+
+            final List<String> outList = Lists.newArrayList();
+
+            // Remove those not in blocked list.
+            String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
+            Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
+                @Override
+                public void accept(String s) {
+                    if (isStartAllowedByUser(s)) return;
+                    if (isInWhiteList(s)) return;
+                    outList.add(s);
+                }
+            });
+
+            if (outList.size() == 0) {
+                return new String[0];
+            }
+            Object[] objArr = outList.toArray();
+            return convertObjectArrayToStringArray(objArr);
+        } else {
+            Collection<AutoStartPackage> packages = mStartWhiteListPackages.values();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+            return convertObjectArrayToStringArray(packages.toArray());
+        }
+    }
+
+    @Override
+    public void addOrRemoveStartBlockApps(String[] packages, int op) throws RemoteException {
+        XPosedLog.verbose("addOrRemoveStartBlockApps: " + Arrays.toString(packages));
+        enforceCallingPermissions();
+        if (packages == null || packages.length == 0) return;
+        switch (op) {
+            case XAshmanManager.Op.ADD:
+                try {
+                    Collections.consumeRemaining(packages, new Consumer<String>() {
+                        @Override
+                        public void accept(String s) {
+                            try {
+                                AutoStartPackage b = new AutoStartPackage();
+                                b.setPkgName(s);
+                                b.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(getContext(), s)));
+                                mStartWhiteListPackages.put(s, b);
+                                AutoStartPackageProvider.insert(getContext(), b);
+                            } catch (Throwable e) {
+                                XPosedLog.wtf("Fail add start pkg: " + s);
+                            }
+                        }
+                    });
+                } catch (Throwable e) {
+                    XPosedLog.wtf("Fail add start packages...");
+                    throw new IllegalStateException(e);
+                }
+                break;
+            case XAshmanManager.Op.REMOVE:
+                try {
+                    Collections.consumeRemaining(packages, new Consumer<String>() {
+                        @Override
+                        public void accept(String s) {
+                            try {
+                                AutoStartPackage b = new AutoStartPackage();
+                                b.setPkgName(s);
+                                mStartWhiteListPackages.remove(s);
+                                AutoStartPackageProvider.delete(getContext(), b);
+                            } catch (Throwable e) {
+                                XPosedLog.wtf("Fail delete start pkg: " + s);
+                            }
+                        }
+                    });
+                } catch (Throwable e) {
+                    XPosedLog.wtf("Fail remove start packages...");
+                    throw new IllegalStateException(e);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public String[] getLKApps(boolean kill) throws RemoteException {
+        XPosedLog.verbose("getLKApps: " + kill);
+        enforceCallingPermissions();
+        if (kill) {
+            Collection<String> packages = mPackagesCache.values();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+
+            final List<String> outList = Lists.newArrayList();
+
+            // Remove those not in blocked list.
+            String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
+            Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
+                @Override
+                public void accept(String s) {
+                    if (isInLockKillWhiteList(s)) return;
+                    if (isInWhiteList(s)) return;
+                    outList.add(s);
+                }
+            });
+
+            if (outList.size() == 0) {
+                return new String[0];
+            }
+            Object[] objArr = outList.toArray();
+            return convertObjectArrayToStringArray(objArr);
+        } else {
+            Collection<LockKillPackage> packages = mLockKillWhileListPackages.values();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+            return convertObjectArrayToStringArray(packages.toArray());
+        }
+    }
+
+    @Override
+    public void addOrRemoveLKApps(String[] packages, int op) throws RemoteException {
+        XPosedLog.verbose("addOrRemoveLKApps: " + Arrays.toString(packages));
+        enforceCallingPermissions();
+        if (packages == null || packages.length == 0) return;
+        switch (op) {
+            case XAshmanManager.Op.ADD:
+                try {
+                    Collections.consumeRemaining(packages, new Consumer<String>() {
+                        @Override
+                        public void accept(String s) {
+                            try {
+                                LockKillPackage b = new LockKillPackage();
+                                b.setPkgName(s);
+                                b.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(getContext(), s)));
+                                mLockKillWhileListPackages.put(s, b);
+                                LockKillPackageProvider.insert(getContext(), b);
+                            } catch (Throwable e) {
+                                XPosedLog.wtf("Fail add lk pkg: " + s);
+                            }
+                        }
+                    });
+                } catch (Throwable e) {
+                    XPosedLog.wtf("Fail add lk packages...");
+                    throw new IllegalStateException(e);
+                }
+                break;
+            case XAshmanManager.Op.REMOVE:
+                try {
+                    Collections.consumeRemaining(packages, new Consumer<String>() {
+                        @Override
+                        public void accept(String s) {
+                            try {
+                                LockKillPackage b = new LockKillPackage();
+                                b.setPkgName(s);
+                                mLockKillWhileListPackages.remove(s);
+                                LockKillPackageProvider.delete(getContext(), b);
+                            } catch (Throwable e) {
+                                XPosedLog.wtf("Fail delete lk pkg: " + s);
+                            }
+                        }
+                    });
+                } catch (Throwable e) {
+                    XPosedLog.wtf("Fail remove lk packages...");
+                    throw new IllegalStateException(e);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public String[] getRFKApps(boolean kill) throws RemoteException {
+        XPosedLog.verbose("getRFKApps: " + kill);
+        enforceCallingPermissions();
+        if (kill) {
+            Collection<String> packages = mPackagesCache.values();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+
+            final List<String> outList = Lists.newArrayList();
+
+            // Remove those not in blocked list.
+            String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
+            Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
+                @Override
+                public void accept(String s) {
+                    if (isInRFKillWhiteList(s)) return;
+                    if (isInWhiteList(s)) return;
+                    outList.add(s);
+                }
+            });
+
+            if (outList.size() == 0) {
+                return new String[0];
+            }
+            Object[] objArr = outList.toArray();
+            return convertObjectArrayToStringArray(objArr);
+        } else {
+            Collection<RFKillPackage> packages = mRFKillWhileListPackages.values();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+            return convertObjectArrayToStringArray(packages.toArray());
+        }
+    }
+
+    @Override
+    public void addOrRemoveRFKApps(String[] packages, int op) throws RemoteException {
+        XPosedLog.verbose("addOrRemoveRFKApps: " + Arrays.toString(packages));
+        enforceCallingPermissions();
+        if (packages == null || packages.length == 0) return;
+        switch (op) {
+            case XAshmanManager.Op.ADD:
+                try {
+                    Collections.consumeRemaining(packages, new Consumer<String>() {
+                        @Override
+                        public void accept(String s) {
+                            try {
+                                RFKillPackage b = new RFKillPackage();
+                                b.setPkgName(s);
+                                b.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(getContext(), s)));
+                                mRFKillWhileListPackages.put(s, b);
+                                RFKillPackageProvider.insert(getContext(), b);
+                            } catch (Throwable e) {
+                                XPosedLog.wtf("Fail add rf pkg: " + s);
+                            }
+                        }
+                    });
+                } catch (Throwable e) {
+                    XPosedLog.wtf("Fail add rf packages...");
+                    throw new IllegalStateException(e);
+                }
+                break;
+            case XAshmanManager.Op.REMOVE:
+                try {
+                    Collections.consumeRemaining(packages, new Consumer<String>() {
+                        @Override
+                        public void accept(String s) {
+                            try {
+                                RFKillPackage b = new RFKillPackage();
+                                b.setPkgName(s);
+                                mRFKillWhileListPackages.remove(s);
+                                RFKillPackageProvider.delete(getContext(), b);
+                            } catch (Throwable e) {
+                                XPosedLog.wtf("Fail delete rf pkg: " + s);
+                            }
+                        }
+                    });
+                } catch (Throwable e) {
+                    XPosedLog.wtf("Fail remove rf packages...");
+                    throw new IllegalStateException(e);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
     private CheckResult checkBroadcastDetailed(String action, int receiverUid, int callerUid) {
 
         // Check if this is a boot complete action.
@@ -1070,22 +1373,22 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private boolean isBootAllowedByUser(String pkg) {
         BootCompletePackage bootCompletePackage = mBootWhiteListPackages.get(pkg);
-        return bootCompletePackage != null && bootCompletePackage.getAllow();
+        return bootCompletePackage != null;
     }
 
     private boolean isStartAllowedByUser(String pkg) {
         AutoStartPackage autoStartPackage = mStartWhiteListPackages.get(pkg);
-        return autoStartPackage != null && autoStartPackage.getAllow();
+        return autoStartPackage != null;
     }
 
     private boolean isInLockKillWhiteList(String pkg) {
         LockKillPackage lockKillPackage = mLockKillWhileListPackages.get(pkg);
-        return lockKillPackage != null && !lockKillPackage.getKill();
+        return lockKillPackage != null;
     }
 
     private boolean isInRFKillWhiteList(String pkg) {
         RFKillPackage rfKillPackage = mRFKillWhileListPackages.get(pkg);
-        return rfKillPackage != null && !rfKillPackage.getKill();
+        return rfKillPackage != null;
     }
 
     private CheckResult checkBootCompleteBroadcast(int receiverUid, int callerUid) {

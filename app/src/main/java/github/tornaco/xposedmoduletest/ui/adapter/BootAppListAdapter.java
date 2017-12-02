@@ -21,7 +21,8 @@ import dev.tornaco.vangogh.display.appliers.FadeOutFadeInApplier;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.BootCompletePackage;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
-import github.tornaco.xposedmoduletest.provider.BootPackageProvider;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import lombok.Getter;
 import tornaco.lib.widget.CheckableImageView;
 
 /**
@@ -42,7 +43,7 @@ public class BootAppListAdapter extends RecyclerView.Adapter<BootAppListAdapter.
         vangoghAppLoader = new VangoghAppLoader(context);
     }
 
-    final List<BootCompletePackage> BootCompletePackages = new ArrayList<>();
+    private final List<BootCompletePackage> BootCompletePackages = new ArrayList<>();
 
     public void update(Collection<BootCompletePackage> src) {
         synchronized (BootCompletePackages) {
@@ -69,11 +70,13 @@ public class BootAppListAdapter extends RecyclerView.Adapter<BootAppListAdapter.
 
     @Override
     public void onBindViewHolder(final AppViewHolder holder, int position) {
-        final BootCompletePackage BootCompletePackage = BootCompletePackages.get(position);
-        holder.getLineOneTextView().setText(BootCompletePackage.getAppName());
+        final BootCompletePackage completePackage = BootCompletePackages.get(position);
+        holder.getLineOneTextView().setText(completePackage.getAppName());
+        holder.getSystemAppIndicator().setVisibility(completePackage.isSystemApp()
+                ? View.VISIBLE : View.GONE);
         holder.getCheckableImageView().setChecked(false);
         Vangogh.with(context)
-                .load(BootCompletePackage.getPkgName())
+                .load(completePackage.getPkgName())
                 .skipMemoryCache(true)
                 .usingLoader(vangoghAppLoader)
                 .applier(new FadeOutFadeInApplier())
@@ -83,14 +86,16 @@ public class BootAppListAdapter extends RecyclerView.Adapter<BootAppListAdapter.
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                removePkgAsync(BootCompletePackage);
+                removePkgAsync(completePackage);
                 return true;
             }
         });
     }
 
     private void removePkgAsync(BootCompletePackage pkg) {
-        BootPackageProvider.delete(context, pkg);
+        XAshmanManager.singleInstance()
+                .addOrRemoveBootBlockApps(new String[]{pkg.getPkgName()},
+                        XAshmanManager.Op.REMOVE);
         onPackageRemoved(pkg.getPkgName());
     }
 
@@ -113,22 +118,16 @@ public class BootAppListAdapter extends RecyclerView.Adapter<BootAppListAdapter.
         return String.valueOf(appName.charAt(0));
     }
 
+    @Getter
     static class AppViewHolder extends RecyclerView.ViewHolder {
-        private TextView lineOneTextView;
+        private TextView lineOneTextView, systemAppIndicator;
         private CheckableImageView checkableImageView;
 
         AppViewHolder(View itemView) {
             super(itemView);
             lineOneTextView = itemView.findViewById(android.R.id.title);
+            systemAppIndicator = itemView.findViewById(android.R.id.text1);
             checkableImageView = itemView.findViewById(R.id.checkable_img_view);
-        }
-
-        TextView getLineOneTextView() {
-            return lineOneTextView;
-        }
-
-        CheckableImageView getCheckableImageView() {
-            return checkableImageView;
         }
     }
 }

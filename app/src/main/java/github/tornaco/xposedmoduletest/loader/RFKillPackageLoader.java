@@ -1,11 +1,8 @@
 package github.tornaco.xposedmoduletest.loader;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-
-import org.newstand.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -14,6 +11,7 @@ import java.util.List;
 import github.tornaco.xposedmoduletest.bean.RFKillPackage;
 import github.tornaco.xposedmoduletest.util.PinyinComparator;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
  * Created by guohao4 on 2017/10/18.
@@ -46,46 +44,19 @@ public interface RFKillPackageLoader {
             XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
             if (!xAshmanManager.isServiceAvailable()) return out;
 
-            List<String> whitelist = xAshmanManager.getWhiteListPackages();
+            String[] packages = xAshmanManager.getRFKApps(willBeKill);
 
-            PackageManager pm = this.context.getPackageManager();
-            List<android.content.pm.PackageInfo> packages;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                packages = pm.getInstalledPackages(PackageManager.MATCH_UNINSTALLED_PACKAGES);
-            } else {
-                packages = pm.getInstalledPackages(PackageManager.GET_UNINSTALLED_PACKAGES);
-            }
-
-            for (android.content.pm.PackageInfo packageInfo : packages) {
-                String name = packageInfo.applicationInfo.loadLabel(pm).toString();
+            for (String pkg : packages) {
+                String name = String.valueOf(PkgUtil.loadNameByPkgName(context, pkg));
                 if (!TextUtils.isEmpty(name)) {
                     name = name.replace(" ", "");
-                } else {
-                    Logger.w("Ignored app with empty name:%s", packageInfo);
-                    continue;
-                }
-
-                String packageName = packageInfo.packageName;
-
-                if (whitelist.contains(packageName)) continue;
-
-                if (packageName.contains("com.qualcomm.qti")
-                        || packageName.contains("com.qti.smq")) {
-                    continue;
-                }
-                if (packageName.contains("com.google.android")) {
-                    continue;
-                }
-
-                // Ignore that will not be killed.
-                if (willBeKill != xAshmanManager.isPackageRFKillEnabled(packageInfo.packageName)) {
-                    continue;
                 }
 
                 RFKillPackage p = new RFKillPackage();
                 p.setKill(true);
                 p.setAppName(name);
-                p.setPkgName(packageName);
+                p.setPkgName(pkg);
+                p.setSystemApp(PkgUtil.isSystemApp(context, pkg));
 
                 out.add(p);
             }

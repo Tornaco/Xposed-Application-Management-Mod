@@ -21,7 +21,8 @@ import dev.tornaco.vangogh.display.appliers.FadeOutFadeInApplier;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.AutoStartPackage;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
-import github.tornaco.xposedmoduletest.provider.AutoStartPackageProvider;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import lombok.Getter;
 import tornaco.lib.widget.CheckableImageView;
 
 /**
@@ -71,6 +72,8 @@ public class StartAppListAdapter extends RecyclerView.Adapter<StartAppListAdapte
     public void onBindViewHolder(final AppViewHolder holder, int position) {
         final AutoStartPackage autoStartPackage = autoStartPackages.get(position);
         holder.getLineOneTextView().setText(autoStartPackage.getAppName());
+        holder.getSystemAppIndicator().setVisibility(autoStartPackage.isSystemApp()
+                ? View.VISIBLE : View.GONE);
         holder.getCheckableImageView().setChecked(false);
         Vangogh.with(context)
                 .load(autoStartPackage.getPkgName())
@@ -91,7 +94,9 @@ public class StartAppListAdapter extends RecyclerView.Adapter<StartAppListAdapte
     }
 
     private void removePkgAsync(AutoStartPackage pkg) {
-        AutoStartPackageProvider.delete(context, pkg);
+        XAshmanManager.singleInstance()
+                .addOrRemoveStartBlockApps(new String[]{pkg.getPkgName()},
+                        XAshmanManager.Op.REMOVE);
         onPackageRemoved(pkg.getPkgName());
     }
 
@@ -114,22 +119,16 @@ public class StartAppListAdapter extends RecyclerView.Adapter<StartAppListAdapte
         return String.valueOf(appName.charAt(0));
     }
 
+    @Getter
     static class AppViewHolder extends RecyclerView.ViewHolder {
-        private TextView lineOneTextView;
+        private TextView lineOneTextView, systemAppIndicator;
         private CheckableImageView checkableImageView;
 
         AppViewHolder(View itemView) {
             super(itemView);
             lineOneTextView = itemView.findViewById(android.R.id.title);
             checkableImageView = itemView.findViewById(R.id.checkable_img_view);
-        }
-
-        TextView getLineOneTextView() {
-            return lineOneTextView;
-        }
-
-        CheckableImageView getCheckableImageView() {
-            return checkableImageView;
+            systemAppIndicator = itemView.findViewById(android.R.id.text1);
         }
     }
 }

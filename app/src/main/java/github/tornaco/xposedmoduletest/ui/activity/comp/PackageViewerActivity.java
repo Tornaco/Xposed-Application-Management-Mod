@@ -34,6 +34,7 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         disabledString = getString(R.string.title_package_disabled);
+        findViewById(R.id.fab).setVisibility(View.GONE);
     }
 
     @Override

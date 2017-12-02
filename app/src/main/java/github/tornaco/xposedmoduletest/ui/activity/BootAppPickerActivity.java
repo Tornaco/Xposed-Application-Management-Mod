@@ -11,10 +11,10 @@ import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.BootCompletePackage;
 import github.tornaco.xposedmoduletest.loader.BootPackageLoader;
-import github.tornaco.xposedmoduletest.provider.BootPackageProvider;
 import github.tornaco.xposedmoduletest.ui.adapter.BootAppPickerListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 public class BootAppPickerActivity extends BootAppNavActivity {
 
@@ -28,7 +28,7 @@ public class BootAppPickerActivity extends BootAppNavActivity {
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         super.initView();
-        SwitchBar switchBar = (SwitchBar) findViewById(R.id.switchbar);
+        SwitchBar switchBar = findViewById(R.id.switchbar);
         switchBar.hide();
         fab.setImageResource(R.drawable.ic_check_black_24dp);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -36,7 +36,7 @@ public class BootAppPickerActivity extends BootAppNavActivity {
             public void onClick(View v) {
                 final ProgressDialog p = new ProgressDialog(BootAppPickerActivity.this);
                 p.setCancelable(false);
-                p.setMessage("SAVING...");
+                p.setMessage(getString(R.string.message_saving_changes));
                 p.setIndeterminate(true);
                 p.show();
                 XExecutor.execute(new Runnable() {
@@ -48,7 +48,11 @@ public class BootAppPickerActivity extends BootAppNavActivity {
                                     @Override
                                     public void accept(BootCompletePackage packageInfo) {
                                         if (packageInfo.getAllow()) {
-                                            BootPackageProvider.insert(getApplicationContext(), packageInfo);
+                                            XAshmanManager.singleInstance()
+                                                    .addOrRemoveBootBlockApps(
+                                                            new String[]{packageInfo.getPkgName()},
+                                                            XAshmanManager.Op.ADD
+                                                    );
                                         }
                                     }
                                 });

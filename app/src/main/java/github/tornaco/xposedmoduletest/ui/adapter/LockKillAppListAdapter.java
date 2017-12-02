@@ -21,7 +21,8 @@ import dev.tornaco.vangogh.display.appliers.FadeOutFadeInApplier;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.LockKillPackage;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
-import github.tornaco.xposedmoduletest.provider.LockKillPackageProvider;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import lombok.Getter;
 import tornaco.lib.widget.CheckableImageView;
 
 /**
@@ -69,11 +70,13 @@ public class LockKillAppListAdapter extends RecyclerView.Adapter<LockKillAppList
 
     @Override
     public void onBindViewHolder(final AppViewHolder holder, int position) {
-        final LockKillPackage LockKillPackage = LockKillPackages.get(position);
-        holder.getLineOneTextView().setText(LockKillPackage.getAppName());
+        final LockKillPackage killPackage = LockKillPackages.get(position);
+        holder.getLineOneTextView().setText(killPackage.getAppName());
+        holder.getSystemAppIndicator().setVisibility(killPackage.isSystemApp()
+                ? View.VISIBLE : View.GONE);
         holder.getCheckableImageView().setChecked(false);
         Vangogh.with(context)
-                .load(LockKillPackage.getPkgName())
+                .load(killPackage.getPkgName())
                 .skipMemoryCache(true)
                 .usingLoader(vangoghAppLoader)
                 .applier(new FadeOutFadeInApplier())
@@ -83,14 +86,16 @@ public class LockKillAppListAdapter extends RecyclerView.Adapter<LockKillAppList
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                removePkgAsync(LockKillPackage);
+                removePkgAsync(killPackage);
                 return true;
             }
         });
     }
 
     private void removePkgAsync(LockKillPackage pkg) {
-        LockKillPackageProvider.delete(context, pkg);
+        XAshmanManager.singleInstance()
+                .addOrRemoveLKApps(new String[]{pkg.getPkgName()},
+                        XAshmanManager.Op.REMOVE);
         onPackageRemoved(pkg.getPkgName());
     }
 
@@ -113,22 +118,16 @@ public class LockKillAppListAdapter extends RecyclerView.Adapter<LockKillAppList
         return String.valueOf(appName.charAt(0));
     }
 
+    @Getter
     static class AppViewHolder extends RecyclerView.ViewHolder {
-        private TextView lineOneTextView;
+        private TextView lineOneTextView, systemAppIndicator;
         private CheckableImageView checkableImageView;
 
         AppViewHolder(View itemView) {
             super(itemView);
             lineOneTextView = itemView.findViewById(android.R.id.title);
+            systemAppIndicator = itemView.findViewById(android.R.id.text1);
             checkableImageView = itemView.findViewById(R.id.checkable_img_view);
-        }
-
-        TextView getLineOneTextView() {
-            return lineOneTextView;
-        }
-
-        CheckableImageView getCheckableImageView() {
-            return checkableImageView;
         }
     }
 }

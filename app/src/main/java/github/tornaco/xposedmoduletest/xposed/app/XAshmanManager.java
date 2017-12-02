@@ -6,7 +6,6 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 import org.newstand.logger.Logger;
 
@@ -24,6 +23,11 @@ import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
  */
 
 public class XAshmanManager {
+
+    public interface Op {
+        int ADD = 0x1;
+        int REMOVE = 0x2;
+    }
 
     public static final String ASH_MAN_SERVICE_NAME = "user.tor_ash";
 
@@ -257,55 +261,55 @@ public class XAshmanManager {
         }
     }
 
-    public boolean isPackageStartBlockEnabled(String pkg) {
-        ensureService();
-        try {
-            return mService.isPackageStartBlockEnabled(pkg);
-        } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
-            return false;
-        }
-    }
-
-    public boolean isPackageBootBlockEnabled(String pkg) {
-        ensureService();
-        try {
-            return mService.isPackageBootBlockEnabled(pkg);
-        } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
-            return false;
-        }
-    }
-
-    public boolean isPackageLockKillEnabled(String pkg) {
-        ensureService();
-        try {
-            return mService.isPackageLockKillEnabled(pkg);
-        } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
-            return false;
-        }
-    }
-
-    public boolean isPackageRFKillEnabled(String pkg) {
-        ensureService();
-        try {
-            return mService.isPackageRFKillEnabled(pkg);
-        } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
-            return false;
-        }
-    }
-
-    public List<String> getWhiteListPackages() {
-        ensureService();
-        try {
-            return mService.getWhiteListPackages();
-        } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
-            return Lists.newArrayListWithCapacity(0);
-        }
-    }
+//    public boolean isPackageStartBlockEnabled(String pkg) {
+//        ensureService();
+//        try {
+//            return mService.isPackageStartBlockEnabled(pkg);
+//        } catch (RemoteException e) {
+//            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+//            return false;
+//        }
+//    }
+//
+//    public boolean isPackageBootBlockEnabled(String pkg) {
+//        ensureService();
+//        try {
+//            return mService.isPackageBootBlockEnabled(pkg);
+//        } catch (RemoteException e) {
+//            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+//            return false;
+//        }
+//    }
+//
+//    public boolean isPackageLockKillEnabled(String pkg) {
+//        ensureService();
+//        try {
+//            return mService.isPackageLockKillEnabled(pkg);
+//        } catch (RemoteException e) {
+//            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+//            return false;
+//        }
+//    }
+//
+//    public boolean isPackageRFKillEnabled(String pkg) {
+//        ensureService();
+//        try {
+//            return mService.isPackageRFKillEnabled(pkg);
+//        } catch (RemoteException e) {
+//            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+//            return false;
+//        }
+//    }
+//
+//    public List<String> getWhiteListPackages() {
+//        ensureService();
+//        try {
+//            return mService.getWhiteListPackages();
+//        } catch (RemoteException e) {
+//            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+//            return Lists.newArrayListWithCapacity(0);
+//        }
+//    }
 
     public void restart() {
         ensureService();
@@ -332,6 +336,92 @@ public class XAshmanManager {
         } catch (RemoteException e) {
             Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return false;
+        }
+    }
+
+    public String[] getWhiteListApps(int filterOptions) {
+        ensureService();
+        try {
+            return mService.getWhiteListApps(filterOptions);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return new String[0];
+        }
+    }
+
+    public String[] getBootBlockApps(boolean block) {
+        ensureService();
+        try {
+            return mService.getBootBlockApps(block);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return new String[0];
+        }
+    }
+
+    public void addOrRemoveBootBlockApps(String[] packages, int op) {
+        ensureService();
+        try {
+            mService.addOrRemoveBootBlockApps(packages, op);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public String[] getStartBlockApps(boolean block) {
+        ensureService();
+        try {
+            return mService.getStartBlockApps(block);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return new String[0];
+        }
+    }
+
+    public void addOrRemoveStartBlockApps(String[] packages, int op) {
+        ensureService();
+        try {
+            mService.addOrRemoveStartBlockApps(packages, op);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public String[] getLKApps(boolean kill) {
+        ensureService();
+        try {
+            return mService.getLKApps(kill);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return new String[0];
+        }
+    }
+
+    public void addOrRemoveLKApps(String[] packages, int op) {
+        ensureService();
+        try {
+            mService.addOrRemoveLKApps(packages, op);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public String[] getRFKApps(boolean kill) {
+        ensureService();
+        try {
+            return mService.getRFKApps(kill);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return new String[0];
+        }
+    }
+
+    public void addOrRemoveRFKApps(String[] packages, int op) {
+        ensureService();
+        try {
+            mService.addOrRemoveRFKApps(packages, op);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 }

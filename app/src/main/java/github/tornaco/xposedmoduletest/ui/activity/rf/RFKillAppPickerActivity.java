@@ -10,11 +10,11 @@ import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.RFKillPackage;
 import github.tornaco.xposedmoduletest.loader.RFKillPackageLoader;
-import github.tornaco.xposedmoduletest.provider.RFKillPackageProvider;
 import github.tornaco.xposedmoduletest.ui.adapter.RFKillAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.RFKillAppPickerListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 public class RFKillAppPickerActivity extends RFKillAppNavActivity {
 
@@ -48,7 +48,11 @@ public class RFKillAppPickerActivity extends RFKillAppNavActivity {
                                     @Override
                                     public void accept(RFKillPackage packageInfo) {
                                         if (!packageInfo.getKill()) {
-                                            RFKillPackageProvider.insert(getApplicationContext(), packageInfo);
+                                            XAshmanManager.singleInstance()
+                                                    .addOrRemoveRFKApps(
+                                                            new String[]{packageInfo.getPkgName()},
+                                                            XAshmanManager.Op.ADD
+                                                    );
                                         }
                                     }
                                 });

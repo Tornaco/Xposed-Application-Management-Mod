@@ -11,11 +11,11 @@ import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.AutoStartPackage;
 import github.tornaco.xposedmoduletest.loader.StartPackageLoader;
-import github.tornaco.xposedmoduletest.provider.AutoStartPackageProvider;
 import github.tornaco.xposedmoduletest.ui.adapter.StartAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.StartAppPickerListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 public class StartAppPickerActivity extends StartAppNavActivity {
 
@@ -49,7 +49,11 @@ public class StartAppPickerActivity extends StartAppNavActivity {
                                     @Override
                                     public void accept(AutoStartPackage packageInfo) {
                                         if (packageInfo.getAllow()) {
-                                            AutoStartPackageProvider.insert(getApplicationContext(), packageInfo);
+                                            XAshmanManager.singleInstance()
+                                                    .addOrRemoveStartBlockApps(
+                                                            new String[]{packageInfo.getPkgName()},
+                                                            XAshmanManager.Op.ADD
+                                                    );
                                         }
                                     }
                                 });

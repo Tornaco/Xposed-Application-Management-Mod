@@ -29,12 +29,12 @@ interface IAshmanService {
 
     boolean checkBroadcast(String action, int receiverUid, int callerUid);
 
-    boolean isPackageStartBlockEnabled(String pkg);
-    boolean isPackageBootBlockEnabled(String pkg);
-    boolean isPackageLockKillEnabled(String pkg);
-    boolean isPackageRFKillEnabled(String pkg);
-
-    List<String> getWhiteListPackages();
+//    boolean isPackageStartBlockEnabled(String pkg);
+//    boolean isPackageBootBlockEnabled(String pkg);
+//    boolean isPackageLockKillEnabled(String pkg);
+//    boolean isPackageRFKillEnabled(String pkg);
+//
+//    List<String> getWhiteListPackages();
 
     List<BlockRecord2> getBlockRecords();
 
@@ -60,4 +60,19 @@ interface IAshmanService {
     // Extra API.
     void setCompSettingBlockEnabled(boolean enabled);
     boolean isCompSettingBlockEnabledEnabled();
+
+    // Package loader API.
+    String[] getWhiteListApps(int filterOptions);
+
+    String[] getBootBlockApps(boolean block);
+    void addOrRemoveBootBlockApps(in String[] packages, int op);
+
+    String[] getStartBlockApps(boolean block);
+    void addOrRemoveStartBlockApps(in String[] packages, int op);
+
+    String[] getLKApps(boolean kill);
+    void addOrRemoveLKApps(in String[] packages, int op);
+
+    String[] getRFKApps(boolean kill);
+    void addOrRemoveRFKApps(in String[] packages, int op);
 }
