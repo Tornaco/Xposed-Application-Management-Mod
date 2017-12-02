@@ -133,7 +133,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
             if (isNewBuild) {
                 summaryView.setText(R.string.app_intro_need_restart);
                 ViewGroup header = findView(rootView, R.id.header1);
-                header.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.red));
+                header.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.amber));
                 imageView.setImageResource(R.drawable.ic_error_black_24dp);
 
                 button.setOnClickListener(new View.OnClickListener() {

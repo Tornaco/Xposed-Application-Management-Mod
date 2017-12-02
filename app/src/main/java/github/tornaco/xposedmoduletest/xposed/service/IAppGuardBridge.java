@@ -18,6 +18,9 @@ public interface IAppGuardBridge extends IModuleBridge {
 
     boolean isBlurForPkg(String pkg);
 
+    int getBlurRadius();
+    float getBlurScale();
+
     boolean interruptFPSuccessVibrate();
 
     boolean interruptFPErrorVibrate();

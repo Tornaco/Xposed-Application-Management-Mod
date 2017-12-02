@@ -736,9 +736,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (DEBUG_BROADCAST && res.logRecommended)
             XPosedLog.verboseOn("XAshmanService checkBroadcast returning: "
                     + res + " for: "
-                    + PkgUtil.loadNameByPkgName(getContext(),
-                    mPackagesCache.get(receiverUid))
-                    + " action: " + action, mLoggingService);
+                    + PkgUtil.loadNameByPkgName(getContext(), mPackagesCache.get(receiverUid))
+                    + " receiverUid: " + receiverUid
+                    + " callerUid: " + callerUid
+                    + " action: " + action,
+                    mLoggingService);
         return res.res;
     }
 

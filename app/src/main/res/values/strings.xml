@@ -98,7 +98,7 @@
     <string name="summary_start_app"><b>允许</b>以下应用被其他应用启动，其他非系统核心应用将自动被禁止。</string>
     <string name="app_intro">以下功能依赖于嵌入系统的几项服务，你需要在xposed installer中激活该模块，并且重启才可以激活上述服务。</string>
     <string name="app_intro_need_restart">应用更新后需要重新启动，否则应用管理将无法正常工作。</string>
-    <string name="title_restart_android">软重启</string>
+    <string name="title_restart_android">立即重启</string>
     <string name="title_block_viewer">启动记录</string>
     <string name="title_restrict">限制</string>
     <string name="done">完成</string>
@@ -243,5 +243,7 @@
     <string name="summary_error_vibrate_enabled">同时会修改屏幕解锁的设置</string>
     <string name="title_component_block">阻止应用启用组件</string>
     <string name="summary_component_block">某些应用会主动启用自己的组件，顽固，勾选后可以阻止该行为</string>
+    <string name="title_app_recent_blur_radius">模糊半径</string>
+    <string name="summary_app_recent_blur_radius">加大模糊算法半径参数可以降低资源消耗，减少算法处理时间，但是会造成生成的图像变更加模糊</string>
 
 </resources>

@@ -69,10 +69,11 @@ public class ScreenshotApplicationsSubModule extends AppGuardAndroidSubModule {
         XPosedLog.verbose("onScreenshotApplications: " + pkgName);
         if (getAppGuardBridge().isBlurForPkg(pkgName)
                 && param.getResult() != null) {
-            XPosedLog.verbose("onScreenshotApplications, bluring...");
             Bitmap res = (Bitmap) param.getResult();
-            Bitmap blured = (XBitmapUtil.createBlurredBitmap(res,
-                    XBitmapUtil.BLUR_RADIUS, XBitmapUtil.BITMAP_SCALE));
+            int radius = getAppGuardBridge().getBlurRadius();
+            float scale = getAppGuardBridge().getBlurScale();
+            XPosedLog.verbose("onScreenshotApplications, bluring, r and s: " + radius + "-" + scale);
+            Bitmap blured = (XBitmapUtil.createBlurredBitmap(res, radius, scale));
             if (blured != null)
                 param.setResult(blured);
         } else {

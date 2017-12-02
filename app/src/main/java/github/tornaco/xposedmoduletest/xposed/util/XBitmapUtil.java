@@ -24,6 +24,7 @@ public final class XBitmapUtil {
     public static final float BITMAP_SCALE = 0.2f;
     /* Initial blur radius. */
     public static final int BLUR_RADIUS = 15;
+    public static final int BLUR_RADIUS_MAX = 25;
 
     /**
      * This class is never instantiated

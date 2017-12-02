@@ -2,12 +2,14 @@ package github.tornaco.xposedmoduletest.ui.adapter;
 
 import android.content.Context;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.SectionIndexer;
 import android.widget.TextView;
+
+import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,7 +30,7 @@ import tornaco.lib.widget.CheckableImageView;
  */
 
 public class LockKillAppListAdapter extends RecyclerView.Adapter<LockKillAppListAdapter.AppViewHolder>
-        implements SectionIndexer {
+        implements FastScrollRecyclerView.SectionedAdapter {
 
     private Context context;
     private VangoghAppLoader vangoghAppLoader;
@@ -101,34 +103,14 @@ public class LockKillAppListAdapter extends RecyclerView.Adapter<LockKillAppList
         return LockKillPackages.size();
     }
 
-    // For index.
-    private ArrayList<Integer> mSectionPositions;
-    // For index end.
-
+    @NonNull
     @Override
-    public int getPositionForSection(int sectionIndex) {
-        return mSectionPositions.get(sectionIndex);
-    }
-
-    @Override
-    public int getSectionForPosition(int position) {
-        return 0;
-    }
-
-    @Override
-    public Object[] getSections() {
-        List<String> sections = new ArrayList<>(26);
-        mSectionPositions = new ArrayList<>(26);
-        for (int i = 0, size = LockKillPackages.size(); i < size; i++) {
-            String appName = String.valueOf(LockKillPackages.get(i).getAppName());
-            String section = "";
-            // FIXME Session ret.
-            if (!sections.contains(section)) {
-                sections.add(section);
-                mSectionPositions.add(i);
-            }
-        }
-        return sections.toArray(new String[0]);
+    public String getSectionName(int position) {
+        String appName = getLockKillPackages().get(position).getAppName();
+        if (appName == null
+                || appName.length() < 1)
+            appName = getLockKillPackages().get(position).getPkgName();
+        return String.valueOf(appName.charAt(0));
     }
 
     static class AppViewHolder extends RecyclerView.ViewHolder {

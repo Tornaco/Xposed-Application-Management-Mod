@@ -32,4 +32,16 @@ public class ServiceInfoSettings {
         private boolean allowed;
         private ComponentName componentName;
     }
+
+    public String simpleName() {
+        String simpleName = getDisplayName();
+        if (simpleName == null) {
+            simpleName = getServiceInfo().packageName;
+        }
+        final int dot = simpleName.lastIndexOf(".");
+        if (dot > 0) {
+            return simpleName.substring(simpleName.lastIndexOf(".") + 1); // strip the package name
+        }
+        return simpleName;
+    }
 }

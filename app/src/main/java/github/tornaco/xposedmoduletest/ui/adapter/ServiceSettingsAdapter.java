@@ -3,10 +3,11 @@ package github.tornaco.xposedmoduletest.ui.adapter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.Switch;
 
-import org.newstand.logger.Logger;
+import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettings;
@@ -18,7 +19,8 @@ import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
  * Email: Tornaco@163.com
  */
 
-public class ServiceSettingsAdapter extends ComponentListAdapter<ServiceInfoSettings> {
+public class ServiceSettingsAdapter extends ComponentListAdapter<ServiceInfoSettings>
+        implements FastScrollRecyclerView.SectionedAdapter {
 
     public ServiceSettingsAdapter(Context context) {
         super(context);
@@ -32,7 +34,7 @@ public class ServiceSettingsAdapter extends ComponentListAdapter<ServiceInfoSett
 
         final ServiceInfoSettings serviceInfoSettings = getData().get(position);
 
-        holder.getTitleView().setText(serviceInfoSettings.getDisplayName());
+        holder.getTitleView().setText(serviceInfoSettings.simpleName());
 
         String processName = serviceInfoSettings.getServiceInfo().processName;
         String serviceLabel = serviceInfoSettings.getServiceLabel();
@@ -64,5 +66,16 @@ public class ServiceSettingsAdapter extends ComponentListAdapter<ServiceInfoSett
                                 : PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
             }
         });
+    }
+
+    @NonNull
+    @Override
+    public String getSectionName(int position) {
+        ServiceInfoSettings infoSettings = getData().get(position);
+        String name = infoSettings.simpleName();
+        if (name == null || name.length() < 1) {
+            name = infoSettings.toString();
+        }
+        return String.valueOf(name.charAt(0));
     }
 }

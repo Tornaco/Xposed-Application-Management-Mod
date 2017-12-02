@@ -11,6 +11,7 @@ import com.google.common.collect.Lists;
 
 import org.newstand.logger.Logger;
 
+import java.util.Comparator;
 import java.util.List;
 
 import github.tornaco.android.common.Collections;
@@ -20,6 +21,7 @@ import github.tornaco.xposedmoduletest.model.ActivityInfoSettingsList;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettings;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettingsList;
 import github.tornaco.xposedmoduletest.util.ComponentUtil;
+import github.tornaco.xposedmoduletest.util.PinyinComparator;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import lombok.AllArgsConstructor;
@@ -99,6 +101,9 @@ public interface ComponentLoader {
                     }
                 }
             });
+
+            java.util.Collections.sort(out, new AComparator());
+
             return out;
         }
 
@@ -144,6 +149,9 @@ public interface ComponentLoader {
                     }
                 }
             });
+
+            java.util.Collections.sort(out, new AComparator());
+
             return out;
         }
 
@@ -187,6 +195,9 @@ public interface ComponentLoader {
                     }
                 }
             });
+
+            java.util.Collections.sort(out, new SComparator());
+
             return out;
         }
 
@@ -242,6 +253,18 @@ public interface ComponentLoader {
                     });
             ActivityInfoSettingsList list = new ActivityInfoSettingsList(PkgUtil.loadVersionByPkgName(context, pkg), pkg, exports);
             return list.toJson();
+        }
+    }
+
+    class AComparator implements Comparator<ActivityInfoSettings> {
+        public int compare(ActivityInfoSettings o1, ActivityInfoSettings o2) {
+            return new PinyinComparator().compare(o1.simpleName(), o2.simpleName());
+        }
+    }
+
+    class SComparator implements Comparator<ServiceInfoSettings> {
+        public int compare(ServiceInfoSettings o1, ServiceInfoSettings o2) {
+            return new PinyinComparator().compare(o1.simpleName(), o2.simpleName());
         }
     }
 }

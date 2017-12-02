@@ -10,8 +10,8 @@ android {
         applicationId "github.tornaco.xposedmoduletest"
         minSdkVersion rootProject.ext.minSdkVersion as int
         targetSdkVersion rootProject.ext.compileSdkVersion as int
-        versionCode 207
-        versionName "2.0-BETA-7"
+        versionCode 208
+        versionName "2.0-BETA-8"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -97,6 +97,7 @@ dependencies {
     // releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
 
     implementation 'com.andrognito.patternlockview:patternlockview:1.0.0'
+    implementation 'com.simplecityapps:recyclerview-fastscroll:1.0.9'
 
     implementation 'com.nononsenseapps:filepicker:4.1.0'
 }

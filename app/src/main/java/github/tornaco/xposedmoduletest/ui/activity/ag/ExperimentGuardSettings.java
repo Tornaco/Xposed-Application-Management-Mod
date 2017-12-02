@@ -7,6 +7,7 @@ import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
 
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.ui.widget.BlurRadiusPreference;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
 
@@ -62,7 +63,8 @@ public class ExperimentGuardSettings extends GuardSettingsActivity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     boolean v = (boolean) newValue;
-                    finalBlurSettings.setPolicy(v ? XAppGuardManager.BlurPolicy.BLUR_ALL : XAppGuardManager.BlurPolicy.BLUR_WATCHED);
+                    finalBlurSettings.setPolicy(v ? XAppGuardManager.BlurPolicy.BLUR_ALL
+                            : XAppGuardManager.BlurPolicy.BLUR_WATCHED);
                     XAppGuardManager.singleInstance().setBlurSettings(finalBlurSettings);
                     return true;
                 }
@@ -80,7 +82,15 @@ public class ExperimentGuardSettings extends GuardSettingsActivity {
                 }
             });
 
-
+            final BlurRadiusPreference blurRadiusPreference = (BlurRadiusPreference) findPreference("blur_radius");
+            blurRadiusPreference.setCurrentRadius(finalBlurSettings.getRadius());
+            blurRadiusPreference.setOnSeekCompleteListener(new BlurRadiusPreference.OnSeekCompleteListener() {
+                @Override
+                public void onSeekComplete(int progress) {
+                    finalBlurSettings.setRadius(progress);
+                    XAppGuardManager.singleInstance().setBlurSettings(finalBlurSettings);
+                }
+            });
         }
     }
 }

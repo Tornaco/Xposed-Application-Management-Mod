@@ -58,9 +58,9 @@ public class PkgUtil {
 
         try {
             ApplicationInfo info = pm.getApplicationInfo(pkg, 0);
-            return info == null ? null : info.loadLabel(pm);
+            return info == null ? pkg : info.loadLabel(pm);
         } catch (PackageManager.NameNotFoundException var4) {
-            return null;
+            return pkg;
         }
     }
 

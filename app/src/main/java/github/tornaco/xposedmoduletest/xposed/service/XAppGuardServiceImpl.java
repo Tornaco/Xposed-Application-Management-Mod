@@ -548,7 +548,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Override
     public boolean isBlurForPkg(String pkg) {
         XPosedLog.verbose("isBlurForPkg? " + mBlurSettings);
-        if (mBlurSettings == null) return false;
+        if (mBlurSettings == null || !mBlurSettings.isEnabled()) return false;
         int policy = mBlurSettings.getPolicy();
         switch (policy) {
             case XAppGuardManager.BlurPolicy.BLUR_ALL:
@@ -560,6 +560,33 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             default:
                 return false;
         }
+    }
+
+    @Override
+    @InternalCall
+    public float getBlurScale() {
+        if (mBlurSettings == null) {
+            return BlurSettings.BITMAP_SCALE;
+        }
+        if (mBlurSettings.getScale() <= 0) {
+            mBlurSettings.setScale(BlurSettings.BITMAP_SCALE);
+            return BlurSettings.BITMAP_SCALE;
+        }
+        return mBlurSettings.getScale();
+    }
+
+    @Override
+    @InternalCall
+    public int getBlurRadius() {
+        if (mBlurSettings == null) {
+            return BlurSettings.BLUR_RADIUS;
+        }
+        if (mBlurSettings.getRadius() <= 0
+                || mBlurSettings.getRadius() > 25) {
+            mBlurSettings.setRadius(BlurSettings.BLUR_RADIUS);
+            return BlurSettings.BLUR_RADIUS;
+        }
+        return mBlurSettings.getRadius();
     }
 
     @Override
