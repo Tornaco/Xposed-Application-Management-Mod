@@ -57,7 +57,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
         if (first) {
             new AlertDialog.Builder(NavigatorActivity.this)
                     .setTitle(R.string.title_app_update_log)
-                    .setMessage(getString(R.string.update_log_209)
+                    .setMessage(getString(R.string.update_log_210)
                             + "\n\n" + getString(R.string.message_first_run))
                     .setCancelable(false)
                     .setNeutralButton(R.string.no_remind, new DialogInterface.OnClickListener() {
