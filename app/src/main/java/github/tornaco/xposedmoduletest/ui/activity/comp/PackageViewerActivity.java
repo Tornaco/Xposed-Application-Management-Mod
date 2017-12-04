@@ -116,9 +116,13 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
                     case R.id.action_comp_edit:
                         ComponentEditorActivity.start(getActivity(), packageInfo.getPkgName());
                         // FIXME!!!
-                        XAshmanManager.singleInstance().setNetworkPolicyUidPolicy(
+                        XAshmanManager.singleInstance().restrictAppOnWifi(
                                 PkgUtil.uidForPkg(getContext(), packageInfo.getPkgName()),
-                                NetworkPolicyManager.RULE_REJECT_ALL);
+                                true);
+
+                        XAshmanManager.singleInstance().restrictAppOnData(
+                                PkgUtil.uidForPkg(getContext(), packageInfo.getPkgName()),
+                                true);
                         break;
                     case R.id.action_comp_uninstall:
 

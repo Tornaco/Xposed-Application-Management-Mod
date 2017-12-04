@@ -21,4 +21,8 @@ public interface IIntentFirewallBridge extends IModuleBridge {
                                   int newState,
                                   int flags,
                                   int callingUid);
+
+
+    // Network manager api.
+    void onNetWorkManagementServiceReady(NativeDaemonConnector connector);
 }

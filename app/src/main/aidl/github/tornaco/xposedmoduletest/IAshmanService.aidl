@@ -58,6 +58,9 @@ interface IAshmanService {
     // Network policy API.
     void setNetworkPolicyUidPolicy(int uid, int policy);
 
+    void restrictAppOnData(int uid, boolean restrict);
+    void restrictAppOnWifi(int uid, boolean restrict);
+
     // Power API.
     void restart();
 

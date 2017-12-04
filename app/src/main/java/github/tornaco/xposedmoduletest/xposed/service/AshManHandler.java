@@ -40,6 +40,10 @@ interface AshManHandler {
 
     void onScreenOn();
 
+    void restrictAppOnData(int uid, boolean restrict);
+
+    void restrictAppOnWifi(int uid, boolean restrict);
+
     /**
      * Set the enabled setting for a package component (activity, receiver, service, provider).
      * This setting will override any enabled state which may have been set by the component in its

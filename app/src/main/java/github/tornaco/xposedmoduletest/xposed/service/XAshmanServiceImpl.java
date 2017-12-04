@@ -14,6 +14,8 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.LinkProperties;
 import android.net.NetworkPolicyManager;
 import android.net.Uri;
 import android.os.Binder;
@@ -24,8 +26,11 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.os.SystemProperties;
+import android.support.annotation.GuardedBy;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
 
@@ -1780,6 +1785,67 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         });
     }
 
+
+    // NMS API START.
+    private NativeDaemonConnector mNativeDaemonConnector;
+
+    private String mDataInterfaceName, mWifiInterfaceName;
+
+    private SparseBooleanArray mPendingRestrictOnData = new SparseBooleanArray();
+
+    @GuardedBy("mQuotaLock")
+    private final SparseBooleanArray mWifiBlacklist = new SparseBooleanArray();
+    @GuardedBy("mQuotaLock")
+    private final SparseBooleanArray mDataBlacklist = new SparseBooleanArray();
+
+    private final Object mQuotaLock = new Object();
+
+    @Override
+    @InternalCall
+    public void onNetWorkManagementServiceReady(NativeDaemonConnector connector) {
+        XPosedLog.debug("NMS onNetWorkManagementServiceReady: " + connector);
+        this.mNativeDaemonConnector = connector;
+        this.mWifiInterfaceName = SystemProperties.get("wifi.interface");
+        XPosedLog.debug("NMS mWifiInterfaceName: " + mWifiInterfaceName);
+
+        initDataInterface();
+    }
+
+    private void initDataInterface() {
+        XPosedLog.debug("NMS mDataInterfaceName: " + mDataInterfaceName);
+        if (!TextUtils.isEmpty(mDataInterfaceName)) {
+            return;
+        }
+        ConnectivityManager cm = (ConnectivityManager) getContext().getSystemService(
+                Context.CONNECTIVITY_SERVICE);
+        LinkProperties linkProperties = cm.getLinkProperties(ConnectivityManager.TYPE_MOBILE);
+        if (linkProperties != null) {
+            mDataInterfaceName = linkProperties.getInterfaceName();
+        }
+        XPosedLog.debug("NMS mDataInterfaceName: " + mDataInterfaceName);
+    }
+
+
+    @Override
+    @BinderCall
+    public void restrictAppOnData(int uid, boolean restrict) throws RemoteException {
+        XPosedLog.debug("NMS restrictAppOnData: " + uid + ", restrict: " + restrict);
+        enforceCallingPermissions();
+        h.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONDATA, uid, uid, restrict)
+                .sendToTarget();
+    }
+
+    @Override
+    @BinderCall
+    public void restrictAppOnWifi(int uid, boolean restrict) throws RemoteException {
+        XPosedLog.debug("NMS restrictAppOnWifi: " + uid + ", restrict: " + restrict);
+        enforceCallingPermissions();
+        h.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONWIFI, uid, uid, restrict)
+                .sendToTarget();
+    }
+
+    // NMS API END.
+
     @Override
     public void retrieveSettings() {
         XPosedLog.wtf("retrieveSettings@" + getClass().getSimpleName());
@@ -2138,6 +2204,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETNETWORKPOLICYUIDPOLICY:
                     HandlerImpl.this.setNetworkPolicyUidPolicy(msg.arg1, msg.arg2);
                     break;
+                case AshManHandlerMessages.MSG_RESTRICTAPPONDATA:
+                    HandlerImpl.this.restrictAppOnData(msg.arg1, (Boolean) msg.obj);
+                    break;
+                case AshManHandlerMessages.MSG_RESTRICTAPPONWIFI:
+                    HandlerImpl.this.restrictAppOnWifi(msg.arg1, (Boolean) msg.obj);
+                    break;
             }
         }
 
@@ -2352,6 +2424,54 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         @Override
         public void onScreenOn() {
             cancelProcessClearing("SCREEN ON");
+        }
+
+        @Override
+        public void restrictAppOnData(int uid, boolean restrict) {
+            initDataInterface();
+
+            if (TextUtils.isEmpty(mDataInterfaceName)) {
+                // We don't have an interface name since data is not active
+                // yet, so queue up the request for when it comes up alive
+                mPendingRestrictOnData.put(uid, restrict);
+                return;
+            }
+
+            synchronized (mQuotaLock) {
+                boolean oldValue = mDataBlacklist.get(uid, false);
+                if (oldValue == restrict) {
+                    return;
+                }
+                mDataBlacklist.put(uid, restrict);
+            }
+
+            try {
+                final String action = restrict ? "add" : "remove";
+                mNativeDaemonConnector.execute("bandwidth", action + "restrictappsondata",
+                        mDataInterfaceName, uid);
+            } catch (NativeDaemonConnector.NativeDaemonConnectorException e) {
+                XPosedLog.wtf("Fail restrictAppOnData: " + Log.getStackTraceString(e));
+            }
+        }
+
+        @Override
+        public void restrictAppOnWifi(int uid, boolean restrict) {
+            synchronized (mQuotaLock) {
+                boolean oldValue = mWifiBlacklist.get(uid, false);
+                if (oldValue == restrict) {
+                    return;
+                }
+                mWifiBlacklist.put(uid, restrict);
+            }
+
+            try {
+                final String action = restrict ? "add" : "remove";
+                mNativeDaemonConnector.execute("bandwidth", action + "restrictappsonwlan",
+                        mWifiInterfaceName, uid);
+                XPosedLog.debug("mNativeDaemonConnector execute success.");
+            } catch (NativeDaemonConnector.NativeDaemonConnectorException e) {
+                XPosedLog.wtf("Fail restrictAppOnWifi: " + Log.getStackTraceString(e));
+            }
         }
 
         private void cancelProcessClearing(String why) {

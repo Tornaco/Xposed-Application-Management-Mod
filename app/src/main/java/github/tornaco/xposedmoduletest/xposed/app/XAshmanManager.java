@@ -450,4 +450,20 @@ public class XAshmanManager {
             Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
+
+    public void restrictAppOnData(int uid, boolean restrict) {
+        try {
+            mService.restrictAppOnData(uid, restrict);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public void restrictAppOnWifi(int uid, boolean restrict) {
+        try {
+            mService.restrictAppOnWifi(uid, restrict);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
 }
