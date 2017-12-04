@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.ui.activity.comp;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -26,6 +27,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import github.tornaco.permission.requester.RequiresPermission;
+import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.compat.os.PowerManagerCompat;
@@ -42,7 +45,7 @@ import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
  * Created by guohao4 on 2017/11/18.
  * Email: Tornaco@163.com
  */
-
+@RuntimePermissions
 public class PackageViewerActivity extends GuardAppPickerActivity {
 
     private String disabledString = null;
@@ -162,7 +165,9 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
                         break;
                     case R.id.action_comp_export_apk:
                         mAppPackageToExport = packageInfo.getPkgName();
-                        pickSingleFile(getActivity(), REQUEST_CODE_PICK_APK_EXPORT_PATH);
+                        PackageViewerActivityPermissionRequester.pickSingleFileChecked
+                                (getActivity(), REQUEST_CODE_PICK_APK_EXPORT_PATH,
+                                        PackageViewerActivity.this);
                         break;
                 }
                 return true;
@@ -174,7 +179,8 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
     private static final int REQUEST_CODE_PICK_APK_EXPORT_PATH = 0x111;
 
     // FIXME Copy to File utils.
-    private static void pickSingleFile(Activity activity, int code) {
+    @RequiresPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    static void pickSingleFile(Activity activity, int requestCode) {
         // This always works
         Intent i = new Intent(activity, FilePickerActivity.class);
         // This works if you defined the intent filter
@@ -191,7 +197,7 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
         // internal memory.
         i.putExtra(FilePickerActivity.EXTRA_START_PATH, Environment.getExternalStorageDirectory().getPath());
 
-        activity.startActivityForResult(i, code);
+        activity.startActivityForResult(i, requestCode);
     }
 
     @Override
