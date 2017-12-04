@@ -33,8 +33,6 @@ import com.android.internal.os.Zygote;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.jaredrummler.android.shell.CommandResult;
-import com.jaredrummler.android.shell.Shell;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -53,6 +51,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
@@ -97,34 +96,15 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 
 public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
-    private static final boolean DEBUG_BROADCAST = true;
-    private static final boolean DEBUG_SERVICE = true;
+    private static final boolean DEBUG_BROADCAST = false;
+    private static final boolean DEBUG_SERVICE = false;
 
     private static final Set<String> WHITE_LIST = new HashSet<>();
+    private static final Set<Pattern> WHITE_LIST_PATTERNS = new HashSet<>();
     // To prevent the apps with system signature added to white list.
     private static final Set<String> WHITE_LIST_HOOK = new HashSet<>();
     // Installed in system/, not contains system-packages and persist packages.
     private static final Set<String> SYSTEM_APPS = new HashSet<>();
-
-//    static {
-//        WHITE_LIST.add("android");
-//        WHITE_LIST.add("github.tornaco.xposedmoduletest");
-//        WHITE_LIST.add("com.android.systemui");
-//        WHITE_LIST.add("com.android.packageinstaller");
-//        WHITE_LIST.add("eu.chainfire.supersu");
-//        WHITE_LIST.add("de.robv.android.xposed.installer");
-//        WHITE_LIST.add("android.providers.telephony");
-//        WHITE_LIST.add("com.android.smspush");
-//        WHITE_LIST.add("com.android.providers.downloads.ui");
-//        WHITE_LIST.add("com.android.providers.contacts");
-//        WHITE_LIST.add("com.android.providers.media");
-//        WHITE_LIST.add("com.android.providers.calendar");
-//        WHITE_LIST.add("com.android.vending");
-//        WHITE_LIST.add("com.android.mtp");
-//        WHITE_LIST.add("com.miui.core");
-//        // FIXME???
-//        WHITE_LIST.add("com.ghostflying.locationreportenabler");
-//    }
 
     private UUID mSerialUUID = UUID.randomUUID();
 
@@ -306,9 +286,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
                                 // Check if is green app.
                                 if (packageInfo != null && ComponentUtil.isGreenPackage(packageInfo)) {
-                                    XPosedLog.debug("Add to white list for green package: " + pkg);
-                                    addToWhiteList(pkg);
-                                    return;
+                                    XPosedLog.debug("Maybe green package???: " + pkg);
+                                    // addToWhiteList(pkg);
+                                    // return;
                                 }
 
                                 addToSystemApps(pkg);
@@ -350,6 +330,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 XPosedLog.verbose("Boot pkg reader readEntity of: " + bootCompletePackage);
                 String key = bootCompletePackage.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
+                if (!PkgUtil.isPkgInstalled(getContext(), key)) continue;
                 mBootWhiteListPackages.put(key, bootCompletePackage);
             }
         } catch (Throwable e) {
@@ -379,6 +360,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 XPosedLog.verbose("Start white list pkg reader readEntity of: " + autoStartPackage);
                 String key = autoStartPackage.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
+                if (!PkgUtil.isPkgInstalled(getContext(), key)) continue;
                 mStartWhiteListPackages.put(key, autoStartPackage);
             }
         } catch (Throwable e) {
@@ -409,6 +391,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 XPosedLog.verbose("Lock kill white list pkg reader readEntity of: " + lockKillPackage);
                 String key = lockKillPackage.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
+                if (!PkgUtil.isPkgInstalled(getContext(), key)) continue;
                 mLockKillWhileListPackages.put(key, lockKillPackage);
             }
         } catch (Throwable e) {
@@ -438,6 +421,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 XPosedLog.verbose("RF kill white list pkg reader readEntity of: " + rfKillPackage);
                 String key = rfKillPackage.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
+                if (!PkgUtil.isPkgInstalled(getContext(), key)) continue;
                 mRFKillWhileListPackages.put(key, rfKillPackage);
             }
         } catch (Throwable e) {
@@ -583,15 +567,24 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private static boolean isInWhiteList(String pkg) {
         if (pkg == null) return false;
-        // Do not block qcom app.
-        if (pkg.contains("com.qualcomm.qti")
-                || pkg.contains("com.qti.smq")) {
-            return true;
+        boolean inWhite = WHITE_LIST.contains(pkg);
+        if (inWhite) return true;
+        if (WHITE_LIST_PATTERNS.size() == 0) return false;
+
+        for (Pattern p : WHITE_LIST_PATTERNS) {
+            if (p.matcher(pkg).find()) {
+                XPosedLog.verbose("Match white list for pattern: " + p.toString() + ", pkg: " + pkg);
+                addToWhiteList(pkg);
+                return true;
+            }
         }
-        if (pkg.contains("com.google.android")) {
-            return true;
+        return false;
+    }
+
+    private synchronized static void addWhiteListPattern(Pattern pattern) {
+        if (!WHITE_LIST_PATTERNS.contains(pattern)) {
+            WHITE_LIST_PATTERNS.add(pattern);
         }
-        return WHITE_LIST.contains(pkg);
     }
 
     private synchronized static void addToWhiteList(String pkg) {
@@ -1631,7 +1624,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         Collections.consumeRemaining(whiteListArr, new Consumer<String>() {
             @Override
             public void accept(String s) {
-                addToWhiteList(s);
+                if (TextUtils.isEmpty(s)) return;
+                // Only accept pattern with *
+                boolean isPattern = s.contains("*");
+                if (isPattern) {
+                    try {
+                        addWhiteListPattern(Pattern.compile(s));
+                        XPosedLog.verbose("Adding pattern: " + s);
+                    } catch (Throwable e) {
+                        XPosedLog.verbose("Invalid pattern: " + s);
+                        addToWhiteList(s);
+                    }
+                } else {
+                    addToWhiteList(s);
+                }
             }
         });
     }

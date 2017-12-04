@@ -17,6 +17,7 @@ import android.os.UserHandle;
 import android.print.PrintManager;
 import android.provider.Telephony;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -33,6 +34,11 @@ public class PkgUtil {
     }
 
     public static boolean isPkgInstalled(Context context, String pkg) {
+        String path = pathOf(context, pkg);
+        if (path == null) return false;
+//        if (!new File(path).exists()) {
+//            // FIXME Should we skip now?
+//        }
         PackageManager pm = context.getPackageManager();
 
         try {

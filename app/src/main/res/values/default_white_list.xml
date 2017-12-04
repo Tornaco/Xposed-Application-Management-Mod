@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="default_ash_white_list_packages">
-        
+
         <item>android</item>
         <item>com.android.vending</item>
         <item>com.android.providers.calendar</item>
@@ -45,18 +45,35 @@
         <item>com.qualcomm.shutdownlistner</item>
         <item>com.qualcomm.timeservice</item>
         <item>com.qualcomm.qcrilmsgtunnel</item>
+        <item>com.qualcomm.qti.telephonyservice</item>
 
         <item>com.zui.incallui</item>
 
+        <item>com.google.android.gms</item>
+        <item>com.google.android.backuptransport</item>
+        <item>com.google.android.configupdater</item>
+        <item>com.google.android.onetimeinitializer</item>
+        <item>com.google.android.partnersetup</item>
+        <item>com.google.android.syncadapters.contacts</item>
 
         <item>com.miui.core</item>
 
         <item>de.robv.android.xposed.installer</item>
         <item>github.tornaco.xposedmoduletest</item>
         <item>eu.chainfire.supersu</item>
+        <item>com.ghostflying.locationreportenabler</item>
+
+
+        <item>com.oasisfeng.greenify</item>
+        <item>cn.wq.myandroidtools</item>
+
+        <!--Patterns-->
+        <item>com.google.android.*</item>
+        <item>com.qualcomm.qti.*</item>
+        <item>com.qti.smq.*</item>
     </string-array>
 
     <string-array name="ash_white_list_packages_hooks">
-        <item></item>
+        <item>com.youku.xxx</item>
     </string-array>
 </resources>

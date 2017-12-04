@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -16,6 +17,66 @@ class XAppGuardServiceImplDev extends XAppGuardServiceImpl {
 
     private interface Call {
         void onCall() throws Throwable;
+    }
+
+    @Override
+    public void attachContext(final Context context) {
+        makeSafeCall(new XAppGuardServiceImplDev.Call() {
+            @Override
+            public void onCall() throws Throwable {
+                XAppGuardServiceImplDev.super.attachContext(context);
+            }
+        });
+    }
+
+    @Override
+    public void publish() {
+        makeSafeCall(new XAppGuardServiceImplDev.Call() {
+            @Override
+            public void onCall() throws Throwable {
+                XAppGuardServiceImplDev.super.publish();
+            }
+        });
+    }
+
+    @Override
+    public void systemReady() {
+        makeSafeCall(new XAppGuardServiceImplDev.Call() {
+            @Override
+            public void onCall() throws Throwable {
+                XAppGuardServiceImplDev.super.systemReady();
+            }
+        });
+    }
+
+    @Override
+    public void retrieveSettings() {
+        makeSafeCall(new XAppGuardServiceImplDev.Call() {
+            @Override
+            public void onCall() throws Throwable {
+                XAppGuardServiceImplDev.super.retrieveSettings();
+            }
+        });
+    }
+
+    @Override
+    public void publishFeature(final String f) {
+        makeSafeCall(new XAppGuardServiceImplDev.Call() {
+            @Override
+            public void onCall() throws Throwable {
+                XAppGuardServiceImplDev.super.publishFeature(f);
+            }
+        });
+    }
+
+    @Override
+    public void shutdown() {
+        makeSafeCall(new XAppGuardServiceImplDev.Call() {
+            @Override
+            public void onCall() throws Throwable {
+                XAppGuardServiceImplDev.super.shutdown();
+            }
+        });
     }
 
     @Override

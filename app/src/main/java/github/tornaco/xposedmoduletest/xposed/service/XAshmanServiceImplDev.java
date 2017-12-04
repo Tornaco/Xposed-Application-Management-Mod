@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -13,8 +14,69 @@ import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
  */
 
 public class XAshmanServiceImplDev extends XAshmanServiceImpl {
+
     private interface Call {
         void onCall() throws Throwable;
+    }
+
+    @Override
+    public void attachContext(final Context context) {
+        makeSafeCall(new Call() {
+            @Override
+            public void onCall() throws Throwable {
+                XAshmanServiceImplDev.super.attachContext(context);
+            }
+        });
+    }
+
+    @Override
+    public void publish() {
+        makeSafeCall(new Call() {
+            @Override
+            public void onCall() throws Throwable {
+                XAshmanServiceImplDev.super.publish();
+            }
+        });
+    }
+
+    @Override
+    public void systemReady() {
+        makeSafeCall(new Call() {
+            @Override
+            public void onCall() throws Throwable {
+                XAshmanServiceImplDev.super.systemReady();
+            }
+        });
+    }
+
+    @Override
+    public void retrieveSettings() {
+        makeSafeCall(new Call() {
+            @Override
+            public void onCall() throws Throwable {
+                XAshmanServiceImplDev.super.retrieveSettings();
+            }
+        });
+    }
+
+    @Override
+    public void publishFeature(final String f) {
+        makeSafeCall(new Call() {
+            @Override
+            public void onCall() throws Throwable {
+                XAshmanServiceImplDev.super.publishFeature(f);
+            }
+        });
+    }
+
+    @Override
+    public void shutdown() {
+        makeSafeCall(new Call() {
+            @Override
+            public void onCall() throws Throwable {
+                XAshmanServiceImplDev.super.shutdown();
+            }
+        });
     }
 
     @Override
