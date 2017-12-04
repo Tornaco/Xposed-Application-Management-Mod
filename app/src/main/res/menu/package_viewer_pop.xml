@@ -19,6 +19,11 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_comp_export_apk"
+        android:title="@string/title_comp_export_apk"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_comp_uninstall"
         android:title="@string/title_comp_uninstall"
         app:showAsAction="never" />

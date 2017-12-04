@@ -1,17 +1,29 @@
 package github.tornaco.xposedmoduletest.ui.activity.comp;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.NetworkPolicyManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.widget.PopupMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.common.io.Files;
+import com.nononsenseapps.filepicker.FilePickerActivity;
+import com.nononsenseapps.filepicker.Utils;
+
+import org.newstand.logger.Logger;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
@@ -22,6 +34,7 @@ import github.tornaco.xposedmoduletest.loader.PackageLoader;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.ag.GuardAppPickerActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.GuardAppListAdapter;
+import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
@@ -33,6 +46,8 @@ import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 public class PackageViewerActivity extends GuardAppPickerActivity {
 
     private String disabledString = null;
+
+    private String mAppPackageToExport = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,11 +160,38 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
                     case R.id.action_comp_details:
                         PackageManagerCompat.showAppDetails(getActivity(), packageInfo.getPkgName());
                         break;
+                    case R.id.action_comp_export_apk:
+                        mAppPackageToExport = packageInfo.getPkgName();
+                        pickSingleFile(getActivity(), REQUEST_CODE_PICK_APK_EXPORT_PATH);
+                        break;
                 }
                 return true;
             }
         });
         popupMenu.show();
+    }
+
+    private static final int REQUEST_CODE_PICK_APK_EXPORT_PATH = 0x111;
+
+    // FIXME Copy to File utils.
+    private static void pickSingleFile(Activity activity, int code) {
+        // This always works
+        Intent i = new Intent(activity, FilePickerActivity.class);
+        // This works if you defined the intent filter
+        // Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+
+        // Set these depending on your use case. These are the defaults.
+        i.putExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false);
+        i.putExtra(FilePickerActivity.EXTRA_ALLOW_CREATE_DIR, true);
+        i.putExtra(FilePickerActivity.EXTRA_MODE, FilePickerActivity.MODE_DIR);
+
+        // Configure initial directory by specifying a String.
+        // You could specify a String like "/storage/emulated/0/", but that can
+        // dangerous. Always use Android's API calls to getSingleton paths to the SD-card or
+        // internal memory.
+        i.putExtra(FilePickerActivity.EXTRA_START_PATH, Environment.getExternalStorageDirectory().getPath());
+
+        activity.startActivityForResult(i, code);
     }
 
     @Override
@@ -190,5 +232,51 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
     @Override
     protected List<PackageInfo> performLoading() {
         return PackageLoader.Impl.create(this).loadInstalled(mShowSystemApp);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_PICK_APK_EXPORT_PATH && resultCode == Activity.RESULT_OK) {
+            // Use the provided utility method to parse the result
+            List<Uri> files = Utils.getSelectedFilesFromResult(data);
+            File file = Utils.getFileForUri(files.get(0));
+            onApkExportPathPick(file);
+        }
+    }
+
+    private void onApkExportPathPick(final File file) {
+        if (mAppPackageToExport == null) {
+            Toast.makeText(getContext(), R.string.err_file_not_found, Toast.LENGTH_LONG).show();
+            return;
+        }
+        final String appPath = PkgUtil.pathOf(getContext(), mAppPackageToExport);
+        if (appPath == null) {
+            Toast.makeText(getContext(), R.string.err_file_not_found, Toast.LENGTH_LONG).show();
+            return;
+        }
+        XExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Files.copy(new File(appPath),
+                            new File(file, PkgUtil.loadNameByPkgName(getContext(),
+                                    mAppPackageToExport) + ".apk"));
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showTips(R.string.title_export_success, false, null, null);
+                        }
+                    });
+                } catch (final IOException e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), Logger.getStackTraceString(e), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            }
+        });
     }
 }
