@@ -32,6 +32,12 @@ public class ActivityInfoSettings {
         private ComponentName componentName;
     }
 
+    public boolean mayBeAdComponent() {
+        return serviceLabel.contains("AD")
+                || serviceLabel.contains("Ad");
+    }
+
+
     public String simpleName() {
         String simpleName = getDisplayName();
         if (simpleName==null) {

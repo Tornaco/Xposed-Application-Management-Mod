@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
+import android.content.ComponentName;
 import android.os.Bundle;
 
 /**
@@ -24,4 +25,6 @@ public interface IAppGuardBridge extends IModuleBridge {
     boolean interruptFPSuccessVibrate();
 
     boolean interruptFPErrorVibrate();
+
+    boolean isActivityStartShouldBeInterrupted(ComponentName componentName);
 }

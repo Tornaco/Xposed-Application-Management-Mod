@@ -38,7 +38,7 @@ class XModuleImplSeparable extends XModuleAbs {
                     // XPosedLog.wtf("Invoking submodule@handleLoadPackage: " + s.name());
                     s.handleLoadingPackage(lpparam.packageName, lpparam);
                 } catch (Throwable e) {
-                    XPosedLog.wtf("Error call handleLoadingPackage singleInstance submodule:" + s
+                    XPosedLog.wtf("Error call handleLoadingPackage submodule:" + s
                             + " , trace: " + Log.getStackTraceString(e));
                 }
             }
@@ -51,7 +51,7 @@ class XModuleImplSeparable extends XModuleAbs {
                     // XPosedLog.wtf("Invoking submodule@handleLoadPackage: " + s.name());
                     s.handleLoadingPackage(lpparam.packageName, lpparam);
                 } catch (Throwable e) {
-                    XPosedLog.wtf("Error call handleLoadingPackage singleInstance submodule:" + s
+                    XPosedLog.wtf("Error call handleLoadingPackage submodule:" + s
                             + " , trace: " + Log.getStackTraceString(e));
                 }
             }

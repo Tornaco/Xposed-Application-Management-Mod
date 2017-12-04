@@ -42,13 +42,10 @@ public class ReceiverSettingsAdapter extends ComponentListAdapter<ActivityInfoSe
 
         holder.getTitleView().setText(activityInfoSettings.simpleName());
 
-        String processName = activityInfoSettings.getActivityInfo().processName;
-        String serviceLabel = activityInfoSettings.getServiceLabel();
+        String name = activityInfoSettings.getActivityInfo().name;
 
-        holder.getSummaryView().setText(getContext().getString(R.string.summary_service_info_process,
-                processName));
-        holder.getSummaryView2().setText(getContext().getString(R.string.summary_service_info_comp,
-                serviceLabel));
+        holder.getSummaryView().setText(getContext().getString(R.string.summary_service_info_comp, name));
+        holder.getSummaryView2().setVisibility(View.GONE);
 
         if (!xAshmanManager.isServiceAvailable()) {
             return;

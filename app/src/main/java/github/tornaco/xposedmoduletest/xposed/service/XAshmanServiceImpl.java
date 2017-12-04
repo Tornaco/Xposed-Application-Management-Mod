@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.NetworkPolicyManager;
@@ -32,6 +33,8 @@ import com.android.internal.os.Zygote;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
+import com.jaredrummler.android.shell.CommandResult;
+import com.jaredrummler.android.shell.Shell;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -56,6 +59,7 @@ import github.tornaco.android.common.Consumer;
 import github.tornaco.android.common.Holder;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
+import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
 import github.tornaco.xposedmoduletest.bean.AutoStartPackage;
 import github.tornaco.xposedmoduletest.bean.AutoStartPackageDaoUtil;
@@ -69,6 +73,7 @@ import github.tornaco.xposedmoduletest.provider.AutoStartPackageProvider;
 import github.tornaco.xposedmoduletest.provider.BootPackageProvider;
 import github.tornaco.xposedmoduletest.provider.LockKillPackageProvider;
 import github.tornaco.xposedmoduletest.provider.RFKillPackageProvider;
+import github.tornaco.xposedmoduletest.util.ComponentUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
@@ -82,6 +87,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import static android.content.Context.CONTEXT_IGNORE_SECURITY;
 import static android.content.Context.INPUT_METHOD_SERVICE;
 
 /**
@@ -91,35 +97,34 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 
 public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
-    private static final boolean DEBUG_BROADCAST = false;
-    private static final boolean DEBUG_SERVICE = false;
+    private static final boolean DEBUG_BROADCAST = true;
+    private static final boolean DEBUG_SERVICE = true;
 
     private static final Set<String> WHITE_LIST = new HashSet<>();
+    // To prevent the apps with system signature added to white list.
+    private static final Set<String> WHITE_LIST_HOOK = new HashSet<>();
     // Installed in system/, not contains system-packages and persist packages.
     private static final Set<String> SYSTEM_APPS = new HashSet<>();
 
-    static {
-        WHITE_LIST.add("android");
-        WHITE_LIST.add("github.tornaco.xposedmoduletest");
-        WHITE_LIST.add("com.android.systemui");
-        WHITE_LIST.add("com.android.packageinstaller");
-        WHITE_LIST.add("eu.chainfire.supersu");
-        WHITE_LIST.add("com.lenovo.launcher");
-        WHITE_LIST.add("com.android.settings");
-        WHITE_LIST.add("com.cyanogenmod.trebuchet");
-        WHITE_LIST.add("de.robv.android.xposed.installer");
-        WHITE_LIST.add("android.providers.telephony");
-        WHITE_LIST.add("com.android.smspush");
-        WHITE_LIST.add("com.android.providers.downloads.ui");
-        WHITE_LIST.add("com.android.providers.contacts");
-        WHITE_LIST.add("com.android.providers.media");
-        WHITE_LIST.add("com.android.providers.calendar");
-        WHITE_LIST.add("com.android.vending");
-        WHITE_LIST.add("com.android.mtp");
-        WHITE_LIST.add("com.miui.core");
-        // FIXME???
-        WHITE_LIST.add("com.ghostflying.locationreportenabler");
-    }
+//    static {
+//        WHITE_LIST.add("android");
+//        WHITE_LIST.add("github.tornaco.xposedmoduletest");
+//        WHITE_LIST.add("com.android.systemui");
+//        WHITE_LIST.add("com.android.packageinstaller");
+//        WHITE_LIST.add("eu.chainfire.supersu");
+//        WHITE_LIST.add("de.robv.android.xposed.installer");
+//        WHITE_LIST.add("android.providers.telephony");
+//        WHITE_LIST.add("com.android.smspush");
+//        WHITE_LIST.add("com.android.providers.downloads.ui");
+//        WHITE_LIST.add("com.android.providers.contacts");
+//        WHITE_LIST.add("com.android.providers.media");
+//        WHITE_LIST.add("com.android.providers.calendar");
+//        WHITE_LIST.add("com.android.vending");
+//        WHITE_LIST.add("com.android.mtp");
+//        WHITE_LIST.add("com.miui.core");
+//        // FIXME???
+//        WHITE_LIST.add("com.ghostflying.locationreportenabler");
+//    }
 
     private UUID mSerialUUID = UUID.randomUUID();
 
@@ -259,6 +264,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N ?
                             pm.getInstalledApplications(android.content.pm.PackageManager.MATCH_UNINSTALLED_PACKAGES)
                             : pm.getInstalledApplications(android.content.pm.PackageManager.GET_UNINSTALLED_PACKAGES);
+
             Collections.consumeRemaining(applicationInfos,
                     new Consumer<ApplicationInfo>() {
                         @Override
@@ -280,20 +286,29 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                     addToWhiteList(pkg);
                                     return;
                                 }
-                                // Check if is system package.
+
+                                android.content.pm.PackageInfo packageInfo = null;
+                                // Check if android system uid or media, phone.
                                 try {
-                                    @SuppressLint("PackageManagerGetSignatures") boolean isSystemPackage =
-                                            PkgUtil.isSystemPackage(getContext().getResources(),
-                                                    pm,
-                                                    pm.getPackageInfo(pkg, PackageManager.GET_SIGNATURES));
-                                    if (isSystemPackage) {
-                                        XPosedLog.verbose("Adding system package: " + pkg);
+                                    packageInfo = pm.getPackageInfo(pkg, 0);
+                                    String sharedUserId = packageInfo.sharedUserId;
+                                    if ("android.uid.system".equals(sharedUserId)
+                                            || "android.uid.phone".equals(sharedUserId)
+                                            || "android.media".equals(sharedUserId)) {
+                                        XPosedLog.debug("Add to white list package: " + pkg + ", sharedUid: " + sharedUserId);
                                         addToWhiteList(pkg);
                                         return;
                                     }
 
-                                } catch (Throwable e) {
-                                    XPosedLog.wtf("Fail check isSystemPackage: " + Log.getStackTraceString(e));
+                                } catch (PackageManager.NameNotFoundException e) {
+                                    XPosedLog.wtf("NameNotFoundException: " + e + ", for: " + pkg);
+                                }
+
+                                // Check if is green app.
+                                if (packageInfo != null && ComponentUtil.isGreenPackage(packageInfo)) {
+                                    XPosedLog.debug("Add to white list for green package: " + pkg);
+                                    addToWhiteList(pkg);
+                                    return;
                                 }
 
                                 addToSystemApps(pkg);
@@ -580,8 +595,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private synchronized static void addToWhiteList(String pkg) {
+        if (WHITE_LIST_HOOK.contains(pkg)) {
+            XPosedLog.verbose("Not add to white list because it is hooked: " + pkg);
+            return;
+        }
         if (!WHITE_LIST.contains(pkg)) {
             WHITE_LIST.add(pkg);
+        }
+    }
+
+    private synchronized static void addToWhiteListHook(String pkg) {
+        if (!WHITE_LIST_HOOK.contains(pkg)) {
+            WHITE_LIST_HOOK.add(pkg);
         }
     }
 
@@ -684,6 +709,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private CheckResult checkServiceDetailed(String servicePkgName, int callerUid) {
+        if (!isSystemReady()) return CheckResult.SYSTEM_NOT_READY;
         // Disabled case.
         if (!isStartBlockEnabled()) return CheckResult.SERVICE_CHECK_DISABLED;
 
@@ -1401,12 +1427,22 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
+    @Override
+    @BinderCall
+    @Deprecated
+    public void unInstallPackage(final String pkg, final IPackageUninstallCallback callback)
+            throws RemoteException {
+        enforceCallingPermissions();
+    }
+
     private CheckResult checkBroadcastDetailed(String action, int receiverUid, int callerUid) {
 
         // Check if this is a boot complete action.
         if (isBootCompleteBroadcastAction(action)) {
             return checkBootCompleteBroadcast(receiverUid, callerUid);
         }
+
+        if (!isSystemReady()) return CheckResult.SYSTEM_NOT_READY;
 
         // Disabled case.
         if (!isStartBlockEnabled()) return CheckResult.BROADCAST_CHECK_DISABLED;
@@ -1589,6 +1625,49 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         getContext().registerReceiver(mPackageReceiver, intentFilter);
     }
 
+    private void inflateWhiteList() {
+        String[] whiteListArr = readStringArrayFromAppGuard("default_ash_white_list_packages");
+        XPosedLog.debug("Res default_ash_white_list_packages: " + Arrays.toString(whiteListArr));
+        Collections.consumeRemaining(whiteListArr, new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                addToWhiteList(s);
+            }
+        });
+    }
+
+    private void inflateWhiteListHook() {
+        String[] whiteListArr = readStringArrayFromAppGuard("ash_white_list_packages_hooks");
+        XPosedLog.debug("Res ash_white_list_packages_hooks: " + Arrays.toString(whiteListArr));
+        Collections.consumeRemaining(whiteListArr, new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                addToWhiteListHook(s);
+            }
+        });
+    }
+
+    private String[] readStringArrayFromAppGuard(String resName) {
+        Context context = getContext();
+        if (context == null) {
+            XPosedLog.wtf("Context is null!!!");
+            return new String[0];
+        }
+        try {
+            Context appContext =
+                    context.createPackageContext(BuildConfig.APPLICATION_ID, CONTEXT_IGNORE_SECURITY);
+            Resources res = appContext.getResources();
+            int id = res.getIdentifier(resName, "array", BuildConfig.APPLICATION_ID);
+            XPosedLog.debug("readStringArrayFromAppGuard get id: " + id + ", for res: " + resName);
+            if (id != 0) {
+                return res.getStringArray(id);
+            }
+        } catch (Throwable e) {
+            XPosedLog.wtf("Fail createPackageContext: " + Log.getStackTraceString(e));
+        }
+        return new String[0];
+    }
+
     @Override
     public void publish() {
         ServiceManager.addService(XAshmanManager.ASH_MAN_SERVICE_NAME, asBinder());
@@ -1598,6 +1677,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void systemReady() {
         XPosedLog.wtf("systemReady@" + getClass().getSimpleName());
+        inflateWhiteList();
+        inflateWhiteListHook();
         // Update system ready, since we can call providers now.
         mIsSystemReady = true;
         checkSafeMode();
@@ -1703,9 +1784,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private void construct() {
         h = onCreateServiceHandler();
-        HandlerThread hr = new HandlerThread("ASHMAN-LAZY-H");
-        hr.start();
-        lazyH = new LazyHandler(hr.getLooper());
+        lazyH = onCreateLazyHandler();
         XPosedLog.verbose("construct, h: " + h
                 + ", lazyH: " + lazyH
                 + " -" + serial());
@@ -1713,6 +1792,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     protected Handler onCreateServiceHandler() {
         return new HandlerImpl();
+    }
+
+    protected Handler onCreateLazyHandler() {
+        HandlerThread hr = new HandlerThread("ASHMAN-LAZY-H");
+        hr.start();
+        return new LazyHandler(hr.getLooper());
     }
 
     @Override
@@ -1852,6 +1937,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             fout.println("CompSettingBlockEnabled enabled: " + mCompSettingBlockEnabled.get());
             fout.println("LK delay: " + mLockKillDelay);
 
+            fout.println();
+            fout.println("======================");
+            fout.println();
+
             // Dump while list.
             fout.println("White list: ");
             Object[] whileListObjects = WHITE_LIST.toArray();
@@ -1861,6 +1950,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     fout.println(o);
                 }
             });
+
+            fout.println();
+            fout.println("======================");
+            fout.println();
 
             // Dump System list.
             fout.println("System list: ");
@@ -1872,6 +1965,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 }
             });
 
+            fout.println();
+            fout.println("======================");
+            fout.println();
+
             // Dump boot list.
             fout.println("Boot list: ");
             Object[] bootListObjects = mBootWhiteListPackages.values().toArray();
@@ -1881,6 +1978,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     fout.println(o);
                 }
             });
+
+            fout.println();
+            fout.println("======================");
+            fout.println();
 
             // Dump start list.
             fout.println("Start list: ");
@@ -1892,6 +1993,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 }
             });
 
+            fout.println();
+            fout.println("======================");
+            fout.println();
+
             // Dump lk list.
             fout.println("LK list: ");
             Object[] lkListObjects = mLockKillWhileListPackages.values().toArray();
@@ -1902,6 +2007,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 }
             });
 
+            fout.println();
+            fout.println("======================");
+            fout.println();
+
             // Dump rf list.
             fout.println("RF list: ");
             Object[] rfListObjects = mRFKillWhileListPackages.values().toArray();
@@ -1911,6 +2020,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     fout.println(o);
                 }
             });
+
+            fout.println();
+            fout.println("======================");
+            fout.println();
 
             // Dump watcher.
             fout.println("Watcher list: ");
@@ -2436,6 +2549,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public static final CheckResult SERVICE_CHECK_DISABLED = new CheckResult(true, "SERVICE_CHECK_DISABLED", false);
         public static final CheckResult BOOT_CHECK_DISABLED = new CheckResult(true, "BOOT_CHECK_DISABLED", false);
         public static final CheckResult BROADCAST_CHECK_DISABLED = new CheckResult(true, "BROADCAST_CHECK_DISABLED", false);
+        public static final CheckResult SYSTEM_NOT_READY = new CheckResult(true, "SYSTEM_NOT_READY", true);
 
         public static final CheckResult WHITE_LISTED = new CheckResult(true, "WHITE_LISTED", false);
         public static final CheckResult SYSTEM_APP = new CheckResult(true, "SYSTEM_APP", false);

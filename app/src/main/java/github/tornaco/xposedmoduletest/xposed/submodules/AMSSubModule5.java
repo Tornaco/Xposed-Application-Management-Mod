@@ -35,6 +35,7 @@ class AMSSubModule5 extends AndroidSubModuleModule {
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
                     Object ar = param.args[0];
+                    if (ar==null) return;
                     Intent intent = (Intent) XposedHelpers.getObjectField(ar, "intent");
                     if (intent == null) return;
                     getBridge().onPackageMoveToFront(PkgUtil.packageNameOf(intent));

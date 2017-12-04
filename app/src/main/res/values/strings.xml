@@ -128,7 +128,8 @@
     <string name="tab_text_2">广播</string>
     <string name="tab_text_3">活动</string>
     <string name="summary_service_info_process"><b>进程：</b>%1$s</string>
-    <string name="summary_service_info_comp"><b>组件：</b>%1$s</string>
+    <string name="summary_service_info_comp">%1$s</string>
+    <string name="summary_service_info_comp_maybe_ad">疑似广告</string>
     <string name="title_component_manager">应用组件管理</string>
     <string name="title_export_comp_settings">导出应用配置</string>
     <string name="title_export_service_settings">导出服务配置</string>
@@ -264,5 +265,9 @@
     <string name="summary_white_system_app">不对任何的系统应用做自启动，关联启动，强行清理等限制处理</string>
     <string name="title_app_update_log">更新日志</string>
     <string name="no_remind">同意并记住</string>
+    <string name="title_comp_uninstall">卸载</string>
+    <string name="tips_uninstall_sys_app_success">应用已经卸载，重启生效</string>
+    <string name="tips_uninstall_sys_app_fail">无法卸载该应用，错误代码：</string>
+    <string name="title_comp_details">详细信息</string>
 
 </resources>

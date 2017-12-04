@@ -14,6 +14,7 @@ import java.util.List;
 
 import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
+import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 
@@ -439,6 +440,14 @@ public class XAshmanManager {
         } catch (RemoteException e) {
             Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return true;
+        }
+    }
+
+    public void unInstallPackage(String pkg, IPackageUninstallCallback callback) {
+        try {
+            mService.unInstallPackage(pkg, callback);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 }

@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest;
 
 import github.tornaco.xposedmoduletest.IProcessClearListener;
+import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 
@@ -78,4 +79,7 @@ interface IAshmanService {
 
     String[] getRFKApps(boolean kill);
     void addOrRemoveRFKApps(in String[] packages, int op);
+
+    // PM API.
+    void unInstallPackage(String pkg, in IPackageUninstallCallback callback);
 }

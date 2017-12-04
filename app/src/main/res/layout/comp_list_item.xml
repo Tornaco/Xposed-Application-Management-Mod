@@ -7,9 +7,9 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:layout_margin="3dp"
-    card_view:contentPadding="5dp"
     card_view:cardCornerRadius="1dp"
-    card_view:cardElevation="1dp">
+    card_view:cardElevation="1dp"
+    card_view:contentPadding="5dp">
 
     <RelativeLayout
         android:id="@+id/tile_root"
@@ -23,8 +23,6 @@
             android:layout_height="@dimen/dashboard_tile_image_size"
             android:layout_centerVertical="true"
             android:layout_marginEnd="@dimen/dashboard_tile_image_margin_end"
-            android:layout_marginLeft="@dimen/dashboard_tile_image_margin_start"
-            android:layout_marginRight="@dimen/dashboard_tile_image_margin_end"
             android:layout_marginStart="@dimen/dashboard_tile_image_margin_start"
             android:scaleType="fitXY"
             android:src="@drawable/ic_room_service_black_24dp"
@@ -36,8 +34,6 @@
             android:layout_centerVertical="true"
             android:layout_marginBottom="@dimen/dashboard_category_bot_margin"
             android:layout_toEndOf="@+id/icon"
-            android:layout_toLeftOf="@+id/action_area"
-            android:layout_toRightOf="@+id/icon"
             android:layout_toStartOf="@+id/action_area">
 
             <TextView
@@ -53,10 +49,9 @@
                 android:id="@+id/status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="3dp"
-                android:layout_alignLeft="@android:id/title"
                 android:layout_alignStart="@android:id/title"
                 android:layout_below="@id/title"
+                android:padding="3dp"
                 android:text="@string/app_wiki_url"
                 android:textAppearance="@style/TextAppearance.TileSubTitle" />
 
@@ -64,12 +59,12 @@
                 android:id="@+id/status2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="3dp"
-                android:layout_alignLeft="@android:id/title"
                 android:layout_alignStart="@android:id/title"
                 android:layout_below="@id/status"
+                android:padding="3dp"
                 android:text="@string/app_wiki_url"
-                android:textAppearance="@style/TextAppearance.TileSubTitle" />
+                android:textAppearance="@style/TextAppearance.TileSubTitle"
+                android:textColor="@color/amber_dark" />
 
         </RelativeLayout>
 
@@ -79,7 +74,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:minWidth="@dimen/dashboard_tile_minimum_height">
 

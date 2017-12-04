@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.KeyguardManager;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -142,6 +143,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         }
     };
 
+    private PackageManager mPackageManager;
+
     // Safe mode is the last clear place user can stay.
     private boolean mIsSafeMode = false;
 
@@ -166,6 +169,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     private void construct() {
         mServiceHandler = onCreateServiceHandler();
         XPosedLog.verbose("construct, mServiceHandler: " + mServiceHandler + " -" + serial());
+        mPackageManager = getContext().getPackageManager();
     }
 
     protected Handler onCreateServiceHandler() {
@@ -365,6 +369,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             fout.println("mInterruptFPSuccessVB enabled: " + mInterruptFPSuccessVB.get());
             fout.println("mInterruptFPERRORVB enabled: " + mInterruptFPERRORVB.get());
         }
+    }
+
+    public PackageManager getPackageManager() {
+        if (mPackageManager == null) mPackageManager = getContext().getPackageManager();
+        return mPackageManager;
     }
 
     private boolean onInterruptConfirm(String pkg) {
@@ -601,6 +610,19 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         boolean isKeyguard = isDeviceLocked();
         XPosedLog.verbose("Device is locked: " + isKeyguard);
         return !isKeyguard && mInterruptFPERRORVB.get();
+    }
+
+    @Override
+    public boolean isActivityStartShouldBeInterrupted(ComponentName componentName) {
+        if (getContext() == null) return false;
+        int state = getPackageManager().getComponentEnabledSetting(componentName);
+        if (state == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT
+                || state == PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                || state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED) {
+            return false;
+        }
+        // Comp is disabled, interrupt!!!
+        return true;
     }
 
     @Override

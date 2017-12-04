@@ -43,13 +43,23 @@ public class PkgUtil {
         }
     }
 
-    public static int loadVersionByPkgName(Context context, String pkg) {
+    public static int loadVersionCodeByPkgName(Context context, String pkg) {
         PackageManager pm = context.getPackageManager();
         try {
             ApplicationInfo info = pm.getApplicationInfo(pkg, 0);
             return info == null ? -1 : info.versionCode;
         } catch (PackageManager.NameNotFoundException var4) {
             return -1;
+        }
+    }
+
+    public static String loadVersionNameByPkgName(Context context, String pkg) {
+        PackageManager pm = context.getPackageManager();
+        try {
+            PackageInfo info = pm.getPackageInfo(pkg, 0);
+            return info == null ? null : info.versionName;
+        } catch (PackageManager.NameNotFoundException var4) {
+            return null;
         }
     }
 
@@ -108,6 +118,16 @@ public class PkgUtil {
             return applicationInfo != null && (applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
         } catch (PackageManager.NameNotFoundException e) {
             return false;
+        }
+    }
+
+    public static String pathOf(Context context, String pkg) {
+        PackageManager pm = context.getPackageManager();
+        try {
+            ApplicationInfo applicationInfo = pm.getApplicationInfo(pkg, 0);
+            return applicationInfo.publicSourceDir;
+        } catch (PackageManager.NameNotFoundException e) {
+            return null;
         }
     }
 

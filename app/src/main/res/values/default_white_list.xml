@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="default_ash_white_list_packages">
+        
+        <item>android</item>
+        <item>com.android.vending</item>
+        <item>com.android.providers.calendar</item>
+        <item>com.android.providers.media</item>
+        <item>com.android.providers.contacts</item>
+        <item>com.android.providers.downloads.ui</item>
+        <item>com.android.providers.settings</item>
+        <item>com.android.smspush</item>
+        <item>android.providers.telephony</item>
+
+        <item>com.android.packageinstaller</item>
+        <item>com.android.systemui</item>
+        <item>com.android.phone</item>
+        <item>com.android.mtp</item>
+        <item>com.android.bluetoothmidiservice</item>
+        <item>android.ext.shared</item>
+        <item>com.android.shell</item>
+        <item>com.android.sharedstoragebackup</item>
+        <item>com.android.managedprovisioning</item>
+        <item>com.android.proxyhandler</item>
+        <item>com.android.wallpaperbackup</item>
+        <item>com.android.inputdevices</item>
+        <item>com.android.keychain</item>
+        <item>com.android.bluetooth</item>
+        <item>com.android.captiveportallogin</item>
+        <item>android.ext.services</item>
+        <item>com.android.vpndialogs</item>
+        <item>com.android.pacprocessor</item>
+        <item>com.android.server.telecom</item>
+        <item>com.android.carrierconfig</item>
+        <item>com.android.defcontainer</item>
+        <item>com.android.mms.service</item>
+        <item>com.validation</item>
+        <item>com.android.certinstaller</item>
+        <item>com.android.emergency</item>
+        <item>com.android.stk</item>
+
+        <item>com.qualcomm.wfd.service</item>
+        <item>com.qualcomm.qti.tetherservice</item>
+        <item>com.qualcomm.location</item>
+        <item>com.qualcomm.shutdownlistner</item>
+        <item>com.qualcomm.timeservice</item>
+        <item>com.qualcomm.qcrilmsgtunnel</item>
+
+        <item>com.zui.incallui</item>
+
+
+        <item>com.miui.core</item>
+
+        <item>de.robv.android.xposed.installer</item>
+        <item>github.tornaco.xposedmoduletest</item>
+        <item>eu.chainfire.supersu</item>
+    </string-array>
+
+    <string-array name="ash_white_list_packages_hooks">
+        <item></item>
+    </string-array>
+</resources>

@@ -33,6 +33,15 @@ import static android.content.pm.PackageManager.GET_SERVICES;
 
 public class ComponentUtil {
 
+    /**
+     * Those that has not service and broadcast and no activity.
+     */
+    public static boolean isGreenPackage(PackageInfo packageInfo) {
+        return (packageInfo.receivers == null || packageInfo.receivers.length == 0)
+                && (packageInfo.services == null || packageInfo.services.length == 0)
+                && (packageInfo.activities == null || packageInfo.activities.length == 0);
+    }
+
     public static List<ServiceInfo> getServices(Context context, String pkg) {
         PackageManager pm = context.getPackageManager();
         try {
@@ -56,7 +65,7 @@ public class ComponentUtil {
     public static List<ActivityInfo> getActivities(Context context, String pkg) {
         PackageManager pm = context.getPackageManager();
         try {
-            PackageInfo packageInfo = null;
+            PackageInfo packageInfo;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
                 packageInfo = pm.getPackageInfo(pkg, GET_ACTIVITIES | PackageManager.MATCH_DISABLED_COMPONENTS);
             } else {
@@ -107,7 +116,7 @@ public class ComponentUtil {
         if (serviceInfoSettingsList == null) return false;
         String pkg = serviceInfoSettingsList.getPackageName();
         int version = serviceInfoSettingsList.getVersion();
-        if (version != PkgUtil.loadVersionByPkgName(context, pkg)) {
+        if (version != PkgUtil.loadVersionCodeByPkgName(context, pkg)) {
             Logger.w("Different version of app config applying... for " + pkg);
         }
         List<ServiceInfoSettings.Export> exports = serviceInfoSettingsList.getExports();
@@ -133,7 +142,7 @@ public class ComponentUtil {
         if (activityInfoSettingsList == null) return false;
         String pkg = activityInfoSettingsList.getPackageName();
         int version = activityInfoSettingsList.getVersion();
-        if (version != PkgUtil.loadVersionByPkgName(context, pkg)) {
+        if (version != PkgUtil.loadVersionCodeByPkgName(context, pkg)) {
             Logger.w("Different version of app config applying... for " + pkg);
         }
         List<ActivityInfoSettings.Export> exports = activityInfoSettingsList.getExports();

@@ -2,6 +2,8 @@ package github.tornaco.xposedmoduletest.xposed.service;
 
 import java.util.concurrent.ExecutorService;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Created by guohao4 on 2017/11/16.
  * Email: Tornaco@163.com
@@ -22,6 +24,11 @@ class AsyncTrying {
             @Override
             public void run() {
                 if (!once.once()) {
+                    try {
+                        sleep(222);
+                    } catch (InterruptedException ignored) {
+
+                    }
                     service.execute(this);
                     return;
                 }

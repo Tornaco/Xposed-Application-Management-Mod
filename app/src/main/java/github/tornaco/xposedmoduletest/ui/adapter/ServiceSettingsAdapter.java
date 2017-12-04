@@ -36,14 +36,12 @@ public class ServiceSettingsAdapter extends ComponentListAdapter<ServiceInfoSett
 
         holder.getTitleView().setText(serviceInfoSettings.simpleName());
 
-        String processName = serviceInfoSettings.getServiceInfo().processName;
-        String serviceLabel = serviceInfoSettings.getServiceLabel();
+        String name = serviceInfoSettings.getServiceInfo().name;
 
+        holder.getSummaryView().setText(getContext().getString(R.string.summary_service_info_comp, name));
 
-        holder.getSummaryView().setText(getContext().getString(R.string.summary_service_info_process,
-                processName));
-        holder.getSummaryView2().setText(getContext().getString(R.string.summary_service_info_comp,
-                serviceLabel));
+        holder.getSummaryView2().setText(getContext().getString(R.string.summary_service_info_comp_maybe_ad));
+        holder.getSummaryView2().setVisibility(serviceInfoSettings.mayBeAdComponent() ? View.VISIBLE : View.GONE);
 
         if (!xAshmanManager.isServiceAvailable()) {
             return;

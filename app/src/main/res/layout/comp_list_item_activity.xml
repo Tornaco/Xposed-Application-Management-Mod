@@ -69,6 +69,7 @@
                 android:layout_below="@id/status"
                 android:padding="3dp"
                 android:text="@string/app_wiki_url"
+                android:textColor="@color/amber_dark"
                 android:textAppearance="@style/TextAppearance.TileSubTitle" />
 
         </RelativeLayout>

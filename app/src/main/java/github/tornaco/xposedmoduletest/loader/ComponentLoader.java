@@ -215,7 +215,7 @@ public interface ComponentLoader {
                 }
             });
             ServiceInfoSettingsList serviceInfoSettingsList = new ServiceInfoSettingsList(
-                    PkgUtil.loadVersionByPkgName(context, pkg), pkg, exports);
+                    PkgUtil.loadVersionCodeByPkgName(context, pkg), pkg, exports);
             return serviceInfoSettingsList.toJson();
         }
 
@@ -233,7 +233,7 @@ public interface ComponentLoader {
                                     ComponentUtil.getComponentName(settings.getActivityInfo())));
                         }
                     });
-            ActivityInfoSettingsList list = new ActivityInfoSettingsList(PkgUtil.loadVersionByPkgName(context, pkg), pkg, exports);
+            ActivityInfoSettingsList list = new ActivityInfoSettingsList(PkgUtil.loadVersionCodeByPkgName(context, pkg), pkg, exports);
             return list.toJson();
         }
 
@@ -251,7 +251,7 @@ public interface ComponentLoader {
                                     ComponentUtil.getComponentName(settings.getActivityInfo())));
                         }
                     });
-            ActivityInfoSettingsList list = new ActivityInfoSettingsList(PkgUtil.loadVersionByPkgName(context, pkg), pkg, exports);
+            ActivityInfoSettingsList list = new ActivityInfoSettingsList(PkgUtil.loadVersionCodeByPkgName(context, pkg), pkg, exports);
             return list.toJson();
         }
     }

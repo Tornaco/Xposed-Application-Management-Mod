@@ -104,6 +104,15 @@ class ActivityStartSubModule extends AppGuardAndroidSubModule {
 
                         ComponentName componentName = intent.getComponent();
                         if (componentName == null) return;
+
+                        // Incas the component is disabled.
+                        boolean itrp = getAppGuardBridge()
+                                .isActivityStartShouldBeInterrupted(componentName);
+                        if (itrp) {
+                            param.setResult(ActivityManager.START_SUCCESS);
+                            return;
+                        }
+
                         final String pkgName = componentName.getPackageName();
 
                         boolean isHomeIntent = PkgUtil.isHomeIntent(intent);

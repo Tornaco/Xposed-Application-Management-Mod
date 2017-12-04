@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 import java.util.HashSet;
 import java.util.Set;
 
+import github.tornaco.xposedmoduletest.BuildConfig;
 import lombok.Synchronized;
 
 /**
@@ -28,6 +29,9 @@ public class AppGuardSubModuleManager {
         SUBS.add(new AMSSubModule3());
         SUBS.add(new AMSSubModule2());
         SUBS.add(new AMSSubModule());
+        if (BuildConfig.DEBUG) {
+            SUBS.add(new IconModule());
+        }
     }
 
     @Synchronized

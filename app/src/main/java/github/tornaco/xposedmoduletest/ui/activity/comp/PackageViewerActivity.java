@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.NetworkPolicyManager;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
 import android.view.Menu;
@@ -15,11 +16,14 @@ import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
+import github.tornaco.xposedmoduletest.compat.os.PowerManagerCompat;
+import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.loader.PackageLoader;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.ag.GuardAppPickerActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.GuardAppListAdapter;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
  * Created by guohao4 on 2017/11/18.
@@ -61,7 +65,8 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        showPopMenu(packageInfo, disabled, v);
+                        if (XAshmanManager.singleInstance().isServiceAvailable())
+                            showPopMenu(packageInfo, disabled, v);
                     }
                 });
             }
@@ -92,6 +97,53 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
                         break;
                     case R.id.action_comp_edit:
                         ComponentEditorActivity.start(getActivity(), packageInfo.getPkgName());
+                        // FIXME!!!
+                        XAshmanManager.singleInstance().setNetworkPolicyUidPolicy(
+                                PkgUtil.uidForPkg(getContext(), packageInfo.getPkgName()),
+                                NetworkPolicyManager.RULE_REJECT_ALL);
+                        break;
+                    case R.id.action_comp_uninstall:
+
+                        if (!PkgUtil.isSystemApp(getContext(), packageInfo.getPkgName())) {
+                            PackageManagerCompat.unInstallUserAppWithIntent(getContext(), packageInfo.getPkgName());
+                        } else {
+                            PackageManagerCompat.unInstallSystemApp(PackageViewerActivity.this,
+                                    packageInfo.getPkgName(), new PackageManagerCompat.UnInstallCallback() {
+                                        @Override
+                                        public void onSuccess() {
+                                            showTips(R.string.tips_uninstall_sys_app_success,
+                                                    true,
+                                                    getString(R.string.title_restart_android),
+                                                    new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            PowerManagerCompat.restartAndroid();
+                                                        }
+                                                    });
+                                        }
+
+                                        @Override
+                                        public void onFail(int err) {
+                                            showTips(getString(R.string.tips_uninstall_sys_app_fail) + err,
+                                                    true,
+                                                    null,
+                                                    null);
+                                        }
+
+                                        @Override
+                                        public void maybeSuccess() {
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    startLoading();
+                                                }
+                                            });
+                                        }
+                                    });
+                        }
+                        break;
+                    case R.id.action_comp_details:
+                        PackageManagerCompat.showAppDetails(getActivity(), packageInfo.getPkgName());
                         break;
                 }
                 return true;

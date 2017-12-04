@@ -8,6 +8,7 @@ import android.text.TextUtils;
 
 import org.newstand.logger.Logger;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -80,6 +81,12 @@ public interface PackageLoader {
                 if (this.context.getPackageName().equals(packageInfo.packageName)) {
                     continue;
                 }
+
+                // Check if app file exists.
+                String appPath = PkgUtil.pathOf(context, packageInfo.packageName);
+                if (appPath == null) continue;
+                File f = new File(appPath);
+                if (!f.exists()) continue;
 
                 boolean isSystemApp = (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
                 if (isSystemApp && !showSystem) continue;
@@ -168,7 +175,7 @@ public interface PackageLoader {
                             @Override
                             public void accept(PackageInfo packageInfo) {
                                 if (PkgUtil.isPkgInstalled(context, packageInfo.getPkgName())) {
-                                    packageInfo.setExt(String.valueOf(PkgUtil.loadVersionByPkgName(context,
+                                    packageInfo.setExt(String.valueOf(PkgUtil.loadVersionCodeByPkgName(context,
                                             packageInfo.getPkgName())));
                                     packageInfo.setSystemApp(PkgUtil.isSystemApp(context, packageInfo.getPkgName()));
                                     out.add(packageInfo);

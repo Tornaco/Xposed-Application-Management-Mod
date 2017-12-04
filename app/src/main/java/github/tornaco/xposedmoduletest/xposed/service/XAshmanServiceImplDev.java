@@ -38,6 +38,22 @@ public class XAshmanServiceImplDev extends XAshmanServiceImpl {
         });
     }
 
+    @Override
+    protected Handler onCreateLazyHandler() {
+        final Handler lazy = super.onCreateLazyHandler();
+        return new Handler(new Handler.Callback() {
+            @Override
+            public boolean handleMessage(final Message msg) {
+                return makeSafeCall(new Call() {
+                    @Override
+                    public void onCall() throws Throwable {
+                        lazy.handleMessage(msg);
+                    }
+                });
+            }
+        });
+    }
+
     private boolean makeSafeCall(XAshmanServiceImplDev.Call call) {
         try {
             call.onCall();
