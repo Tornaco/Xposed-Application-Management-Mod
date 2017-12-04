@@ -102,11 +102,23 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
         if (item != null) {
             item.setVisible(false);
         }
+        item = menu.findItem(R.id.action_select_all);
+        if (item != null) {
+            item.setVisible(true);
+        }
         return true;
     }
 
+    private boolean selectAll = false;
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_select_all) {
+            selectAll = !selectAll;
+            guardAppListAdapter.selectAll(selectAll);
+            return true;
+        }
         if (item.getItemId() == R.id.show_system_app) {
             mShowSystemApp = !mShowSystemApp;
             invalidateOptionsMenu();

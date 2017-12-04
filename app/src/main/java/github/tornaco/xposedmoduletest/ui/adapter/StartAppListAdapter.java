@@ -18,6 +18,8 @@ import java.util.List;
 import dev.tornaco.vangogh.Vangogh;
 import dev.tornaco.vangogh.display.CircleImageEffect;
 import dev.tornaco.vangogh.display.appliers.FadeOutFadeInApplier;
+import github.tornaco.android.common.Collections;
+import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.AutoStartPackage;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
@@ -52,6 +54,17 @@ public class StartAppListAdapter extends RecyclerView.Adapter<StartAppListAdapte
         }
         notifyDataSetChanged();
     }
+
+    public void selectAll(final boolean selectAll) {
+        Collections.consumeRemaining(getAutoStartPackages(), new Consumer<AutoStartPackage>() {
+            @Override
+            public void accept(AutoStartPackage startPackage) {
+                startPackage.setAllow(selectAll);
+            }
+        });
+        notifyDataSetChanged();
+    }
+
 
     @Override
     public AppViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

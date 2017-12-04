@@ -55,6 +55,7 @@
         <item>com.google.android.onetimeinitializer</item>
         <item>com.google.android.partnersetup</item>
         <item>com.google.android.syncadapters.contacts</item>
+        <item>com.google.android.ext.services</item>
 
         <item>com.miui.core</item>
 

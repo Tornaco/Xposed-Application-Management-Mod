@@ -18,6 +18,8 @@ import java.util.List;
 import dev.tornaco.vangogh.Vangogh;
 import dev.tornaco.vangogh.display.CircleImageEffect;
 import dev.tornaco.vangogh.display.appliers.FadeOutFadeInApplier;
+import github.tornaco.android.common.Collections;
+import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.BootCompletePackage;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
@@ -50,6 +52,16 @@ public class BootAppListAdapter extends RecyclerView.Adapter<BootAppListAdapter.
             BootCompletePackages.clear();
             BootCompletePackages.addAll(src);
         }
+        notifyDataSetChanged();
+    }
+
+    public void selectAll(final boolean selectAll) {
+        Collections.consumeRemaining(getBootCompletePackages(), new Consumer<BootCompletePackage>() {
+            @Override
+            public void accept(BootCompletePackage bootCompletePackage) {
+                bootCompletePackage.setAllow(selectAll);
+            }
+        });
         notifyDataSetChanged();
     }
 

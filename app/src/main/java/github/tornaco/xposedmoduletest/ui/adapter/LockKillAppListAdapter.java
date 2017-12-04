@@ -18,6 +18,8 @@ import java.util.List;
 import dev.tornaco.vangogh.Vangogh;
 import dev.tornaco.vangogh.display.CircleImageEffect;
 import dev.tornaco.vangogh.display.appliers.FadeOutFadeInApplier;
+import github.tornaco.android.common.Collections;
+import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.LockKillPackage;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
@@ -50,6 +52,16 @@ public class LockKillAppListAdapter extends RecyclerView.Adapter<LockKillAppList
             LockKillPackages.clear();
             LockKillPackages.addAll(src);
         }
+        notifyDataSetChanged();
+    }
+
+    public void selectAll(final boolean select) {
+        Collections.consumeRemaining(getLockKillPackages(), new Consumer<LockKillPackage>() {
+            @Override
+            public void accept(LockKillPackage lockKillPackage) {
+                lockKillPackage.setKill(!select);
+            }
+        });
         notifyDataSetChanged();
     }
 

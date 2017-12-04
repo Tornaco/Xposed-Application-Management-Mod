@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.ui.activity.start;
 
 import android.app.ProgressDialog;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -43,7 +44,7 @@ public class StartAppPickerActivity extends StartAppNavActivity {
                 XExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        List<AutoStartPackage> packageInfoList = bootAppListAdapter.getAutoStartPackages();
+                        List<AutoStartPackage> packageInfoList = startAppListAdapter.getAutoStartPackages();
                         github.tornaco.android.common.Collections.consumeRemaining(packageInfoList,
                                 new Consumer<AutoStartPackage>() {
                                     @Override
@@ -79,7 +80,20 @@ public class StartAppPickerActivity extends StartAppNavActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.action_info).setVisible(false);
+        menu.findItem(R.id.action_select_all).setVisible(true);
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    private boolean selectAll = false;
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_select_all) {
+            selectAll = !selectAll;
+            startAppListAdapter.selectAll(selectAll);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     protected List<AutoStartPackage> performLoading() {

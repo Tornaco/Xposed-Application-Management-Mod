@@ -11,6 +11,14 @@
         tools:ignore="AlwaysShowAction" />
 
     <item
+        android:id="@+id/action_select_all"
+        android:icon="@drawable/ic_select_all_white_24dp"
+        android:title="@string/title_select_all"
+        android:visible="false"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+
+    <item
         android:id="@+id/action_block_record_viewer"
         android:icon="@drawable/ic_build_white_24dp"
         android:title="@string/title_block_viewer"

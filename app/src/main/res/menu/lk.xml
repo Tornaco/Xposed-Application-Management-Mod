@@ -5,10 +5,19 @@
 
     <item
         android:id="@+id/action_info"
-        tools:ignore="AlwaysShowAction"
         android:icon="@drawable/ic_info_white_24dp"
         android:title="@string/app_name"
-        app:showAsAction="always" />
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+
+    <item
+        android:id="@+id/action_select_all"
+        android:icon="@drawable/ic_select_all_white_24dp"
+        android:title="@string/title_select_all"
+        app:showAsAction="always"
+        android:visible="false"
+        tools:ignore="AlwaysShowAction" />
+
     <item
         android:id="@+id/action_settings"
         android:title="@string/title_settings"

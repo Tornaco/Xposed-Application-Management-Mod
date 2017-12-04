@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.ui.activity.lk;
 
 import android.app.ProgressDialog;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -11,7 +12,6 @@ import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.LockKillPackage;
 import github.tornaco.xposedmoduletest.loader.LockKillPackageLoader;
-import github.tornaco.xposedmoduletest.provider.LockKillPackageProvider;
 import github.tornaco.xposedmoduletest.ui.adapter.LockKillAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.LockKillAppPickerListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
@@ -81,7 +81,20 @@ public class LockKillAppPickerActivity extends LockKillAppNavActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.action_info).setVisible(false);
+        menu.findItem(R.id.action_select_all).setVisible(true);
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    private boolean selectAll = false;
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_select_all) {
+            selectAll = !selectAll;
+            lockKillAppListAdapter.selectAll(selectAll);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     protected List<LockKillPackage> performLoading() {

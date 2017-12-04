@@ -1,6 +1,8 @@
 package github.tornaco.xposedmoduletest.ui.activity.rf;
 
 import android.app.ProgressDialog;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -82,5 +84,24 @@ public class RFKillAppPickerActivity extends RFKillAppNavActivity {
     @Override
     protected RFKillAppListAdapter onCreateAdapter() {
         return new RFKillAppPickerListAdapter(this);
+    }
+
+    private boolean selectAll = false;
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_select_all) {
+            selectAll = !selectAll;
+            rFKillAppListAdapter.selectAll(selectAll);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_info).setVisible(false);
+        menu.findItem(R.id.action_select_all).setVisible(true);
+        return super.onPrepareOptionsMenu(menu);
     }
 }

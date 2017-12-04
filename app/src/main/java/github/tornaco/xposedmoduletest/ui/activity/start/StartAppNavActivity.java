@@ -33,7 +33,7 @@ public class StartAppNavActivity extends WithRecyclerView {
 
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    protected StartAppListAdapter bootAppListAdapter;
+    protected StartAppListAdapter startAppListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,11 +68,11 @@ public class StartAppNavActivity extends WithRecyclerView {
             }
         });
 
-        bootAppListAdapter = onCreateAdapter();
+        startAppListAdapter = onCreateAdapter();
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(bootAppListAdapter);
+        recyclerView.setAdapter(startAppListAdapter);
 
 
         swipeRefreshLayout.setOnRefreshListener(
@@ -143,7 +143,7 @@ public class StartAppNavActivity extends WithRecyclerView {
                     @Override
                     public void run() {
                         swipeRefreshLayout.setRefreshing(false);
-                        bootAppListAdapter.update(res);
+                        startAppListAdapter.update(res);
                     }
                 });
             }

@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.ui.activity;
 
 import android.app.ProgressDialog;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -78,7 +79,20 @@ public class BootAppPickerActivity extends BootAppNavActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.action_info).setVisible(false);
+        menu.findItem(R.id.action_select_all).setVisible(true);
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    private boolean selectAll = false;
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_select_all) {
+            selectAll = !selectAll;
+            bootAppListAdapter.selectAll(selectAll);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     protected List<BootCompletePackage> performLoading() {

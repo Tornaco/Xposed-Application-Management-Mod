@@ -269,5 +269,6 @@
     <string name="tips_uninstall_sys_app_success">应用已经卸载，重启生效</string>
     <string name="tips_uninstall_sys_app_fail">无法卸载该应用，错误代码：</string>
     <string name="title_comp_details">详细信息</string>
+    <string name="title_select_all">选择全部</string>
 
 </resources>

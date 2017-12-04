@@ -17,6 +17,8 @@ import java.util.List;
 
 import dev.tornaco.vangogh.Vangogh;
 import dev.tornaco.vangogh.display.appliers.FadeOutFadeInApplier;
+import github.tornaco.android.common.Collections;
+import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
@@ -48,6 +50,16 @@ public class GuardAppListAdapter extends RecyclerView.Adapter<GuardAppListAdapte
             packageInfos.clear();
             packageInfos.addAll(src);
         }
+        notifyDataSetChanged();
+    }
+
+    public void selectAll(final boolean selectAll) {
+        Collections.consumeRemaining(getPackageInfos(), new Consumer<PackageInfo>() {
+            @Override
+            public void accept(PackageInfo packageInfo) {
+                packageInfo.setGuard(selectAll);
+            }
+        });
         notifyDataSetChanged();
     }
 

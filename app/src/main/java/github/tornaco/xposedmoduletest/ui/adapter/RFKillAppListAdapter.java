@@ -18,6 +18,8 @@ import java.util.List;
 import dev.tornaco.vangogh.Vangogh;
 import dev.tornaco.vangogh.display.CircleImageEffect;
 import dev.tornaco.vangogh.display.appliers.FadeOutFadeInApplier;
+import github.tornaco.android.common.Collections;
+import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.RFKillPackage;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
@@ -116,6 +118,16 @@ public class RFKillAppListAdapter extends RecyclerView.Adapter<RFKillAppListAdap
                 || appName.length() < 1)
             appName = getRFKillPackages().get(position).getPkgName();
         return String.valueOf(appName.charAt(0));
+    }
+
+    public void selectAll(final boolean selectAll) {
+        Collections.consumeRemaining(getRFKillPackages(), new Consumer<RFKillPackage>() {
+            @Override
+            public void accept(RFKillPackage rfKillPackage) {
+                rfKillPackage.setKill(!selectAll);
+            }
+        });
+        notifyDataSetChanged();
     }
 
     @Getter
