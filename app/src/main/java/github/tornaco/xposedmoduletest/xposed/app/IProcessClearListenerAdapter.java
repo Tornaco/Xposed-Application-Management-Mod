@@ -11,6 +11,12 @@ import github.tornaco.xposedmoduletest.IProcessClearListener;
 
 public class IProcessClearListenerAdapter extends IProcessClearListener.Stub {
     @Override
+    public boolean doNotClearWhenIntervative()
+            throws RemoteException {
+        return true;
+    }
+
+    @Override
     public void onPrepareClearing() throws RemoteException {
 
     }

@@ -2185,14 +2185,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         @Override
         public void clearProcess(final IProcessClearListener listener) {
+            boolean doNotCleatWhenInter = true;
+            if (listener != null) try {
+                doNotCleatWhenInter = listener.doNotClearWhenIntervative();
+            } catch (RemoteException ignored) {
 
-            XPosedLog.verbose("clearProcess!!!");
+            }
+
+            XPosedLog.verbose("clearProcess!!! doNotCleatWhenInter: " + doNotCleatWhenInter);
 
             if (listener != null) try {
                 listener.onPrepareClearing();
             } catch (RemoteException ignored) {
 
             }
+            final boolean finalDoNotCleatWhenInter = doNotCleatWhenInter;
             FutureTask<String[]> futureTask = new FutureTask<>(new SignalCallable<String[]>() {
 
                 @Override
@@ -2216,7 +2223,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     for (int i = 0; i < count; i++) {
 
                         // Check if canceled.
-                        if (power != null && power.isInteractive()) {
+                        if (power != null && (finalDoNotCleatWhenInter && power.isInteractive())) {
                             XPosedLog.wtf("isInteractive, skip clearing");
                             return cleared;
                         }
@@ -2286,7 +2293,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         }
 
                         // Clearing using kill command.
-                        if (power != null && power.isInteractive()) {
+                        if (power != null && (finalDoNotCleatWhenInter && power.isInteractive())) {
                             XPosedLog.wtf("isInteractive, skip clearing");
                             return cleared;
                         }

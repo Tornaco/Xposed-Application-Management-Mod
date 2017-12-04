@@ -14,7 +14,7 @@
         android:name=".xposed.XApp"
         android:allowBackup="true"
         android:allowClearUserData="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppThemeLight">
@@ -246,6 +246,24 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
+
+        <service
+            android:name=".service.WidgetService"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="tornaco.appwidget.action.clear_process" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
+        <receiver android:name=".ui.appwidget.ClearProcessAppWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/appwidget_info" />
+        </receiver>
 
     </application>
 

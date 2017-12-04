@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:initialLayout="@layout/appwidget_clear_process"
+    android:minHeight="48dp"
+    android:minWidth="48dp"
+    android:minResizeHeight="30dp"
+    android:minResizeWidth="30dp"
+    android:updatePeriodMillis="90000000"
+    android:previewImage="@mipmap/ic_clear_process"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen|keyguard">
+
+</appwidget-provider>

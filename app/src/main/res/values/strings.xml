@@ -91,6 +91,7 @@
     <string name="title_app_lock_kill">锁屏清理应用</string>
     <string name="title_app_rf_kill">应用后台限制</string>
     <string name="clear_process">清理内存</string>
+    <string name="clear_process_complete">清理了个%1$s应用，已达最佳状态</string>
 
     <string name="summary_app_guard">以下应用在启动时需要经过密码验证。</string>
 

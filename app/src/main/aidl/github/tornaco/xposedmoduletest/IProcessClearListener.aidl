@@ -4,6 +4,7 @@ package github.tornaco.xposedmoduletest;
 // Declare any non-default types here with import statements
 
 interface IProcessClearListener {
+    boolean doNotClearWhenIntervative();
     void onPrepareClearing();
     void onStartClearing(int plan);
     void onClearingPkg(String pkg);
