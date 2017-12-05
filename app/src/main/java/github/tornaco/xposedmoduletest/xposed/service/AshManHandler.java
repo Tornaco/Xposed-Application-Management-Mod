@@ -40,9 +40,9 @@ interface AshManHandler {
 
     void onScreenOn();
 
-    void restrictAppOnData(int uid, boolean restrict);
+    void restrictAppOnData(int uid, boolean restrict, boolean force);
 
-    void restrictAppOnWifi(int uid, boolean restrict);
+    void restrictAppOnWifi(int uid, boolean restrict, boolean force);
 
     /**
      * Set the enabled setting for a package component (activity, receiver, service, provider).

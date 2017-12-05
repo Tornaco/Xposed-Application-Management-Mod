@@ -1797,6 +1797,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private String mDataInterfaceName, mWifiInterfaceName;
 
+    private BroadcastReceiver mPendingDataRestrictReceiver;
+
     private SparseBooleanArray mPendingRestrictOnData = new SparseBooleanArray();
 
     @GuardedBy("mQuotaLock")
@@ -1813,7 +1815,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             File blacklistFile = new File(systemDir, "blacklist2");
 
             if (!blacklistFile.exists()) {
-                XPosedLog.wtf("initDataRestrictionBlackList, blacklistFile not found.");
+                XPosedLog.wtf("initDataRestrictionBlackList, blacklistFile not foun.@"
+                        + blacklistFile.getPath());
                 return;
             }
 
@@ -1847,7 +1850,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             File blacklistFile = new File(systemDir, "blacklist2");
 
             if (!blacklistFile.exists()) {
-                XPosedLog.wtf("initWifiRestrictionBlackList, blacklistFile not found.");
+                XPosedLog.wtf("initWifiRestrictionBlackList, blacklistFile not found@"
+                        + blacklistFile.getPath());
                 return;
             }
 
@@ -1871,6 +1875,27 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
         } catch (Throwable e) {
             XPosedLog.wtf("Fail initWifiRestrictionBlackList: " + e);
+        }
+    }
+
+    private void applyRestrictionBlackList() {
+        synchronized (mQuotaLock) {
+
+            int N = mDataBlacklist.size();
+            for (int i = 0; i < N; i++) {
+                int key = mDataBlacklist.keyAt(i);
+                boolean value = mDataBlacklist.valueAt(i);
+
+                restrictAppOnDataForce(key, value);
+            }
+
+            N = mWifiBlacklist.size();
+            for (int i = 0; i < N; i++) {
+                int key = mWifiBlacklist.keyAt(i);
+                boolean value = mWifiBlacklist.valueAt(i);
+
+                restrictAppOnWifiForce(key, value);
+            }
         }
     }
 
@@ -1900,7 +1925,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
                 File dataDir = Environment.getDataDirectory();
                 File systemDir = new File(dataDir, "system/tor/data_restrict/");
-                File blacklistFile = new File(systemDir, "blacklist");
+                File blacklistFile = new File(systemDir, "blacklist2");
 
                 FileUtil.writeString(json, blacklistFile.getPath());
             } catch (Throwable e) {
@@ -1935,7 +1960,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
                 File dataDir = Environment.getDataDirectory();
                 File systemDir = new File(dataDir, "system/tor/wifi_restrict/");
-                File blacklistFile = new File(systemDir, "blacklist");
+                File blacklistFile = new File(systemDir, "blacklist2");
 
                 FileUtil.writeString(json, blacklistFile.getPath());
             } catch (Throwable e) {
@@ -1956,6 +1981,38 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         initDataRestrictionBlackList();
         initWifiRestrictionBlackList();
+
+        applyRestrictionBlackList();
+
+        // Note: processPendingDataRestrictRequests() will unregister
+        // mPendingDataRestrictReceiver once it has been able to determine
+        // the cellular network interface name.
+        mPendingDataRestrictReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                processPendingDataRestrictRequests();
+            }
+        };
+        final IntentFilter filter = new IntentFilter();
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        getContext().registerReceiver(mPendingDataRestrictReceiver, filter);
+    }
+
+    private void processPendingDataRestrictRequests() {
+        initDataInterface();
+        if (TextUtils.isEmpty(mDataInterfaceName)) {
+            return;
+        }
+        if (mPendingDataRestrictReceiver != null) {
+            getContext().unregisterReceiver(mPendingDataRestrictReceiver);
+            mPendingDataRestrictReceiver = null;
+        }
+        int count = mPendingRestrictOnData.size();
+        for (int i = 0; i < count; i++) {
+            restrictAppOnData(mPendingRestrictOnData.keyAt(i),
+                    mPendingRestrictOnData.valueAt(i));
+        }
+        mPendingRestrictOnData.clear();
     }
 
     private void initDataInterface() {
@@ -1975,19 +2032,31 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void restrictAppOnData(int uid, boolean restrict) throws RemoteException {
+    public void restrictAppOnData(int uid, boolean restrict) {
         XPosedLog.debug("NMS restrictAppOnData: " + uid + ", restrict: " + restrict);
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONDATA, uid, uid, restrict)
+        h.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONDATA, uid, -1, restrict)
+                .sendToTarget();
+    }
+
+    private void restrictAppOnDataForce(int uid, boolean restrict) {
+        XPosedLog.debug("NMS restrictAppOnDataForce: " + uid + ", restrict: " + restrict);
+        h.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONDATA, uid, 1, restrict)
                 .sendToTarget();
     }
 
     @Override
     @BinderCall
-    public void restrictAppOnWifi(int uid, boolean restrict) throws RemoteException {
+    public void restrictAppOnWifi(int uid, boolean restrict) {
         XPosedLog.debug("NMS restrictAppOnWifi: " + uid + ", restrict: " + restrict);
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONWIFI, uid, uid, restrict)
+        h.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONWIFI, uid, -1, restrict)
+                .sendToTarget();
+    }
+
+    private void restrictAppOnWifiForce(int uid, boolean restrict) {
+        XPosedLog.debug("NMS restrictAppOnWifiForce: " + uid + ", restrict: " + restrict);
+        h.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONWIFI, uid, 1, restrict)
                 .sendToTarget();
     }
 
@@ -2367,10 +2436,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     HandlerImpl.this.setNetworkPolicyUidPolicy(msg.arg1, msg.arg2);
                     break;
                 case AshManHandlerMessages.MSG_RESTRICTAPPONDATA:
-                    HandlerImpl.this.restrictAppOnData(msg.arg1, (Boolean) msg.obj);
+                    HandlerImpl.this.restrictAppOnData(msg.arg1, (Boolean) msg.obj, msg.arg2 == 1);
                     break;
                 case AshManHandlerMessages.MSG_RESTRICTAPPONWIFI:
-                    HandlerImpl.this.restrictAppOnWifi(msg.arg1, (Boolean) msg.obj);
+                    HandlerImpl.this.restrictAppOnWifi(msg.arg1, (Boolean) msg.obj, msg.arg2 == 1);
                     break;
             }
         }
@@ -2604,7 +2673,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         };
 
         @Override
-        public void restrictAppOnData(int uid, boolean restrict) {
+        public void restrictAppOnData(int uid, boolean restrict, boolean force) {
             initDataInterface();
 
             if (TextUtils.isEmpty(mDataInterfaceName)) {
@@ -2614,7 +2683,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 return;
             }
 
-            synchronized (mQuotaLock) {
+            if (!force) synchronized (mQuotaLock) {
                 boolean oldValue = mDataBlacklist.get(uid, false);
                 if (oldValue == restrict) {
                     return;
@@ -2626,12 +2695,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         uid, restrict, mDataInterfaceName);
                 XPosedLog.debug("NativeDaemonConnector execute success: " + success);
 
-                if (success) {
-                    synchronized (mQuotaLock) {
+                synchronized (mQuotaLock) {
+                    if (success) {
                         mDataBlacklist.put(uid, restrict);
+                        mWorkingService.execute(writeDataRestrictionRunnable);
+                    } else {
+                        mDataBlacklist.delete(uid);
                     }
-
-                    mWorkingService.execute(writeDataRestrictionRunnable);
                 }
             } catch (Exception e) {
                 XPosedLog.wtf("Fail restrictAppOnData: " + Log.getStackTraceString(e));
@@ -2639,8 +2709,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         @Override
-        public void restrictAppOnWifi(int uid, boolean restrict) {
-            synchronized (mQuotaLock) {
+        public void restrictAppOnWifi(int uid, boolean restrict, boolean force) {
+
+            if (!force) synchronized (mQuotaLock) {
                 boolean oldValue = mWifiBlacklist.get(uid, false);
                 if (oldValue == restrict) {
                     return;
@@ -2652,11 +2723,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         restrict, mWifiInterfaceName);
                 XPosedLog.debug("NativeDaemonConnector execute success: " + success);
 
-                if (success) {
-                    synchronized (mQuotaLock) {
+                synchronized (mQuotaLock) {
+                    if (success) {
                         mWifiBlacklist.put(uid, restrict);
+                        mWorkingService.execute(writeWifiRestrictionRunnable);
+                    } else {
+                        mWifiBlacklist.delete(uid);
                     }
-                    mWorkingService.execute(writeWifiRestrictionRunnable);
                 }
 
             } catch (Exception e) {

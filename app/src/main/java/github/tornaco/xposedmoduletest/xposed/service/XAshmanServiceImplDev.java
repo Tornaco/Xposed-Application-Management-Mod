@@ -50,6 +50,16 @@ public class XAshmanServiceImplDev extends XAshmanServiceImpl {
     }
 
     @Override
+    public void onNetWorkManagementServiceReady(final NativeDaemonConnector connector) {
+        makeSafeCall(new Call() {
+            @Override
+            public void onCall() throws Throwable {
+                XAshmanServiceImplDev.super.onNetWorkManagementServiceReady(connector);
+            }
+        });
+    }
+
+    @Override
     public void retrieveSettings() {
         makeSafeCall(new Call() {
             @Override

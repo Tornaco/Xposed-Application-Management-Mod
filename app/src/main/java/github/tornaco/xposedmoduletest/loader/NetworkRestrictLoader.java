@@ -69,6 +69,10 @@ public interface NetworkRestrictLoader {
                     continue;
                 }
 
+                if ("android.uid.system".equals(packageInfo.sharedUserId)) {
+                    continue;
+                }
+
                 // Check if app file exists.
                 String appPath = PkgUtil.pathOf(context, packageInfo.packageName);
                 if (appPath == null) continue;
@@ -79,6 +83,8 @@ public interface NetworkRestrictLoader {
                 if (isSystemApp && !showSystemApp) continue;
 
                 int uid = PkgUtil.uidForPkg(context, packageInfo.packageName);
+
+                if (uid == 1000) continue;// This is core system uid, ignore.
 
                 NetworkRestrictionItem item = new NetworkRestrictionItem();
                 item.setSystemApp(isSystemApp);

@@ -1,14 +1,17 @@
 package github.tornaco.xposedmoduletest.ui.activity.nf;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -17,14 +20,17 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.NetworkRestrictLoader;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.NetworkRestrictListAdapter;
+import github.tornaco.xposedmoduletest.util.SpannableUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 
 public class NetworkRestrictActivity extends BaseActivity {
@@ -63,6 +69,61 @@ public class NetworkRestrictActivity extends BaseActivity {
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+
+        setTitle(R.string.title_nf);
+
+        setSummaryView();
+
+        showAlertDialog();
+    }
+
+    private void showAlertDialog() {
+        int normalColor = ContextCompat.getColor(getActivity(), R.color.white);
+        int highlightColor = ContextCompat.getColor(getActivity(), R.color.amber);
+        int strId = R.string.summary_nf;
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.title_nf_warn)
+                .setMessage(SpannableUtil.buildHighLightString(getActivity(), normalColor, highlightColor, strId))
+                .setCancelable(false)
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setPositiveButton(android.R.string.ok, null)
+                .show();
+    }
+
+    protected void setSummaryView() {
+        String who = getClass().getSimpleName();
+        boolean showInfo = AppSettings.isShowInfoEnabled(this, who);
+        TextView textView = findViewById(R.id.summary);
+        if (!showInfo) {
+            textView.setVisibility(View.GONE);
+        } else {
+            int normalColor = ContextCompat.getColor(getActivity(), R.color.white);
+            int highlightColor = ContextCompat.getColor(getActivity(), R.color.amber);
+            int strId = R.string.summary_nf;
+            textView.setText(SpannableUtil.buildHighLightString(getActivity(), normalColor, highlightColor, strId));
+            textView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_activity_network_restrict, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_info) {
+            String who = getClass().getSimpleName();
+            AppSettings.setShowInfo(this, who, !AppSettings.isShowInfoEnabled(this, who));
+            setSummaryView();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private static final int INDEX_DATA = 0;
@@ -136,7 +197,7 @@ public class NetworkRestrictActivity extends BaseActivity {
         @Override
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
             super.onCreateOptionsMenu(menu, inflater);
-            inflater.inflate(R.menu.menu_network_restrict, menu);
+            inflater.inflate(R.menu.menu_fragment_network_restrict, menu);
         }
 
         @Override
