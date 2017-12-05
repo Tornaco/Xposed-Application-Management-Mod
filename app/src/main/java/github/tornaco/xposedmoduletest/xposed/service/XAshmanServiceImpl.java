@@ -19,6 +19,7 @@ import android.net.LinkProperties;
 import android.net.NetworkPolicyManager;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -37,7 +38,6 @@ import android.view.inputmethod.InputMethodManager;
 import com.android.internal.os.Zygote;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -80,6 +80,9 @@ import github.tornaco.xposedmoduletest.provider.RFKillPackageProvider;
 import github.tornaco.xposedmoduletest.util.ComponentUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
+import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
+import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestrictionList;
+import github.tornaco.xposedmoduletest.xposed.service.bandwidth.BandwidthCommandCompat;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.util.Closer;
 import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
@@ -93,6 +96,9 @@ import lombok.ToString;
 
 import static android.content.Context.CONTEXT_IGNORE_SECURITY;
 import static android.content.Context.INPUT_METHOD_SERVICE;
+import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_NONE;
+import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_ON_DATA;
+import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_ON_WIFI;
 
 /**
  * Created by guohao4 on 2017/11/9.
@@ -1800,6 +1806,144 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private final Object mQuotaLock = new Object();
 
+    private void initDataRestrictionBlackList() {
+        try {
+            File dataDir = Environment.getDataDirectory();
+            File systemDir = new File(dataDir, "system/tor/data_restrict/");
+            File blacklistFile = new File(systemDir, "blacklist2");
+
+            if (!blacklistFile.exists()) {
+                XPosedLog.wtf("initDataRestrictionBlackList, blacklistFile not found.");
+                return;
+            }
+
+            NetworkRestrictionList networkRestrictionList
+                    = NetworkRestrictionList.fromJson(FileUtil.readString(blacklistFile.getPath()));
+            XPosedLog.debug("initDataRestrictionBlackList, networkRestrictionList: " + networkRestrictionList);
+            if (networkRestrictionList == null) return;
+
+            List<NetworkRestriction> restrictionList = networkRestrictionList.getRestrictionList();
+            if (Collections.isNullOrEmpty(restrictionList)) return;
+
+            synchronized (mQuotaLock) {
+                Collections.consumeRemaining(restrictionList, new Consumer<NetworkRestriction>() {
+                    @Override
+                    public void accept(NetworkRestriction networkRestriction) {
+                        mDataBlacklist.put(networkRestriction.getUid(),
+                                (networkRestriction.getRestrictPolicy() & POLICY_REJECT_ON_DATA) != 0);
+                        XPosedLog.verbose("Put uid networkRestriction: " + networkRestriction);
+                    }
+                });
+            }
+        } catch (Throwable e) {
+            XPosedLog.wtf("Fail initDataRestrictionBlackList: " + e);
+        }
+    }
+
+    private void initWifiRestrictionBlackList() {
+        try {
+            File dataDir = Environment.getDataDirectory();
+            File systemDir = new File(dataDir, "system/tor/wifi_restrict/");
+            File blacklistFile = new File(systemDir, "blacklist2");
+
+            if (!blacklistFile.exists()) {
+                XPosedLog.wtf("initWifiRestrictionBlackList, blacklistFile not found.");
+                return;
+            }
+
+            NetworkRestrictionList networkRestrictionList
+                    = NetworkRestrictionList.fromJson(FileUtil.readString(blacklistFile.getPath()));
+            XPosedLog.debug("initWifiRestrictionBlackList, networkRestrictionList: " + networkRestrictionList);
+            if (networkRestrictionList == null) return;
+
+            List<NetworkRestriction> restrictionList = networkRestrictionList.getRestrictionList();
+            if (Collections.isNullOrEmpty(restrictionList)) return;
+
+            synchronized (mQuotaLock) {
+                Collections.consumeRemaining(restrictionList, new Consumer<NetworkRestriction>() {
+                    @Override
+                    public void accept(NetworkRestriction networkRestriction) {
+                        mWifiBlacklist.put(networkRestriction.getUid(),
+                                (networkRestriction.getRestrictPolicy() & POLICY_REJECT_ON_WIFI) != 0);
+                        XPosedLog.verbose("Put uid networkRestriction: " + networkRestriction);
+                    }
+                });
+            }
+        } catch (Throwable e) {
+            XPosedLog.wtf("Fail initWifiRestrictionBlackList: " + e);
+        }
+    }
+
+    @InternalCall
+    private void writeDataRestrictionBlackList() {
+        synchronized (mQuotaLock) {
+
+            try {
+                NetworkRestrictionList list = new NetworkRestrictionList();
+                List<NetworkRestriction> restrictionList = new ArrayList<>();
+
+                int N = mDataBlacklist.size();
+                for (int i = 0; i < N; i++) {
+                    int key = mDataBlacklist.keyAt(i);
+                    boolean value = mDataBlacklist.valueAt(i);
+                    NetworkRestriction n = new NetworkRestriction();
+                    n.setUid(key);
+                    n.setRestrictPolicy(value ? POLICY_REJECT_ON_DATA : POLICY_REJECT_NONE);
+
+                    restrictionList.add(n);
+                }
+
+                list.setRestrictionList(restrictionList);
+                String json = list.toJson();
+
+                XPosedLog.verbose("writeDataRestrictionBlackList, js: " + json);
+
+                File dataDir = Environment.getDataDirectory();
+                File systemDir = new File(dataDir, "system/tor/data_restrict/");
+                File blacklistFile = new File(systemDir, "blacklist");
+
+                FileUtil.writeString(json, blacklistFile.getPath());
+            } catch (Throwable e) {
+                XPosedLog.wtf("Fail writeDataRestrictionBlackList: " + Log.getStackTraceString(e));
+            }
+        }
+    }
+
+    @InternalCall
+    private void writeWifiRestrictionBlackList() {
+        synchronized (mQuotaLock) {
+
+            try {
+                NetworkRestrictionList list = new NetworkRestrictionList();
+                List<NetworkRestriction> restrictionList = new ArrayList<>();
+
+                int N = mWifiBlacklist.size();
+                for (int i = 0; i < N; i++) {
+                    int key = mWifiBlacklist.keyAt(i);
+                    boolean value = mWifiBlacklist.valueAt(i);
+                    NetworkRestriction n = new NetworkRestriction();
+                    n.setUid(key);
+                    n.setRestrictPolicy(value ? POLICY_REJECT_ON_WIFI : POLICY_REJECT_NONE);
+
+                    restrictionList.add(n);
+                }
+
+                list.setRestrictionList(restrictionList);
+                String json = list.toJson();
+
+                XPosedLog.verbose("writeWifiRestrictionBlackList, js: " + json);
+
+                File dataDir = Environment.getDataDirectory();
+                File systemDir = new File(dataDir, "system/tor/wifi_restrict/");
+                File blacklistFile = new File(systemDir, "blacklist");
+
+                FileUtil.writeString(json, blacklistFile.getPath());
+            } catch (Throwable e) {
+                XPosedLog.wtf("Fail writeDataRestrictionBlackList: " + Log.getStackTraceString(e));
+            }
+        }
+    }
+
     @Override
     @InternalCall
     public void onNetWorkManagementServiceReady(NativeDaemonConnector connector) {
@@ -1809,6 +1953,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         XPosedLog.debug("NMS mWifiInterfaceName: " + mWifiInterfaceName);
 
         initDataInterface();
+
+        initDataRestrictionBlackList();
+        initWifiRestrictionBlackList();
     }
 
     private void initDataInterface() {
@@ -1843,6 +1990,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         h.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONWIFI, uid, uid, restrict)
                 .sendToTarget();
     }
+
+    @Override
+    @BinderCall
+    public boolean isRestrictOnData(int uid) throws RemoteException {
+        enforceCallingPermissions();
+        return mDataBlacklist.get(uid);
+    }
+
+    @Override
+    @BinderCall
+    public boolean isRestrictOnWifi(int uid) throws RemoteException {
+        enforceCallingPermissions();
+        return mWifiBlacklist.get(uid);
+    }
+
 
     // NMS API END.
 
@@ -2426,6 +2588,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             cancelProcessClearing("SCREEN ON");
         }
 
+
+        private Runnable writeDataRestrictionRunnable = new Runnable() {
+            @Override
+            public void run() {
+                writeDataRestrictionBlackList();
+            }
+        };
+
+        private Runnable writeWifiRestrictionRunnable = new Runnable() {
+            @Override
+            public void run() {
+                writeWifiRestrictionBlackList();
+            }
+        };
+
         @Override
         public void restrictAppOnData(int uid, boolean restrict) {
             initDataInterface();
@@ -2442,14 +2619,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 if (oldValue == restrict) {
                     return;
                 }
-                mDataBlacklist.put(uid, restrict);
             }
 
             try {
-                final String action = restrict ? "add" : "remove";
-                mNativeDaemonConnector.execute("bandwidth", action + "restrictappsondata",
-                        mDataInterfaceName, uid);
-            } catch (NativeDaemonConnector.NativeDaemonConnectorException e) {
+                boolean success = BandwidthCommandCompat.restrictAppOnData(mNativeDaemonConnector,
+                        uid, restrict, mDataInterfaceName);
+                XPosedLog.debug("NativeDaemonConnector execute success: " + success);
+
+                if (success) {
+                    synchronized (mQuotaLock) {
+                        mDataBlacklist.put(uid, restrict);
+                    }
+
+                    mWorkingService.execute(writeDataRestrictionRunnable);
+                }
+            } catch (Exception e) {
                 XPosedLog.wtf("Fail restrictAppOnData: " + Log.getStackTraceString(e));
             }
         }
@@ -2461,15 +2645,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 if (oldValue == restrict) {
                     return;
                 }
-                mWifiBlacklist.put(uid, restrict);
             }
 
             try {
-                final String action = restrict ? "add" : "remove";
-                mNativeDaemonConnector.execute("bandwidth", action + "restrictappsonwlan",
-                        mWifiInterfaceName, uid);
-                XPosedLog.debug("mNativeDaemonConnector execute success.");
-            } catch (NativeDaemonConnector.NativeDaemonConnectorException e) {
+                boolean success = BandwidthCommandCompat.restrictAppOnWifi(mNativeDaemonConnector, uid,
+                        restrict, mWifiInterfaceName);
+                XPosedLog.debug("NativeDaemonConnector execute success: " + success);
+
+                if (success) {
+                    synchronized (mQuotaLock) {
+                        mWifiBlacklist.put(uid, restrict);
+                    }
+                    mWorkingService.execute(writeWifiRestrictionRunnable);
+                }
+
+            } catch (Exception e) {
                 XPosedLog.wtf("Fail restrictAppOnWifi: " + Log.getStackTraceString(e));
             }
         }
@@ -2550,25 +2740,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         private final Holder<String> mTopPackage = new Holder<>();
 
-//        private StringListStorage mCompSettingPkgs;
-
-        LazyHandler(Looper looper) {
+        public LazyHandler(Looper looper) {
             super(looper);
-
-//            try {
-//                File dataDir = Environment.getDataDirectory();
-//                File systemDir = new File(dataDir, "system/tor/apm/");
-//                File compStorageFile = new File(systemDir, "comp_setting_uids.config");
-//                mCompSettingPkgs = new StringListStorage(compStorageFile.getPath());
-//                XPosedLog.verbose("StringListStorage: " + mCompSettingPkgs);
-//            } catch (Throwable e) {
-//                XPosedLog.wtf("Fail init StringListStorage: " + e);
-//            }
         }
-
-//        public boolean isCompSettingByUs(String pkg) {
-//            return mCompSettingPkgs != null && mCompSettingPkgs.contains(pkg);
-//        }
 
         @Override
         public void onActivityDestroy(Intent intent) {
@@ -2709,105 +2883,5 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Setter
     private abstract class SignalCallable<V> implements Callable<V> {
         boolean canceled = false;
-    }
-
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @ToString
-    private class StringList {
-        private List<String> uids;
-
-        private boolean contains(String str) {
-            return uids != null && uids.contains(str);
-        }
-
-        public void add(String str) {
-            if (uids == null) {
-                uids = new ArrayList<>();
-            }
-            uids.add(str);
-            XPosedLog.verbose("StringList Adding: " + str);
-        }
-
-        public void remove(String s) {
-            XPosedLog.verbose("StringList Remove: " + s);
-            if (uids == null) {
-                uids = new ArrayList<>();
-                return;
-            }
-            uids.remove(s);
-        }
-    }
-
-    @ToString
-    private class StringListStorage {
-
-        @Getter
-        private StringList stringList;
-
-        private String filePath;
-
-        StringListStorage(String filePath) {
-            this.filePath = filePath;
-            asyncRead();
-        }
-
-        public boolean contains(String s) {
-            return stringList != null && stringList.contains(s);
-        }
-
-        public void add(String s) {
-            if (stringList == null) {
-                stringList = new StringList(new ArrayList<String>());
-            }
-            stringList.add(s);
-            asyncWrite();
-        }
-
-        public void remove(String s) {
-            if (stringList == null) {
-                return;
-            }
-            stringList.remove(s);
-            asyncWrite();
-        }
-
-        void asyncRead() {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized (StringListStorage.this) {
-                        try {
-                            File file = new File(filePath);
-                            if (!file.exists()) return;
-                            String content = FileUtil.readString(filePath);
-                            XPosedLog.verbose("StringListStorage, content: " + content);
-                            stringList = new Gson()
-                                    .fromJson(content, StringList.class);
-                        } catch (Exception e) {
-                            XPosedLog.wtf("StringListStorage asyncRead error: " + e);
-                        }
-                    }
-                }
-            }).start();
-        }
-
-        void asyncWrite() {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized (StringListStorage.this) {
-                        if (stringList == null) return;
-                        try {
-                            String content = new Gson().toJson(stringList);
-                            FileUtil.writeString(content, filePath);
-                        } catch (Exception e) {
-                            XPosedLog.wtf("StringListStorage asyncWrite error: " + e);
-                        }
-                    }
-                }
-            }).start();
-        }
     }
 }

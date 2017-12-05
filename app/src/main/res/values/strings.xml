@@ -128,6 +128,8 @@
     <string name="tab_text_1">服务</string>
     <string name="tab_text_2">广播</string>
     <string name="tab_text_3">活动</string>
+    <string name="nf_tab_text_1">移动数据</string>
+    <string name="nf_tab_text_2">WIFI</string>
     <string name="summary_service_info_process"><b>进程：</b>%1$s</string>
     <string name="summary_service_info_comp">%1$s</string>
     <string name="summary_service_info_comp_maybe_ad">疑似广告</string>
@@ -273,5 +275,7 @@
     <string name="title_select_all">选择全部</string>
     <string name="title_comp_export_apk">APK另存为</string>
     <string name="err_file_not_found">文件不存在</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="title_nf">网络控制</string>
 
 </resources>

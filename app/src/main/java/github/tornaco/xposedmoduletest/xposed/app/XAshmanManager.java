@@ -25,6 +25,20 @@ import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 
 public class XAshmanManager {
 
+    /**
+     * Reject application network traffic on wifi network
+     **/
+    public static final int POLICY_REJECT_ON_WIFI = 0x8000;
+    /**
+     * Reject application network traffic on cellular network
+     **/
+    public static final int POLICY_REJECT_ON_DATA = 0x10000;
+
+    /**
+     * Reject none.
+     **/
+    public static final int POLICY_REJECT_NONE = 0;
+
     public interface Op {
         int ADD = 0x1;
         int REMOVE = 0x2;
@@ -464,6 +478,24 @@ public class XAshmanManager {
             mService.restrictAppOnWifi(uid, restrict);
         } catch (RemoteException e) {
             Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public boolean isRestrictOnData(int uid) {
+        try {
+            return mService.isRestrictOnData(uid);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return false;
+        }
+    }
+
+    public boolean isRestrictOnWifi(int uid) {
+        try {
+            return mService.isRestrictOnWifi(uid);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return false;
         }
     }
 }

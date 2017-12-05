@@ -61,6 +61,9 @@ interface IAshmanService {
     void restrictAppOnData(int uid, boolean restrict);
     void restrictAppOnWifi(int uid, boolean restrict);
 
+    boolean isRestrictOnData(int uid);
+    boolean isRestrictOnWifi(int uid);
+
     // Power API.
     void restart();
 

@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="github.tornaco.xposedmoduletest.ui.activity.nf.NetworkRestrictActivity">
+    <item
+        android:id="@+id/show_system_app"
+        android:checkable="true"
+        android:checked="false"
+        android:title="@string/title_show_system_app" />
+
+</menu>

@@ -26,12 +26,13 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.os.PowerManagerCompat;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.app.AppDashboardActivity;
-import github.tornaco.xposedmoduletest.ui.tiles.ag.AppBoot;
-import github.tornaco.xposedmoduletest.ui.tiles.ag.AppGuard;
-import github.tornaco.xposedmoduletest.ui.tiles.ag.AppStart;
-import github.tornaco.xposedmoduletest.ui.tiles.ag.ComponentManager;
-import github.tornaco.xposedmoduletest.ui.tiles.ag.LockKill;
-import github.tornaco.xposedmoduletest.ui.tiles.ag.RFKill;
+import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
+import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
+import github.tornaco.xposedmoduletest.ui.tiles.AppStart;
+import github.tornaco.xposedmoduletest.ui.tiles.ComponentManager;
+import github.tornaco.xposedmoduletest.ui.tiles.LockKill;
+import github.tornaco.xposedmoduletest.ui.tiles.NFManager;
+import github.tornaco.xposedmoduletest.ui.tiles.RFKill;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import lombok.Getter;
@@ -183,6 +184,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
             Category ash = new Category();
             ash.titleRes = R.string.title_control;
             ash.addTile(new ComponentManager(getActivity()));
+            ash.addTile(new NFManager(getActivity()));
 
             categories.add(category);
             categories.add(rest);

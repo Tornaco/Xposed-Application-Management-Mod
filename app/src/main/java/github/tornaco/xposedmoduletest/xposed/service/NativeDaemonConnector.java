@@ -3,7 +3,10 @@ package github.tornaco.xposedmoduletest.xposed.service;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 
+import java.util.Arrays;
+
 import de.robv.android.xposed.XposedHelpers;
+import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
 
@@ -20,6 +23,7 @@ public class NativeDaemonConnector {
 
     public void execute(String command, Object... args)
             throws NativeDaemonConnectorException {
+        XPosedLog.verbose("NativeDaemonConnector, execute: " + command + Arrays.toString(args));
         try {
             XposedHelpers.callMethod(connectObject, "execute", command, args);
         } catch (Throwable e) {

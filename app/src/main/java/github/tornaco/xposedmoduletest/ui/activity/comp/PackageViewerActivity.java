@@ -6,7 +6,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.net.NetworkPolicyManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -115,14 +114,6 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
                         break;
                     case R.id.action_comp_edit:
                         ComponentEditorActivity.start(getActivity(), packageInfo.getPkgName());
-                        // FIXME!!!
-                        XAshmanManager.singleInstance().restrictAppOnWifi(
-                                PkgUtil.uidForPkg(getContext(), packageInfo.getPkgName()),
-                                true);
-
-                        XAshmanManager.singleInstance().restrictAppOnData(
-                                PkgUtil.uidForPkg(getContext(), packageInfo.getPkgName()),
-                                true);
                         break;
                     case R.id.action_comp_uninstall:
 

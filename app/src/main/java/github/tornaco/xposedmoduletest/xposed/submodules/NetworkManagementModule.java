@@ -17,7 +17,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
  */
 
 // Hook hookNMSSystemReady settings.
-class NMSModule extends IntentFirewallAndroidSubModule {
+class NetworkManagementModule extends IntentFirewallAndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {

@@ -42,7 +42,7 @@ public class XApp extends Application implements Runnable {
         xApp = this;
         Logger.config(Settings.builder().tag("X-APM-C")
                 .logLevel(XSettings.isDevMode(this)
-                        ? Logger.LogLevel.VERBOSE : Logger.LogLevel.WARN)
+                        ? Logger.LogLevel.DEBUG : Logger.LogLevel.WARN)
                 .build());
         BinderInternal.addGcWatcher(this);
 
