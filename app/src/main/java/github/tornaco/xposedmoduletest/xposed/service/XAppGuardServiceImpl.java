@@ -168,7 +168,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     private void construct() {
         mServiceHandler = onCreateServiceHandler();
-        XPosedLog.verbose("construct, mServiceHandler: " + mServiceHandler + " -" + serial());
+        if (XPosedLog.isVerboseLoggable())
+            XPosedLog.verbose("construct, mServiceHandler: " + mServiceHandler + " -" + serial());
         mPackageManager = getContext().getPackageManager();
     }
 
@@ -188,7 +189,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             public boolean once() {
                 ValueExtra<Boolean, String> res = readPackageProvider();
                 String extra = res.getExtra();
-                XPosedLog.verbose("readPackageProvider, extra: " + extra);
+                if (XPosedLog.isVerboseLoggable())
+                    XPosedLog.verbose("readPackageProvider, extra: " + extra);
                 return res.getValue();
             }
         }, new Runnable() {
@@ -198,7 +200,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                     @Override
                     public boolean once() {
                         ValueExtra<Boolean, String> res = registerPackageObserver();
-                        XPosedLog.verbose("registerPackageObserver, extra: " + res.getExtra());
+                        if (XPosedLog.isVerboseLoggable())
+                            XPosedLog.verbose("registerPackageObserver, extra: " + res.getExtra());
                         return res.getValue();
                     }
                 });
@@ -237,11 +240,16 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             mBlurSettings = BlurSettings.from(Settings.System.getString(resolver, BlurSettings.KEY_SETTINGS));
             mVerifySettings = VerifySettings.from(Settings.System.getString(resolver, VerifySettings.KEY_SETTINGS));
 
-            XPosedLog.verbose("mBlurSettings: " + String.valueOf(mBlurSettings));
-            XPosedLog.verbose("mVerifySettings: " + String.valueOf(mVerifySettings));
-            XPosedLog.verbose("mUninstallProEnabled: " + String.valueOf(mUninstallProEnabled));
-            XPosedLog.verbose("mInterruptFPSuccessVB: " + String.valueOf(mInterruptFPSuccessVB));
-            XPosedLog.verbose("mEnabled: " + String.valueOf(mEnabled));
+            if (XPosedLog.isVerboseLoggable())
+                XPosedLog.verbose("mBlurSettings: " + String.valueOf(mBlurSettings));
+            if (XPosedLog.isVerboseLoggable())
+                XPosedLog.verbose("mVerifySettings: " + String.valueOf(mVerifySettings));
+            if (XPosedLog.isVerboseLoggable())
+                XPosedLog.verbose("mUninstallProEnabled: " + String.valueOf(mUninstallProEnabled));
+            if (XPosedLog.isVerboseLoggable())
+                XPosedLog.verbose("mInterruptFPSuccessVB: " + String.valueOf(mInterruptFPSuccessVB));
+            if (XPosedLog.isVerboseLoggable())
+                XPosedLog.verbose("mEnabled: " + String.valueOf(mEnabled));
         } catch (Throwable e) {
             XPosedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -345,12 +353,14 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     public boolean interruptPackageRemoval(String pkg) {
         boolean enabled = isUninstallInterruptEnabled();
         if (!enabled) {
-            XPosedLog.verbose("interruptPackageRemoval false: not enabled.");
+            if (XPosedLog.isVerboseLoggable())
+                XPosedLog.verbose("interruptPackageRemoval false: not enabled.");
             return false;
         }
         boolean confirm = onInterruptConfirm(pkg);
         if (!confirm) {
-            XPosedLog.verbose("interruptPackageRemoval false: not confirmed.");
+            if (XPosedLog.isVerboseLoggable())
+                XPosedLog.verbose("interruptPackageRemoval false: not confirmed.");
             return false;
         }
         return true;
@@ -378,29 +388,35 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     private boolean onInterruptConfirm(String pkg) {
         if (pkg == null) {
-            XPosedLog.verbose("onEarlyVerifyConfirm, false@pkg-null");
+            if (XPosedLog.isVerboseLoggable())
+                XPosedLog.verbose("onEarlyVerifyConfirm, false@pkg-null");
             return false;
         }
         if (mIsSafeMode) {
-            XPosedLog.verbose("onEarlyVerifyConfirm, false@safe-mode:" + pkg);
+            if (XPosedLog.isVerboseLoggable())
+                XPosedLog.verbose("onEarlyVerifyConfirm, false@safe-mode:" + pkg);
             return false;
         }
         if (!mEnabled.get()) {
-            XPosedLog.verbose("onEarlyVerifyConfirm, false@disabled:" + pkg);
+            if (XPosedLog.isVerboseLoggable())
+                XPosedLog.verbose("onEarlyVerifyConfirm, false@disabled:" + pkg);
             return false;
         }
         if (PREBUILT_WHITE_LIST.contains(pkg)) {
-            XPosedLog.verbose("onEarlyVerifyConfirm, false@prebuilt-w-list:" + pkg);
+            if (XPosedLog.isVerboseLoggable())
+                XPosedLog.verbose("onEarlyVerifyConfirm, false@prebuilt-w-list:" + pkg);
             return false;
         } // White list.
 
         PackageInfo p = mGuardPackages.get(pkg);
         if (p == null) {
-            XPosedLog.verbose("onEarlyVerifyConfirm, false@not-in-guard-list:" + pkg);
+            if (XPosedLog.isVerboseLoggable())
+                XPosedLog.verbose("onEarlyVerifyConfirm, false@not-in-guard-list:" + pkg);
             return false;
         }
         if (!p.getGuard()) {
-            XPosedLog.verbose("onEarlyVerifyConfirm, false@not-in-guard-value-list:" + pkg);
+            if (XPosedLog.isVerboseLoggable())
+                XPosedLog.verbose("onEarlyVerifyConfirm, false@not-in-guard-value-list:" + pkg);
             return false;
         }
 
@@ -410,33 +426,40 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Override
     public boolean onEarlyVerifyConfirm(String pkg) {
         if (pkg == null) {
-            XPosedLog.verbose("onEarlyVerifyConfirm, false@pkg-null");
+            if (XPosedLog.isVerboseLoggable())
+                XPosedLog.verbose("onEarlyVerifyConfirm, false@pkg-null");
             return false;
         }
         if (mIsSafeMode) {
-            XPosedLog.verbose("onEarlyVerifyConfirm, false@safe-mode:" + pkg);
+            if (XPosedLog.isVerboseLoggable())
+                XPosedLog.verbose("onEarlyVerifyConfirm, false@safe-mode:" + pkg);
             return false;
         }
         if (!mEnabled.get()) {
-            XPosedLog.verbose("onEarlyVerifyConfirm, false@disabled:" + pkg);
+            if (XPosedLog.isVerboseLoggable())
+                XPosedLog.verbose("onEarlyVerifyConfirm, false@disabled:" + pkg);
             return false;
         }
         if (PREBUILT_WHITE_LIST.contains(pkg)) {
-            XPosedLog.verbose("onEarlyVerifyConfirm, false@prebuilt-w-list:" + pkg);
+            if (XPosedLog.isVerboseLoggable())
+                XPosedLog.verbose("onEarlyVerifyConfirm, false@prebuilt-w-list:" + pkg);
             return false;
         } // White list.
 
         if (mVerifiedPackages.contains(pkg)) {
-            XPosedLog.verbose("onEarlyVerifyConfirm, false@verified-list:" + pkg);
+            if (XPosedLog.isVerboseLoggable())
+                XPosedLog.verbose("onEarlyVerifyConfirm, false@verified-list:" + pkg);
             return false;
         } // Passed.
         PackageInfo p = mGuardPackages.get(pkg);
         if (p == null) {
-            XPosedLog.verbose("onEarlyVerifyConfirm, false@not-in-guard-list:" + pkg);
+            if (XPosedLog.isVerboseLoggable())
+                XPosedLog.verbose("onEarlyVerifyConfirm, false@not-in-guard-list:" + pkg);
             return false;
         }
         if (!p.getGuard()) {
-            XPosedLog.verbose("onEarlyVerifyConfirm, false@not-in-guard-value-list:" + pkg);
+            if (XPosedLog.isVerboseLoggable())
+                XPosedLog.verbose("onEarlyVerifyConfirm, false@not-in-guard-value-list:" + pkg);
             return false;
         }
 
@@ -446,7 +469,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Override
     @InternalCall
     public Intent checkIntent(Intent from) {
-        XPosedLog.verbose("checkIntent: " + from);
+        if (XPosedLog.isVerboseLoggable()) XPosedLog.verbose("checkIntent: " + from);
         return null;
     }
 
@@ -462,7 +485,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             XPosedLog.wtf("WTF? AppGuardServiceHandler is null?");
             return;
         }
-        XPosedLog.verbose("verifyInternal: " + pkg);
+        if (XPosedLog.isVerboseLoggable()) XPosedLog.verbose("verifyInternal: " + pkg);
         VerifyArgs args = VerifyArgs.builder()
                 .bnds(options)
                 .pid(pid)
@@ -478,7 +501,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Override
     @BinderCall(restrict = "hooks")
     public void onPackageMoveToFront(String who) {
-        XPosedLog.verbose("onPackageMoveToFront: " + who);
+        if (XPosedLog.isVerboseLoggable()) XPosedLog.verbose("onPackageMoveToFront: " + who);
         onActivityPackageResume(who);
     }
 
@@ -564,7 +587,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @Override
     public boolean isBlurForPkg(String pkg) {
-        XPosedLog.verbose("isBlurForPkg? " + mBlurSettings);
+        if (XPosedLog.isVerboseLoggable()) XPosedLog.verbose("isBlurForPkg? " + mBlurSettings);
         if (mBlurSettings == null || !mBlurSettings.isEnabled()) return false;
         int policy = mBlurSettings.getPolicy();
         switch (policy) {
@@ -609,14 +632,14 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Override
     public boolean interruptFPSuccessVibrate() {
         boolean isKeyguard = isDeviceLocked();
-        XPosedLog.verbose("Device is locked: " + isKeyguard);
+        if (XPosedLog.isVerboseLoggable()) XPosedLog.verbose("Device is locked: " + isKeyguard);
         return !isKeyguard && mInterruptFPSuccessVB.get();
     }
 
     @Override
     public boolean interruptFPErrorVibrate() {
         boolean isKeyguard = isDeviceLocked();
-        XPosedLog.verbose("Device is locked: " + isKeyguard);
+        if (XPosedLog.isVerboseLoggable()) XPosedLog.verbose("Device is locked: " + isKeyguard);
         return !isKeyguard && mInterruptFPERRORVB.get();
     }
 
@@ -761,7 +784,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     protected void enforceCallingPermissions() {
         int callingUID = Binder.getCallingUid();
-        XPosedLog.verbose("enforceCallingPermissions@uid:" + callingUID);
+        if (XPosedLog.isVerboseLoggable())
+            XPosedLog.verbose("enforceCallingPermissions@uid:" + callingUID);
         if (callingUID == android.os.Process.myUid() || (sClientUID > 0 && sClientUID == callingUID)) {
             return;
         }
@@ -773,7 +797,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         if (mVerifySettings != null) {
             boolean verifyOnScreenOff = mVerifySettings.isVerifyOnScreenOff();
             if (verifyOnScreenOff) {
-                XPosedLog.verbose("SCREEN OFF, Clearing passed pkgs...");
+                if (XPosedLog.isVerboseLoggable())
+                    XPosedLog.verbose("SCREEN OFF, Clearing passed pkgs...");
                 mVerifiedPackages.clear();
             }
         }
@@ -812,7 +837,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             int wht = msg.what;
-            XPosedLog.verbose("handleMessage@" + AppGuardServiceHandlerMessages.decodeMessage(wht));
+            if (XPosedLog.isVerboseLoggable())
+                XPosedLog.verbose("handleMessage@" + AppGuardServiceHandlerMessages.decodeMessage(wht));
             switch (wht) {
                 case AppGuardServiceHandlerMessages.MSG_SETENABLED:
                     AppGuardServiceHandlerImpl.this.setEnabled(msg.arg1 == 1);
