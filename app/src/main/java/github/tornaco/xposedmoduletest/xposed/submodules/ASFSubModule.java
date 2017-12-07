@@ -49,7 +49,7 @@ class ASFSubModule extends AndroidSubModuleModule {
 
                     if (TextUtils.isEmpty(pkgName)) return;
 
-                    getBridge().onPackageMoveToFront(pkgName);
+                    // getBridge().onPackageMoveToFront(pkgName);
                 }
             });
             XposedLog.verbose("ASFSubModule hookActivityStack OK:" + unHooks);

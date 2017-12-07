@@ -38,7 +38,7 @@ class AMSSubModule5 extends AndroidSubModuleModule {
                     if (ar==null) return;
                     Intent intent = (Intent) XposedHelpers.getObjectField(ar, "intent");
                     if (intent == null) return;
-                    getBridge().onPackageMoveToFront(PkgUtil.packageNameOf(intent));
+                    getBridge().onPackageMoveToFront(intent);
                 }
             });
             XposedLog.verbose("hookSetFocusedActivityLocked OK:" + unHooks);

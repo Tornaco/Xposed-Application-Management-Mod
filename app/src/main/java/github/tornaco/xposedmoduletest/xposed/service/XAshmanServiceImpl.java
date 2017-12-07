@@ -35,6 +35,7 @@ import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import com.android.internal.os.Zygote;
 import com.google.common.base.Preconditions;
@@ -2175,7 +2176,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @InternalCall
-    public void onPackageMoveToFront(String who) {
+    public void onPackageMoveToFront(final Intent who) {
+        onPackageMoveToFront(PkgUtil.packageNameOf(who));
+        if (XposedLog.isVerboseLoggable()) lazyH.post(new Runnable() {
+            @Override
+            public void run() {
+                ComponentName c = who.getComponent();
+                if (c != null)
+                    Toast.makeText(getContext(), c.flattenToString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void onPackageMoveToFront(String who) {
+        if (who == null) return;
         lazyH.removeMessages(AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONT);
         lazyH.obtainMessage(AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONT, who).sendToTarget();
     }

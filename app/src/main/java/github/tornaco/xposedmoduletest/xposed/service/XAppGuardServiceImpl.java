@@ -55,6 +55,7 @@ import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.submodules.AppGuardSubModuleManager;
 import github.tornaco.xposedmoduletest.xposed.submodules.SubModule;
 import github.tornaco.xposedmoduletest.xposed.util.Closer;
+import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Synchronized;
 
@@ -375,9 +376,19 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         ComponentName fromComp = from.getComponent();
         if (fromComp == null) return null;
         ComponentName toComp = mComponentReplacementsMap.get(fromComp);
+
+        if (!validateComponentName(toComp)) {
+            XposedLog.debug("Invalid component replacement: " + toComp);
+            return null;
+        }
+
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("Replacing using: " + toComp);
         if (toComp == null) return null;
         return from.setComponent(toComp);
+    }
+
+    private static boolean validateComponentName(ComponentName componentName) {
+        return true;
     }
 
 
@@ -529,9 +540,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @Override
     @BinderCall(restrict = "hooks")
-    public void onPackageMoveToFront(String who) {
+    public void onPackageMoveToFront(Intent who) {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("onPackageMoveToFront: " + who);
-        onActivityPackageResume(who);
+        onActivityPackageResume(PkgUtil.packageNameOf(who));
     }
 
     @Override
