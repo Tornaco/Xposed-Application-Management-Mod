@@ -806,6 +806,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         //noinspection ConstantConditions
         if (pkgName == null) return true;
 
+        if (BuildConfig.APPLICATION_ID.equals(pkgName)
+                && callingUid != sClientUID) {
+            // Prevent our component modifued by someone else!!!
+            XPosedLog.wtf("Wht the fuck? Someone want's to disable our core components!!! Let's see who" +
+                    " it is: " + pkgName + ", shit it!!!");
+            return false;
+        }
+
         if (isInWhiteList(pkgName)) {
             XPosedLog.verbose("It is from while list, allow component setting.");
             return true;
