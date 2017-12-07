@@ -238,6 +238,10 @@
             android:name=".provider.ComponentsProvider"
             android:authorities="github.tornaco.xposedmoduletest.components_provider"
             android:exported="true" />
+        <provider
+            android:name=".provider.ComponentsReplacementProvider"
+            android:authorities="github.tornaco.xposedmoduletest.components_replacement_provider"
+            android:exported="true" />
 
         <service
             android:name=".service.WatchDogService"

@@ -25,6 +25,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
+import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
@@ -794,11 +795,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         XPosedLog.verbose("checkComponentSetting: " + componentName
                 + ", calling uid: " + callingUid
                 + ", state: " + newState);
-        if (newState != PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                && newState != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT) {
-            XPosedLog.verbose("It is not enable state, allow component setting.");
-            return true;
-        }
+
         if (componentName == null) return true;
 
         String pkgName = componentName.getPackageName();
@@ -807,11 +804,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (pkgName == null) return true;
 
         if (BuildConfig.APPLICATION_ID.equals(pkgName)
-                && callingUid != sClientUID) {
+                && callingUid != sClientUID
+                && callingUid != android.os.Process.myUid()
+                && callingUid > 1000) {
             // Prevent our component modifued by someone else!!!
             XPosedLog.wtf("Wht the fuck? Someone want's to disable our core components!!! Let's see who" +
-                    " it is: " + pkgName + ", shit it!!!");
-            return false;
+                    " it is: " + (callingUid == Process.SHELL_UID ? "SHELL" : callingUid) + ", shit it!!!");
+            throw new IllegalStateException("Do not change any component of AppGuard!!!");
+        }
+
+        if (newState != PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                && newState != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT) {
+            XPosedLog.verbose("It is not enable state, allow component setting.");
+            return true;
         }
 
         if (isInWhiteList(pkgName)) {

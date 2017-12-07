@@ -102,6 +102,13 @@ class ActivityStartSubModule extends AppGuardAndroidSubModule {
                                         : null;
                         if (intent == null) return;
 
+                        // Use checked Intent instead of previous one.
+                        Intent checkedIntent = getAppGuardBridge().checkIntent(intent);
+                        if (checkedIntent != null) {
+                            intent = checkedIntent;
+                            param.args[finalIntentIndex] = intent;
+                        }
+
                         ComponentName componentName = intent.getComponent();
                         if (componentName == null) return;
 
@@ -135,7 +142,8 @@ class ActivityStartSubModule extends AppGuardAndroidSubModule {
                                     @Override
                                     public void onVerifyRes(String pkg, int uid, int pid, int res) {
                                         if (res == XAppVerifyMode.MODE_ALLOWED) try {
-                                            XposedBridge.invokeOriginalMethod(finalStartActivityMayWaitMethod, param.thisObject, param.args);
+                                            XposedBridge.invokeOriginalMethod(finalStartActivityMayWaitMethod,
+                                                    param.thisObject, param.args);
                                         } catch (Exception e) {
                                             XPosedLog.wtf("Error@" + Log.getStackTraceString(e));
                                         }

@@ -444,6 +444,14 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     @Override
+    @InternalCall
+    public Intent checkIntent(Intent from) {
+        XPosedLog.verbose("checkIntent: " + from);
+        return null;
+    }
+
+    @Override
+    @InternalCall
     public void verify(Bundle options, String pkg, int uid, int pid, VerifyListener listener) {
         verifyInternal(options, pkg, uid, pid, false, listener);
     }

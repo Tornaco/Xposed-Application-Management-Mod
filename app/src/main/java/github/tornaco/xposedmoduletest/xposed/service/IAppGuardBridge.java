@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
 import android.content.ComponentName;
+import android.content.Intent;
 import android.os.Bundle;
 
 /**
@@ -17,9 +18,12 @@ public interface IAppGuardBridge extends IModuleBridge {
 
     void verify(Bundle options, String pkg, int uid, int pid, VerifyListener listener);
 
+    Intent checkIntent(Intent from);
+
     boolean isBlurForPkg(String pkg);
 
     int getBlurRadius();
+
     float getBlurScale();
 
     boolean interruptFPSuccessVibrate();

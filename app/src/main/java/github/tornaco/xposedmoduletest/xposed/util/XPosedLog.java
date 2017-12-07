@@ -34,6 +34,10 @@ public abstract class XPosedLog {
         return logLevel.ordinal() >= sLevel.ordinal();
     }
 
+    public static boolean isVerboseLoggable() {
+        return isLoggable(LogLevel.VERBOSE);
+    }
+
     public static void verbose(Object log) {
         if (isLoggable(LogLevel.VERBOSE)) XposedBridge.log(TAG_PREFIX
                 + LogLevel.VERBOSE.name()
