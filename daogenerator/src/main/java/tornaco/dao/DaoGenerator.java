@@ -23,6 +23,8 @@ public class DaoGenerator {
         createBlockRecord(sch);
         createComponentSettings(sch);
 
+        createComponentReplacement(sch);
+
         new org.greenrobot.greendao.generator.DaoGenerator().generateAll(sch, "../app/src/main/java");
     }
 
@@ -121,6 +123,19 @@ public class DaoGenerator {
 //        import org.greenrobot.greendao.annotation.Entity;
 //        import org.greenrobot.greendao.annotation.Generated;
 //        import org.greenrobot.greendao.annotation.Id;
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Entity");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Generated");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Id");
+    }
+
+    private static void createComponentReplacement(Schema sch) {
+        Entity pkgInfo = sch.addEntity("ComponentReplacement");
+        pkgInfo.addIntProperty("id").primaryKey();
+        pkgInfo.addStringProperty("appPackageName");
+        pkgInfo.addStringProperty("compFromPackageName");
+        pkgInfo.addStringProperty("compFromClassName");
+        pkgInfo.addStringProperty("compToPackageName");
+        pkgInfo.addStringProperty("compToClassName");
         pkgInfo.addImport("org.greenrobot.greendao.annotation.Entity");
         pkgInfo.addImport("org.greenrobot.greendao.annotation.Generated");
         pkgInfo.addImport("org.greenrobot.greendao.annotation.Id");
