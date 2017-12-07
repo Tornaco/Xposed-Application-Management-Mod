@@ -10,7 +10,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * ActivityStack move to front.
@@ -24,7 +24,7 @@ class ASFSubModule extends AndroidSubModuleModule {
     }
 
     private void hookActivityStack(XC_LoadPackage.LoadPackageParam lpparam) {
-        XPosedLog.verbose("ASFSubModule hookActivityStack...");
+        XposedLog.verbose("ASFSubModule hookActivityStack...");
         try {
             Class stackClass = XposedHelpers.findClass("com.android.server.am.ActivityStack",
                     lpparam.classLoader);
@@ -52,10 +52,10 @@ class ASFSubModule extends AndroidSubModuleModule {
                     getBridge().onPackageMoveToFront(pkgName);
                 }
             });
-            XPosedLog.verbose("ASFSubModule hookActivityStack OK:" + unHooks);
+            XposedLog.verbose("ASFSubModule hookActivityStack OK:" + unHooks);
             setStatus(unhookToStatus(unHooks));
         } catch (Exception e) {
-            XPosedLog.verbose("ASFSubModule Fail hook hookActivityStack" + Log.getStackTraceString(e));
+            XposedLog.verbose("ASFSubModule Fail hook hookActivityStack" + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

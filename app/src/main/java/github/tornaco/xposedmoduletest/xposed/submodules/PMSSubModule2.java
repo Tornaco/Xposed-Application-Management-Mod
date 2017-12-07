@@ -10,7 +10,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -25,7 +25,7 @@ class PMSSubModule2 extends IntentFirewallAndroidSubModule {
     }
 
     private void hookPackageManagerServiceCompSetting(XC_LoadPackage.LoadPackageParam lpparam) {
-        XPosedLog.verbose("hookPackageManagerServiceCompSetting...");
+        XposedLog.verbose("hookPackageManagerServiceCompSetting...");
         try {
             Class clz = XposedHelpers.findClass("com.android.server.pm.PackageManagerService",
                     lpparam.classLoader);
@@ -44,10 +44,10 @@ class PMSSubModule2 extends IntentFirewallAndroidSubModule {
                             }
                         }
                     });
-            XPosedLog.verbose("hookPackageManagerServiceCompSetting OK:" + unHooks);
+            XposedLog.verbose("hookPackageManagerServiceCompSetting OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XPosedLog.verbose("Fail hookPackageManagerServiceCompSetting:" + e);
+            XposedLog.verbose("Fail hookPackageManagerServiceCompSetting:" + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

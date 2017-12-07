@@ -1,5 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
+import android.content.ComponentName;
+
 import github.tornaco.apigen.CreateMessageIdWithMethods;
 
 /**
@@ -36,4 +38,6 @@ interface AppGuardServiceHandler {
     void onUserPresent();
 
     void setInterruptFPEventVBEnabled(int event, boolean enabled);
+
+    void addOrRemoveComponentReplacement(ComponentName from, ComponentName to, boolean add);
 }

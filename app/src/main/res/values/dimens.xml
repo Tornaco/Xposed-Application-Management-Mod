@@ -48,4 +48,5 @@
     <dimen name="app_bar_height">180dp</dimen>
     <dimen name="text_margin">16dp</dimen>
 
+    <dimen name="action_btn_size">32dp</dimen>
 </resources>

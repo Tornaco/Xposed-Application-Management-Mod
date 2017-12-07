@@ -9,7 +9,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -24,7 +24,7 @@ class PWMSubModule extends AndroidSubModuleModule {
     }
 
     private void hookPWM(final XC_LoadPackage.LoadPackageParam lpparam) {
-        XPosedLog.verbose("hookPWM...");
+        XposedLog.verbose("hookPWM...");
         try {
             Class clz = XposedHelpers.findClass("com.android.server.policy.PhoneWindowManager",
                     lpparam.classLoader);
@@ -37,10 +37,10 @@ class PWMSubModule extends AndroidSubModuleModule {
 //                            getBridge().onKeyEvent(keyEvent);
                         }
                     });
-            XPosedLog.verbose("hookPWM OK:" + unHooks);
+            XposedLog.verbose("hookPWM OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XPosedLog.verbose("Fail hookPWM:" + e);
+            XposedLog.verbose("Fail hookPWM:" + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

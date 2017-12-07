@@ -8,7 +8,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -24,7 +24,7 @@ class AMSSubModule4 extends AndroidSubModuleModule {
     }
 
     private void hookAMSRetrieveSettings(XC_LoadPackage.LoadPackageParam lpparam) {
-        XPosedLog.verbose("hookAMSRetrieveSettings...");
+        XposedLog.verbose("hookAMSRetrieveSettings...");
         try {
             Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService",
                     lpparam.classLoader);
@@ -35,10 +35,10 @@ class AMSSubModule4 extends AndroidSubModuleModule {
                     getBridge().retrieveSettings();
                 }
             });
-            XPosedLog.verbose("hookAMSRetrieveSettings OK:" + unHooks);
+            XposedLog.verbose("hookAMSRetrieveSettings OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XPosedLog.verbose("Fail hookAMSRetrieveSettings: " + Log.getStackTraceString(e));
+            XposedLog.verbose("Fail hookAMSRetrieveSettings: " + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

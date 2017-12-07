@@ -5,6 +5,8 @@ import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.PackageSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 
+import android.content.ComponentName;
+
 interface IAppGuardService {
 
     boolean isEnabled();
@@ -45,4 +47,6 @@ interface IAppGuardService {
 
     boolean isInterruptFPEventVBEnabled(int event);
     void setInterruptFPEventVBEnabled(int event, boolean enabled);
+
+    void addOrRemoveComponentReplacement(in ComponentName from, in ComponentName to, boolean add);
 }

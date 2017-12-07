@@ -10,7 +10,7 @@ import java.util.Set;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/11/7.
@@ -34,12 +34,12 @@ public class ActivityModule extends AndroidSubModuleModule {
                             // Make a binder call crossing process.
                             Activity activity = (Activity) param.thisObject;
                             String pkgName = activity.getPackageName();
-                            XPosedLog.wtf("onDestroy: " + activity);
+                            XposedLog.wtf("onDestroy: " + activity);
                         }
                     });
             setStatus(unhooksToStatus(unHooks));
         } catch (Throwable e) {
-            XPosedLog.verbose("Fail hookActivityForApp: " + pkg + ", error:" + e);
+            XposedLog.verbose("Fail hookActivityForApp: " + pkg + ", error:" + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

@@ -9,7 +9,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * ActivityStack move to back.
@@ -23,7 +23,7 @@ class ASDSubModule extends IntentFirewallAndroidSubModule {
     }
 
     private void hookActivityStack(XC_LoadPackage.LoadPackageParam lpparam) {
-        XPosedLog.verbose("ASDSubModule hookActivityStack...");
+        XposedLog.verbose("ASDSubModule hookActivityStack...");
         try {
             Class stackClass = XposedHelpers.findClass("com.android.server.am.ActivityStack",
                     lpparam.classLoader);
@@ -40,10 +40,10 @@ class ASDSubModule extends IntentFirewallAndroidSubModule {
                     getIntentFirewallBridge().onActivityDestroy(intent, "destroyActivityLocked");
                 }
             });
-            XPosedLog.verbose("ASDSubModule hookActivityStack OK:" + unHooks);
+            XposedLog.verbose("ASDSubModule hookActivityStack OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XPosedLog.verbose("ASDSubModule Fail hook hookActivityStack" + Log.getStackTraceString(e));
+            XposedLog.verbose("ASDSubModule Fail hook hookActivityStack" + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

@@ -10,7 +10,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -26,7 +26,7 @@ class AMSSubModule5 extends AndroidSubModuleModule {
     }
 
     private void hookSetFocusedActivityLocked(XC_LoadPackage.LoadPackageParam lpparam) {
-        XPosedLog.verbose("hookSetFocusedActivityLocked...");
+        XposedLog.verbose("hookSetFocusedActivityLocked...");
         try {
             Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService",
                     lpparam.classLoader);
@@ -41,10 +41,10 @@ class AMSSubModule5 extends AndroidSubModuleModule {
                     getBridge().onPackageMoveToFront(PkgUtil.packageNameOf(intent));
                 }
             });
-            XPosedLog.verbose("hookSetFocusedActivityLocked OK:" + unHooks);
+            XposedLog.verbose("hookSetFocusedActivityLocked OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XPosedLog.verbose("Fail hookSetFocusedActivityLocked: " + Log.getStackTraceString(e));
+            XposedLog.verbose("Fail hookSetFocusedActivityLocked: " + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

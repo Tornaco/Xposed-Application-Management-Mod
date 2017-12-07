@@ -8,7 +8,7 @@ import android.os.RemoteException;
 import github.tornaco.apigen.CreateMessageIdWithMethods;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Getter;
 
 /**
@@ -135,7 +135,7 @@ interface AshManHandler {
         public void binderDied() {
             alive = false;
             unLinkToDeath();
-            XPosedLog.wtf("WatcherClient, binder die...");
+            XposedLog.wtf("WatcherClient, binder die...");
         }
 
         @Override

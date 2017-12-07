@@ -8,7 +8,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -23,7 +23,7 @@ class SystemServiceRegistryModule extends AndroidSubModuleModule {
     }
 
     private void hookSystemServiceRegistry(XC_LoadPackage.LoadPackageParam lpparam) {
-        XPosedLog.verbose("hookSystemServiceRegistry...");
+        XposedLog.verbose("hookSystemServiceRegistry...");
         try {
             Class reg = XposedHelpers.findClass("android.app.SystemServiceRegistry",
                     lpparam.classLoader);
@@ -31,13 +31,13 @@ class SystemServiceRegistryModule extends AndroidSubModuleModule {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
-                    XPosedLog.verbose("registerService-" + param.args[0]);
+                    XposedLog.verbose("registerService-" + param.args[0]);
                 }
             });
-            XPosedLog.verbose("hookSystemServiceRegistry OK:" + unHooks);
+            XposedLog.verbose("hookSystemServiceRegistry OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XPosedLog.verbose("Fail hook hookSystemServiceRegistry");
+            XposedLog.verbose("Fail hook hookSystemServiceRegistry");
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

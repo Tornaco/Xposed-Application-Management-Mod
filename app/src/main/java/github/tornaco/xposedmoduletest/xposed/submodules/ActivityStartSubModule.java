@@ -15,7 +15,7 @@ import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 import github.tornaco.xposedmoduletest.xposed.service.VerifyListener;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -29,7 +29,7 @@ class ActivityStartSubModule extends AppGuardAndroidSubModule {
     }
 
     private void hookStartActivityMayWait(XC_LoadPackage.LoadPackageParam lpparam) {
-        XPosedLog.verbose("hookStartActivityMayWait...");
+        XposedLog.verbose("hookStartActivityMayWait...");
         try {
             Class clz = clzForStartActivityMayWait(lpparam);
 
@@ -63,29 +63,29 @@ class ActivityStartSubModule extends AppGuardAndroidSubModule {
             }
 
             if (startActivityMayWaitMethod == null) {
-                XPosedLog.wtf("*** FATAL can not find startActivityMayWait method ***");
+                XposedLog.wtf("*** FATAL can not find startActivityMayWait method ***");
                 setStatus(SubModuleStatus.ERROR);
                 setErrorMessage("*** FATAL can not find startActivityMayWait method ***");
                 return;
             }
 
             if (matchCount > 1) {
-                XPosedLog.wtf("*** FATAL more than 1 startActivityMayWait method ***");
+                XposedLog.wtf("*** FATAL more than 1 startActivityMayWait method ***");
                 setStatus(SubModuleStatus.ERROR);
                 setErrorMessage("*** FATAL more than 1 startActivityMayWait method ***");
                 // return;
             }
 
             if (intentIndex < 0) {
-                XPosedLog.wtf("*** FATAL can not find intentIndex ***");
+                XposedLog.wtf("*** FATAL can not find intentIndex ***");
                 setStatus(SubModuleStatus.ERROR);
                 setErrorMessage("*** FATAL can not find intentIndex ***");
                 return;
             }
 
-            XPosedLog.wtf("startActivityMayWait method:" + startActivityMayWaitMethod);
-            XPosedLog.wtf("intentIndex index:" + intentIndex);
-            XPosedLog.wtf("activityOptsIndex index:" + activityOptsIndex);
+            XposedLog.wtf("startActivityMayWait method:" + startActivityMayWaitMethod);
+            XposedLog.wtf("intentIndex index:" + intentIndex);
+            XposedLog.wtf("activityOptsIndex index:" + activityOptsIndex);
 
             final int finalActivityOptsIndex = activityOptsIndex;
             final int finalIntentIndex = intentIndex;
@@ -145,23 +145,23 @@ class ActivityStartSubModule extends AppGuardAndroidSubModule {
                                             XposedBridge.invokeOriginalMethod(finalStartActivityMayWaitMethod,
                                                     param.thisObject, param.args);
                                         } catch (Exception e) {
-                                            XPosedLog.wtf("Error@" + Log.getStackTraceString(e));
+                                            XposedLog.wtf("Error@" + Log.getStackTraceString(e));
                                         }
                                     }
                                 });
                         param.setResult(ActivityManager.START_SUCCESS);
                     } catch (Throwable e) {
                         // replacing did not work.. but no reason to crash the VM! Log the error and go on.
-                        XPosedLog.wtf("Error@startActivityMayWaitMethod:" + Log.getStackTraceString(e));
+                        XposedLog.wtf("Error@startActivityMayWaitMethod:" + Log.getStackTraceString(e));
                     } finally {
                     }
                 }
             });
-            XPosedLog.wtf("hookStartActivityMayWait OK: " + unhook);
+            XposedLog.wtf("hookStartActivityMayWait OK: " + unhook);
             getBridge().publishFeature(XAppGuardManager.Feature.START);
             setStatus(unhookToStatus(unhook));
         } catch (Exception e) {
-            XPosedLog.wtf("Fail hookStartActivityMayWait:" + e);
+            XposedLog.wtf("Fail hookStartActivityMayWait:" + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

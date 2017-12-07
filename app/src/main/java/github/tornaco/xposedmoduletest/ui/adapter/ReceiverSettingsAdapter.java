@@ -1,9 +1,13 @@
 package github.tornaco.xposedmoduletest.ui.adapter;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.PopupMenu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Switch;
 
@@ -77,5 +81,23 @@ public class ReceiverSettingsAdapter extends ComponentListAdapter<ActivityInfoSe
             name = activityInfo.toString();
         }
         return String.valueOf(name.charAt(0));
+    }
+
+    @Override
+    protected PopupMenu.OnMenuItemClickListener onCreateOnMenuItemClickListener(final ActivityInfoSettings activityInfoSettings) {
+        return new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if (item.getItemId() == R.id.action_copy_name) {
+                    ClipboardManager cmb = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                    if (cmb != null) {
+                        cmb.setPrimaryClip(ClipData.newPlainText("comp_name",
+                                ComponentUtil.getComponentName(activityInfoSettings.getActivityInfo()).flattenToString()));
+                    }
+                    return true;
+                }
+                return false;
+            }
+        };
     }
 }

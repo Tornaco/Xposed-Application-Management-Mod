@@ -12,7 +12,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -28,7 +28,7 @@ class AMSSubModule6 extends IntentFirewallAndroidSubModule {
     }
 
     private void hookMoveActivityTaskToBack(XC_LoadPackage.LoadPackageParam lpparam) {
-        XPosedLog.verbose("hookMoveActivityTaskToBack...");
+        XposedLog.verbose("hookMoveActivityTaskToBack...");
         try {
             Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService",
                     lpparam.classLoader);
@@ -44,10 +44,10 @@ class AMSSubModule6 extends IntentFirewallAndroidSubModule {
                     getIntentFirewallBridge().onActivityDestroy(intent, "moveActivityTaskToBack");
                 }
             });
-            XPosedLog.verbose("hookMoveActivityTaskToBack OK:" + unHooks);
+            XposedLog.verbose("hookMoveActivityTaskToBack OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XPosedLog.verbose("Fail hookMoveActivityTaskToBack: " + Log.getStackTraceString(e));
+            XposedLog.verbose("Fail hookMoveActivityTaskToBack: " + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

@@ -4,13 +4,15 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.util.Log;
 
+import com.lenovo.tablet.llog.formatter.message.object.IntentFormatter;
+
 import java.util.Set;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/11/9.
@@ -24,7 +26,7 @@ public class IFWSubModule extends IntentFirewallAndroidSubModule {
     }
 
     private void hookIntentFireWall(XC_LoadPackage.LoadPackageParam lpparam) {
-        XPosedLog.verbose("hookIntentFireWall...");
+        XposedLog.verbose("hookIntentFireWall...");
         try {
             Class ams = XposedHelpers.findClass("com.android.server.firewall.IntentFirewall",
                     lpparam.classLoader);
@@ -32,6 +34,14 @@ public class IFWSubModule extends IntentFirewallAndroidSubModule {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     super.beforeHookedMethod(param);
+                    if (XposedLog.isVerboseLoggable()) {
+                        try {
+                            Intent intent = (Intent) param.args[1];
+                            XposedLog.verbose("checkService@ intent: " + intent + "extra: " + intent.getExtras()
+                                    + new IntentFormatter().format(intent));
+                        } catch (Exception ignored) {
+                        }
+                    }
                     ComponentName componentName = (ComponentName) param.args[0];
                     int callerID = (int) param.args[2];
                     param.setResult(getIntentFirewallBridge().checkService(componentName, callerID));
@@ -49,11 +59,11 @@ public class IFWSubModule extends IntentFirewallAndroidSubModule {
                     param.setResult(getIntentFirewallBridge().checkBroadcast(action, recUid, callerUid));
                 }
             });
-            XPosedLog.verbose("hookIntentFireWall OK:" + unHooks);
+            XposedLog.verbose("hookIntentFireWall OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
             setStatus(unhooksToStatus(unHooks2));
         } catch (Exception e) {
-            XPosedLog.verbose("Fail hook hookIntentFireWall");
+            XposedLog.verbose("Fail hook hookIntentFireWall");
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

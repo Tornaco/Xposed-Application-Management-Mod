@@ -11,7 +11,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/11/7.
@@ -22,26 +22,26 @@ public class ActivityThreadModule extends AppGuardAndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        // XPosedLog.verbose("ActivityModule handleLoadingPackage@" + lpparam.packageName);
+        // XposedLog.verbose("ActivityModule handleLoadingPackage@" + lpparam.packageName);
         // hookActivityThreadForApp(lpparam.packageName);
     }
 
     private void hookActivityThreadForApp(final String pkg) {
-        XPosedLog.verbose("hookActivityThreadForApp: " + pkg);
+        XposedLog.verbose("hookActivityThreadForApp: " + pkg);
         try {
             Set unHooks = XposedBridge.hookAllMethods(ActivityThread.class, "handleResumeActivity",
                     new XC_MethodHook() {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
-                            XPosedLog.verbose("handleResumeActivity: " + param.args[0]);
+                            XposedLog.verbose("handleResumeActivity: " + param.args[0]);
                         }
                     });
             getBridge().publishFeature(XAppGuardManager.Feature.RESUME);
             setStatus(unhooksToStatus(unHooks));
-            XPosedLog.verbose("hookActivityThreadForApp OK:" + unHooks);
+            XposedLog.verbose("hookActivityThreadForApp OK:" + unHooks);
         } catch (Throwable e) {
-            XPosedLog.verbose("Fail hookActivityThreadForApp: " + pkg + ", error:" + e);
+            XposedLog.verbose("Fail hookActivityThreadForApp: " + pkg + ", error:" + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

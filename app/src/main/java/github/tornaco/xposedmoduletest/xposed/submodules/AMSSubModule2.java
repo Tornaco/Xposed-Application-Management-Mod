@@ -8,7 +8,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -22,7 +22,7 @@ class AMSSubModule2 extends AndroidSubModuleModule {
     }
 
     private void hookAMSSystemReady(XC_LoadPackage.LoadPackageParam lpparam) {
-        XPosedLog.verbose("hookAMSSystemReady...");
+        XposedLog.verbose("hookAMSSystemReady...");
         try {
             Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService",
                     lpparam.classLoader);
@@ -33,10 +33,10 @@ class AMSSubModule2 extends AndroidSubModuleModule {
                     getBridge().systemReady();
                 }
             });
-            XPosedLog.verbose("hookAMSSystemReady OK:" + unHooks);
+            XposedLog.verbose("hookAMSSystemReady OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XPosedLog.verbose("Fail hookAMSSystemReady");
+            XposedLog.verbose("Fail hookAMSSystemReady");
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

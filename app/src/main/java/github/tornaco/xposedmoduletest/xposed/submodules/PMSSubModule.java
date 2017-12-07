@@ -12,7 +12,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -26,7 +26,7 @@ class PMSSubModule extends AppGuardAndroidSubModule {
     }
 
     private void hookPackageManagerService(XC_LoadPackage.LoadPackageParam lpparam) {
-        XPosedLog.verbose("hookPackageManagerService...");
+        XposedLog.verbose("hookPackageManagerService...");
         try {
             Class clz = XposedHelpers.findClass("com.android.server.pm.PackageManagerService",
                     lpparam.classLoader);
@@ -37,11 +37,11 @@ class PMSSubModule extends AppGuardAndroidSubModule {
                             super.beforeHookedMethod(param);
                             try {
                                 String pkgName = (String) param.args[0];
-                                XPosedLog.verbose("PackageManagerService deletePackageAsUser pkg:" + pkgName);
+                                XposedLog.verbose("PackageManagerService deletePackageAsUser pkg:" + pkgName);
                                 boolean interrupt = interruptPackageRemoval(pkgName);
                                 if (interrupt) {
                                     Object oo = param.args[1];
-                                    XPosedLog.verbose("deletePackageAsUser ob:" + oo);
+                                    XposedLog.verbose("deletePackageAsUser ob:" + oo);
                                     if (oo instanceof IPackageDeleteObserver2) {
                                         IPackageDeleteObserver2 observer2 = (IPackageDeleteObserver2) oo;
                                         observer2.onPackageDeleted(pkgName, PackageManager.DELETE_FAILED_ABORTED, null);
@@ -50,18 +50,18 @@ class PMSSubModule extends AppGuardAndroidSubModule {
                                         observer.packageDeleted(pkgName, PackageManager.DELETE_FAILED_ABORTED);
                                     }
                                     param.setResult(null);
-                                    XPosedLog.verbose("PackageManagerService interruptPackageRemoval");
+                                    XposedLog.verbose("PackageManagerService interruptPackageRemoval");
                                 }
                             } catch (Exception e) {
-                                XPosedLog.verbose("Fail deletePackageAsUser:" + e);
+                                XposedLog.verbose("Fail deletePackageAsUser:" + e);
                             }
                         }
                     });
-            XPosedLog.verbose("hookPackageManagerService OK:" + unHooks);
+            XposedLog.verbose("hookPackageManagerService OK:" + unHooks);
             getBridge().publishFeature(XAppGuardManager.Feature.HOME);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XPosedLog.verbose("Fail hookPackageManagerService:" + e);
+            XposedLog.verbose("Fail hookPackageManagerService:" + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

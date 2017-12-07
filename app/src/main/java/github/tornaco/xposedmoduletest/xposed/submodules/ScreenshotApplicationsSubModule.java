@@ -16,7 +16,7 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.util.XBitmapUtil;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -33,7 +33,7 @@ public class ScreenshotApplicationsSubModule extends AppGuardAndroidSubModule {
      * @see #onScreenshotApplications(XC_MethodHook.MethodHookParam)
      */
     private void hookScreenshotApplications(XC_LoadPackage.LoadPackageParam lpparam) {
-        XPosedLog.verbose("hookScreenshotApplications...");
+        XposedLog.verbose("hookScreenshotApplications...");
         try {
             Class clz = XposedHelpers.findClass("com.android.server.wm.WindowManagerService",
                     lpparam.classLoader);
@@ -45,15 +45,15 @@ public class ScreenshotApplicationsSubModule extends AppGuardAndroidSubModule {
                             try {
                                 onScreenshotApplications(param);
                             } catch (Exception e) {
-                                XPosedLog.verbose("Fail onScreenshotApplications: " + e);
+                                XposedLog.verbose("Fail onScreenshotApplications: " + e);
                             }
                         }
                     });
-            XPosedLog.verbose("hookScreenshotApplications OK: " + unHooks);
+            XposedLog.verbose("hookScreenshotApplications OK: " + unHooks);
             getBridge().publishFeature(XAppGuardManager.Feature.BLUR);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XPosedLog.verbose("Fail hookScreenshotApplications: " + e);
+            XposedLog.verbose("Fail hookScreenshotApplications: " + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }
@@ -66,18 +66,18 @@ public class ScreenshotApplicationsSubModule extends AppGuardAndroidSubModule {
         if (TextUtils.isEmpty(pkgName)) {
             return;
         }
-        XPosedLog.verbose("onScreenshotApplications: " + pkgName);
+        XposedLog.verbose("onScreenshotApplications: " + pkgName);
         if (getAppGuardBridge().isBlurForPkg(pkgName)
                 && param.getResult() != null) {
             Bitmap res = (Bitmap) param.getResult();
             int radius = getAppGuardBridge().getBlurRadius();
             float scale = getAppGuardBridge().getBlurScale();
-            XPosedLog.verbose("onScreenshotApplications, bluring, r and s: " + radius + "-" + scale);
+            XposedLog.verbose("onScreenshotApplications, bluring, r and s: " + radius + "-" + scale);
             Bitmap blured = (XBitmapUtil.createBlurredBitmap(res, radius, scale));
             if (blured != null)
                 param.setResult(blured);
         } else {
-            XPosedLog.verbose("onScreenshotApplications, blur is disabled...");
+            XposedLog.verbose("onScreenshotApplications, blur is disabled...");
         }
     }
 }

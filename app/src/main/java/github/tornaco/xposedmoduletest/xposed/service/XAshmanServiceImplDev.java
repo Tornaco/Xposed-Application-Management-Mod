@@ -6,7 +6,7 @@ import android.os.Message;
 import android.util.Log;
 
 import de.robv.android.xposed.XposedBridge;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/11/9.
@@ -141,6 +141,6 @@ public class XAshmanServiceImplDev extends XAshmanServiceImpl {
                 + String.valueOf(e) + "\n"
                 + Log.getStackTraceString(e);
         XposedBridge.log(logMsg);
-        XPosedLog.debug(logMsg);
+        XposedLog.debug(logMsg);
     }
 }

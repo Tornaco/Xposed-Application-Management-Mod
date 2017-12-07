@@ -14,7 +14,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 import github.tornaco.xposedmoduletest.xposed.service.VerifyListener;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -28,7 +28,7 @@ class TaskMoverSubModule extends AppGuardAndroidSubModule {
     }
 
     private void hookTaskMover(XC_LoadPackage.LoadPackageParam lpparam) {
-        XPosedLog.wtf("hookTaskMover...");
+        XposedLog.wtf("hookTaskMover...");
         try {
             final Method moveToFront = methodForTaskMover(lpparam);
             XC_MethodHook.Unhook unhook = XposedBridge.hookMethod(moveToFront, new XC_MethodHook() {
@@ -48,7 +48,7 @@ class TaskMoverSubModule extends AppGuardAndroidSubModule {
 
                         if (TextUtils.isEmpty(pkgName)) return;
 
-                        XPosedLog.wtf("findTaskToMoveToFrontLocked:" + pkgName);
+                        XposedLog.wtf("findTaskToMoveToFrontLocked:" + pkgName);
 
                         // Package has been passed.
                         if (!getAppGuardBridge().onEarlyVerifyConfirm(pkgName)) return;
@@ -61,7 +61,7 @@ class TaskMoverSubModule extends AppGuardAndroidSubModule {
                                             XposedBridge.invokeOriginalMethod(moveToFront,
                                                     param.thisObject, param.args);
                                         } catch (Exception e) {
-                                            XPosedLog.debug("Error@"
+                                            XposedLog.debug("Error@"
                                                     + Log.getStackTraceString(e));
                                         }
                                     }
@@ -70,16 +70,16 @@ class TaskMoverSubModule extends AppGuardAndroidSubModule {
                         param.setResult(null);
 
                     } catch (Exception e) {
-                        XPosedLog.wtf("Error@hookTaskMover- findTaskToMoveToFrontLocked:" + Log.getStackTraceString(e));
+                        XposedLog.wtf("Error@hookTaskMover- findTaskToMoveToFrontLocked:" + Log.getStackTraceString(e));
                     } finally {
                     }
                 }
             });
-            XPosedLog.wtf("hookTaskMover OK:" + unhook);
+            XposedLog.wtf("hookTaskMover OK:" + unhook);
             setStatus(unhookToStatus(unhook));
             getBridge().publishFeature(XAppGuardManager.Feature.RECENT);
         } catch (Exception e) {
-            XPosedLog.wtf("hookTaskMover" + Log.getStackTraceString(e));
+            XposedLog.wtf("hookTaskMover" + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

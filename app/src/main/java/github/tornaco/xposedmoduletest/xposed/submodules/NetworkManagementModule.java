@@ -9,7 +9,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.xposed.service.NativeDaemonConnector;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -25,7 +25,7 @@ class NetworkManagementModule extends IntentFirewallAndroidSubModule {
     }
 
     private void hookNMSSystemReady(XC_LoadPackage.LoadPackageParam lpparam) {
-        XPosedLog.verbose("hookNMSSystemReady...");
+        XposedLog.verbose("hookNMSSystemReady...");
         try {
             Class ams = XposedHelpers.findClass("com.android.server.NetworkManagementService",
                     lpparam.classLoader);
@@ -38,10 +38,10 @@ class NetworkManagementModule extends IntentFirewallAndroidSubModule {
                     getIntentFirewallBridge().onNetWorkManagementServiceReady(connector);
                 }
             });
-            XPosedLog.verbose("hookNMSSystemReady OK:" + unHooks);
+            XposedLog.verbose("hookNMSSystemReady OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XPosedLog.verbose("Fail hookNMSSystemReady: " + Log.getStackTraceString(e));
+            XposedLog.verbose("Fail hookNMSSystemReady: " + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

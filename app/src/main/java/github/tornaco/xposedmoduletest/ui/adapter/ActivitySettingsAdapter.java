@@ -1,17 +1,24 @@
 package github.tornaco.xposedmoduletest.ui.adapter;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.PopupMenu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Switch;
 
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 
+import org.newstand.logger.Logger;
+
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.model.ActivityInfoSettings;
 import github.tornaco.xposedmoduletest.util.ComponentUtil;
+import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
@@ -78,5 +85,30 @@ public class ActivitySettingsAdapter extends ComponentListAdapter<ActivityInfoSe
             name = activityInfo.toString();
         }
         return String.valueOf(name.charAt(0));
+    }
+
+    @Override
+    protected PopupMenu.OnMenuItemClickListener onCreateOnMenuItemClickListener(final ActivityInfoSettings activityInfoSettings) {
+        return new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if (item.getItemId() == R.id.action_copy_name) {
+                    ClipboardManager cmb = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                    if (cmb != null) {
+                        String content = ComponentUtil.getComponentName(activityInfoSettings.getActivityInfo()).flattenToString();
+                        Logger.w("content: " + content);
+                        cmb.setPrimaryClip(ClipData.newPlainText("comp_name", content));
+                    }
+
+                    ComponentName from = ComponentName.unflattenFromString("com.ss.android.article.news/.activity.SplashBadgeActivity");
+                    ComponentName to = ComponentName.unflattenFromString("com.ss.android.article.news/.activity.MainActivity");
+                    XAppGuardManager.singleInstance()
+                            .addOrRemoveComponentReplacement(from, to, true);
+
+                    return true;
+                }
+                return false;
+            }
+        };
     }
 }

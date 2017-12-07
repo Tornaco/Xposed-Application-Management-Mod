@@ -10,7 +10,7 @@ import github.tornaco.xposedmoduletest.BuildConfig;
  * Email: Tornaco@163.com
  */
 
-public abstract class XPosedLog {
+public abstract class XposedLog {
 
     public enum LogLevel {
         ALL,
@@ -27,7 +27,7 @@ public abstract class XPosedLog {
     private static LogLevel sLevel = BuildConfig.DEBUG ? LogLevel.ALL : LogLevel.WARN;
 
     public static void setLogLevel(LogLevel level) {
-        XPosedLog.sLevel = level;
+        XposedLog.sLevel = level;
     }
 
     private static boolean isLoggable(LogLevel logLevel) {

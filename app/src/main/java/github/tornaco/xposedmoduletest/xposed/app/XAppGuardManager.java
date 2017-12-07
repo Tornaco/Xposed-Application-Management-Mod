@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.app;
 
+import android.content.ComponentName;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 
@@ -312,6 +313,14 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.setInterruptFPEventVBEnabled(event, enabled);
+        } catch (RemoteException e) {
+            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public void addOrRemoveComponentReplacement(ComponentName from, ComponentName to, boolean add) {
+        try {
+            mService.addOrRemoveComponentReplacement(from, to, add);
         } catch (RemoteException e) {
             Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
         }

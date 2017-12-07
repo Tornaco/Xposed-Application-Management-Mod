@@ -15,7 +15,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -29,7 +29,7 @@ class PackageInstallerSubModule extends AppGuardAndroidSubModule {
     }
 
     private void hookPackageInstaller(XC_LoadPackage.LoadPackageParam lpparam) {
-        XPosedLog.verbose("hookPackageInstaller...");
+        XposedLog.verbose("hookPackageInstaller...");
         try {
             Class clz = XposedHelpers.findClass("com.android.server.pm.PackageInstallerService",
                     lpparam.classLoader);
@@ -40,7 +40,7 @@ class PackageInstallerSubModule extends AppGuardAndroidSubModule {
                             super.beforeHookedMethod(param);
                             try {
                                 String pkgName = (String) param.args[0];
-                                XPosedLog.verbose("PackageInstallerService uninstall pkg:" + pkgName);
+                                XposedLog.verbose("PackageInstallerService uninstall pkg:" + pkgName);
                                 boolean interrupt = interruptPackageRemoval(pkgName);
                                 if (interrupt) {
 
@@ -56,18 +56,18 @@ class PackageInstallerSubModule extends AppGuardAndroidSubModule {
                                     observerAdapter.onPackageDeleted(pkgName, PackageManager.DELETE_FAILED_ABORTED, null);
 
                                     param.setResult(null);
-                                    XPosedLog.verbose("PackageInstallerService interruptPackageRemoval");
+                                    XposedLog.verbose("PackageInstallerService interruptPackageRemoval");
                                 }
                             } catch (Exception e) {
-                                XPosedLog.verbose("Fail uninstall:" + e);
+                                XposedLog.verbose("Fail uninstall:" + e);
                             }
                         }
                     });
-            XPosedLog.verbose("hookPackageInstaller OK:" + unHooks);
+            XposedLog.verbose("hookPackageInstaller OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
             getBridge().publishFeature(XAppGuardManager.Feature.HOME);
         } catch (Exception e) {
-            XPosedLog.verbose("Fail hookPackageInstaller:" + e);
+            XposedLog.verbose("Fail hookPackageInstaller:" + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }
@@ -116,7 +116,7 @@ class PackageInstallerSubModule extends AppGuardAndroidSubModule {
             try {
                 mTarget.sendIntent(mContext, 0, fillIn, null, null);
             } catch (IntentSender.SendIntentException ignored) {
-                XPosedLog.wtf("SendIntentException:" + Log.getStackTraceString(ignored));
+                XposedLog.wtf("SendIntentException:" + Log.getStackTraceString(ignored));
             }
         }
     }

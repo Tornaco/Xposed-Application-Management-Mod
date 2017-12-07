@@ -10,7 +10,7 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -30,7 +30,7 @@ class FPSubModule extends AppGuardAndroidSubModule {
     // http://androidxref.com/6.0.1_r10/xref/frameworks/base/services/core/java/com/android/server/fingerprint/FingerprintService.java
     @Deprecated
     private void hookFPService(XC_LoadPackage.LoadPackageParam lpparam) {
-        XPosedLog.verbose("hookFPService...");
+        XposedLog.verbose("hookFPService...");
         try {
             Set unHooks = XposedBridge.hookAllMethods(
                     XposedHelpers.findClass("com.android.server.fingerprint.FingerprintService",
@@ -45,18 +45,18 @@ class FPSubModule extends AppGuardAndroidSubModule {
                             }
                         }
                     });
-            XPosedLog.verbose("hookFPService OK:" + unHooks);
+            XposedLog.verbose("hookFPService OK:" + unHooks);
             getBridge().publishFeature(XAppGuardManager.Feature.FP);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XPosedLog.verbose("Fail hookFPService" + e);
+            XposedLog.verbose("Fail hookFPService" + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }
     }
 
     private void hookFPUtil(XC_LoadPackage.LoadPackageParam lpparam) {
-        XPosedLog.verbose("hookFPUtil ...");
+        XposedLog.verbose("hookFPUtil ...");
 
         try {
             Set unHooks = XposedBridge.hookAllMethods(
@@ -68,15 +68,15 @@ class FPSubModule extends AppGuardAndroidSubModule {
                             super.beforeHookedMethod(param);
                             if (getAppGuardBridge().interruptFPSuccessVibrate()) {
                                 param.setResult(null);
-                                XPosedLog.verbose("vibrateFingerprintSuccess blocked.");
+                                XposedLog.verbose("vibrateFingerprintSuccess blocked.");
                             }
                         }
                     });
-            XPosedLog.verbose("hookFPUtil @SUCCESS OK:" + unHooks);
+            XposedLog.verbose("hookFPUtil @SUCCESS OK:" + unHooks);
             getBridge().publishFeature(XAppGuardManager.Feature.FP);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XPosedLog.verbose("Fail hookFPUtil @SUCCESS: " + e);
+            XposedLog.verbose("Fail hookFPUtil @SUCCESS: " + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }
@@ -91,15 +91,15 @@ class FPSubModule extends AppGuardAndroidSubModule {
                             super.beforeHookedMethod(param);
                             if (getAppGuardBridge().interruptFPErrorVibrate()) {
                                 param.setResult(null);
-                                XPosedLog.verbose("vibrateFingerprintError blocked.");
+                                XposedLog.verbose("vibrateFingerprintError blocked.");
                             }
                         }
                     });
-            XPosedLog.verbose("hookFPUtil @ERROR OK:" + unHooks);
+            XposedLog.verbose("hookFPUtil @ERROR OK:" + unHooks);
             getBridge().publishFeature(XAppGuardManager.Feature.FP);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XPosedLog.verbose("Fail hookFPUtil @ERROR: " + e);
+            XposedLog.verbose("Fail hookFPUtil @ERROR: " + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

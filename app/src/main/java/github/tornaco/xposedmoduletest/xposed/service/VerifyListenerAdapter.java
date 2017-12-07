@@ -1,6 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/11/7.
@@ -17,6 +17,6 @@ public class VerifyListenerAdapter implements VerifyListener {
 
     @Override
     public void onVerifyRes(String pkg, int uid, int pid, int res) {
-        XPosedLog.verbose("onVerifyRes@" + pkg + ", res: " + res);
+        XposedLog.verbose("onVerifyRes@" + pkg + ", res: " + res);
     }
 }

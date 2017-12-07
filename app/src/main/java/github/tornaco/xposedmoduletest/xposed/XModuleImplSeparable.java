@@ -9,7 +9,7 @@ import github.tornaco.xposedmoduletest.xposed.service.XIntentFirewallServiceDele
 import github.tornaco.xposedmoduletest.xposed.submodules.AppGuardSubModuleManager;
 import github.tornaco.xposedmoduletest.xposed.submodules.IntentFirewallSubModuleManager;
 import github.tornaco.xposedmoduletest.xposed.submodules.SubModule;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -35,10 +35,10 @@ class XModuleImplSeparable extends XModuleAbs {
             if (s.getInterestedPackages().contains(lpparam.packageName)
                     || s.getInterestedPackages().contains("*")) {
                 try {
-                    // XPosedLog.wtf("Invoking submodule@handleLoadPackage: " + s.name());
+                    // XposedLog.wtf("Invoking submodule@handleLoadPackage: " + s.name());
                     s.handleLoadingPackage(lpparam.packageName, lpparam);
                 } catch (Throwable e) {
-                    XPosedLog.wtf("Error call handleLoadingPackage submodule:" + s
+                    XposedLog.wtf("Error call handleLoadingPackage submodule:" + s
                             + " , trace: " + Log.getStackTraceString(e));
                 }
             }
@@ -48,10 +48,10 @@ class XModuleImplSeparable extends XModuleAbs {
             if (s.getInterestedPackages().contains(lpparam.packageName)
                     || s.getInterestedPackages().contains("*")) {
                 try {
-                    // XPosedLog.wtf("Invoking submodule@handleLoadPackage: " + s.name());
+                    // XposedLog.wtf("Invoking submodule@handleLoadPackage: " + s.name());
                     s.handleLoadingPackage(lpparam.packageName, lpparam);
                 } catch (Throwable e) {
-                    XPosedLog.wtf("Error call handleLoadingPackage submodule:" + s
+                    XposedLog.wtf("Error call handleLoadingPackage submodule:" + s
                             + " , trace: " + Log.getStackTraceString(e));
                 }
             }

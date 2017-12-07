@@ -4,7 +4,7 @@ import java.util.Set;
 
 import de.robv.android.xposed.XC_MethodHook;
 import github.tornaco.xposedmoduletest.xposed.service.IModuleBridge;
-import github.tornaco.xposedmoduletest.xposed.util.XPosedLog;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,7 +28,7 @@ abstract class AbsSubModule implements SubModule {
     @Override
     public void onBridgeCreate(IModuleBridge bridge) {
         this.bridge = bridge;
-        XPosedLog.verbose("onBridgeCreate@" + bridge.serial() + ", assign to: " + getClass().getName());
+        XposedLog.verbose("onBridgeCreate@" + bridge.serial() + ", assign to: " + getClass().getName());
     }
 
     @Override
