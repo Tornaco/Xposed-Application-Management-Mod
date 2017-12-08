@@ -31,7 +31,7 @@ public class ComponentReplacements {
     public ComponentReplacementList load() throws IOException {
         Logger.d("Reading ComponentReplacements from remote...");
         ComponentReplacementService componentReplacementService = ComponentReplacementService.Factory.create();
-        return componentReplacementService.get().execute().body();
+        return new ComponentReplacementList(componentReplacementService.get().execute().body());
     }
 
     public void loadAsync(final LoaderListener loaderListener) {
@@ -42,6 +42,7 @@ public class ComponentReplacements {
                     loaderListener.onStartLoading();
                     loaderListener.onLoadingComplete(load());
                 } catch (Throwable e) {
+                    Logger.e("loadAsync: " + Logger.getStackTraceString(e));
                     loaderListener.onError(e);
                 }
             }

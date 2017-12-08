@@ -26,7 +26,7 @@ public class ComponentReplacementList {
     public static ComponentReplacementList fromJson(String json) {
         if (json == null) return null;
         try {
-            return new Gson().fromJson(json, ComponentReplacementList.class);
+            return new Gson().fromJson(json.trim(), ComponentReplacementList.class);
         } catch (Throwable e) {
             return null;
         }

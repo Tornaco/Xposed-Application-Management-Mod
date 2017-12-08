@@ -74,7 +74,7 @@ public class NetworkRestrictActivity extends BaseActivity {
 
         setSummaryView();
 
-        showAlertDialog();
+       // showAlertDialog();
     }
 
     private void showAlertDialog() {

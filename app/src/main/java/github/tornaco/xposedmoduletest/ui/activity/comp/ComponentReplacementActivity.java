@@ -167,63 +167,69 @@ public class ComponentReplacementActivity extends WithRecyclerView {
         d.setMessage("....");
 
         if (item.getItemId() == R.id.action_pull_from_server) {
-            ComponentReplacements.getSingleton().loadAsync(new ComponentReplacements.LoaderListener() {
-                @Override
-                public void onStartLoading() {
-                    runOnUiThread(new Runnable() {
+            ComponentReplacements.getSingleton().loadAsync(
+                    new ComponentReplacements.LoaderListener() {
                         @Override
-                        public void run() {
-                            d.show();
+                        public void onStartLoading() {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    d.show();
+                                }
+                            });
                         }
-                    });
-                }
 
-                @Override
-                public void onLoadingComplete(ComponentReplacementList list) {
-                    if (list.getList() == null) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                d.dismiss();
-                                Toast.makeText(getActivity(), R.string.title_comp_replacement_remote_empty, Toast.LENGTH_LONG).show();
+                        @Override
+                        public void onLoadingComplete(ComponentReplacementList list) {
+                            if (list.getList() == null) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        d.dismiss();
+                                        Toast.makeText(getActivity(), R.string.title_comp_replacement_remote_empty, Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                                return;
                             }
-                        });
-                        return;
-                    }
 
-                    Collections.consumeRemaining(list.getList(), new Consumer<ComponentReplacement>() {
+                            final int[] count = {0};
+                            Collections.consumeRemaining(list.getList(), new Consumer<ComponentReplacement>() {
+                                @Override
+                                public void accept(ComponentReplacement componentReplacement) {
+                                    try {
+                                        ComponentName fromCompName = ComponentName.unflattenFromString(componentReplacement.fromFlattenToString());
+                                        ComponentName toCompName = ComponentName.unflattenFromString(componentReplacement.toFlattenToString());
+                                        XAppGuardManager.get().addOrRemoveComponentReplacement(fromCompName, toCompName, true);
+                                        count[0]++;
+                                    } catch (Throwable e) {
+                                        Logger.e("Error add replacement: " + Logger.getStackTraceString(e));
+                                    }
+                                }
+                            });
+
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    d.dismiss();
+                                    Toast.makeText(getActivity(),
+                                            getString(R.string.title_comp_replacement_remote_success,
+                                                    String.valueOf(count[0])),
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        }
+
                         @Override
-                        public void accept(ComponentReplacement componentReplacement) {
-                            try {
-                                ComponentName fromCompName = ComponentName.unflattenFromString(componentReplacement.fromFlattenToString());
-                                ComponentName toCompName = ComponentName.unflattenFromString(componentReplacement.toFlattenToString());
-                                XAppGuardManager.get().addOrRemoveComponentReplacement(fromCompName, toCompName, true);
-                            } catch (Throwable e) {
-                                Logger.e("Error add replacement: " + Logger.getStackTraceString(e));
-                            }
+                        public void onError(final Throwable e) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    d.dismiss();
+                                    Toast.makeText(getActivity(), Logger.getStackTraceString(e), Toast.LENGTH_LONG).show();
+                                }
+                            });
                         }
                     });
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            d.dismiss();
-                            Toast.makeText(getActivity(), R.string.title_comp_replacement_remote_success, Toast.LENGTH_LONG).show();
-                        }
-                    });
-                }
-
-                @Override
-                public void onError(final Throwable e) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            d.dismiss();
-                            Toast.makeText(getActivity(), Logger.getStackTraceString(e), Toast.LENGTH_LONG).show();
-                        }
-                    });
-                }
-            });
         }
         return super.onOptionsItemSelected(item);
     }

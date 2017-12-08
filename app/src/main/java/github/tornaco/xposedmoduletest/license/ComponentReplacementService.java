@@ -1,6 +1,8 @@
 package github.tornaco.xposedmoduletest.license;
 
-import github.tornaco.xposedmoduletest.bean.ComponentReplacementList;
+import java.util.List;
+
+import github.tornaco.xposedmoduletest.bean.ComponentReplacement;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -13,10 +15,10 @@ import retrofit2.http.GET;
 
 public interface ComponentReplacementService {
 
-    String API_URL = "https://raw.githubusercontent.com/Tornaco/Tor-Data/master/";
+    String API_URL = "https://raw.githubusercontent.com/Tornaco/XAppGuard/master/remote/";
 
-    @GET("app_guard_config")
-    Call<ComponentReplacementList> get();
+    @GET("component_replacements")
+    Call<List<ComponentReplacement>> get();
 
     class Factory {
 

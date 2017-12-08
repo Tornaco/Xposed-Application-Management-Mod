@@ -296,6 +296,6 @@
     <string name="title_remove" >移除</string>
     <string name="title_pull_from_server" >从服务器获取预置规则</string>
     <string name="title_comp_replacement_remote_empty">远程服务器获取到的配置为空</string>
-    <string name="title_comp_replacement_remote_success">已经更新规则</string>
+    <string name="title_comp_replacement_remote_success">已经更新%1$s条规则</string>
 
 </resources>

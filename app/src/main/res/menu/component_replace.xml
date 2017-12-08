@@ -14,7 +14,7 @@
         android:id="@+id/action_pull_from_server"
         android:icon="@drawable/ic_sync_white_24dp"
         android:title="@string/title_pull_from_server"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
 
 </menu>
 
