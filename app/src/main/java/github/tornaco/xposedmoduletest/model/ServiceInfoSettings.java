@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.model;
 import android.content.ComponentName;
 import android.content.pm.ServiceInfo;
 
+import ir.mirrajabi.searchdialog.core.Searchable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor
 @ToString
-public class ServiceInfoSettings {
+public class ServiceInfoSettings implements Searchable {
 
     private ServiceInfo serviceInfo;
 
@@ -25,6 +26,11 @@ public class ServiceInfoSettings {
     private String displayName;
 
     private boolean allowed;
+
+    @Override
+    public String getTitle() {
+        return simpleName();
+    }
 
     @AllArgsConstructor
     @Getter
@@ -48,5 +54,23 @@ public class ServiceInfoSettings {
             return simpleName.substring(simpleName.lastIndexOf(".") + 1); // strip the package name
         }
         return simpleName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ServiceInfoSettings that = (ServiceInfoSettings) o;
+
+        if (!serviceLabel.equals(that.serviceLabel)) return false;
+        return displayName != null ? displayName.equals(that.displayName) : that.displayName == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = serviceLabel.hashCode();
+        result = 31 * result + (displayName != null ? displayName.hashCode() : 0);
+        return result;
     }
 }

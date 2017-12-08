@@ -47,7 +47,7 @@ public class GuardAppNavActivity extends NeedLockActivity {
     }
 
     private void initService() {
-        boolean serviceConnected = XAppGuardManager.singleInstance().isServiceAvailable();
+        boolean serviceConnected = XAppGuardManager.get().isServiceAvailable();
         Logger.d("serviceConnected:" + serviceConnected);
     }
 
@@ -105,13 +105,13 @@ public class GuardAppNavActivity extends NeedLockActivity {
             public void run() {
                 SwitchBar switchBar = findViewById(R.id.switchbar);
                 if (switchBar == null) return;
-                switchBar.setChecked(XAppGuardManager.singleInstance().isServiceAvailable()
-                        && XAppGuardManager.singleInstance().isEnabled());
+                switchBar.setChecked(XAppGuardManager.get().isServiceAvailable()
+                        && XAppGuardManager.get().isEnabled());
                 switchBar.addOnSwitchChangeListener(new SwitchBar.OnSwitchChangeListener() {
                     @Override
                     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-                        if (XAppGuardManager.singleInstance().isServiceAvailable())
-                            XAppGuardManager.singleInstance().setEnabled(isChecked);
+                        if (XAppGuardManager.get().isServiceAvailable())
+                            XAppGuardManager.get().setEnabled(isChecked);
                         else showTips(R.string.title_service_not_connected_settings, false,
                                 null, null);
                     }

@@ -1,7 +1,9 @@
 package github.tornaco.xposedmoduletest.ui.adapter;
 
 import android.content.Context;
+import android.support.annotation.ColorInt;
 import android.support.annotation.LayoutRes;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -19,6 +21,7 @@ import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Created by guohao4 on 2017/11/17.
@@ -30,10 +33,19 @@ public class ComponentListAdapter<T>
 
     private final List<T> data = Lists.newArrayList();
 
+    @Getter
+    private int selection = -1;
+
     private Context context;
+
+    @ColorInt
+    @Setter
+    private int highlightColor, normalColor;
 
     public ComponentListAdapter(Context context) {
         this.context = context;
+        this.highlightColor = ContextCompat.getColor(context, R.color.blue_grey);
+        this.normalColor = ContextCompat.getColor(context, R.color.card);
     }
 
     public void update(Collection<T> src) {
@@ -41,6 +53,11 @@ public class ComponentListAdapter<T>
             data.clear();
             data.addAll(src);
         }
+        notifyDataSetChanged();
+    }
+
+    public void setSelection(int selection) {
+        this.selection = selection;
         notifyDataSetChanged();
     }
 
@@ -64,6 +81,11 @@ public class ComponentListAdapter<T>
                 showPopMenu(t, v);
             }
         });
+        if (getSelection() >= 0 && position == selection) {
+            holder.itemView.setBackgroundColor(highlightColor);
+        } else {
+            holder.itemView.setBackgroundColor(normalColor);
+        }
     }
 
     protected void showPopMenu(final T t, View anchor) {

@@ -50,7 +50,7 @@ public class LockKillAppPickerActivity extends LockKillAppNavActivity {
                                     @Override
                                     public void accept(LockKillPackage packageInfo) {
                                         if (!packageInfo.getKill()) {
-                                            XAshmanManager.singleInstance()
+                                            XAshmanManager.get()
                                                     .addOrRemoveLKApps(
                                                             new String[]{packageInfo.getPkgName()},
                                                             XAshmanManager.Op.ADD

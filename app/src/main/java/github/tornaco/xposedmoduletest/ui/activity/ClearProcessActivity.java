@@ -43,7 +43,7 @@ public class ClearProcessActivity extends BaseActivity {
 
         final TextView textView = findViewById(R.id.text);
 
-        XAshmanManager.singleInstance().clearProcess(new IProcessClearListenerAdapter() {
+        XAshmanManager.get().clearProcess(new IProcessClearListenerAdapter() {
 
             @Override
             public void onPrepareClearing() throws RemoteException {

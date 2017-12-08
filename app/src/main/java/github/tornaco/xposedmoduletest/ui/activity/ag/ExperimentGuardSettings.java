@@ -30,13 +30,13 @@ public class ExperimentGuardSettings extends GuardSettingsActivity {
             addPreferencesFromResource(R.xml.ag_exp);
 
 
-            if (!XAppGuardManager.singleInstance().isServiceAvailable()) {
+            if (!XAppGuardManager.get().isServiceAvailable()) {
                 getPreferenceScreen().setEnabled(false);
                 return;
             }
 
 
-            BlurSettings blurSettings = XAppGuardManager.singleInstance()
+            BlurSettings blurSettings = XAppGuardManager.get()
                     .getBlurSettings();
             if (blurSettings == null) blurSettings = new BlurSettings();
 
@@ -52,7 +52,7 @@ public class ExperimentGuardSettings extends GuardSettingsActivity {
                     if (finalBlurSettings.getPolicy() != XAppGuardManager.BlurPolicy.BLUR_ALL) {
                         finalBlurSettings.setPolicy(XAppGuardManager.BlurPolicy.BLUR_WATCHED);
                     }
-                    XAppGuardManager.singleInstance().setBlurSettings(finalBlurSettings);
+                    XAppGuardManager.get().setBlurSettings(finalBlurSettings);
                     return true;
                 }
             });
@@ -65,19 +65,19 @@ public class ExperimentGuardSettings extends GuardSettingsActivity {
                     boolean v = (boolean) newValue;
                     finalBlurSettings.setPolicy(v ? XAppGuardManager.BlurPolicy.BLUR_ALL
                             : XAppGuardManager.BlurPolicy.BLUR_WATCHED);
-                    XAppGuardManager.singleInstance().setBlurSettings(finalBlurSettings);
+                    XAppGuardManager.get().setBlurSettings(finalBlurSettings);
                     return true;
                 }
             });
 
 
             SwitchPreference uninstallPref = (SwitchPreference) findPreference("key_app_uninstall_pro_enabled");
-            uninstallPref.setChecked(XAppGuardManager.singleInstance().isUninstallInterruptEnabled());
+            uninstallPref.setChecked(XAppGuardManager.get().isUninstallInterruptEnabled());
             uninstallPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     boolean v = (boolean) newValue;
-                    XAppGuardManager.singleInstance().setUninstallInterruptEnabled(v);
+                    XAppGuardManager.get().setUninstallInterruptEnabled(v);
                     return true;
                 }
             });
@@ -88,7 +88,7 @@ public class ExperimentGuardSettings extends GuardSettingsActivity {
                 @Override
                 public void onSeekComplete(int progress) {
                     finalBlurSettings.setRadius(progress);
-                    XAppGuardManager.singleInstance().setBlurSettings(finalBlurSettings);
+                    XAppGuardManager.get().setBlurSettings(finalBlurSettings);
                 }
             });
         }

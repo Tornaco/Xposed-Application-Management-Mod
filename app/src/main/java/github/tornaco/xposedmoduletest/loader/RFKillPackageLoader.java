@@ -41,7 +41,7 @@ public interface RFKillPackageLoader {
 
             List<RFKillPackage> out = new ArrayList<>();
 
-            XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
+            XAshmanManager xAshmanManager = XAshmanManager.get();
             if (!xAshmanManager.isServiceAvailable()) return out;
 
             String[] packages = xAshmanManager.getRFKApps(willBeKill);

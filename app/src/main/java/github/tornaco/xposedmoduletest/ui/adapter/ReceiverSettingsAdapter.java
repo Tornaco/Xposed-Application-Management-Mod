@@ -28,7 +28,7 @@ public class ReceiverSettingsAdapter extends ComponentListAdapter<ActivityInfoSe
 
     public ReceiverSettingsAdapter(Context context) {
         super(context);
-        xAshmanManager = XAshmanManager.singleInstance();
+        xAshmanManager = XAshmanManager.get();
     }
 
     private XAshmanManager xAshmanManager;

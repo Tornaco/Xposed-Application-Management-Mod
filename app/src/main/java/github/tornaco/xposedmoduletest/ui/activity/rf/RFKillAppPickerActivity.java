@@ -50,7 +50,7 @@ public class RFKillAppPickerActivity extends RFKillAppNavActivity {
                                     @Override
                                     public void accept(RFKillPackage packageInfo) {
                                         if (!packageInfo.getKill()) {
-                                            XAshmanManager.singleInstance()
+                                            XAshmanManager.get()
                                                     .addOrRemoveRFKApps(
                                                             new String[]{packageInfo.getPkgName()},
                                                             XAshmanManager.Op.ADD

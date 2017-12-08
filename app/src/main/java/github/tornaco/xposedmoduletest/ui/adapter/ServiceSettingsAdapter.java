@@ -30,7 +30,7 @@ public class ServiceSettingsAdapter extends ComponentListAdapter<ServiceInfoSett
         super(context);
     }
 
-    private final XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
+    private final XAshmanManager xAshmanManager = XAshmanManager.get();
 
     @Override
     public void onBindViewHolder(ComponentHolder holder, int position) {

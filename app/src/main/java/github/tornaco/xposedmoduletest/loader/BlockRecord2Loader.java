@@ -28,8 +28,8 @@ public interface BlockRecord2Loader {
         @NonNull
         @Override
         public List<BlockRecord2> loadAll(String pkg) {
-            if (XAshmanManager.singleInstance().isServiceAvailable()) {
-                List<BlockRecord2> all = XAshmanManager.singleInstance().getBlockRecords();
+            if (XAshmanManager.get().isServiceAvailable()) {
+                List<BlockRecord2> all = XAshmanManager.get().getBlockRecords();
 
                 java.util.Collections.sort(all, new Comparator<BlockRecord2>() {
                     @Override

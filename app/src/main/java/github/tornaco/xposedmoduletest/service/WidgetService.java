@@ -37,8 +37,8 @@ public class WidgetService extends Service {
 
         Logger.d("WidgetService. onStartCommand");
 
-        if (XAshmanManager.singleInstance().isServiceAvailable() && ACTION_CLEAR_PROCESS.equals(intent.getAction())) {
-            XAshmanManager.singleInstance().clearProcess(new IProcessClearListenerAdapter() {
+        if (XAshmanManager.get().isServiceAvailable() && ACTION_CLEAR_PROCESS.equals(intent.getAction())) {
+            XAshmanManager.get().clearProcess(new IProcessClearListenerAdapter() {
 
                 @Override
                 public void onPrepareClearing() throws RemoteException {

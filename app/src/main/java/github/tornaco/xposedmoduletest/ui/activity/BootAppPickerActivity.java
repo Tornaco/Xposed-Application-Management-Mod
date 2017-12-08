@@ -49,7 +49,7 @@ public class BootAppPickerActivity extends BootAppNavActivity {
                                     @Override
                                     public void accept(BootCompletePackage packageInfo) {
                                         if (packageInfo.getAllow()) {
-                                            XAshmanManager.singleInstance()
+                                            XAshmanManager.get()
                                                     .addOrRemoveBootBlockApps(
                                                             new String[]{packageInfo.getPkgName()},
                                                             XAshmanManager.Op.ADD

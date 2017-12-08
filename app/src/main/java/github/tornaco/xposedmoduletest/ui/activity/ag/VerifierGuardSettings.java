@@ -27,27 +27,27 @@ public class VerifierGuardSettings extends GuardSettingsActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.ag_verifier);
 
-            if (!XAppGuardManager.singleInstance().isServiceAvailable()) {
+            if (!XAppGuardManager.get().isServiceAvailable()) {
                 getPreferenceScreen().setEnabled(false);
             } else {
                 SwitchPreference switchPreference = (SwitchPreference) findPreference("unlock_vibrate_enabled");
-                switchPreference.setChecked(!XAppGuardManager.singleInstance().isInterruptFPEventVBEnabled(XAppGuardManager.FPEvent.SUCCESS));
+                switchPreference.setChecked(!XAppGuardManager.get().isInterruptFPEventVBEnabled(XAppGuardManager.FPEvent.SUCCESS));
                 switchPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean interrupt = !(boolean) newValue;
-                        XAppGuardManager.singleInstance().setInterruptFPEventVBEnabled(XAppGuardManager.FPEvent.SUCCESS, interrupt);
+                        XAppGuardManager.get().setInterruptFPEventVBEnabled(XAppGuardManager.FPEvent.SUCCESS, interrupt);
                         return true;
                     }
                 });
 
                 switchPreference = (SwitchPreference) findPreference("error_vibrate_enabled");
-                switchPreference.setChecked(!XAppGuardManager.singleInstance().isInterruptFPEventVBEnabled(XAppGuardManager.FPEvent.ERROR));
+                switchPreference.setChecked(!XAppGuardManager.get().isInterruptFPEventVBEnabled(XAppGuardManager.FPEvent.ERROR));
                 switchPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean interrupt = !(boolean) newValue;
-                        XAppGuardManager.singleInstance().setInterruptFPEventVBEnabled(XAppGuardManager.FPEvent.ERROR, interrupt);
+                        XAppGuardManager.get().setInterruptFPEventVBEnabled(XAppGuardManager.FPEvent.ERROR, interrupt);
                         return true;
                     }
                 });

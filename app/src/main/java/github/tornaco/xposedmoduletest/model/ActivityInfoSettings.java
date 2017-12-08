@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.model;
 import android.content.ComponentName;
 import android.content.pm.ActivityInfo;
 
+import ir.mirrajabi.searchdialog.core.Searchable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,13 +18,18 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor
 @ToString
-public class ActivityInfoSettings {
+public class ActivityInfoSettings implements Searchable {
     private ActivityInfo activityInfo;
 
     private boolean allowed;
 
     private String serviceLabel;
     private String displayName;
+
+    @Override
+    public String getTitle() {
+        return simpleName();
+    }
 
     @AllArgsConstructor
     @Getter
@@ -40,7 +46,7 @@ public class ActivityInfoSettings {
 
     public String simpleName() {
         String simpleName = getDisplayName();
-        if (simpleName==null) {
+        if (simpleName == null) {
             simpleName = getActivityInfo().packageName;
         }
         final int dot = simpleName.lastIndexOf(".");

@@ -48,9 +48,9 @@ public class SecureGuardSettings extends GuardSettingsActivity {
             });
 
 
-            if (XAppGuardManager.singleInstance().isServiceAvailable()) {
+            if (XAppGuardManager.get().isServiceAvailable()) {
 
-                verifySettings = XAppGuardManager.singleInstance().getVerifySettings();
+                verifySettings = XAppGuardManager.get().getVerifySettings();
                 if (verifySettings == null) verifySettings = new VerifySettings();
 
                 final boolean verifyOnHome = verifySettings.isVerifyOnAppSwitch();
@@ -60,7 +60,7 @@ public class SecureGuardSettings extends GuardSettingsActivity {
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean v = (boolean) newValue;
                         verifySettings.setVerifyOnAppSwitch(v);
-                        XAppGuardManager.singleInstance().setVerifySettings(verifySettings);
+                        XAppGuardManager.get().setVerifySettings(verifySettings);
                         return true;
                     }
                 });
@@ -73,7 +73,7 @@ public class SecureGuardSettings extends GuardSettingsActivity {
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean v = (boolean) newValue;
                         verifySettings.setVerifyOnScreenOff(v);
-                        XAppGuardManager.singleInstance().setVerifySettings(verifySettings);
+                        XAppGuardManager.get().setVerifySettings(verifySettings);
                         return true;
                     }
                 });

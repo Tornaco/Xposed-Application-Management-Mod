@@ -29,14 +29,14 @@ public class GeneralCompSettings extends GuardSettingsActivity {
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.comp_general);
-            if (XAshmanManager.singleInstance().isServiceAvailable()) {
+            if (XAshmanManager.get().isServiceAvailable()) {
                 SwitchPreference switchPreference = (SwitchPreference) findPreference("comp_setting_block");
-                switchPreference.setChecked(XAshmanManager.singleInstance().isCompSettingBlockEnabledEnabled());
+                switchPreference.setChecked(XAshmanManager.get().isCompSettingBlockEnabledEnabled());
                 switchPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean block = (boolean) newValue;
-                        XAshmanManager.singleInstance().setCompSettingBlockEnabled(block);
+                        XAshmanManager.get().setCompSettingBlockEnabled(block);
                         return true;
                     }
                 });

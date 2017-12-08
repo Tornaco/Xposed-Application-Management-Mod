@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
 
 import github.tornaco.permission.requester.RuntimePermissions;
@@ -29,9 +30,9 @@ public class GeneralLKSettings extends GuardSettingsActivity {
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.lk_general);
-            if (XAshmanManager.singleInstance().isServiceAvailable()) {
+            if (XAshmanManager.get().isServiceAvailable()) {
                 final ListPreference delayPref = (ListPreference) findPreference("key_lk_delay");
-                long delay = XAshmanManager.singleInstance().getLockKillDelay();
+                long delay = XAshmanManager.get().getLockKillDelay();
                 int sec = (int) (delay / 1000);
                 delayPref.setValue(String.valueOf(sec));
                 delayPref.setSummary(delayPref.getEntries()[delayPref.findIndexOfValue(String.valueOf(sec))]);
@@ -41,8 +42,19 @@ public class GeneralLKSettings extends GuardSettingsActivity {
                         String vs = (String) newValue;
                         int sec = Integer.parseInt(vs);
                         long mills = sec * 1000;
-                        XAshmanManager.singleInstance().setLockKillDelay(mills);
+                        XAshmanManager.get().setLockKillDelay(mills);
                         delayPref.setSummary(delayPref.getEntries()[delayPref.findIndexOfValue(String.valueOf(sec))]);
+                        return true;
+                    }
+                });
+
+                SwitchPreference doNotKillAudioPref = (SwitchPreference) findPreference("do_not_kill_audio");
+                doNotKillAudioPref.setChecked(XAshmanManager.get().isLockKillDoNotKillAudioEnabled());
+                doNotKillAudioPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        boolean enabled = (boolean) newValue;
+                        XAshmanManager.get().setLockKillDoNotKillAudioEnabled(enabled);
                         return true;
                     }
                 });

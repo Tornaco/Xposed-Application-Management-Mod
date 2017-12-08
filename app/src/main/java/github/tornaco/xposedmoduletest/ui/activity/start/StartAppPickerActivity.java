@@ -50,7 +50,7 @@ public class StartAppPickerActivity extends StartAppNavActivity {
                                     @Override
                                     public void accept(AutoStartPackage packageInfo) {
                                         if (packageInfo.getAllow()) {
-                                            XAshmanManager.singleInstance()
+                                            XAshmanManager.get()
                                                     .addOrRemoveStartBlockApps(
                                                             new String[]{packageInfo.getPkgName()},
                                                             XAshmanManager.Op.ADD

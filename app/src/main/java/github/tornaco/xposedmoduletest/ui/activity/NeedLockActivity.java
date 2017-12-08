@@ -237,8 +237,8 @@ public class NeedLockActivity extends BaseActivity {
         }
 
         private void vibrate() {
-//            if (XAppGuardManager.singleInstance().isServiceAvailable()
-//                    && XAppGuardManager.singleInstance().isInterruptFPEventVBEnabled(XAppGuardManager.FPEvent.SUCCESS)) {
+//            if (XAppGuardManager.get().isServiceAvailable()
+//                    && XAppGuardManager.get().isInterruptFPEventVBEnabled(XAppGuardManager.FPEvent.SUCCESS)) {
 //                Vibrator vibrator = (Vibrator) activity.getSystemService(VIBRATOR_SERVICE);
 //                if (vibrator != null) {
 //                    vibrator.vibrate(new long[]{10, 20, 20}, -1);

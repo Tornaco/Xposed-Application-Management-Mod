@@ -28,15 +28,15 @@ public class AppDevMode extends QuickTile {
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);
-                setChecked(XAppGuardManager.singleInstance().isServiceAvailable() && XAppGuardManager.singleInstance().isDebug());
+                setChecked(XAppGuardManager.get().isServiceAvailable() && XAppGuardManager.get().isDebug());
                 XSettings.setInDevMode(context, isChecked());
             }
 
             @Override
             protected void onCheckChanged(boolean checked) {
                 super.onCheckChanged(checked);
-                if (XAppGuardManager.singleInstance().isServiceAvailable()) {
-                    XAppGuardManager.singleInstance().setDebug(checked);
+                if (XAppGuardManager.get().isServiceAvailable()) {
+                    XAppGuardManager.get().setDebug(checked);
                     XSettings.setInDevMode(context, checked);
 
                     Logger.config(Settings.builder().tag("X-APM-C")

@@ -2,7 +2,12 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory android:title="@string/title_general_settings">
-
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="do_not_kill_audio"
+            android:persistent="false"
+            android:summary="@string/summary_lk_do_not_kill_audio"
+            android:title="@string/titile_lk_do_not_kill_audio" />
         <ListPreference
             android:defaultValue="0"
             android:entries="@array/lk_delay_entries"

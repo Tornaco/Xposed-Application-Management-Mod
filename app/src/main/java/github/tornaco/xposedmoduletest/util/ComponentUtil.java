@@ -111,7 +111,7 @@ public class ComponentUtil {
     }
 
     public static boolean applyBatch(Context context, ServiceInfoSettingsList serviceInfoSettingsList) {
-        final XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
+        final XAshmanManager xAshmanManager = XAshmanManager.get();
         if (xAshmanManager == null) return false;
         if (serviceInfoSettingsList == null) return false;
         String pkg = serviceInfoSettingsList.getPackageName();
@@ -137,7 +137,7 @@ public class ComponentUtil {
     }
 
     public static boolean applyBatch(Context context, ActivityInfoSettingsList activityInfoSettingsList) {
-        final XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
+        final XAshmanManager xAshmanManager = XAshmanManager.get();
         if (xAshmanManager == null) return false;
         if (activityInfoSettingsList == null) return false;
         String pkg = activityInfoSettingsList.getPackageName();

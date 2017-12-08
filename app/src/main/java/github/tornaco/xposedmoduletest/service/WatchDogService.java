@@ -64,13 +64,13 @@ public class WatchDogService extends Service implements Handler.Callback, WatchD
     public int onStartCommand(Intent intent, int flags, int startId) {
         Logger.d("WatchDogService start.");
         if (!adapterRegistered) {
-            if (XAshmanManager.singleInstance().isServiceAvailable()) {
-                XAshmanManager.singleInstance().watch(ashmanWatcherAdapter);
+            if (XAshmanManager.get().isServiceAvailable()) {
+                XAshmanManager.get().watch(ashmanWatcherAdapter);
                 adapterRegistered = true;
             }
         }
 
-        if (BuildConfig.DEBUG && !XAshmanManager.singleInstance().isServiceAvailable()) {
+        if (BuildConfig.DEBUG && !XAshmanManager.get().isServiceAvailable()) {
             NotificationManagerCompat.from(this)
                     .notify(NOTIFICATION_ID.getAndIncrement(),
                             new Notification.Builder(this)
@@ -85,8 +85,8 @@ public class WatchDogService extends Service implements Handler.Callback, WatchD
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (XAshmanManager.singleInstance().isServiceAvailable()) {
-            XAshmanManager.singleInstance().unWatch(ashmanWatcherAdapter);
+        if (XAshmanManager.get().isServiceAvailable()) {
+            XAshmanManager.get().unWatch(ashmanWatcherAdapter);
         }
         adapterRegistered = false;
     }

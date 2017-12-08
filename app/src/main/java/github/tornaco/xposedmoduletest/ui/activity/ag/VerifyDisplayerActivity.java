@@ -9,7 +9,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -274,7 +273,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private void vibrate() {
-//        if (XAppGuardManager.singleInstance().isInterruptFPEventVBEnabled(XAppGuardManager.FPEvent.SUCCESS)) {
+//        if (XAppGuardManager.get().isInterruptFPEventVBEnabled(XAppGuardManager.FPEvent.SUCCESS)) {
 //            Logger.w("vibrating...");
 //            Vibrator vibrator = (Vibrator) VerifyDisplayerActivity.this.getSystemService(VIBRATOR_SERVICE);
 //            if (vibrator != null) {
@@ -318,7 +317,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
             if (!checkTransaction()) {
                 return;
             }
-            XAppGuardManager.singleInstance().setResult(tid, XAppVerifyMode.MODE_ALLOWED);
+            XAppGuardManager.get().setResult(tid, XAppVerifyMode.MODE_ALLOWED);
         } finally {
             finish();
         }
@@ -369,8 +368,8 @@ public class VerifyDisplayerActivity extends BaseActivity {
             finish();
             return false;
         }
-        return XAppGuardManager.singleInstance().isServiceAvailable()
-                && XAppGuardManager.singleInstance().isTransactionValid(tid);
+        return XAppGuardManager.get().isServiceAvailable()
+                && XAppGuardManager.get().isTransactionValid(tid);
     }
 
     private void onFail() {
@@ -379,7 +378,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
         }
         mResNotified = true;
         cancelFP();
-        XAppGuardManager.singleInstance().setResult(tid, XAppVerifyMode.MODE_DENIED);
+        XAppGuardManager.get().setResult(tid, XAppVerifyMode.MODE_DENIED);
         if (injectHome) {
             Intent intent = new Intent("android.intent.action.MAIN");
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -414,7 +413,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private boolean resolveIntent(Intent intent) {
         // Service is not available, ignore.
-        if (!XAppGuardManager.singleInstance().isServiceAvailable()) {
+        if (!XAppGuardManager.get().isServiceAvailable()) {
             return false;
         }
         Logger.d("before resolveIntent: %s, %s", pkg, tid);

@@ -105,7 +105,7 @@ public class BootAppListAdapter extends RecyclerView.Adapter<BootAppListAdapter.
     }
 
     private void removePkgAsync(BootCompletePackage pkg) {
-        XAshmanManager.singleInstance()
+        XAshmanManager.get()
                 .addOrRemoveBootBlockApps(new String[]{pkg.getPkgName()},
                         XAshmanManager.Op.REMOVE);
         onPackageRemoved(pkg.getPkgName());

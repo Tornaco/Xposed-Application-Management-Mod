@@ -6,6 +6,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -28,10 +29,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.common.collect.Lists;
 import com.nononsenseapps.filepicker.FilePickerActivity;
 import com.nononsenseapps.filepicker.Utils;
+
+import org.newstand.logger.Logger;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -47,7 +51,10 @@ import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.ComponentLoader;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
+import github.tornaco.xposedmoduletest.model.ActivityInfoSettings;
 import github.tornaco.xposedmoduletest.model.ActivityInfoSettingsList;
+import github.tornaco.xposedmoduletest.model.SampleModel;
+import github.tornaco.xposedmoduletest.model.ServiceInfoSettings;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettingsList;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
@@ -59,7 +66,11 @@ import github.tornaco.xposedmoduletest.util.ComponentUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
+import ir.mirrajabi.searchdialog.SimpleSearchDialogCompat;
+import ir.mirrajabi.searchdialog.core.BaseSearchDialogCompat;
+import ir.mirrajabi.searchdialog.core.SearchResultListener;
 import lombok.Getter;
+import lombok.Setter;
 
 @RuntimePermissions
 public class ComponentEditorActivity extends BaseActivity implements LoadingListener, ObserableHost {
@@ -92,6 +103,7 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
 
     private String mPackageName;
 
+    private ComponentListFragment mCurrentFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +132,24 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
         // Set up the ViewPager with the sections adapter.
         mViewPager = findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                mCurrentFragment = mFragments.get(position);
+                Logger.d("onPageScrolled: " + mCurrentFragment);
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                mCurrentFragment = mFragments.get(position);
+                Logger.d("onPageSelected: " + mCurrentFragment);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
         TabLayout tabLayout = findViewById(R.id.tabs);
 
@@ -168,6 +198,7 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
 
     @SuppressWarnings("ConstantConditions")
     private void applyColor(int color) {
+        this.setThemeColor(color);
         AppBarLayout appBar = findViewById(R.id.appbar);
         if (appBar != null) appBar.setBackgroundColor(color);
         getWindow().setStatusBarColor(ColorUtil.colorBurn(color));
@@ -176,6 +207,10 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
             toolbar.setBackgroundColor(color);
         }
     }
+
+    @Getter
+    @Setter
+    private int themeColor;
 
     private boolean internalResolveIntent() {
         Intent intent = getIntent();
@@ -194,6 +229,13 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+
+        if (id == R.id.action_search) {
+            if (mCurrentFragment != null) {
+                mCurrentFragment.onRequestSearch();
+            }
+            return true;
+        }
 
         if (id == R.id.action_export_service_settings) {
             final String formated = ComponentLoader.Impl.create(this).formatServiceSettings(mPackageName);
@@ -501,6 +543,37 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
         protected ComponentListAdapter onCreateAdapter() {
             return new ActivitySettingsAdapter(getActivity());
         }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        void onRequestSearch() {
+            super.onRequestSearch();
+            final ArrayList<ActivityInfoSettings> adapterData = (ArrayList<ActivityInfoSettings>)
+                    getComponentListAdapter().getData();
+
+            final SimpleSearchDialogCompat<ActivityInfoSettings> searchDialog =
+                    new SimpleSearchDialogCompat(getActivity(), getString(R.string.title_search),
+                            getString(R.string.title_search_hint), null, adapterData,
+                            new SearchResultListener<ActivityInfoSettings>() {
+
+                                @Override
+                                public void onSelected(BaseSearchDialogCompat baseSearchDialogCompat,
+                                                       ActivityInfoSettings serviceInfoSettings, int i) {
+                                    int index = indexOf(serviceInfoSettings);
+                                    getRecyclerView().scrollToPosition(index + 1);
+                                    getComponentListAdapter().setSelection(index);
+                                    baseSearchDialogCompat.dismiss();
+                                }
+                            });
+
+
+            searchDialog.show();
+            searchDialog.getSearchBox().setTypeface(Typeface.SERIF);
+        }
+
+        private int indexOf(final ActivityInfoSettings serviceInfoSettings) {
+            return getComponentListAdapter().getData().indexOf(serviceInfoSettings);
+        }
     }
 
     public static class ReceiverListFragment extends ComponentListFragment {
@@ -524,6 +597,37 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
         protected ComponentListAdapter onCreateAdapter() {
             return new ReceiverSettingsAdapter(getActivity());
         }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        void onRequestSearch() {
+            super.onRequestSearch();
+            final ArrayList<ActivityInfoSettings> adapterData = (ArrayList<ActivityInfoSettings>)
+                    getComponentListAdapter().getData();
+
+            final SimpleSearchDialogCompat<ActivityInfoSettings> searchDialog =
+                    new SimpleSearchDialogCompat(getActivity(), getString(R.string.title_search),
+                            getString(R.string.title_search_hint), null, adapterData,
+                            new SearchResultListener<ActivityInfoSettings>() {
+
+                                @Override
+                                public void onSelected(BaseSearchDialogCompat baseSearchDialogCompat,
+                                                       ActivityInfoSettings serviceInfoSettings, int i) {
+                                    int index = indexOf(serviceInfoSettings);
+                                    getRecyclerView().scrollToPosition(index + 1);
+                                    getComponentListAdapter().setSelection(index);
+                                    baseSearchDialogCompat.dismiss();
+                                }
+                            });
+
+
+            searchDialog.show();
+            searchDialog.getSearchBox().setTypeface(Typeface.SERIF);
+        }
+
+        private int indexOf(final ActivityInfoSettings serviceInfoSettings) {
+            return getComponentListAdapter().getData().indexOf(serviceInfoSettings);
+        }
     }
 
     public static class ServiceListFragment extends ComponentListFragment {
@@ -538,7 +642,7 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
         }
 
         @Override
-        protected List performLoading() {
+        protected List<ServiceInfoSettings> performLoading() {
             return ComponentLoader.Impl.create(getActivity().getApplicationContext())
                     .loadServiceSettings(getTargetPackageName());
         }
@@ -547,6 +651,67 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
         protected ServiceSettingsAdapter onCreateAdapter() {
             return new ServiceSettingsAdapter(getActivity());
         }
+
+        void provideSimpleDialog() {
+            SimpleSearchDialogCompat dialog = new SimpleSearchDialogCompat(getActivity(), "Search...",
+                    "What are you looking for...?", null, createSampleData(),
+                    new SearchResultListener<SampleModel>() {
+                        @Override
+                        public void onSelected(BaseSearchDialogCompat dialog,
+                                               SampleModel item, int position) {
+                            Toast.makeText(getActivity(), item.getTitle(),
+                                    Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                        }
+                    });
+            dialog.show();
+            dialog.getSearchBox().setTypeface(Typeface.SERIF);
+        }
+
+        private ArrayList<SampleModel> createSampleData() {
+            ArrayList<SampleModel> items = new ArrayList<>();
+            items.add(new SampleModel("First item"));
+            items.add(new SampleModel("Second item"));
+            items.add(new SampleModel("Third item"));
+            items.add(new SampleModel("The ultimate item"));
+            items.add(new SampleModel("Last item"));
+            items.add(new SampleModel("Lorem ipsum"));
+            items.add(new SampleModel("Dolor sit"));
+            items.add(new SampleModel("Some random word"));
+            items.add(new SampleModel("guess who's back"));
+            return items;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        void onRequestSearch() {
+            super.onRequestSearch();
+            final ArrayList<ServiceInfoSettings> adapterData = (ArrayList<ServiceInfoSettings>)
+                    getComponentListAdapter().getData();
+
+            final SimpleSearchDialogCompat<ServiceInfoSettings> searchDialog =
+                    new SimpleSearchDialogCompat(getActivity(), getString(R.string.title_search),
+                            getString(R.string.title_search_hint), null, adapterData,
+                            new SearchResultListener<ServiceInfoSettings>() {
+
+                                @Override
+                                public void onSelected(BaseSearchDialogCompat baseSearchDialogCompat,
+                                                       ServiceInfoSettings serviceInfoSettings, int i) {
+                                    int index = indexOf(serviceInfoSettings);
+                                    getRecyclerView().scrollToPosition(index + 1);
+                                    getComponentListAdapter().setSelection(index);
+                                    baseSearchDialogCompat.dismiss();
+                                }
+                            });
+
+
+            searchDialog.show();
+            searchDialog.getSearchBox().setTypeface(Typeface.SERIF);
+        }
+
+        private int indexOf(final ServiceInfoSettings serviceInfoSettings) {
+            return getComponentListAdapter().getData().indexOf(serviceInfoSettings);
+        }
     }
 
     @Getter
@@ -554,6 +719,7 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
 
         private SwipeRefreshLayout swipeRefreshLayout;
         private ComponentListAdapter componentListAdapter;
+        private RecyclerView recyclerView;
 
         private String targetPackageName;
         private int index;
@@ -624,13 +790,20 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
         }
 
         @Override
+        public void onResume() {
+            super.onResume();
+            Logger.d("onResume: " + getClass().getSimpleName());
+
+        }
+
+        @Override
         public void onActivityCreated(@Nullable Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
             startLoading();
         }
 
         void setupView(View rootView) {
-            RecyclerView recyclerView = rootView.findViewById(R.id.recycler_view);
+            recyclerView = rootView.findViewById(R.id.recycler_view);
             swipeRefreshLayout = rootView.findViewById(R.id.swipe);
             swipeRefreshLayout.setColorSchemeColors(getResources().getIntArray(R.array.polluted_waves));
 
@@ -648,6 +821,10 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
                             startLoading();
                         }
                     });
+        }
+
+        void onRequestSearch() {
+
         }
     }
 

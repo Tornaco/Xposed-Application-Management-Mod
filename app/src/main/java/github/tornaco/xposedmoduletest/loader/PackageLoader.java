@@ -92,8 +92,8 @@ public interface PackageLoader {
                 if (isSystemApp && !showSystem) continue;
 
                 int state = PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
-                if (XAshmanManager.singleInstance().isServiceAvailable()) {
-                    state = XAshmanManager.singleInstance().getApplicationEnabledSetting(packageInfo.packageName);
+                if (XAshmanManager.get().isServiceAvailable()) {
+                    state = XAshmanManager.get().getApplicationEnabledSetting(packageInfo.packageName);
                     Logger.d("PackageLoader state for: " + packageInfo.packageName + " is: " + state);
                 }
 

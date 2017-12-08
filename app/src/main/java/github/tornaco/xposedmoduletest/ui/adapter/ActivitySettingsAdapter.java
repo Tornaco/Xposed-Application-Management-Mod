@@ -31,7 +31,7 @@ public class ActivitySettingsAdapter extends ComponentListAdapter<ActivityInfoSe
 
     public ActivitySettingsAdapter(Context context) {
         super(context);
-        xAshmanManager = XAshmanManager.singleInstance();
+        xAshmanManager = XAshmanManager.get();
     }
 
     private XAshmanManager xAshmanManager;
@@ -102,7 +102,7 @@ public class ActivitySettingsAdapter extends ComponentListAdapter<ActivityInfoSe
 
                     ComponentName from = ComponentName.unflattenFromString("com.ss.android.article.news/.activity.SplashBadgeActivity");
                     ComponentName to = ComponentName.unflattenFromString("com.ss.android.article.news/.activity.MainActivity");
-                    XAppGuardManager.singleInstance()
+                    XAppGuardManager.get()
                             .addOrRemoveComponentReplacement(from, to, true);
 
                     return true;

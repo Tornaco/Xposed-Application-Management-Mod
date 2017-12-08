@@ -105,7 +105,7 @@ public class LockKillAppListAdapter extends RecyclerView.Adapter<LockKillAppList
     }
 
     private void removePkgAsync(LockKillPackage pkg) {
-        XAshmanManager.singleInstance()
+        XAshmanManager.get()
                 .addOrRemoveLKApps(new String[]{pkg.getPkgName()},
                         XAshmanManager.Op.REMOVE);
         onPackageRemoved(pkg.getPkgName());

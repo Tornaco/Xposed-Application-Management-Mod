@@ -29,19 +29,19 @@ public class AdvancedGuardSettings extends GuardSettingsActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.ag_advanced);
 
-            if (!XAppGuardManager.singleInstance().isServiceAvailable()) {
+            if (!XAppGuardManager.get().isServiceAvailable()) {
                 getPreferenceScreen().setEnabled(false);
                 return;
             }
 
             final StringBuilder moduleStatus = new StringBuilder();
-            Collections.consumeRemaining(XAppGuardManager.singleInstance().getSubModules(),
+            Collections.consumeRemaining(XAppGuardManager.get().getSubModules(),
                     new Consumer<String>() {
                         @Override
                         public void accept(String s) {
                             moduleStatus.append(s)
                                     .append(": ")
-                                    .append(SubModule.SubModuleStatus.valueOf(XAppGuardManager.singleInstance()
+                                    .append(SubModule.SubModuleStatus.valueOf(XAppGuardManager.get()
                                             .getSubModuleStatus(s)))
                                     .append("\n");
                         }
@@ -53,7 +53,7 @@ public class AdvancedGuardSettings extends GuardSettingsActivity {
                     .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                         @Override
                         public boolean onPreferenceClick(Preference preference) {
-                            XAppGuardManager.singleInstance().mockCrash();
+                            XAppGuardManager.get().mockCrash();
                             return true;
                         }
                     });

@@ -40,7 +40,7 @@ public interface BootPackageLoader {
         public List<BootCompletePackage> loadInstalled(boolean blocked) {
             List<BootCompletePackage> out = new ArrayList<>();
 
-            XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
+            XAshmanManager xAshmanManager = XAshmanManager.get();
             if (!xAshmanManager.isServiceAvailable()) return out;
 
             String[] packages = xAshmanManager.getBootBlockApps(blocked);

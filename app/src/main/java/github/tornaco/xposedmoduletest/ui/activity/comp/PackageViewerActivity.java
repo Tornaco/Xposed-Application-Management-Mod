@@ -68,7 +68,7 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
                 super.onBindViewHolder(holder, position);
 
                 // Block all when xash is not running.
-                if (!XAshmanManager.singleInstance().isServiceAvailable()) return;
+                if (!XAshmanManager.get().isServiceAvailable()) return;
 
                 final PackageInfo packageInfo = getPackageInfos().get(position);
                 final boolean disabled = packageInfo.isDisabled();
@@ -82,7 +82,7 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (XAshmanManager.singleInstance().isServiceAvailable())
+                        if (XAshmanManager.get().isServiceAvailable())
                             showPopMenu(packageInfo, disabled, v);
                     }
                 });
@@ -103,12 +103,12 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.action_disable_app:
-                        XAshmanManager.singleInstance().setApplicationEnabledSetting(
+                        XAshmanManager.get().setApplicationEnabledSetting(
                                 packageInfo.getPkgName(), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
                         startLoading();
                         break;
                     case R.id.action_enable_app:
-                        XAshmanManager.singleInstance().setApplicationEnabledSetting(
+                        XAshmanManager.get().setApplicationEnabledSetting(
                                 packageInfo.getPkgName(), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0);
                         startLoading();
                         break;

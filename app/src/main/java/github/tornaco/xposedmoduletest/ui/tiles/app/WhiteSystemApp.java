@@ -25,15 +25,15 @@ public class WhiteSystemApp extends QuickTile {
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);
-                setChecked(XAshmanManager.singleInstance().isServiceAvailable() &&
-                        XAshmanManager.singleInstance().isWhiteSysAppEnabled());
+                setChecked(XAshmanManager.get().isServiceAvailable() &&
+                        XAshmanManager.get().isWhiteSysAppEnabled());
             }
 
             @Override
             protected void onCheckChanged(boolean checked) {
                 super.onCheckChanged(checked);
-                if (XAshmanManager.singleInstance().isServiceAvailable()) {
-                    XAshmanManager.singleInstance().setWhiteSysAppEnabled(checked);
+                if (XAshmanManager.get().isServiceAvailable()) {
+                    XAshmanManager.get().setWhiteSysAppEnabled(checked);
                 }
             }
         };

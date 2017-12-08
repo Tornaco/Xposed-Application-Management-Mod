@@ -130,7 +130,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
             Button button = findView(rootView, R.id.button);
 
             boolean isNewBuild = AppSettings.isNewBuild(getActivity());
-            btnContainer.setVisibility(isNewBuild && XAshmanManager.singleInstance().isServiceAvailable()
+            btnContainer.setVisibility(isNewBuild && XAshmanManager.get().isServiceAvailable()
                     ? View.VISIBLE : View.GONE);
 
             statusTitle.setText(isServiceAvailable() ?
@@ -154,7 +154,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
                 summaryView.setText(R.string.app_intro);
                 ViewGroup header = findView(rootView, R.id.header1);
                 header.setBackgroundColor(
-                        XAppGuardManager.singleInstance().isServiceAvailable() ?
+                        XAppGuardManager.get().isServiceAvailable() ?
                                 ContextCompat.getColor(getActivity(), R.color.green)
                                 : ContextCompat.getColor(getActivity(), R.color.red));
                 imageView.setImageResource(isServiceAvailable()
@@ -164,7 +164,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
         }
 
         private boolean isServiceAvailable() {
-            return XAppGuardManager.singleInstance().isServiceAvailable();
+            return XAppGuardManager.get().isServiceAvailable();
         }
 
         @Override

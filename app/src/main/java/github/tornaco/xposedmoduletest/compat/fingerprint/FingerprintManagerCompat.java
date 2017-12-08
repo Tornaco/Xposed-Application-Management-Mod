@@ -167,7 +167,7 @@ public final class FingerprintManagerCompat {
     }
 
     /**
-     * Container for callback data singleInstance {@link FingerprintManagerCompat#authenticate(CryptoObject,
+     * Container for callback data get {@link FingerprintManagerCompat#authenticate(CryptoObject,
      * int, CancellationSignal, AuthenticationCallback, Handler)}.
      */
     public static final class AuthenticationResult {

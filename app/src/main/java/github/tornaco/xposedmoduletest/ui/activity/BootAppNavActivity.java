@@ -87,13 +87,13 @@ public class BootAppNavActivity extends WithRecyclerView {
             public void run() {
                 SwitchBar switchBar = findViewById(R.id.switchbar);
                 if (switchBar == null) return;
-                switchBar.setChecked(XAshmanManager.singleInstance().isServiceAvailable()
-                        && XAshmanManager.singleInstance().isBlockBlockEnabled());
+                switchBar.setChecked(XAshmanManager.get().isServiceAvailable()
+                        && XAshmanManager.get().isBlockBlockEnabled());
                 switchBar.addOnSwitchChangeListener(new SwitchBar.OnSwitchChangeListener() {
                     @Override
                     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-                        if (XAshmanManager.singleInstance().isServiceAvailable())
-                            XAshmanManager.singleInstance().setBootBlockEnabled(isChecked);
+                        if (XAshmanManager.get().isServiceAvailable())
+                            XAshmanManager.get().setBootBlockEnabled(isChecked);
                         else showTips(R.string.title_service_not_connected_settings, false,
                                 null, null);
                     }
@@ -114,8 +114,8 @@ public class BootAppNavActivity extends WithRecyclerView {
         } else {
             int normalColor = ContextCompat.getColor(getActivity(), R.color.white);
             int highlightColor = ContextCompat.getColor(getActivity(), R.color.amber);
-            int strId = XAshmanManager.singleInstance().isServiceAvailable()
-                    && XAshmanManager.singleInstance().isWhiteSysAppEnabled()
+            int strId = XAshmanManager.get().isServiceAvailable()
+                    && XAshmanManager.get().isWhiteSysAppEnabled()
                     ? R.string.summary_boot_app_include_system : R.string.summary_boot_app;
             textView.setText(SpannableUtil.buildHighLightString(getActivity(), normalColor, highlightColor, strId));
             textView.setVisibility(View.VISIBLE);

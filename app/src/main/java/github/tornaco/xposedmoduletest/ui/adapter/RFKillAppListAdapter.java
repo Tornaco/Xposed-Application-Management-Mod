@@ -95,7 +95,7 @@ public class RFKillAppListAdapter extends RecyclerView.Adapter<RFKillAppListAdap
     }
 
     private void removePkgAsync(RFKillPackage pkg) {
-        XAshmanManager.singleInstance()
+        XAshmanManager.get()
                 .addOrRemoveRFKApps(new String[]{pkg.getPkgName()},
                         XAshmanManager.Op.REMOVE);
         onPackageRemoved(pkg.getPkgName());

@@ -83,16 +83,16 @@ public class NetworkRestrictListAdapter
 
         holder.getSummaryView().setVisibility(item.isSystemApp() ? View.VISIBLE : View.GONE);
 
-        if (XAshmanManager.singleInstance().isServiceAvailable()) {
+        if (XAshmanManager.get().isServiceAvailable()) {
 
             holder.getRestrictSwitch().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Switch s = (Switch) v;
                     if (isRestrictWifi()) {
-                        XAshmanManager.singleInstance().restrictAppOnWifi(item.getUid(), !s.isChecked());
+                        XAshmanManager.get().restrictAppOnWifi(item.getUid(), !s.isChecked());
                     } else {
-                        XAshmanManager.singleInstance().restrictAppOnData(item.getUid(), !s.isChecked());
+                        XAshmanManager.get().restrictAppOnData(item.getUid(), !s.isChecked());
                     }
                 }
             });

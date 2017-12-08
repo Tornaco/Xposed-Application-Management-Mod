@@ -48,7 +48,7 @@ public interface NetworkRestrictLoader {
 
             List<NetworkRestrictionItem> restrictionItems = Lists.newArrayList();
 
-            XAshmanManager ash = XAshmanManager.singleInstance();
+            XAshmanManager ash = XAshmanManager.get();
             if (!ash.isServiceAvailable()) return restrictionItems;
 
             PackageManager pm = this.context.getPackageManager();

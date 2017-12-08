@@ -64,7 +64,7 @@ public interface ComponentLoader {
         @Override
         public List<ActivityInfoSettings> loadActivitySettings(String pkg) {
             final PackageManager pm = context.getPackageManager();
-            final XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
+            final XAshmanManager xAshmanManager = XAshmanManager.get();
 
             if (xAshmanManager == null)
                 return Lists.newArrayListWithCapacity(0);
@@ -111,7 +111,7 @@ public interface ComponentLoader {
         @Override
         public List<ActivityInfoSettings> loadReceiverSettings(String pkg) {
             final PackageManager pm = context.getPackageManager();
-            final XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
+            final XAshmanManager xAshmanManager = XAshmanManager.get();
 
             if (xAshmanManager == null)
                 return Lists.newArrayListWithCapacity(0);
@@ -159,7 +159,7 @@ public interface ComponentLoader {
         @Override
         public List<ServiceInfoSettings> loadServiceSettings(String pkg) {
             final PackageManager pm = context.getPackageManager();
-            final XAshmanManager xAshmanManager = XAshmanManager.singleInstance();
+            final XAshmanManager xAshmanManager = XAshmanManager.get();
 
             if (xAshmanManager == null)
                 return Lists.newArrayListWithCapacity(0);
