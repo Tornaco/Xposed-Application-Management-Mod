@@ -20,6 +20,8 @@ public interface IAppGuardBridge extends IModuleBridge {
 
     Intent checkIntent(Intent from);
 
+    long wrapCallingUidForIntent(long from, Intent intent);
+
     boolean isBlurForPkg(String pkg);
 
     int getBlurRadius();

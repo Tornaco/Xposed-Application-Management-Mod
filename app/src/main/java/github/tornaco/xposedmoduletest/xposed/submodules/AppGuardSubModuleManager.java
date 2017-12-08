@@ -24,6 +24,7 @@ public class AppGuardSubModuleManager {
         SUBS.add(new PMSSubModule());
         SUBS.add(new TaskMoverSubModuleDelegate());
         SUBS.add(new ActivityStartSubModuleDelegate());
+        SUBS.add(new AMSSubModule7());
         SUBS.add(new AMSSubModule5());
         SUBS.add(new AMSSubModule4());
         SUBS.add(new AMSSubModule3());

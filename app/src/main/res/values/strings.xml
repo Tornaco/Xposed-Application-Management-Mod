@@ -284,5 +284,18 @@
     <string name="summary_lk_do_not_kill_audio">不清理获得音频焦点的应用，例如正在播放音乐的网易云音乐等。\n注意，有些不按照规范设计的应用，可能在停止播放后依然会持有音频焦点。</string>
     <string name="title_search">搜索</string>
     <string name="title_search_hint">你在找什么？</string>
+    <string name="title_comp_replacement">移花接木</string>
+    <string name="summary_comp_replacement">移花接木可以帮你去掉烦人的应用广告闪屏页面，大概的原理是通过替换其广告闪屏Activity（A）为其真正的主Activity（B）。勤劳的开发者目前帮你预置了几个示范的规则。
+        \n你可以点击下方+按钮，自己添加相应的替换规则，你可以打开 通用设置-开发者模式 来观察当前Activity的具体名称，之后去 应用组件管理 中分别找到A和B，复制其完成名称，添加到你的规则里。</string>
+    <string name="title_comp_replacement_from">被替换的Activity</string>
+    <string name="title_comp_replacement_to">用来替换的Activity</string>
+    <string name="title_from_comp_null">被替换的Activity不能为空</string>
+    <string name="title_from_comp_invalid">被替换的组件名称不合法，请检查输入</string>
+    <string name="title_from_comp_to_null">将其替换为空的Activity，会导致被替换的Activity无法启动，没关系，这也是一种方案</string>
+    <string name="title_edit" >修改</string>
+    <string name="title_remove" >移除</string>
+    <string name="title_pull_from_server" >从服务器获取预置规则</string>
+    <string name="title_comp_replacement_remote_empty">远程服务器获取到的配置为空</string>
+    <string name="title_comp_replacement_remote_success">已经更新规则</string>
 
 </resources>

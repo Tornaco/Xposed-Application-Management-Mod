@@ -44,9 +44,12 @@ import github.tornaco.android.common.Consumer;
 import github.tornaco.android.common.Holder;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAppGuardWatcher;
+import github.tornaco.xposedmoduletest.bean.ComponentReplacement;
+import github.tornaco.xposedmoduletest.bean.ComponentReplacementDaoUtil;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.bean.PackageInfoDaoUtil;
 import github.tornaco.xposedmoduletest.provider.AppGuardPackageProvider;
+import github.tornaco.xposedmoduletest.provider.ComponentsReplacementProvider;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
@@ -211,6 +214,30 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             }
         });
 
+        AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
+            @Override
+            public boolean once() {
+                ValueExtra<Boolean, String> res = loadComponentReplacements();
+                String extra = res.getExtra();
+                if (XposedLog.isVerboseLoggable())
+                    XposedLog.verbose("loadComponentReplacements, extra: " + extra);
+                return res.getValue();
+            }
+        }, new Runnable() {
+            @Override
+            public void run() {
+                AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
+                    @Override
+                    public boolean once() {
+                        ValueExtra<Boolean, String> res = registerComponentReplacementsObserver();
+                        if (XposedLog.isVerboseLoggable())
+                            XposedLog.verbose("registerComponentReplacementsObserver, extra: " + res.getExtra());
+                        return res.getValue();
+                    }
+                });
+            }
+        });
+
         registerReceiver();
     }
 
@@ -329,6 +356,77 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         return new ValueExtra<>(true, "OK");
     }
 
+    synchronized private ValueExtra<Boolean, String> loadComponentReplacements() {
+        ContentResolver contentResolver = getContext().getContentResolver();
+        if (contentResolver == null) {
+            // Happen when early start.
+            return new ValueExtra<>(false, "contentResolver is null");
+        }
+        Cursor cursor = null;
+        try {
+            cursor = contentResolver.query(ComponentsReplacementProvider.CONTENT_URI, null, null, null, null);
+            if (cursor == null) {
+                return new ValueExtra<>(false, "cursor is null");
+            }
+
+            mComponentReplacementsMap.clear();
+
+            for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+
+                ComponentReplacement componentReplacement = ComponentReplacementDaoUtil.readEntity(cursor, 0);
+
+                if (XposedLog.isVerboseLoggable())
+                    XposedLog.verbose("Lock componentReplacements readEntity of: " + componentReplacement);
+
+                try {
+                    ComponentName key = ComponentName.unflattenFromString(componentReplacement.fromFlattenToString());
+                    if (key == null) continue;
+                    ComponentName value = ComponentName.unflattenFromString(componentReplacement.toFlattenToString());
+
+                    if (XposedLog.isVerboseLoggable()) {
+                        XposedLog.verbose("Put replacement: " + value);
+                    }
+                    mComponentReplacementsMap.put(key, value);
+                } catch (Throwable e) {
+                    XposedLog.wtf("Fail load comp entry:\n" + Log.getStackTraceString(e));
+                }
+            }
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadComponentReplacements:\n" + Log.getStackTraceString(e));
+        } finally {
+            Closer.closeQuietly(cursor);
+        }
+
+        return new ValueExtra<>(true, "Read count: " + mComponentReplacementsMap.size());
+    }
+
+    private ValueExtra<Boolean, String> registerComponentReplacementsObserver() {
+        ContentResolver contentResolver = getContext().getContentResolver();
+        if (contentResolver == null) {
+            // Happen when early start.
+            return new ValueExtra<>(false, "contentResolver is null");
+        }
+        try {
+            contentResolver.registerContentObserver(ComponentsReplacementProvider.CONTENT_URI,
+                    false, new ContentObserver(mServiceHandler) {
+                        @Override
+                        public void onChange(boolean selfChange, Uri uri) {
+                            super.onChange(selfChange, uri);
+                            mWorkingService.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    loadComponentReplacements();
+                                }
+                            });
+                        }
+                    });
+        } catch (Exception e) {
+            XposedLog.wtf("Fail registerContentObserver@ComponentsReplacementProvider:\n" + Log.getStackTraceString(e));
+            return new ValueExtra<>(false, String.valueOf(e));
+        }
+        return new ValueExtra<>(true, "OK");
+    }
+
     private void cacheUIDForPackages() {
         PackageManager pm = this.getContext().getPackageManager();
         try {
@@ -374,23 +472,36 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     public Intent checkIntent(Intent from) {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("checkIntent: " + from);
         ComponentName fromComp = from.getComponent();
-        if (fromComp == null) return null;
+        if (fromComp == null) return from;
+
+        if (!mComponentReplacementsMap.containsKey(fromComp)) {
+            return from;
+        }
+
         ComponentName toComp = mComponentReplacementsMap.get(fromComp);
 
         if (!validateComponentName(toComp)) {
             XposedLog.debug("Invalid component replacement: " + toComp);
-            return null;
+            return from;
         }
 
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("Replacing using: " + toComp);
         if (toComp == null) return null;
+
         return from.setComponent(toComp);
+    }
+
+    @Override
+    public long wrapCallingUidForIntent(long from, Intent intent) {
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("wrapCallingUidForIntent for : " + from);
+        }
+        return from;
     }
 
     private static boolean validateComponentName(ComponentName componentName) {
         return true;
     }
-
 
     @Override
     @BinderCall
@@ -411,6 +522,22 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
         mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_ADDORREMOVECOMPONENTREPLACEMENT
                 , data).sendToTarget();
+
+        // Insert into db.
+        ComponentReplacement replacement = new ComponentReplacement();
+        replacement.setAppPackageName(from.getPackageName());
+
+        replacement.setCompFromClassName(from.getClassName());
+        replacement.setCompFromPackageName(from.getPackageName());
+
+        replacement.setCompToClassName(to == null ? null : to.getClassName());
+        replacement.setCompToPackageName(to == null ? null : to.getPackageName());
+
+        if (add) {
+            ComponentsReplacementProvider.insertOrUpdate(getContext(), replacement);
+        } else {
+            ComponentsReplacementProvider.delete(getContext(), replacement);
+        }
     }
 
     @Override

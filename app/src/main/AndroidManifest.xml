@@ -177,6 +177,11 @@
             android:label="@string/title_component_editor"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
+            android:name=".ui.activity.comp.ComponentReplacementActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_comp_replacement"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
             android:name=".ui.activity.comp.PackageViewerActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_component_manager"

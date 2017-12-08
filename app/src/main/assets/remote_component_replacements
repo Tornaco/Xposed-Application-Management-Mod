@@ -1,0 +1,35 @@
+{
+"list":
+    [
+        {
+            "appName":"百度外卖",
+            "appPackageName":"com.baidu.lbs.waimai",
+            "compFromClassName":"com.baidu.lbs.waimai.SplashActivity",
+            "compFromPackageName":"com.baidu.lbs.waimai",
+            "compToClassName":"com.baidu.lbs.waimai.WaimaiActivity",
+            "compToPackageName":"com.baidu.lbs.waimai",
+            "id":4
+        },
+
+        {
+            "appName":"今日头条",
+            "appPackageName":"com.ss.android.article.news",
+            "compFromClassName":"com.ss.android.article.news.activity.SplashBadgeActivity",
+            "compFromPackageName":"com.ss.android.article.news",
+            "compToClassName":"com.ss.android.article.news.activity.MainActivity",
+            "compToPackageName":"com.ss.android.article.news",
+            "id":13
+        },
+
+        {
+            "appName":"微博",
+            "appPackageName":"com.sina.weibo",
+            "compFromClassName":"com.sina.weibo.SplashActivity",
+            "compFromPackageName":"com.sina.weibo",
+            "compToClassName":"com.sina.weibo.MainTabActivity",
+            "compToPackageName":"com.sina.weibo",
+            "id":14
+        },
+
+     ]
+}

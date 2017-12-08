@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -107,6 +108,11 @@ class ActivityStartSubModule extends AppGuardAndroidSubModule {
                         if (checkedIntent != null) {
                             intent = checkedIntent;
                             param.args[finalIntentIndex] = intent;
+                            Binder.restoreCallingIdentity(getAppGuardBridge()
+                                    .wrapCallingUidForIntent(Binder.clearCallingIdentity(), intent));
+                        } else {
+                            param.setResult(ActivityManager.START_SUCCESS);
+                            return;
                         }
 
                         ComponentName componentName = intent.getComponent();

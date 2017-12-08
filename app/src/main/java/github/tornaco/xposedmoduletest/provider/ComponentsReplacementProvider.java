@@ -110,6 +110,7 @@ public class ComponentsReplacementProvider extends ContentProvider {
     }
 
     public static int delete(Context context, ComponentReplacement componentSettings) {
+        Logger.w("DELETE@ " + componentSettings);
         return context.getContentResolver().delete(CONTENT_URI,
                 ComponentReplacementDao.Properties.CompFromClassName.columnName + "=? and "
                         + ComponentReplacementDao.Properties.CompFromPackageName.columnName + "=?",
