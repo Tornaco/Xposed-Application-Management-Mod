@@ -1,12 +1,1 @@
-[
-
-{
-"appName":"百度外卖",
-"appPackageName":"com.baidu.lbs.waimai",
-"compFromClassName":"com.baidu.lbs.waimai.SplashActivity",
-"compFromPackageName":"com.baidu.lbs.waimai",
-"compToClassName":"com.baidu.lbs.waimai.WaimaiActivity",
-"compToPackageName":"com.baidu.lbs.waimai"
-}
-
-]
+[]
