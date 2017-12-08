@@ -8,7 +8,6 @@
             "compFromPackageName":"com.baidu.lbs.waimai",
             "compToClassName":"com.baidu.lbs.waimai.WaimaiActivity",
             "compToPackageName":"com.baidu.lbs.waimai",
-            "id":4
         },
 
         {
@@ -18,7 +17,6 @@
             "compFromPackageName":"com.ss.android.article.news",
             "compToClassName":"com.ss.android.article.news.activity.MainActivity",
             "compToPackageName":"com.ss.android.article.news",
-            "id":13
         },
 
         {
@@ -28,8 +26,7 @@
             "compFromPackageName":"com.sina.weibo",
             "compToClassName":"com.sina.weibo.MainTabActivity",
             "compToPackageName":"com.sina.weibo",
-            "id":14
-        },
+        }
 
      ]
 }
