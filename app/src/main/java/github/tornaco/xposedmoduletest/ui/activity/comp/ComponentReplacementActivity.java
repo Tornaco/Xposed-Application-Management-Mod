@@ -215,8 +215,11 @@ public class ComponentReplacementActivity extends WithRecyclerView {
                                             getString(R.string.title_comp_replacement_remote_success,
                                                     String.valueOf(count[0])),
                                             Toast.LENGTH_LONG).show();
+
+                                    startLoading();
                                 }
                             });
+
                         }
 
                         @Override
