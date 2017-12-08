@@ -14,6 +14,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.LinkProperties;
 import android.net.NetworkPolicyManager;
@@ -109,8 +110,8 @@ import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_R
 
 public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
-    private static final boolean DEBUG_BROADCAST = true;
-    private static final boolean DEBUG_SERVICE = true;
+    private static final boolean DEBUG_BROADCAST = false;
+    private static final boolean DEBUG_SERVICE = false;
 
     private static final Set<String> WHITE_LIST = new HashSet<>();
     private static final Set<Pattern> WHITE_LIST_PATTERNS = new HashSet<>();
@@ -133,10 +134,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private Handler h, lazyH;
 
+    private final Holder<String> mAudioFocusedPackage = new Holder<>();
+
     private AtomicBoolean mWhiteSysAppEnabled = new AtomicBoolean(true);
     private AtomicBoolean mBootBlockEnabled = new AtomicBoolean(false);
     private AtomicBoolean mStartBlockEnabled = new AtomicBoolean(false);
     private AtomicBoolean mLockKillEnabled = new AtomicBoolean(false);
+    private AtomicBoolean mLockKillDoNotKillAudioEnabled = new AtomicBoolean(true);
     private AtomicBoolean mRootActivityFinishKillEnabled = new AtomicBoolean(false);
     private AtomicBoolean mCompSettingBlockEnabled = new AtomicBoolean(false);
 
@@ -659,6 +663,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         } catch (Throwable e) {
             XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
+
         try {
             boolean startBlockEnabled = (boolean) SystemSettings.START_BLOCK_ENABLED_B.readFromSystemSettings(getContext());
             mStartBlockEnabled.set(startBlockEnabled);
@@ -667,6 +672,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         } catch (Throwable e) {
             XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
+
         try {
             boolean lockKillEnabled = (boolean) SystemSettings.LOCK_KILL_ENABLED_B.readFromSystemSettings(getContext());
             mLockKillEnabled.set(lockKillEnabled);
@@ -675,6 +681,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         } catch (Throwable e) {
             XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
+
+        try {
+            boolean lockKillDoNotKillAudioEnabled = (boolean) SystemSettings.LOCK_KILL_DONT_KILL_AUDIO_ENABLED_B
+                    .readFromSystemSettings(getContext());
+            mLockKillDoNotKillAudioEnabled.set(lockKillDoNotKillAudioEnabled);
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("lockKillDoNotKillAudioEnabled: " + String.valueOf(lockKillDoNotKillAudioEnabled));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
 
         try {
             boolean rootKillEnabled = (boolean) SystemSettings.ROOT_ACTIVITY_KILL_ENABLED_B
@@ -1485,6 +1502,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         enforceCallingPermissions();
     }
 
+    @Override
+    public boolean isLockKillDoNotKillAudioEnabled() {
+        enforceCallingPermissions();
+        return mLockKillDoNotKillAudioEnabled.get();
+    }
+
+    @Override
+    public void setLockKillDoNotKillAudioEnabled(boolean enabled) throws RemoteException {
+        enforceCallingPermissions();
+        h.obtainMessage(AshManHandlerMessages.MSG_SETLOCKKILLDONOTKILLAUDIOENABLED, enabled)
+                .sendToTarget();
+    }
+
     private CheckResult checkBroadcastDetailed(String action, int receiverUid, int callerUid) {
 
         // Check if this is a boot complete action.
@@ -1847,6 +1877,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 });
             }
         });
+
     }
 
 
@@ -2060,6 +2091,34 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         getContext().registerReceiver(mPendingDataRestrictReceiver, filter);
     }
 
+    @Override
+    @InternalCall
+    public void onRequestAudioFocus(int res, int callingUid, String callingPkg) {
+        if (res == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
+            return;
+        }
+        String pkgName = mPackagesCache.get(callingUid);
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("onRequestAudioFocus: " + pkgName + "--" + callingUid);
+        }
+        if (pkgName == null) return;
+        h.obtainMessage(AshManHandlerMessages.MSG_ONAUDIOFOCUSEDPACKAGECHANGED, pkgName).sendToTarget();
+    }
+
+    @Override
+    @InternalCall
+    public void onAbandonAudioFocus(int res, int callingUid, String callingPkg) {
+        if (res == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
+            return;
+        }
+        String pkgName = mPackagesCache.get(callingUid);
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("onAbandonAudioFocus: " + callingPkg + "--" + callingUid);
+        }
+        if (pkgName == null) return;
+        h.obtainMessage(AshManHandlerMessages.MSG_ONAUDIOFOCUSEDPACKAGEABANDONED, pkgName).sendToTarget();
+    }
+
     private void processPendingDataRestrictRequests() {
         initDataInterface();
         if (TextUtils.isEmpty(mDataInterfaceName)) {
@@ -2174,6 +2233,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public void shutdown() {
     }
 
+
+    // For debug.
+    private Toast mDebugToast;
+
     @Override
     @InternalCall
     public void onPackageMoveToFront(final Intent who) {
@@ -2182,8 +2245,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             @Override
             public void run() {
                 ComponentName c = who.getComponent();
-                if (c != null)
-                    Toast.makeText(getContext(), c.flattenToString(), Toast.LENGTH_SHORT).show();
+                if (c != null) {
+                    try {
+                        if (mDebugToast != null) {
+                            mDebugToast.cancel();
+                        }
+                        mDebugToast = Toast.makeText(getContext(), c.flattenToString(), Toast.LENGTH_LONG);
+                        mDebugToast.show();
+                    } catch (Throwable ignored) {
+                    }
+                }
             }
         });
     }
@@ -2518,6 +2589,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_RESTRICTAPPONWIFI:
                     HandlerImpl.this.restrictAppOnWifi(msg.arg1, (Boolean) msg.obj, msg.arg2 == 1);
                     break;
+                case AshManHandlerMessages.MSG_ONAUDIOFOCUSEDPACKAGECHANGED:
+                    HandlerImpl.this.onAudioFocusedPackageChanged((String) msg.obj);
+                    break;
+                case AshManHandlerMessages.MSG_ONAUDIOFOCUSEDPACKAGEABANDONED:
+                    HandlerImpl.this.onAudioFocusedPackageAbandoned((String) msg.obj);
+                    break;
+                case AshManHandlerMessages.MSG_SETLOCKKILLDONOTKILLAUDIOENABLED:
+                    HandlerImpl.this.setLockKillDoNotKillAudioEnabled((Boolean) msg.obj);
+                    break;
             }
         }
 
@@ -2546,6 +2626,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setLockKillEnabled(boolean enabled) {
             if (mLockKillEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.LOCK_KILL_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setLockKillDoNotKillAudioEnabled(boolean enabled) {
+            if (mLockKillDoNotKillAudioEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.LOCK_KILL_DONT_KILL_AUDIO_ENABLED_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 
@@ -2614,6 +2701,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         if (runningPackageName == null) {
                             if (listener != null) try {
                                 listener.onIgnoredPkg(null, "null");
+                            } catch (RemoteException ignored) {
+
+                            }
+                            continue;
+                        }
+
+                        if (isLockKillDoNotKillAudioEnabled()
+                                && runningPackageName.equals(mAudioFocusedPackage.getData())) {
+                            if (XposedLog.isVerboseLoggable()) {
+                                XposedLog.verbose("Won't kill app with audio focus: " + runningPackageName);
+                            }
+                            if (listener != null) try {
+                                listener.onIgnoredPkg(null, "Audio focused");
                             } catch (RemoteException ignored) {
 
                             }
@@ -2889,6 +2989,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         @Override
         public void setNetworkPolicyUidPolicy(int uid, int policy) {
             NetworkPolicyManager.from(getContext()).setUidPolicy(uid, policy);
+        }
+
+        @Override
+        public void onAudioFocusedPackageChanged(String who) {
+            mAudioFocusedPackage.setData(who);
+        }
+
+        @Override
+        public void onAudioFocusedPackageAbandoned(String who) {
+            String current = mAudioFocusedPackage.getData();
+            if (!TextUtils.isEmpty(current) && current.equals(who)) {
+                mAudioFocusedPackage.setData(null);
+            }
         }
     }
 

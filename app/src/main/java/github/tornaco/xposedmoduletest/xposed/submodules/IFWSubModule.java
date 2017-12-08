@@ -4,8 +4,6 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.util.Log;
 
-import com.lenovo.tablet.llog.formatter.message.object.IntentFormatter;
-
 import java.util.Set;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -34,14 +32,14 @@ public class IFWSubModule extends IntentFirewallAndroidSubModule {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     super.beforeHookedMethod(param);
-                    if (XposedLog.isVerboseLoggable()) {
-                        try {
-                            Intent intent = (Intent) param.args[1];
-                            XposedLog.verbose("checkService@ intent: " + intent + "extra: " + intent.getExtras()
-                                    + new IntentFormatter().format(intent));
-                        } catch (Exception ignored) {
-                        }
-                    }
+//                    if (XposedLog.isVerboseLoggable()) {
+//                        try {
+//                            Intent intent = (Intent) param.args[1];
+//                            XposedLog.verbose("checkService@ intent: " + intent + "extra: " + intent.getExtras()
+//                                    + new IntentFormatter().format(intent));
+//                        } catch (Exception ignored) {
+//                        }
+//                    }
                     ComponentName componentName = (ComponentName) param.args[0];
                     int callerID = (int) param.args[2];
                     param.setResult(getIntentFirewallBridge().checkService(componentName, callerID));

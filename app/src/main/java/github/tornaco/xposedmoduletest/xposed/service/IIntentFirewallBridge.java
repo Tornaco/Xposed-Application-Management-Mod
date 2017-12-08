@@ -25,4 +25,7 @@ public interface IIntentFirewallBridge extends IModuleBridge {
 
     // Network manager api.
     void onNetWorkManagementServiceReady(NativeDaemonConnector connector);
+
+    void onRequestAudioFocus(int res, int callingUid, String callingPkg);
+    void onAbandonAudioFocus(int res, int callingUid, String callingPkg);
 }

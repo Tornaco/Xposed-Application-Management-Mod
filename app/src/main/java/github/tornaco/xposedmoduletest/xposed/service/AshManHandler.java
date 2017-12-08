@@ -26,6 +26,8 @@ interface AshManHandler {
 
     void setLockKillEnabled(boolean enabled);
 
+    void setLockKillDoNotKillAudioEnabled(boolean enabled);
+
     void setRFKillEnabled(boolean enabled);
 
     void setCompSettingBlockEnabled(boolean enabled);
@@ -108,6 +110,10 @@ interface AshManHandler {
      * Set policy flags for specific UID.
      */
     void setNetworkPolicyUidPolicy(int uid, int policy);
+
+    void onAudioFocusedPackageChanged(String who);
+
+    void onAudioFocusedPackageAbandoned(String who);
 
     @Getter
     class WatcherClient implements IBinder.DeathRecipient {

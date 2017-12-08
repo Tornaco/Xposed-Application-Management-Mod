@@ -60,7 +60,7 @@ public class XAshmanManager {
         mService = IAshmanService.Stub.asInterface(ServiceManager.getService(ASH_MAN_SERVICE_NAME));
     }
 
-    public static XAshmanManager singleInstance() {
+    public static XAshmanManager get() {
         return sManager.get();
     }
 
@@ -441,6 +441,7 @@ public class XAshmanManager {
     }
 
     public void setWhiteSysAppEnabled(boolean enabled) {
+        ensureService();
         try {
             mService.setWhiteSysAppEnabled(enabled);
         } catch (RemoteException e) {
@@ -449,6 +450,7 @@ public class XAshmanManager {
     }
 
     public boolean isWhiteSysAppEnabled() {
+        ensureService();
         try {
             return mService.isWhiteSysAppEnabled();
         } catch (RemoteException e) {
@@ -458,6 +460,7 @@ public class XAshmanManager {
     }
 
     public void unInstallPackage(String pkg, IPackageUninstallCallback callback) {
+        ensureService();
         try {
             mService.unInstallPackage(pkg, callback);
         } catch (RemoteException e) {
@@ -466,6 +469,7 @@ public class XAshmanManager {
     }
 
     public void restrictAppOnData(int uid, boolean restrict) {
+        ensureService();
         try {
             mService.restrictAppOnData(uid, restrict);
         } catch (RemoteException e) {
@@ -474,6 +478,7 @@ public class XAshmanManager {
     }
 
     public void restrictAppOnWifi(int uid, boolean restrict) {
+        ensureService();
         try {
             mService.restrictAppOnWifi(uid, restrict);
         } catch (RemoteException e) {
@@ -482,6 +487,7 @@ public class XAshmanManager {
     }
 
     public boolean isRestrictOnData(int uid) {
+        ensureService();
         try {
             return mService.isRestrictOnData(uid);
         } catch (RemoteException e) {
@@ -491,11 +497,31 @@ public class XAshmanManager {
     }
 
     public boolean isRestrictOnWifi(int uid) {
+        ensureService();
         try {
             return mService.isRestrictOnWifi(uid);
         } catch (RemoteException e) {
             Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return false;
+        }
+    }
+
+    public boolean isLockKillDoNotKillAudioEnabled() {
+        ensureService();
+        try {
+            return mService.isLockKillDoNotKillAudioEnabled();
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return false;
+        }
+    }
+
+    public void setLockKillDoNotKillAudioEnabled(boolean enabled) {
+        ensureService();
+        try {
+            mService.setLockKillDoNotKillAudioEnabled(enabled);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 }

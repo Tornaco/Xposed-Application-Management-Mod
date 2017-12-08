@@ -78,7 +78,7 @@ public class XAppGuardManager {
         mService = IAppGuardService.Stub.asInterface(ServiceManager.getService(APP_GUARD_SERVICE));
     }
 
-    public static XAppGuardManager singleInstance() {
+    public static XAppGuardManager get() {
         return sManager.get();
     }
 

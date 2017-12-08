@@ -88,4 +88,7 @@ interface IAshmanService {
 
     // PM API.
     void unInstallPackage(String pkg, in IPackageUninstallCallback callback);
+
+    boolean isLockKillDoNotKillAudioEnabled();
+    void setLockKillDoNotKillAudioEnabled(boolean enabled);
 }
