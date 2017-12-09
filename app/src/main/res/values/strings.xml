@@ -95,19 +95,19 @@
 
     <string name="summary_app_guard">以下应用在启动时需要经过密码验证。</string>
 
-    <string name="summary_boot_app">"<b>允许</b> @以下应用 开机自动启动，其他非核心应用将自动被禁止。"</string>
-    <string name="summary_boot_app_include_system">"<b>允许</b>@以下应用 与 @系统应用 开机自动启动，其他非核心应用将自动被禁止。"</string>
+    <string name="summary_boot_app">"@允许 @以下应用 开机自动启动，其他 @非核心应用 将自动被 @禁止"</string>
+    <string name="summary_boot_app_include_system">"@允许 @以下应用 与 @系统应用 开机自动启动，其他 @非核心应用 将自动被 @禁止"</string>
 
-    <string name="summary_lock_kill_app">" @以下应用 在锁屏后<b>不会</b>被清理，其他非系统核心应用将会被强制关闭。"</string>
-    <string name="summary_lock_kill_app_include_system">" @以下应用 以及 @系统应用 在锁屏后<b>不会</b>被清理，其他非核心应用将会被强制关闭。"</string>
+    <string name="summary_lock_kill_app">" @以下应用 在锁屏后 @不会 被清理，其他 @非系统核心应用 将会被 @强制关闭"</string>
+    <string name="summary_lock_kill_app_include_system">" @以下应用 以及 @系统应用 在锁屏后 @不会 被清理，其他 @非核心应用 将会被 @强制关闭"</string>
 
-    <string name="summary_rf_kill_app">" @以下应用 在返回键退出或者退栈（例如即刻/淘宝）<b>一小会</b>后<b>不会</b>被清理，其他非核心应用会被强制关闭。\n目前对微博等返回键直接启动HOME的应用无效。"</string>
-    <string name="summary_rf_kill_app_include_system">" @以下应用 以及 @系统应用 在返回键退出或者退栈（例如即刻/淘宝）<b>一小会</b>后<b>不会</b>被清理，其他非核心应用会被强制关闭。\n目前对微博等返回键直接启动HOME的应用无效。"</string>
+    <string name="summary_rf_kill_app">" @以下应用 在返回键退出或者退栈（例如即刻/淘宝）<b>一小会</b>后 @不会 被清理，其他 @非核心应用 会被 @强制关闭 \n\n目前对微博等返回键直接启动HOME的应用无效"</string>
+    <string name="summary_rf_kill_app_include_system">" @以下应用 以及 @系统应用 在返回键退出或者退栈（例如即刻/淘宝）<b>一小会</b>后 @不会 被清理，其他 @非核心应用 会被 @强制关闭 \n\n目前对微博等返回键直接启动HOME的应用无效"</string>
 
-    <string name="summary_start_app">"<b>允许</b> @以下应用 被其他应用启动，其他非核心应用将自动被禁止。"</string>
-    <string name="summary_start_app_include_system">"<b>允许</b> @以下应用 以及 @系统应用 被其他应用启动，其他非核心应用将自动被禁止。"</string>
+    <string name="summary_start_app">"@允许 @以下应用 被其他应用启动，其他 @非核心应用 将自动被 @禁止"</string>
+    <string name="summary_start_app_include_system">"@允许 @以下应用 以及 @系统应用 被其他应用启动，其他 @非核心应用 将自动被 @禁止。"</string>
 
-    <string name="app_intro">以下功能依赖于嵌入系统的几项服务，你需要在 @Xposed 中激活该模块，并且重启才可以激活上述服务。</string>
+    <string name="app_intro">以下功能依赖于嵌入系统的几项服务，你需要在 Xposed 中激活该模块，并且重启才可以激活上述服务。</string>
 
     <string name="app_intro_need_restart">应用更新后需要重新启动，否则应用管理可能无法正常工作。</string>
     <string name="title_restart_android">立即重启</string>
@@ -246,7 +246,7 @@
     <string name="title_pay_list">感谢人员</string>
     <string name="notification_app_auto_start_blocked">%1$s已经被阻止关联启动</string>
     <string name="title_start_block_notify">启动被首次禁止通知</string>
-    <string name="summary_comp_edit">禁用或启用某个应用的某些组件，禁用的组件将无法被启动运行，你可以进入设置修改是否允许其被自己重新启用。\n\n注意，禁用其组件可能会导致该应用运行出现异常。</string>
+    <string name="summary_comp_edit">禁用或启用某个应用的某些组件，禁用的组件将无法被启动运行，你可以进入设置修改是否允许其被自己重新启用。\n\n注意，禁用其组件可能会导致该应用运行出现异常（FC）。</string>
     <string name="title_package_disabled">（已冻结）</string>
     <string name="title_disable_app">冻结</string>
     <string name="title_enable_app">解冻</string>
@@ -281,7 +281,7 @@
     <string name="title_nf_warn">注意！！！</string>
     <string name="title_copy_name">复制完整名称</string>
     <string name="titile_lk_do_not_kill_audio">不清理音频播放</string>
-    <string name="summary_lk_do_not_kill_audio">不清理获得音频焦点的应用，例如正在播放音乐的网易云音乐等。\n注意，有些不按照规范设计的应用，可能在停止播放后依然会持有音频焦点。</string>
+    <string name="summary_lk_do_not_kill_audio">不清理获得音频（MUSIC）焦点的应用，例如正在播放音乐的网易云音乐等。\n注意，有些不按照规范设计的应用，可能在停止播放后依然会持有音频焦点。</string>
     <string name="title_search">搜索</string>
     <string name="title_search_hint">你在找什么？</string>
     <string name="title_comp_replacement">移花接木</string>
