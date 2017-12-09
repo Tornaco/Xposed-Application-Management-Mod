@@ -149,10 +149,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private long mLockKillDelay;
 
-    private final Map<String, BootCompletePackage> mBootWhiteListPackages = new HashMap<>();
-    private final Map<String, AutoStartPackage> mStartWhiteListPackages = new HashMap<>();
-    private final Map<String, LockKillPackage> mLockKillWhileListPackages = new HashMap<>();
-    private final Map<String, RFKillPackage> mRFKillWhileListPackages = new HashMap<>();
+    private final Map<String, BootCompletePackage> mBootControlListPackages = new HashMap<>();
+    private final Map<String, AutoStartPackage> mStartControlListPackages = new HashMap<>();
+    private final Map<String, LockKillPackage> mLockKillControlListPackages = new HashMap<>();
+    private final Map<String, RFKillPackage> mRFKillControlListPackages = new HashMap<>();
 
     private final Set<AshManHandler.WatcherClient> mWatcherClients = new HashSet<>();
 
@@ -354,7 +354,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 String key = bootCompletePackage.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
                 if (!PkgUtil.isPkgInstalled(getContext(), key)) continue;
-                mBootWhiteListPackages.put(key, bootCompletePackage);
+                mBootControlListPackages.put(key, bootCompletePackage);
             }
         } catch (Throwable e) {
             XposedLog.wtf("Fail query boot pkgs:\n" + Log.getStackTraceString(e));
@@ -362,7 +362,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         } finally {
             Closer.closeQuietly(cursor);
         }
-        return new ValueExtra<>(true, "Read count: " + mBootWhiteListPackages.size());
+        return new ValueExtra<>(true, "Read count: " + mBootControlListPackages.size());
     }
 
     synchronized private ValueExtra<Boolean, String> loadStartPackageSettings() {
@@ -385,7 +385,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 String key = autoStartPackage.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
                 if (!PkgUtil.isPkgInstalled(getContext(), key)) continue;
-                mStartWhiteListPackages.put(key, autoStartPackage);
+                mStartControlListPackages.put(key, autoStartPackage);
             }
         } catch (Throwable e) {
             XposedLog.wtf("Fail query start pkgs:\n" + Log.getStackTraceString(e));
@@ -394,7 +394,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Closer.closeQuietly(cursor);
         }
 
-        return new ValueExtra<>(true, "Read count: " + mStartWhiteListPackages.size());
+        return new ValueExtra<>(true, "Read count: " + mStartControlListPackages.size());
     }
 
     synchronized private ValueExtra<Boolean, String> loadLockKillPackageSettings() {
@@ -417,7 +417,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 String key = lockKillPackage.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
                 if (!PkgUtil.isPkgInstalled(getContext(), key)) continue;
-                mLockKillWhileListPackages.put(key, lockKillPackage);
+                mLockKillControlListPackages.put(key, lockKillPackage);
             }
         } catch (Throwable e) {
             XposedLog.wtf("Fail query lk pkgs:\n" + Log.getStackTraceString(e));
@@ -425,7 +425,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Closer.closeQuietly(cursor);
         }
 
-        return new ValueExtra<>(true, "Read count: " + mLockKillWhileListPackages.size());
+        return new ValueExtra<>(true, "Read count: " + mLockKillControlListPackages.size());
     }
 
     synchronized private ValueExtra<Boolean, String> loadRFKillPackageSettings() {
@@ -448,7 +448,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 String key = rfKillPackage.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
                 if (!PkgUtil.isPkgInstalled(getContext(), key)) continue;
-                mRFKillWhileListPackages.put(key, rfKillPackage);
+                mRFKillControlListPackages.put(key, rfKillPackage);
             }
         } catch (Throwable e) {
             XposedLog.wtf("Fail query rf pkgs:\n" + Log.getStackTraceString(e));
@@ -456,7 +456,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Closer.closeQuietly(cursor);
         }
 
-        return new ValueExtra<>(true, "Read count: " + mRFKillWhileListPackages.size());
+        return new ValueExtra<>(true, "Read count: " + mRFKillControlListPackages.size());
     }
 
     private ValueExtra<Boolean, String> registerBootPackageObserver() {
@@ -1117,7 +1117,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Object[] objArr = outList.toArray();
             return convertObjectArrayToStringArray(objArr);
         } else {
-            Collection<BootCompletePackage> packages = mBootWhiteListPackages.values();
+            Collection<BootCompletePackage> packages = mBootControlListPackages.values();
             if (packages.size() == 0) {
                 return new String[0];
             }
@@ -1155,7 +1155,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 BootCompletePackage b = new BootCompletePackage();
                                 b.setPkgName(s);
                                 b.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(getContext(), s)));
-                                mBootWhiteListPackages.put(s, b);
+                                mBootControlListPackages.put(s, b);
                                 BootPackageProvider.insert(getContext(), b);
                             } catch (Throwable e) {
                                 XposedLog.wtf("Fail add boot pkg: " + s);
@@ -1175,7 +1175,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             try {
                                 BootCompletePackage b = new BootCompletePackage();
                                 b.setPkgName(s);
-                                mBootWhiteListPackages.remove(s);
+                                mBootControlListPackages.remove(s);
                                 BootPackageProvider.delete(getContext(), b);
                             } catch (Throwable e) {
                                 XposedLog.wtf("Fail delete boot pkg: " + s);
@@ -1222,7 +1222,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Object[] objArr = outList.toArray();
             return convertObjectArrayToStringArray(objArr);
         } else {
-            Collection<AutoStartPackage> packages = mStartWhiteListPackages.values();
+            Collection<AutoStartPackage> packages = mStartControlListPackages.values();
             if (packages.size() == 0) {
                 return new String[0];
             }
@@ -1260,7 +1260,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 AutoStartPackage b = new AutoStartPackage();
                                 b.setPkgName(s);
                                 b.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(getContext(), s)));
-                                mStartWhiteListPackages.put(s, b);
+                                mStartControlListPackages.put(s, b);
                                 AutoStartPackageProvider.insert(getContext(), b);
                             } catch (Throwable e) {
                                 XposedLog.wtf("Fail add start pkg: " + s);
@@ -1280,7 +1280,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             try {
                                 AutoStartPackage b = new AutoStartPackage();
                                 b.setPkgName(s);
-                                mStartWhiteListPackages.remove(s);
+                                mStartControlListPackages.remove(s);
                                 AutoStartPackageProvider.delete(getContext(), b);
                             } catch (Throwable e) {
                                 XposedLog.wtf("Fail delete start pkg: " + s);
@@ -1327,7 +1327,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Object[] objArr = outList.toArray();
             return convertObjectArrayToStringArray(objArr);
         } else {
-            Collection<LockKillPackage> packages = mLockKillWhileListPackages.values();
+            Collection<LockKillPackage> packages = mLockKillControlListPackages.values();
             if (packages.size() == 0) {
                 return new String[0];
             }
@@ -1365,7 +1365,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 LockKillPackage b = new LockKillPackage();
                                 b.setPkgName(s);
                                 b.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(getContext(), s)));
-                                mLockKillWhileListPackages.put(s, b);
+                                mLockKillControlListPackages.put(s, b);
                                 LockKillPackageProvider.insert(getContext(), b);
                             } catch (Throwable e) {
                                 XposedLog.wtf("Fail add lk pkg: " + s);
@@ -1385,7 +1385,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             try {
                                 LockKillPackage b = new LockKillPackage();
                                 b.setPkgName(s);
-                                mLockKillWhileListPackages.remove(s);
+                                mLockKillControlListPackages.remove(s);
                                 LockKillPackageProvider.delete(getContext(), b);
                             } catch (Throwable e) {
                                 XposedLog.wtf("Fail delete lk pkg: " + s);
@@ -1432,7 +1432,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Object[] objArr = outList.toArray();
             return convertObjectArrayToStringArray(objArr);
         } else {
-            Collection<RFKillPackage> packages = mRFKillWhileListPackages.values();
+            Collection<RFKillPackage> packages = mRFKillControlListPackages.values();
             if (packages.size() == 0) {
                 return new String[0];
             }
@@ -1470,7 +1470,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 RFKillPackage b = new RFKillPackage();
                                 b.setPkgName(s);
                                 b.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(getContext(), s)));
-                                mRFKillWhileListPackages.put(s, b);
+                                mRFKillControlListPackages.put(s, b);
                                 RFKillPackageProvider.insert(getContext(), b);
                             } catch (Throwable e) {
                                 XposedLog.wtf("Fail add rf pkg: " + s);
@@ -1490,7 +1490,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             try {
                                 RFKillPackage b = new RFKillPackage();
                                 b.setPkgName(s);
-                                mRFKillWhileListPackages.remove(s);
+                                mRFKillControlListPackages.remove(s);
                                 RFKillPackageProvider.delete(getContext(), b);
                             } catch (Throwable e) {
                                 XposedLog.wtf("Fail delete rf pkg: " + s);
@@ -1607,28 +1607,28 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private boolean isBootAllowedByUser(String pkg) {
-        BootCompletePackage bootCompletePackage = mBootWhiteListPackages.get(pkg);
+        BootCompletePackage bootCompletePackage = mBootControlListPackages.get(pkg);
         boolean hasBootPackageStored = bootCompletePackage != null;
         if (isWhiteListControlMode()) return hasBootPackageStored;
         else return !hasBootPackageStored;
     }
 
     private boolean isStartAllowedByUser(String pkg) {
-        AutoStartPackage autoStartPackage = mStartWhiteListPackages.get(pkg);
+        AutoStartPackage autoStartPackage = mStartControlListPackages.get(pkg);
         boolean hasAutoPackageStored = autoStartPackage != null;
         if (isWhiteListControlMode()) return hasAutoPackageStored;
         else return !hasAutoPackageStored;
     }
 
     private boolean isInLockKillWhiteList(String pkg) {
-        LockKillPackage lockKillPackage = mLockKillWhileListPackages.get(pkg);
+        LockKillPackage lockKillPackage = mLockKillControlListPackages.get(pkg);
         boolean stored = lockKillPackage != null;
         if (isWhiteListControlMode()) return stored;
         else return !stored;
     }
 
     private boolean isInRFKillWhiteList(String pkg) {
-        RFKillPackage rfKillPackage = mRFKillWhileListPackages.get(pkg);
+        RFKillPackage rfKillPackage = mRFKillControlListPackages.get(pkg);
         boolean stored = rfKillPackage != null;
         if (isWhiteListControlMode()) return stored;
         return !stored;
@@ -2462,7 +2462,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             // Dump boot list.
             fout.println("Boot list: ");
-            Object[] bootListObjects = mBootWhiteListPackages.values().toArray();
+            Object[] bootListObjects = mBootControlListPackages.values().toArray();
             Collections.consumeRemaining(bootListObjects, new Consumer<Object>() {
                 @Override
                 public void accept(Object o) {
@@ -2476,7 +2476,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             // Dump start list.
             fout.println("Start list: ");
-            Object[] startListObjects = mStartWhiteListPackages.values().toArray();
+            Object[] startListObjects = mStartControlListPackages.values().toArray();
             Collections.consumeRemaining(startListObjects, new Consumer<Object>() {
                 @Override
                 public void accept(Object o) {
@@ -2490,7 +2490,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             // Dump lk list.
             fout.println("LK list: ");
-            Object[] lkListObjects = mLockKillWhileListPackages.values().toArray();
+            Object[] lkListObjects = mLockKillControlListPackages.values().toArray();
             Collections.consumeRemaining(lkListObjects, new Consumer<Object>() {
                 @Override
                 public void accept(Object o) {
@@ -2504,7 +2504,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             // Dump rf list.
             fout.println("RF list: ");
-            Object[] rfListObjects = mRFKillWhileListPackages.values().toArray();
+            Object[] rfListObjects = mRFKillControlListPackages.values().toArray();
             Collections.consumeRemaining(rfListObjects, new Consumer<Object>() {
                 @Override
                 public void accept(Object o) {
