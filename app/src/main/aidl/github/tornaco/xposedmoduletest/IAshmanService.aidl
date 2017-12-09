@@ -94,4 +94,6 @@ interface IAshmanService {
 
     int getControlMode();
     void setControlMode(int mode);
+
+    String getBuildSerial();
 }

@@ -2,10 +2,12 @@ package github.tornaco.xposedmoduletest.provider;
 
 import android.content.Context;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 
 import java.util.Observable;
 
 import github.tornaco.xposedmoduletest.xposed.XAppBuildHostInfo;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
  * Created by guohao4 on 2017/10/19.
@@ -42,17 +44,20 @@ public class AppSettings extends Observable {
     }
 
     public static boolean isNewBuild(Context context) {
-        try {
-            String buildDateOld = PreferenceManager.getDefaultSharedPreferences(context)
-                    .getString(AppKey.BUILD_DATE, null);
-            return buildDateOld != null
-                    && !buildDateOld.equals(XAppBuildHostInfo.BUILD_DATE);
-        } finally {
-            PreferenceManager.getDefaultSharedPreferences(context)
-                    .edit()
-                    .putString(AppKey.BUILD_DATE, XAppBuildHostInfo.BUILD_DATE)
-                    .apply();
-        }
+//        try {
+//            String buildDateOld = PreferenceManager.getDefaultSharedPreferences(context)
+//                    .getString(AppKey.BUILD_DATE, null);
+//            return buildDateOld != null
+//                    && !buildDateOld.equals(XAppBuildHostInfo.BUILD_DATE);
+//        } finally {
+//            PreferenceManager.getDefaultSharedPreferences(context)
+//                    .edit()
+//                    .putString(AppKey.BUILD_DATE, XAppBuildHostInfo.BUILD_DATE)
+//                    .apply();
+//        }
+        String serverSerial = XAshmanManager.get().isServiceAvailable() ? XAshmanManager.get().getBuildSerial() : "";
+        String appBuildSerial = XAppBuildHostInfo.BUILD_DATE;
+        return !TextUtils.isEmpty(appBuildSerial) && !appBuildSerial.equals(serverSerial);
     }
 
     public static void setShowInfo(Context context, String who, boolean show) {

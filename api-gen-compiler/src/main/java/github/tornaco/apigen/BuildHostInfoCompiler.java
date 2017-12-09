@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -133,6 +134,8 @@ public class BuildHostInfoCompiler extends AbstractProcessor {
                 .addModifiers(PUBLIC)
                 .addField(String.class, "BUILD_HOST_NAME", Modifier.STATIC, Modifier.FINAL, Modifier.PUBLIC)
                 .addStaticBlock(CodeBlock.of("BUILD_HOST_NAME = $S;\n", info.getHostName()))
+                .addField(String.class, "BUILD_FINGER_PRINT", Modifier.STATIC, Modifier.FINAL, Modifier.PUBLIC)
+                .addStaticBlock(CodeBlock.of("BUILD_FINGER_PRINT = $S;\n", UUID.randomUUID().toString()))
                 .addField(String.class, "BUILD_DATE", Modifier.STATIC, Modifier.FINAL, Modifier.PUBLIC)
                 .addStaticBlock(CodeBlock.of("BUILD_DATE = $S;\n", info.getDate()));
 

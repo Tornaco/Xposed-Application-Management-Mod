@@ -548,4 +548,13 @@ public class XAshmanManager {
             Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
+
+    public String getBuildSerial() {
+        ensureService();
+        try {
+            return mService.getBuildSerial();
+        } catch (RemoteException e) {
+            return null;
+        }
+    }
 }

@@ -1550,6 +1550,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         h.obtainMessage(AshManHandlerMessages.MSG_SETCONTROLMODE, mode).sendToTarget();
     }
 
+    @Override
+    public String getBuildSerial() throws RemoteException {
+        return BuildFingerprintBuildHostInfo.BUILD_FINGER_PRINT;
+    }
+
     private CheckResult checkBroadcastDetailed(String action, int receiverUid, int callerUid) {
 
         // Check if this is a boot complete action.

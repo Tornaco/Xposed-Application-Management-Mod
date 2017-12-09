@@ -36,7 +36,6 @@ import github.tornaco.xposedmoduletest.ui.tiles.LockKill;
 import github.tornaco.xposedmoduletest.ui.tiles.NFManager;
 import github.tornaco.xposedmoduletest.ui.tiles.RFKill;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import lombok.Getter;
 
 /**
@@ -135,8 +134,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
             Button button = findView(rootView, R.id.button);
 
             boolean isNewBuild = AppSettings.isNewBuild(getActivity());
-            btnContainer.setVisibility(isNewBuild && XAshmanManager.get().isServiceAvailable()
-                    ? View.VISIBLE : View.GONE);
+            btnContainer.setVisibility(View.GONE);
 
             statusTitle.setText(isServiceAvailable() ?
                     R.string.title_service_connected : R.string.title_service_not_connected);

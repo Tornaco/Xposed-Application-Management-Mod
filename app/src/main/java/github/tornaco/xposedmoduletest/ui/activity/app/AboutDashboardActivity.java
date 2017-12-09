@@ -41,8 +41,12 @@ public class AboutDashboardActivity extends WithWithCustomTabActivity {
             personal.titleRes = R.string.title_about;
 
             personal.addTile(new AppDeveloper(getActivity()));
-            personal.addTile(new AppVersion(getActivity()));
-            personal.addTile(new OpenSource(getActivity()));
+
+            Category hook = new Category();
+            hook.addTile(new OpenSource(getActivity()));
+
+            Category hook2 = new Category();
+            hook2.addTile(new AppVersion(getActivity()));
 
             Category support = new Category();
             support.titleRes = R.string.title_support;
@@ -53,6 +57,8 @@ public class AboutDashboardActivity extends WithWithCustomTabActivity {
 
             categories.add(support);
             categories.add(personal);
+            categories.add(hook2);
+            categories.add(hook);
         }
     }
 
