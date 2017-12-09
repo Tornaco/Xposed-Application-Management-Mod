@@ -2294,29 +2294,39 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     // For debug.
     private Toast mDebugToast;
+    private ComponentName mFocusedCompName;
+
+    private Runnable toastRunnable = new Runnable() {
+        @Override
+        public void run() {
+            ComponentName c = mFocusedCompName;
+            if (c != null) {
+                try {
+                    if (mDebugToast != null) {
+                        mDebugToast.cancel();
+                    }
+                    mDebugToast = Toast.makeText(getContext(),
+                            "应用管理开发者模式：\n" +
+                                    c.flattenToString(), Toast.LENGTH_LONG);
+                    mDebugToast.show();
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+    };
 
     @Override
     @InternalCall
     public void onPackageMoveToFront(final Intent who) {
         onPackageMoveToFront(PkgUtil.packageNameOf(who));
-        if (XposedLog.isVerboseLoggable()) lazyH.post(new Runnable() {
-            @Override
-            public void run() {
-                ComponentName c = who.getComponent();
-                if (c != null) {
-                    try {
-                        if (mDebugToast != null) {
-                            mDebugToast.cancel();
-                        }
-                        mDebugToast = Toast.makeText(getContext(),
-                                "应用管理开发者模式：\n" +
-                                        c.flattenToString(), Toast.LENGTH_LONG);
-                        mDebugToast.show();
-                    } catch (Throwable ignored) {
-                    }
-                }
+
+        if (XposedLog.isVerboseLoggable()) {
+            lazyH.removeCallbacks(toastRunnable);
+            if (who != null) {
+                mFocusedCompName = who.getComponent();
+                lazyH.post(toastRunnable);
             }
-        });
+        }
     }
 
     private void onPackageMoveToFront(String who) {
