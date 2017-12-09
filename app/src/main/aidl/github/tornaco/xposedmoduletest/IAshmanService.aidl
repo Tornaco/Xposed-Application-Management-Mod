@@ -91,4 +91,7 @@ interface IAshmanService {
 
     boolean isLockKillDoNotKillAudioEnabled();
     void setLockKillDoNotKillAudioEnabled(boolean enabled);
+
+    int getControlMode();
+    void setControlMode(int mode);
 }

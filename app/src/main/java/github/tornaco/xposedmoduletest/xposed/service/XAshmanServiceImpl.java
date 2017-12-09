@@ -59,6 +59,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import github.tornaco.android.common.Collections;
@@ -143,6 +144,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private AtomicBoolean mLockKillDoNotKillAudioEnabled = new AtomicBoolean(true);
     private AtomicBoolean mRootActivityFinishKillEnabled = new AtomicBoolean(false);
     private AtomicBoolean mCompSettingBlockEnabled = new AtomicBoolean(false);
+
+    private AtomicInteger mControlMode = new AtomicInteger(XAshmanManager.ControlMode.WHITE_LIST);
 
     private long mLockKillDelay;
 
@@ -655,6 +658,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         } catch (Throwable e) {
             XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
+
+        try {
+            int controlMode = (int) SystemSettings.ASH_CONTROL_MODE_I.readFromSystemSettings(getContext());
+            mControlMode.set(controlMode);
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("controlMode: " + String.valueOf(controlMode));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
         try {
             boolean bootBlockEnabled = (boolean) SystemSettings.BOOT_BLOCK_ENABLED_B.readFromSystemSettings(getContext());
             mBootBlockEnabled.set(bootBlockEnabled);
@@ -1513,6 +1526,26 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         enforceCallingPermissions();
         h.obtainMessage(AshManHandlerMessages.MSG_SETLOCKKILLDONOTKILLAUDIOENABLED, enabled)
                 .sendToTarget();
+    }
+
+    @Override
+    public int getControlMode() {
+        enforceCallingPermissions();
+        return mControlMode.get();
+    }
+
+    private boolean isWhiteListControlMode() {
+        return mControlMode.get() == XAshmanManager.ControlMode.WHITE_LIST;
+    }
+
+    @Override
+    public void setControlMode(int mode) throws RemoteException {
+        if (mode != XAshmanManager.ControlMode.BLACK_LIST && mode != XAshmanManager.ControlMode.WHITE_LIST) {
+            throw new IllegalArgumentException("Bad mode:" + mode);
+        }
+        enforceCallingPermissions();
+
+        h.obtainMessage(AshManHandlerMessages.MSG_SETCONTROLMODE, mode).sendToTarget();
     }
 
     private CheckResult checkBroadcastDetailed(String action, int receiverUid, int callerUid) {
@@ -2598,6 +2631,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETLOCKKILLDONOTKILLAUDIOENABLED:
                     HandlerImpl.this.setLockKillDoNotKillAudioEnabled((Boolean) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_SETCONTROLMODE:
+                    HandlerImpl.this.setControlMode((Integer) msg.obj);
+                    break;
             }
         }
 
@@ -3002,6 +3038,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (!TextUtils.isEmpty(current) && current.equals(who)) {
                 mAudioFocusedPackage.setData(null);
             }
+        }
+
+        @Override
+        public void setControlMode(int mode) {
+            mControlMode.set(mode);
+            SystemSettings.ASH_CONTROL_MODE_I.writeToSystemSettings(getContext(), mode);
         }
     }
 

@@ -44,6 +44,12 @@ public class XAshmanManager {
         int REMOVE = 0x2;
     }
 
+    public interface ControlMode {
+        int WHITE_LIST = 1;
+        int BLACK_LIST = 2;
+        int UNKNOWN = -1;
+    }
+
     public static final String ASH_MAN_SERVICE_NAME = "user.tor_ash";
 
     private final IAshmanService mService;
@@ -520,6 +526,23 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.setLockKillDoNotKillAudioEnabled(enabled);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public int getControlMode() {
+        try {
+            return mService.getControlMode();
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return ControlMode.UNKNOWN;
+        }
+    }
+
+    public void setControlMode(int mode) {
+        try {
+            mService.setControlMode(mode);
         } catch (RemoteException e) {
             Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }

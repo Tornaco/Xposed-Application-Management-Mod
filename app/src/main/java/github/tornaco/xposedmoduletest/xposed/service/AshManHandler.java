@@ -115,6 +115,8 @@ interface AshManHandler {
 
     void onAudioFocusedPackageAbandoned(String who);
 
+    void setControlMode(int mode);
+
     @Getter
     class WatcherClient implements IBinder.DeathRecipient {
 

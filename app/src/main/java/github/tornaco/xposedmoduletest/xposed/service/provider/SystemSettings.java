@@ -6,6 +6,8 @@ import android.database.ContentObserver;
 import android.net.Uri;
 import android.provider.Settings;
 
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+
 /**
  * Created by guohao4 on 2017/11/1.
  * Email: Tornaco@163.com
@@ -215,6 +217,23 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             if (resolver == null) return getDefValue();
             int def = getDefValue();
             return Settings.System.getInt(resolver, name(), def) == 1;
+        }
+    },
+
+    ASH_CONTROL_MODE_I(XAshmanManager.ControlMode.WHITE_LIST) {
+        @Override
+        public boolean writeToSystemSettings(Context context, Object value) {
+            ContentResolver resolver = context.getContentResolver();
+            int mode = (int) value;
+            return resolver != null && Settings.System.putInt(resolver, name(), mode);
+        }
+
+        @Override
+        public Object readFromSystemSettings(Context context) {
+            ContentResolver resolver = context.getContentResolver();
+            if (resolver == null) return getDefValue();
+            int def = getDefValue();
+            return Settings.System.getInt(resolver, name(), def);
         }
     },
 
