@@ -1608,22 +1608,30 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private boolean isBootAllowedByUser(String pkg) {
         BootCompletePackage bootCompletePackage = mBootWhiteListPackages.get(pkg);
-        return bootCompletePackage != null;
+        boolean hasBootPackageStored = bootCompletePackage != null;
+        if (isWhiteListControlMode()) return hasBootPackageStored;
+        else return !hasBootPackageStored;
     }
 
     private boolean isStartAllowedByUser(String pkg) {
         AutoStartPackage autoStartPackage = mStartWhiteListPackages.get(pkg);
-        return autoStartPackage != null;
+        boolean hasAutoPackageStored = autoStartPackage != null;
+        if (isWhiteListControlMode()) return hasAutoPackageStored;
+        else return !hasAutoPackageStored;
     }
 
     private boolean isInLockKillWhiteList(String pkg) {
         LockKillPackage lockKillPackage = mLockKillWhileListPackages.get(pkg);
-        return lockKillPackage != null;
+        boolean stored = lockKillPackage != null;
+        if (isWhiteListControlMode()) return stored;
+        else return !stored;
     }
 
     private boolean isInRFKillWhiteList(String pkg) {
         RFKillPackage rfKillPackage = mRFKillWhileListPackages.get(pkg);
-        return rfKillPackage != null;
+        boolean stored = rfKillPackage != null;
+        if (isWhiteListControlMode()) return stored;
+        return !stored;
     }
 
     private CheckResult checkBootCompleteBroadcast(int receiverUid, int callerUid) {
@@ -2418,6 +2426,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             fout.println("RF kill enabled: " + mRootActivityFinishKillEnabled.get());
             fout.println("CompSettingBlockEnabled enabled: " + mCompSettingBlockEnabled.get());
             fout.println("LK delay: " + mLockKillDelay);
+            fout.println("Control mode: " + mControlMode.get());
 
             fout.println();
             fout.println("======================");
