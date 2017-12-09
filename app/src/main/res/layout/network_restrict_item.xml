@@ -26,8 +26,7 @@
             android:layout_marginLeft="@dimen/dashboard_tile_image_margin_start"
             android:layout_marginRight="@dimen/dashboard_tile_image_margin_end"
             android:layout_marginStart="@dimen/dashboard_tile_image_margin_start"
-            android:scaleType="fitXY"
-            android:src="@mipmap/ic_launcher_round" />
+            android:scaleType="fitXY" />
 
         <RelativeLayout
             android:layout_width="match_parent"

@@ -1,8 +1,10 @@
 package github.tornaco.xposedmoduletest.ui.adapter;
 
 import android.content.Context;
+import android.support.annotation.ColorInt;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +27,7 @@ import github.tornaco.xposedmoduletest.bean.RFKillPackage;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import lombok.Getter;
+import lombok.Setter;
 import tornaco.lib.widget.CheckableImageView;
 
 /**
@@ -40,9 +43,19 @@ public class RFKillAppListAdapter extends RecyclerView.Adapter<RFKillAppListAdap
 
     private CircleImageEffect circleImageEffect = new CircleImageEffect();
 
+    @Getter
+    private int selection = -1;
+
+    @ColorInt
+    @Setter
+    private int highlightColor, normalColor;
+
     public RFKillAppListAdapter(Context context) {
         this.context = context;
         vangoghAppLoader = new VangoghAppLoader(context);
+
+        this.highlightColor = ContextCompat.getColor(context, R.color.blue_grey);
+        this.normalColor = ContextCompat.getColor(context, R.color.card);
     }
 
     final List<RFKillPackage> RFKillPackages = new ArrayList<>();
@@ -92,6 +105,17 @@ public class RFKillAppListAdapter extends RecyclerView.Adapter<RFKillAppListAdap
                 return true;
             }
         });
+
+        if (getSelection() >= 0 && position == selection) {
+            holder.itemView.setBackgroundColor(highlightColor);
+        } else {
+            holder.itemView.setBackgroundColor(normalColor);
+        }
+    }
+
+    public void setSelection(int selection) {
+        this.selection = selection;
+        notifyDataSetChanged();
     }
 
     private void removePkgAsync(RFKillPackage pkg) {

@@ -11,6 +11,13 @@
         tools:ignore="AlwaysShowAction" />
 
     <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_search_white_24dp"
+        android:title="@string/title_search"
+        android:visible="true"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_settings"
         android:icon="@drawable/ic_build_white_24dp"
         android:title="@string/title_settings"

@@ -1,11 +1,13 @@
 package github.tornaco.xposedmoduletest.ui.activity.ag;
 
 import android.app.ProgressDialog;
+import android.graphics.Typeface;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import github.tornaco.android.common.Consumer;
@@ -17,6 +19,9 @@ import github.tornaco.xposedmoduletest.ui.adapter.GuardAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.GuardAppPickerListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import ir.mirrajabi.searchdialog.SimpleSearchDialogCompat;
+import ir.mirrajabi.searchdialog.core.BaseSearchDialogCompat;
+import ir.mirrajabi.searchdialog.core.SearchResultListener;
 
 public class GuardAppPickerActivity extends GuardAppNavActivity {
 
@@ -102,6 +107,10 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
         if (item != null) {
             item.setVisible(false);
         }
+        MenuItem search = menu.findItem(R.id.action_search);
+        if (search != null) {
+            search.setVisible(true);
+        }
         item = menu.findItem(R.id.action_select_all);
         if (item != null) {
             item.setVisible(true);
@@ -123,6 +132,11 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
             mShowSystemApp = !mShowSystemApp;
             invalidateOptionsMenu();
             startLoading();
+            return true;
+        }
+        if (item.getItemId() == R.id.action_search) {
+            onRequestSearch();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }

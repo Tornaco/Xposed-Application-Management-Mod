@@ -560,7 +560,7 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
                                 public void onSelected(BaseSearchDialogCompat baseSearchDialogCompat,
                                                        ActivityInfoSettings serviceInfoSettings, int i) {
                                     int index = indexOf(serviceInfoSettings);
-                                    getRecyclerView().scrollToPosition(index + 1);
+                                    getRecyclerView().scrollToPosition(index);
                                     getComponentListAdapter().setSelection(index);
                                     baseSearchDialogCompat.dismiss();
                                 }
@@ -614,7 +614,7 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
                                 public void onSelected(BaseSearchDialogCompat baseSearchDialogCompat,
                                                        ActivityInfoSettings serviceInfoSettings, int i) {
                                     int index = indexOf(serviceInfoSettings);
-                                    getRecyclerView().scrollToPosition(index + 1);
+                                    getRecyclerView().scrollToPosition(index);
                                     getComponentListAdapter().setSelection(index);
                                     baseSearchDialogCompat.dismiss();
                                 }
@@ -698,7 +698,7 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
                                 public void onSelected(BaseSearchDialogCompat baseSearchDialogCompat,
                                                        ServiceInfoSettings serviceInfoSettings, int i) {
                                     int index = indexOf(serviceInfoSettings);
-                                    getRecyclerView().scrollToPosition(index + 1);
+                                    getRecyclerView().scrollToPosition(index);
                                     getComponentListAdapter().setSelection(index);
                                     baseSearchDialogCompat.dismiss();
                                 }

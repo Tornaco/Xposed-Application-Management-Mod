@@ -1,8 +1,10 @@
 package github.tornaco.xposedmoduletest.ui.adapter;
 
 import android.content.Context;
+import android.support.annotation.ColorInt;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +26,7 @@ import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
 import github.tornaco.xposedmoduletest.provider.AppGuardPackageProvider;
 import lombok.Getter;
+import lombok.Setter;
 import tornaco.lib.widget.CheckableImageView;
 
 /**
@@ -37,9 +40,19 @@ public class GuardAppListAdapter extends RecyclerView.Adapter<GuardAppListAdapte
     private Context context;
     private VangoghAppLoader vangoghAppLoader;
 
+    @Getter
+    private int selection = -1;
+
+    @ColorInt
+    @Setter
+    private int highlightColor, normalColor;
+
     public GuardAppListAdapter(Context context) {
         this.context = context;
         vangoghAppLoader = new VangoghAppLoader(context);
+
+        this.highlightColor = ContextCompat.getColor(context, R.color.blue_grey);
+        this.normalColor = ContextCompat.getColor(context, R.color.card);
     }
 
     @Getter
@@ -96,6 +109,12 @@ public class GuardAppListAdapter extends RecyclerView.Adapter<GuardAppListAdapte
                 return true;
             }
         });
+
+        if (getSelection() >= 0 && position == selection) {
+            holder.itemView.setBackgroundColor(highlightColor);
+        } else {
+            holder.itemView.setBackgroundColor(normalColor);
+        }
     }
 
     private void removePkgAsync(PackageInfo pkg) {
@@ -120,6 +139,11 @@ public class GuardAppListAdapter extends RecyclerView.Adapter<GuardAppListAdapte
                 || appName.length() < 1)
             appName = getPackageInfos().get(position).getPkgName();
         return String.valueOf(appName.charAt(0));
+    }
+
+    public void setSelection(int selection) {
+        this.selection = selection;
+        notifyDataSetChanged();
     }
 
     @Getter

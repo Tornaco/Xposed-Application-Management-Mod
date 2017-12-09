@@ -24,8 +24,7 @@
             android:layout_centerVertical="true"
             android:layout_marginEnd="@dimen/dashboard_tile_image_margin_end"
             android:layout_marginStart="@dimen/dashboard_tile_image_margin_start"
-            android:scaleType="fitXY"
-            android:src="@mipmap/ic_launcher_round" />
+            android:scaleType="fitXY" />
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -56,11 +55,11 @@
 
             <TextView
                 android:id="@+id/status2"
-                android:drawableLeft="@drawable/ic_subdirectory_arrow_right_black_24dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignStart="@android:id/title"
                 android:layout_below="@id/status"
+                android:drawableLeft="@drawable/ic_subdirectory_arrow_right_black_24dp"
                 android:padding="3dp"
                 android:text="@string/app_wiki_url"
                 android:textAppearance="@style/TextAppearance.TileSubTitle"

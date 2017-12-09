@@ -1,8 +1,10 @@
 package github.tornaco.xposedmoduletest.ui.adapter;
 
 import android.content.Context;
+import android.support.annotation.ColorInt;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +27,7 @@ import github.tornaco.xposedmoduletest.bean.BootCompletePackage;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import lombok.Getter;
+import lombok.Setter;
 import tornaco.lib.widget.CheckableImageView;
 
 /**
@@ -40,9 +43,20 @@ public class BootAppListAdapter extends RecyclerView.Adapter<BootAppListAdapter.
 
     private CircleImageEffect circleImageEffect = new CircleImageEffect();
 
+    @Getter
+    private int selection = -1;
+
+    @ColorInt
+    @Setter
+    private int highlightColor, normalColor;
+
     public BootAppListAdapter(Context context) {
         this.context = context;
         vangoghAppLoader = new VangoghAppLoader(context);
+
+
+        this.highlightColor = ContextCompat.getColor(context, R.color.blue_grey);
+        this.normalColor = ContextCompat.getColor(context, R.color.card);
     }
 
     private final List<BootCompletePackage> BootCompletePackages = new ArrayList<>();
@@ -102,6 +116,13 @@ public class BootAppListAdapter extends RecyclerView.Adapter<BootAppListAdapter.
                 return true;
             }
         });
+
+
+        if (getSelection() >= 0 && position == selection) {
+            holder.itemView.setBackgroundColor(highlightColor);
+        } else {
+            holder.itemView.setBackgroundColor(normalColor);
+        }
     }
 
     private void removePkgAsync(BootCompletePackage pkg) {
@@ -128,6 +149,11 @@ public class BootAppListAdapter extends RecyclerView.Adapter<BootAppListAdapter.
                 || appName.length() < 1)
             appName = getBootCompletePackages().get(position).getPkgName();
         return String.valueOf(appName.charAt(0));
+    }
+
+    public void setSelection(int selection) {
+        this.selection = selection;
+        notifyDataSetChanged();
     }
 
     @Getter

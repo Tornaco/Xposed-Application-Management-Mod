@@ -6,8 +6,8 @@ import android.text.TextUtils;
 
 import java.util.Observable;
 
-import github.tornaco.xposedmoduletest.xposed.XAppBuildHostInfo;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.service.BuildFingerprintBuildHostInfo;
 
 /**
  * Created by guohao4 on 2017/10/19.
@@ -56,7 +56,7 @@ public class AppSettings extends Observable {
 //                    .apply();
 //        }
         String serverSerial = XAshmanManager.get().isServiceAvailable() ? XAshmanManager.get().getBuildSerial() : "";
-        String appBuildSerial = XAppBuildHostInfo.BUILD_DATE;
+        String appBuildSerial = BuildFingerprintBuildHostInfo.BUILD_FINGER_PRINT;
         return !TextUtils.isEmpty(appBuildSerial) && !appBuildSerial.equals(serverSerial);
     }
 

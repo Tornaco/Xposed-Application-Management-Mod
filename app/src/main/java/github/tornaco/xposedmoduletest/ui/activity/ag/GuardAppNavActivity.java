@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.ui.activity.ag;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 
 import org.newstand.logger.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
@@ -26,6 +28,10 @@ import github.tornaco.xposedmoduletest.ui.adapter.GuardAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import ir.mirrajabi.searchdialog.SimpleSearchDialogCompat;
+import ir.mirrajabi.searchdialog.core.BaseSearchDialogCompat;
+import ir.mirrajabi.searchdialog.core.SearchResultListener;
+import lombok.Getter;
 
 public class GuardAppNavActivity extends NeedLockActivity {
 
@@ -33,7 +39,11 @@ public class GuardAppNavActivity extends NeedLockActivity {
 
     private SwipeRefreshLayout swipeRefreshLayout;
 
+    @Getter
     protected GuardAppListAdapter guardAppListAdapter;
+
+    @Getter
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,9 +81,38 @@ public class GuardAppNavActivity extends NeedLockActivity {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    void onRequestSearch() {
+        final ArrayList<PackageInfo> adapterData = (ArrayList<PackageInfo>)
+                getGuardAppListAdapter().getPackageInfos();
+
+        final SimpleSearchDialogCompat<PackageInfo> searchDialog =
+                new SimpleSearchDialogCompat(getActivity(), getString(R.string.title_search),
+                        getString(R.string.title_search_hint), null, adapterData,
+                        new SearchResultListener<PackageInfo>() {
+
+                            @Override
+                            public void onSelected(BaseSearchDialogCompat baseSearchDialogCompat,
+                                                   PackageInfo info, int i) {
+                                int index = indexOf(info);
+                                getRecyclerView().scrollToPosition(index);
+                                getGuardAppListAdapter().setSelection(index);
+                                baseSearchDialogCompat.dismiss();
+                            }
+                        });
+
+
+        searchDialog.show();
+        searchDialog.getSearchBox().setTypeface(Typeface.SERIF);
+    }
+
+
+    private int indexOf(final PackageInfo info) {
+        return getGuardAppListAdapter().getPackageInfos().indexOf(info);
+    }
 
     protected void initView() {
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        recyclerView = findViewById(R.id.recycler_view);
         swipeRefreshLayout = findViewById(R.id.swipe);
         swipeRefreshLayout.setColorSchemeColors(getResources().getIntArray(R.array.polluted_waves));
         fab = findViewById(R.id.fab);
@@ -198,6 +237,12 @@ public class GuardAppNavActivity extends NeedLockActivity {
             AppSettings.setShowInfo(this, who, !AppSettings.isShowInfoEnabled(this, who));
             setSummaryView();
         }
+
+        if (item.getItemId() == R.id.action_search) {
+            onRequestSearch();
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 

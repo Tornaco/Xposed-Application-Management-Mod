@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.ui.activity;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
@@ -13,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
@@ -24,6 +26,10 @@ import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.SpannableUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import ir.mirrajabi.searchdialog.SimpleSearchDialogCompat;
+import ir.mirrajabi.searchdialog.core.BaseSearchDialogCompat;
+import ir.mirrajabi.searchdialog.core.SearchResultListener;
+import lombok.Getter;
 
 public class BootAppNavActivity extends WithRecyclerView {
 
@@ -31,7 +37,11 @@ public class BootAppNavActivity extends WithRecyclerView {
 
     private SwipeRefreshLayout swipeRefreshLayout;
 
+    @Getter
     protected BootAppListAdapter bootAppListAdapter;
+
+    @Getter
+    protected RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,9 +63,37 @@ public class BootAppNavActivity extends WithRecyclerView {
         startLoading();
     }
 
+    @SuppressWarnings("unchecked")
+    void onRequestSearch() {
+        final ArrayList<BootCompletePackage> adapterData = (ArrayList<BootCompletePackage>)
+                getBootAppListAdapter().getBootCompletePackages();
+
+        final SimpleSearchDialogCompat<BootCompletePackage> searchDialog =
+                new SimpleSearchDialogCompat(getActivity(), getString(R.string.title_search),
+                        getString(R.string.title_search_hint), null, adapterData,
+                        new SearchResultListener<BootCompletePackage>() {
+
+                            @Override
+                            public void onSelected(BaseSearchDialogCompat baseSearchDialogCompat,
+                                                   BootCompletePackage info, int i) {
+                                int index = indexOf(info);
+                                getRecyclerView().scrollToPosition(index);
+                                getBootAppListAdapter().setSelection(index);
+                                baseSearchDialogCompat.dismiss();
+                            }
+                        });
+
+
+        searchDialog.show();
+        searchDialog.getSearchBox().setTypeface(Typeface.SERIF);
+    }
+
+    private int indexOf(final BootCompletePackage pkg) {
+        return getBootAppListAdapter().getBootCompletePackages().indexOf(pkg);
+    }
 
     protected void initView() {
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        recyclerView = findViewById(R.id.recycler_view);
         swipeRefreshLayout = findViewById(R.id.swipe);
         swipeRefreshLayout.setColorSchemeColors(getResources().getIntArray(R.array.polluted_waves));
         fab = findViewById(R.id.fab);
@@ -171,6 +209,11 @@ public class BootAppNavActivity extends WithRecyclerView {
             String who = getClass().getSimpleName();
             AppSettings.setShowInfo(this, who, !AppSettings.isShowInfoEnabled(this, who));
             setSummaryView();
+        }
+
+        if (item.getItemId() == R.id.action_search) {
+            onRequestSearch();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }

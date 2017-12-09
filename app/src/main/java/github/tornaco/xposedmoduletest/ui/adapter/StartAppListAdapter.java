@@ -1,8 +1,10 @@
 package github.tornaco.xposedmoduletest.ui.adapter;
 
 import android.content.Context;
+import android.support.annotation.ColorInt;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +27,7 @@ import github.tornaco.xposedmoduletest.bean.AutoStartPackage;
 import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import lombok.Getter;
+import lombok.Setter;
 import tornaco.lib.widget.CheckableImageView;
 
 /**
@@ -40,9 +43,20 @@ public class StartAppListAdapter extends RecyclerView.Adapter<StartAppListAdapte
 
     private CircleImageEffect circleImageEffect = new CircleImageEffect();
 
+    @Getter
+    private int selection = -1;
+
+    @ColorInt
+    @Setter
+    private int highlightColor, normalColor;
+
     public StartAppListAdapter(Context context) {
         this.context = context;
         vangoghAppLoader = new VangoghAppLoader(context);
+
+
+        this.highlightColor = ContextCompat.getColor(context, R.color.blue_grey);
+        this.normalColor = ContextCompat.getColor(context, R.color.card);
     }
 
     final List<AutoStartPackage> autoStartPackages = new ArrayList<>();
@@ -65,6 +79,10 @@ public class StartAppListAdapter extends RecyclerView.Adapter<StartAppListAdapte
         notifyDataSetChanged();
     }
 
+    public void setSelection(int selection) {
+        this.selection = selection;
+        notifyDataSetChanged();
+    }
 
     @Override
     public AppViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -104,6 +122,12 @@ public class StartAppListAdapter extends RecyclerView.Adapter<StartAppListAdapte
                 return true;
             }
         });
+
+        if (getSelection() >= 0 && position == selection) {
+            holder.itemView.setBackgroundColor(highlightColor);
+        } else {
+            holder.itemView.setBackgroundColor(normalColor);
+        }
     }
 
     private void removePkgAsync(AutoStartPackage pkg) {
