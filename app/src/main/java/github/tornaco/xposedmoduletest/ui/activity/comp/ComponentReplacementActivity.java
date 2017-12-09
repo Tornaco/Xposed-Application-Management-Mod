@@ -1,9 +1,17 @@
 package github.tornaco.xposedmoduletest.ui.activity.comp;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
@@ -19,12 +27,17 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.nononsenseapps.filepicker.FilePickerActivity;
+import com.nononsenseapps.filepicker.Utils;
+
 import org.newstand.logger.Logger;
 
+import java.io.File;
 import java.util.List;
 
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
+import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.ComponentReplacement;
@@ -37,6 +50,7 @@ import github.tornaco.xposedmoduletest.ui.activity.WithRecyclerView;
 import github.tornaco.xposedmoduletest.ui.adapter.ComponentReplacementListAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 
 /**
  * Created by guohao4 on 2017/11/18.
@@ -78,7 +92,6 @@ public class ComponentReplacementActivity extends WithRecyclerView {
             }
         });
 
-
         componentReplacementListAdapter = onCreateAdapter();
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this,
@@ -95,6 +108,8 @@ public class ComponentReplacementActivity extends WithRecyclerView {
                 });
     }
 
+    private boolean firstLoading = true;
+
     protected void startLoading() {
         swipeRefreshLayout.setRefreshing(true);
         XExecutor.execute(new Runnable() {
@@ -106,8 +121,70 @@ public class ComponentReplacementActivity extends WithRecyclerView {
                     public void run() {
                         swipeRefreshLayout.setRefreshing(false);
                         componentReplacementListAdapter.update(res);
+
+                        // Parse the clip.
+                        if (firstLoading) parseClipboard();
+                        firstLoading = false;
                     }
                 });
+            }
+        });
+    }
+
+    private void parseClipboard() {
+        ClipboardManager cmb = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        if (cmb != null && cmb.hasPrimaryClip()) {
+            try {
+                ClipData.Item item = cmb.getPrimaryClip().getItemAt(0);
+                if (item == null) return;
+                String content = item.getText().toString();
+                Logger.w("content: " + content);
+
+                // Parse.
+                ComponentReplacement replacement = ComponentReplacement.fromJson(content);
+                if (replacement == null) {
+                    return;
+                }
+                if (replacement.getCompFromClassName() == null || replacement.getCompFromPackageName() == null) {
+                    return;
+                }
+                int index = componentReplacementListAdapter.getData().indexOf(replacement);
+                if (index < 0) {
+                    onNewComponentReplacementFromClipboardFound(replacement);
+                }
+            } catch (Exception e) {
+                Logger.e(Logger.getStackTraceString(e));
+            }
+        }
+    }
+
+    private void onNewComponentReplacementFromClipboardFound(final ComponentReplacement replacement) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                new AlertDialog.Builder(getActivity())
+                        .setTitle(R.string.title_comp_replacement_found)
+                        .setMessage(R.string.message_comp_replacement_found)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ComponentName fromCompName = ComponentName.unflattenFromString(replacement.fromFlattenToString());
+                                ComponentName toCompName = ComponentName.unflattenFromString(replacement.toFlattenToString());
+                                XAppGuardManager.get().addOrRemoveComponentReplacement(fromCompName, toCompName, true);
+                                startLoading();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ClipboardManager cmb = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                                if (cmb != null) {
+                                    cmb.setPrimaryClip(ClipData.newPlainText("ComponentReplacement", "Hooked"));
+                                }
+                            }
+                        })
+                        .setCancelable(false)
+                        .show();
             }
         });
     }
@@ -128,10 +205,16 @@ public class ComponentReplacementActivity extends WithRecyclerView {
 
                                 if (item.getItemId() == R.id.action_remove) {
                                     ComponentsReplacementProvider.delete(getApplicationContext(), t);
-
                                     startLoading();
                                 } else if (item.getItemId() == R.id.action_edit) {
                                     showAddRuleDialog(t.fromFlattenToString(), t.toFlattenToString());
+                                } else if (item.getItemId() == R.id.action_copy_to_clipboard) {
+                                    ClipboardManager cmb = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                                    if (cmb != null) {
+                                        String content = t.toJson();
+                                        Logger.w("content: " + content);
+                                        cmb.setPrimaryClip(ClipData.newPlainText("ComponentReplacement", content));
+                                    }
                                 }
 
                                 return true;
@@ -156,17 +239,31 @@ public class ComponentReplacementActivity extends WithRecyclerView {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         if (item.getItemId() == R.id.action_info) {
             String who = getClass().getSimpleName();
             AppSettings.setShowInfo(this, who, !AppSettings.isShowInfoEnabled(this, who));
             setSummaryView();
+            return true;
         }
 
-        final ProgressDialog d = new ProgressDialog(getActivity());
-        d.setIndeterminate(true);
-        d.setMessage("....");
+
+        if (item.getItemId() == R.id.action_export) {
+            onRequestExport();
+            return true;
+        }
+
+        if (item.getItemId() == R.id.action_import) {
+            ComponentReplacementActivityPermissionRequester.importFromFileChecked(this);
+            return true;
+        }
 
         if (item.getItemId() == R.id.action_pull_from_server) {
+
+            final ProgressDialog d = new ProgressDialog(getActivity());
+            d.setIndeterminate(true);
+            d.setMessage("....");
+
             ComponentReplacements.getSingleton().loadAsync(
                     new ComponentReplacements.LoaderListener() {
                         @Override
@@ -192,34 +289,14 @@ public class ComponentReplacementActivity extends WithRecyclerView {
                                 return;
                             }
 
-                            final int[] count = {0};
-                            Collections.consumeRemaining(list.getList(), new Consumer<ComponentReplacement>() {
-                                @Override
-                                public void accept(ComponentReplacement componentReplacement) {
-                                    try {
-                                        ComponentName fromCompName = ComponentName.unflattenFromString(componentReplacement.fromFlattenToString());
-                                        ComponentName toCompName = ComponentName.unflattenFromString(componentReplacement.toFlattenToString());
-                                        XAppGuardManager.get().addOrRemoveComponentReplacement(fromCompName, toCompName, true);
-                                        count[0]++;
-                                    } catch (Throwable e) {
-                                        Logger.e("Error add replacement: " + Logger.getStackTraceString(e));
-                                    }
-                                }
-                            });
+                            performImport(list);
 
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     d.dismiss();
-                                    Toast.makeText(getActivity(),
-                                            getString(R.string.title_comp_replacement_remote_success,
-                                                    String.valueOf(count[0])),
-                                            Toast.LENGTH_LONG).show();
-
-                                    startLoading();
                                 }
                             });
-
                         }
 
                         @Override
@@ -235,6 +312,208 @@ public class ComponentReplacementActivity extends WithRecyclerView {
                     });
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void performImport(ComponentReplacementList list) {
+        final int[] count = {0};
+        Collections.consumeRemaining(list.getList(), new Consumer<ComponentReplacement>() {
+            @Override
+            public void accept(ComponentReplacement componentReplacement) {
+                try {
+                    ComponentName fromCompName = ComponentName.unflattenFromString(componentReplacement.fromFlattenToString());
+                    ComponentName toCompName = ComponentName.unflattenFromString(componentReplacement.toFlattenToString());
+                    XAppGuardManager.get().addOrRemoveComponentReplacement(fromCompName, toCompName, true);
+                    count[0]++;
+                } catch (Throwable e) {
+                    Logger.e("Error add replacement: " + Logger.getStackTraceString(e));
+                }
+            }
+        });
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getActivity(),
+                        getString(R.string.title_comp_replacement_remote_success,
+                                String.valueOf(count[0])),
+                        Toast.LENGTH_LONG).show();
+                startLoading();
+            }
+        });
+    }
+
+    private void onRequestExport() {
+
+        String[] items = new String[]{"剪贴板", "选择文件位置"};
+
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle(R.string.title_export)
+                .setSingleChoiceItems(items, -1,
+                        new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+
+                                if (which == 0) {
+                                    exportToClipboard();
+                                } else {
+                                    ComponentReplacementActivityPermissionRequester.exportToFileChecked(ComponentReplacementActivity.this);
+                                }
+                            }
+                        }).create();
+        dialog.show();
+    }
+
+    private void exportToClipboard() {
+        XExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                List<ComponentReplacement> replacements = componentReplacementListAdapter.getData();
+                ComponentReplacementList list = new ComponentReplacementList(replacements);
+                final String content = list.toJson();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ClipboardManager cmb = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                        if (cmb != null) {
+                            Logger.w("content: " + content);
+                            cmb.setPrimaryClip(ClipData.newPlainText("ComponentReplacements", content));
+                        }
+                    }
+                });
+            }
+        });
+
+    }
+
+    @RequiresPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    void exportToFile() {
+        pickSingleDir(this, REQUEST_CODE_PICK_EXPORT_PATH);
+    }
+
+    @RequiresPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+    void importFromFile() {
+        pickSingleFile(this, REQUEST_CODE_PICK_IMPORT_PATH);
+    }
+
+    private static final int REQUEST_CODE_PICK_EXPORT_PATH = 0x110;
+    private static final int REQUEST_CODE_PICK_IMPORT_PATH = 0x111;
+
+    // FIXME Copy to File utils.
+    private static void pickSingleDir(Activity activity, int code) {
+        // This always works
+        Intent i = new Intent(activity, FilePickerActivity.class);
+        // This works if you defined the intent filter
+        // Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+
+        // Set these depending on your use case. These are the defaults.
+        i.putExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false);
+        i.putExtra(FilePickerActivity.EXTRA_ALLOW_CREATE_DIR, false);
+        i.putExtra(FilePickerActivity.EXTRA_MODE, FilePickerActivity.MODE_DIR);
+
+        // Configure initial directory by specifying a String.
+        // You could specify a String like "/storage/emulated/0/", but that can
+        // dangerous. Always use Android's API calls to getSingleton paths to the SD-card or
+        // internal memory.
+        i.putExtra(FilePickerActivity.EXTRA_START_PATH, Environment.getExternalStorageDirectory().getPath());
+
+        activity.startActivityForResult(i, code);
+    }
+
+    private static void pickSingleFile(Activity activity, int code) {
+        // This always works
+        Intent i = new Intent(activity, FilePickerActivity.class);
+        // This works if you defined the intent filter
+        // Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+
+        // Set these depending on your use case. These are the defaults.
+        i.putExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false);
+        i.putExtra(FilePickerActivity.EXTRA_ALLOW_CREATE_DIR, false);
+        i.putExtra(FilePickerActivity.EXTRA_MODE, FilePickerActivity.MODE_FILE);
+
+        // Configure initial directory by specifying a String.
+        // You could specify a String like "/storage/emulated/0/", but that can
+        // dangerous. Always use Android's API calls to getSingleton paths to the SD-card or
+        // internal memory.
+        i.putExtra(FilePickerActivity.EXTRA_START_PATH, Environment.getExternalStorageDirectory().getPath());
+
+        activity.startActivityForResult(i, code);
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE_PICK_EXPORT_PATH && resultCode == Activity.RESULT_OK) {
+            // Use the provided utility method to parse the result
+            List<Uri> files = Utils.getSelectedFilesFromResult(data);
+            File file = Utils.getFileForUri(files.get(0));
+            onExportFilePick(file);
+        }
+
+        if (requestCode == REQUEST_CODE_PICK_IMPORT_PATH && resultCode == Activity.RESULT_OK) {
+            // Use the provided utility method to parse the result
+            List<Uri> files = Utils.getSelectedFilesFromResult(data);
+            File file = Utils.getFileForUri(files.get(0));
+            onImportFilePick(file);
+        }
+    }
+
+    private void onExportFilePick(final File file) {
+        XExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                List<ComponentReplacement> replacements = componentReplacementListAdapter.getData();
+                ComponentReplacementList list = new ComponentReplacementList(replacements);
+                final String content = list.toJson();
+                final File destFile = new File(file, "component_replacements.json");
+                final boolean ok = FileUtil.writeString(content, destFile.getPath());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), ok ? getString(R.string.title_export_success)
+                                        + "\t" + destFile.getPath()
+                                        : getString(R.string.title_export_fail),
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        });
+    }
+
+    private void onImportFilePick(final File file) {
+        XExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                String content = FileUtil.readString(file.getPath());
+                if (TextUtils.isEmpty(content)) {
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showTips(R.string.title_import_fail_invalid_file, false, null, null);
+                        }
+                    });
+
+                    return;
+                }
+
+                ComponentReplacementList list = ComponentReplacementList.fromJson(content);
+                if (list == null || list.getList() == null) {
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showTips(R.string.title_import_fail_invalid_file, false, null, null);
+                        }
+                    });
+
+                    return;
+                }
+                performImport(list);
+            }
+        });
     }
 
     private void setSummaryView() {

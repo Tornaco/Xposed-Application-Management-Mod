@@ -121,6 +121,8 @@ public abstract class FileUtil {
             return stringBuilder.toString();
         } catch (Exception e) {
             Logger.e(e, "Fail to read file %s", path);
+        } catch (OutOfMemoryError oom) {
+            Logger.e(oom, "OOM Fail to read file %s", path);
         } finally {
             Closer.closeQuietly(reader);
         }

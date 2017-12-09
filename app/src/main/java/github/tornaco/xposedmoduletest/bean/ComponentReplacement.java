@@ -126,6 +126,29 @@ public class ComponentReplacement {
         return appName;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ComponentReplacement that = (ComponentReplacement) o;
+
+        if (!compFromPackageName.equals(that.compFromPackageName)) return false;
+        if (!compFromClassName.equals(that.compFromClassName)) return false;
+        if (compToPackageName != null ? !compToPackageName.equals(that.compToPackageName) : that.compToPackageName != null)
+            return false;
+        return compToClassName != null ? compToClassName.equals(that.compToClassName) : that.compToClassName == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = compFromPackageName.hashCode();
+        result = 31 * result + compFromClassName.hashCode();
+        result = 31 * result + (compToPackageName != null ? compToPackageName.hashCode() : 0);
+        result = 31 * result + (compToClassName != null ? compToClassName.hashCode() : 0);
+        return result;
+    }
+
     public String toJson() {
         return new Gson().toJson(this);
     }
