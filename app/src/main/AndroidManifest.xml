@@ -224,6 +224,7 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
         <provider
             android:name=".provider.AppGuardPackageProvider"
             android:authorities="github.tornaco.xposedmoduletest.app_guard_package_provider"
@@ -247,6 +248,10 @@
         <provider
             android:name=".provider.ComponentsProvider"
             android:authorities="github.tornaco.xposedmoduletest.components_provider"
+            android:exported="true" />
+        <provider
+            android:name=".provider.ConfigurationSettingProvider"
+            android:authorities="github.tornaco.xposedmoduletest.config_setting_provider"
             android:exported="true" />
         <provider
             android:name=".provider.ComponentsReplacementProvider"
