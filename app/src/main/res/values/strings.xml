@@ -297,5 +297,9 @@
     <string name="title_pull_from_server" >从服务器获取预置规则</string>
     <string name="title_comp_replacement_remote_empty">远程服务器获取到的配置为空</string>
     <string name="title_comp_replacement_remote_success">已经更新%1$s条规则</string>
+    <string name="title_control_mode">白名单模式</string>
+    <string name="summary_control_mode">当前为 %1$s 模式。你可以设置针对限制部分（自启动，关联启动，锁屏清理等）的控制模式为白名单模式（允许你勾选的应用），或者黑名单模式（禁止你勾选的应用）。</string>
+    <string name="summary_control_mode_b">黑名单</string>
+    <string name="summary_control_mode_w">白名单</string>
 
 </resources>

@@ -23,7 +23,7 @@ public class AppDevMode extends QuickTile {
         super(context);
         this.titleRes = R.string.title_dev_mode;
         this.summaryRes = R.string.summary_dev_mode;
-        this.iconRes = R.drawable.ic_adb_black_24dp;
+        this.iconRes = R.drawable.ic_developer_mode_black_24dp;
         this.tileView = new SwitchTileView(context) {
             @Override
             protected void onBindActionView(RelativeLayout container) {

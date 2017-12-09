@@ -541,6 +541,7 @@ public class XAshmanManager {
     }
 
     public void setControlMode(int mode) {
+        ensureService();
         try {
             mService.setControlMode(mode);
         } catch (RemoteException e) {

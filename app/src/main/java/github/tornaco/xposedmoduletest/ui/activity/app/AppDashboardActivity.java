@@ -7,16 +7,10 @@ import java.util.List;
 
 import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
-import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.license.RemoteConfigs;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppDevMode;
-import github.tornaco.xposedmoduletest.ui.tiles.app.AppDeveloper;
-import github.tornaco.xposedmoduletest.ui.tiles.app.AppDonate;
-import github.tornaco.xposedmoduletest.ui.tiles.app.AppVersion;
-import github.tornaco.xposedmoduletest.ui.tiles.app.OpenSource;
-import github.tornaco.xposedmoduletest.ui.tiles.app.PayListTile;
+import github.tornaco.xposedmoduletest.ui.tiles.app.ControlMode;
 import github.tornaco.xposedmoduletest.ui.tiles.app.WhiteSystemApp;
 
 /**
@@ -42,29 +36,17 @@ public class AppDashboardActivity extends WithWithCustomTabActivity {
             Category systemProtect = new Category();
             systemProtect.titleRes = R.string.title_app_settings;
             systemProtect.addTile(new WhiteSystemApp(getActivity()));
+            Category hook = new Category();
+            hook.addTile(new ControlMode(getActivity()));
 
             Category settings = new Category();
             settings.titleRes = R.string.title_general_settings;
             settings.addTile(new AppDevMode(getActivity()));
 
-            Category personal = new Category();
-            personal.titleRes = R.string.title_about;
-
-            personal.addTile(new AppDeveloper(getActivity()));
-            personal.addTile(new AppVersion(getActivity()));
-            personal.addTile(new OpenSource(getActivity()));
-
-            Category support = new Category();
-            support.titleRes = R.string.title_support;
-            if (!BuildConfig.DEBUG && RemoteConfigs.getSingleton().getConfig().isDonate()) {
-                support.addTile(new AppDonate(getActivity()));
-            }
-            support.addTile(new PayListTile(getActivity()));
 
             categories.add(systemProtect);
+            categories.add(hook);
             categories.add(settings);
-            categories.add(support);
-            categories.add(personal);
         }
     }
 

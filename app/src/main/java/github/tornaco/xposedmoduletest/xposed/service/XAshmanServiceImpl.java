@@ -154,6 +154,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final Map<String, LockKillPackage> mLockKillControlListPackages = new HashMap<>();
     private final Map<String, RFKillPackage> mRFKillControlListPackages = new HashMap<>();
 
+    // FIXME Change to remote callbacks.
     private final Set<AshManHandler.WatcherClient> mWatcherClients = new HashSet<>();
 
     // Safe mode is the last clear place user can stay.

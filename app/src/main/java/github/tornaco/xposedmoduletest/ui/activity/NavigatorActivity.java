@@ -25,6 +25,7 @@ import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.os.PowerManagerCompat;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
+import github.tornaco.xposedmoduletest.ui.activity.app.AboutDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.AppDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
@@ -98,6 +99,9 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
         }
         if (item.getItemId() == R.id.action_help) {
             navigateToWebPage(getString(R.string.app_wiki_url));
+        }
+        if (item.getItemId() == R.id.action_about) {
+            startActivity(new Intent(this, AboutDashboardActivity.class));
         }
         return super.onOptionsItemSelected(item);
     }
