@@ -14,6 +14,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.LinkProperties;
@@ -2135,15 +2136,25 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @InternalCall
-    public void onRequestAudioFocus(int res, int callingUid, String callingPkg) {
+    public void onRequestAudioFocus(int type, int res, int callingUid, String callingPkg) {
+        String pkgName = mPackagesCache.get(callingUid);
+        if (pkgName == null) return;
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("onRequestAudioFocus: " + pkgName + " ,uid: " + callingUid
+                    + ", type: " + type + ", res: " + res);
+        }
+
         if (res == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
             return;
         }
-        String pkgName = mPackagesCache.get(callingUid);
-        if (XposedLog.isVerboseLoggable()) {
-            XposedLog.verbose("onRequestAudioFocus: " + pkgName + "--" + callingUid);
+
+        // Only protect music, movie, speech.
+        if (type != AudioAttributes.CONTENT_TYPE_MOVIE
+                && type != AudioAttributes.CONTENT_TYPE_MUSIC
+                && type != AudioAttributes.CONTENT_TYPE_SPEECH) {
+            return;
         }
-        if (pkgName == null) return;
+
         h.obtainMessage(AshManHandlerMessages.MSG_ONAUDIOFOCUSEDPACKAGECHANGED, pkgName).sendToTarget();
     }
 
@@ -2292,7 +2303,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         if (mDebugToast != null) {
                             mDebugToast.cancel();
                         }
-                        mDebugToast = Toast.makeText(getContext(), c.flattenToString(), Toast.LENGTH_LONG);
+                        mDebugToast = Toast.makeText(getContext(),
+                                "应用管理开发者模式：\n" +
+                                        c.flattenToString(), Toast.LENGTH_LONG);
                         mDebugToast.show();
                     } catch (Throwable ignored) {
                     }

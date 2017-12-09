@@ -281,7 +281,7 @@
     <string name="title_nf_warn">注意！！！</string>
     <string name="title_copy_name">复制完整名称</string>
     <string name="titile_lk_do_not_kill_audio">不清理音频播放</string>
-    <string name="summary_lk_do_not_kill_audio">不清理获得音频（MUSIC）焦点的应用，例如正在播放音乐的网易云音乐等。\n注意，有些不按照规范设计的应用，可能在停止播放后依然会持有音频焦点。</string>
+    <string name="summary_lk_do_not_kill_audio">不清理获得音频（MUSIC/MOVIE/SPEECH）焦点的应用，例如正在播放音乐的网易云音乐等。\n注意，有些不按照规范设计的应用，可能在停止播放后依然会持有音频焦点。</string>
     <string name="title_search">搜索</string>
     <string name="title_search_hint">你在找什么？</string>
     <string name="title_comp_replacement">移花接木</string>
