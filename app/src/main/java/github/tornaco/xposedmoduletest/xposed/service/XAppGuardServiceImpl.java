@@ -48,10 +48,12 @@ import github.tornaco.xposedmoduletest.IAppGuardWatcher;
 import github.tornaco.xposedmoduletest.bean.ComponentReplacement;
 import github.tornaco.xposedmoduletest.bean.ComponentReplacementDaoUtil;
 import github.tornaco.xposedmoduletest.bean.CongfigurationSetting;
+import github.tornaco.xposedmoduletest.bean.CongfigurationSettingDaoUtil;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.bean.PackageInfoDaoUtil;
 import github.tornaco.xposedmoduletest.provider.AppGuardPackageProvider;
 import github.tornaco.xposedmoduletest.provider.ComponentsReplacementProvider;
+import github.tornaco.xposedmoduletest.provider.ConfigurationSettingProvider;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
@@ -236,6 +238,30 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                         ValueExtra<Boolean, String> res = registerComponentReplacementsObserver();
                         if (XposedLog.isVerboseLoggable())
                             XposedLog.verbose("registerComponentReplacementsObserver, extra: " + res.getExtra());
+                        return res.getValue();
+                    }
+                });
+            }
+        });
+
+        AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
+            @Override
+            public boolean once() {
+                ValueExtra<Boolean, String> res = loadConfigurationSettings();
+                String extra = res.getExtra();
+                if (XposedLog.isVerboseLoggable())
+                    XposedLog.verbose("loadConfigurationSettings, extra: " + extra);
+                return res.getValue();
+            }
+        }, new Runnable() {
+            @Override
+            public void run() {
+                AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
+                    @Override
+                    public boolean once() {
+                        ValueExtra<Boolean, String> res = registerConfigSettingsObserver();
+                        if (XposedLog.isVerboseLoggable())
+                            XposedLog.verbose("registerConfigSettingsObserver, extra: " + res.getExtra());
                         return res.getValue();
                     }
                 });
@@ -427,6 +453,64 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                     });
         } catch (Exception e) {
             XposedLog.wtf("Fail registerContentObserver@ComponentsReplacementProvider:\n" + Log.getStackTraceString(e));
+            return new ValueExtra<>(false, String.valueOf(e));
+        }
+        return new ValueExtra<>(true, "OK");
+    }
+
+    synchronized private ValueExtra<Boolean, String> loadConfigurationSettings() {
+        ContentResolver contentResolver = getContext().getContentResolver();
+        if (contentResolver == null) {
+            // Happen when early start.
+            return new ValueExtra<>(false, "contentResolver is null");
+        }
+        Cursor cursor = null;
+        try {
+            cursor = contentResolver.query(ConfigurationSettingProvider.CONTENT_URI, null, null, null, null);
+            if (cursor == null) {
+                return new ValueExtra<>(false, "cursor is null");
+            }
+
+            mConfigSettings.clear();
+
+            for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+                CongfigurationSetting setting = CongfigurationSettingDaoUtil.readEntity(cursor, 0);
+                if (setting.getPackageName() == null) continue;
+
+                // Add to map.
+                mConfigSettings.put(setting.getPackageName(), setting);
+            }
+        } catch (Throwable e) {
+            return new ValueExtra<>(false, String.valueOf(e));
+        } finally {
+            Closer.closeQuietly(cursor);
+        }
+        return new ValueExtra<>(true, String.valueOf("Read count: " + mConfigSettings.size()));
+    }
+
+    private ValueExtra<Boolean, String> registerConfigSettingsObserver() {
+
+        ContentResolver contentResolver = getContext().getContentResolver();
+        if (contentResolver == null) {
+            // Happen when early start.
+            return new ValueExtra<>(false, "contentResolver is null");
+        }
+        try {
+            contentResolver.registerContentObserver(ConfigurationSettingProvider.CONTENT_URI,
+                    false, new ContentObserver(mServiceHandler) {
+                        @Override
+                        public void onChange(boolean selfChange, Uri uri) {
+                            super.onChange(selfChange, uri);
+                            mWorkingService.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    loadConfigurationSettings();
+                                }
+                            });
+                        }
+                    });
+        } catch (Exception e) {
+            XposedLog.wtf("Fail registerContentObserver@ConfigurationSettingProvider:\n" + Log.getStackTraceString(e));
             return new ValueExtra<>(false, String.valueOf(e));
         }
         return new ValueExtra<>(true, "OK");
