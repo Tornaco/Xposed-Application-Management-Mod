@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.xposed.service;
 
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 
 /**
@@ -33,4 +34,6 @@ public interface IAppGuardBridge extends IModuleBridge {
     boolean interruptFPErrorVibrate();
 
     boolean isActivityStartShouldBeInterrupted(ComponentName componentName);
+
+    void updateConfigurationForPackage(Configuration configuration, String packageName);
 }

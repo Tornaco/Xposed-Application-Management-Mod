@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -46,6 +47,7 @@ import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAppGuardWatcher;
 import github.tornaco.xposedmoduletest.bean.ComponentReplacement;
 import github.tornaco.xposedmoduletest.bean.ComponentReplacementDaoUtil;
+import github.tornaco.xposedmoduletest.bean.CongfigurationSetting;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.bean.PackageInfoDaoUtil;
 import github.tornaco.xposedmoduletest.provider.AppGuardPackageProvider;
@@ -87,6 +89,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @SuppressLint("UseSparseArrays")
     private final Map<Integer, Transaction> mTransactionMap = new HashMap<>();
+
+    private final Map<String, CongfigurationSetting> mConfigSettings = new HashMap<>();
 
     private final Map<ComponentName, ComponentName> mComponentReplacementsMap = new HashMap<>();
 
@@ -822,6 +826,23 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         }
         // Comp is disabled, interrupt!!!
         return true;
+    }
+
+    @Override
+    public void updateConfigurationForPackage(Configuration configuration, String packageName) {
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("updateConfigurationForPackage: " + packageName);
+        }
+        CongfigurationSetting setting = mConfigSettings.get(packageName);
+        if (setting == null) return;
+
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("apply config with: " + setting);
+        }
+
+        // Apply fields.
+        if (setting.getFontScale() > 0) configuration.fontScale = setting.getFontScale();
+        if (setting.getDensityDpi() > 0) configuration.densityDpi = setting.getDensityDpi();
     }
 
     @Override

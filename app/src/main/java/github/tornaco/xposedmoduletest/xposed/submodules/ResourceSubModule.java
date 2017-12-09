@@ -4,6 +4,7 @@ import android.app.AndroidAppHelper;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.text.TextUtils;
+import android.util.Log;
 
 import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
@@ -25,36 +26,32 @@ class ResourceSubModule extends AppGuardAndroidSubModule {
     }
 
     private void hookRes() {
+        try {
+            Class clz = XposedHelpers.findClass(
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ?
+                            "android.content.res.ResourcesImpl"
+                            : "android.content.res.Resources", null);
 
-        Class clz = XposedHelpers.findClass(
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ?
-                        "android.content.res.ResourcesImpl"
-                        : "android.content.res.Resources", null);
+            XposedLog.verbose("ResourceSubModule initZygote :" + clz);
 
-        XposedLog.verbose("ResourceSubModule initZygote :" + clz);
+            Object unhooks = XposedBridge.hookAllMethods(clz, "updateConfiguration",
+                    new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            super.beforeHookedMethod(param);
+                            Configuration configuration = (Configuration) param.args[0];
+                            if (configuration == null) return;
+                            String packageName = AndroidAppHelper.currentPackageName();
+                            if (TextUtils.isEmpty(packageName)) return;
 
-        Object unhooks = XposedBridge.hookAllMethods(clz, "updateConfiguration", new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                super.beforeHookedMethod(param);
-                Configuration configuration = (Configuration) param.args[0];
-                if (configuration == null) return;
-                String packageName = AndroidAppHelper.currentPackageName();
-                if (TextUtils.isEmpty(packageName)) return;
+                            getAppGuardBridge().updateConfigurationForPackage(configuration, packageName);
+                        }
+                    });
 
-                XposedLog.verbose("ResourceSubModule packageName " + packageName);
-                int densityDpi = configuration.densityDpi;
-                XposedLog.verbose("ResourceSubModule orig densityDpi " + densityDpi);
-
-                configuration.densityDpi = densityDpi;
-                configuration.fontScale = configuration.fontScale;
-                configuration.orientation = configuration.orientation;
-                configuration.screenHeightDp = configuration.screenHeightDp;
-                configuration.screenWidthDp = configuration.screenWidthDp;
-            }
-        });
-
-        XposedLog.verbose("ResourceSubModule hook Res done: " + unhooks);
+            XposedLog.verbose("ResourceSubModule hook Res done: " + unhooks);
+        } catch (Exception e) {
+            XposedLog.wtf("Fail hook @ResourceSubModule: " + Log.getStackTraceString(e));
+        }
     }
 
 }
