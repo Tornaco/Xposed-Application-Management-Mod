@@ -24,6 +24,7 @@ public class DaoGenerator {
         createComponentSettings(sch);
 
         createComponentReplacement(sch);
+        createCongfigurationHook(sch);
 
         new org.greenrobot.greendao.generator.DaoGenerator().generateAll(sch, "../app/src/main/java");
     }
@@ -136,6 +137,32 @@ public class DaoGenerator {
         pkgInfo.addStringProperty("compFromClassName");
         pkgInfo.addStringProperty("compToPackageName");
         pkgInfo.addStringProperty("compToClassName");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Entity");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Generated");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Id");
+    }
+
+    private static void createCongfigurationHook(Schema sch) {
+        Entity pkgInfo = sch.addEntity("CongfigurationSetting");
+        pkgInfo.addIntProperty("id").primaryKey();
+        pkgInfo.addStringProperty("packageName");
+        pkgInfo.addIntProperty("densityDpi");
+        pkgInfo.addFloatProperty("fontScale");
+        pkgInfo.addIntProperty("orientation");
+        pkgInfo.addIntProperty("screenHeightDp");
+        pkgInfo.addIntProperty("screenWidthDp");
+        pkgInfo.addBooleanProperty("excludeFromRecent");
+        pkgInfo.addBooleanProperty("uiMode");
+
+        // Some extra fields, in-case we add later.
+        for (int i = 0; i < 5; i++) {
+            pkgInfo.addIntProperty("intArg" + i);
+            pkgInfo.addStringProperty("stringArg" + i);
+            pkgInfo.addFloatProperty("floatArg" + i);
+            pkgInfo.addLongProperty("longArg" + i);
+            pkgInfo.addBooleanProperty("boolArg" + i);
+        }
+
         pkgInfo.addImport("org.greenrobot.greendao.annotation.Entity");
         pkgInfo.addImport("org.greenrobot.greendao.annotation.Generated");
         pkgInfo.addImport("org.greenrobot.greendao.annotation.Id");

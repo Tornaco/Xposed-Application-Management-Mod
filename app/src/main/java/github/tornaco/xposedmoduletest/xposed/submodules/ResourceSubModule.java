@@ -49,6 +49,8 @@ class ResourceSubModule extends AppGuardAndroidSubModule {
                 configuration.densityDpi = densityDpi;
                 configuration.fontScale = configuration.fontScale;
                 configuration.orientation = configuration.orientation;
+                configuration.screenHeightDp = configuration.screenHeightDp;
+                configuration.screenWidthDp = configuration.screenWidthDp;
             }
         });
 
