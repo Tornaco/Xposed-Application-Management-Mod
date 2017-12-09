@@ -292,7 +292,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             mInterruptFPERRORVB.set(interruptFPE);
 
             // FIXME Why?
-            boolean debug = false;
+            boolean debug = BuildConfig.DEBUG;
             mDebugEnabled.set(debug);
             XposedLog.setLogLevel(debug ? XposedLog.LogLevel.ALL : XposedLog.LogLevel.WARN);
 
