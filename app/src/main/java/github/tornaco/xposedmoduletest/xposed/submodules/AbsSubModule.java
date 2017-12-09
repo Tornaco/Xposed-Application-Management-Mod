@@ -2,7 +2,9 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import java.util.Set;
 
+import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.xposed.service.IModuleBridge;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Getter;
@@ -24,6 +26,16 @@ abstract class AbsSubModule implements SubModule {
     @Getter
     @Setter
     private String errorMessage;
+
+    @Override
+    public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {
+        // Empty.
+    }
+
+    @Override
+    public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
+        // Empty.
+    }
 
     @Override
     public void onBridgeCreate(IModuleBridge bridge) {

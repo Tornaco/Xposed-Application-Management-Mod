@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import java.util.Set;
 
+import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.xposed.service.IModuleBridge;
 
@@ -15,6 +16,8 @@ public interface SubModule {
     void onBridgeCreate(IModuleBridge bridge);
 
     void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam);
+
+    void initZygote(IXposedHookZygoteInit.StartupParam startupParam);
 
     Set<String> getInterestedPackages();
 

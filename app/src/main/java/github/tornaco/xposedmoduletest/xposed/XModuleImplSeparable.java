@@ -60,6 +60,22 @@ class XModuleImplSeparable extends XModuleAbs {
 
     @Override
     public void initZygote(StartupParam startupParam) throws Throwable {
+        for (SubModule s : AppGuardSubModuleManager.getInstance().getAllSubModules()) {
+            try {
+                s.initZygote(startupParam);
+            } catch (Throwable e) {
+                XposedLog.wtf("Error call initZygote submodule:" + s
+                        + " , trace: " + Log.getStackTraceString(e));
+            }
+        }
 
+        for (SubModule s : IntentFirewallSubModuleManager.getInstance().getAllSubModules()) {
+            try {
+                s.initZygote(startupParam);
+            } catch (Throwable e) {
+                XposedLog.wtf("Error call initZygote submodule:" + s
+                        + " , trace: " + Log.getStackTraceString(e));
+            }
+        }
     }
 }

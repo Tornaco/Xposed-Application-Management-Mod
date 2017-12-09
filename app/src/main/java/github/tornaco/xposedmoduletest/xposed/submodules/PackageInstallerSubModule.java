@@ -47,6 +47,7 @@ class PackageInstallerSubModule extends AppGuardAndroidSubModule {
                                     // FIXME Test fail by adb.
                                     final Context context = (Context) XposedHelpers.getObjectField(param.thisObject, "mContext");
                                     String callingPkgName = (String) param.args[1];
+                                    XposedLog.verbose("uninstall called by: "+callingPkgName);
                                     int userID = (int) param.args[4];
 //                                    DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
 //                                    boolean isDeviceOwner = dpm != null && dpm.isDeviceOwnerAppOnCallingUser(callingPkgName);
