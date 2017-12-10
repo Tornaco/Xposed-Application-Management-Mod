@@ -306,5 +306,8 @@
     <string name="title_export_comp_replacements">导出我的规则</string>
     <string name="title_import_comp_replacements">从文件导入</string>
     <string name="title_import_fail_invalid_file">无效文件</string>
+    <string name="config_dpi">DPI</string>
+    <string name="config_font_scale">字体缩放</string>
+    <string name="title_config_setting">应用配置</string>
 
 </resources>

@@ -1,5 +1,8 @@
 package github.tornaco.xposedmoduletest.bean;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
@@ -13,7 +16,7 @@ import org.greenrobot.greendao.annotation.Id;
  * Entity mapped to table "CONGFIGURATION_SETTING".
  */
 @Entity
-public class CongfigurationSetting {
+public class CongfigurationSetting implements Parcelable {
 
     @Id
     private Integer id;
@@ -99,6 +102,147 @@ public class CongfigurationSetting {
         this.longArg4 = longArg4;
         this.boolArg4 = boolArg4;
     }
+
+    protected CongfigurationSetting(Parcel in) {
+        if (in.readByte() == 0) {
+            id = null;
+        } else {
+            id = in.readInt();
+        }
+        packageName = in.readString();
+        if (in.readByte() == 0) {
+            densityDpi = null;
+        } else {
+            densityDpi = in.readInt();
+        }
+        if (in.readByte() == 0) {
+            fontScale = null;
+        } else {
+            fontScale = in.readFloat();
+        }
+        if (in.readByte() == 0) {
+            orientation = null;
+        } else {
+            orientation = in.readInt();
+        }
+        if (in.readByte() == 0) {
+            screenHeightDp = null;
+        } else {
+            screenHeightDp = in.readInt();
+        }
+        if (in.readByte() == 0) {
+            screenWidthDp = null;
+        } else {
+            screenWidthDp = in.readInt();
+        }
+        byte tmpExcludeFromRecent = in.readByte();
+        excludeFromRecent = tmpExcludeFromRecent == 0 ? null : tmpExcludeFromRecent == 1;
+        byte tmpUiMode = in.readByte();
+        uiMode = tmpUiMode == 0 ? null : tmpUiMode == 1;
+
+//        if (in.readByte() == 0) {
+//            intArg0 = null;
+//        } else {
+//            intArg0 = in.readInt();
+//        }
+//        stringArg0 = in.readString();
+//        if (in.readByte() == 0) {
+//            floatArg0 = null;
+//        } else {
+//            floatArg0 = in.readFloat();
+//        }
+//        if (in.readByte() == 0) {
+//            longArg0 = null;
+//        } else {
+//            longArg0 = in.readLong();
+//        }
+//        byte tmpBoolArg0 = in.readByte();
+//        boolArg0 = tmpBoolArg0 == 0 ? null : tmpBoolArg0 == 1;
+//        if (in.readByte() == 0) {
+//            intArg1 = null;
+//        } else {
+//            intArg1 = in.readInt();
+//        }
+//        stringArg1 = in.readString();
+//        if (in.readByte() == 0) {
+//            floatArg1 = null;
+//        } else {
+//            floatArg1 = in.readFloat();
+//        }
+//        if (in.readByte() == 0) {
+//            longArg1 = null;
+//        } else {
+//            longArg1 = in.readLong();
+//        }
+//        byte tmpBoolArg1 = in.readByte();
+//        boolArg1 = tmpBoolArg1 == 0 ? null : tmpBoolArg1 == 1;
+//        if (in.readByte() == 0) {
+//            intArg2 = null;
+//        } else {
+//            intArg2 = in.readInt();
+//        }
+//        stringArg2 = in.readString();
+//        if (in.readByte() == 0) {
+//            floatArg2 = null;
+//        } else {
+//            floatArg2 = in.readFloat();
+//        }
+//        if (in.readByte() == 0) {
+//            longArg2 = null;
+//        } else {
+//            longArg2 = in.readLong();
+//        }
+//        byte tmpBoolArg2 = in.readByte();
+//        boolArg2 = tmpBoolArg2 == 0 ? null : tmpBoolArg2 == 1;
+//        if (in.readByte() == 0) {
+//            intArg3 = null;
+//        } else {
+//            intArg3 = in.readInt();
+//        }
+//        stringArg3 = in.readString();
+//        if (in.readByte() == 0) {
+//            floatArg3 = null;
+//        } else {
+//            floatArg3 = in.readFloat();
+//        }
+//        if (in.readByte() == 0) {
+//            longArg3 = null;
+//        } else {
+//            longArg3 = in.readLong();
+//        }
+//        byte tmpBoolArg3 = in.readByte();
+//        boolArg3 = tmpBoolArg3 == 0 ? null : tmpBoolArg3 == 1;
+//        if (in.readByte() == 0) {
+//            intArg4 = null;
+//        } else {
+//            intArg4 = in.readInt();
+//        }
+//        stringArg4 = in.readString();
+//        if (in.readByte() == 0) {
+//            floatArg4 = null;
+//        } else {
+//            floatArg4 = in.readFloat();
+//        }
+//        if (in.readByte() == 0) {
+//            longArg4 = null;
+//        } else {
+//            longArg4 = in.readLong();
+//        }
+//        byte tmpBoolArg4 = in.readByte();
+//        boolArg4 = tmpBoolArg4 == 0 ? null : tmpBoolArg4 == 1;
+    }
+
+    public static final Creator<CongfigurationSetting> CREATOR = new Creator<CongfigurationSetting>() {
+        @Override
+        public CongfigurationSetting createFromParcel(Parcel in) {
+            return new CongfigurationSetting(in);
+        }
+
+        @Override
+        public CongfigurationSetting[] newArray(int size) {
+            return new CongfigurationSetting[size];
+        }
+    };
 
     public Integer getId() {
         return id;
@@ -387,6 +531,155 @@ public class CongfigurationSetting {
                 ", excludeFromRecent=" + excludeFromRecent +
                 ", uiMode=" + uiMode +
                 '}';
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        if (id == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(id);
+        }
+        dest.writeString(packageName);
+        if (densityDpi == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(densityDpi);
+        }
+        if (fontScale == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeFloat(fontScale);
+        }
+        if (orientation == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(orientation);
+        }
+        if (screenHeightDp == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(screenHeightDp);
+        }
+        if (screenWidthDp == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(screenWidthDp);
+        }
+        dest.writeByte((byte) (excludeFromRecent == null ? 0 : excludeFromRecent ? 1 : 2));
+        dest.writeByte((byte) (uiMode == null ? 0 : uiMode ? 1 : 2));
+
+//        if (intArg0 == null) {
+//            dest.writeByte((byte) 0);
+//        } else {
+//            dest.writeByte((byte) 1);
+//            dest.writeInt(intArg0);
+//        }
+//        dest.writeString(stringArg0);
+//        if (floatArg0 == null) {
+//            dest.writeByte((byte) 0);
+//        } else {
+//            dest.writeByte((byte) 1);
+//            dest.writeFloat(floatArg0);
+//        }
+//        if (longArg0 == null) {
+//            dest.writeByte((byte) 0);
+//        } else {
+//            dest.writeByte((byte) 1);
+//            dest.writeLong(longArg0);
+//        }
+//        dest.writeByte((byte) (boolArg0 == null ? 0 : boolArg0 ? 1 : 2));
+//        if (intArg1 == null) {
+//            dest.writeByte((byte) 0);
+//        } else {
+//            dest.writeByte((byte) 1);
+//            dest.writeInt(intArg1);
+//        }
+//        dest.writeString(stringArg1);
+//        if (floatArg1 == null) {
+//            dest.writeByte((byte) 0);
+//        } else {
+//            dest.writeByte((byte) 1);
+//            dest.writeFloat(floatArg1);
+//        }
+//        if (longArg1 == null) {
+//            dest.writeByte((byte) 0);
+//        } else {
+//            dest.writeByte((byte) 1);
+//            dest.writeLong(longArg1);
+//        }
+//        dest.writeByte((byte) (boolArg1 == null ? 0 : boolArg1 ? 1 : 2));
+//        if (intArg2 == null) {
+//            dest.writeByte((byte) 0);
+//        } else {
+//            dest.writeByte((byte) 1);
+//            dest.writeInt(intArg2);
+//        }
+//        dest.writeString(stringArg2);
+//        if (floatArg2 == null) {
+//            dest.writeByte((byte) 0);
+//        } else {
+//            dest.writeByte((byte) 1);
+//            dest.writeFloat(floatArg2);
+//        }
+//        if (longArg2 == null) {
+//            dest.writeByte((byte) 0);
+//        } else {
+//            dest.writeByte((byte) 1);
+//            dest.writeLong(longArg2);
+//        }
+//        dest.writeByte((byte) (boolArg2 == null ? 0 : boolArg2 ? 1 : 2));
+//        if (intArg3 == null) {
+//            dest.writeByte((byte) 0);
+//        } else {
+//            dest.writeByte((byte) 1);
+//            dest.writeInt(intArg3);
+//        }
+//        dest.writeString(stringArg3);
+//        if (floatArg3 == null) {
+//            dest.writeByte((byte) 0);
+//        } else {
+//            dest.writeByte((byte) 1);
+//            dest.writeFloat(floatArg3);
+//        }
+//        if (longArg3 == null) {
+//            dest.writeByte((byte) 0);
+//        } else {
+//            dest.writeByte((byte) 1);
+//            dest.writeLong(longArg3);
+//        }
+//        dest.writeByte((byte) (boolArg3 == null ? 0 : boolArg3 ? 1 : 2));
+//        if (intArg4 == null) {
+//            dest.writeByte((byte) 0);
+//        } else {
+//            dest.writeByte((byte) 1);
+//            dest.writeInt(intArg4);
+//        }
+//        dest.writeString(stringArg4);
+//        if (floatArg4 == null) {
+//            dest.writeByte((byte) 0);
+//        } else {
+//            dest.writeByte((byte) 1);
+//            dest.writeFloat(floatArg4);
+//        }
+//        if (longArg4 == null) {
+//            dest.writeByte((byte) 0);
+//        } else {
+//            dest.writeByte((byte) 1);
+//            dest.writeLong(longArg4);
+//        }
+//        dest.writeByte((byte) (boolArg4 == null ? 0 : boolArg4 ? 1 : 2));
     }
 
     // KEEP METHODS END

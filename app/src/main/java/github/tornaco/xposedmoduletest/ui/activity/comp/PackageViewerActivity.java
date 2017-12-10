@@ -35,6 +35,7 @@ import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.loader.PackageLoader;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.ag.GuardAppPickerActivity;
+import github.tornaco.xposedmoduletest.ui.activity.res.ConfigurationSettingActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.GuardAppListAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -163,6 +164,10 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
                         PackageViewerActivityPermissionRequester.pickSingleFileChecked
                                 (getActivity(), REQUEST_CODE_PICK_APK_EXPORT_PATH,
                                         PackageViewerActivity.this);
+                        break;
+
+                    case R.id.action_config_setting:
+                        ConfigurationSettingActivity.start(getActivity(), packageInfo.getPkgName());
                         break;
                 }
                 return true;

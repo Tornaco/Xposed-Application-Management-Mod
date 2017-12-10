@@ -10,6 +10,7 @@ import org.newstand.logger.Logger;
 
 import github.tornaco.xposedmoduletest.IAppGuardService;
 import github.tornaco.xposedmoduletest.IAppGuardWatcher;
+import github.tornaco.xposedmoduletest.bean.CongfigurationSetting;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
@@ -323,6 +324,16 @@ public class XAppGuardManager {
             mService.addOrRemoveComponentReplacement(from, to, add);
         } catch (RemoteException e) {
             Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    // Called by any app.
+    public CongfigurationSetting getConfigurationSetting(String packageName) {
+        ensureService();
+        try {
+            return mService.getConfigurationSetting(packageName);
+        } catch (RemoteException e) {
+            return null;
         }
     }
 }

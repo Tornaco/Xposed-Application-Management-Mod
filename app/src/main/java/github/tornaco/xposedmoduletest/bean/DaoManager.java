@@ -79,6 +79,8 @@ public class DaoManager {
                 RFKillPackageDao.createTable(db, true);
             } else if (oldVersion == 1002) {
                 ComponentReplacementDao.createTable(db, true);
+            } else if (oldVersion == 1003) {
+                CongfigurationSettingDao.createTable(db, true);
             } else {
                 dropAllTables(db, true);
                 onCreate(db);

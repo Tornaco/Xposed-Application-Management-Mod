@@ -475,6 +475,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
                 CongfigurationSetting setting = CongfigurationSettingDaoUtil.readEntity(cursor, 0);
+
+                if (XposedLog.isVerboseLoggable()) {
+                    XposedLog.verbose("read entry of CongfigurationSetting: " + setting);
+                }
+
                 if (setting.getPackageName() == null) continue;
 
                 // Add to map.
@@ -630,7 +635,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     @Override
-    protected void dump(FileDescriptor fd, PrintWriter fout, String[] args) {
+    protected void dump(FileDescriptor fd, final PrintWriter fout, String[] args) {
         super.dump(fd, fout, args);
         // For secure and CTS.
         if (getContext().checkCallingOrSelfPermission(Manifest.permission.DUMP) != PackageManager.PERMISSION_GRANTED) {
@@ -641,6 +646,16 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         synchronized (this) {
             fout.println("mInterruptFPSuccessVB enabled: " + mInterruptFPSuccessVB.get());
             fout.println("mInterruptFPERRORVB enabled: " + mInterruptFPERRORVB.get());
+
+            fout.println();
+            fout.println();
+
+            Collections.consumeRemaining(mConfigSettings.values(), new Consumer<CongfigurationSetting>() {
+                @Override
+                public void accept(CongfigurationSetting congfigurationSetting) {
+                    fout.println("config setting: " + congfigurationSetting);
+                }
+            });
         }
     }
 
@@ -917,7 +932,12 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("updateConfigurationForPackage: " + packageName);
         }
-        CongfigurationSetting setting = mConfigSettings.get(packageName);
+
+        XAppGuardManager appGuardManager = XAppGuardManager.get();
+        if (!appGuardManager.isServiceAvailable()) return;
+
+        // Retrieve by binder call.
+        CongfigurationSetting setting = appGuardManager.getConfigurationSetting(packageName);
         if (setting == null) return;
 
         if (XposedLog.isVerboseLoggable()) {
@@ -927,6 +947,12 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         // Apply fields.
         if (setting.getFontScale() > 0) configuration.fontScale = setting.getFontScale();
         if (setting.getDensityDpi() > 0) configuration.densityDpi = setting.getDensityDpi();
+    }
+
+    @Override
+    @BinderCall(restrict = "anyone")
+    public CongfigurationSetting getConfigurationSetting(String packageName) {
+        return mConfigSettings.get(packageName);
     }
 
     @Override

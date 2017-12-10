@@ -112,8 +112,8 @@ import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_R
 
 public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
-    private static final boolean DEBUG_BROADCAST = true;
-    private static final boolean DEBUG_SERVICE = true;
+    private static final boolean DEBUG_BROADCAST = false;
+    private static final boolean DEBUG_SERVICE = false;
 
     private static final Set<String> WHITE_LIST = new HashSet<>();
     private static final Set<Pattern> WHITE_LIST_PATTERNS = new HashSet<>();
