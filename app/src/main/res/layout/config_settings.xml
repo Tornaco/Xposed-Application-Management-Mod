@@ -48,6 +48,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/activity_horizontal_margin"
             android:inputType="numberDecimal"
+            android:text="100"
             android:hint="@string/config_font_scale" />
     </LinearLayout>
 

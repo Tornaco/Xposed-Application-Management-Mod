@@ -930,7 +930,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Override
     public void updateConfigurationForPackage(Configuration configuration, String packageName) {
         if (XposedLog.isVerboseLoggable()) {
-            XposedLog.verbose("updateConfigurationForPackage: " + packageName);
+            XposedLog.verbose("updateConfigurationForPackage: " + packageName + configuration.fontScale);
         }
 
         XAppGuardManager appGuardManager = XAppGuardManager.get();

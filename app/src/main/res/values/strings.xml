@@ -133,7 +133,7 @@
     <string name="summary_service_info_process"><b>进程：</b>%1$s</string>
     <string name="summary_service_info_comp">%1$s</string>
     <string name="summary_service_info_comp_maybe_ad">疑似广告</string>
-    <string name="title_component_manager">应用组件管理</string>
+    <string name="title_component_manager">应用与组件管理</string>
     <string name="title_export_comp_settings">导出应用配置</string>
     <string name="title_export_service_settings">导出服务配置</string>
     <string name="title_export_broadcast_settings">导出广播配置</string>
@@ -309,5 +309,7 @@
     <string name="config_dpi">DPI</string>
     <string name="config_font_scale">字体缩放</string>
     <string name="title_config_setting">应用配置</string>
+    <string name="title_disable_all">禁用当前页全部</string>
+    <string name="title_enable_all">启用当前页全部</string>
 
 </resources>

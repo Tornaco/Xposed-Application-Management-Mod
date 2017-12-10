@@ -62,13 +62,17 @@ public class ConfigurationSettingActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 try {
-                    int dpi = Integer.parseInt(dpiText.getEditableText().toString());
-                    float scale = Float.parseFloat(fontScaleText.getEditableText().toString());
+
+                    String dpitext = dpiText.getText().toString();
+                    int dpi = TextUtils.isEmpty(dpitext) ? -1 : Integer.parseInt(dpitext);
+
+                    String scaleText = fontScaleText.getText().toString();
+                    float scale = TextUtils.isEmpty(scaleText) ? -1 : Float.parseFloat(scaleText);
 
                     CongfigurationSetting setting = new CongfigurationSetting();
                     setting.setPackageName(mPackageName);
                     setting.setDensityDpi(dpi);
-                    setting.setFontScale(scale);
+                    setting.setFontScale(scale/100f);
 
                     ConfigurationSettingProvider.insertOrUpdate(getContext().getApplicationContext(), setting);
 

@@ -10,6 +10,17 @@
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
 
+    <item
+        android:id="@+id/action_disable_all"
+        android:icon="@drawable/ic_search_white_24dp"
+        android:title="@string/title_disable_all" />
+
+    <item
+        android:id="@+id/action_enable_all"
+        android:icon="@drawable/ic_search_white_24dp"
+        android:title="@string/title_enable_all" />
+
+
     <group android:orderInCategory="100">
         <item
             android:id="@+id/action_export_service_settings"

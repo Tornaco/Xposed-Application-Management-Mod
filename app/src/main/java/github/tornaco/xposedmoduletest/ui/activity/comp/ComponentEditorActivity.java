@@ -2,10 +2,13 @@ package github.tornaco.xposedmoduletest.ui.activity.comp;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -64,6 +67,7 @@ import github.tornaco.xposedmoduletest.ui.adapter.ReceiverSettingsAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.ServiceSettingsAdapter;
 import github.tornaco.xposedmoduletest.util.ComponentUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import ir.mirrajabi.searchdialog.SimpleSearchDialogCompat;
@@ -347,6 +351,20 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
             return true;
         }
 
+        if (id == R.id.action_disable_all) {
+            if (mCurrentFragment != null) {
+                mCurrentFragment.onRequestDisableAll();
+            }
+            return true;
+        }
+
+        if (id == R.id.action_enable_all) {
+            if (mCurrentFragment != null) {
+                mCurrentFragment.onRequestEnabledAll();
+            }
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -487,16 +505,16 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
     private final List<ComponentListFragment> mFragments = new ArrayList<>(FRAGMENT_COUNT);
 
     @Override
-    public void onLoadingComplete(int index, List data) {
+    public void onLoadingComplete(int index, List data, int enableCount) {
         switch (index) {
             case INDEX_ACTIVITY:
-                setTabTitle(index, getString(R.string.tab_text_3) + "[" + data.size() + "]");
+                setTabTitle(index, getString(R.string.tab_text_3) + "[" + enableCount + "/" + data.size() + "]");
                 break;
             case INDEX_BROADCAST:
-                setTabTitle(index, getString(R.string.tab_text_2) + "[" + data.size() + "]");
+                setTabTitle(index, getString(R.string.tab_text_2) + "[" + enableCount + "/" + data.size() + "]");
                 break;
             case INDEX_SERVICE:
-                setTabTitle(index, getString(R.string.tab_text_1) + "[" + data.size() + "]");
+                setTabTitle(index, getString(R.string.tab_text_1) + "[" + enableCount + "/" + data.size() + "]");
                 break;
         }
     }
@@ -743,13 +761,28 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
                 @Override
                 public void run() {
                     final List res = performLoading();
+
+                    final int[] enableCount = {0};
+                    Collections.consumeRemaining(res, new Consumer() {
+                        @Override
+                        public void accept(Object o) {
+                            if (o instanceof ActivityInfoSettings) {
+                                boolean enable = ((ActivityInfoSettings) o).isAllowed();
+                                if (enable) enableCount[0]++;
+                            } else if (o instanceof ServiceInfoSettings) {
+                                boolean enable = ((ServiceInfoSettings) o).isAllowed();
+                                if (enable) enableCount[0]++;
+                            }
+                        }
+                    });
+
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             swipeRefreshLayout.setRefreshing(false);
                             //noinspection unchecked
                             componentListAdapter.update(res);
-                            loadingListener.onLoadingComplete(index, res);
+                            loadingListener.onLoadingComplete(index, res, enableCount[0]);
                         }
                     });
                 }
@@ -826,6 +859,76 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
         void onRequestSearch() {
 
         }
+
+        void onRequestEnabledAll() {
+            onRequestEnabledDisableAll(true);
+        }
+
+        void onRequestEnabledDisableAll(final boolean enable) {
+            final ProgressDialog d = new ProgressDialog(getActivity());
+            d.setIndeterminate(true);
+            d.setTitle("不要离开");
+            d.setMessage("...");
+            d.setCancelable(false);
+            d.show();
+
+            XExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    Collections.consumeRemaining(getComponentListAdapter().getData(),
+                            new Consumer() {
+                                @Override
+                                public void accept(Object o) {
+
+                                    if (isDetached()) return;
+
+                                    ComponentName componentName = null;
+                                    if (o instanceof ActivityInfoSettings) {
+                                        componentName = ComponentUtil
+                                                .getComponentName(((ActivityInfoSettings) o).getActivityInfo());
+                                    } else if (o instanceof ServiceInfoSettings) {
+                                        componentName = ComponentUtil
+                                                .getComponentName(((ServiceInfoSettings) o).getServiceInfo());
+                                    }
+
+                                    if (componentName==null) return;
+
+                                    XAshmanManager.get().setComponentEnabledSetting(componentName,
+                                            enable ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                                                    : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                                            0);
+
+                                    final ComponentName finalComponentName = componentName;
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            d.setMessage(finalComponentName.flattenToShortString());
+                                        }
+                                    });
+
+                                    try {
+                                        Thread.sleep(666);
+                                    } catch (InterruptedException ignored) {
+
+                                    }
+                                }
+                            });
+
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            d.dismiss();
+
+                            startLoading();
+                        }
+                    });
+                }
+            });
+        }
+
+        void onRequestDisableAll() {
+            onRequestEnabledDisableAll(false);
+        }
     }
 
     /**
@@ -853,7 +956,7 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
 }
 
 interface LoadingListener {
-    void onLoadingComplete(int tab, List data);
+    void onLoadingComplete(int tab, List data, int enableCount);
 }
 
 interface ObserableHost {
