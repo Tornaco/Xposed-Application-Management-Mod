@@ -98,7 +98,7 @@ public class LockKillAppPickerActivity extends LockKillAppNavActivity {
     }
 
     protected List<LockKillPackage> performLoading() {
-        return LockKillPackageLoader.Impl.create(this).loadInstalled(true);
+        return LockKillPackageLoader.Impl.create(this).loadInstalled(false);
     }
 
     @Override

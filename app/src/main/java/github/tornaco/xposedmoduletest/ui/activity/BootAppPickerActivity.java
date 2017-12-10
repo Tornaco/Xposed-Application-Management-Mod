@@ -96,7 +96,7 @@ public class BootAppPickerActivity extends BootAppNavActivity {
     }
 
     protected List<BootCompletePackage> performLoading() {
-        return BootPackageLoader.Impl.create(this).loadInstalled(true);
+        return BootPackageLoader.Impl.create(this).loadInstalled(false);
     }
 
     @Override

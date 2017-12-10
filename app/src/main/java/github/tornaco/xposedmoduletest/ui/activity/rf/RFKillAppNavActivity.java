@@ -191,7 +191,7 @@ public class RFKillAppNavActivity extends WithRecyclerView {
     }
 
     protected List<RFKillPackage> performLoading() {
-        return RFKillPackageLoader.Impl.create(this).loadInstalled(false);
+        return RFKillPackageLoader.Impl.create(this).loadInstalled(true);
     }
 
     @Override

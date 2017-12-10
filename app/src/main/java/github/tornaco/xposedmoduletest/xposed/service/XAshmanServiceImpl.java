@@ -112,8 +112,8 @@ import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_R
 
 public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
-    private static final boolean DEBUG_BROADCAST = false;
-    private static final boolean DEBUG_SERVICE = false;
+    private static final boolean DEBUG_BROADCAST = true;
+    private static final boolean DEBUG_SERVICE = true;
 
     private static final Set<String> WHITE_LIST = new HashSet<>();
     private static final Set<Pattern> WHITE_LIST_PATTERNS = new HashSet<>();
@@ -142,11 +142,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private AtomicBoolean mBootBlockEnabled = new AtomicBoolean(false);
     private AtomicBoolean mStartBlockEnabled = new AtomicBoolean(false);
     private AtomicBoolean mLockKillEnabled = new AtomicBoolean(false);
+
     private AtomicBoolean mLockKillDoNotKillAudioEnabled = new AtomicBoolean(true);
     private AtomicBoolean mRootActivityFinishKillEnabled = new AtomicBoolean(false);
     private AtomicBoolean mCompSettingBlockEnabled = new AtomicBoolean(false);
 
-    private AtomicInteger mControlMode = new AtomicInteger(XAshmanManager.ControlMode.WHITE_LIST);
+    // FIXME Now we force set control mode to BLACK LIST.
+    private AtomicInteger mControlMode = new AtomicInteger(XAshmanManager.ControlMode.BLACK_LIST);
 
     private long mLockKillDelay;
 
@@ -661,14 +663,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
-        try {
-            int controlMode = (int) SystemSettings.ASH_CONTROL_MODE_I.readFromSystemSettings(getContext());
-            mControlMode.set(controlMode);
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("controlMode: " + String.valueOf(controlMode));
-        } catch (Throwable e) {
-            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
-        }
+//        try {
+//            int controlMode = (int) SystemSettings.ASH_CONTROL_MODE_I.readFromSystemSettings(getContext());
+//            mControlMode.set(controlMode);
+//            if (XposedLog.isVerboseLoggable())
+//                XposedLog.verbose("controlMode: " + String.valueOf(controlMode));
+//        } catch (Throwable e) {
+//            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+//        }
 
         try {
             boolean bootBlockEnabled = (boolean) SystemSettings.BOOT_BLOCK_ENABLED_B.readFromSystemSettings(getContext());
@@ -776,13 +778,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             callerPkgName = PkgUtil.pkgForUid(getContext(), callerUid);
         }
 
-        // If this app is not in good condition, but user
-        // does not block, we also allow it to start.
-        boolean allowedByUser = isStartAllowedByUser(servicePkgName);
-        if (allowedByUser) {
-            return CheckResult.USER_ALLOWED;
-        }
-
         if (isInWhiteList(servicePkgName)) {
             return CheckResult.WHITE_LISTED;
         }
@@ -808,7 +803,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.APP_RUNNING;
         }
 
-        return CheckResult.DENIED_GENERAL;
+        // If this app is not in good condition, and user choose to block:
+        boolean blockedByUser = isPackageStartBlockByUser(servicePkgName);
+        // User block!!!
+        if (blockedByUser) {
+            return CheckResult.USER_DENIED;
+        }
+
+        // By default, we allow.
+        return CheckResult.ALLOWED_GENERAL;
     }
 
     @Override
@@ -929,8 +932,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (!isRFKillEnabled()) return false;
         // If this app is not in good condition, but user
         // does not block, we also allow it to start.
-        boolean allowedByUser = isInRFKillWhiteList(pkg);
-        if (allowedByUser) {
+        boolean rfkByUser = isPackageRFKByUser(pkg);
+        if (!rfkByUser) {
             return false;
         }
 
@@ -1093,7 +1096,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public String[] getBootBlockApps(boolean block) throws RemoteException {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getBootBlockApps: " + block);
         enforceCallingPermissions();
-        if (block) {
+        if (!block) {
             Collection<String> packages = mPackagesCache.values();
             if (packages.size() == 0) {
                 return new String[0];
@@ -1106,7 +1109,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
                 @Override
                 public void accept(String s) {
-                    if (isBootAllowedByUser(s)) return;
+                    if (isPackageBootBlockByUser(s)) return;
                     if (isInWhiteList(s)) return;
                     if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
                     outList.add(s);
@@ -1198,7 +1201,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public String[] getStartBlockApps(boolean block) throws RemoteException {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getStartBlockApps: " + block);
         enforceCallingPermissions();
-        if (block) {
+        if (!block) {
             Collection<String> packages = mPackagesCache.values();
             if (packages.size() == 0) {
                 return new String[0];
@@ -1211,7 +1214,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
                 @Override
                 public void accept(String s) {
-                    if (isStartAllowedByUser(s)) return;
+                    if (isPackageStartBlockByUser(s)) return;
                     if (isInWhiteList(s)) return;
                     if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
                     outList.add(s);
@@ -1303,7 +1306,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public String[] getLKApps(boolean kill) throws RemoteException {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getLKApps: " + kill);
         enforceCallingPermissions();
-        if (kill) {
+        if (!kill) {
             Collection<String> packages = mPackagesCache.values();
             if (packages.size() == 0) {
                 return new String[0];
@@ -1316,7 +1319,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
                 @Override
                 public void accept(String s) {
-                    if (isInLockKillWhiteList(s)) return;
+                    if (isPackageLKByUser(s)) return;
                     if (isInWhiteList(s)) return;
                     if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
                     outList.add(s);
@@ -1408,7 +1411,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public String[] getRFKApps(boolean kill) throws RemoteException {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getRFKApps: " + kill);
         enforceCallingPermissions();
-        if (kill) {
+        if (!kill) {
             Collection<String> packages = mPackagesCache.values();
             if (packages.size() == 0) {
                 return new String[0];
@@ -1421,7 +1424,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
                 @Override
                 public void accept(String s) {
-                    if (isInRFKillWhiteList(s)) return;
+                    if (isPackageRFKByUser(s)) return;
                     if (isInWhiteList(s)) return;
                     if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
                     outList.add(s);
@@ -1583,12 +1586,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private CheckResult checkBroadcastDetailed(String receiverPkgName) {
-        // If this app is not in good condition, but user
-        // does not block, we also allow it to start.
-        boolean allowedByUser = isStartAllowedByUser(receiverPkgName);
-        if (allowedByUser) {
-            return CheckResult.USER_ALLOWED;
-        }
 
         if (isInWhiteList(receiverPkgName)) {
             return CheckResult.WHITE_LISTED;
@@ -1610,35 +1607,33 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.APP_RUNNING;
         }
 
-        return CheckResult.DENIED_GENERAL;
+        // It is in user black list.
+        boolean blockByUser = isPackageStartBlockByUser(receiverPkgName);
+        if (blockByUser) {
+            return CheckResult.USER_DENIED;
+        }
+
+        return CheckResult.ALLOWED_GENERAL;
     }
 
-    private boolean isBootAllowedByUser(String pkg) {
+    private boolean isPackageBootBlockByUser(String pkg) {
         BootCompletePackage bootCompletePackage = mBootControlListPackages.get(pkg);
-        boolean hasBootPackageStored = bootCompletePackage != null;
-        if (isWhiteListControlMode()) return hasBootPackageStored;
-        else return !hasBootPackageStored;
+        return bootCompletePackage != null;
     }
 
-    private boolean isStartAllowedByUser(String pkg) {
+    private boolean isPackageStartBlockByUser(String pkg) {
         AutoStartPackage autoStartPackage = mStartControlListPackages.get(pkg);
-        boolean hasAutoPackageStored = autoStartPackage != null;
-        if (isWhiteListControlMode()) return hasAutoPackageStored;
-        else return !hasAutoPackageStored;
+        return autoStartPackage != null;
     }
 
-    private boolean isInLockKillWhiteList(String pkg) {
+    private boolean isPackageLKByUser(String pkg) {
         LockKillPackage lockKillPackage = mLockKillControlListPackages.get(pkg);
-        boolean stored = lockKillPackage != null;
-        if (isWhiteListControlMode()) return stored;
-        else return !stored;
+        return lockKillPackage != null;
     }
 
-    private boolean isInRFKillWhiteList(String pkg) {
+    private boolean isPackageRFKByUser(String pkg) {
         RFKillPackage rfKillPackage = mRFKillControlListPackages.get(pkg);
-        boolean stored = rfKillPackage != null;
-        if (isWhiteListControlMode()) return stored;
-        return !stored;
+        return rfKillPackage != null;
     }
 
     private CheckResult checkBootCompleteBroadcast(int receiverUid, int callerUid) {
@@ -1653,12 +1648,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         if (TextUtils.isEmpty(receiverPkgName)) return CheckResult.BAD_ARGS;
-
-        boolean allowedByUser = isBootAllowedByUser(receiverPkgName);
-
-        if (allowedByUser) {
-            return CheckResult.USER_ALLOWED;
-        }
 
         if (isInWhiteList(receiverPkgName)) {
             return CheckResult.WHITE_LISTED;
@@ -1676,7 +1665,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.SMS_APP;
         }
 
-        return CheckResult.DENIED_GENERAL;
+        boolean blockByUser = isPackageBootBlockByUser(receiverPkgName);
+
+        if (blockByUser) {
+            return CheckResult.USER_DENIED;
+        }
+
+        return CheckResult.ALLOWED_GENERAL;
     }
 
     private static boolean isBootCompleteBroadcastAction(String action) {
@@ -2781,6 +2776,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             continue;
                         }
 
+                        if (!isPackageLKByUser(runningPackageName)) {
+                            if (XposedLog.isVerboseLoggable()) {
+                                XposedLog.verbose("Won't kill app that not in user list: " + runningPackageName);
+                            }
+                            if (listener != null) try {
+                                listener.onIgnoredPkg(null, "User let it go");
+                            } catch (RemoteException ignored) {
+
+                            }
+                            continue;
+                        }
+
                         if (isLockKillDoNotKillAudioEnabled()
                                 && runningPackageName.equals(mAudioFocusedPackage.getData())) {
                             if (XposedLog.isVerboseLoggable()) {
@@ -2795,8 +2802,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         }
 
                         // Check if we can control.
-                        boolean whiteApp = isInLockKillWhiteList(runningPackageName)
-                                || isInWhiteList(runningPackageName)
+                        boolean whiteApp = isInWhiteList(runningPackageName)
                                 || (isWhiteSysAppEnabled() && isInSystemAppList(runningPackageName));
                         if (whiteApp) {
                             if (listener != null) try {
@@ -3080,8 +3086,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         @Override
         public void setControlMode(int mode) {
-            mControlMode.set(mode);
-            SystemSettings.ASH_CONTROL_MODE_I.writeToSystemSettings(getContext(), mode);
+//            mControlMode.set(mode);
+//            SystemSettings.ASH_CONTROL_MODE_I.writeToSystemSettings(getContext(), mode);
         }
     }
 
@@ -3222,9 +3228,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         public static final CheckResult BAD_ARGS = new CheckResult(true, "BAD_ARGS", false);
         public static final CheckResult USER_ALLOWED = new CheckResult(true, "USER_ALLOWED", true);
+        public static final CheckResult USER_DENIED = new CheckResult(false, "USER_DENIED", true);
 
         // Denied cases.
         public static final CheckResult DENIED_GENERAL = new CheckResult(false, "DENIED_GENERAL", true);
+        public static final CheckResult ALLOWED_GENERAL = new CheckResult(true, "ALLOWED_GENERAL", true);
 
         private boolean res;
         private String why;

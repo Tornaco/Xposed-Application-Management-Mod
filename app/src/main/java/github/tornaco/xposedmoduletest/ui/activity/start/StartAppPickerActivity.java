@@ -97,7 +97,7 @@ public class StartAppPickerActivity extends StartAppNavActivity {
     }
 
     protected List<AutoStartPackage> performLoading() {
-        return StartPackageLoader.Impl.create(this).loadInstalled(true);
+        return StartPackageLoader.Impl.create(this).loadInstalled(false);
     }
 
     @Override

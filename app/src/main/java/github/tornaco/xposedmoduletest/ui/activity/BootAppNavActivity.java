@@ -188,7 +188,7 @@ public class BootAppNavActivity extends WithRecyclerView {
     }
 
     protected List<BootCompletePackage> performLoading() {
-        return BootPackageLoader.Impl.create(this).loadInstalled(false);
+        return BootPackageLoader.Impl.create(this).loadInstalled(true);
     }
 
     @Override

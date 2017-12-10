@@ -190,7 +190,7 @@ public class StartAppNavActivity extends WithRecyclerView {
     }
 
     protected List<AutoStartPackage> performLoading() {
-        return StartPackageLoader.Impl.create(this).loadInstalled(false);
+        return StartPackageLoader.Impl.create(this).loadInstalled(true);
     }
 
     @Override

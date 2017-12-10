@@ -78,7 +78,7 @@ public class RFKillAppPickerActivity extends RFKillAppNavActivity {
     }
 
     protected List<RFKillPackage> performLoading() {
-        return RFKillPackageLoader.Impl.create(this).loadInstalled(true);
+        return RFKillPackageLoader.Impl.create(this).loadInstalled(false);
     }
 
     @Override
