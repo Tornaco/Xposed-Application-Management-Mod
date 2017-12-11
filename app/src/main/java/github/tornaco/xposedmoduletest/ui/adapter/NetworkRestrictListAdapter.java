@@ -1,8 +1,10 @@
 package github.tornaco.xposedmoduletest.ui.adapter;
 
 import android.content.Context;
+import android.support.annotation.ColorInt;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -43,9 +45,19 @@ public class NetworkRestrictListAdapter
     private Context context;
     private VangoghAppLoader vangoghAppLoader;
 
+    @Getter
+    private int selection = -1;
+
+    @ColorInt
+    @Setter
+    private int highlightColor, normalColor;
+
     public NetworkRestrictListAdapter(Context context) {
         this.context = context;
         vangoghAppLoader = new VangoghAppLoader(context);
+
+        this.highlightColor = ContextCompat.getColor(context, R.color.blue_grey);
+        this.normalColor = ContextCompat.getColor(context, R.color.card);
     }
 
     @Getter
@@ -106,6 +118,12 @@ public class NetworkRestrictListAdapter
                 .placeHolder(0)
                 .fallback(R.mipmap.ic_launcher_round)
                 .into(holder.getIconView());
+
+        if (getSelection() >= 0 && position == selection) {
+            holder.itemView.setBackgroundColor(highlightColor);
+        } else {
+            holder.itemView.setBackgroundColor(normalColor);
+        }
     }
 
     @Override
@@ -119,6 +137,11 @@ public class NetworkRestrictListAdapter
         final NetworkRestrictionItem item = getNetworkRestrictionItems().get(position);
         if (TextUtils.isEmpty(item.getAppName())) return "?";
         return String.valueOf(item.getAppName().charAt(0));
+    }
+
+    public void setSelection(int selection) {
+        this.selection = selection;
+        notifyDataSetChanged();
     }
 
     @Getter

@@ -53,4 +53,6 @@ interface IAppGuardService {
     void addOrRemoveComponentReplacement(in ComponentName from, in ComponentName to, boolean add);
 
     CongfigurationSetting getConfigurationSetting(String packageName);
+
+    void forceReloadPackages();
 }

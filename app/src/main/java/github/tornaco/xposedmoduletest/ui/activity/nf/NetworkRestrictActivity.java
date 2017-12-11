@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.ui.activity.nf;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -27,11 +28,15 @@ import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.NetworkRestrictLoader;
+import github.tornaco.xposedmoduletest.model.NetworkRestrictionItem;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.NetworkRestrictListAdapter;
 import github.tornaco.xposedmoduletest.util.SpannableUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import ir.mirrajabi.searchdialog.SimpleSearchDialogCompat;
+import ir.mirrajabi.searchdialog.core.BaseSearchDialogCompat;
+import ir.mirrajabi.searchdialog.core.SearchResultListener;
 
 public class NetworkRestrictActivity extends BaseActivity {
 
@@ -70,11 +75,28 @@ public class NetworkRestrictActivity extends BaseActivity {
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                mCurrentFragment = mFragments.get(position);
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                mCurrentFragment = mFragments.get(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
         setTitle(R.string.title_nf);
 
         setSummaryView();
 
-       // showAlertDialog();
+        // showAlertDialog();
     }
 
     private void showAlertDialog() {
@@ -123,6 +145,9 @@ public class NetworkRestrictActivity extends BaseActivity {
             AppSettings.setShowInfo(this, who, !AppSettings.isShowInfoEnabled(this, who));
             setSummaryView();
         }
+        if (item.getItemId() == R.id.action_search) {
+            if (mCurrentFragment != null) mCurrentFragment.onRequestSearch();
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -139,6 +164,8 @@ public class NetworkRestrictActivity extends BaseActivity {
         mFragments.add(RestrictAppListFragment.newInstance(INDEX_WIFI));
     }
 
+    private RestrictAppListFragment mCurrentFragment;
+
     /**
      * A placeholder fragment containing a simple view.
      */
@@ -153,6 +180,8 @@ public class NetworkRestrictActivity extends BaseActivity {
 
         private SwipeRefreshLayout swipeRefreshLayout;
         private NetworkRestrictListAdapter networkRestrictListAdapter;
+
+        private RecyclerView recyclerView;
 
         private int index;
 
@@ -185,6 +214,35 @@ public class NetworkRestrictActivity extends BaseActivity {
 
         protected NetworkRestrictListAdapter onCreateAdapter() {
             return new NetworkRestrictListAdapter(getActivity());
+        }
+
+        @SuppressWarnings("unchecked")
+        void onRequestSearch() {
+            final ArrayList<NetworkRestrictionItem> adapterData = (ArrayList<NetworkRestrictionItem>)
+                    networkRestrictListAdapter.getNetworkRestrictionItems();
+
+            final SimpleSearchDialogCompat<NetworkRestrictionItem> searchDialog =
+                    new SimpleSearchDialogCompat(getActivity(), getString(R.string.title_search),
+                            getString(R.string.title_search_hint), null, adapterData,
+                            new SearchResultListener<NetworkRestrictionItem>() {
+
+                                @Override
+                                public void onSelected(BaseSearchDialogCompat baseSearchDialogCompat,
+                                                       NetworkRestrictionItem info, int i) {
+                                    int index = indexOf(info);
+                                    recyclerView.scrollToPosition(index);
+                                    networkRestrictListAdapter.setSelection(index);
+                                    baseSearchDialogCompat.dismiss();
+                                }
+                            });
+
+
+            searchDialog.show();
+            searchDialog.getSearchBox().setTypeface(Typeface.SERIF);
+        }
+
+        private int indexOf(final NetworkRestrictionItem pkg) {
+            return networkRestrictListAdapter.getNetworkRestrictionItems().indexOf(pkg);
         }
 
         @Override
@@ -249,7 +307,7 @@ public class NetworkRestrictActivity extends BaseActivity {
         }
 
         void setupView(View rootView) {
-            RecyclerView recyclerView = rootView.findViewById(R.id.recycler_view);
+            recyclerView = rootView.findViewById(R.id.recycler_view);
             swipeRefreshLayout = rootView.findViewById(R.id.swipe);
             swipeRefreshLayout.setColorSchemeColors(getResources().getIntArray(R.array.polluted_waves));
 

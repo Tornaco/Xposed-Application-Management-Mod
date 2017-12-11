@@ -575,4 +575,12 @@ public class XAshmanManager {
 
         }
     }
+
+    public void forceReloadPackages() {
+        try {
+            mService.forceReloadPackages();
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
 }

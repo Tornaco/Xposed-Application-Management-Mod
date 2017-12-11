@@ -39,6 +39,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.LockKill;
 import github.tornaco.xposedmoduletest.ui.tiles.NFManager;
 import github.tornaco.xposedmoduletest.ui.tiles.RFKill;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import lombok.Getter;
 
 /**
@@ -55,6 +56,12 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
         initFirstRun();
         getSupportFragmentManager().beginTransaction().replace(R.id.container,
                 onCreateFragment()).commitAllowingStateLoss();
+
+        // This is a workaround that some apps is installed on SD.
+        // We trigger a package scan now, to ensure wo got all packages.
+        if (XAshmanManager.get().isServiceAvailable()) {
+            XAshmanManager.get().forceReloadPackages();
+        }
     }
 
     private void initFirstRun() {
@@ -226,7 +233,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
             ash.titleRes = R.string.title_control;
             ash.addTile(new ComponentManager(getActivity()));
             ash.addTile(new CompReplacement(getActivity()));
-            // ash.addTile(new NFManager(getActivity()));
+            ash.addTile(new NFManager(getActivity()));
 
             categories.add(category);
             categories.add(rest);

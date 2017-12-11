@@ -119,6 +119,8 @@ interface AshManHandler {
 
     void setAutoAddBlackEnable(boolean enable);
 
+    void forceReloadPackages();
+
     @Getter
     class WatcherClient implements IBinder.DeathRecipient {
 

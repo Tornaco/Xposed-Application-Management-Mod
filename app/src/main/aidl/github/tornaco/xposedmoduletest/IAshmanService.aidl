@@ -99,4 +99,6 @@ interface IAshmanService {
 
     boolean isAutoAddBlackEnabled();
     void setAutoAddBlackEnable(boolean enable);
+
+    void forceReloadPackages();
 }

@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.model;
 
+import ir.mirrajabi.searchdialog.core.Searchable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,7 @@ import lombok.ToString;
 @ToString
 @Getter
 @Setter
-public class NetworkRestrictionItem {
+public class NetworkRestrictionItem implements Searchable {
 
     private String packageName;
     private String appName;
@@ -24,4 +25,8 @@ public class NetworkRestrictionItem {
     private boolean isRestrictedData;
     private boolean isRestrictedWifi;
 
+    @Override
+    public String getTitle() {
+        return String.valueOf(getAppName());
+    }
 }

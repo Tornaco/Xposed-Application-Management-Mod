@@ -524,7 +524,14 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     private void cacheUIDForPackages() {
         PackageManager pm = this.getContext().getPackageManager();
         try {
-            ApplicationInfo applicationInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID, 0);
+            ApplicationInfo applicationInfo = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                applicationInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID,
+                        PackageManager.MATCH_UNINSTALLED_PACKAGES);
+            } else {
+                applicationInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID,
+                        PackageManager.GET_UNINSTALLED_PACKAGES);
+            }
             sClientUID = applicationInfo.uid;
         } catch (Exception ignored) {
             XposedLog.debug("Can not getSingleton UID for our client:" + ignored);
@@ -957,6 +964,17 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @BinderCall(restrict = "anyone")
     public CongfigurationSetting getConfigurationSetting(String packageName) {
         return mConfigSettings.get(packageName);
+    }
+
+    @Override
+    public void forceReloadPackages() throws RemoteException {
+        enforceCallingPermissions();
+        mServiceHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                cacheUIDForPackages();
+            }
+        });
     }
 
     @Override

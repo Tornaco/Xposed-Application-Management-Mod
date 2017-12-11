@@ -22,6 +22,7 @@ import android.net.LinkProperties;
 import android.net.NetworkPolicyManager;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -267,7 +268,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             public void accept(String s) {
                 ApplicationInfo applicationInfo;
                 try {
-                    applicationInfo = pm.getApplicationInfo(s, 0);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        applicationInfo = pm.getApplicationInfo(s, PackageManager.MATCH_UNINSTALLED_PACKAGES);
+                    } else {
+                        applicationInfo = pm.getApplicationInfo(s, PackageManager.GET_UNINSTALLED_PACKAGES);
+                    }
                     int uid = applicationInfo.uid;
                     String pkg = applicationInfo.packageName;
                     if (TextUtils.isEmpty(pkg)) return;
@@ -297,7 +302,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         // Retrieve our package first.
         try {
-            ApplicationInfo applicationInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID, 0);
+            ApplicationInfo applicationInfo;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                applicationInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID,
+                        PackageManager.MATCH_UNINSTALLED_PACKAGES);
+            } else {
+                applicationInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID,
+                        PackageManager.GET_UNINSTALLED_PACKAGES);
+            }
             sClientUID = applicationInfo.uid;
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("Our client app uid: " + sClientUID);
@@ -1621,6 +1633,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 .sendToTarget();
     }
 
+    @Override
+    public void forceReloadPackages() throws RemoteException {
+        enforceCallingPermissions();
+        h.removeMessages(AshManHandlerMessages.MSG_FORCERELOADPACKAGES);
+        h.sendEmptyMessage(AshManHandlerMessages.MSG_FORCERELOADPACKAGES);
+    }
+
     private CheckResult checkBroadcastDetailed(String action, int receiverUid, int callerUid) {
 
         // Check if this is a boot complete action.
@@ -2172,7 +2191,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @InternalCall
     @Deprecated
     public void onNetWorkManagementServiceReady(NativeDaemonConnector connector) {
-        if (true) return;
         XposedLog.debug("NMS onNetWorkManagementServiceReady: " + connector);
         this.mNativeDaemonConnector = connector;
         this.mWifiInterfaceName = SystemProperties.get("wifi.interface");
@@ -2735,6 +2753,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETAUTOADDBLACKENABLE:
                     HandlerImpl.this.setAutoAddBlackEnable((Boolean) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_FORCERELOADPACKAGES:
+                    HandlerImpl.this.forceReloadPackages();
+                    break;
             }
         }
 
@@ -2771,6 +2792,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (mAutoAddToBlackListForNewApp.compareAndSet(!enabled, enabled)) {
                 SystemSettings.AUTO_ADD_BLACK_FOR_NEW_APP_B.writeToSystemSettings(getContext(), enabled);
             }
+        }
+
+        @Override
+        public void forceReloadPackages() {
+            mWorkingService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    cachePackages();
+                }
+            });
         }
 
         @Override

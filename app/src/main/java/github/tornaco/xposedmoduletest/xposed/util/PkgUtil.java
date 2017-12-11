@@ -41,7 +41,12 @@ public class PkgUtil {
         PackageManager pm = context.getPackageManager();
 
         try {
-            ApplicationInfo info = pm.getApplicationInfo(pkg, 0);
+            ApplicationInfo info = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                info = pm.getApplicationInfo(pkg, PackageManager.MATCH_UNINSTALLED_PACKAGES);
+            } else {
+                info = pm.getApplicationInfo(pkg, PackageManager.GET_UNINSTALLED_PACKAGES);
+            }
             return info != null;
         } catch (PackageManager.NameNotFoundException var4) {
             return false;
@@ -51,7 +56,12 @@ public class PkgUtil {
     public static int loadVersionCodeByPkgName(Context context, String pkg) {
         PackageManager pm = context.getPackageManager();
         try {
-            ApplicationInfo info = pm.getApplicationInfo(pkg, 0);
+            ApplicationInfo info = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                info = pm.getApplicationInfo(pkg, PackageManager.MATCH_UNINSTALLED_PACKAGES);
+            } else {
+                info = pm.getApplicationInfo(pkg, PackageManager.GET_UNINSTALLED_PACKAGES);
+            }
             return info == null ? -1 : info.versionCode;
         } catch (PackageManager.NameNotFoundException var4) {
             return -1;
@@ -61,7 +71,12 @@ public class PkgUtil {
     public static String loadVersionNameByPkgName(Context context, String pkg) {
         PackageManager pm = context.getPackageManager();
         try {
-            PackageInfo info = pm.getPackageInfo(pkg, 0);
+            PackageInfo info = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                info = pm.getPackageInfo(pkg, PackageManager.MATCH_UNINSTALLED_PACKAGES);
+            } else {
+                info = pm.getPackageInfo(pkg, PackageManager.GET_UNINSTALLED_PACKAGES);
+            }
             return info == null ? null : info.versionName;
         } catch (PackageManager.NameNotFoundException var4) {
             return null;
@@ -72,7 +87,12 @@ public class PkgUtil {
         PackageManager pm = context.getPackageManager();
 
         try {
-            ApplicationInfo info = pm.getApplicationInfo(pkg, 0);
+            ApplicationInfo info = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                info = pm.getApplicationInfo(pkg, PackageManager.MATCH_UNINSTALLED_PACKAGES);
+            } else {
+                info = pm.getApplicationInfo(pkg, PackageManager.GET_UNINSTALLED_PACKAGES);
+            }
             return info == null ? pkg : info.loadLabel(pm);
         } catch (PackageManager.NameNotFoundException var4) {
             return pkg;
@@ -119,7 +139,12 @@ public class PkgUtil {
         if ("android".equals(pkg)) return true;
         PackageManager pm = context.getPackageManager();
         try {
-            ApplicationInfo applicationInfo = pm.getApplicationInfo(pkg, 0);
+            ApplicationInfo applicationInfo = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                applicationInfo = pm.getApplicationInfo(pkg, PackageManager.MATCH_UNINSTALLED_PACKAGES);
+            } else {
+                applicationInfo = pm.getApplicationInfo(pkg, PackageManager.GET_UNINSTALLED_PACKAGES);
+            }
             return applicationInfo != null && (applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
         } catch (PackageManager.NameNotFoundException e) {
             return false;
@@ -129,7 +154,12 @@ public class PkgUtil {
     public static String pathOf(Context context, String pkg) {
         PackageManager pm = context.getPackageManager();
         try {
-            ApplicationInfo applicationInfo = pm.getApplicationInfo(pkg, 0);
+            ApplicationInfo applicationInfo = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                applicationInfo = pm.getApplicationInfo(pkg, PackageManager.MATCH_UNINSTALLED_PACKAGES);
+            } else {
+                applicationInfo = pm.getApplicationInfo(pkg, PackageManager.GET_UNINSTALLED_PACKAGES);
+            }
             return applicationInfo.publicSourceDir;
         } catch (PackageManager.NameNotFoundException e) {
             return null;
