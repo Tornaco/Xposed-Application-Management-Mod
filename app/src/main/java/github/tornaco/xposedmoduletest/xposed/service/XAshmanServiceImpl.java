@@ -1691,6 +1691,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.USER_DENIED;
         }
 
+        if (!mStartPkgLoaded.get()) {
+            return CheckResult.DENIED_USER_LIST_NOT_READY;
+        }
+
         return CheckResult.ALLOWED_GENERAL;
     }
 
@@ -1747,6 +1751,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (blockByUser) {
             return CheckResult.USER_DENIED;
+        }
+
+        if (!mBootPkgLoaded.get()) {
+            return CheckResult.DENIED_USER_LIST_NOT_READY;
         }
 
         if (XposedLog.isVerboseLoggable() && receiverPkgName.equals("com.catchingnow.tinyclipboardmanager")) {
@@ -1904,6 +1912,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         construct();
     }
 
+    private AtomicBoolean mBootPkgLoaded = new AtomicBoolean(false), mStartPkgLoaded = new AtomicBoolean(false);
+
     @Override
     public void systemReady() {
         XposedLog.wtf("systemReady@" + getClass().getSimpleName());
@@ -1927,6 +1937,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }, new Runnable() {
             @Override
             public void run() {
+
+                mBootPkgLoaded.set(true);
+
                 AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
                     @Override
                     public boolean once() {
@@ -1951,6 +1964,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }, new Runnable() {
             @Override
             public void run() {
+
+                mStartPkgLoaded.set(true);
+
                 AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
                     @Override
                     public boolean once() {
@@ -3346,6 +3362,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         // Denied cases.
         public static final CheckResult DENIED_GENERAL = new CheckResult(false, "DENIED_GENERAL", true);
+        public static final CheckResult DENIED_USER_LIST_NOT_READY = new CheckResult(false, "DENIED_USER_LIST_NOT_READY", true);
         public static final CheckResult ALLOWED_GENERAL = new CheckResult(true, "ALLOWED_GENERAL", true);
 
         private boolean res;
