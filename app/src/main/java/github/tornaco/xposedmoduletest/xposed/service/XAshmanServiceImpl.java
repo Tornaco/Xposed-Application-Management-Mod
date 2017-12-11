@@ -410,7 +410,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     XposedLog.verbose("Boot pkg reader readEntity of: " + bootCompletePackage);
                 String key = bootCompletePackage.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
-                if (!PkgUtil.isPkgInstalled(getContext(), key)) continue;
                 mBootControlListPackages.put(key, bootCompletePackage);
             }
         } catch (Throwable e) {
@@ -441,7 +440,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     XposedLog.verbose("Start white list pkg reader readEntity of: " + autoStartPackage);
                 String key = autoStartPackage.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
-                if (!PkgUtil.isPkgInstalled(getContext(), key)) continue;
                 mStartControlListPackages.put(key, autoStartPackage);
             }
         } catch (Throwable e) {
@@ -473,7 +471,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     XposedLog.verbose("Lock kill white list pkg reader readEntity of: " + lockKillPackage);
                 String key = lockKillPackage.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
-                if (!PkgUtil.isPkgInstalled(getContext(), key)) continue;
                 mLockKillControlListPackages.put(key, lockKillPackage);
             }
         } catch (Throwable e) {
@@ -504,7 +501,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     XposedLog.verbose("RF kill white list pkg reader readEntity of: " + rfKillPackage);
                 String key = rfKillPackage.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
-                if (!PkgUtil.isPkgInstalled(getContext(), key)) continue;
                 mRFKillControlListPackages.put(key, rfKillPackage);
             }
         } catch (Throwable e) {
@@ -753,7 +749,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         try {
-            boolean autoAddBlack = (boolean) SystemSettings.AUTO_ADD_BLACK_FOR_NEW_APP_B.readFromSystemSettings(getContext());
+            boolean autoAddBlack = (boolean) SystemSettings.AUTO_BLACK_FOR_NEW_INSTALLED_APP_B.readFromSystemSettings(getContext());
             mAutoAddToBlackListForNewApp.set(autoAddBlack);
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("autoAddBlack: " + String.valueOf(autoAddBlack));
@@ -2790,7 +2786,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         @Override
         public void setAutoAddBlackEnable(boolean enabled) {
             if (mAutoAddToBlackListForNewApp.compareAndSet(!enabled, enabled)) {
-                SystemSettings.AUTO_ADD_BLACK_FOR_NEW_APP_B.writeToSystemSettings(getContext(), enabled);
+                SystemSettings.AUTO_BLACK_FOR_NEW_INSTALLED_APP_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 

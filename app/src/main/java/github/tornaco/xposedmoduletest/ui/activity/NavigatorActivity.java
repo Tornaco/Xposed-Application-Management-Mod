@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,6 +19,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.jaredrummler.android.shell.Shell;
 
 import java.util.List;
 
@@ -38,6 +41,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.ComponentManager;
 import github.tornaco.xposedmoduletest.ui.tiles.LockKill;
 import github.tornaco.xposedmoduletest.ui.tiles.NFManager;
 import github.tornaco.xposedmoduletest.ui.tiles.RFKill;
+import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import lombok.Getter;
@@ -172,6 +176,14 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
 
         private void setupView() {
 
+            findView(rootView, R.id.card)
+                    .setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            showPopMenu(v);
+                        }
+                    });
+
             TextView statusTitle = findView(rootView, android.R.id.title);
             ImageView imageView = findView(rootView, R.id.icon1);
 
@@ -250,5 +262,42 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
             return (T) root.findViewById(idRes);
         }
 
+        protected void showPopMenu(View anchor) {
+            PopupMenu popupMenu = new PopupMenu(getContext(), anchor);
+            popupMenu.inflate(getPopupMenuRes());
+            popupMenu.setOnMenuItemClickListener(onCreateOnMenuItemClickListener());
+            popupMenu.show();
+        }
+
+        private PopupMenu.OnMenuItemClickListener onCreateOnMenuItemClickListener() {
+            return new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    if (item.getItemId() == R.id.action_soft_restart) {
+                        executeCommandAsync("stop;start");
+                    }
+                    if (item.getItemId() == R.id.action_restart_rec) {
+                        executeCommandAsync("reboot recovery");
+                    }
+                    if (item.getItemId() == R.id.action_restart_bl) {
+                        executeCommandAsync("reboot bootloader");
+                    }
+                    return false;
+                }
+            };
+        }
+
+        void executeCommandAsync(final String cmd) {
+            XExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    Shell.SU.run(cmd);
+                }
+            });
+        }
+
+        public int getPopupMenuRes() {
+            return R.menu.card;
+        }
     }
 }

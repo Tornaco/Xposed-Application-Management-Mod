@@ -110,7 +110,7 @@
     <string name="app_intro">以下功能依赖于嵌入系统的几项服务，你需要在 Xposed 中激活该模块，并且重启才可以激活上述服务。</string>
 
     <string name="app_intro_need_restart">应用更新后需要重新启动，否则应用管理可能无法正常工作。</string>
-    <string name="title_restart_android">立即重启</string>
+    <string name="title_restart_android">软重启</string>
     <string name="title_block_viewer">启动记录</string>
     <string name="title_restrict">限制</string>
     <string name="done">完成</string>
@@ -316,5 +316,7 @@
     <string name="clear_data">帮我清除以上设置</string>
     <string name="title_auto_black">自动添加阻止应用</string>
     <string name="summary_auto_black">将新安装应用自动加到限制列表</string>
+    <string name="title_restart_rec">重启到Recovery模式</string>
+    <string name="title_restart_bl">重启到Bootloader模式</string>
 
 </resources>
