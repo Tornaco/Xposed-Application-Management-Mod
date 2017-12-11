@@ -96,4 +96,7 @@ interface IAshmanService {
     void setControlMode(int mode);
 
     String getBuildSerial();
+
+    boolean isAutoAddBlackEnabled();
+    void setAutoAddBlackEnable(boolean enable);
 }

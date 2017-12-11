@@ -43,6 +43,18 @@ public class AppSettings extends Observable {
         return first;
     }
 
+    public static void setFirstSee(Context context, String tag) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(tag, false)
+                .apply();
+    }
+
+    public static boolean isFirstSee(Context context, String tag) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(tag, true);
+    }
+
     public static boolean isNewBuild(Context context) {
 //        try {
 //            String buildDateOld = PreferenceManager.getDefaultSharedPreferences(context)
@@ -55,7 +67,8 @@ public class AppSettings extends Observable {
 //                    .putString(AppKey.BUILD_DATE, XAppBuildHostInfo.BUILD_DATE)
 //                    .apply();
 //        }
-        String serverSerial = XAshmanManager.get().isServiceAvailable() ? XAshmanManager.get().getBuildSerial() : "";
+        String serverSerial = XAshmanManager.get().isServiceAvailable() ? XAshmanManager.get().getBuildSerial() : null;
+        if (serverSerial == null) return false;
         String appBuildSerial = BuildFingerprintBuildHostInfo.BUILD_FINGER_PRINT;
         return !TextUtils.isEmpty(appBuildSerial) && !appBuildSerial.equals(serverSerial);
     }

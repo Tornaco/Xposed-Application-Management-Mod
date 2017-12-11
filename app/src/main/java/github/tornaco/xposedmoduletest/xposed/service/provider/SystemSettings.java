@@ -220,7 +220,7 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
         }
     },
 
-    ASH_CONTROL_MODE_I(XAshmanManager.ControlMode.WHITE_LIST) {
+    ASH_CONTROL_MODE_I(XAshmanManager.ControlMode.BLACK_LIST) {
         @Override
         public boolean writeToSystemSettings(Context context, Object value) {
             ContentResolver resolver = context.getContentResolver();
@@ -234,6 +234,23 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             if (resolver == null) return getDefValue();
             int def = getDefValue();
             return Settings.System.getInt(resolver, name(), def);
+        }
+    },
+
+    AUTO_ADD_BLACK_FOR_NEW_APP_B(1) {
+        @Override
+        public boolean writeToSystemSettings(Context context, Object value) {
+            ContentResolver resolver = context.getContentResolver();
+            long delay = (long) value;
+            return resolver != null && Settings.System.putLong(resolver, name(), delay);
+        }
+
+        @Override
+        public Object readFromSystemSettings(Context context) {
+            ContentResolver resolver = context.getContentResolver();
+            if (resolver == null) return getDefValue();
+            long def = getDefValue();
+            return Settings.System.getLong(resolver, name(), def);
         }
     },
 

@@ -117,6 +117,8 @@ interface AshManHandler {
 
     void setControlMode(int mode);
 
+    void setAutoAddBlackEnable(boolean enable);
+
     @Getter
     class WatcherClient implements IBinder.DeathRecipient {
 

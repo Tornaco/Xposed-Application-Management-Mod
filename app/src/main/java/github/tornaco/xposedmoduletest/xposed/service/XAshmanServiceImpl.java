@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.xposed.service;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -32,6 +33,7 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
 import android.support.annotation.GuardedBy;
+import android.support.v4.app.NotificationManagerCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -143,6 +145,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private AtomicBoolean mStartBlockEnabled = new AtomicBoolean(false);
     private AtomicBoolean mLockKillEnabled = new AtomicBoolean(false);
 
+    private AtomicBoolean mAutoAddToBlackListForNewApp = new AtomicBoolean(false);
+
     private AtomicBoolean mLockKillDoNotKillAudioEnabled = new AtomicBoolean(true);
     private AtomicBoolean mRootActivityFinishKillEnabled = new AtomicBoolean(false);
     private AtomicBoolean mCompSettingBlockEnabled = new AtomicBoolean(false);
@@ -199,10 +203,34 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             switch (action) {
                 case Intent.ACTION_PACKAGE_ADDED:
-                case Intent.ACTION_PACKAGE_REPLACED:
                     String packageName = intent.getData().getSchemeSpecificPart();
                     if (packageName == null) return;
                     parsePackageAsync(packageName);
+
+
+                    try {
+                        XAshmanManager x = XAshmanManager.get();
+                        if (x.isServiceAvailable() && x.isAutoAddBlackEnabled()) {
+                            if (!isInSystemAppList(packageName) && !isInWhiteList(packageName)) {
+                                x.addOrRemoveBootBlockApps(new String[]{packageName}, XAshmanManager.Op.ADD);
+                                x.addOrRemoveRFKApps(new String[]{packageName}, XAshmanManager.Op.ADD);
+                                x.addOrRemoveLKApps(new String[]{packageName}, XAshmanManager.Op.ADD);
+                                x.addOrRemoveStartBlockApps(new String[]{packageName}, XAshmanManager.Op.ADD);
+
+                                XposedLog.verbose("Add to black list for new app.");
+                                showNotification(context, String.valueOf(PkgUtil.loadNameByPkgName(context, packageName)));
+                            }
+                        }
+                    } catch (Throwable e) {
+                        XposedLog.wtf(Log.getStackTraceString(e));
+                    }
+
+                    break;
+                case Intent.ACTION_PACKAGE_REPLACED:
+                    packageName = intent.getData().getSchemeSpecificPart();
+                    if (packageName == null) return;
+                    parsePackageAsync(packageName);
+
                     break;
             }
         }
@@ -215,6 +243,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 cachePackages(pkg);
             }
         });
+    }
+
+    private static final AtomicInteger NOTIFICATION_ID = new AtomicInteger(0);
+
+    private void showNotification(Context context, String name) {
+        XposedLog.verbose("Add to black list showNotification: " + name);
+        NotificationManagerCompat.from(context)
+                .notify(NOTIFICATION_ID.getAndIncrement(),
+                        new Notification.Builder(context)
+                                .setContentTitle("新增阻止应用")
+                                .setContentText("已经阻止 " + name + " 的自启动，关联启动等。")
+                                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                                .build());
     }
 
     private void cachePackages(final String... pkg) {
@@ -695,6 +736,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             mLockKillEnabled.set(lockKillEnabled);
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("lockKillEnabled: " + String.valueOf(lockKillEnabled));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            boolean autoAddBlack = (boolean) SystemSettings.AUTO_ADD_BLACK_FOR_NEW_APP_B.readFromSystemSettings(getContext());
+            mAutoAddToBlackListForNewApp.set(autoAddBlack);
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("autoAddBlack: " + String.valueOf(autoAddBlack));
         } catch (Throwable e) {
             XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -1558,6 +1608,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return BuildFingerprintBuildHostInfo.BUILD_FINGER_PRINT;
     }
 
+    @Override
+    @BinderCall(restrict = "any")
+    public boolean isAutoAddBlackEnabled() throws RemoteException {
+        return mAutoAddToBlackListForNewApp.get();
+    }
+
+    @Override
+    public void setAutoAddBlackEnable(boolean enable) throws RemoteException {
+        enforceCallingPermissions();
+        h.obtainMessage(AshManHandlerMessages.MSG_SETAUTOADDBLACKENABLE, enable)
+                .sendToTarget();
+    }
+
     private CheckResult checkBroadcastDetailed(String action, int receiverUid, int callerUid) {
 
         // Check if this is a boot complete action.
@@ -2107,7 +2170,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @InternalCall
+    @Deprecated
     public void onNetWorkManagementServiceReady(NativeDaemonConnector connector) {
+        if (true) return;
         XposedLog.debug("NMS onNetWorkManagementServiceReady: " + connector);
         this.mNativeDaemonConnector = connector;
         this.mWifiInterfaceName = SystemProperties.get("wifi.interface");
@@ -2667,6 +2732,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETCONTROLMODE:
                     HandlerImpl.this.setControlMode((Integer) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_SETAUTOADDBLACKENABLE:
+                    HandlerImpl.this.setAutoAddBlackEnable((Boolean) msg.obj);
+                    break;
             }
         }
 
@@ -2695,6 +2763,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setLockKillEnabled(boolean enabled) {
             if (mLockKillEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.LOCK_KILL_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setAutoAddBlackEnable(boolean enabled) {
+            if (mAutoAddToBlackListForNewApp.compareAndSet(!enabled, enabled)) {
+                SystemSettings.AUTO_ADD_BLACK_FOR_NEW_APP_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 

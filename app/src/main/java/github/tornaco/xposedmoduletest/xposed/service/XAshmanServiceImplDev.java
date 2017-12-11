@@ -1,6 +1,8 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -92,6 +94,26 @@ public class XAshmanServiceImplDev extends XAshmanServiceImpl {
     @Override
     protected void enforceCallingPermissions() {
         // super.enforceCallingPermissions();
+    }
+
+    @Override
+    public boolean checkService(ComponentName serviceComp, int callerUid) {
+        return super.checkService(serviceComp, callerUid);
+    }
+
+    @Override
+    public boolean checkBroadcast(String action, int receiverUid, int callerUid) {
+        return super.checkBroadcast(action, receiverUid, callerUid);
+    }
+
+    @Override
+    public boolean checkComponentSetting(ComponentName componentName, int newState, int flags, int callingUid) {
+        return super.checkComponentSetting(componentName, newState, flags, callingUid);
+    }
+
+    @Override
+    public void onActivityDestroy(Intent intent, String reason) {
+        super.onActivityDestroy(intent, reason);
     }
 
     @Override

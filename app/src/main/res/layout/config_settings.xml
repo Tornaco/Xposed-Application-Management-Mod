@@ -34,22 +34,44 @@
         android:layout_below="@+id/appbar"
         android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/edit_text_dpi"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/activity_horizontal_margin"
-            android:inputType="numberDecimal"
-            android:hint="@string/config_dpi" />
+            android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/edit_text_font_scale"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/config_dpi"
+                android:textAppearance="@style/ListItemMainText" />
+
+            <EditText
+                android:id="@+id/edit_text_dpi"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal" />
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/activity_horizontal_margin"
-            android:inputType="numberDecimal"
-            android:text="100"
-            android:hint="@string/config_font_scale" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/config_font_scale"
+                android:textAppearance="@style/ListItemMainText" />
+
+            <EditText
+                android:id="@+id/edit_text_font_scale"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="100"
+                android:inputType="numberDecimal" />
+        </LinearLayout>
     </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton

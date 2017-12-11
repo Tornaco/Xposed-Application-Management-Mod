@@ -59,9 +59,10 @@
 
         <item>com.miui.core</item>
 
-        <!--<item>de.robv.android.xposed.installer</item>-->
+        <item>de.robv.android.xposed.installer</item>
         <item>github.tornaco.xposedmoduletest</item>
-        <!--<item>eu.chainfire.supersu</item>-->
+
+        <item>eu.chainfire.supersu</item>
         <!--<item>com.ghostflying.locationreportenabler</item>-->
 
 

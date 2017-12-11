@@ -10,6 +10,7 @@ import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppDevMode;
+import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlack;
 import github.tornaco.xposedmoduletest.ui.tiles.app.WhiteSystemApp;
 
 /**
@@ -35,6 +36,7 @@ public class AppDashboardActivity extends WithWithCustomTabActivity {
             Category systemProtect = new Category();
             systemProtect.titleRes = R.string.title_app_settings;
             systemProtect.addTile(new WhiteSystemApp(getActivity()));
+            systemProtect.addTile(new AutoBlack(getActivity()));
 //            Category hook = new Category();
 //            hook.addTile(new ControlMode(getActivity()));
 

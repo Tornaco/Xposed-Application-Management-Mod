@@ -928,7 +928,10 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     @Override
+    @Deprecated
+    // FUCK IT.
     public void updateConfigurationForPackage(Configuration configuration, String packageName) {
+        if (true) return;
         XAppGuardManager appGuardManager = XAppGuardManager.get();
 
         if (XposedLog.isVerboseLoggable()) {

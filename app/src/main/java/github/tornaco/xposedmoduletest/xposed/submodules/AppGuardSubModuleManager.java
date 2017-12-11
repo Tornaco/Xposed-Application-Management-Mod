@@ -18,7 +18,7 @@ public class AppGuardSubModuleManager {
     private final Set<SubModule> SUBS = new HashSet<>();
 
     private AppGuardSubModuleManager() {
-        SUBS.add(new ResourceSubModule());
+        // SUBS.add(new ResourceSubModule());
         SUBS.add(new FPSubModule());
         SUBS.add(new ScreenshotApplicationsSubModule());
         SUBS.add(new PackageInstallerSubModule());

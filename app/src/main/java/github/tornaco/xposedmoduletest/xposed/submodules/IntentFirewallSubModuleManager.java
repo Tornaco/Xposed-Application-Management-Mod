@@ -17,7 +17,7 @@ public class IntentFirewallSubModuleManager {
     private final Set<SubModule> SUBS = new HashSet<>();
 
     private IntentFirewallSubModuleManager() {
-        SUBS.add(new NetworkManagementModule());
+        // SUBS.add(new NetworkManagementModule());
         SUBS.add(new MediaFocusControlSubModule2());
         SUBS.add(new MediaFocusControlSubModule());
         SUBS.add(new PMSSubModule2());

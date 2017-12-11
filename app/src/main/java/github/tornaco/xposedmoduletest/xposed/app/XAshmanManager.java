@@ -557,4 +557,22 @@ public class XAshmanManager {
             return null;
         }
     }
+
+    public boolean isAutoAddBlackEnabled() {
+        ensureService();
+        try {
+            return mService.isAutoAddBlackEnabled();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public void setAutoAddBlackEnable(boolean enable) {
+        ensureService();
+        try {
+            mService.setAutoAddBlackEnable(enable);
+        } catch (RemoteException e) {
+
+        }
+    }
 }
