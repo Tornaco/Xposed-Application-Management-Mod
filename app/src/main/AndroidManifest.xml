@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    coreApp="true"
     package="github.tornaco.xposedmoduletest">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -272,6 +273,17 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
+
+        <service
+            android:name=".service.FakeService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="github.tornaco.xposed.app_guard.fake" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
         <service
             android:name=".service.WidgetService"
             android:exported="true">

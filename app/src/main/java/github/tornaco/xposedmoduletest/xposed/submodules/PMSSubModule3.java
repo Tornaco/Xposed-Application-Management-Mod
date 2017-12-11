@@ -8,6 +8,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -19,26 +20,36 @@ class PMSSubModule3 extends IntentFirewallAndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        hookGetPersistApps(lpparam);
+        hookScanPackageDirtyLI(lpparam);
     }
 
-    private void hookGetPersistApps(XC_LoadPackage.LoadPackageParam lpparam) {
-        XposedLog.verbose("hookGetPersistApps...");
+    private void hookScanPackageDirtyLI(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedLog.verbose("hookScanPackageDirtyLI...");
         try {
             Class clz = XposedHelpers.findClass("com.android.server.pm.PackageManagerService",
                     lpparam.classLoader);
             Set unHooks = XposedBridge.hookAllMethods(clz,
-                    "getPersistentApplicationsInternal", new XC_MethodHook() {
+                    "scanPackageDirtyLI", new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             super.afterHookedMethod(param);
-                            XposedLog.verbose("getPersistentApplicationsInternal: " + param.getResult());
+                            try {
+                                Object pkgObj = param.getResult();
+                                String pkgName = (String) XposedHelpers.getObjectField(pkgObj, "packageName");
+                                XposedLog.debug("scanPackageDirtyLI: " + pkgName);
+//                                if (BuildConfig.APPLICATION_ID.equals(pkgName)) {
+//                                    XposedLog.wtf("Set our app to core app.");
+//                                    XposedHelpers.setObjectField(pkgObj, "coreApp", true);
+//                                }
+                            } catch (Throwable e) {
+                                XposedLog.wtf("scanPackageDirtyLI: " + Log.getStackTraceString(e));
+                            }
                         }
                     });
-            XposedLog.verbose("hookGetPersistApps OK:" + unHooks);
+            XposedLog.verbose("hookScanPackageDirtyLI OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XposedLog.verbose("Fail hookGetPersistApps:" + e);
+            XposedLog.verbose("Fail hookScanPackageDirtyLI:" + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

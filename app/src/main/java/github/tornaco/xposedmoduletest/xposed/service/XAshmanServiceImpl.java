@@ -2027,6 +2027,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
         });
 
+        try {
+            Intent fakeIntent = new Intent("github.tornaco.xposed.app_guard.fake");
+            fakeIntent.setPackage(BuildConfig.APPLICATION_ID);
+            getContext().startService(fakeIntent);
+            XposedLog.wtf("Fake service start called!!!!!!!!!! Oops...");
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail start fake service: " + Log.getStackTraceString(e));
+        }
     }
 
 
