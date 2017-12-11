@@ -1749,6 +1749,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.USER_DENIED;
         }
 
+        if (XposedLog.isVerboseLoggable() && receiverPkgName.equals("com.catchingnow.tinyclipboardmanager")) {
+            XposedLog.wtf("DUMP LIST FOR JZD START");
+
+            Collections.consumeRemaining(mBootControlListPackages.values(), new Consumer<BootCompletePackage>() {
+                @Override
+                public void accept(BootCompletePackage bootCompletePackage) {
+                    XposedLog.wtf("DUMP LIST FOR JZD: " + bootCompletePackage.getPkgName());
+                }
+            });
+            XposedLog.wtf("DUMP LIST FOR JZD END");
+        }
+
         return CheckResult.ALLOWED_GENERAL;
     }
 

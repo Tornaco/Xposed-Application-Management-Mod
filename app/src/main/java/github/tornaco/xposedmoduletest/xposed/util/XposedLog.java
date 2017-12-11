@@ -22,7 +22,7 @@ public abstract class XposedLog {
         NONE;
     }
 
-    private static final boolean FORCE_DEBUG = true;
+    private static final boolean FORCE_DEBUG = false;
 
     private static final String TAG_PREFIX = "X-APM-S-";
 
