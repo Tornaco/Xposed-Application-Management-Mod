@@ -18,8 +18,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // Hook hookCheckPermission settings.
-@Deprecated
-class AMSSubModule7 extends AppGuardAndroidSubModule {
+class AMSSubModule8 extends IntentFirewallAndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
@@ -36,12 +35,18 @@ class AMSSubModule7 extends AppGuardAndroidSubModule {
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     super.beforeHookedMethod(param);
 
-                    // FIXME, Ensure this is default launcher.
                     String permission = (String) param.args[0];
                     if (permission.equals(Manifest.permission.START_ANY_ACTIVITY)) {
                         param.setResult(PackageManager.PERMISSION_GRANTED);
                         if (XposedLog.isVerboseLoggable()) {
                             XposedLog.debug("START_ANY_ACTIVITY ALLOWED!!!");
+                        }
+                    } else {
+                        int pid = (int) param.args[1];
+                        int uid = (int) param.args[2];
+                        int userMode = getIntentFirewallBridge().checkPermission(permission, pid, uid);
+                        if (userMode != PackageManager.PERMISSION_GRANTED) {
+                            param.setResult(PackageManager.PERMISSION_DENIED);
                         }
                     }
                 }

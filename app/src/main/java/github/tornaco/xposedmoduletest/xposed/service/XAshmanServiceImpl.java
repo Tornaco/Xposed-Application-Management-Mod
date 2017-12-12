@@ -268,7 +268,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private void onAppGuardClientUninstalled() {
         if (PkgUtil.isPkgInstalled(getContext(), BuildConfig.APPLICATION_ID)) return;
-        
+
         long id = Binder.clearCallingIdentity();
         try {
             AlertDialog d = new AlertDialog.Builder(getContext())
@@ -2012,6 +2012,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
         if (pkgName == null) return;
         h.obtainMessage(AshManHandlerMessages.MSG_ONAUDIOFOCUSEDPACKAGEABANDONED, pkgName).sendToTarget();
+    }
+
+    @Override
+    public int checkPermission(String perm, int pid, int uid) {
+        return PackageManager.PERMISSION_GRANTED;
     }
 
     private void processPendingDataRestrictRequests() {

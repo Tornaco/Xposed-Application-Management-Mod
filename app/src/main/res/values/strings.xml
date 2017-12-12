@@ -96,7 +96,7 @@
     <string name="summary_app_guard">以下应用在启动时需要经过密码验证。</string>
 
     <string name="summary_boot_app">"@禁止 以下应用开机自动启动。"</string>
-    <string name="summary_boot_app_include_system">"@禁止 以下应用开机自动启。"</string>
+    <string name="summary_boot_app_include_system">"@禁止 以下应用开机自动启动。"</string>
 
     <string name="summary_lock_kill_app">"以下应用在锁屏后 @会 被强行停止。"</string>
     <string name="summary_lock_kill_app_include_system">"以下应用在锁屏后 @会 被强行停止。"</string>
