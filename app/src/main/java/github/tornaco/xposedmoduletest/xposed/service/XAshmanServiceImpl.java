@@ -1361,8 +1361,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.verbose("addOrRemoveRFKApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
-
-        addOrRemoveFromRepo(packages, mRepoProxy.getLks(), op == XAshmanManager.Op.ADD);
+        addOrRemoveFromRepo(packages, mRepoProxy.getRfks(), op == XAshmanManager.Op.ADD);
     }
 
     @Override
