@@ -13,14 +13,12 @@ import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.LinkProperties;
 import android.net.NetworkPolicyManager;
-import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Environment;
@@ -90,6 +88,8 @@ import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
 import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestrictionList;
+import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
+import github.tornaco.xposedmoduletest.xposed.repo.StringSetRepo;
 import github.tornaco.xposedmoduletest.xposed.service.bandwidth.BandwidthCommandCompat;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.util.Closer;
@@ -146,6 +146,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private AtomicBoolean mStartBlockEnabled = new AtomicBoolean(false);
     private AtomicBoolean mLockKillEnabled = new AtomicBoolean(false);
 
+    private AtomicBoolean mDataHasBeenMigrated = new AtomicBoolean(false);
+
     private AtomicBoolean mAutoAddToBlackListForNewApp = new AtomicBoolean(false);
 
     private AtomicBoolean mLockKillDoNotKillAudioEnabled = new AtomicBoolean(true);
@@ -157,10 +159,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private long mLockKillDelay;
 
-    private final Map<String, BootCompletePackage> mBootControlListPackages = new HashMap<>();
-    private final Map<String, AutoStartPackage> mStartControlListPackages = new HashMap<>();
-    private final Map<String, LockKillPackage> mLockKillControlListPackages = new HashMap<>();
-    private final Map<String, RFKillPackage> mRFKillControlListPackages = new HashMap<>();
+    // NEW DATA STRU.
+    private RepoProxy mRepoProxy;
 
     // FIXME Change to remote callbacks.
     private final Set<AshManHandler.WatcherClient> mWatcherClients = new HashSet<>();
@@ -391,6 +391,69 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
+    // Try load providers and move data to our new data struct.
+    private void migrateFromOldDataBase() {
+
+        if (mDataHasBeenMigrated.get()) {
+            XposedLog.wtf("migrateFromOldDataBase already migrated...");
+            mBootPkgLoaded.set(true);
+            mStartPkgLoaded.set(true);
+            return;
+        }
+
+        XposedLog.wtf("migrateFromOldDataBase...");
+
+        AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
+            @Override
+            public boolean once() {
+                ValueExtra<Boolean, String> res = loadBootPackageSettings();
+                String extra = res.getExtra();
+                if (XposedLog.isVerboseLoggable())
+                    XposedLog.verbose("loadBootPackageSettings, extra: " + extra);
+                mBootPkgLoaded.set(true);
+                return res.getValue();
+            }
+        });
+
+        AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
+            @Override
+            public boolean once() {
+                ValueExtra<Boolean, String> res = loadStartPackageSettings();
+                String extra = res.getExtra();
+                if (XposedLog.isVerboseLoggable())
+                    XposedLog.verbose("loadStartPackageSettings, extra: " + extra);
+                mStartPkgLoaded.set(true);
+                return res.getValue();
+            }
+        });
+
+        AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
+            @Override
+            public boolean once() {
+                ValueExtra<Boolean, String> res = loadLockKillPackageSettings();
+                String extra = res.getExtra();
+                if (XposedLog.isVerboseLoggable())
+                    XposedLog.verbose("loadLockKillPackageSettings, extra: " + extra);
+                return res.getValue();
+            }
+        });
+
+        AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
+            @Override
+            public boolean once() {
+                ValueExtra<Boolean, String> res = loadRFKillPackageSettings();
+                String extra = res.getExtra();
+                if (XposedLog.isVerboseLoggable())
+                    XposedLog.verbose("loadRFKillPackageSettings, extra: " + extra);
+                return res.getValue();
+            }
+        });
+
+        // Simply think data migrate has been finished.
+        mDataHasBeenMigrated.set(true);
+        SystemSettings.DATA_MIGRATE_B.writeToSystemSettings(getContext(), true);
+    }
+
     synchronized private ValueExtra<Boolean, String> loadBootPackageSettings() {
         ContentResolver contentResolver = getContext().getContentResolver();
         if (contentResolver == null) {
@@ -410,7 +473,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     XposedLog.verbose("Boot pkg reader readEntity of: " + bootCompletePackage);
                 String key = bootCompletePackage.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
-                mBootControlListPackages.put(key, bootCompletePackage);
+                mRepoProxy.getBoots().add(key);
             }
         } catch (Throwable e) {
             XposedLog.wtf("Fail query boot pkgs:\n" + Log.getStackTraceString(e));
@@ -418,7 +481,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         } finally {
             Closer.closeQuietly(cursor);
         }
-        return new ValueExtra<>(true, "Read count: " + mBootControlListPackages.size());
+        return new ValueExtra<>(true, "OK");
     }
 
     synchronized private ValueExtra<Boolean, String> loadStartPackageSettings() {
@@ -440,7 +503,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     XposedLog.verbose("Start white list pkg reader readEntity of: " + autoStartPackage);
                 String key = autoStartPackage.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
-                mStartControlListPackages.put(key, autoStartPackage);
+                mRepoProxy.getStarts().add(key);
             }
         } catch (Throwable e) {
             XposedLog.wtf("Fail query start pkgs:\n" + Log.getStackTraceString(e));
@@ -449,7 +512,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Closer.closeQuietly(cursor);
         }
 
-        return new ValueExtra<>(true, "Read count: " + mStartControlListPackages.size());
+        return new ValueExtra<>(true, "OK");
     }
 
     synchronized private ValueExtra<Boolean, String> loadLockKillPackageSettings() {
@@ -471,7 +534,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     XposedLog.verbose("Lock kill white list pkg reader readEntity of: " + lockKillPackage);
                 String key = lockKillPackage.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
-                mLockKillControlListPackages.put(key, lockKillPackage);
+                mRepoProxy.getLks().add(key);
             }
         } catch (Throwable e) {
             XposedLog.wtf("Fail query lk pkgs:\n" + Log.getStackTraceString(e));
@@ -479,7 +542,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Closer.closeQuietly(cursor);
         }
 
-        return new ValueExtra<>(true, "Read count: " + mLockKillControlListPackages.size());
+        return new ValueExtra<>(true, "OK");
     }
 
     synchronized private ValueExtra<Boolean, String> loadRFKillPackageSettings() {
@@ -501,7 +564,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     XposedLog.verbose("RF kill white list pkg reader readEntity of: " + rfKillPackage);
                 String key = rfKillPackage.getPkgName();
                 if (TextUtils.isEmpty(key)) continue;
-                mRFKillControlListPackages.put(key, rfKillPackage);
+                mRepoProxy.getRfks().add(key);
             }
         } catch (Throwable e) {
             XposedLog.wtf("Fail query rf pkgs:\n" + Log.getStackTraceString(e));
@@ -509,118 +572,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Closer.closeQuietly(cursor);
         }
 
-        return new ValueExtra<>(true, "Read count: " + mRFKillControlListPackages.size());
-    }
-
-    private ValueExtra<Boolean, String> registerBootPackageObserver() {
-        ContentResolver contentResolver = getContext().getContentResolver();
-        if (contentResolver == null) {
-            // Happen when early start.
-            return new ValueExtra<>(false, "contentResolver is null");
-        }
-        try {
-            contentResolver.registerContentObserver(BootPackageProvider.CONTENT_URI,
-                    false, new ContentObserver(h) {
-                        @Override
-                        public void onChange(boolean selfChange, Uri uri) {
-                            super.onChange(selfChange, uri);
-                            mWorkingService.execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    loadBootPackageSettings();
-                                }
-                            });
-                        }
-                    });
-        } catch (Exception e) {
-            XposedLog.wtf("Fail registerContentObserver@BootPackageProvider:\n" + Log.getStackTraceString(e));
-            return new ValueExtra<>(false, String.valueOf(e));
-        }
         return new ValueExtra<>(true, "OK");
     }
-
-    private ValueExtra<Boolean, String> registerStartPackageObserver() {
-        ContentResolver contentResolver = getContext().getContentResolver();
-        if (contentResolver == null) {
-            // Happen when early start.
-            return new ValueExtra<>(false, "contentResolver is null");
-        }
-        try {
-            contentResolver.registerContentObserver(AutoStartPackageProvider.CONTENT_URI,
-                    false, new ContentObserver(h) {
-                        @Override
-                        public void onChange(boolean selfChange, Uri uri) {
-                            super.onChange(selfChange, uri);
-                            mWorkingService.execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    loadStartPackageSettings();
-                                }
-                            });
-                        }
-                    });
-        } catch (Exception e) {
-            XposedLog.wtf("Fail registerContentObserver@AutoStartPackageProvider:\n" + Log.getStackTraceString(e));
-            return new ValueExtra<>(false, String.valueOf(e));
-        }
-        return new ValueExtra<>(true, "OK");
-    }
-
-
-    private ValueExtra<Boolean, String> registerLKPackageObserver() {
-        ContentResolver contentResolver = getContext().getContentResolver();
-        if (contentResolver == null) {
-            // Happen when early start.
-            return new ValueExtra<>(false, "contentResolver is null");
-        }
-        try {
-            contentResolver.registerContentObserver(LockKillPackageProvider.CONTENT_URI,
-                    false, new ContentObserver(h) {
-                        @Override
-                        public void onChange(boolean selfChange, Uri uri) {
-                            super.onChange(selfChange, uri);
-                            mWorkingService.execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    loadLockKillPackageSettings();
-                                }
-                            });
-                        }
-                    });
-        } catch (Exception e) {
-            XposedLog.wtf("Fail registerContentObserver@LockKillPackageProvider:\n" + Log.getStackTraceString(e));
-            return new ValueExtra<>(false, String.valueOf(e));
-        }
-        return new ValueExtra<>(true, "OK");
-    }
-
-    private ValueExtra<Boolean, String> registerRFKPackageObserver() {
-        ContentResolver contentResolver = getContext().getContentResolver();
-        if (contentResolver == null) {
-            // Happen when early start.
-            return new ValueExtra<>(false, "contentResolver is null");
-        }
-        try {
-            contentResolver.registerContentObserver(RFKillPackageProvider.CONTENT_URI,
-                    false, new ContentObserver(h) {
-                        @Override
-                        public void onChange(boolean selfChange, Uri uri) {
-                            super.onChange(selfChange, uri);
-                            mWorkingService.execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    loadRFKillPackageSettings();
-                                }
-                            });
-                        }
-                    });
-        } catch (Exception e) {
-            XposedLog.wtf("Fail registerContentObserver@RFKillPackageProvider:\n" + Log.getStackTraceString(e));
-            return new ValueExtra<>(false, String.valueOf(e));
-        }
-        return new ValueExtra<>(true, "OK");
-    }
-
 
     private void whiteIMEPackages() {
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(INPUT_METHOD_SERVICE);
@@ -744,6 +697,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             mLockKillEnabled.set(lockKillEnabled);
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("lockKillEnabled: " + String.valueOf(lockKillEnabled));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            boolean migrated = (boolean) SystemSettings.DATA_MIGRATE_B.readFromSystemSettings(getContext());
+            mLockKillEnabled.set(migrated);
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("migrated: " + String.valueOf(migrated));
         } catch (Throwable e) {
             XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -1150,6 +1112,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return convertObjectArrayToStringArray(data);
     }
 
+    private void addOrRemoveFromRepo(String[] packages, StringSetRepo repo, boolean add) {
+        long id = Binder.clearCallingIdentity();
+        try {
+            for (String p : packages) {
+                if (add) repo.add(p);
+                else repo.remove(p);
+            }
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
+    }
+
     @Override
     public String[] getBootBlockApps(boolean block) throws RemoteException {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getBootBlockApps: " + block);
@@ -1180,19 +1154,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Object[] objArr = outList.toArray();
             return convertObjectArrayToStringArray(objArr);
         } else {
-            Collection<BootCompletePackage> packages = mBootControlListPackages.values();
+            Set<String> packages = mRepoProxy.getBoots().getAll();
             if (packages.size() == 0) {
                 return new String[0];
             }
             if (isWhiteSysAppEnabled()) {
                 final List<String> noSys = Lists.newArrayList();
-                Collections.consumeRemaining(packages.toArray(),
-                        new Consumer<Object>() {
+                Collections.consumeRemaining(packages,
+                        new Consumer<String>() {
                             @Override
-                            public void accept(Object o) {
-                                BootCompletePackage p = (BootCompletePackage) o;
-                                if (!isInSystemAppList(p.getPkgName())) {
-                                    noSys.add(p.getPkgName());
+                            public void accept(String o) {
+                                if (!isInSystemAppList(o)) {
+                                    noSys.add(o);
                                 }
                             }
                         });
@@ -1208,51 +1181,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.verbose("addOrRemoveBootBlockApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
-        switch (op) {
-            case XAshmanManager.Op.ADD:
-                try {
-                    Collections.consumeRemaining(packages, new Consumer<String>() {
-                        @Override
-                        public void accept(String s) {
-                            try {
-                                BootCompletePackage b = new BootCompletePackage();
-                                b.setPkgName(s);
-                                b.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(getContext(), s)));
-                                mBootControlListPackages.put(s, b);
-                                BootPackageProvider.insert(getContext(), b);
-                            } catch (Throwable e) {
-                                XposedLog.wtf("Fail add boot pkg: " + s);
-                            }
-                        }
-                    });
-                } catch (Throwable e) {
-                    XposedLog.wtf("Fail add boot packages...");
-                    throw new IllegalStateException(e);
-                }
-                break;
-            case XAshmanManager.Op.REMOVE:
-                try {
-                    Collections.consumeRemaining(packages, new Consumer<String>() {
-                        @Override
-                        public void accept(String s) {
-                            try {
-                                BootCompletePackage b = new BootCompletePackage();
-                                b.setPkgName(s);
-                                mBootControlListPackages.remove(s);
-                                BootPackageProvider.delete(getContext(), b);
-                            } catch (Throwable e) {
-                                XposedLog.wtf("Fail delete boot pkg: " + s);
-                            }
-                        }
-                    });
-                } catch (Throwable e) {
-                    XposedLog.wtf("Fail remove boot packages...");
-                    throw new IllegalStateException(e);
-                }
-                break;
-            default:
-                break;
-        }
+        addOrRemoveFromRepo(packages, mRepoProxy.getBoots(), op == XAshmanManager.Op.ADD);
     }
 
     @Override
@@ -1285,19 +1214,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Object[] objArr = outList.toArray();
             return convertObjectArrayToStringArray(objArr);
         } else {
-            Collection<AutoStartPackage> packages = mStartControlListPackages.values();
+            final Set<String> packages = mRepoProxy.getStarts().getAll();
             if (packages.size() == 0) {
                 return new String[0];
             }
             if (isWhiteSysAppEnabled()) {
                 final List<String> noSys = Lists.newArrayList();
-                Collections.consumeRemaining(packages.toArray(),
-                        new Consumer<Object>() {
+                Collections.consumeRemaining(packages,
+                        new Consumer<String>() {
                             @Override
-                            public void accept(Object o) {
-                                AutoStartPackage p = (AutoStartPackage) o;
-                                if (!isInSystemAppList(p.getPkgName())) {
-                                    noSys.add(p.getPkgName());
+                            public void accept(String o) {
+                                if (!isInSystemAppList(o)) {
+                                    noSys.add(o);
                                 }
                             }
                         });
@@ -1313,51 +1241,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.verbose("addOrRemoveStartBlockApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
-        switch (op) {
-            case XAshmanManager.Op.ADD:
-                try {
-                    Collections.consumeRemaining(packages, new Consumer<String>() {
-                        @Override
-                        public void accept(String s) {
-                            try {
-                                AutoStartPackage b = new AutoStartPackage();
-                                b.setPkgName(s);
-                                b.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(getContext(), s)));
-                                mStartControlListPackages.put(s, b);
-                                AutoStartPackageProvider.insert(getContext(), b);
-                            } catch (Throwable e) {
-                                XposedLog.wtf("Fail add start pkg: " + s);
-                            }
-                        }
-                    });
-                } catch (Throwable e) {
-                    XposedLog.wtf("Fail add start packages...");
-                    throw new IllegalStateException(e);
-                }
-                break;
-            case XAshmanManager.Op.REMOVE:
-                try {
-                    Collections.consumeRemaining(packages, new Consumer<String>() {
-                        @Override
-                        public void accept(String s) {
-                            try {
-                                AutoStartPackage b = new AutoStartPackage();
-                                b.setPkgName(s);
-                                mStartControlListPackages.remove(s);
-                                AutoStartPackageProvider.delete(getContext(), b);
-                            } catch (Throwable e) {
-                                XposedLog.wtf("Fail delete start pkg: " + s);
-                            }
-                        }
-                    });
-                } catch (Throwable e) {
-                    XposedLog.wtf("Fail remove start packages...");
-                    throw new IllegalStateException(e);
-                }
-                break;
-            default:
-                break;
-        }
+        addOrRemoveFromRepo(packages, mRepoProxy.getStarts(), op == XAshmanManager.Op.ADD);
     }
 
     @Override
@@ -1390,19 +1274,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Object[] objArr = outList.toArray();
             return convertObjectArrayToStringArray(objArr);
         } else {
-            Collection<LockKillPackage> packages = mLockKillControlListPackages.values();
+            Set<String> packages = mRepoProxy.getLks().getAll();
             if (packages.size() == 0) {
                 return new String[0];
             }
             if (isWhiteSysAppEnabled()) {
                 final List<String> noSys = Lists.newArrayList();
-                Collections.consumeRemaining(packages.toArray(),
-                        new Consumer<Object>() {
+                Collections.consumeRemaining(packages,
+                        new Consumer<String>() {
                             @Override
-                            public void accept(Object o) {
-                                LockKillPackage p = (LockKillPackage) o;
-                                if (!isInSystemAppList(p.getPkgName())) {
-                                    noSys.add(p.getPkgName());
+                            public void accept(String p) {
+                                if (!isInSystemAppList(p)) {
+                                    noSys.add(p);
                                 }
                             }
                         });
@@ -1418,51 +1301,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.verbose("addOrRemoveLKApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
-        switch (op) {
-            case XAshmanManager.Op.ADD:
-                try {
-                    Collections.consumeRemaining(packages, new Consumer<String>() {
-                        @Override
-                        public void accept(String s) {
-                            try {
-                                LockKillPackage b = new LockKillPackage();
-                                b.setPkgName(s);
-                                b.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(getContext(), s)));
-                                mLockKillControlListPackages.put(s, b);
-                                LockKillPackageProvider.insert(getContext(), b);
-                            } catch (Throwable e) {
-                                XposedLog.wtf("Fail add lk pkg: " + s);
-                            }
-                        }
-                    });
-                } catch (Throwable e) {
-                    XposedLog.wtf("Fail add lk packages...");
-                    throw new IllegalStateException(e);
-                }
-                break;
-            case XAshmanManager.Op.REMOVE:
-                try {
-                    Collections.consumeRemaining(packages, new Consumer<String>() {
-                        @Override
-                        public void accept(String s) {
-                            try {
-                                LockKillPackage b = new LockKillPackage();
-                                b.setPkgName(s);
-                                mLockKillControlListPackages.remove(s);
-                                LockKillPackageProvider.delete(getContext(), b);
-                            } catch (Throwable e) {
-                                XposedLog.wtf("Fail delete lk pkg: " + s);
-                            }
-                        }
-                    });
-                } catch (Throwable e) {
-                    XposedLog.wtf("Fail remove lk packages...");
-                    throw new IllegalStateException(e);
-                }
-                break;
-            default:
-                break;
-        }
+        addOrRemoveFromRepo(packages, mRepoProxy.getLks(), op == XAshmanManager.Op.ADD);
     }
 
     @Override
@@ -1495,19 +1334,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Object[] objArr = outList.toArray();
             return convertObjectArrayToStringArray(objArr);
         } else {
-            Collection<RFKillPackage> packages = mRFKillControlListPackages.values();
+            Set<String> packages = mRepoProxy.getRfks().getAll();
             if (packages.size() == 0) {
                 return new String[0];
             }
             if (isWhiteSysAppEnabled()) {
                 final List<String> noSys = Lists.newArrayList();
-                Collections.consumeRemaining(packages.toArray(),
-                        new Consumer<Object>() {
+                Collections.consumeRemaining(packages,
+                        new Consumer<String>() {
                             @Override
-                            public void accept(Object o) {
-                                RFKillPackage p = (RFKillPackage) o;
-                                if (!isInSystemAppList(p.getPkgName())) {
-                                    noSys.add(p.getPkgName());
+                            public void accept(String p) {
+                                if (!isInSystemAppList(p)) {
+                                    noSys.add(p);
                                 }
                             }
                         });
@@ -1523,51 +1361,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.verbose("addOrRemoveRFKApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
-        switch (op) {
-            case XAshmanManager.Op.ADD:
-                try {
-                    Collections.consumeRemaining(packages, new Consumer<String>() {
-                        @Override
-                        public void accept(String s) {
-                            try {
-                                RFKillPackage b = new RFKillPackage();
-                                b.setPkgName(s);
-                                b.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(getContext(), s)));
-                                mRFKillControlListPackages.put(s, b);
-                                RFKillPackageProvider.insert(getContext(), b);
-                            } catch (Throwable e) {
-                                XposedLog.wtf("Fail add rf pkg: " + s);
-                            }
-                        }
-                    });
-                } catch (Throwable e) {
-                    XposedLog.wtf("Fail add rf packages...");
-                    throw new IllegalStateException(e);
-                }
-                break;
-            case XAshmanManager.Op.REMOVE:
-                try {
-                    Collections.consumeRemaining(packages, new Consumer<String>() {
-                        @Override
-                        public void accept(String s) {
-                            try {
-                                RFKillPackage b = new RFKillPackage();
-                                b.setPkgName(s);
-                                mRFKillControlListPackages.remove(s);
-                                RFKillPackageProvider.delete(getContext(), b);
-                            } catch (Throwable e) {
-                                XposedLog.wtf("Fail delete rf pkg: " + s);
-                            }
-                        }
-                    });
-                } catch (Throwable e) {
-                    XposedLog.wtf("Fail remove rf packages...");
-                    throw new IllegalStateException(e);
-                }
-                break;
-            default:
-                break;
-        }
+
+        addOrRemoveFromRepo(packages, mRepoProxy.getLks(), op == XAshmanManager.Op.ADD);
     }
 
     @Override
@@ -1698,24 +1493,24 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return CheckResult.ALLOWED_GENERAL;
     }
 
+    private boolean isInStringRepo(StringSetRepo repo, String pkg) {
+        return repo.has(pkg);
+    }
+
     private boolean isPackageBootBlockByUser(String pkg) {
-        BootCompletePackage bootCompletePackage = mBootControlListPackages.get(pkg);
-        return bootCompletePackage != null;
+        return isInStringRepo(mRepoProxy.getBoots(), pkg);
     }
 
     private boolean isPackageStartBlockByUser(String pkg) {
-        AutoStartPackage autoStartPackage = mStartControlListPackages.get(pkg);
-        return autoStartPackage != null;
+        return isInStringRepo(mRepoProxy.getStarts(), pkg);
     }
 
     private boolean isPackageLKByUser(String pkg) {
-        LockKillPackage lockKillPackage = mLockKillControlListPackages.get(pkg);
-        return lockKillPackage != null;
+        return isInStringRepo(mRepoProxy.getLks(), pkg);
     }
 
     private boolean isPackageRFKByUser(String pkg) {
-        RFKillPackage rfKillPackage = mRFKillControlListPackages.get(pkg);
-        return rfKillPackage != null;
+        return isInStringRepo(mRepoProxy.getRfks(), pkg);
     }
 
     private CheckResult checkBootCompleteBroadcast(int receiverUid, int callerUid) {
@@ -1755,18 +1550,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (!mBootPkgLoaded.get()) {
             return CheckResult.DENIED_USER_LIST_NOT_READY;
-        }
-
-        if (XposedLog.isVerboseLoggable() && receiverPkgName.equals("com.catchingnow.tinyclipboardmanager")) {
-            XposedLog.wtf("DUMP LIST FOR JZD START");
-
-            Collections.consumeRemaining(mBootControlListPackages.values(), new Consumer<BootCompletePackage>() {
-                @Override
-                public void accept(BootCompletePackage bootCompletePackage) {
-                    XposedLog.wtf("DUMP LIST FOR JZD: " + bootCompletePackage.getPkgName());
-                }
-            });
-            XposedLog.wtf("DUMP LIST FOR JZD END");
         }
 
         return CheckResult.ALLOWED_GENERAL;
@@ -1912,6 +1695,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         construct();
     }
 
+    // Flag to indicate if boot setting and start settings has been loaded.
     private AtomicBoolean mBootPkgLoaded = new AtomicBoolean(false), mStartPkgLoaded = new AtomicBoolean(false);
 
     @Override
@@ -1924,119 +1708,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         checkSafeMode();
         registerReceiver();
 
-        // Try load providers.
-        AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
-            @Override
-            public boolean once() {
-                ValueExtra<Boolean, String> res = loadBootPackageSettings();
-                String extra = res.getExtra();
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.verbose("loadBootPackageSettings, extra: " + extra);
-                return res.getValue();
-            }
-        }, new Runnable() {
-            @Override
-            public void run() {
-
-                mBootPkgLoaded.set(true);
-
-                AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
-                    @Override
-                    public boolean once() {
-                        ValueExtra<Boolean, String> res = registerBootPackageObserver();
-                        if (XposedLog.isVerboseLoggable())
-                            XposedLog.verbose("registerBootPackageObserver, extra: " + res.getExtra());
-                        return res.getValue();
-                    }
-                });
-            }
-        });
-
-        AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
-            @Override
-            public boolean once() {
-                ValueExtra<Boolean, String> res = loadStartPackageSettings();
-                String extra = res.getExtra();
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.verbose("loadStartPackageSettings, extra: " + extra);
-                return res.getValue();
-            }
-        }, new Runnable() {
-            @Override
-            public void run() {
-
-                mStartPkgLoaded.set(true);
-
-                AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
-                    @Override
-                    public boolean once() {
-                        ValueExtra<Boolean, String> res = registerStartPackageObserver();
-                        if (XposedLog.isVerboseLoggable())
-                            XposedLog.verbose("registerStartPackageObserver, extra: " + res.getExtra());
-                        return res.getValue();
-                    }
-                });
-            }
-        });
-
-        AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
-            @Override
-            public boolean once() {
-                ValueExtra<Boolean, String> res = loadLockKillPackageSettings();
-                String extra = res.getExtra();
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.verbose("loadLockKillPackageSettings, extra: " + extra);
-                return res.getValue();
-            }
-        }, new Runnable() {
-            @Override
-            public void run() {
-                AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
-                    @Override
-                    public boolean once() {
-                        ValueExtra<Boolean, String> res = registerLKPackageObserver();
-                        if (XposedLog.isVerboseLoggable())
-                            XposedLog.verbose("registerLKPackageObserver, extra: " + res.getExtra());
-                        return res.getValue();
-                    }
-                });
-            }
-        });
-
-        AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
-            @Override
-            public boolean once() {
-                ValueExtra<Boolean, String> res = loadRFKillPackageSettings();
-                String extra = res.getExtra();
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.verbose("loadRFKillPackageSettings, extra: " + extra);
-                return res.getValue();
-            }
-        }, new Runnable() {
-            @Override
-            public void run() {
-                AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
-                    @Override
-                    public boolean once() {
-                        ValueExtra<Boolean, String> res = registerRFKPackageObserver();
-                        if (XposedLog.isVerboseLoggable())
-                            XposedLog.verbose("registerRFKPackageObserver, extra: " + res.getExtra());
-                        return res.getValue();
-                    }
-                });
-            }
-        });
-
-        try {
-            Intent fakeIntent = new Intent("github.tornaco.xposed.app_guard.fake");
-            fakeIntent.setPackage(BuildConfig.APPLICATION_ID);
-            getContext().startService(fakeIntent);
-            XposedLog.wtf("Fake service start called!!!!!!!!!! Oops...");
-        } catch (Throwable e) {
-            XposedLog.wtf("Fail start fake service: " + Log.getStackTraceString(e));
-        }
+        migrateFromOldDataBase();
     }
-
 
     // NMS API START.
     private NativeDaemonConnector mNativeDaemonConnector;
@@ -2380,6 +2053,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("construct, h: " + h
                 + ", lazyH: " + lazyH
                 + " -" + serial());
+        mRepoProxy = RepoProxy.getProxy();
+        XposedLog.verbose("Repo proxy: " + mRepoProxy);
+        if (mRepoProxy == null) {
+            XposedLog.wtf("Can not construct RepoProxy, WTF???????????");
+        }
     }
 
     protected Handler onCreateServiceHandler() {
@@ -2601,10 +2279,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             // Dump boot list.
             fout.println("Boot list: ");
-            Object[] bootListObjects = mBootControlListPackages.values().toArray();
-            Collections.consumeRemaining(bootListObjects, new Consumer<Object>() {
+            Collections.consumeRemaining(mRepoProxy.getBoots().getAll(), new Consumer<String>() {
                 @Override
-                public void accept(Object o) {
+                public void accept(String o) {
                     fout.println(o);
                 }
             });
@@ -2615,11 +2292,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             // Dump start list.
             fout.println("Start list: ");
-            Object[] startListObjects = mStartControlListPackages.values().toArray();
-            Collections.consumeRemaining(startListObjects, new Consumer<Object>() {
+            Collections.consumeRemaining(mRepoProxy.getStarts().getAll(), new Consumer<String>() {
+
                 @Override
-                public void accept(Object o) {
-                    fout.println(o);
+                public void accept(String s) {
+                    fout.println(s);
                 }
             });
 
@@ -2629,11 +2306,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             // Dump lk list.
             fout.println("LK list: ");
-            Object[] lkListObjects = mLockKillControlListPackages.values().toArray();
-            Collections.consumeRemaining(lkListObjects, new Consumer<Object>() {
+            Collections.consumeRemaining(mRepoProxy.getLks().getAll(), new Consumer<String>() {
+
                 @Override
-                public void accept(Object o) {
-                    fout.println(o);
+                public void accept(String s) {
+                    fout.println(s);
                 }
             });
 
@@ -2643,11 +2320,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             // Dump rf list.
             fout.println("RF list: ");
-            Object[] rfListObjects = mRFKillControlListPackages.values().toArray();
-            Collections.consumeRemaining(rfListObjects, new Consumer<Object>() {
+            Collections.consumeRemaining(mRepoProxy.getRfks().getAll(), new Consumer<String>() {
+
                 @Override
-                public void accept(Object o) {
-                    fout.println(o);
+                public void accept(String s) {
+                    fout.println(s);
                 }
             });
 

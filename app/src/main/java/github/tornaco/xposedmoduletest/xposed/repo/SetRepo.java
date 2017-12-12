@@ -1,7 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.repo;
 
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 
 /**
  * Created by guohao4 on 2017/12/11.
@@ -26,5 +25,5 @@ public interface SetRepo<T> {
 
     boolean has(T t);
 
-    void setExecutor(ExecutorService service);
+    String name();
 }
