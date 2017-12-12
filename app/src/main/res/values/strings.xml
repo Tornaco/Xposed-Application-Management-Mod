@@ -318,5 +318,7 @@
     <string name="summary_auto_black">将新安装应用自动加到限制列表</string>
     <string name="title_restart_rec">重启到Recovery模式</string>
     <string name="title_restart_bl">重启到Bootloader模式</string>
+    <string name="title_perm_control">权限控制</string>
+    <string name="summary_perm_control">禁用应用的某些权限可能会导致该应用运行出现异常</string>
 
 </resources>
