@@ -148,6 +148,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private AtomicBoolean mBootBlockEnabled = new AtomicBoolean(false);
     private AtomicBoolean mStartBlockEnabled = new AtomicBoolean(false);
     private AtomicBoolean mLockKillEnabled = new AtomicBoolean(false);
+    private AtomicBoolean mPermissionControlEnabled = new AtomicBoolean(false);
 
     private AtomicBoolean mDataHasBeenMigrated = new AtomicBoolean(false);
 
@@ -759,6 +760,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             mLockKillEnabled.set(lockKillEnabled);
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("lockKillEnabled: " + String.valueOf(lockKillEnabled));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            boolean permissionControlEnabled = (boolean) SystemSettings.PERMISSION_CONTROL_B.readFromSystemSettings(getContext());
+            mPermissionControlEnabled.set(permissionControlEnabled);
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("permissionControlEnabled: " + String.valueOf(permissionControlEnabled));
         } catch (Throwable e) {
             XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -2015,8 +2025,64 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public int checkPermission(String perm, int pid, int uid) {
+    public void setPermissionControlEnabled(boolean enabled) throws RemoteException {
+        enforceCallingPermissions();
+        h.obtainMessage(AshManHandlerMessages.MSG_SETPERMISSIONCONTROLENABLED, enabled).sendToTarget();
+    }
+
+    @Override
+    public boolean isPermissionControlEnabled() throws RemoteException {
+        enforceCallingPermissions();
+        return mPermissionControlEnabled.get();
+    }
+
+    @Override
+    public int getPermissionControlBlockModeForUid(String perm, int uid) throws RemoteException {
+        enforceCallingPermissions();
         return PackageManager.PERMISSION_GRANTED;
+    }
+
+    @Override
+    public void setPermissionControlBlockModeForUid(String perm, int uid, int mode) throws RemoteException {
+        enforceCallingPermissions();
+
+        if (XposedLog.isVerboseLoggable())
+            XposedLog.verbose("setPermissionControlBlockModeForUid: " + constructPatternForPermission(perm, uid));
+
+        long id = Binder.clearCallingIdentity();
+        try {
+            if (mode != PackageManager.PERMISSION_GRANTED)
+                mRepoProxy.getComps().add(constructPatternForPermission(perm, uid));
+            else
+                mRepoProxy.getComps().remove(constructPatternForPermission(perm, uid));
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
+    }
+
+    @Override
+    public int checkPermission(String perm, int pid, int uid) {
+        if (!mPermissionControlEnabled.get()) return PackageManager.PERMISSION_GRANTED;
+        String pattern = constructPatternForPermission(perm, uid);
+
+        XposedLog.verbose("checkPermission: " + perm + "@" + Binder.getCallingUid());
+
+        long id = Binder.clearCallingIdentity();
+        try {
+            if (isInPermissionBlockList(pattern)) return PackageManager.PERMISSION_DENIED;
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
+
+        return PackageManager.PERMISSION_GRANTED;
+    }
+
+    private boolean isInPermissionBlockList(String pattern) {
+        return mRepoProxy.getComps().has(pattern);
+    }
+
+    private static String constructPatternForPermission(String permission, int uid) {
+        return permission + "@" + uid;
     }
 
     private void processPendingDataRestrictRequests() {
@@ -2524,6 +2590,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_FORCERELOADPACKAGES:
                     HandlerImpl.this.forceReloadPackages();
                     break;
+                case AshManHandlerMessages.MSG_SETPERMISSIONCONTROLENABLED:
+                    HandlerImpl.this.setPermissionControlEnabled((Boolean) msg.obj);
+                    break;
             }
         }
 
@@ -2570,6 +2639,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     cachePackages();
                 }
             });
+        }
+
+        @Override
+        public void setPermissionControlEnabled(boolean enabled) {
+            if (mPermissionControlEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.PERMISSION_CONTROL_B.writeToSystemSettings(getContext(), enabled);
+            }
         }
 
         @Override

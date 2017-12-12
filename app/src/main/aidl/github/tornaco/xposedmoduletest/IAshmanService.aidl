@@ -101,4 +101,10 @@ interface IAshmanService {
     void setAutoAddBlackEnable(boolean enable);
 
     void forceReloadPackages();
+
+    void setPermissionControlEnabled(boolean enabled);
+    boolean isPermissionControlEnabled();
+
+    int getPermissionControlBlockModeForUid(String perm, int uid);
+    void setPermissionControlBlockModeForUid(String perm, int uid, int mode);
 }

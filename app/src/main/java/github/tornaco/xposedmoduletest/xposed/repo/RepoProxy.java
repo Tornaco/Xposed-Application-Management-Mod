@@ -19,19 +19,20 @@ import lombok.Getter;
 
 public class RepoProxy {
 
-    private static final Singleton<RepoProxy> sProxy = new Singleton<RepoProxy>() {
-        @Override
-        protected RepoProxy create() {
-            return new RepoProxy();
-        }
-    };
+    private static final Singleton<RepoProxy> sProxy =
+            new Singleton<RepoProxy>() {
+                @Override
+                protected RepoProxy create() {
+                    return new RepoProxy();
+                }
+            };
 
     public static RepoProxy getProxy() {
         return sProxy.get();
     }
 
     @Getter
-    private StringSetRepo boots, starts, lks, rfks;
+    private StringSetRepo boots, starts, lks, rfks, perms;
 
     @Getter
     private StringSetRepo comps;
@@ -51,6 +52,7 @@ public class RepoProxy {
         lks = new StringSetRepo(new File(dir, "lks"), h, io);
         rfks = new StringSetRepo(new File(dir, "rfks"), h, io);
         comps = new StringSetRepo(new File(dir, "comps"), h, io);
+        perms = new StringSetRepo(new File(dir, "perms"), h, io);
     }
 
     public void deleteAll() {
@@ -59,5 +61,6 @@ public class RepoProxy {
         starts.removeAll();
         lks.removeAll();
         rfks.removeAll();
+        perms.removeAll();
     }
 }

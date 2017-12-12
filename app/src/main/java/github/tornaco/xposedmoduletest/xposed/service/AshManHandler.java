@@ -121,6 +121,8 @@ interface AshManHandler {
 
     void forceReloadPackages();
 
+    void setPermissionControlEnabled(boolean enabled);
+
     @Getter
     class WatcherClient implements IBinder.DeathRecipient {
 
