@@ -3,11 +3,13 @@ package github.tornaco.xposedmoduletest.xposed.service;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
@@ -36,6 +38,7 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseBooleanArray;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
@@ -202,6 +205,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 return;
             }
 
+            XposedLog.debug("mPackageReceiver action: " + action);
+
             switch (action) {
                 case Intent.ACTION_PACKAGE_ADDED:
                     String packageName = intent.getData().getSchemeSpecificPart();
@@ -233,9 +238,59 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     parsePackageAsync(packageName);
 
                     break;
+
+                case Intent.ACTION_PACKAGE_REMOVED:
+                    packageName = intent.getData().getSchemeSpecificPart();
+                    if (packageName == null) return;
+                    try {
+                        XAshmanManager x = XAshmanManager.get();
+                        x.addOrRemoveBootBlockApps(new String[]{packageName}, XAshmanManager.Op.ADD);
+                        x.addOrRemoveRFKApps(new String[]{packageName}, XAshmanManager.Op.ADD);
+                        x.addOrRemoveLKApps(new String[]{packageName}, XAshmanManager.Op.ADD);
+                        x.addOrRemoveStartBlockApps(new String[]{packageName}, XAshmanManager.Op.ADD);
+
+                        if (BuildConfig.APPLICATION_ID.equals(packageName)) {
+                            onAppGuardClientUninstalled();
+                        }
+
+                    } catch (Throwable e) {
+                        XposedLog.wtf(Log.getStackTraceString(e));
+                    }
+                    break;
             }
         }
     };
+
+    private void onAppGuardClientUninstalled() {
+        long id = Binder.clearCallingIdentity();
+        try {
+            AlertDialog d = new AlertDialog.Builder(getContext())
+                    .setTitle("应用管理")
+                    .setMessage("应用管理已经被卸载，是否要清除 自启动/关联启动/锁屏清理/后台限制 的名单等设置数据？" +
+                            "如果你是想安装新版本，强烈建议你保留该数据。")
+                    .setCancelable(false)
+                    .setPositiveButton("清除数据", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            RepoProxy.getProxy().deleteAll();
+                        }
+                    })
+                    .setNegativeButton("暂不清除", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    })
+                    .create();
+            d.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG);
+            d.show();
+
+        } catch (Exception e) {
+            XposedLog.wtf("Fail show system dialog: " + Log.getStackTraceString(e));
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
+    }
 
     private void parsePackageAsync(final String... pkg) {
         mWorkingService.execute(new Runnable() {
@@ -908,19 +963,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return true;
         }
 
-        if (pkgName.contains("com.google.android")) {
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("It is maybe from google apps list, allow component setting.");
-            return true;
-        }
-
-        if (pkgName.contains("com.qualcomm.qti")
-                || pkgName.contains("com.qti.smq")) {
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("It is maybe from qcom apps list, allow component setting.");
-            return true;
-        }
-
         if (callingUid == sClientUID || callingUid <= 1000
                 || callingUid == android.os.Process.myUid()) {
             // Do not block system settings.
@@ -935,8 +977,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return true;
         }
 
-        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("Block component setting.");
-        return false;
+        if (mRepoProxy.getComps().has(componentName.flattenToString())) {
+            if (XposedLog.isVerboseLoggable()) XposedLog.verbose("Block component setting.");
+            return false;
+        }
+
+        // It is not disabled by us, allow.
+        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("It is not disabled by us, allow.");
+        return true;
     }
 
     @Override
@@ -2823,6 +2871,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setComponentEnabledSetting(ComponentName componentName, int newState, int flags) {
             PackageManager pm = getContext().getPackageManager();
             pm.setComponentEnabledSetting(componentName, newState, flags);
+
+            // Add to repo.
+            if (newState == PackageManager.COMPONENT_ENABLED_STATE_DISABLED) {
+                mRepoProxy.getComps().add(componentName.flattenToString());
+            } else {
+                mRepoProxy.getComps().remove(componentName.flattenToString());
+            }
         }
 
         @Override

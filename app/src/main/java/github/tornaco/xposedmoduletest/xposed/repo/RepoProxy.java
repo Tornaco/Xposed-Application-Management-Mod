@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import github.tornaco.xposedmoduletest.util.Singleton;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Getter;
 
 /**
@@ -32,6 +33,9 @@ public class RepoProxy {
     @Getter
     private StringSetRepo boots, starts, lks, rfks;
 
+    @Getter
+    private StringSetRepo comps;
+
     private RepoProxy() {
         HandlerThread hr = new HandlerThread("Repo proxy");
         hr.start();
@@ -46,5 +50,10 @@ public class RepoProxy {
         starts = new StringSetRepo(new File(dir, "starts"), h, io);
         lks = new StringSetRepo(new File(dir, "lks"), h, io);
         rfks = new StringSetRepo(new File(dir, "rfks"), h, io);
+        comps = new StringSetRepo(new File(dir, "comps"), h, io);
+    }
+
+    public void deleteAll() {
+        XposedLog.wtf("deleteAll data...");
     }
 }

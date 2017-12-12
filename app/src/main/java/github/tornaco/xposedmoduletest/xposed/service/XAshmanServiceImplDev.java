@@ -108,7 +108,12 @@ public class XAshmanServiceImplDev extends XAshmanServiceImpl {
 
     @Override
     public boolean checkComponentSetting(ComponentName componentName, int newState, int flags, int callingUid) {
-        return super.checkComponentSetting(componentName, newState, flags, callingUid);
+        try {
+            return super.checkComponentSetting(componentName, newState, flags, callingUid);
+        } catch (Exception e) {
+            onException(e);
+            return true;
+        }
     }
 
     @Override
