@@ -2037,24 +2037,34 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public int getPermissionControlBlockModeForUid(String perm, int uid) throws RemoteException {
+    public int getPermissionControlBlockModeForUid(String perm, String pkg) throws RemoteException {
         enforceCallingPermissions();
+
+        long id = Binder.clearCallingIdentity();
+        String pattern = constructPatternForPermission(perm, pkg);
+        try {
+            if (isInPermissionBlockList(pattern)) return PackageManager.PERMISSION_DENIED;
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
+
         return PackageManager.PERMISSION_GRANTED;
     }
 
     @Override
-    public void setPermissionControlBlockModeForUid(String perm, int uid, int mode) throws RemoteException {
+    public void setPermissionControlBlockModeForUid(String perm, String pkg, int mode) throws RemoteException {
         enforceCallingPermissions();
 
         if (XposedLog.isVerboseLoggable())
-            XposedLog.verbose("setPermissionControlBlockModeForUid: " + constructPatternForPermission(perm, uid));
+            XposedLog.verbose("setPermissionControlBlockModeForUid: "
+                    + constructPatternForPermission(perm, pkg));
 
         long id = Binder.clearCallingIdentity();
         try {
             if (mode != PackageManager.PERMISSION_GRANTED)
-                mRepoProxy.getComps().add(constructPatternForPermission(perm, uid));
+                mRepoProxy.getComps().add(constructPatternForPermission(perm, pkg));
             else
-                mRepoProxy.getComps().remove(constructPatternForPermission(perm, uid));
+                mRepoProxy.getComps().remove(constructPatternForPermission(perm, pkg));
         } finally {
             Binder.restoreCallingIdentity(id);
         }
@@ -2062,14 +2072,28 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public int checkPermission(String perm, int pid, int uid) {
-        if (!mPermissionControlEnabled.get()) return PackageManager.PERMISSION_GRANTED;
-        String pattern = constructPatternForPermission(perm, uid);
+        if (PkgUtil.isSystemOrPhoneOrShell(uid)) return PackageManager.PERMISSION_GRANTED;
 
-        XposedLog.verbose("checkPermission: " + perm + "@" + Binder.getCallingUid());
+        if (!mPermissionControlEnabled.get()) return PackageManager.PERMISSION_GRANTED;
+
+        String pkg = mPackagesCache.get(uid);
+        if (pkg == null) return PackageManager.PERMISSION_GRANTED;
+
+        if (isInWhiteList(pkg)) return PackageManager.PERMISSION_GRANTED;
+
+        if (isWhiteSysAppEnabled() && isInSystemAppList(pkg))
+            return PackageManager.PERMISSION_GRANTED;
+
+        String pattern = constructPatternForPermission(perm, pkg);
+
+        XposedLog.verbose("checkPermission: " + pattern);
 
         long id = Binder.clearCallingIdentity();
         try {
-            if (isInPermissionBlockList(pattern)) return PackageManager.PERMISSION_DENIED;
+            if (isInPermissionBlockList(pattern)) {
+                XposedLog.verbose("checkPermission: returning PERMISSION_DENIED");
+                return PackageManager.PERMISSION_DENIED;
+            }
         } finally {
             Binder.restoreCallingIdentity(id);
         }
@@ -2081,8 +2105,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return mRepoProxy.getComps().has(pattern);
     }
 
-    private static String constructPatternForPermission(String permission, int uid) {
-        return permission + "@" + uid;
+    private static String constructPatternForPermission(String permission, String pkg) {
+        return permission + "@" + pkg;
     }
 
     private void processPendingDataRestrictRequests() {

@@ -105,6 +105,6 @@ interface IAshmanService {
     void setPermissionControlEnabled(boolean enabled);
     boolean isPermissionControlEnabled();
 
-    int getPermissionControlBlockModeForUid(String perm, int uid);
-    void setPermissionControlBlockModeForUid(String perm, int uid, int mode);
+    int getPermissionControlBlockModeForUid(String perm, String pkg);
+    void setPermissionControlBlockModeForUid(String perm, String pkg, int mode);
 }

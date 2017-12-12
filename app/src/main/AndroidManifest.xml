@@ -193,6 +193,16 @@
             android:label="@string/title_component_manager"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
+            android:name=".ui.activity.perm.PackageViewerActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_perm_control"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.perm.PermissionsListActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_perm_control"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
             android:name=".ui.activity.res.ConfigurationSettingActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_config_setting"

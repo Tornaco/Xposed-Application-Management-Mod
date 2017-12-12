@@ -265,4 +265,9 @@ public class BaseActivity extends AppCompatActivity implements View {
         }
         return true;
     }
+
+    public void runOnUiThreadChecked(Runnable runnable) {
+        if (isDestroyed()) return;
+        runOnUiThread(runnable);
+    }
 }

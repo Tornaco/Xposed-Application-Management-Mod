@@ -17,6 +17,7 @@ import android.os.UserHandle;
 import android.print.PrintManager;
 import android.provider.Telephony;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -133,6 +134,11 @@ public class PkgUtil {
     public static boolean isSystemApp(Context context, int uid) {
         return uid <= 1000
                 || isSystemApp(context, pkgForUid(context, uid));
+    }
+
+    // Check if uid is system, shell or phone.
+    public static boolean isSystemOrPhoneOrShell(int uid) {
+        return uid <= 2000;
     }
 
     public static boolean isSystemApp(Context context, String pkg) {
@@ -360,5 +366,40 @@ public class PkgUtil {
         } catch (Throwable e) {
             return false;
         }
+    }
+
+    public static String[] getAllDeclaredPermissions(Context context, String packageName) {
+        PackageInfo packageInfo = getPkgInfo(context, packageName);
+        String[] permissions = new String[0];
+        if (packageInfo != null) {
+            permissions = packageInfo.requestedPermissions;
+        }
+        return permissions;
+    }
+
+
+    private static PackageInfo getPkgInfo(Context context, String packageName) {
+        PackageManager packageManager = context.getPackageManager();
+        try {
+            return packageManager.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
+        } catch (PackageManager.NameNotFoundException e) {
+            return null;
+        }
+    }
+
+    private static String[] extractUnGrantedPerms(Context context, String packageName, String[] declaredPerms) {
+        if (declaredPerms == null || declaredPerms.length == 0) return null;
+        PackageManager packageManager = context.getPackageManager();
+        List<String> requestList = new ArrayList<>(declaredPerms.length);
+        for (String info : declaredPerms) {
+            int code = packageManager.checkPermission(info, packageName);
+            if (code == PackageManager.PERMISSION_GRANTED) continue;
+            requestList.add(info);
+        }
+        String[] out = new String[requestList.size()];
+        for (int i = 0; i < requestList.size(); i++) {
+            out[i] = requestList.get(i);
+        }
+        return out;
     }
 }

@@ -193,6 +193,7 @@ public class NetworkRestrictActivity extends BaseActivity {
                 @Override
                 public void run() {
                     final List res = performLoading();
+                    if (getActivity() == null || isDetached()) return;
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

@@ -776,6 +776,8 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
                         }
                     });
 
+                    if (getActivity() == null || isDetached()) return;
+
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -899,6 +901,8 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
                                             0);
 
                                     final ComponentName finalComponentName = componentName;
+
+                                    if (getActivity() == null || isDetached()) return;
                                     getActivity().runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -920,6 +924,8 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
                     } catch (InterruptedException ignored) {
 
                     }
+
+                    if (getActivity() == null || isDetached()) return;
 
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
