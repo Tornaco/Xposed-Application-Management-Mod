@@ -594,9 +594,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @Override
     public long wrapCallingUidForIntent(long from, Intent intent) {
-        if (XposedLog.isVerboseLoggable()) {
-            XposedLog.verbose("wrapCallingUidForIntent for : " + from);
-        }
         return from;
     }
 
