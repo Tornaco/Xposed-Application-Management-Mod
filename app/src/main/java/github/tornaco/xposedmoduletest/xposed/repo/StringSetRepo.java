@@ -28,6 +28,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 public class StringSetRepo implements SetRepo<String> {
 
     private static final int FLUSH_DELAY = 1000;
+    private static final int FLUSH_DELAY_NOW = 100;
 
     private Handler mHandler;
     private ExecutorService mExe;
@@ -183,6 +184,13 @@ public class StringSetRepo implements SetRepo<String> {
         mHandler.removeCallbacks(mFlushCaller);
         mHandler.postDelayed(mFlushCaller, FLUSH_DELAY);
         return true;
+    }
+
+    @Override
+    public void removeAll() {
+        mStorage.clear();
+        mHandler.removeCallbacks(mFlushCaller);
+        mHandler.postDelayed(mFlushCaller, FLUSH_DELAY_NOW);
     }
 
     @Override

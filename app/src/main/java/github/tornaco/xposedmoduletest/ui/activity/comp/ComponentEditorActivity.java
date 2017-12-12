@@ -891,7 +891,7 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
                                                 .getComponentName(((ServiceInfoSettings) o).getServiceInfo());
                                     }
 
-                                    if (componentName==null) return;
+                                    if (componentName == null) return;
 
                                     XAshmanManager.get().setComponentEnabledSetting(componentName,
                                             enable ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
@@ -913,6 +913,13 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
                                     }
                                 }
                             });
+
+                    // Wait for the action complete.
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException ignored) {
+
+                    }
 
                     getActivity().runOnUiThread(new Runnable() {
                         @Override

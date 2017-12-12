@@ -55,5 +55,9 @@ public class RepoProxy {
 
     public void deleteAll() {
         XposedLog.wtf("deleteAll data...");
+        boots.removeAll();
+        starts.removeAll();
+        lks.removeAll();
+        rfks.removeAll();
     }
 }

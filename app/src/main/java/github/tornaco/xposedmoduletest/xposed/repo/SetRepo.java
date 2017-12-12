@@ -23,6 +23,8 @@ public interface SetRepo<T> {
 
     boolean remove(T t);
 
+    void removeAll();
+
     boolean has(T t);
 
     String name();

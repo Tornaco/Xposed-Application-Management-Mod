@@ -250,7 +250,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         x.addOrRemoveStartBlockApps(new String[]{packageName}, XAshmanManager.Op.ADD);
 
                         if (BuildConfig.APPLICATION_ID.equals(packageName)) {
-                            onAppGuardClientUninstalled();
+                            lazyH.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    onAppGuardClientUninstalled();
+                                }
+                            }, 2000);
                         }
 
                     } catch (Throwable e) {
@@ -262,6 +267,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     };
 
     private void onAppGuardClientUninstalled() {
+        if (PkgUtil.isPkgInstalled(getContext(), BuildConfig.APPLICATION_ID)) return;
+        
         long id = Binder.clearCallingIdentity();
         try {
             AlertDialog d = new AlertDialog.Builder(getContext())
@@ -841,7 +848,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private CheckResult checkServiceDetailed(String servicePkgName, int callerUid) {
-        if (!isSystemReady()) return CheckResult.SYSTEM_NOT_READY;
+        // if (!isSystemReady()) return CheckResult.SYSTEM_NOT_READY;
         // Disabled case.
         if (!isStartBlockEnabled()) return CheckResult.SERVICE_CHECK_DISABLED;
 
@@ -1485,7 +1492,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return checkBootCompleteBroadcast(receiverUid, callerUid);
         }
 
-        if (!isSystemReady()) return CheckResult.SYSTEM_NOT_READY;
+        // if (!isSystemReady()) return CheckResult.SYSTEM_NOT_READY;
 
         // Disabled case.
         if (!isStartBlockEnabled()) return CheckResult.BROADCAST_CHECK_DISABLED;
