@@ -39,23 +39,16 @@
         <item>com.android.emergency</item>
         <item>com.android.stk</item>
 
-        <item>com.qualcomm.wfd.service</item>
-        <item>com.qualcomm.qti.tetherservice</item>
-        <item>com.qualcomm.location</item>
-        <item>com.qualcomm.shutdownlistner</item>
-        <item>com.qualcomm.timeservice</item>
-        <item>com.qualcomm.qcrilmsgtunnel</item>
-        <item>com.qualcomm.qti.telephonyservice</item>
+        <!--<item>com.qualcomm.wfd.service</item>-->
+        <!--<item>com.qualcomm.qti.tetherservice</item>-->
+        <!--<item>com.qualcomm.location</item>-->
+        <!--<item>com.qualcomm.shutdownlistner</item>-->
+        <!--<item>com.qualcomm.timeservice</item>-->
+        <!--<item>com.qualcomm.qcrilmsgtunnel</item>-->
+        <!--<item>com.qualcomm.qti.telephonyservice</item>-->
 
         <item>com.zui.incallui</item>
 
-        <!--<item>com.google.android.gms</item>-->
-        <!--<item>com.google.android.backuptransport</item>-->
-        <!--<item>com.google.android.configupdater</item>-->
-        <!--<item>com.google.android.onetimeinitializer</item>-->
-        <!--<item>com.google.android.partnersetup</item>-->
-        <!--<item>com.google.android.syncadapters.contacts</item>-->
-        <!--<item>com.google.android.ext.services</item>-->
 
         <item>com.miui.core</item>
 
@@ -76,6 +69,12 @@
     </string-array>
 
     <string-array name="ash_white_list_packages_hooks">
-        <item>com.youku.xxx</item>
+        <item>com.google.android.gms</item>
+        <item>com.google.android.backuptransport</item>
+        <item>com.google.android.configupdater</item>
+        <item>com.google.android.onetimeinitializer</item>
+        <item>com.google.android.partnersetup</item>
+        <item>com.google.android.syncadapters.contacts</item>
+        <item>com.google.android.ext.services</item>
     </string-array>
 </resources>

@@ -20,7 +20,6 @@ public class IntentFirewallSubModuleManager {
         SUBS.add(new NetworkManagementModule());
         SUBS.add(new MediaFocusControlSubModule2());
         SUBS.add(new MediaFocusControlSubModule());
-        SUBS.add(new PMSSubModule3());
         SUBS.add(new PMSSubModule2());
         SUBS.add(new ASDSubModule());
         SUBS.add(new IFWSubModule());

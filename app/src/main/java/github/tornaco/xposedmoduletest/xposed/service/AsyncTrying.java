@@ -25,7 +25,7 @@ class AsyncTrying {
             public void run() {
                 if (!once.once()) {
                     try {
-                        sleep(222);
+                        sleep(888);
                     } catch (InterruptedException ignored) {
 
                     }

@@ -395,13 +395,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private void migrateFromOldDataBase() {
 
         if (mDataHasBeenMigrated.get()) {
-            XposedLog.wtf("migrateFromOldDataBase already migrated...");
+            XposedLog.wtf("DATA migrateFromOldDataBase already migrated...");
             mBootPkgLoaded.set(true);
             mStartPkgLoaded.set(true);
             return;
         }
 
-        XposedLog.wtf("migrateFromOldDataBase...");
+        XposedLog.wtf("DATA migrateFromOldDataBase...");
 
         AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
             @Override
@@ -703,7 +703,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         try {
             boolean migrated = (boolean) SystemSettings.DATA_MIGRATE_B.readFromSystemSettings(getContext());
-            mLockKillEnabled.set(migrated);
+            mDataHasBeenMigrated.set(migrated);
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("migrated: " + String.valueOf(migrated));
         } catch (Throwable e) {
