@@ -4,9 +4,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
@@ -20,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.collect.ImmutableList;
 import com.jaredrummler.android.shell.Shell;
 
 import java.util.List;
@@ -31,6 +37,7 @@ import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.compat.os.PowerManagerCompat;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
+import github.tornaco.xposedmoduletest.ui.FragmentController;
 import github.tornaco.xposedmoduletest.ui.activity.app.AboutDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.AppDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
@@ -52,20 +59,60 @@ import lombok.Getter;
  * Email: Tornaco@163.com
  */
 
-public class NavigatorActivity extends WithWithCustomTabActivity {
+public class NavigatorActivity extends WithWithCustomTabActivity
+        implements NavigationView.OnNavigationItemSelectedListener {
+
+    @Getter
+    private FragmentController cardController;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.navigator);
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
-        initFirstRun();
-        getSupportFragmentManager().beginTransaction().replace(R.id.container,
-                onCreateFragment()).commitAllowingStateLoss();
+        setContentView(R.layout.activity_drawer_navigator);
+
+        setupView();
+        setupFragment();
 
         // This is a workaround that some apps is installed on SD.
         // We trigger a package scan now, to ensure wo got all packages.
         if (XAshmanManager.get().isServiceAvailable()) {
             XAshmanManager.get().forceReloadPackages();
+        }
+
+        initFirstRun();
+    }
+
+    private void setupView() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        navigationView.setCheckedItem(R.id.nav_home);
+    }
+
+    protected void setupFragment() {
+        final List<? extends Fragment> cards =
+                ImmutableList.of(onCreateFragment());
+        cardController = new FragmentController(getSupportFragmentManager(), cards, R.id.container);
+        cardController.setDefaultIndex(0);
+        cardController.setCurrent(0);
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
         }
     }
 
@@ -157,6 +204,25 @@ public class NavigatorActivity extends WithWithCustomTabActivity {
 
     protected Fragment onCreateFragment() {
         return new NavigatorFragment();
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.nav_home:
+                getCardController().setCurrent(0);
+                break;
+
+            case R.id.nav_settings:
+                break;
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 
     public static class NavigatorFragment extends DashboardFragment {
