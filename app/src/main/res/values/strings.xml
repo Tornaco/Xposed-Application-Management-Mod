@@ -322,5 +322,9 @@
     <string name="summary_perm_control">禁用应用的某些权限可能会导致该应用运行出现异常</string>
     <string name="navigation_drawer_open">open</string>
     <string name="navigation_drawer_close">close</string>
+    <string name="action_tools">工具箱</string>
+    <string name="title_dev_tools">开发者工具</string>
+    <string name="title_show_focused_activity">显示当前活动</string>
+    <string name="summary_show_focused_activity">以Toast的形式显示当前的Activity</string>
 
 </resources>

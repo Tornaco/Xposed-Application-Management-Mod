@@ -152,6 +152,11 @@
             android:label="@string/title_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
+            android:name=".ui.activity.app.ToolsDashboardActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_settings"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
             android:name=".ui.activity.app.AboutDashboardActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_about"

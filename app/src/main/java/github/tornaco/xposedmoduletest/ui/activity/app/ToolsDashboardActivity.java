@@ -9,15 +9,15 @@ import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
-import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlack;
-import github.tornaco.xposedmoduletest.ui.tiles.app.WhiteSystemApp;
+import github.tornaco.xposedmoduletest.ui.tiles.app.AppDevMode;
+import github.tornaco.xposedmoduletest.ui.tiles.app.ShowFocusedActivity;
 
 /**
  * Created by guohao4 on 2017/11/2.
  * Email: Tornaco@163.com
  */
 
-public class AppDashboardActivity extends WithWithCustomTabActivity {
+public class ToolsDashboardActivity extends WithWithCustomTabActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,12 +32,12 @@ public class AppDashboardActivity extends WithWithCustomTabActivity {
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
 
-            Category systemProtect = new Category();
-            systemProtect.titleRes = R.string.title_app_settings;
-            systemProtect.addTile(new WhiteSystemApp(getActivity()));
-            systemProtect.addTile(new AutoBlack(getActivity()));
+            Category settings = new Category();
+            settings.titleRes = R.string.title_dev_tools;
+            settings.addTile(new AppDevMode(getActivity()));
+            settings.addTile(new ShowFocusedActivity(getActivity()));
 
-            categories.add(systemProtect);
+            categories.add(settings);
         }
     }
 

@@ -3,7 +3,7 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_home"
+            android:id="@+id/action_home"
             android:icon="@drawable/ic_home_black_24dp"
             android:title="@string/app_name" />
     </group>
@@ -11,9 +11,21 @@
     <item android:title="@string/title_others">
         <menu>
             <item
-                android:id="@+id/nav_settings"
+                android:id="@+id/action_settings"
                 android:icon="@drawable/ic_settings_black_24dp"
                 android:title="@string/action_settings" />
+            <item
+                android:id="@+id/action_tools"
+                android:icon="@drawable/ic_pan_tool_black_24dp"
+                android:title="@string/action_tools" />
+            <item
+                android:id="@+id/action_help"
+                android:icon="@drawable/ic_help_black_24dp"
+                android:title="@string/title_help" />
+            <item
+                android:id="@+id/action_about"
+                android:icon="@drawable/ic_info_black_24dp"
+                android:title="@string/title_about" />
         </menu>
     </item>
 

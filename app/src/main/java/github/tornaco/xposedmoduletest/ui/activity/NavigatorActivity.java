@@ -16,7 +16,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +39,7 @@ import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.FragmentController;
 import github.tornaco.xposedmoduletest.ui.activity.app.AboutDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.AppDashboardActivity;
+import github.tornaco.xposedmoduletest.ui.activity.app.ToolsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
 import github.tornaco.xposedmoduletest.ui.tiles.AppStart;
@@ -95,7 +95,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        navigationView.setCheckedItem(R.id.nav_home);
+        navigationView.setCheckedItem(R.id.action_home);
     }
 
     protected void setupFragment() {
@@ -182,23 +182,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_settings) {
-            startActivity(new Intent(this, AppDashboardActivity.class));
-        }
-        if (item.getItemId() == R.id.action_help) {
-            navigateToWebPage(getString(R.string.app_wiki_url));
-        }
-        if (item.getItemId() == R.id.action_about) {
-            startActivity(new Intent(this, AboutDashboardActivity.class));
-        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -208,19 +192,24 @@ public class NavigatorActivity extends WithWithCustomTabActivity
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        switch (id) {
-            case R.id.nav_home:
-                getCardController().setCurrent(0);
-                break;
-
-            case R.id.nav_settings:
-                break;
+        if (item.getItemId() == R.id.action_settings) {
+            startActivity(new Intent(this, AppDashboardActivity.class));
+        }
+        if (item.getItemId() == R.id.action_help) {
+            navigateToWebPage(getString(R.string.app_wiki_url));
+        }
+        if (item.getItemId() == R.id.action_about) {
+            startActivity(new Intent(this, AboutDashboardActivity.class));
+        }
+        if (item.getItemId() == R.id.action_tools) {
+            startActivity(new Intent(this, ToolsDashboardActivity.class));
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (item.getItemId() == R.id.action_home) {
+            getCardController().setCurrent(0);
+        }
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
