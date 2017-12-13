@@ -554,6 +554,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Override
     public boolean interruptPackageRemoval(String pkg) {
         boolean enabled = isUninstallInterruptEnabled();
+
+        if (enabled && BuildConfig.APPLICATION_ID.equals(pkg)) {
+            return true;
+        }
+
         if (!enabled) {
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("interruptPackageRemoval false: not enabled.");
@@ -696,12 +701,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 XposedLog.verbose("onEarlyVerifyConfirm, false@not-in-guard-list:" + pkg);
             return false;
         }
-        if (!p.getGuard()) {
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("onEarlyVerifyConfirm, false@not-in-guard-value-list:" + pkg);
-            return false;
-        }
-
         return true;
     }
 
