@@ -47,6 +47,13 @@ public abstract class XposedLog {
                 + String.valueOf(log));
     }
 
+    public static void verbose(String format, Object... args) {
+        if (isLoggable(LogLevel.VERBOSE)) XposedBridge.log(TAG_PREFIX
+                + LogLevel.VERBOSE.name()
+                + "-"
+                + String.format(format, args));
+    }
+
     public static void verboseOn(final Object log,
                                  ExecutorService executorService) {
         if (isLoggable(LogLevel.VERBOSE)) executorService.execute(new Runnable() {

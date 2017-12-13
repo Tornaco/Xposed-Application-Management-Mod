@@ -6,10 +6,12 @@ import android.support.annotation.NonNull;
 import org.newstand.logger.Logger;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
+import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.model.Permission;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -36,13 +38,13 @@ public interface PermissionLoader {
             this.context = context;
         }
 
-
         @NonNull
         @Override
-        public List<Permission> load(final String pkg, int category) {
+        public List<Permission> load(final String pkg, final int category) {
             if (!XAshmanManager.get().isServiceAvailable()) {
                 return new ArrayList<>(0);
             }
+
             String[] decleared = PkgUtil.getAllDeclaredPermissions(context, pkg);
             if (decleared == null || decleared.length == 0) return new ArrayList<>(0);
 
@@ -51,12 +53,29 @@ public interface PermissionLoader {
             Collections.consumeRemaining(decleared, new Consumer<String>() {
                 @Override
                 public void accept(String s) {
+
                     Permission p = new Permission();
                     p.setPkgName(pkg);
                     p.setPermission(s);
-                    p.setName(XAshmanManager.permToString(context, s));
-                    p.setIconRes(XAshmanManager.permToDrawableRes(s));
-                    p.setState(XAshmanManager.get().getPermissionControlBlockModeForUid(s, pkg));
+
+                    int code = AppOpsManagerCompat.permissionToOpCode(s);
+
+                    if (code == AppOpsManagerCompat.OP_NONE) {
+                        Logger.w("Un-support per control: " + s);
+                        return;
+                    }
+
+                    p.setCode(code);
+
+                    String name = AppOpsManagerCompat.getOpLabel(context, code);
+                    p.setName(name);
+
+                    String summary = AppOpsManagerCompat.getOpSummary(context, code);
+                    p.setSummary(summary);
+
+                    p.setIconRes(AppOpsManagerCompat.opToIconRes(code));
+
+                    p.setMode(XAshmanManager.get().getPermissionControlBlockModeForUid(code, pkg));
 
                     Logger.d("Add perm: " + p);
 
@@ -64,9 +83,15 @@ public interface PermissionLoader {
                 }
             });
 
-
+            java.util.Collections.sort(permissions, new PermComparator());
 
             return permissions;
+        }
+    }
+
+    class PermComparator implements Comparator<Permission> {
+        public int compare(Permission o1, Permission o2) {
+            return o1.getCode() > o2.getCode() ? 1 : -1;
         }
     }
 }

@@ -16,6 +16,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
@@ -82,6 +83,7 @@ import github.tornaco.xposedmoduletest.bean.LockKillPackage;
 import github.tornaco.xposedmoduletest.bean.LockKillPackageDaoUtil;
 import github.tornaco.xposedmoduletest.bean.RFKillPackage;
 import github.tornaco.xposedmoduletest.bean.RFKillPackageDaoUtil;
+import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.provider.AutoStartPackageProvider;
 import github.tornaco.xposedmoduletest.provider.BootPackageProvider;
 import github.tornaco.xposedmoduletest.provider.LockKillPackageProvider;
@@ -212,12 +214,25 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case Intent.ACTION_PACKAGE_ADDED:
                     String packageName = intent.getData().getSchemeSpecificPart();
                     if (packageName == null) return;
+
+                    boolean newInstalled = !mPackagesCache.containsValue(packageName);
+                    XposedLog.verbose("ACTION_PACKAGE_ADDED newInstalled:%s pkg:%s", newInstalled, packageName);
+
                     parsePackageAsync(packageName);
 
-
                     try {
+
+                        if (!newInstalled) {
+                            return;
+                        }
+
                         XAshmanManager x = XAshmanManager.get();
-                        if (x.isServiceAvailable() && x.isAutoAddBlackEnabled()) {
+
+                        boolean autoResEnabled = x.isServiceAvailable() && x.isAutoAddBlackEnabled();
+
+                        XposedLog.verbose("ACTION_PACKAGE_ADDED autoResEnabled:%s", autoResEnabled);
+
+                        if (autoResEnabled) {
                             if (!isInSystemAppList(packageName) && !isInWhiteList(packageName)) {
                                 x.addOrRemoveBootBlockApps(new String[]{packageName}, XAshmanManager.Op.ADD);
                                 x.addOrRemoveRFKApps(new String[]{packageName}, XAshmanManager.Op.ADD);
@@ -225,7 +240,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 x.addOrRemoveStartBlockApps(new String[]{packageName}, XAshmanManager.Op.ADD);
 
                                 XposedLog.verbose("Add to black list for new app.");
-                                showNotification(context, String.valueOf(PkgUtil.loadNameByPkgName(context, packageName)));
+                                showNewAppRestrictedNotification(context, String.valueOf(PkgUtil.loadNameByPkgName(context, packageName)));
                             }
                         }
                     } catch (Throwable e) {
@@ -311,8 +326,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private static final AtomicInteger NOTIFICATION_ID = new AtomicInteger(0);
 
-    private void showNotification(Context context, String name) {
-        XposedLog.verbose("Add to black list showNotification: " + name);
+    private void showNewAppRestrictedNotification(Context context, String name) {
+        XposedLog.verbose("Add to black list showNewAppRestrictedNotification: " + name);
         NotificationManagerCompat.from(context)
                 .notify(NOTIFICATION_ID.getAndIncrement(),
                         new Notification.Builder(context)
@@ -1732,6 +1747,27 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         });
     }
 
+    private Drawable loadDrawableFromAppGuard(String resName, int fallback) {
+        Context context = getContext();
+        if (context == null) {
+            XposedLog.wtf("Context is null!!!");
+            return null;
+        }
+        try {
+            Context appContext =
+                    context.createPackageContext(BuildConfig.APPLICATION_ID, CONTEXT_IGNORE_SECURITY);
+            Resources res = appContext.getResources();
+            int id = res.getIdentifier(resName, "drawable", BuildConfig.APPLICATION_ID);
+            XposedLog.debug("loadDrawableFromAppGuard get id: " + id + ", for res: " + resName);
+            if (id != 0) {
+                return res.getDrawable(id);
+            }
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail createPackageContext: " + Log.getStackTraceString(e));
+        }
+        return context.getDrawable(fallback);
+    }
+
     private String[] readStringArrayFromAppGuard(String resName) {
         Context context = getContext();
         if (context == null) {
@@ -2037,34 +2073,37 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public int getPermissionControlBlockModeForUid(String perm, String pkg) throws RemoteException {
+    public int getPermissionControlBlockModeForUid(int code, String pkg) throws RemoteException {
         enforceCallingPermissions();
 
+        XposedLog.verbose("getPermissionControlBlockModeForUid code %s pkg %s", code, pkg);
+
         long id = Binder.clearCallingIdentity();
-        String pattern = constructPatternForPermission(perm, pkg);
+        String pattern = constructPatternForPermission(code, pkg);
         try {
-            if (isInPermissionBlockList(pattern)) return PackageManager.PERMISSION_DENIED;
+            if (isInPermissionBlockList(pattern)) return AppOpsManagerCompat.MODE_IGNORED;
         } finally {
             Binder.restoreCallingIdentity(id);
         }
 
-        return PackageManager.PERMISSION_GRANTED;
+        return AppOpsManagerCompat.MODE_ALLOWED;
     }
 
     @Override
-    public void setPermissionControlBlockModeForUid(String perm, String pkg, int mode) throws RemoteException {
+    public void setPermissionControlBlockModeForUid(int code, String pkg, int mode)
+            throws RemoteException {
         enforceCallingPermissions();
 
         if (XposedLog.isVerboseLoggable())
             XposedLog.verbose("setPermissionControlBlockModeForUid: "
-                    + constructPatternForPermission(perm, pkg));
+                    + constructPatternForPermission(code, pkg));
 
         long id = Binder.clearCallingIdentity();
         try {
-            if (mode != PackageManager.PERMISSION_GRANTED)
-                mRepoProxy.getComps().add(constructPatternForPermission(perm, pkg));
+            if (mode != AppOpsManagerCompat.MODE_ALLOWED)
+                mRepoProxy.getComps().add(constructPatternForPermission(code, pkg));
             else
-                mRepoProxy.getComps().remove(constructPatternForPermission(perm, pkg));
+                mRepoProxy.getComps().remove(constructPatternForPermission(code, pkg));
         } finally {
             Binder.restoreCallingIdentity(id);
         }
@@ -2072,41 +2111,61 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public int checkPermission(String perm, int pid, int uid) {
-        if (PkgUtil.isSystemOrPhoneOrShell(uid)) return PackageManager.PERMISSION_GRANTED;
+//        if (PkgUtil.isSystemOrPhoneOrShell(uid)) return PackageManager.PERMISSION_GRANTED;
+//
+//        if (!mPermissionControlEnabled.get()) return PackageManager.PERMISSION_GRANTED;
+//
+//        String pkg = mPackagesCache.get(uid);
+//        if (pkg == null) return PackageManager.PERMISSION_GRANTED;
+//
+//        if (isInWhiteList(pkg)) return PackageManager.PERMISSION_GRANTED;
+//
+//        if (isWhiteSysAppEnabled() && isInSystemAppList(pkg))
+//            return PackageManager.PERMISSION_GRANTED;
+        return PackageManager.PERMISSION_GRANTED;
+    }
 
-        if (!mPermissionControlEnabled.get()) return PackageManager.PERMISSION_GRANTED;
+    @Override
+    public int checkOperation(int code, int uid, String packageName, String reason) {
 
-        String pkg = mPackagesCache.get(uid);
-        if (pkg == null) return PackageManager.PERMISSION_GRANTED;
+        if (XposedLog.isVerboseLoggable()) {
+            String permName = AppOpsManagerCompat.opToPermission(code);
+            XposedLog.verbose("checkOperation: reason %s code %s perm %s uid %s pkg %s",
+                    reason, code, permName, uid, packageName);
+        }
 
-        if (isInWhiteList(pkg)) return PackageManager.PERMISSION_GRANTED;
+        if (packageName == null) return AppOpsManagerCompat.MODE_ALLOWED;
 
-        if (isWhiteSysAppEnabled() && isInSystemAppList(pkg))
-            return PackageManager.PERMISSION_GRANTED;
+        if (PkgUtil.isSystemOrPhoneOrShell(uid)) return AppOpsManagerCompat.MODE_ALLOWED;
 
-        String pattern = constructPatternForPermission(perm, pkg);
+        if (!mPermissionControlEnabled.get()) return AppOpsManagerCompat.MODE_ALLOWED;
 
-        XposedLog.verbose("checkPermission: " + pattern);
+        if (isInWhiteList(packageName)) return AppOpsManagerCompat.MODE_ALLOWED;
+
+        if (isWhiteSysAppEnabled() && isInSystemAppList(packageName))
+            return AppOpsManagerCompat.MODE_ALLOWED;
+
+        String pattern = constructPatternForPermission(code, packageName);
 
         long id = Binder.clearCallingIdentity();
         try {
             if (isInPermissionBlockList(pattern)) {
-                XposedLog.verbose("checkPermission: returning PERMISSION_DENIED");
-                return PackageManager.PERMISSION_DENIED;
+                XposedLog.verbose("checkOperation: returning MODE_IGNORED");
+                return AppOpsManagerCompat.MODE_IGNORED;
             }
         } finally {
             Binder.restoreCallingIdentity(id);
         }
 
-        return PackageManager.PERMISSION_GRANTED;
+        return AppOpsManagerCompat.MODE_ALLOWED;
     }
 
     private boolean isInPermissionBlockList(String pattern) {
         return mRepoProxy.getComps().has(pattern);
     }
 
-    private static String constructPatternForPermission(String permission, String pkg) {
-        return permission + "@" + pkg;
+    private static String constructPatternForPermission(int code, String pkg) {
+        return pkg + "@" + code;
     }
 
     private void processPendingDataRestrictRequests() {
@@ -2257,13 +2316,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public void onPackageMoveToFront(final Intent who) {
         onPackageMoveToFront(PkgUtil.packageNameOf(who));
 
-        if (XposedLog.isVerboseLoggable()) {
-            lazyH.removeCallbacks(toastRunnable);
-            if (who != null) {
-                mFocusedCompName = who.getComponent();
-                lazyH.post(toastRunnable);
-            }
-        }
+//        if (XposedLog.isVerboseLoggable()) {
+//            lazyH.removeCallbacks(toastRunnable);
+//            if (who != null) {
+//                mFocusedCompName = who.getComponent();
+//                lazyH.post(toastRunnable);
+//            }
+//        }
     }
 
     private void onPackageMoveToFront(String who) {

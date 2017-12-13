@@ -4,10 +4,6 @@ import java.text.Collator;
 import java.util.Comparator;
 import java.util.Locale;
 
-/**
- * Created by guohao4 on 2017/7/5.
- */
-
 public class PinyinComparator implements Comparator<String> {
 
     @Override

@@ -21,7 +21,6 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.loader.PermissionLoader;
 import github.tornaco.xposedmoduletest.model.Permission;
-import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.WithRecyclerView;
 import github.tornaco.xposedmoduletest.ui.adapter.PermissionAdapter;
@@ -146,15 +145,8 @@ public class PermissionsListActivity extends WithRecyclerView {
     }
 
     private void setSummaryView() {
-        String who = getClass().getSimpleName();
-        boolean showInfo = AppSettings.isShowInfoEnabled(this, who);
         TextView textView = findViewById(R.id.summary);
-        if (!showInfo) {
-            textView.setVisibility(View.GONE);
-        } else {
-            textView.setText(R.string.summary_perm_control);
-            textView.setVisibility(View.VISIBLE);
-        }
+        textView.setVisibility(View.GONE);
     }
 
 }

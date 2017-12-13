@@ -1,7 +1,6 @@
 package github.tornaco.xposedmoduletest.ui.adapter;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.support.annotation.ColorInt;
 import android.support.annotation.LayoutRes;
 import android.support.v4.content.ContextCompat;
@@ -20,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.model.Permission;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import lombok.Getter;
@@ -81,19 +81,20 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionAdapter.Pe
         int iconRes = permission.getIconRes();
         holder.getIconView().setImageResource(iconRes);
         holder.getTitleView().setText(permission.getName());
-        holder.getSummaryView().setText(permission.getPermission());
+        holder.getSummaryView().setText(
+                permission.getSummary());
 
-        boolean block = permission.getState() == PackageManager.PERMISSION_DENIED;
+        boolean block = permission.getMode() == AppOpsManagerCompat.MODE_IGNORED;
         holder.getCompSwitch().setChecked(!block);
 
         holder.getCompSwitch().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Checkable c = (Checkable) v;
-                int mode = c.isChecked() ? PackageManager.PERMISSION_GRANTED : PackageManager.PERMISSION_DENIED;
-                XAshmanManager.get().setPermissionControlBlockModeForUid(permission.getPermission(),
+                int mode = c.isChecked() ? AppOpsManagerCompat.MODE_ALLOWED : AppOpsManagerCompat.MODE_IGNORED;
+                XAshmanManager.get().setPermissionControlBlockModeForUid(permission.getCode(),
                         permission.getPkgName(), mode);
-                permission.setState(mode);
+                permission.setMode(mode);
             }
         });
 

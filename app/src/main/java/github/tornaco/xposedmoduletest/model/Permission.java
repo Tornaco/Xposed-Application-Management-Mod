@@ -12,8 +12,10 @@ import lombok.ToString;
 public class Permission {
     private String pkgName;
     private String permission;
+    private int code;
     private String name;
+    private String summary;
     private int iconRes;
-    private int state;
+    private int mode;
     private int category;
 }

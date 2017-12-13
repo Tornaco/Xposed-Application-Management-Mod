@@ -1,8 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.app;
 
-import android.Manifest;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.RemoteException;
 import android.os.ServiceManager;
@@ -12,14 +10,11 @@ import com.google.common.base.Preconditions;
 import org.newstand.logger.Logger;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
-import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 
@@ -29,20 +24,6 @@ import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
  */
 
 public class XAshmanManager {
-
-    private static final Map<String, Integer> sPermissionNameMap = new HashMap<>();
-
-    static {
-        sPermissionNameMap.put(Manifest.permission.READ_CONTACTS, R.string.perm_read_contacts);
-        sPermissionNameMap.put(Manifest.permission.WRITE_CONTACTS, R.string.perm_write_contacts);
-    }
-
-    private static final Map<String, Integer> sPermissionIconMap = new HashMap<>();
-
-    static {
-        sPermissionIconMap.put(Manifest.permission.READ_CONTACTS, R.drawable.ic_account_circle_black_24dp);
-        sPermissionIconMap.put(Manifest.permission.WRITE_CONTACTS, R.drawable.ic_account_circle_black_24dp);
-    }
 
     private static String[] convertObjectArrayToStringArray(Object[] objArr) {
         if (objArr == null || objArr.length == 0) {
@@ -56,28 +37,6 @@ public class XAshmanManager {
             out[i] = pkg;
         }
         return out;
-    }
-
-    public static String[] getAllPerms() {
-        return convertObjectArrayToStringArray(sPermissionNameMap.values().toArray());
-    }
-
-    public static int permToStringRes(String perm) {
-        Integer i = sPermissionNameMap.get(perm);
-        if (i == null) return -1;
-        return i;
-    }
-
-    public static String permToString(Context context, String perm) {
-        int res = permToStringRes(perm);
-        if (res <= 0) return perm;
-        return context.getString(res > 0 ? res : R.string.perm_unknown);
-    }
-
-    public static int permToDrawableRes(String perm) {
-        Integer i = sPermissionIconMap.get(perm);
-        if (i == null) return R.drawable.ic_account_circle_black_24dp;
-        return i;
     }
 
     /**
@@ -606,18 +565,18 @@ public class XAshmanManager {
         }
     }
 
-    public int getPermissionControlBlockModeForUid(String perm, String pkg) {
+    public int getPermissionControlBlockModeForUid(int code, String pkg) {
         try {
-            return mService.getPermissionControlBlockModeForUid(perm, pkg);
+            return mService.getPermissionControlBlockModeForUid(code, pkg);
         } catch (RemoteException e) {
             Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return PackageManager.PERMISSION_GRANTED;
         }
     }
 
-    public void setPermissionControlBlockModeForUid(String perm, String pkg, int mode) {
+    public void setPermissionControlBlockModeForUid(int code, String pkg, int mode) {
         try {
-            mService.setPermissionControlBlockModeForUid(perm, pkg, mode);
+            mService.setPermissionControlBlockModeForUid(code, pkg, mode);
         } catch (RemoteException e) {
             Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
