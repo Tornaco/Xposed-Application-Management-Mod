@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 
 public class SpannableUtil {
 
+    public static final String PATTERN_MSGID = "msgid=\\\"\\d*\\\"";
     public static final String PATTEN_AT = "@[\\w-·]+";
     public static final String PATTEN_AT_TREND = "(#[^# ']+#)|(@[\\w-·]+)";
     public static final String PATTEN_EMOTION = "\\[(\\S+?)\\]";

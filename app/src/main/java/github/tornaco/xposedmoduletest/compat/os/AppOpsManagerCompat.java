@@ -1069,6 +1069,7 @@ public final class AppOpsManagerCompat {
 
     public static String getOpLabel(Context context, int code) {
         if (code == OP_NONE) return "UNKNOWN";
+
         return String.valueOf(from(context).mOpLabels[code]);
     }
 
