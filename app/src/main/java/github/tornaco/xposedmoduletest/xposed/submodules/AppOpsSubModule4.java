@@ -25,7 +25,7 @@ class AppOpsSubModule4 extends IntentFirewallAndroidSubModule {
     }
 
     private void hookCheckOp(XC_LoadPackage.LoadPackageParam lpparam) {
-        XposedLog.verbose("hookCheckOp...");
+        XposedLog.verbose("AppOpsSubModule4 hookCheckOp...");
         try {
             Class ams = XposedHelpers.findClass("com.android.server.AppOpsService",
                     lpparam.classLoader);
@@ -42,10 +42,10 @@ class AppOpsSubModule4 extends IntentFirewallAndroidSubModule {
                     }
                 }
             });
-            XposedLog.verbose("hookCheckOp OK:" + unHooks);
+            XposedLog.verbose("AppOpsSubModule4 hookCheckOp OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XposedLog.verbose("Fail hookCheckOp: " + Log.getStackTraceString(e));
+            XposedLog.verbose("AppOpsSubModule4 Fail hookCheckOp: " + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

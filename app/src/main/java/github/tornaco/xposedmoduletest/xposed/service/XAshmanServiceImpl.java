@@ -2128,12 +2128,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public int checkOperation(int code, int uid, String packageName, String reason) {
 
-        if (XposedLog.isVerboseLoggable()) {
-            String permName = AppOpsManagerCompat.opToPermission(code);
-            XposedLog.verbose("checkOperation: reason %s code %s perm %s uid %s pkg %s",
-                    reason, code, permName, uid, packageName);
-        }
-
         if (packageName == null) return AppOpsManagerCompat.MODE_ALLOWED;
 
         if (PkgUtil.isSystemOrPhoneOrShell(uid)) return AppOpsManagerCompat.MODE_ALLOWED;
@@ -2144,6 +2138,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (isWhiteSysAppEnabled() && isInSystemAppList(packageName))
             return AppOpsManagerCompat.MODE_ALLOWED;
+
+        if (XposedLog.isVerboseLoggable()) {
+            String permName = AppOpsManagerCompat.opToPermission(code);
+            XposedLog.verbose("checkOperation: reason %s code %s perm %s uid %s pkg %s",
+                    reason, code, permName, uid, packageName);
+        }
 
         String pattern = constructPatternForPermission(code, packageName);
 
