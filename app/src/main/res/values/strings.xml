@@ -47,7 +47,7 @@
     <string name="title_service_connected">服务正在运行</string>
     <string name="title_service_not_connected">服务未运行</string>
     <string name="theme_def">DEFAULT</string>
-    <string name="title_open_source">OPEN SOURCE</string>
+    <string name="title_open_source">源代码</string>
     <string name="title_app_recent_blur">最近任务模糊</string>
     <string name="summary_app_recent_blur">仅供测试效果，如果影响性能请关闭</string>
     <string name="title_default_verifyer">默认验证器</string>
@@ -326,5 +326,16 @@
     <string name="title_dev_tools">开发者工具</string>
     <string name="title_show_focused_activity">显示当前活动</string>
     <string name="summary_show_focused_activity">以Toast的形式显示当前的Activity</string>
+    <string name="title_privacy">隐匿</string>
+    <string name="title_doo">幸福</string>
+    <string name="title_privacy_android_id">安卓序列号</string>
+    <string name="pay_alipay">支付宝</string>
+    <string name="pay_wechat">微信</string>
+    <string name="summary_privacy_android_id">Android Id是一串随机字符，用来表示该Android系统的身份，在该设备第一次初始化时由系统随机生成，并存储与Secure设置里。任何应用都有可能会读取该字符该区别你的设备。</string>
+    <string name="title_privacy_android_id_regenerate">随机生成</string>
+    <string name="title_privacy_android_id_test">测试</string>
+    <string name="title_privacy_device_id">设备序列号</string>
+    <string name="summary_privacy_device_id">设备序列号是</string>
+    <string name="title_privacy_android_id_input">手动输入</string>
 
 </resources>

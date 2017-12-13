@@ -541,6 +541,7 @@ public class XAshmanManager {
     }
 
     public void forceReloadPackages() {
+        ensureService();
         try {
             mService.forceReloadPackages();
         } catch (RemoteException e) {
@@ -549,6 +550,7 @@ public class XAshmanManager {
     }
 
     public void setPermissionControlEnabled(boolean enabled) {
+        ensureService();
         try {
             mService.setPermissionControlEnabled(enabled);
         } catch (RemoteException e) {
@@ -557,6 +559,7 @@ public class XAshmanManager {
     }
 
     public boolean isPermissionControlEnabled() {
+        ensureService();
         try {
             return mService.isPermissionControlEnabled();
         } catch (RemoteException e) {
@@ -566,6 +569,7 @@ public class XAshmanManager {
     }
 
     public int getPermissionControlBlockModeForUid(int code, String pkg) {
+        ensureService();
         try {
             return mService.getPermissionControlBlockModeForUid(code, pkg);
         } catch (RemoteException e) {
@@ -575,8 +579,27 @@ public class XAshmanManager {
     }
 
     public void setPermissionControlBlockModeForUid(int code, String pkg, int mode) {
+        ensureService();
         try {
             mService.setPermissionControlBlockModeForUid(code, pkg, mode);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public void setAndroidId(String id) {
+        ensureService();
+        try {
+            mService.setAndroidId(id);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public void setDeviceId(String id) {
+        ensureService();
+        try {
+            mService.setDeviceId(id);
         } catch (RemoteException e) {
             Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }

@@ -18,6 +18,7 @@ public class OpenSource extends QuickTile {
     public OpenSource(final Context context) {
         super(context);
         this.titleRes = R.string.title_open_source;
+        this.summary = " @/Tornaco/XAppGuard";
         this.iconRes = R.drawable.ic_code_white_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override

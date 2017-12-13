@@ -85,7 +85,7 @@ public class StringSetRepo implements SetRepo<String> {
                 BufferedReader br = new BufferedReader(fr);
                 String line;
                 while ((line = br.readLine()) != null) {
-                    XposedLog.verbose("Read of line: " + line);
+                    // XposedLog.verbose("Read of line: " + line);
                     h.add(line.trim());
                 }
                 Closer.closeQuietly(fr);
@@ -144,14 +144,14 @@ public class StringSetRepo implements SetRepo<String> {
         }
     }
 
-    Runnable mFlusher = new Runnable() {
+    private Runnable mFlusher = new Runnable() {
         @Override
         public void run() {
             flush();
         }
     };
 
-    Runnable mFlushCaller = new Runnable() {
+    private Runnable mFlushCaller = new Runnable() {
         @Override
         public void run() {
             flushAsync();

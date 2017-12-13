@@ -123,6 +123,8 @@ interface AshManHandler {
 
     void setPermissionControlEnabled(boolean enabled);
 
+    void setAndroidId(String id);
+
     @Getter
     class WatcherClient implements IBinder.DeathRecipient {
 

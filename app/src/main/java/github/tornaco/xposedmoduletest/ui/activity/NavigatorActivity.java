@@ -16,6 +16,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,6 +49,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.ComponentManager;
 import github.tornaco.xposedmoduletest.ui.tiles.LockKill;
 import github.tornaco.xposedmoduletest.ui.tiles.NFManager;
 import github.tornaco.xposedmoduletest.ui.tiles.PermControl;
+import github.tornaco.xposedmoduletest.ui.tiles.Privacy;
 import github.tornaco.xposedmoduletest.ui.tiles.RFKill;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
@@ -100,7 +102,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
 
     protected void setupFragment() {
         final List<? extends Fragment> cards =
-                ImmutableList.of(onCreateFragment());
+                ImmutableList.of(onCreateFragment(), new ToolsDashboardActivity.Dashboards());
         cardController = new FragmentController(getSupportFragmentManager(), cards, R.id.container);
         cardController.setDefaultIndex(0);
         cardController.setCurrent(0);
@@ -114,6 +116,12 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     private void initFirstRun() {
@@ -183,6 +191,9 @@ public class NavigatorActivity extends WithWithCustomTabActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_help) {
+            navigateToWebPage(getString(R.string.app_wiki_url));
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -195,18 +206,22 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         if (item.getItemId() == R.id.action_settings) {
             startActivity(new Intent(this, AppDashboardActivity.class));
         }
-        if (item.getItemId() == R.id.action_help) {
-            navigateToWebPage(getString(R.string.app_wiki_url));
-        }
+
         if (item.getItemId() == R.id.action_about) {
             startActivity(new Intent(this, AboutDashboardActivity.class));
         }
         if (item.getItemId() == R.id.action_tools) {
-            startActivity(new Intent(this, ToolsDashboardActivity.class));
+            getCardController().setCurrent(1);
+            setTitle(R.string.action_tools);
         }
 
         if (item.getItemId() == R.id.action_home) {
             getCardController().setCurrent(0);
+            setTitle(R.string.app_name);
+        }
+
+        if (item.getItemId() == R.id.action_donate) {
+            startActivity(new Intent(getContext(), DonateActivity.class));
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -289,6 +304,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             Category category = new Category();
             category.titleRes = R.string.title_secure;
             category.addTile(new AppGuard(getActivity()));
+            category.addTile(new Privacy(getActivity()));
 
             Category rest = new Category();
             rest.titleRes = R.string.title_restrict;

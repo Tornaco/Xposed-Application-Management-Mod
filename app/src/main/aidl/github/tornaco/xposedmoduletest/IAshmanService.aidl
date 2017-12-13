@@ -107,4 +107,7 @@ interface IAshmanService {
 
     int getPermissionControlBlockModeForUid(int code, String pkg);
     void setPermissionControlBlockModeForUid(int code, String pkg, int mode);
+
+    void setAndroidId(String id);
+    void setDeviceId(String id);
 }

@@ -1,10 +1,13 @@
 package github.tornaco.xposedmoduletest.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.view.View;
 
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.ui.activity.extra.PayListBrowserActivity;
+import github.tornaco.xposedmoduletest.util.AliPayUtil;
 
 public class DonateActivity extends BaseActivity {
 
@@ -20,7 +23,14 @@ public class DonateActivity extends BaseActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                startActivity(new Intent(getContext(), PayListBrowserActivity.class));
+            }
+        });
+
+        findViewById(R.id.pay_ali).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AliPayUtil.startPay(getContext());
             }
         });
     }

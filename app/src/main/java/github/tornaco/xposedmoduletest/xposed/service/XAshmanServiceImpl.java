@@ -34,6 +34,7 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
+import android.provider.Settings;
 import android.support.annotation.GuardedBy;
 import android.support.v4.app.NotificationManagerCompat;
 import android.text.TextUtils;
@@ -51,6 +52,7 @@ import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -120,8 +122,8 @@ import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_R
 
 public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
-    private static final boolean DEBUG_BROADCAST = true;
-    private static final boolean DEBUG_SERVICE = true;
+    private static final boolean DEBUG_BROADCAST = false;
+    private static final boolean DEBUG_SERVICE = false;
 
     private static final Set<String> WHITE_LIST = new HashSet<>();
     private static final Set<Pattern> WHITE_LIST_PATTERNS = new HashSet<>();
@@ -2110,6 +2112,22 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    public void setAndroidId(String id) throws RemoteException {
+        enforceCallingPermissions();
+        XposedLog.verbose("setAndroidId: " + id);
+        // Create an random ID.
+        if (id == null) {
+            id = Long.toHexString(new SecureRandom().nextLong());
+        }
+        h.obtainMessage(AshManHandlerMessages.MSG_SETANDROIDID, id).sendToTarget();
+    }
+
+    @Override
+    public void setDeviceId(String id) throws RemoteException {
+
+    }
+
+    @Override
     public int checkPermission(String perm, int pid, int uid) {
 //        if (PkgUtil.isSystemOrPhoneOrShell(uid)) return PackageManager.PERMISSION_GRANTED;
 //
@@ -2676,6 +2694,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETPERMISSIONCONTROLENABLED:
                     HandlerImpl.this.setPermissionControlEnabled((Boolean) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_SETANDROIDID:
+                    HandlerImpl.this.setAndroidId((String) msg.obj);
+                    break;
             }
         }
 
@@ -2728,6 +2749,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setPermissionControlEnabled(boolean enabled) {
             if (mPermissionControlEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.PERMISSION_CONTROL_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setAndroidId(String id) {
+            try {
+                Settings.Secure.putString(getContext().getContentResolver(),
+                        Settings.Secure.ANDROID_ID, id);
+            } catch (Throwable e) {
+                XposedLog.wtf("Fail set androidId: " + Log.getStackTraceString(e));
             }
         }
 
