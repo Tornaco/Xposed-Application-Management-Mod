@@ -2075,10 +2075,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public int getPermissionControlBlockModeForUid(int code, String pkg) throws RemoteException {
-        enforceCallingPermissions();
-
-        XposedLog.verbose("getPermissionControlBlockModeForUid code %s pkg %s", code, pkg);
+    @BinderCall(restrict = "any")
+    public int getPermissionControlBlockModeForPkg(int code, String pkg) throws RemoteException {
+        XposedLog.verbose("getPermissionControlBlockModeForPkg code %s pkg %s", code, pkg);
 
         long id = Binder.clearCallingIdentity();
         String pattern = constructPatternForPermission(code, pkg);
@@ -2092,12 +2091,23 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setPermissionControlBlockModeForUid(int code, String pkg, int mode)
+    @BinderCall(restrict = "any")
+    public int getPermissionControlBlockModeForUid(int code, int uid) throws RemoteException {
+        XposedLog.verbose("getPermissionControlBlockModeForUid code %s pkg %s", code, uid);
+        String pkg = mPackagesCache.get(uid);
+        if (pkg == null) {
+            return AppOpsManagerCompat.MODE_ALLOWED;
+        }
+        return getPermissionControlBlockModeForPkg(code, pkg);
+    }
+
+    @Override
+    public void setPermissionControlBlockModeForPkg(int code, String pkg, int mode)
             throws RemoteException {
         enforceCallingPermissions();
 
         if (XposedLog.isVerboseLoggable())
-            XposedLog.verbose("setPermissionControlBlockModeForUid: "
+            XposedLog.verbose("setPermissionControlBlockModeForPkg: "
                     + constructPatternForPermission(code, pkg));
 
         long id = Binder.clearCallingIdentity();

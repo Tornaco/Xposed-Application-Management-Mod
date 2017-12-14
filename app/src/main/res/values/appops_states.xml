@@ -319,6 +319,12 @@
         <item>"画中画（从Android O开始）"</item>
         <item>"前台运行服务（或许是Instant app的限制）（从Android O开始）"</item>
         <item>"接听电话（从Android O开始）"</item>
+
+        <item>"获取已安装应用列表"</item>
+        <item>"获取正在运行的应用"</item>
+        <item>"读取设备ID（getDeviceId）"</item>
+        <item>"读取ICC ID（getSimSerialNumber）"</item>
+        <item>"读取电话号码（getLine1Number）"</item>
     </string-array>
     <string-array name="app_ops_labels">
         <item>"位置"</item>
@@ -391,6 +397,12 @@
         <item>"画中画"</item>
         <item>"前台运行服务（或许是）"</item>
         <item>"接听电话"</item>
+
+        <item>"获取已安装应用列表"</item>
+        <item>"获取正在运行的应用"</item>
+        <item>"读取设备ID"</item>
+        <item>"读取ICC ID"</item>
+        <item>"读取电话号码"</item>
     </string-array>
     <string-array name="long_press_timeout_selector_titles">
         <item>"短"</item>

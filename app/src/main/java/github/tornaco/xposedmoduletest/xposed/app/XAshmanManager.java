@@ -15,6 +15,7 @@ import java.util.List;
 import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
+import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 
@@ -568,20 +569,29 @@ public class XAshmanManager {
         }
     }
 
-    public int getPermissionControlBlockModeForUid(int code, String pkg) {
+    public int getPermissionControlBlockModeForPkg(int code, String pkg) {
         ensureService();
         try {
-            return mService.getPermissionControlBlockModeForUid(code, pkg);
+            return mService.getPermissionControlBlockModeForPkg(code, pkg);
         } catch (RemoteException e) {
             Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
-            return PackageManager.PERMISSION_GRANTED;
+            return AppOpsManagerCompat.MODE_ALLOWED;
         }
     }
 
-    public void setPermissionControlBlockModeForUid(int code, String pkg, int mode) {
+    public int getPermissionControlBlockModeForUid(int code, int uid) {
+        try {
+            return mService.getPermissionControlBlockModeForUid(code, uid);
+        } catch (RemoteException e) {
+            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return AppOpsManagerCompat.MODE_ALLOWED;
+        }
+    }
+
+    public void setPermissionControlBlockModeForPkg(int code, String pkg, int mode) {
         ensureService();
         try {
-            mService.setPermissionControlBlockModeForUid(code, pkg, mode);
+            mService.setPermissionControlBlockModeForPkg(code, pkg, mode);
         } catch (RemoteException e) {
             Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }

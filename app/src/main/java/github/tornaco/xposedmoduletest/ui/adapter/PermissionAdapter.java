@@ -92,7 +92,7 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionAdapter.Pe
             public void onClick(View v) {
                 Checkable c = (Checkable) v;
                 int mode = c.isChecked() ? AppOpsManagerCompat.MODE_ALLOWED : AppOpsManagerCompat.MODE_IGNORED;
-                XAshmanManager.get().setPermissionControlBlockModeForUid(permission.getCode(),
+                XAshmanManager.get().setPermissionControlBlockModeForPkg(permission.getCode(),
                         permission.getPkgName(), mode);
                 permission.setMode(mode);
             }

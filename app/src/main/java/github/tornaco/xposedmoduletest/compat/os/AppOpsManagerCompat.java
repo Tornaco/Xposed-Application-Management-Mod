@@ -330,10 +330,26 @@ public final class AppOpsManagerCompat {
      * @hide Answer incoming phone calls
      */
     public static final int OP_ANSWER_PHONE_CALLS = 69;
+
+
+    public static final int OP_READ_INSTALLED_APPS = 70;
+    public static final int OP_GET_RUNNING_TASKS = 71;
+    public static final int OP_GET_DEVICE_ID = 72;
+    public static final int OP_GET_SIM_SERIAL_NUMBER = 73;
+    public static final int OP_GET_LINE1_NUMBER = 74;
+
+    public static final int[] EXTRA_OPS = new int[]{
+            OP_READ_INSTALLED_APPS,
+            OP_GET_RUNNING_TASKS,
+            OP_GET_DEVICE_ID,
+            OP_GET_SIM_SERIAL_NUMBER,
+            OP_GET_LINE1_NUMBER
+    };
+
     /**
      * @hide
      */
-    public static final int _NUM_OP = 70;
+    public static final int _NUM_OP = 75;
 
     /**
      * Access to coarse location information.
@@ -517,87 +533,6 @@ public final class AppOpsManagerCompat {
     public static final String OPSTR_ANSWER_PHONE_CALLS
             = "android:answer_phone_calls";
 
-    /**
-     * This maps each operation to the operation that serves as the
-     * switch to determine whether it is allowed.  Generally this is
-     * a 1:1 mapping, but for some things (like location) that have
-     * multiple low-level operations being tracked that should be
-     * presented to the user as one switch then this can be used to
-     * make them all controlled by the same single operation.
-     */
-    private static int[] sOpToSwitch = new int[]{
-            OP_COARSE_LOCATION,
-            OP_COARSE_LOCATION,
-            OP_COARSE_LOCATION,
-            OP_VIBRATE,
-            OP_READ_CONTACTS,
-            OP_WRITE_CONTACTS,
-            OP_READ_CALL_LOG,
-            OP_WRITE_CALL_LOG,
-            OP_READ_CALENDAR,
-            OP_WRITE_CALENDAR,
-            OP_COARSE_LOCATION,
-            OP_POST_NOTIFICATION,
-            OP_COARSE_LOCATION,
-            OP_CALL_PHONE,
-            OP_READ_SMS,
-            OP_WRITE_SMS,
-            OP_RECEIVE_SMS,
-            OP_RECEIVE_SMS,
-            OP_RECEIVE_MMS,
-            OP_RECEIVE_WAP_PUSH,
-            OP_SEND_SMS,
-            OP_READ_SMS,
-            OP_WRITE_SMS,
-            OP_WRITE_SETTINGS,
-            OP_SYSTEM_ALERT_WINDOW,
-            OP_ACCESS_NOTIFICATIONS,
-            OP_CAMERA,
-            OP_RECORD_AUDIO,
-            OP_PLAY_AUDIO,
-            OP_READ_CLIPBOARD,
-            OP_WRITE_CLIPBOARD,
-            OP_TAKE_MEDIA_BUTTONS,
-            OP_TAKE_AUDIO_FOCUS,
-            OP_AUDIO_MASTER_VOLUME,
-            OP_AUDIO_VOICE_VOLUME,
-            OP_AUDIO_RING_VOLUME,
-            OP_AUDIO_MEDIA_VOLUME,
-            OP_AUDIO_ALARM_VOLUME,
-            OP_AUDIO_NOTIFICATION_VOLUME,
-            OP_AUDIO_BLUETOOTH_VOLUME,
-            OP_WAKE_LOCK,
-            OP_COARSE_LOCATION,
-            OP_COARSE_LOCATION,
-            OP_GET_USAGE_STATS,
-            OP_MUTE_MICROPHONE,
-            OP_TOAST_WINDOW,
-            OP_PROJECT_MEDIA,
-            OP_ACTIVATE_VPN,
-            OP_WRITE_WALLPAPER,
-            OP_ASSIST_STRUCTURE,
-            OP_ASSIST_SCREENSHOT,
-            OP_READ_PHONE_STATE,
-            OP_ADD_VOICEMAIL,
-            OP_USE_SIP,
-            OP_PROCESS_OUTGOING_CALLS,
-            OP_USE_FINGERPRINT,
-            OP_BODY_SENSORS,
-            OP_READ_CELL_BROADCASTS,
-            OP_MOCK_LOCATION,
-            OP_READ_EXTERNAL_STORAGE,
-            OP_WRITE_EXTERNAL_STORAGE,
-            OP_TURN_SCREEN_ON,
-            OP_GET_ACCOUNTS,
-            OP_RUN_IN_BACKGROUND,
-            OP_AUDIO_ACCESSIBILITY_VOLUME,
-            OP_READ_PHONE_NUMBERS,
-            OP_REQUEST_INSTALL_PACKAGES,
-            OP_PICTURE_IN_PICTURE,
-            OP_INSTANT_APP_START_FOREGROUND,
-            OP_ANSWER_PHONE_CALLS
-    };
-
     // Map op to op icon res.
     // Should only be retrieved on app.
     private static int[] sOpToIcon = new int[]{
@@ -671,83 +606,13 @@ public final class AppOpsManagerCompat {
             R.drawable.ic_view_agenda_black_24dp, //   OP_PICTURE_IN_PICTURE,
             R.drawable.ic_adb_black_24dp, //   OP_INSTANT_APP_START_FOREGROUND,
             R.drawable.ic_call_black_24dp, //   OP_ANSWER_PHONE_CALLS
-    };
 
-    /**
-     * This maps each operation to the public string constant for it.
-     * If it doesn't have a public string constant, it maps to null.
-     */
-    private static String[] sOpToString = new String[]{
-            OPSTR_COARSE_LOCATION,
-            OPSTR_FINE_LOCATION,
-            null,
-            null,
-            OPSTR_READ_CONTACTS,
-            OPSTR_WRITE_CONTACTS,
-            OPSTR_READ_CALL_LOG,
-            OPSTR_WRITE_CALL_LOG,
-            OPSTR_READ_CALENDAR,
-            OPSTR_WRITE_CALENDAR,
-            null,
-            null,
-            null,
-            OPSTR_CALL_PHONE,
-            OPSTR_READ_SMS,
-            null,
-            OPSTR_RECEIVE_SMS,
-            null,
-            OPSTR_RECEIVE_MMS,
-            OPSTR_RECEIVE_WAP_PUSH,
-            OPSTR_SEND_SMS,
-            null,
-            null,
-            OPSTR_WRITE_SETTINGS,
-            OPSTR_SYSTEM_ALERT_WINDOW,
-            null,
-            OPSTR_CAMERA,
-            OPSTR_RECORD_AUDIO,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            OPSTR_MONITOR_LOCATION,
-            OPSTR_MONITOR_HIGH_POWER_LOCATION,
-            OPSTR_GET_USAGE_STATS,
-            null,
-            null,
-            null,
-            OPSTR_ACTIVATE_VPN,
-            null,
-            null,
-            null,
-            OPSTR_READ_PHONE_STATE,
-            OPSTR_ADD_VOICEMAIL,
-            OPSTR_USE_SIP,
-            OPSTR_PROCESS_OUTGOING_CALLS,
-            OPSTR_USE_FINGERPRINT,
-            OPSTR_BODY_SENSORS,
-            OPSTR_READ_CELL_BROADCASTS,
-            OPSTR_MOCK_LOCATION,
-            OPSTR_READ_EXTERNAL_STORAGE,
-            OPSTR_WRITE_EXTERNAL_STORAGE,
-            null,
-            OPSTR_GET_ACCOUNTS,
-            null,
-            null, // OP_AUDIO_ACCESSIBILITY_VOLUME
-            OPSTR_READ_PHONE_NUMBERS,
-            null, // OP_REQUEST_INSTALL_PACKAGES
-            OPSTR_PICTURE_IN_PICTURE,
-            OPSTR_INSTANT_APP_START_FOREGROUND,
-            OPSTR_ANSWER_PHONE_CALLS,
+            // EXTRAS.
+            R.drawable.ic_apps_black_24dp, //   OP_READ_INSTALLED_APPS
+            R.drawable.ic_android_black_24dp, //   OP_GET_RUNNING_TASKS
+            R.drawable.ic_phone_android_black_24dp, //   OP_GET_DEVICE_ID
+            R.drawable.ic_sim_card_black_24dp, //   OP_GET_SIM_SERIAL_NUMBER
+            R.drawable.ic_sim_card_black_24dp, //   OP_GET_LINE1_NUMBER
     };
 
     /**
@@ -825,6 +690,13 @@ public final class AppOpsManagerCompat {
             "PICTURE_IN_PICTURE",
             "INSTANT_APP_START_FOREGROUND",
             "ANSWER_PHONE_CALLS",
+
+            // EXTRAS.
+            "OP_READ_INSTALLED_APPS",
+            "OP_GET_RUNNING_TASKS",
+            "OP_GET_DEVICE_ID",
+            "OP_GET_SIM_SERIAL_NUMBER",
+            "OP_GET_LINE1_NUMBER",
     };
 
     /**
@@ -902,89 +774,14 @@ public final class AppOpsManagerCompat {
             null, // no permission for entering picture-in-picture on hide
             Manifest.permission.INSTANT_APP_FOREGROUND_SERVICE,
             Manifest.permission.ANSWER_PHONE_CALLS,
-    };
 
-    /**
-     * This specifies whether each option should allow the system
-     * (and system ui) to bypass the user restriction when active.
-     */
-    private static boolean[] sOpAllowSystemRestrictionBypass = new boolean[]{
-            true, //COARSE_LOCATION
-            true, //FINE_LOCATION
-            false, //GPS
-            false, //VIBRATE
-            false, //READ_CONTACTS
-            false, //WRITE_CONTACTS
-            false, //READ_CALL_LOG
-            false, //WRITE_CALL_LOG
-            false, //READ_CALENDAR
-            false, //WRITE_CALENDAR
-            true, //WIFI_SCAN
-            false, //POST_NOTIFICATION
-            false, //NEIGHBORING_CELLS
-            false, //CALL_PHONE
-            false, //READ_SMS
-            false, //WRITE_SMS
-            false, //RECEIVE_SMS
-            false, //RECEIVE_EMERGECY_SMS
-            false, //RECEIVE_MMS
-            false, //RECEIVE_WAP_PUSH
-            false, //SEND_SMS
-            false, //READ_ICC_SMS
-            false, //WRITE_ICC_SMS
-            false, //WRITE_SETTINGS
-            true, //SYSTEM_ALERT_WINDOW
-            false, //ACCESS_NOTIFICATIONS
-            false, //CAMERA
-            false, //RECORD_AUDIO
-            false, //PLAY_AUDIO
-            false, //READ_CLIPBOARD
-            false, //WRITE_CLIPBOARD
-            false, //TAKE_MEDIA_BUTTONS
-            false, //TAKE_AUDIO_FOCUS
-            false, //AUDIO_MASTER_VOLUME
-            false, //AUDIO_VOICE_VOLUME
-            false, //AUDIO_RING_VOLUME
-            false, //AUDIO_MEDIA_VOLUME
-            false, //AUDIO_ALARM_VOLUME
-            false, //AUDIO_NOTIFICATION_VOLUME
-            false, //AUDIO_BLUETOOTH_VOLUME
-            false, //WAKE_LOCK
-            false, //MONITOR_LOCATION
-            false, //MONITOR_HIGH_POWER_LOCATION
-            false, //GET_USAGE_STATS
-            false, //MUTE_MICROPHONE
-            true, //TOAST_WINDOW
-            false, //PROJECT_MEDIA
-            false, //ACTIVATE_VPN
-            false, //WALLPAPER
-            false, //ASSIST_STRUCTURE
-            false, //ASSIST_SCREENSHOT
-            false, //READ_PHONE_STATE
-            false, //ADD_VOICEMAIL
-            false, // USE_SIP
-            false, // PROCESS_OUTGOING_CALLS
-            false, // USE_FINGERPRINT
-            false, // BODY_SENSORS
-            false, // READ_CELL_BROADCASTS
-            false, // MOCK_LOCATION
-            false, // READ_EXTERNAL_STORAGE
-            false, // WRITE_EXTERNAL_STORAGE
-            false, // TURN_ON_SCREEN
-            false, // GET_ACCOUNTS
-            false, // RUN_IN_BACKGROUND
-            false, // AUDIO_ACCESSIBILITY_VOLUME
-            false, // READ_PHONE_NUMBERS
-            false, // REQUEST_INSTALL_PACKAGES
-            false, // ENTER_PICTURE_IN_PICTURE_ON_HIDE
-            false, // INSTANT_APP_START_FOREGROUND
-            false, // ANSWER_PHONE_CALLS
+            // EXTRAS.
+            null,
+            null,
+            null,
+            null,
+            null
     };
-
-    /**
-     * Mapping from an app op name to the app op code.
-     */
-    private static HashMap<String, Integer> sOpStrToOp = new HashMap<>();
 
     /**
      * Mapping from a permission to the corresponding app op.
@@ -992,14 +789,6 @@ public final class AppOpsManagerCompat {
     private static HashMap<String, Integer> sPermToOp = new HashMap<>();
 
     static {
-        if (sOpToSwitch.length != _NUM_OP) {
-            throw new IllegalStateException("sOpToSwitch length " + sOpToSwitch.length
-                    + " should be " + _NUM_OP);
-        }
-        if (sOpToString.length != _NUM_OP) {
-            throw new IllegalStateException("sOpToString length " + sOpToString.length
-                    + " should be " + _NUM_OP);
-        }
         if (sOpNames.length != _NUM_OP) {
             throw new IllegalStateException("sOpNames length " + sOpNames.length
                     + " should be " + _NUM_OP);
@@ -1013,11 +802,6 @@ public final class AppOpsManagerCompat {
                     + " should be " + _NUM_OP);
         }
 
-        for (int i = 0; i < _NUM_OP; i++) {
-            if (sOpToString[i] != null) {
-                sOpStrToOp.put(sOpToString[i], i);
-            }
-        }
         for (int i = 0; i < _NUM_OP; i++) {
             if (sOpPerms[i] != null) {
                 sPermToOp.put(sOpPerms[i], i);

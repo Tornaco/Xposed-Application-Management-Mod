@@ -75,13 +75,29 @@ public interface PermissionLoader {
 
                     p.setIconRes(AppOpsManagerCompat.opToIconRes(code));
 
-                    p.setMode(XAshmanManager.get().getPermissionControlBlockModeForUid(code, pkg));
+                    p.setMode(XAshmanManager.get().getPermissionControlBlockModeForPkg(code, pkg));
 
                     Logger.d("Add perm: " + p);
 
                     permissions.add(p);
                 }
             });
+
+            // Add our extra permissions.
+            for (int ecode : AppOpsManagerCompat.EXTRA_OPS) {
+                Permission p = new Permission();
+                p.setPkgName(pkg);
+                p.setPermission(null);
+                p.setCode(ecode);
+                String name = AppOpsManagerCompat.getOpLabel(context, ecode);
+                p.setName(name);
+                String summary = AppOpsManagerCompat.getOpSummary(context, ecode);
+                p.setSummary(summary);
+                p.setIconRes(AppOpsManagerCompat.opToIconRes(ecode));
+                p.setMode(XAshmanManager.get().getPermissionControlBlockModeForPkg(ecode, pkg));
+                Logger.d("Add perm: " + p);
+                permissions.add(p);
+            }
 
             java.util.Collections.sort(permissions, new PermComparator());
 
@@ -91,7 +107,7 @@ public interface PermissionLoader {
 
     class PermComparator implements Comparator<Permission> {
         public int compare(Permission o1, Permission o2) {
-            return o1.getCode() > o2.getCode() ? 1 : -1;
+            return o1.getCode() > o2.getCode() ? -1 : 1;
         }
     }
 }
