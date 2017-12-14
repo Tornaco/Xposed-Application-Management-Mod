@@ -37,6 +37,7 @@ import android.os.SystemProperties;
 import android.provider.Settings;
 import android.support.annotation.GuardedBy;
 import android.support.v4.app.NotificationManagerCompat;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -90,7 +91,6 @@ import github.tornaco.xposedmoduletest.provider.AutoStartPackageProvider;
 import github.tornaco.xposedmoduletest.provider.BootPackageProvider;
 import github.tornaco.xposedmoduletest.provider.LockKillPackageProvider;
 import github.tornaco.xposedmoduletest.provider.RFKillPackageProvider;
-import github.tornaco.xposedmoduletest.util.ComponentUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
@@ -148,19 +148,23 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private final Holder<String> mAudioFocusedPackage = new Holder<>();
 
-    private AtomicBoolean mWhiteSysAppEnabled = new AtomicBoolean(true);
-    private AtomicBoolean mBootBlockEnabled = new AtomicBoolean(false);
-    private AtomicBoolean mStartBlockEnabled = new AtomicBoolean(false);
-    private AtomicBoolean mLockKillEnabled = new AtomicBoolean(false);
-    private AtomicBoolean mPermissionControlEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mWhiteSysAppEnabled = new AtomicBoolean(true);
+    private final AtomicBoolean mBootBlockEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mStartBlockEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mLockKillEnabled = new AtomicBoolean(false);
 
-    private AtomicBoolean mDataHasBeenMigrated = new AtomicBoolean(false);
+    private final AtomicBoolean mPermissionControlEnabled = new AtomicBoolean(false);
 
-    private AtomicBoolean mAutoAddToBlackListForNewApp = new AtomicBoolean(false);
+    private final AtomicBoolean mDataHasBeenMigrated = new AtomicBoolean(false);
 
-    private AtomicBoolean mLockKillDoNotKillAudioEnabled = new AtomicBoolean(true);
-    private AtomicBoolean mRootActivityFinishKillEnabled = new AtomicBoolean(false);
-    private AtomicBoolean mCompSettingBlockEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mAutoAddToBlackListForNewApp = new AtomicBoolean(false);
+
+    private final AtomicBoolean mLockKillDoNotKillAudioEnabled = new AtomicBoolean(true);
+    private final AtomicBoolean mRootActivityFinishKillEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mCompSettingBlockEnabled = new AtomicBoolean(false);
+
+    private final Holder<String> mUserDefinedDeviceId = new Holder<>();
+    private final Holder<String> mUserDefinedLine1Number = new Holder<>();
 
     // FIXME Now we force set control mode to BLACK LIST.
     private AtomicInteger mControlMode = new AtomicInteger(XAshmanManager.ControlMode.BLACK_LIST);
@@ -442,14 +446,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 } catch (PackageManager.NameNotFoundException e) {
                                     XposedLog.wtf("NameNotFoundException: " + e + ", for: " + pkg);
                                 }
-
-                                // Check if is green app.
-                                if (packageInfo != null && ComponentUtil.isGreenPackage(packageInfo)) {
-                                    XposedLog.debug("Maybe green package???: " + pkg);
-                                    // addToWhiteList(pkg);
-                                    // return;
-                                }
-
                                 addToSystemApps(pkg);
                             }
 
@@ -786,6 +782,24 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             mPermissionControlEnabled.set(permissionControlEnabled);
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("permissionControlEnabled: " + String.valueOf(permissionControlEnabled));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            String userDeviceId = (String) SystemSettings.USER_DEFINED_DEVICE_ID_S.readFromSystemSettings(getContext());
+            mUserDefinedDeviceId.setData(userDeviceId);
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("userDeviceId: " + String.valueOf(userDeviceId));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            String userLine1Number = (String) SystemSettings.USER_DEFINED_LINE1_NUM_S.readFromSystemSettings(getContext());
+            mUserDefinedLine1Number.setData(userLine1Number);
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("userLine1Number: " + String.valueOf(userLine1Number));
         } catch (Throwable e) {
             XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -2083,6 +2097,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         String pattern = constructPatternForPermission(code, pkg);
         try {
             if (isInPermissionBlockList(pattern)) return AppOpsManagerCompat.MODE_IGNORED;
+        } catch (Throwable e) {
+            XposedLog.wtf("Error getPermissionControlBlockModeForPkg: " + Log.getStackTraceString(e));
+            return AppOpsManagerCompat.MODE_ALLOWED;
         } finally {
             Binder.restoreCallingIdentity(id);
         }
@@ -2122,34 +2139,118 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setAndroidId(String id) throws RemoteException {
+    public void setUserDefinedAndroidId(String id) throws RemoteException {
         enforceCallingPermissions();
-        XposedLog.verbose("setAndroidId: " + id);
+        XposedLog.verbose("setUserDefinedAndroidId: " + id);
         // Create an random ID.
         if (id == null) {
             id = Long.toHexString(new SecureRandom().nextLong());
         }
-        h.obtainMessage(AshManHandlerMessages.MSG_SETANDROIDID, id).sendToTarget();
+        h.obtainMessage(AshManHandlerMessages.MSG_SETUSERDEFINEDANDROIDID, id).sendToTarget();
     }
 
     @Override
-    public void setDeviceId(String id) throws RemoteException {
+    public void setUserDefinedDeviceId(String id) throws RemoteException {
+        enforceCallingPermissions();
+        XposedLog.verbose("setUserDefinedDeviceId: " + id);
+        // Create an random ID.
+        if (id == null) {
+            id = Long.toHexString(new SecureRandom().nextLong());
+        }
+        h.obtainMessage(AshManHandlerMessages.MSG_SETUSERDEFINEDDEVICEID, id).sendToTarget();
+    }
 
+    @Override
+    public void setUserDefinedLine1Number(String id) throws RemoteException {
+        enforceCallingPermissions();
+        XposedLog.verbose("setUserDefinedLine1Number: " + id);
+        // Create an random ID.
+        if (id == null) {
+            id = String.valueOf(new SecureRandom().nextLong());
+        }
+        h.obtainMessage(AshManHandlerMessages.MSG_SETUSERDEFINEDLINE1NUMBER, id).sendToTarget();
+    }
+
+    @SuppressLint("HardwareIds")
+    @Override
+    public String getAndroidId() throws RemoteException {
+        long id = Binder.clearCallingIdentity();
+        try {
+            return Settings.Secure.getString(getContext().getContentResolver(),
+                    android.provider.Settings.Secure.ANDROID_ID);
+        } catch (Throwable e) {
+            XposedLog.wtf("Error getAndroidId: " + Log.getStackTraceString(e));
+            return null;
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
+    }
+
+    @SuppressLint({"MissingPermission", "HardwareIds"})
+    @Override
+    public String getDeviceId() throws RemoteException {
+        enforceCallingPermissions();
+        long id = Binder.clearCallingIdentity();
+        try {
+            TelephonyManager tm = (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
+            if (tm != null) {
+                return tm.getDeviceId();
+            }
+        } catch (Throwable e) {
+            XposedLog.wtf("Error getAndroidId: " + Log.getStackTraceString(e));
+            return null;
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
+        return null;
+    }
+
+    @SuppressLint({"MissingPermission", "HardwareIds"})
+    @Override
+    public String getLine1Number() throws RemoteException {
+        enforceCallingPermissions();
+        long id = Binder.clearCallingIdentity();
+        try {
+            TelephonyManager tm = (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
+            if (tm != null) {
+                return tm.getLine1Number();
+            }
+        } catch (Throwable e) {
+            XposedLog.wtf("Error getLine1Number: " + Log.getStackTraceString(e));
+            return null;
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
+        return null;
+    }
+
+    @Override
+    public String getUserDefinedLine1Number() throws RemoteException {
+        long id = Binder.clearCallingIdentity();
+        try {
+            return mUserDefinedLine1Number.getData();
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
+    }
+
+    @Override
+    public String getUserDefinedDeviceId() throws RemoteException {
+        long id = Binder.clearCallingIdentity();
+        try {
+            return mUserDefinedDeviceId.getData();
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
+    }
+
+    @Override
+    public String getUserDefinedAndroidId() throws RemoteException {
+        return getAndroidId();
     }
 
     @Override
     public int checkPermission(String perm, int pid, int uid) {
-//        if (PkgUtil.isSystemOrPhoneOrShell(uid)) return PackageManager.PERMISSION_GRANTED;
-//
-//        if (!mPermissionControlEnabled.get()) return PackageManager.PERMISSION_GRANTED;
-//
-//        String pkg = mPackagesCache.get(uid);
-//        if (pkg == null) return PackageManager.PERMISSION_GRANTED;
-//
-//        if (isInWhiteList(pkg)) return PackageManager.PERMISSION_GRANTED;
-//
-//        if (isWhiteSysAppEnabled() && isInSystemAppList(pkg))
-//            return PackageManager.PERMISSION_GRANTED;
         return PackageManager.PERMISSION_GRANTED;
     }
 
@@ -2704,8 +2805,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETPERMISSIONCONTROLENABLED:
                     HandlerImpl.this.setPermissionControlEnabled((Boolean) msg.obj);
                     break;
-                case AshManHandlerMessages.MSG_SETANDROIDID:
-                    HandlerImpl.this.setAndroidId((String) msg.obj);
+                case AshManHandlerMessages.MSG_SETUSERDEFINEDANDROIDID:
+                    HandlerImpl.this.setUserDefinedAndroidId((String) msg.obj);
+                    break;
+                case AshManHandlerMessages.MSG_SETUSERDEFINEDDEVICEID:
+                    HandlerImpl.this.setUserDefinedDeviceId((String) msg.obj);
+                    break;
+                case AshManHandlerMessages.MSG_SETUSERDEFINEDLINE1NUMBER:
+                    HandlerImpl.this.setUserDefinedLine1Number((String) msg.obj);
                     break;
             }
         }
@@ -2763,7 +2870,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         @Override
-        public void setAndroidId(String id) {
+        public void setUserDefinedDeviceId(String id) {
+            mUserDefinedDeviceId.setData(id);
+        }
+
+        @Override
+        public void setUserDefinedLine1Number(String id) {
+            mUserDefinedLine1Number.setData(id);
+        }
+
+        @Override
+        public void setUserDefinedAndroidId(String id) {
             try {
                 Settings.Secure.putString(getContext().getContentResolver(),
                         Settings.Secure.ANDROID_ID, id);

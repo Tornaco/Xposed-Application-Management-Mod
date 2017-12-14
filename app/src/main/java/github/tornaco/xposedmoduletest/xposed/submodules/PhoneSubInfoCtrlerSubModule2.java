@@ -49,6 +49,13 @@ class PhoneSubInfoCtrlerSubModule2 extends IntentFirewallAndroidSubModule {
                                             "getLine1NumberForSubscriber, MODE_IGNORED returning null for :"
                                             + callPackageName);
                                     param.setResult(null);
+                                } else {
+                                    String userNumber = ashmanManager.getUserDefinedLine1Number();
+                                    if (userNumber != null) {
+                                        XposedLog.verbose("PhoneSubInfoCtrlerSubModule2" +
+                                                "getLine1NumberForSubscriber, returning user defined num: " + userNumber);
+                                        param.setResult(userNumber);
+                                    }
                                 }
                             }
                         }

@@ -24,7 +24,7 @@ public class AndroidId extends QuickTile {
             public void onClick(View v) {
                 super.onClick(v);
                 if (XAshmanManager.get().isServiceAvailable())
-                    XAshmanManager.get().setAndroidId(null);
+                    XAshmanManager.get().setUserDefinedAndroidId(null);
             }
         };
     }

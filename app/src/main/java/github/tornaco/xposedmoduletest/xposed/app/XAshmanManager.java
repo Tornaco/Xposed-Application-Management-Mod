@@ -564,7 +564,6 @@ public class XAshmanManager {
         try {
             return mService.isPermissionControlEnabled();
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return false;
         }
     }
@@ -574,16 +573,15 @@ public class XAshmanManager {
         try {
             return mService.getPermissionControlBlockModeForPkg(code, pkg);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return AppOpsManagerCompat.MODE_ALLOWED;
         }
     }
 
     public int getPermissionControlBlockModeForUid(int code, int uid) {
+        ensureService();
         try {
             return mService.getPermissionControlBlockModeForUid(code, uid);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return AppOpsManagerCompat.MODE_ALLOWED;
         }
     }
@@ -592,26 +590,79 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.setPermissionControlBlockModeForPkg(code, pkg, mode);
-        } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        } catch (RemoteException ignored) {
         }
     }
 
-    public void setAndroidId(String id) {
+    public void setUserDefinedAndroidId(String id) {
         ensureService();
         try {
-            mService.setAndroidId(id);
-        } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            mService.setUserDefinedAndroidId(id);
+        } catch (RemoteException ignored) {
         }
     }
 
-    public void setDeviceId(String id) {
+    public void setUserDefinedDeviceId(String id) {
         ensureService();
         try {
-            mService.setDeviceId(id);
+            mService.setUserDefinedDeviceId(id);
+        } catch (RemoteException ignored) {
+        }
+    }
+
+    public void setUserDefinedLine1Number(String id) {
+        try {
+            mService.setUserDefinedLine1Number(id);
+        } catch (RemoteException ignored) {
+
+        }
+    }
+
+    public String getAndroidId() {
+        try {
+            return mService.getAndroidId();
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+            return null;
+        }
+    }
+
+    public String getDeviceId() {
+        try {
+            return mService.getDeviceId();
+        } catch (RemoteException ignored) {
+            return null;
+        }
+    }
+
+    public String getLine1Number() {
+        try {
+            return mService.getLine1Number();
+        } catch (RemoteException ignored) {
+            return null;
+        }
+    }
+
+    public String getUserDefinedLine1Number() {
+        try {
+            return mService.getUserDefinedLine1Number();
+        } catch (RemoteException ignored) {
+            return null;
+        }
+    }
+
+    public String getUserDefinedDeviceId() {
+        try {
+            return mService.getUserDefinedDeviceId();
+        } catch (RemoteException e) {
+            return null;
+        }
+    }
+
+    public String getUserDefinedAndroidId() {
+        try {
+            return mService.getUserDefinedAndroidId();
+        } catch (RemoteException ignored) {
+            return null;
         }
     }
 }

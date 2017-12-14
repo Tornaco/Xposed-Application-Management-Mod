@@ -58,6 +58,12 @@ class PhoneInterfaceManagerSubModule extends IntentFirewallAndroidSubModule {
                                     XposedLog.verbose("getLine1NumberForDisplay, MODE_IGNORED returning null for :"
                                             + callPackageName);
                                     param.setResult(null);
+                                } else {
+                                    String userNumber = xAshmanManager.getUserDefinedLine1Number();
+                                    if (userNumber != null) {
+                                        XposedLog.verbose("getLine1NumberForDisplay, returning user defined num: " + userNumber);
+                                        param.setResult(userNumber);
+                                    }
                                 }
                             }
                         }

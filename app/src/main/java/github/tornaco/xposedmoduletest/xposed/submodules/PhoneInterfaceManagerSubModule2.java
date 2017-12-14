@@ -57,17 +57,14 @@ class PhoneInterfaceManagerSubModule2 extends IntentFirewallAndroidSubModule {
                                 if (mode == AppOpsManagerCompat.MODE_IGNORED) {
                                     XposedLog.verbose("getDeviceId, MODE_IGNORED returning null for :" + callPackageName);
                                     param.setResult(null);
+                                } else {
+                                    String userSetId = xAshmanManager.getUserDefinedDeviceId();
+                                    if (userSetId != null) {
+                                        XposedLog.verbose("getDeviceId, returning user device id :" + userSetId);
+                                        param.setResult(userSetId);
+                                    }
                                 }
                             }
-                        }
-
-                        @Override
-                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                            super.afterHookedMethod(param);
-                            String callPackageName = (String) param.args[0];
-                            if (callPackageName == null) return;
-                            XposedLog.verbose("getDeviceId: " + callPackageName
-                                    + "-" + param.getResult());
                         }
                     });
             XposedLog.verbose("PhoneInterfaceManagerSubModule hookGetDeviceID OK:" + unHooks);
