@@ -339,5 +339,7 @@
     <string name="title_privacy_android_id_input">手动输入</string>
     <string name="title_privacy_line_number">手机号码</string>
     <string name="title_privacy_update_later">稍后将刷新</string>
+    <string name="title_privacy_input_code">请输入</string>
+    <string name="summary_privacy">如果你不清楚下面这些是做什么的请退出。\n\n本功能仅供娱乐，请与下载后24小时忘掉。不得用作非法用途，如果因此造成的任何法律或个人的问题，本软件概不负责。</string>
 
 </resources>

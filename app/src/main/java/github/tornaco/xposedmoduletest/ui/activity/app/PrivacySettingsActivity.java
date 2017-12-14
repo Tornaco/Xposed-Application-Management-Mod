@@ -3,11 +3,14 @@ package github.tornaco.xposedmoduletest.ui.activity.app;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.telephony.TelephonyManager;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import github.tornaco.permission.requester.RequiresPermission;
@@ -57,7 +60,20 @@ public class PrivacySettingsActivity extends WithWithCustomTabActivity {
         card.findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                showEditTextDialog(new EditTextAction() {
+                    @Override
+                    public void onAction(String text) {
+                        XAshmanManager.get().setUserDefinedAndroidId(text);
+                        androidIdTextView.setText(R.string.title_privacy_update_later);
 
+                        getUIThreadHandler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                androidIdTextView.setText(XAshmanManager.get().getAndroidId());
+                            }
+                        }, 1000);
+                    }
+                });
             }
         });
         card.findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
@@ -89,7 +105,21 @@ public class PrivacySettingsActivity extends WithWithCustomTabActivity {
         card.findViewById(R.id.button21).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                showEditTextDialog(new EditTextAction() {
+                    @Override
+                    public void onAction(String text) {
+                        XAshmanManager.get().setUserDefinedDeviceId(text);
 
+                        androidIdTextView.setText(R.string.title_privacy_update_later);
+
+                        getUIThreadHandler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                androidIdTextView.setText(tm.getDeviceId());
+                            }
+                        }, 1000);
+                    }
+                });
             }
         });
         card.findViewById(R.id.button22).setOnClickListener(new View.OnClickListener() {
@@ -122,7 +152,21 @@ public class PrivacySettingsActivity extends WithWithCustomTabActivity {
         card.findViewById(R.id.button31).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                showEditTextDialog(new EditTextAction() {
+                    @Override
+                    public void onAction(String text) {
+                        XAshmanManager.get().setUserDefinedLine1Number(text);
 
+                        androidIdTextView.setText(R.string.title_privacy_update_later);
+
+                        getUIThreadHandler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                androidIdTextView.setText(tm.getLine1Number());
+                            }
+                        }, 1000);
+                    }
+                });
             }
         });
         card.findViewById(R.id.button32).setOnClickListener(new View.OnClickListener() {
@@ -142,4 +186,22 @@ public class PrivacySettingsActivity extends WithWithCustomTabActivity {
         });
     }
 
+    private void showEditTextDialog(final EditTextAction action) {
+        final EditText e = new EditText(getActivity());
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.title_privacy_input_code)
+                .setView(e)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String text = e.getText().toString();
+                        action.onAction(text);
+                    }
+                })
+                .show();
+    }
+
+    interface EditTextAction {
+        void onAction(String text);
+    }
 }
