@@ -2177,6 +2177,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 mRepoProxy.getPerms().add(constructPatternForPermission(code, pkg));
             else
                 mRepoProxy.getPerms().remove(constructPatternForPermission(code, pkg));
+        } catch (Exception e) {
+            XposedLog.wtf("Error setPermissionControlBlockModeForPkg: " + Log.getStackTraceString(e));
         } finally {
             Binder.restoreCallingIdentity(id);
         }
@@ -2466,9 +2468,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     protected Handler onCreateLazyHandler() {
-        HandlerThread hr = new HandlerThread("ASHMAN-LAZY-H");
-        hr.start();
-        return new LazyHandler(hr.getLooper());
+        return new LazyHandler();
     }
 
     @Override
@@ -2775,6 +2775,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @SuppressLint("HandlerLeak")
     private class HandlerImpl extends Handler implements AshManHandler {
+
+        public HandlerImpl() {
+        }
+
+        public HandlerImpl(Looper looper) {
+            super(looper);
+        }
 
         private final Runnable clearProcessRunnable = new Runnable() {
             @Override
@@ -3408,6 +3415,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         public LazyHandler(Looper looper) {
             super(looper);
+        }
+
+        public LazyHandler() {
         }
 
         @Override

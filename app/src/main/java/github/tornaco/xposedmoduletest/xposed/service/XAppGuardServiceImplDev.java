@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.xposed.service;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Message;
 import android.util.Log;
 
@@ -87,8 +88,12 @@ class XAppGuardServiceImplDev extends XAppGuardServiceImpl {
 
     @Override
     protected Handler onCreateServiceHandler() {
+        // Wrap the default handler into a new looper thread
+        // this can decrease the performance drain of our service.
+        HandlerThread hr = new HandlerThread("APP-GUARD-H");
+        hr.start();
         final Handler impl = super.onCreateServiceHandler();
-        return new Handler(new Handler.Callback() {
+        return new Handler(hr.getLooper(), new Handler.Callback() {
             @Override
             public boolean handleMessage(final Message msg) {
                 return makeSafeCall(new Call() {

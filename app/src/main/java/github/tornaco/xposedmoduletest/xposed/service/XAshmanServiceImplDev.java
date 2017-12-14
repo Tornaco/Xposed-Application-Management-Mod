@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Message;
 import android.util.Log;
 
@@ -123,8 +124,12 @@ public class XAshmanServiceImplDev extends XAshmanServiceImpl {
 
     @Override
     protected Handler onCreateServiceHandler() {
+        // Wrap the default handler into a new looper thread
+        // this can decrease the performance drain of our service.
+        HandlerThread hr = new HandlerThread("ASHMAN-H");
+        hr.start();
         final Handler impl = super.onCreateServiceHandler();
-        return new Handler(new Handler.Callback() {
+        return new Handler(hr.getLooper(), new Handler.Callback() {
             @Override
             public boolean handleMessage(final Message msg) {
                 return makeSafeCall(new XAshmanServiceImplDev.Call() {
@@ -139,8 +144,12 @@ public class XAshmanServiceImplDev extends XAshmanServiceImpl {
 
     @Override
     protected Handler onCreateLazyHandler() {
+        // Wrap the default handler into a new looper thread
+        // this can decrease the performance drain of our service.
+        HandlerThread hr = new HandlerThread("ASHMAN-LAZY-H");
+        hr.start();
         final Handler lazy = super.onCreateLazyHandler();
-        return new Handler(new Handler.Callback() {
+        return new Handler(hr.getLooper(), new Handler.Callback() {
             @Override
             public boolean handleMessage(final Message msg) {
                 return makeSafeCall(new Call() {
