@@ -302,7 +302,9 @@ public class VerifyDisplayerActivity extends BaseActivity {
         if (appBar != null) appBar.setBackgroundColor(color);
         ViewGroup infoContainer = findViewById(R.id.info);
         infoContainer.setBackgroundColor(color);
-        getWindow().setStatusBarColor(ColorUtil.colorBurn(color));
+        int dark = ColorUtil.colorBurn(color);
+        getWindow().setStatusBarColor(dark);
+        getWindow().setNavigationBarColor(dark);
         Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
             toolbar.setBackgroundColor(color);

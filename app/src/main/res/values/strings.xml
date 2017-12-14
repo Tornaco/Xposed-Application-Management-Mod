@@ -9,7 +9,7 @@
     <string name="title_settings">设置</string>
     <string name="title_view_photos">查看闯入者</string>
     <string name="title_take_photo">闯入抓拍</string>
-    <string name="title_dev_mode">开发者模式</string>
+    <string name="title_dev_mode">调试模式</string>
     <string name="title_exp">实验</string>
     <string name="title_advance">高级</string>
     <string name="summary_dev_mode">激活日志输出，启用某些实验性能，耗电会增加，非开发者无需启用此项设置</string>
@@ -70,7 +70,7 @@
     <string name="title_btn_size">按钮大小</string>
     <string name="title_text_size">文字大小</string>
     <string name="title_app_uninstall_pro">阻止卸载</string>
-    <string name="summary_app_uninstall_pro">阻止任何方式（adb/installer）卸载已经加锁的应用，而且如果想卸载[应用锁]必须先禁用应用锁。某些设备可能无效。</string>
+    <string name="summary_app_uninstall_pro">阻止任何方式（adb/installer）卸载已经加锁的应用，而且如果想卸载[应用管理]必须先禁用应用锁。某些设备可能无效。</string>
     <string name="title_hide_app_icon">隐藏桌面图标</string>
     <string name="title_secure">安全</string>
     <string name="title_personal">个人</string>
@@ -288,7 +288,7 @@
     <string name="title_search_hint">你在找什么？</string>
     <string name="title_comp_replacement">移花接木</string>
     <string name="summary_comp_replacement">移花接木可以帮你去掉烦人的应用广告闪屏页面，大概的原理是通过替换其广告闪屏Activity（A）为其真正的主Activity（B）。\n\n勤劳的开发者目前帮你预置了几个示范的规则。
-        \n\n你可以点击下方+按钮，自己添加相应的替换规则，你可以打开 通用设置-开发者模式 来观察当前Activity的具体名称，之后去 应用组件管理 中分别找到A和B，复制其完成名称，添加到你的规则里。\n\n小提示：你可以先复制A，B处填空白，保存，稍后在复制B进行修改。</string>
+        \n\n你可以点击下方+按钮，自己添加相应的替换规则，你可以打开 通用设置-显示当前活动 来观察当前Activity的具体名称，之后去 应用组件管理 中分别找到A和B，复制其完成名称，添加到你的规则里。\n\n小提示：你可以先复制A，B处填空白，保存，稍后在复制B进行修改。</string>
     <string name="title_comp_replacement_from">被替换的Activity</string>
     <string name="title_comp_replacement_to">用来替换的Activity</string>
     <string name="title_from_comp_null">被替换的Activity不能为空</string>
