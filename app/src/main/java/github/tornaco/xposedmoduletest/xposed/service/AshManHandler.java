@@ -44,11 +44,11 @@ interface AshManHandler {
 
     void restrictAppOnData(int uid, boolean restrict, boolean force);
 
-    void healRestrictAppOnData(int uid);
+    void healRestrictAppOnData(int uid, boolean restrict);
 
     void restrictAppOnWifi(int uid, boolean restrict, boolean force);
 
-    void healRestrictAppOnWifi(int uid);
+    void healRestrictAppOnWifi(int uid, boolean restrict);
 
     /**
      * Set the enabled setting for a package component (activity, receiver, service, provider).

@@ -1958,20 +1958,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
-    private void healRestrictionBlackList() {
+    private void healRestrictionBlackList(boolean restrict) {
         synchronized (mQuotaLock) {
 
             int N = mDataBlacklist.size();
             for (int i = 0; i < N; i++) {
                 int key = mDataBlacklist.keyAt(i);
-                h.obtainMessage(AshManHandlerMessages.MSG_HEALRESTRICTAPPONDATA, key)
+                h.obtainMessage(AshManHandlerMessages.MSG_HEALRESTRICTAPPONDATA, restrict ? 1 : 0, restrict ? 1 : 0, key)
                         .sendToTarget();
             }
 
             N = mWifiBlacklist.size();
             for (int i = 0; i < N; i++) {
                 int key = mWifiBlacklist.keyAt(i);
-                h.obtainMessage(AshManHandlerMessages.MSG_HEALRESTRICTAPPONWIFI, key)
+                h.obtainMessage(AshManHandlerMessages.MSG_HEALRESTRICTAPPONWIFI, restrict ? 1 : 0, restrict ? 1 : 0, key)
                         .sendToTarget();
             }
         }
@@ -2174,9 +2174,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         long id = Binder.clearCallingIdentity();
         try {
             if (mode != AppOpsManagerCompat.MODE_ALLOWED)
-                mRepoProxy.getComps().add(constructPatternForPermission(code, pkg));
+                mRepoProxy.getPerms().add(constructPatternForPermission(code, pkg));
             else
-                mRepoProxy.getComps().remove(constructPatternForPermission(code, pkg));
+                mRepoProxy.getPerms().remove(constructPatternForPermission(code, pkg));
         } finally {
             Binder.restoreCallingIdentity(id);
         }
@@ -2352,7 +2352,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private boolean isInPermissionBlockList(String pattern) {
-        return mRepoProxy.getComps().has(pattern);
+        return mRepoProxy.getPerms().has(pattern);
     }
 
     private static String constructPatternForPermission(int code, String pkg) {
@@ -2884,10 +2884,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     HandlerImpl.this.setNetworkRestrictEnabled((Boolean) msg.obj);
                     break;
                 case AshManHandlerMessages.MSG_HEALRESTRICTAPPONDATA:
-                    HandlerImpl.this.healRestrictAppOnData((Integer) msg.obj);
+                    HandlerImpl.this.healRestrictAppOnData((Integer) msg.obj, msg.arg1 == 1);
                     break;
                 case AshManHandlerMessages.MSG_HEALRESTRICTAPPONWIFI:
-                    HandlerImpl.this.healRestrictAppOnWifi((Integer) msg.obj);
+                    HandlerImpl.this.healRestrictAppOnWifi((Integer) msg.obj, msg.arg1 == 1);
                     break;
             }
         }
@@ -2965,11 +2965,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setNetworkRestrictEnabled(boolean enabled) {
             if (mNetworkRestrictEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.NETWORK_RESTRICT_B.writeToSystemSettings(getContext(), enabled);
-
-                if (!enabled) {
-                    // Restore all uid settings.
-                    healRestrictionBlackList();
-                }
+                // Restore all uid settings.
+                healRestrictionBlackList(enabled);
             }
         }
 
@@ -3221,10 +3218,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         };
 
         @Override
-        public void healRestrictAppOnData(int uid) {
+        public void healRestrictAppOnData(int uid, boolean restrict) {
             try {
                 boolean success = BandwidthCommandCompat.restrictAppOnData(mNativeDaemonConnector,
-                        uid, false, mDataInterfaceName);
+                        uid, restrict, mDataInterfaceName);
                 XposedLog.debug("healRestrictAppOnData execute success: " + success);
             } catch (Exception e) {
                 XposedLog.wtf("Fail restrictAppOnData: " + Log.getStackTraceString(e));
@@ -3232,10 +3229,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         @Override
-        public void healRestrictAppOnWifi(int uid) {
+        public void healRestrictAppOnWifi(int uid, boolean restrict) {
             try {
                 boolean success = BandwidthCommandCompat.restrictAppOnWifi(mNativeDaemonConnector, uid,
-                        false, mWifiInterfaceName);
+                        restrict, mWifiInterfaceName);
                 XposedLog.debug("healRestrictAppOnWifi execute success: " + success);
             } catch (Exception e) {
                 XposedLog.wtf("Fail restrictAppOnWifi: " + Log.getStackTraceString(e));
