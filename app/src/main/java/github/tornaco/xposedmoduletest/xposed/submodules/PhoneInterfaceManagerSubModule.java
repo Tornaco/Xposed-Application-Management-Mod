@@ -10,6 +10,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -58,7 +59,7 @@ class PhoneInterfaceManagerSubModule extends IntentFirewallAndroidSubModule {
                                     XposedLog.verbose("getLine1NumberForDisplay, MODE_IGNORED returning null for :"
                                             + callPackageName);
                                     param.setResult(null);
-                                } else {
+                                } else if (BuildConfig.DEBUG) {
                                     String userNumber = xAshmanManager.getUserDefinedLine1Number();
                                     if (userNumber != null) {
                                         XposedLog.verbose("getLine1NumberForDisplay, returning user defined num: " + userNumber);

@@ -26,7 +26,6 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
@@ -800,7 +799,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         try {
-            String userDeviceId = (String) SystemSettings.USER_DEFINED_DEVICE_ID_S.readFromSystemSettings(getContext());
+            String userDeviceId = (String) SystemSettings.USER_DEFINED_DEVICE_ID_T_S.readFromSystemSettings(getContext());
             mUserDefinedDeviceId.setData(userDeviceId);
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("userDeviceId: " + String.valueOf(userDeviceId));
@@ -809,7 +808,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         try {
-            String userLine1Number = (String) SystemSettings.USER_DEFINED_LINE1_NUM_S.readFromSystemSettings(getContext());
+            String userLine1Number = (String) SystemSettings.USER_DEFINED_LINE1_NUM_T_S.readFromSystemSettings(getContext());
             mUserDefinedLine1Number.setData(userLine1Number);
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("userLine1Number: " + String.valueOf(userLine1Number));
@@ -2266,6 +2265,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public String getUserDefinedLine1Number() throws RemoteException {
+        if (!BuildConfig.DEBUG) return null;
         long id = Binder.clearCallingIdentity();
         try {
             return mUserDefinedLine1Number.getData();
@@ -2276,6 +2276,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public String getUserDefinedDeviceId() throws RemoteException {
+        if (!BuildConfig.DEBUG) return null;
         long id = Binder.clearCallingIdentity();
         try {
             return mUserDefinedDeviceId.getData();

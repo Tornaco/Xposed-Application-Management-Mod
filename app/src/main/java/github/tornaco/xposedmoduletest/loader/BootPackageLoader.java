@@ -46,6 +46,7 @@ public interface BootPackageLoader {
             String[] packages = xAshmanManager.getBootBlockApps(blocked);
 
             for (String pkg : packages) {
+                if (!PkgUtil.isPkgInstalled(context, pkg)) continue;
                 String name = String.valueOf(PkgUtil.loadNameByPkgName(context, pkg));
 
                 if (!TextUtils.isEmpty(name)) {

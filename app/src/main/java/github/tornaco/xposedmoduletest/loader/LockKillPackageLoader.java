@@ -47,6 +47,7 @@ public interface LockKillPackageLoader {
             String[] packages = xAshmanManager.getLKApps(willBeKill);
 
             for (String pkg : packages) {
+                if (!PkgUtil.isPkgInstalled(context, pkg)) continue;
                 String name = String.valueOf(PkgUtil.loadNameByPkgName(context, pkg));
                 if (!TextUtils.isEmpty(name)) {
                     name = name.replace(" ", "");

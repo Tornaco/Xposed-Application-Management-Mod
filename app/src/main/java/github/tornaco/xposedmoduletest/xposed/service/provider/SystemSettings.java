@@ -324,7 +324,7 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
         }
     },
 
-    USER_DEFINED_LINE1_NUM_S("18888888888") {
+    USER_DEFINED_LINE1_NUM_T_S("18888888888") {
         @Override
         public boolean writeToSystemSettings(Context context, Object value) {
             ContentResolver resolver = context.getContentResolver();
@@ -339,7 +339,7 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
         }
     },
 
-    USER_DEFINED_DEVICE_ID_S("fuckit") {
+    USER_DEFINED_DEVICE_ID_T_S("fuckit") {
         @Override
         public boolean writeToSystemSettings(Context context, Object value) {
             ContentResolver resolver = context.getContentResolver();

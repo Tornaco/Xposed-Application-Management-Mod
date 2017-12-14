@@ -47,6 +47,7 @@ public interface RFKillPackageLoader {
             String[] packages = xAshmanManager.getRFKApps(willBeKill);
 
             for (String pkg : packages) {
+                if (!PkgUtil.isPkgInstalled(context, pkg)) continue;
                 String name = String.valueOf(PkgUtil.loadNameByPkgName(context, pkg));
                 if (!TextUtils.isEmpty(name)) {
                     name = name.replace(" ", "");
