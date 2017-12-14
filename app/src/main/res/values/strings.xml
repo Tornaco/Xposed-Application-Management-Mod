@@ -337,5 +337,7 @@
     <string name="title_privacy_device_id">设备序列号</string>
     <string name="summary_privacy_device_id">设备序列号是</string>
     <string name="title_privacy_android_id_input">手动输入</string>
+    <string name="title_privacy_line_number">手机号码</string>
+    <string name="title_privacy_update_later">稍后将刷新</string>
 
 </resources>

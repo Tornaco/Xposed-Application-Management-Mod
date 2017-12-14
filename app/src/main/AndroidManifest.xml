@@ -10,6 +10,7 @@
     <uses-permission android:name="com.fingerprints.service.ACCESS_FINGERPRINT_MANAGER" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:name=".xposed.XApp"
@@ -154,7 +155,7 @@
         <activity
             android:name=".ui.activity.app.PrivacySettingsActivity"
             android:excludeFromRecents="true"
-            android:label="@string/title_doo"
+            android:label="@string/title_privacy"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.app.ToolsDashboardActivity"

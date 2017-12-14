@@ -2092,6 +2092,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @BinderCall(restrict = "any")
     public int getPermissionControlBlockModeForPkg(int code, String pkg) throws RemoteException {
         XposedLog.verbose("getPermissionControlBlockModeForPkg code %s pkg %s", code, pkg);
+        if (!mPermissionControlEnabled.get()) return AppOpsManagerCompat.MODE_ALLOWED;
 
         long id = Binder.clearCallingIdentity();
         String pattern = constructPatternForPermission(code, pkg);
@@ -2111,6 +2112,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @BinderCall(restrict = "any")
     public int getPermissionControlBlockModeForUid(int code, int uid) throws RemoteException {
         XposedLog.verbose("getPermissionControlBlockModeForUid code %s pkg %s", code, uid);
+        if (!mPermissionControlEnabled.get()) return AppOpsManagerCompat.MODE_ALLOWED;
         String pkg = mPackagesCache.get(uid);
         if (pkg == null) {
             return AppOpsManagerCompat.MODE_ALLOWED;
@@ -2190,7 +2192,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public String getDeviceId() throws RemoteException {
         enforceCallingPermissions();
-        long id = Binder.clearCallingIdentity();
         try {
             TelephonyManager tm = (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
             if (tm != null) {
@@ -2199,8 +2200,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         } catch (Throwable e) {
             XposedLog.wtf("Error getAndroidId: " + Log.getStackTraceString(e));
             return null;
-        } finally {
-            Binder.restoreCallingIdentity(id);
         }
         return null;
     }
@@ -2209,7 +2208,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public String getLine1Number() throws RemoteException {
         enforceCallingPermissions();
-        long id = Binder.clearCallingIdentity();
         try {
             TelephonyManager tm = (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
             if (tm != null) {
@@ -2218,8 +2216,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         } catch (Throwable e) {
             XposedLog.wtf("Error getLine1Number: " + Log.getStackTraceString(e));
             return null;
-        } finally {
-            Binder.restoreCallingIdentity(id);
         }
         return null;
     }
@@ -2256,12 +2252,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public int checkOperation(int code, int uid, String packageName, String reason) {
+        if (!mPermissionControlEnabled.get()) return AppOpsManagerCompat.MODE_ALLOWED;
 
         if (packageName == null) return AppOpsManagerCompat.MODE_ALLOWED;
 
-        if (PkgUtil.isSystemOrPhoneOrShell(uid)) return AppOpsManagerCompat.MODE_ALLOWED;
+        if (BuildConfig.APPLICATION_ID.equals(packageName)) return AppOpsManagerCompat.MODE_ALLOWED;
 
-        if (!mPermissionControlEnabled.get()) return AppOpsManagerCompat.MODE_ALLOWED;
+        if (PkgUtil.isSystemOrPhoneOrShell(uid)) return AppOpsManagerCompat.MODE_ALLOWED;
 
         if (isInWhiteList(packageName)) return AppOpsManagerCompat.MODE_ALLOWED;
 
