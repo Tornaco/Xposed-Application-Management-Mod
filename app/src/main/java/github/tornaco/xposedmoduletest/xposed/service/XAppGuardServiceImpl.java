@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.xposed.service;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.KeyguardManager;
+import android.app.Notification;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -23,8 +24,10 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.provider.Settings;
+import android.support.v4.app.NotificationManagerCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 
@@ -269,6 +272,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         });
 
         registerReceiver();
+
+        checkIfInDevMode();
     }
 
     @Override
@@ -1093,6 +1098,32 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_SETDEBUG, debug).sendToTarget();
     }
 
+
+    // Warn user if dev mode is open.
+    private final static int NOTIFICATION_ID = 20182018;
+
+    private void checkIfInDevMode() {
+        boolean isDevMode = XposedLog.isVerboseLoggable();
+        if (isDevMode) {
+            try {
+                NotificationManagerCompat.from(getContext()).cancel(NOTIFICATION_ID);
+                NotificationManagerCompat.from(getContext())
+                        .notify(NOTIFICATION_ID,
+                                new Notification.Builder(getContext())
+                                        .setOngoing(true)
+                                        .setContentTitle("应用管理")
+                                        .setContentText("调试模式已经打开，如果使用完毕请及时关闭")
+                                        .setSmallIcon(android.R.drawable.stat_sys_warning)
+                                        .build());
+            } catch (Throwable e) {
+                Toast.makeText(getContext(),
+                        "应用管理 调试模式已经打开，如果使用完毕请及时关闭，否则会新增加耗电，造成系统卡顿", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            NotificationManagerCompat.from(getContext()).cancel(NOTIFICATION_ID);
+        }
+    }
+
     @Override
     public boolean isDebug() throws RemoteException {
         enforceCallingPermissions();
@@ -1330,6 +1361,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 SystemSettings.APP_GUARD_DEBUG_MODE_B_S.writeToSystemSettings(getContext(), debug);
             }
             XposedLog.setLogLevel(debug ? XposedLog.LogLevel.ALL : XposedLog.LogLevel.WARN);
+            checkIfInDevMode();
         }
 
         @Override

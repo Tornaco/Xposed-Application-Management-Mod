@@ -120,4 +120,10 @@ interface IAshmanService {
     String getUserDefinedLine1Number();
     String getUserDefinedDeviceId();
     String getUserDefinedAndroidId();
+
+    boolean showFocusedActivityInfoEnabled();
+    void setShowFocusedActivityInfoEnabled(boolean enabled);
+
+    boolean networkRestrictEnabled();
+    void setNetworkRestrictEnabled(boolean enabled);
 }

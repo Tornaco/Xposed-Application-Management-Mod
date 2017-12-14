@@ -155,9 +155,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private final AtomicBoolean mPermissionControlEnabled = new AtomicBoolean(false);
 
+    // FIXME Set default to false.
+    private final AtomicBoolean mNetworkRestrictEnabled = new AtomicBoolean(false);
+
     private final AtomicBoolean mDataHasBeenMigrated = new AtomicBoolean(false);
 
     private final AtomicBoolean mAutoAddToBlackListForNewApp = new AtomicBoolean(false);
+    private final AtomicBoolean mShowFocusedActivityInfoEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mLockKillDoNotKillAudioEnabled = new AtomicBoolean(true);
     private final AtomicBoolean mRootActivityFinishKillEnabled = new AtomicBoolean(false);
@@ -339,7 +343,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         new Notification.Builder(context)
                                 .setContentTitle("新增阻止应用")
                                 .setContentText("已经阻止 " + name + " 的自启动，关联启动等。")
-                                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                                .setSmallIcon(android.R.drawable.stat_sys_warning)
                                 .build());
     }
 
@@ -787,6 +791,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         try {
+            boolean networkRestrict = (boolean) SystemSettings.NETWORK_RESTRICT_B.readFromSystemSettings(getContext());
+            mNetworkRestrictEnabled.set(networkRestrict);
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("networkRestrict: " + String.valueOf(networkRestrict));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
             String userDeviceId = (String) SystemSettings.USER_DEFINED_DEVICE_ID_S.readFromSystemSettings(getContext());
             mUserDefinedDeviceId.setData(userDeviceId);
             if (XposedLog.isVerboseLoggable())
@@ -818,6 +831,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             mAutoAddToBlackListForNewApp.set(autoAddBlack);
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("autoAddBlack: " + String.valueOf(autoAddBlack));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            boolean showFocusedActivity = (boolean) SystemSettings.SHOW_FOCUSED_ACTIVITY_INFO_B.readFromSystemSettings(getContext());
+            mShowFocusedActivityInfoEnabled.set(showFocusedActivity);
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("showFocusedActivity: " + String.valueOf(showFocusedActivity));
         } catch (Throwable e) {
             XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -1936,6 +1958,25 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
+    private void healRestrictionBlackList() {
+        synchronized (mQuotaLock) {
+
+            int N = mDataBlacklist.size();
+            for (int i = 0; i < N; i++) {
+                int key = mDataBlacklist.keyAt(i);
+                h.obtainMessage(AshManHandlerMessages.MSG_HEALRESTRICTAPPONDATA, key)
+                        .sendToTarget();
+            }
+
+            N = mWifiBlacklist.size();
+            for (int i = 0; i < N; i++) {
+                int key = mWifiBlacklist.keyAt(i);
+                h.obtainMessage(AshManHandlerMessages.MSG_HEALRESTRICTAPPONWIFI, key)
+                        .sendToTarget();
+            }
+        }
+    }
+
     @InternalCall
     private void writeDataRestrictionBlackList() {
         synchronized (mQuotaLock) {
@@ -2010,7 +2051,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @InternalCall
-    @Deprecated
     public void onNetWorkManagementServiceReady(NativeDaemonConnector connector) {
         XposedLog.debug("NMS onNetWorkManagementServiceReady: " + connector);
         this.mNativeDaemonConnector = connector;
@@ -2022,7 +2062,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         initDataRestrictionBlackList();
         initWifiRestrictionBlackList();
 
-        applyRestrictionBlackList();
+        if (mNetworkRestrictEnabled.get()) {
+            applyRestrictionBlackList();
+        }
 
         // Note: processPendingDataRestrictRequests() will unregister
         // mPendingDataRestrictReceiver once it has been able to determine
@@ -2246,6 +2288,29 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    public boolean showFocusedActivityInfoEnabled() {
+        return mShowFocusedActivityInfoEnabled.get();
+    }
+
+    @Override
+    public void setShowFocusedActivityInfoEnabled(boolean enabled) throws RemoteException {
+        enforceCallingPermissions();
+        h.obtainMessage(AshManHandlerMessages.MSG_SETSHOWFOCUSEDACTIVITYINFOENABLED, enabled).sendToTarget();
+    }
+
+    @Override
+    public boolean networkRestrictEnabled() throws RemoteException {
+        enforceCallingPermissions();
+        return mNetworkRestrictEnabled.get();
+    }
+
+    @Override
+    public void setNetworkRestrictEnabled(boolean enabled) throws RemoteException {
+        enforceCallingPermissions();
+        h.obtainMessage(AshManHandlerMessages.MSG_SETNETWORKRESTRICTENABLED, enabled).sendToTarget();
+    }
+
+    @Override
     public int checkPermission(String perm, int pid, int uid) {
         return PackageManager.PERMISSION_GRANTED;
     }
@@ -2329,6 +2394,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @BinderCall
     public void restrictAppOnData(int uid, boolean restrict) {
+        if (!mNetworkRestrictEnabled.get()) return;
         XposedLog.debug("NMS restrictAppOnData: " + uid + ", restrict: " + restrict);
         enforceCallingPermissions();
         h.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONDATA, uid, -1, restrict)
@@ -2344,6 +2410,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @BinderCall
     public void restrictAppOnWifi(int uid, boolean restrict) {
+        if (!mNetworkRestrictEnabled.get()) return;
         XposedLog.debug("NMS restrictAppOnWifi: " + uid + ", restrict: " + restrict);
         enforceCallingPermissions();
         h.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONWIFI, uid, -1, restrict)
@@ -2413,7 +2480,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public void shutdown() {
     }
 
-
     // For debug.
     private Toast mDebugToast;
     private ComponentName mFocusedCompName;
@@ -2428,7 +2494,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         mDebugToast.cancel();
                     }
                     mDebugToast = Toast.makeText(getContext(),
-                            "应用管理开发者模式：\n" +
+                            "应用管理 调试模式：\n" +
                                     c.flattenToString(), Toast.LENGTH_LONG);
                     mDebugToast.show();
                 } catch (Throwable ignored) {
@@ -2442,13 +2508,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public void onPackageMoveToFront(final Intent who) {
         onPackageMoveToFront(PkgUtil.packageNameOf(who));
 
-//        if (XposedLog.isVerboseLoggable()) {
-//            lazyH.removeCallbacks(toastRunnable);
-//            if (who != null) {
-//                mFocusedCompName = who.getComponent();
-//                lazyH.post(toastRunnable);
-//            }
-//        }
+        if (showFocusedActivityInfoEnabled()) {
+            lazyH.removeCallbacks(toastRunnable);
+            if (who != null) {
+                mFocusedCompName = who.getComponent();
+                lazyH.post(toastRunnable);
+            }
+        }
     }
 
     private void onPackageMoveToFront(String who) {
@@ -2811,6 +2877,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETUSERDEFINEDLINE1NUMBER:
                     HandlerImpl.this.setUserDefinedLine1Number((String) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_SETSHOWFOCUSEDACTIVITYINFOENABLED:
+                    HandlerImpl.this.setShowFocusedActivityInfoEnabled((Boolean) msg.obj);
+                    break;
+                case AshManHandlerMessages.MSG_SETNETWORKRESTRICTENABLED:
+                    HandlerImpl.this.setNetworkRestrictEnabled((Boolean) msg.obj);
+                    break;
+                case AshManHandlerMessages.MSG_HEALRESTRICTAPPONDATA:
+                    HandlerImpl.this.healRestrictAppOnData((Integer) msg.obj);
+                    break;
+                case AshManHandlerMessages.MSG_HEALRESTRICTAPPONWIFI:
+                    HandlerImpl.this.healRestrictAppOnWifi((Integer) msg.obj);
+                    break;
             }
         }
 
@@ -2874,6 +2952,25 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         @Override
         public void setUserDefinedLine1Number(String id) {
             mUserDefinedLine1Number.setData(id);
+        }
+
+        @Override
+        public void setShowFocusedActivityInfoEnabled(boolean enabled) {
+            if (mShowFocusedActivityInfoEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.SHOW_FOCUSED_ACTIVITY_INFO_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setNetworkRestrictEnabled(boolean enabled) {
+            if (mNetworkRestrictEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.NETWORK_RESTRICT_B.writeToSystemSettings(getContext(), enabled);
+
+                if (!enabled) {
+                    // Restore all uid settings.
+                    healRestrictionBlackList();
+                }
+            }
         }
 
         @Override
@@ -3122,6 +3219,28 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 writeWifiRestrictionBlackList();
             }
         };
+
+        @Override
+        public void healRestrictAppOnData(int uid) {
+            try {
+                boolean success = BandwidthCommandCompat.restrictAppOnData(mNativeDaemonConnector,
+                        uid, false, mDataInterfaceName);
+                XposedLog.debug("healRestrictAppOnData execute success: " + success);
+            } catch (Exception e) {
+                XposedLog.wtf("Fail restrictAppOnData: " + Log.getStackTraceString(e));
+            }
+        }
+
+        @Override
+        public void healRestrictAppOnWifi(int uid) {
+            try {
+                boolean success = BandwidthCommandCompat.restrictAppOnWifi(mNativeDaemonConnector, uid,
+                        false, mWifiInterfaceName);
+                XposedLog.debug("healRestrictAppOnWifi execute success: " + success);
+            } catch (Exception e) {
+                XposedLog.wtf("Fail restrictAppOnWifi: " + Log.getStackTraceString(e));
+            }
+        }
 
         @Override
         public void restrictAppOnData(int uid, boolean restrict, boolean force) {

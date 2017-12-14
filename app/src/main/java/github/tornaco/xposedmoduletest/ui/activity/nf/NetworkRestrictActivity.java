@@ -15,6 +15,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,8 +33,10 @@ import github.tornaco.xposedmoduletest.model.NetworkRestrictionItem;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.NetworkRestrictListAdapter;
+import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.SpannableUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import ir.mirrajabi.searchdialog.SimpleSearchDialogCompat;
 import ir.mirrajabi.searchdialog.core.BaseSearchDialogCompat;
 import ir.mirrajabi.searchdialog.core.SearchResultListener;
@@ -95,6 +98,26 @@ public class NetworkRestrictActivity extends BaseActivity {
         setTitle(R.string.title_nf);
 
         setSummaryView();
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                SwitchBar switchBar = findViewById(R.id.switchbar);
+                if (switchBar == null) return;
+                switchBar.setChecked(XAshmanManager.get().isServiceAvailable()
+                        && XAshmanManager.get().networkRestrictEnabled());
+                switchBar.addOnSwitchChangeListener(new SwitchBar.OnSwitchChangeListener() {
+                    @Override
+                    public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
+                        if (XAshmanManager.get().isServiceAvailable())
+                            XAshmanManager.get().setNetworkRestrictEnabled(isChecked);
+                        else showTips(R.string.title_service_not_connected_settings, false,
+                                null, null);
+                    }
+                });
+                switchBar.show();
+            }
+        });
 
         // showAlertDialog();
     }

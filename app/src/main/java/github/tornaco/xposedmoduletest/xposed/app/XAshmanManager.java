@@ -665,4 +665,36 @@ public class XAshmanManager {
             return null;
         }
     }
+
+    public boolean showFocusedActivityInfoEnabled() {
+        try {
+            return mService.showFocusedActivityInfoEnabled();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public void setShowFocusedActivityInfoEnabled(boolean enabled) {
+        try {
+            mService.setShowFocusedActivityInfoEnabled(enabled);
+        } catch (RemoteException ignored) {
+
+        }
+    }
+
+    public boolean networkRestrictEnabled() {
+        try {
+            return mService.networkRestrictEnabled();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public void setNetworkRestrictEnabled(boolean enabled) {
+        try {
+            mService.setNetworkRestrictEnabled(enabled);
+        } catch (RemoteException ignored) {
+
+        }
+    }
 }

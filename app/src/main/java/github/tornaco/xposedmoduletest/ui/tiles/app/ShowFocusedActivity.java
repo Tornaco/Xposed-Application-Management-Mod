@@ -3,14 +3,10 @@ package github.tornaco.xposedmoduletest.ui.tiles.app;
 import android.content.Context;
 import android.widget.RelativeLayout;
 
-import org.newstand.logger.Logger;
-import org.newstand.logger.Settings;
-
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.SwitchTileView;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.provider.XSettings;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -28,21 +24,14 @@ public class ShowFocusedActivity extends QuickTile {
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);
-                setChecked(XAppGuardManager.get().isServiceAvailable() && XAppGuardManager.get().isDebug());
-                XSettings.setInDevMode(context, isChecked());
+                setChecked(XAshmanManager.get().isServiceAvailable() && XAshmanManager.get().showFocusedActivityInfoEnabled());
             }
 
             @Override
             protected void onCheckChanged(boolean checked) {
                 super.onCheckChanged(checked);
-                if (XAppGuardManager.get().isServiceAvailable()) {
-                    XAppGuardManager.get().setDebug(checked);
-                    XSettings.setInDevMode(context, checked);
-
-                    Logger.config(Settings.builder().tag("X-APM-C")
-                            .logLevel(isChecked()
-                                    ? Logger.LogLevel.VERBOSE : Logger.LogLevel.WARN)
-                            .build());
+                if (XAshmanManager.get().isServiceAvailable()) {
+                    XAshmanManager.get().setShowFocusedActivityInfoEnabled(checked);
                 }
             }
         };

@@ -11,6 +11,8 @@ import static java.lang.Thread.sleep;
 
 class AsyncTrying {
 
+    static final long PIECE = 2000;
+
     public interface Once {
         boolean once();
     }
@@ -25,7 +27,7 @@ class AsyncTrying {
             public void run() {
                 if (!once.once()) {
                     try {
-                        sleep(888);
+                        sleep(PIECE);
                     } catch (InterruptedException ignored) {
 
                     }

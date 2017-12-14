@@ -44,7 +44,11 @@ interface AshManHandler {
 
     void restrictAppOnData(int uid, boolean restrict, boolean force);
 
+    void healRestrictAppOnData(int uid);
+
     void restrictAppOnWifi(int uid, boolean restrict, boolean force);
+
+    void healRestrictAppOnWifi(int uid);
 
     /**
      * Set the enabled setting for a package component (activity, receiver, service, provider).
@@ -124,8 +128,14 @@ interface AshManHandler {
     void setPermissionControlEnabled(boolean enabled);
 
     void setUserDefinedAndroidId(String id);
+
     void setUserDefinedDeviceId(String id);
+
     void setUserDefinedLine1Number(String id);
+
+    void setShowFocusedActivityInfoEnabled(boolean enabled);
+
+    void setNetworkRestrictEnabled(boolean enabled);
 
     @Getter
     class WatcherClient implements IBinder.DeathRecipient {
