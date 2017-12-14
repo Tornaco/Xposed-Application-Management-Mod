@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -45,7 +46,6 @@ import github.tornaco.xposedmoduletest.provider.LockStorage;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.util.PatternLockViewListenerAdapter;
-import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 
@@ -72,6 +72,8 @@ public class VerifyDisplayerActivity extends BaseActivity {
     private boolean mTakePhoto;
 
     private CancellationSignal mCancellationSignal;
+
+    private Handler mHandler;
 
     private boolean mResNotified = false;
     private ScreenBroadcastReceiver mScreenBroadcastReceiver;
@@ -128,13 +130,16 @@ public class VerifyDisplayerActivity extends BaseActivity {
         setupCamera();
 
         // We should finish anyway after 30s.
-        XExecutor.runOnUIThreadDelayed(new Runnable() {
-            @Override
-            public void run() {
-                onFail();
-            }
-        }, 30 * 1000);
+        mHandler = new Handler();
+        mHandler.postDelayed(expireRunnable, 15 * 1000);
     }
+
+    private Runnable expireRunnable = new Runnable() {
+        @Override
+        public void run() {
+            onFail();
+        }
+    };
 
     private void setupIcon() {
         if (XSettings.showAppIconEnabled(this)) {
@@ -318,6 +323,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
 
     private void onPass() {
+        mHandler.removeCallbacks(expireRunnable);
         if (testMode || mResNotified) return;
 
         mResNotified = true;
@@ -382,6 +388,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private void onFail() {
+        mHandler.removeCallbacks(expireRunnable);
         if (testMode || mResNotified) {
             return;
         }

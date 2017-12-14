@@ -6,6 +6,7 @@ import android.content.pm.ParceledListSlice;
 import android.os.Binder;
 import android.util.Log;
 
+import java.util.Collections;
 import java.util.Set;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -50,7 +51,7 @@ class PMSSubModule4 extends IntentFirewallAndroidSubModule {
                                 if (mode == AppOpsManagerCompat.MODE_IGNORED) {
                                     XposedLog.verbose("getInstalledPackages, MODE_IGNORED returning empty for :" + uid);
                                     try {
-                                        ParceledListSlice<PackageInfo> empty = ParceledListSlice.emptyList();
+                                        ParceledListSlice<PackageInfo> empty = new ParceledListSlice<>(Collections.<PackageInfo>emptyList());
                                         param.setResult(empty);
                                     } catch (Exception e) {
                                         param.setResult(null);
@@ -88,7 +89,8 @@ class PMSSubModule4 extends IntentFirewallAndroidSubModule {
                                 if (mode == AppOpsManagerCompat.MODE_IGNORED) {
                                     XposedLog.verbose("getInstalledApplications, MODE_IGNORED returning empty for :" + uid);
                                     try {
-                                        ParceledListSlice<ApplicationInfo> empty = ParceledListSlice.emptyList();
+                                        // M has no method named empty.
+                                        ParceledListSlice<ApplicationInfo> empty = new ParceledListSlice<>(Collections.<ApplicationInfo>emptyList());
                                         param.setResult(empty);
                                     } catch (Exception e) {
                                         param.setResult(null);
