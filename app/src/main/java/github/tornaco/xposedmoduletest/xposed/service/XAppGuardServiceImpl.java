@@ -924,15 +924,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @Override
     public boolean isActivityStartShouldBeInterrupted(ComponentName componentName) {
-        if (getContext() == null) return false;
-        int state = getPackageManager().getComponentEnabledSetting(componentName);
-        if (state == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT
-                || state == PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                || state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED) {
-            return false;
-        }
-        // Comp is disabled, interrupt!!!
-        return true;
+return false;
     }
 
     @Override
