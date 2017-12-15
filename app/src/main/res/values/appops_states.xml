@@ -325,6 +325,7 @@
         <item>"读取设备ID（getDeviceId）"</item>
         <item>"读取ICC ID（getSimSerialNumber）"</item>
         <item>"读取电话号码（getLine1Number）"</item>
+        <item>"设置定时器，可能用于唤醒服务等"</item>
     </string-array>
     <string-array name="app_ops_labels">
         <item>"位置"</item>
@@ -403,6 +404,7 @@
         <item>"读取设备ID"</item>
         <item>"读取ICC ID"</item>
         <item>"读取电话号码"</item>
+        <item>"设置定时器"</item>
     </string-array>
     <string-array name="long_press_timeout_selector_titles">
         <item>"短"</item>

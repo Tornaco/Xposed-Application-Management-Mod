@@ -20,21 +20,20 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // FIXME Check method def for L M N O!!!!!!!!!!!!!!!!!!!!
-class WakelockSubModule extends IntentFirewallAndroidSubModule {
+class AlarmManagerSubModule extends IntentFirewallAndroidSubModule {
 
     @Override
     public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {
         super.initZygote(startupParam);
-        hookAcquireWakeLock();
-
+        hookSetAlarm();
     }
 
-    private void hookAcquireWakeLock() {
-        XposedLog.verbose("hookAcquireWakeLock...");
+    private void hookSetAlarm() {
+        XposedLog.verbose("hookSetAlarm...");
         try {
-            Class clz = XposedHelpers.findClass("android.os.PowerManager$WakeLock", null);
+            Class clz = XposedHelpers.findClass("android.os.AlarmManager", null);
             Set unHooks = XposedBridge.hookAllMethods(clz,
-                    "acquire", new XC_MethodHook() {
+                    "setImpl", new XC_MethodHook() {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
@@ -44,7 +43,7 @@ class WakelockSubModule extends IntentFirewallAndroidSubModule {
                             boolean greening = XAshmanManager.get().isServiceAvailable()
                                     && XAshmanManager.get().isPackageGreening(pkgName);
                             if (BuildConfig.DEBUG) {
-                                Log.d(XposedLog.TAG_PREFIX, "acquire wake lock: "
+                                Log.d(XposedLog.TAG_PREFIX, "set alarm: "
                                         + pkgName
                                         + ", greening: " + greening);
                             }
@@ -55,17 +54,17 @@ class WakelockSubModule extends IntentFirewallAndroidSubModule {
 
                             // Check OP.
                             int mode = XAshmanManager.get().getPermissionControlBlockModeForPkg(
-                                    AppOpsManagerCompat.OP_WAKE_LOCK, pkgName);
+                                    AppOpsManagerCompat.OP_SET_ALARM, pkgName);
                             if (mode == AppOpsManagerCompat.MODE_IGNORED) {
-                                XposedLog.verbose("acquire wake lock, MODE_IGNORED returning...");
+                                XposedLog.verbose("set alarm, MODE_IGNORED returning...");
                                 param.setResult(null);
                             }
                         }
                     });
-            XposedLog.verbose("hookAcquireWakeLock OK:" + unHooks);
+            XposedLog.verbose("hookSetAlarm OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XposedLog.verbose("Fail hookAcquireWakeLock:" + e);
+            XposedLog.verbose("Fail hookSetAlarm:" + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

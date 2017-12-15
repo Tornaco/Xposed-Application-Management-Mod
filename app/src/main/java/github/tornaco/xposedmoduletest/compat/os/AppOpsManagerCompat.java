@@ -337,19 +337,21 @@ public final class AppOpsManagerCompat {
     public static final int OP_GET_DEVICE_ID = 72;
     public static final int OP_GET_SIM_SERIAL_NUMBER = 73;
     public static final int OP_GET_LINE1_NUMBER = 74;
+    public static final int OP_SET_ALARM = 75;
 
     public static final int[] EXTRA_OPS = new int[]{
             OP_READ_INSTALLED_APPS,
             OP_GET_RUNNING_TASKS,
             OP_GET_DEVICE_ID,
             OP_GET_SIM_SERIAL_NUMBER,
-            OP_GET_LINE1_NUMBER
+            OP_GET_LINE1_NUMBER,
+            OP_SET_ALARM
     };
 
     /**
      * @hide
      */
-    public static final int _NUM_OP = 75;
+    public static final int _NUM_OP = 76;
 
     /**
      * Access to coarse location information.
@@ -613,6 +615,7 @@ public final class AppOpsManagerCompat {
             R.drawable.ic_phone_android_black_24dp, //   OP_GET_DEVICE_ID
             R.drawable.ic_sim_card_black_24dp, //   OP_GET_SIM_SERIAL_NUMBER
             R.drawable.ic_sim_card_black_24dp, //   OP_GET_LINE1_NUMBER
+            R.drawable.ic_access_alarm_black_24dp, //   ALARM
     };
 
     /**
@@ -697,6 +700,7 @@ public final class AppOpsManagerCompat {
             "OP_GET_DEVICE_ID",
             "OP_GET_SIM_SERIAL_NUMBER",
             "OP_GET_LINE1_NUMBER",
+            "OP_SET_ALARM",
     };
 
     /**
@@ -776,6 +780,7 @@ public final class AppOpsManagerCompat {
             Manifest.permission.ANSWER_PHONE_CALLS,
 
             // EXTRAS.
+            null,
             null,
             null,
             null,
