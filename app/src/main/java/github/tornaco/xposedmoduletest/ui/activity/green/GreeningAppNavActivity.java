@@ -167,6 +167,14 @@ public class GreeningAppNavActivity extends WithRecyclerView {
                 super.onPackageRemoved(p);
                 startLoading();
             }
+
+            @Override
+            protected void removePkgAsync(AutoStartPackage pkg) {
+                XAshmanManager.get()
+                        .addOrRemoveGreeningApps(new String[]{pkg.getPkgName()},
+                                XAshmanManager.Op.REMOVE);
+                onPackageRemoved(pkg.getPkgName());
+            }
         };
     }
 

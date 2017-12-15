@@ -130,7 +130,7 @@ public class StartAppListAdapter extends RecyclerView.Adapter<StartAppListAdapte
         }
     }
 
-    private void removePkgAsync(AutoStartPackage pkg) {
+    protected void removePkgAsync(AutoStartPackage pkg) {
         XAshmanManager.get()
                 .addOrRemoveStartBlockApps(new String[]{pkg.getPkgName()},
                         XAshmanManager.Op.REMOVE);

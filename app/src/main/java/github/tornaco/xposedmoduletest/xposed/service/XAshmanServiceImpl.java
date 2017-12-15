@@ -910,22 +910,26 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         String appPkg = serviceComp.getPackageName();
         CheckResult res = checkServiceDetailed(appPkg, callerUid);
         // Saving res record.
-        if (!res.res) logServiceEventToMemory(
-                ServiceEvent.builder()
-                        .service("Service")
-                        .why(res.why)
-                        .allowed(res.res)
-                        .appName(null)
-                        .pkg(appPkg)
-                        .when(System.currentTimeMillis())
-                        .build());
-        if (DEBUG_SERVICE)
-            if (XposedLog.isVerboseLoggable())
+        if (!res.res && res == CheckResult.USER_DENIED) {
+            logServiceEventToMemory(
+                    ServiceEvent.builder()
+                            .service("Service")
+                            .why(res.why)
+                            .allowed(res.res)
+                            .appName(null)
+                            .pkg(appPkg)
+                            .when(System.currentTimeMillis())
+                            .build());
+        }
+        if (DEBUG_SERVICE) {
+            if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verboseOn("XAshmanService checkService returning: " + res + "for: " +
                                 PkgUtil.loadNameByPkgName(getContext(), appPkg)
                                 + ", comp: " + serviceComp
                                 + ", caller: " + PkgUtil.pkgForUid(getContext(), callerUid),
                         mLoggingService);
+            }
+        }
         return res.res;
     }
 
@@ -992,19 +996,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public boolean checkBroadcast(String action, int receiverUid, int callerUid) {
         CheckResult res = checkBroadcastDetailed(action, receiverUid, callerUid);
         // Saving res record.
-        if (!res.res) logBroadcastEventToMemory(
-                BroadcastEvent.builder()
-                        .action(action)
-                        .allowed(res.res)
-                        .appName(null)
-                        .receiver(receiverUid)
-                        .caller(callerUid)
-                        .when(System.currentTimeMillis())
-                        .why(res.why)
-                        .build());
+        if (!res.res && res == CheckResult.USER_DENIED) {
+            logBroadcastEventToMemory(
+                    BroadcastEvent.builder()
+                            .action(action)
+                            .allowed(res.res)
+                            .appName(null)
+                            .receiver(receiverUid)
+                            .caller(callerUid)
+                            .when(System.currentTimeMillis())
+                            .why(res.why)
+                            .build());
+        }
 
-        if (DEBUG_BROADCAST)
-            if (XposedLog.isVerboseLoggable())
+        if (DEBUG_BROADCAST) {
+            if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verboseOn("XAshmanService checkBroadcast returning: "
                                 + res + " for: "
                                 + PkgUtil.loadNameByPkgName(getContext(), mPackagesCache.get(receiverUid))
@@ -1013,6 +1019,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 + " action: " + action
                                 + ", caller: " + PkgUtil.pkgForUid(getContext(), callerUid),
                         mLoggingService);
+            }
+        }
         return res.res;
     }
 

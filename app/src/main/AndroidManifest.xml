@@ -93,6 +93,16 @@
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
+            android:name=".ui.activity.green.GreeningAppNavActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_greening"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.green.GreeningAppPickerActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_picker"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
             android:name=".ui.activity.lk.LockKillAppNavActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_app_lock_kill"
