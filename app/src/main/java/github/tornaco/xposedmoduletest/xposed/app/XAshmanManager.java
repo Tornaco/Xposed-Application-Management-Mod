@@ -776,4 +776,20 @@ public class XAshmanManager {
             return false;
         }
     }
+
+    public boolean isPackageGreening(String packageName) {
+        try {
+            return mService.isPackageGreening(packageName);
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public boolean isUidGreening(int uid) {
+        try {
+            return mService.isUidGreening(uid);
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
 }

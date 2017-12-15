@@ -92,6 +92,9 @@ interface IAshmanService {
     String[] getGreeningApps(boolean greening);
     void addOrRemoveGreeningApps(in String[] packages, int op);
 
+    boolean isPackageGreening(String packageName);
+    boolean isUidGreening(int uid);
+
     // PM API.
     void unInstallPackage(String pkg, in IPackageUninstallCallback callback);
 

@@ -1579,6 +1579,38 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @BinderCall(restrict = "any")
+    public boolean isPackageGreening(String packageName) throws RemoteException {
+        if (packageName == null) return false;
+        long id = Binder.clearCallingIdentity();
+        try {
+            if (isInSystemAppList(packageName)) return false;
+            if (isWhiteSysAppEnabled() && isInSystemAppList(packageName)) return false;
+            return mRepoProxy.getGreens().has(packageName);
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
+    }
+
+    @Override
+    @BinderCall(restrict = "any")
+    public boolean isUidGreening(int uid) throws RemoteException {
+        if (PkgUtil.isSystemOrPhoneOrShell(uid)) return false;
+
+        long id = Binder.clearCallingIdentity();
+        try {
+            String packageName = mPackagesCache.get(uid);
+            if (packageName == null) return false;
+            if (isInSystemAppList(packageName)) return false;
+            if (isWhiteSysAppEnabled() && isInSystemAppList(packageName)) return false;
+
+            return mRepoProxy.getGreens().has(packageName);
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
+    }
+
+    @Override
     @BinderCall
     @Deprecated
     public void unInstallPackage(final String pkg, final IPackageUninstallCallback callback)

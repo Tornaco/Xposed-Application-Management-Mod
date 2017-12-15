@@ -24,7 +24,7 @@ public abstract class XposedLog {
 
     private static final boolean FORCE_DEBUG = false;
 
-    private static final String TAG_PREFIX = "X-APM-S-";
+    public static final String TAG_PREFIX = "X-APM-S-";
 
     private static LogLevel sLevel = BuildConfig.DEBUG ? LogLevel.ALL : LogLevel.WARN;
 
