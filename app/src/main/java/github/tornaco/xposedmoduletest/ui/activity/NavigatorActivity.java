@@ -323,7 +323,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             ash.addTile(new CompReplacement(getActivity()));
             ash.addTile(new PermControl(getActivity()));
             if (BuildConfig.DEBUG) ash.addTile(new SmartSense(getActivity()));
-            if (BuildConfig.DEBUG) ash.addTile(new Greening(getActivity()));
+            ash.addTile(new Greening(getActivity()));
             ash.addTile(new NFManager(getActivity()));
 
             categories.add(category);

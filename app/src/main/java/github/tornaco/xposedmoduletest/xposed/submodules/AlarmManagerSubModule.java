@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
+import android.app.AlarmManager;
 import android.app.AndroidAppHelper;
 import android.util.Log;
 
@@ -37,6 +38,19 @@ class AlarmManagerSubModule extends IntentFirewallAndroidSubModule {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
+
+//                            @IntDef(prefix = { "RTC", "ELAPSED" }, value = {
+//                                    RTC_WAKEUP,
+//                                    RTC,
+//                                    ELAPSED_REALTIME_WAKEUP,
+//                                    ELAPSED_REALTIME,
+//                            })
+
+                            int type = (int) param.args[0];
+                            // We do not interrupt the alram that will not wakeup device.
+                            if (type == AlarmManager.RTC || type == AlarmManager.ELAPSED_REALTIME) {
+                                return;
+                            }
 
                             String pkgName = AndroidAppHelper.currentPackageName();
 
