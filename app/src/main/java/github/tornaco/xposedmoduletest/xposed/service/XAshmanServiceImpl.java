@@ -151,6 +151,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final AtomicBoolean mBootBlockEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mStartBlockEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mLockKillEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mGreeningEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mPermissionControlEnabled = new AtomicBoolean(false);
 
@@ -782,6 +783,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         try {
+            boolean greeningEnabled = (boolean) SystemSettings.GREENING_ENABLED_B.readFromSystemSettings(getContext());
+            mGreeningEnabled.set(greeningEnabled);
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("greeningEnabled: " + String.valueOf(greeningEnabled));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
             boolean permissionControlEnabled = (boolean) SystemSettings.PERMISSION_CONTROL_B.readFromSystemSettings(getContext());
             mPermissionControlEnabled.set(permissionControlEnabled);
             if (XposedLog.isVerboseLoggable())
@@ -926,18 +936,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (TextUtils.isEmpty(servicePkgName)) return CheckResult.BAD_ARGS;
 
-        // Check if this is green app.
-        boolean isGreeningApp = isPackageGreeningByUser(servicePkgName);
-        if (isGreeningApp) {
-            return CheckResult.DENIED_GREEN_APP;
-        }
-
         if (isInWhiteList(servicePkgName)) {
             return CheckResult.WHITE_LISTED;
         }
 
         if (isWhiteSysAppEnabled() && isInSystemAppList(servicePkgName)) {
             return CheckResult.SYSTEM_APP;
+        }
+
+        // Check if this is green app.
+        boolean isGreeningApp = isGreeningEnabled()
+                && isPackageGreeningByUser(servicePkgName);
+        if (isGreeningApp) {
+            return CheckResult.DENIED_GREEN_APP;
         }
 
         String callerPkgName =
@@ -2757,6 +2768,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    public void setGreeningEnabled(boolean enabled) throws RemoteException {
+        enforceCallingPermissions();
+        h.obtainMessage(AshManHandlerMessages.MSG_SETGREENINGENABLED, enabled)
+                .sendToTarget();
+    }
+
+    @Override
+    public boolean isGreeningEnabled() {
+        enforceCallingPermissions();
+        return !mIsSafeMode && mGreeningEnabled.get();
+    }
+
+    @Override
     @BinderCall
     protected void dump(FileDescriptor fd, final PrintWriter fout, String[] args) {
         super.dump(fd, fout, args);
@@ -3029,6 +3053,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_HEALRESTRICTAPPONWIFI:
                     HandlerImpl.this.healRestrictAppOnWifi((Integer) msg.obj, msg.arg1 == 1);
                     break;
+                case AshManHandlerMessages.MSG_SETGREENINGENABLED:
+                    HandlerImpl.this.setGreeningEnabled((Boolean) msg.obj);
+                    break;
             }
         }
 
@@ -3118,6 +3145,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 SystemSettings.NETWORK_RESTRICT_B.writeToSystemSettings(getContext(), enabled);
                 // Restore all uid settings.
                 healRestrictionBlackList(enabled);
+            }
+        }
+
+        @Override
+        public void setGreeningEnabled(boolean enabled) {
+            if (mGreeningEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.GREENING_ENABLED_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 

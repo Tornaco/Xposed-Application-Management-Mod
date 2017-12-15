@@ -137,6 +137,8 @@ interface AshManHandler {
 
     void setNetworkRestrictEnabled(boolean enabled);
 
+    void setGreeningEnabled(boolean enabled);
+
     @Getter
     class WatcherClient implements IBinder.DeathRecipient {
 

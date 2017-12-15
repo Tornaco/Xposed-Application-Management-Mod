@@ -345,5 +345,6 @@
     <string name="title_privacy_apps">查看应用隐匿设置的应用</string>
     <string name="title_privacy_items">项目</string>
     <string name="title_greening">绿色化</string>
+    <string name="summary_greening_app">绿色化应用，是禁止应用，任何时候，启动任何服务。</string>
 
 </resources>

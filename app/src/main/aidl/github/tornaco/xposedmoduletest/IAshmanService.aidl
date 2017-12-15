@@ -28,6 +28,9 @@ interface IAshmanService {
     void setRFKillEnabled(boolean enabled);
     boolean isRFKillEnabled();
 
+    void setGreeningEnabled(boolean enabled);
+    boolean isGreeningEnabled();
+
     // API For Firewall.
     boolean checkService(in ComponentName servicePkgName, int callerUid);
 

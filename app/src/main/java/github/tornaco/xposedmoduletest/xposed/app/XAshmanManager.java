@@ -744,4 +744,36 @@ public class XAshmanManager {
 
         }
     }
+
+    public String[] getGreeningApps(boolean greening) {
+        try {
+            return mService.getGreeningApps(greening);
+        } catch (RemoteException e) {
+            return new String[0];
+        }
+    }
+
+    public void addOrRemoveGreeningApps(String[] packages, int op) {
+        try {
+            mService.addOrRemoveGreeningApps(packages, op);
+        } catch (RemoteException ignored) {
+
+        }
+    }
+
+    public void setGreeningEnabled(boolean enabled) {
+        try {
+            mService.setGreeningEnabled(enabled);
+        } catch (RemoteException ignored) {
+
+        }
+    }
+
+    public boolean isGreeningEnabled() {
+        try {
+            return mService.isGreeningEnabled();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
 }
