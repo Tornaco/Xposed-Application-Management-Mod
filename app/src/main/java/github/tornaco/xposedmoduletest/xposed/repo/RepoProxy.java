@@ -32,7 +32,7 @@ public class RepoProxy {
     }
 
     @Getter
-    private StringSetRepo boots, starts, lks, rfks, perms, privacy;
+    private StringSetRepo boots, starts, lks, rfks, perms, privacy, greens, blurs;
 
     @Getter
     private StringSetRepo comps;
@@ -54,6 +54,8 @@ public class RepoProxy {
         comps = new StringSetRepo(new File(dir, "comps"), h, io);
         perms = new StringSetRepo(new File(dir, "perms"), h, io);
         privacy = new StringSetRepo(new File(dir, "privacy"), h, io);
+        greens = new StringSetRepo(new File(dir, "greens"), h, io);
+        blurs = new StringSetRepo(new File(dir, "blurs"), h, io);
     }
 
     public void deleteAll() {
@@ -64,5 +66,8 @@ public class RepoProxy {
         rfks.removeAll();
         perms.removeAll();
         privacy.removeAll();
+        greens.removeAll();
+        blurs.removeAll();
+        comps.removeAll();
     }
 }

@@ -23,7 +23,7 @@
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_horizontal_margin_middle"
             app:cardCornerRadius="@dimen/card_radius"
             app:cardElevation="@dimen/card_elevation">
 
@@ -37,15 +37,14 @@
                     android:layout_height="match_parent"
                     android:background="@color/green"
                     android:elevation="@dimen/card_elevation"
-                    android:padding="@dimen/activity_horizontal_margin_small">
-
+                    android:padding="@dimen/header_padding_small">
 
                     <ImageView
                         android:id="@+id/icon1"
                         android:layout_width="@dimen/thumbnail_size"
                         android:layout_height="@dimen/thumbnail_size"
                         android:layout_centerVertical="true"
-                        android:padding="@dimen/activity_horizontal_margin_marco"
+                        android:padding="@dimen/header_padding_small"
                         android:tint="@color/white"
                         app:srcCompat="@drawable/ic_extension_black_24dp" />
 
@@ -56,7 +55,7 @@
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:layout_toEndOf="@+id/icon1"
-                        android:padding="@dimen/activity_horizontal_margin_marco"
+                        android:padding="@dimen/header_padding_tiny"
                         android:text="@string/title_service_connected"
                         android:textAllCaps="true"
                         android:textStyle="normal" />
@@ -70,7 +69,7 @@
                     android:layout_below="@+id/header1"
                     android:layout_marginLeft="@dimen/activity_horizontal_margin"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="2dp"
                     android:background="@color/dividerLight"
                     android:visibility="gone" />
 
@@ -81,10 +80,10 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/divider"
                     android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                    android:layout_marginTop="@dimen/activity_horizontal_margin_marco"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin_middle"
                     android:paddingEnd="@dimen/activity_vertical_margin"
                     android:paddingStart="@dimen/activity_vertical_margin"
-                    android:paddingTop="@dimen/activity_horizontal_margin"
+                    android:paddingTop="@dimen/activity_horizontal_margin_middle"
                     android:text="@string/app_intro"
                     android:visibility="visible" />
 
@@ -95,7 +94,7 @@
                     android:layout_below="@android:id/text1"
                     android:layout_marginLeft="@dimen/activity_horizontal_margin"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_marginTop="@dimen/activity_horizontal_margin_small"
+                    android:layout_marginTop="@dimen/header_padding_tiny"
                     android:background="@color/dividerLight"
                     android:visibility="visible" />
 
@@ -129,7 +128,7 @@
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_horizontal_margin_tiny"
             android:orientation="vertical" />
 
     </RelativeLayout>

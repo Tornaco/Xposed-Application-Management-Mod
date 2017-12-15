@@ -218,10 +218,6 @@ public class PkgUtil {
                         .getRunningAppProcesses();
         int count = processes == null ? 0 : processes.size();
         for (int i = 0; i < count; i++) {
-//            XposedLog.verbose("runningPackageName====================");
-//            XposedLog.verbose("runningPackageName: " + processes.getSingleton(i).processName);
-//            XposedLog.verbose("runningPackageName-pkgs: " + Arrays.toString(processes.getSingleton(i).pkgList));
-//            XposedLog.verbose("runningPackageName====================");
             for (String runningPackageName : processes.get(i).pkgList) {
                 if (runningPackageName != null && runningPackageName.equals(pkg)) {
                     return true;

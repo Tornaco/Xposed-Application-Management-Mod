@@ -258,7 +258,7 @@ public interface ComponentLoader {
     class AComparator implements Comparator<ActivityInfoSettings> {
         public int compare(ActivityInfoSettings o1, ActivityInfoSettings o2) {
             if (o1.isAllowed() != o2.isAllowed()) {
-                return o1.isAllowed() ? -1 : 1;
+                return o1.isAllowed() ? 1 : -1;
             }
             return new PinyinComparator().compare(o1.simpleName(), o2.simpleName());
         }

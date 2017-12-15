@@ -5,6 +5,9 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="text_margin">16dp</dimen>
 
+    <dimen name="dashboard_tile_text_size">16sp</dimen>
+    <dimen name="dashboard_tile_text_size_small">13sp</dimen>
+
     <!-- Dashboard margins between each tiles within the layout -->
     <dimen name="dashboard_cell_gap_x">0dp</dimen>
     <dimen name="dashboard_cell_gap_y">0dp</dimen>
@@ -41,10 +44,10 @@
     <dimen name="dashboard_tile_image_size">28dp</dimen>
 
     <!-- Dashboard tile image margin start / end -->
-    <dimen name="dashboard_tile_image_margin_start">16dp</dimen>
-    <dimen name="dashboard_tile_image_margin_end">16dp</dimen>
+    <dimen name="dashboard_tile_image_margin_start">12dp</dimen>
+    <dimen name="dashboard_tile_image_margin_end">12dp</dimen>
 
-    <dimen name="dashboard_tile_action_margin">32dp</dimen>
+    <dimen name="dashboard_tile_action_margin">24dp</dimen>
 
     <dimen name="toolbar_elevation">5dp</dimen>
 

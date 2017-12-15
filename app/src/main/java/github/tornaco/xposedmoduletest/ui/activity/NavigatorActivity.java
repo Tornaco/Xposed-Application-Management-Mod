@@ -31,6 +31,7 @@ import java.util.List;
 
 import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.os.PowerManagerCompat;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
@@ -43,11 +44,12 @@ import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
 import github.tornaco.xposedmoduletest.ui.tiles.AppStart;
 import github.tornaco.xposedmoduletest.ui.tiles.CompReplacement;
 import github.tornaco.xposedmoduletest.ui.tiles.ComponentManager;
+import github.tornaco.xposedmoduletest.ui.tiles.Greening;
 import github.tornaco.xposedmoduletest.ui.tiles.LockKill;
 import github.tornaco.xposedmoduletest.ui.tiles.NFManager;
 import github.tornaco.xposedmoduletest.ui.tiles.PermControl;
-import github.tornaco.xposedmoduletest.ui.tiles.Privacy;
 import github.tornaco.xposedmoduletest.ui.tiles.RFKill;
+import github.tornaco.xposedmoduletest.ui.tiles.SmartSense;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -236,6 +238,11 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         }
 
         @Override
+        protected int getNumColumes() {
+            return 2;
+        }
+
+        @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             rootView = super.onCreateView(inflater, container, savedInstanceState);
             setupView();
@@ -301,7 +308,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             Category category = new Category();
             category.titleRes = R.string.title_secure;
             category.addTile(new AppGuard(getActivity()));
-            category.addTile(new Privacy(getActivity()));
+            //if (BuildConfig.DEBUG) category.addTile(new Privacy(getActivity()));
 
             Category rest = new Category();
             rest.titleRes = R.string.title_restrict;
@@ -315,6 +322,8 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             ash.addTile(new ComponentManager(getActivity()));
             ash.addTile(new CompReplacement(getActivity()));
             ash.addTile(new PermControl(getActivity()));
+            if (BuildConfig.DEBUG) ash.addTile(new SmartSense(getActivity()));
+            if (BuildConfig.DEBUG) ash.addTile(new Greening(getActivity()));
             ash.addTile(new NFManager(getActivity()));
 
             categories.add(category);

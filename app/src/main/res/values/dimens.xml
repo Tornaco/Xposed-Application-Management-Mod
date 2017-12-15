@@ -4,11 +4,16 @@
     <dimen name="activity_horizontal_margin_middle">12dp</dimen>
     <dimen name="activity_horizontal_margin_small">7dp</dimen>
     <dimen name="activity_horizontal_margin_marco">5dp</dimen>
+    <dimen name="activity_horizontal_margin_tiny">3dp</dimen>
     <dimen name="activity_horizontal_margin_transport_progress">9dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="activity_vertical_margin_large">24dp</dimen>
     <dimen name="activity_vertical_margin_huge">48dp</dimen>
+
     <dimen name="fab_margin">16dp</dimen>
+
+    <dimen name="header_padding_small">5dp</dimen>
+    <dimen name="header_padding_tiny">3dp</dimen>
 
     <!-- Text sizes -->
     <dimen name="text_size_extra_micro">12sp</dimen>

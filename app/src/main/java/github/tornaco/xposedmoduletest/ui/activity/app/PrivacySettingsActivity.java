@@ -13,10 +13,18 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.util.List;
+
+import dev.nick.tiles.tile.Category;
+import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
+import github.tornaco.xposedmoduletest.ui.tiles.PrivacyAndroidId;
+import github.tornaco.xposedmoduletest.ui.tiles.PrivacyApps;
+import github.tornaco.xposedmoduletest.ui.tiles.PrivacyDeviceId;
+import github.tornaco.xposedmoduletest.ui.tiles.PrivacyIccSerial;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
@@ -25,23 +33,38 @@ import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
  */
 @RuntimePermissions
 public class PrivacySettingsActivity extends WithWithCustomTabActivity {
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.privacy);
+        setContentView(R.layout.container_with_appbar_template);
         setupToolbar();
         showHomeAsUp();
-
-        if (!XAshmanManager.get().isServiceAvailable()) return;
-
         PrivacySettingsActivityPermissionRequester.setupViewsChecked(this);
+    }
+
+    public static class Dashboards extends DashboardFragment {
+        @Override
+        protected void onCreateDashCategories(List<Category> categories) {
+            super.onCreateDashCategories(categories);
+
+            Category apps = new Category();
+            apps.addTile(new PrivacyApps(getActivity()));
+
+            Category items = new Category();
+            items.titleRes = R.string.title_privacy_items;
+            items.addTile(new PrivacyAndroidId(getContext()));
+            items.addTile(new PrivacyDeviceId(getContext()));
+            items.addTile(new PrivacyIccSerial(getContext()));
+
+            categories.add(apps);
+            categories.add(items);
+        }
     }
 
     @RequiresPermission(Manifest.permission.READ_PHONE_STATE)
     void setupViews() {
-        setupViews3();
-        setupViews2();
-        setupViews1();
+        replaceV4(R.id.container, new Dashboards(), null, false);
     }
 
     @Override

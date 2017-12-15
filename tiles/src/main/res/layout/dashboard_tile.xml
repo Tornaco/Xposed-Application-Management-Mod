@@ -30,10 +30,7 @@
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ellipsize="marquee"
             android:fadingEdge="horizontal"
-            android:maxLines="1"
-            android:singleLine="true"
             android:text="@string/app_name"
             android:textAppearance="@style/TextAppearance.TileTitle" />
 
@@ -55,10 +52,10 @@
         style="@style/ActionArea"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dashboard_tile_image_margin_end"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:minWidth="@dimen/dashboard_tile_minimum_height" />
+        android:layout_centerVertical="true" />
 
     <View
         android:id="@+id/tile_divider"

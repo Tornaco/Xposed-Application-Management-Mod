@@ -86,6 +86,9 @@ interface IAshmanService {
     String[] getRFKApps(boolean kill);
     void addOrRemoveRFKApps(in String[] packages, int op);
 
+    String[] getGreeningApps(boolean greening);
+    void addOrRemoveGreeningApps(in String[] packages, int op);
+
     // PM API.
     void unInstallPackage(String pkg, in IPackageUninstallCallback callback);
 

@@ -926,10 +926,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (TextUtils.isEmpty(servicePkgName)) return CheckResult.BAD_ARGS;
 
-        String callerPkgName =
-                mPackagesCache.get(callerUid);
-        if (callerPkgName == null) {
-            callerPkgName = PkgUtil.pkgForUid(getContext(), callerUid);
+        // Check if this is green app.
+        boolean isGreeningApp = isPackageGreeningByUser(servicePkgName);
+        if (isGreeningApp) {
+            return CheckResult.DENIED_GREEN_APP;
         }
 
         if (isInWhiteList(servicePkgName)) {
@@ -939,6 +939,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (isWhiteSysAppEnabled() && isInSystemAppList(servicePkgName)) {
             return CheckResult.SYSTEM_APP;
         }
+
+        String callerPkgName =
+                mPackagesCache.get(callerUid);
+        if (callerPkgName == null) {
+            callerPkgName = PkgUtil.pkgForUid(getContext(), callerUid);
+        }
+
+        if (TextUtils.isEmpty(callerPkgName)) return CheckResult.BAD_ARGS;
 
         // Service from/to same app is allowed.
         if (servicePkgName.equals(callerPkgName)) {
@@ -1492,6 +1500,66 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    public String[] getGreeningApps(boolean greening) throws RemoteException {
+        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getGreeningApps: " + greening);
+        enforceCallingPermissions();
+        if (!greening) {
+            Collection<String> packages = mPackagesCache.values();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+
+            final List<String> outList = Lists.newArrayList();
+
+            // Remove those not in blocked list.
+            String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
+            Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
+                @Override
+                public void accept(String s) {
+                    if (isPackageGreeningByUser(s)) return;
+                    if (isInWhiteList(s)) return;
+                    if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
+                    outList.add(s);
+                }
+            });
+
+            if (outList.size() == 0) {
+                return new String[0];
+            }
+            Object[] objArr = outList.toArray();
+            return convertObjectArrayToStringArray(objArr);
+        } else {
+            Set<String> packages = mRepoProxy.getGreens().getAll();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+            if (isWhiteSysAppEnabled()) {
+                final List<String> noSys = Lists.newArrayList();
+                Collections.consumeRemaining(packages,
+                        new Consumer<String>() {
+                            @Override
+                            public void accept(String p) {
+                                if (!isInSystemAppList(p)) {
+                                    noSys.add(p);
+                                }
+                            }
+                        });
+                return convertObjectArrayToStringArray(noSys.toArray());
+            }
+            return convertObjectArrayToStringArray(packages.toArray());
+        }
+    }
+
+    @Override
+    public void addOrRemoveGreeningApps(String[] packages, int op) throws RemoteException {
+        if (XposedLog.isVerboseLoggable())
+            XposedLog.verbose("addOrRemoveGreeningApps: " + Arrays.toString(packages));
+        enforceCallingPermissions();
+        if (packages == null || packages.length == 0) return;
+        addOrRemoveFromRepo(packages, mRepoProxy.getGreens(), op == XAshmanManager.Op.ADD);
+    }
+
+    @Override
     @BinderCall
     @Deprecated
     public void unInstallPackage(final String pkg, final IPackageUninstallCallback callback)
@@ -1637,6 +1705,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private boolean isPackageRFKByUser(String pkg) {
         return isInStringRepo(mRepoProxy.getRfks(), pkg);
+    }
+
+    private boolean isPackageGreeningByUser(String pkg) {
+        return isInStringRepo(mRepoProxy.getGreens(), pkg);
     }
 
     private CheckResult checkBootCompleteBroadcast(int receiverUid, int callerUid) {
@@ -3595,6 +3667,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         // Denied cases.
         public static final CheckResult DENIED_GENERAL = new CheckResult(false, "DENIED_GENERAL", true);
+        public static final CheckResult DENIED_GREEN_APP = new CheckResult(false, "DENIED_GREEN_APP", true);
         public static final CheckResult DENIED_USER_LIST_NOT_READY = new CheckResult(false, "DENIED_USER_LIST_NOT_READY", true);
         public static final CheckResult ALLOWED_GENERAL = new CheckResult(true, "ALLOWED_GENERAL", true);
 

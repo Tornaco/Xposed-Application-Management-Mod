@@ -44,8 +44,8 @@
     <string name="title_passcode_wrong">密码错误，请重试</string>
     <string name="title_delete_success">已经删除</string>
     <string name="title_theme">主题色</string>
-    <string name="title_service_connected">服务正在运行</string>
-    <string name="title_service_not_connected">服务未运行</string>
+    <string name="title_service_connected">已激活</string>
+    <string name="title_service_not_connected">未激活</string>
     <string name="theme_def">DEFAULT</string>
     <string name="title_open_source">源代码</string>
     <string name="title_app_recent_blur">最近任务模糊</string>
@@ -85,11 +85,11 @@
     <string name="title_service">服务</string>
     <string name="title_app">应用</string>
     <string name="title_app_guard">应用锁</string>
-    <string name="title_app_boot">自启管理</string>
-    <string name="title_app_auto_start">应用关联启动管理</string>
+    <string name="title_app_boot">自启</string>
+    <string name="title_app_auto_start">关联启动</string>
     <string name="title_clearn">加速</string>
-    <string name="title_app_lock_kill">锁屏清理应用</string>
-    <string name="title_app_rf_kill">应用后台限制</string>
+    <string name="title_app_lock_kill">锁屏清理</string>
+    <string name="title_app_rf_kill">后台限制</string>
     <string name="clear_process">清理内存</string>
     <string name="clear_process_complete">清理了个%1$s应用，已达最佳状态</string>
 
@@ -107,7 +107,7 @@
     <string name="summary_start_app">"@禁止 以下应用被其他应用（通过服务，广播）启动"</string>
     <string name="summary_start_app_include_system">"@禁止 以下应用被其他应用（通过服务，广播）启动。"</string>
 
-    <string name="app_intro">以下功能依赖于嵌入系统的几项服务，你需要在 Xposed 中激活该模块，并且重启才可以激活上述服务。</string>
+    <string name="app_intro">你需要在 Xposed 中激活 应用管理 模块，并且重启才可以使用下面的功能。</string>
 
     <string name="app_intro_need_restart">应用更新后需要重新启动，否则应用管理可能无法正常工作。</string>
     <string name="title_restart_android">软重启</string>
@@ -133,7 +133,7 @@
     <string name="summary_service_info_process"><b>进程：</b>%1$s</string>
     <string name="summary_service_info_comp">%1$s</string>
     <string name="summary_service_info_comp_maybe_ad">疑似广告</string>
-    <string name="title_component_manager">应用与组件管理</string>
+    <string name="title_component_manager">应用与组件</string>
     <string name="title_export_comp_settings">导出应用配置</string>
     <string name="title_export_service_settings">导出服务配置</string>
     <string name="title_export_broadcast_settings">导出广播配置</string>
@@ -278,8 +278,8 @@
     <string name="title_comp_export_apk">APK另存为</string>
     <string name="err_file_not_found">文件不存在</string>
     <string name="section_format">Hello World from section: %1$d</string>
-    <string name="title_nf">网络控制（实验）</string>
-    <string name="summary_nf">注意该功能仍处于试验阶段， @非基于LOS 的ROM，@软重启 之后，在 @设备完全重启 之前，网络控制设置修改后 将 @无法生效 。</string>
+    <string name="title_nf">网络防火墙</string>
+    <string name="summary_nf">注意该功能仍处于【试验】阶段， @非基于LOS 的ROM，@软重启 之后，在 @设备完全重启 之前，网络控制设置修改后 将 @无法生效 。</string>
     <string name="title_nf_warn">注意！！！</string>
     <string name="title_copy_name">复制完整名称</string>
     <string name="titile_lk_do_not_kill_audio">不清理音频播放</string>
@@ -341,5 +341,9 @@
     <string name="title_privacy_update_later">稍后将刷新</string>
     <string name="title_privacy_input_code">请输入</string>
     <string name="summary_privacy">如果你不清楚下面这些是做什么的请退出。\n\n本功能仅供研究学习使用，请与下载后24小时忘掉。不得用作非法用途，如果因此造成的任何法律或个人的问题，本软件概不负责。</string>
+    <string name="title_smart_sense">情景模式</string>
+    <string name="title_privacy_apps">查看应用隐匿设置的应用</string>
+    <string name="title_privacy_items">项目</string>
+    <string name="title_greening">绿色化</string>
 
 </resources>

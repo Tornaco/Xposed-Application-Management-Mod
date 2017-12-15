@@ -12,7 +12,7 @@
 
     <style name="TextAppearance.TileTitle" parent="TextAppearance.Medium">
         <item name="android:textColor">?android:attr/textColorPrimary</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">@dimen/dashboard_tile_text_size</item>
     </style>
 
     <style name="TextAppearance.TileSubTitle" parent="TextAppearance.Small">

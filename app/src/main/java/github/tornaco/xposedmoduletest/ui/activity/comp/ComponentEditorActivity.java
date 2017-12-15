@@ -205,7 +205,9 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
         this.setThemeColor(color);
         AppBarLayout appBar = findViewById(R.id.appbar);
         if (appBar != null) appBar.setBackgroundColor(color);
-        getWindow().setStatusBarColor(ColorUtil.colorBurn(color));
+        int dark = ColorUtil.colorBurn(color);
+        getWindow().setStatusBarColor(dark);
+        getWindow().setNavigationBarColor(dark);
         Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
             toolbar.setBackgroundColor(color);

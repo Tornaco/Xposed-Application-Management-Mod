@@ -42,6 +42,10 @@ public class ContainerView extends ViewGroup {
         mNumColumns = res.getInteger(R.integer.dashboard_num_columns);
     }
 
+    public void setNumColumns(int num) {
+        this.mNumColumns = num;
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         final int width = MeasureSpec.getSize(widthMeasureSpec);

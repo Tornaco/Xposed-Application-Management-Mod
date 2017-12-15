@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,7 +42,7 @@ public class DashboardFragment extends Fragment {
         mLayoutInflater = inflater;
 
         final View rootView = inflater.inflate(getLayoutId(), container, false);
-        mDashboard = (ViewGroup) rootView.findViewById(R.id.dashboard_container);
+        mDashboard = rootView.findViewById(R.id.dashboard_container);
 
         return rootView;
     }
@@ -59,6 +60,10 @@ public class DashboardFragment extends Fragment {
 
     protected void onCreateDashCategories(List<Category> categories) {
         // Need an impl.
+    }
+
+    protected int getNumColumes() {
+        return getResources().getInteger(R.integer.dashboard_num_columns);
     }
 
     protected void buildUI(Context context) {
@@ -81,14 +86,14 @@ public class DashboardFragment extends Fragment {
             View categoryView = mLayoutInflater.inflate(R.layout.dashboard_category, mDashboard,
                     false);
 
-            TextView categoryLabel = (TextView) categoryView.findViewById(R.id.category_title);
+            TextView categoryLabel = categoryView.findViewById(R.id.category_title);
             if (category.getTitle(res) != null)
                 categoryLabel.setText(category.getTitle(res));
             else {
                 categoryLabel.setVisibility(View.GONE);
             }
 
-            final TextView categorySummary = (TextView) categoryView.findViewById(R.id.category_summary);
+            final TextView categorySummary = categoryView.findViewById(R.id.category_summary);
 
             if (category.getSummary(res) != null) {
                 categorySummary.setText(category.getSummary(res));
@@ -98,8 +103,9 @@ public class DashboardFragment extends Fragment {
                 categorySummary.setVisibility(View.GONE);
             }
 
-            ViewGroup categoryContent =
-                    (ViewGroup) categoryView.findViewById(R.id.category_content);
+            ContainerView categoryContent =
+                    categoryView.findViewById(R.id.category_content);
+            categoryContent.setNumColumns(getNumColumes());
 
             final int tilesCount = category.getTilesCount();
             for (int i = 0; i < tilesCount; i++) {
@@ -127,6 +133,11 @@ public class DashboardFragment extends Fragment {
                                 Resources res, final Tile tile,
                                 ImageView tileIcon, TextView tileTextView, TextView statusTextView) {
 
+        int column = getNumColumes();
+        if (column > 1) {
+            float newSize = context.getResources().getDimensionPixelSize(R.dimen.dashboard_tile_text_size_small);
+            tileTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, newSize);
+        }
         if (tileIcon != null) {
             if (tile.iconRes > 0) {
                 tileIcon.setImageResource(tile.iconRes);
