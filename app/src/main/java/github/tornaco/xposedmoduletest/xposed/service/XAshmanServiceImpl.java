@@ -284,7 +284,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 }
                             }, 2000);
                         }
-
                     } catch (Throwable e) {
                         XposedLog.wtf(Log.getStackTraceString(e));
                     }
@@ -443,7 +442,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                     if ("android.uid.system".equals(sharedUserId)
                                             || "android.uid.phone".equals(sharedUserId)
                                             || "android.media".equals(sharedUserId)) {
-                                        XposedLog.debug("Add to white list package: " + pkg + ", sharedUid: " + sharedUserId);
+                                        if (XposedLog.isVerboseLoggable())
+                                            XposedLog.debug("Add to white list package: "
+                                                    + pkg + ", sharedUid: " + sharedUserId);
                                         addToWhiteList(pkg);
                                         return;
                                     }
@@ -1295,6 +1296,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
                 @Override
                 public void accept(String s) {
+                    if (outList.contains(s)) return;// Kik dup package.
                     if (isPackageBootBlockByUser(s)) return;
                     if (isInWhiteList(s)) return;
                     if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
@@ -1355,6 +1357,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
                 @Override
                 public void accept(String s) {
+                    if (outList.contains(s)) return;// Kik dup package.
                     if (isPackageStartBlockByUser(s)) return;
                     if (isInWhiteList(s)) return;
                     if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
@@ -1415,6 +1418,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
                 @Override
                 public void accept(String s) {
+                    if (outList.contains(s)) return;// Kik dup package.
                     if (isPackageLKByUser(s)) return;
                     if (isInWhiteList(s)) return;
                     if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
@@ -1475,6 +1479,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
                 @Override
                 public void accept(String s) {
+                    if (outList.contains(s)) return;// Kik dup package.
                     if (isPackageRFKByUser(s)) return;
                     if (isInWhiteList(s)) return;
                     if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
@@ -1535,6 +1540,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
                 @Override
                 public void accept(String s) {
+                    if (outList.contains(s)) return;// Kik dup package.
                     if (isPackageGreeningByUser(s)) return;
                     if (isInWhiteList(s)) return;
                     if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
