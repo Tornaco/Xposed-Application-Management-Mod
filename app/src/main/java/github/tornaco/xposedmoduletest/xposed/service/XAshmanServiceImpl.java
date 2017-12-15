@@ -3423,27 +3423,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         @Override
         public void notifyStartBlock(final String pkg) {
-            if (pkg == null) return;
-            Runnable r = new Runnable() {
-                @Override
-                public void run() {
-                    Object[] objects = mWatcherClients.toArray();
-                    Collections.consumeRemaining(objects, new Consumer<Object>() {
-                        @Override
-                        public void accept(Object o) {
-                            WatcherClient w = (WatcherClient) o;
-                            if (!w.isAlive()) {
-                                return; // FIXME Try remove from set.
-                            }
-                            try {
-                                w.getWatcher().onStartBlocked(pkg);
-                            } catch (RemoteException ignored) {
-                            }
-                        }
-                    });
-                }
-            };
-            mWorkingService.execute(r);
+            // FIXME Impl is needed.
         }
 
         @Override
