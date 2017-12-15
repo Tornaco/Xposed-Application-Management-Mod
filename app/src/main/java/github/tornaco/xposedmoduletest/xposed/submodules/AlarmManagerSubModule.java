@@ -31,13 +31,16 @@ class AlarmManagerSubModule extends IntentFirewallAndroidSubModule {
     private void hookSetAlarm() {
         XposedLog.verbose("hookSetAlarm...");
         try {
-            Class clz = XposedHelpers.findClass("android.os.AlarmManager", null);
+            Class clz = XposedHelpers.findClass("android.app.AlarmManager", null);
             Set unHooks = XposedBridge.hookAllMethods(clz,
                     "setImpl", new XC_MethodHook() {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
+
                             String pkgName = AndroidAppHelper.currentPackageName();
+
+                            if ("android".equals(pkgName)) return;
 
                             // Check Greening.
                             boolean greening = XAshmanManager.get().isServiceAvailable()
@@ -56,7 +59,9 @@ class AlarmManagerSubModule extends IntentFirewallAndroidSubModule {
                             int mode = XAshmanManager.get().getPermissionControlBlockModeForPkg(
                                     AppOpsManagerCompat.OP_SET_ALARM, pkgName);
                             if (mode == AppOpsManagerCompat.MODE_IGNORED) {
-                                XposedLog.verbose("set alarm, MODE_IGNORED returning...");
+                                if (BuildConfig.DEBUG) {
+                                    Log.d(XposedLog.TAG_PREFIX, "set alarm, MODE_IGNORED returning...");
+                                }
                                 param.setResult(null);
                             }
                         }

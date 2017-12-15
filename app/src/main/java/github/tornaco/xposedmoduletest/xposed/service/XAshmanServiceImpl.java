@@ -1584,6 +1584,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (packageName == null) return false;
         long id = Binder.clearCallingIdentity();
         try {
+            if (!isGreeningEnabled()) return false;
+
             if (isInSystemAppList(packageName)) return false;
             if (isWhiteSysAppEnabled() && isInSystemAppList(packageName)) return false;
             return mRepoProxy.getGreens().has(packageName);
@@ -1599,6 +1601,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         long id = Binder.clearCallingIdentity();
         try {
+
+            if (!isGreeningEnabled()) return false;
+
             String packageName = mPackagesCache.get(uid);
             if (packageName == null) return false;
             if (isInSystemAppList(packageName)) return false;
@@ -2816,7 +2821,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public boolean isGreeningEnabled() {
-        enforceCallingPermissions();
         return !mIsSafeMode && mGreeningEnabled.get();
     }
 
