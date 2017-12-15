@@ -611,6 +611,7 @@ public class XAshmanManager {
     }
 
     public void setUserDefinedLine1Number(String id) {
+        ensureService();
         try {
             mService.setUserDefinedLine1Number(id);
         } catch (RemoteException ignored) {
@@ -619,6 +620,7 @@ public class XAshmanManager {
     }
 
     public String getAndroidId() {
+        ensureService();
         try {
             return mService.getAndroidId();
         } catch (RemoteException e) {
@@ -627,6 +629,7 @@ public class XAshmanManager {
     }
 
     public String getDeviceId() {
+        ensureService();
         try {
             return mService.getDeviceId();
         } catch (RemoteException ignored) {
@@ -635,6 +638,7 @@ public class XAshmanManager {
     }
 
     public String getLine1Number() {
+        ensureService();
         try {
             return mService.getLine1Number();
         } catch (RemoteException ignored) {
@@ -643,6 +647,7 @@ public class XAshmanManager {
     }
 
     public String getUserDefinedLine1Number() {
+        ensureService();
         try {
             return mService.getUserDefinedLine1Number();
         } catch (RemoteException ignored) {
@@ -651,6 +656,7 @@ public class XAshmanManager {
     }
 
     public String getUserDefinedDeviceId() {
+        ensureService();
         try {
             return mService.getUserDefinedDeviceId();
         } catch (RemoteException e) {
@@ -659,6 +665,7 @@ public class XAshmanManager {
     }
 
     public String getUserDefinedAndroidId() {
+        ensureService();
         try {
             return mService.getUserDefinedAndroidId();
         } catch (RemoteException ignored) {
@@ -667,6 +674,7 @@ public class XAshmanManager {
     }
 
     public boolean showFocusedActivityInfoEnabled() {
+        ensureService();
         try {
             return mService.showFocusedActivityInfoEnabled();
         } catch (RemoteException e) {
@@ -675,6 +683,7 @@ public class XAshmanManager {
     }
 
     public void setShowFocusedActivityInfoEnabled(boolean enabled) {
+        ensureService();
         try {
             mService.setShowFocusedActivityInfoEnabled(enabled);
         } catch (RemoteException ignored) {
@@ -683,6 +692,7 @@ public class XAshmanManager {
     }
 
     public boolean networkRestrictEnabled() {
+        ensureService();
         try {
             return mService.networkRestrictEnabled();
         } catch (RemoteException e) {
@@ -691,8 +701,45 @@ public class XAshmanManager {
     }
 
     public void setNetworkRestrictEnabled(boolean enabled) {
+        ensureService();
         try {
             mService.setNetworkRestrictEnabled(enabled);
+        } catch (RemoteException ignored) {
+
+        }
+    }
+
+    public boolean isPackageInPrivacyList(String pkg) {
+        ensureService();
+        try {
+            return mService.isPackageInPrivacyList(pkg);
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public boolean isUidInPrivacyList(int uid) {
+        ensureService();
+        try {
+            return mService.isUidInPrivacyList(uid);
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public String[] getPrivacyList() {
+        ensureService();
+        try {
+            return mService.getPrivacyList();
+        } catch (RemoteException ignored) {
+            return new String[0];
+        }
+    }
+
+    public void addOrRemoveFromPrivacyList(String pkg, int op) {
+        ensureService();
+        try {
+            mService.addOrRemoveFromPrivacyList(pkg, op);
         } catch (RemoteException ignored) {
 
         }

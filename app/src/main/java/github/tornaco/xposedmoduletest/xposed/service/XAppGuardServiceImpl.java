@@ -296,7 +296,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             boolean interruptFPE = (boolean) SystemSettings.INTERRUPT_FP_ERROR_VB_ENABLED_B.readFromSystemSettings(getContext());
             mInterruptFPERRORVB.set(interruptFPE);
 
-            // FIXME Why?
             boolean debug = BuildConfig.DEBUG;
             mDebugEnabled.set(debug);
             XposedLog.setLogLevel(debug ? XposedLog.LogLevel.ALL : XposedLog.LogLevel.WARN);
@@ -924,7 +923,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @Override
     public boolean isActivityStartShouldBeInterrupted(ComponentName componentName) {
-return false;
+        return false;
     }
 
     @Override

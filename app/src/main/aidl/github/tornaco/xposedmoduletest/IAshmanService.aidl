@@ -121,6 +121,11 @@ interface IAshmanService {
     String getUserDefinedDeviceId();
     String getUserDefinedAndroidId();
 
+    boolean isPackageInPrivacyList(String pkg);
+    boolean isUidInPrivacyList(int uid);
+    String[] getPrivacyList();
+    void addOrRemoveFromPrivacyList(String pkg, int op);
+
     boolean showFocusedActivityInfoEnabled();
     void setShowFocusedActivityInfoEnabled(boolean enabled);
 

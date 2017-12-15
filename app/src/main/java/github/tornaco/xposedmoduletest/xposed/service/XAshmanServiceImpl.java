@@ -167,6 +167,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final AtomicBoolean mCompSettingBlockEnabled = new AtomicBoolean(false);
 
     private final Holder<String> mUserDefinedDeviceId = new Holder<>();
+    private final Holder<String> mUserDefinedAndroidId = new Holder<>();
     private final Holder<String> mUserDefinedLine1Number = new Holder<>();
 
     // FIXME Now we force set control mode to BLACK LIST.
@@ -803,6 +804,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             mUserDefinedDeviceId.setData(userDeviceId);
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("userDeviceId: " + String.valueOf(userDeviceId));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            String userAndroidId = (String) SystemSettings.USER_DEFINED_ANDROID_ID_T_S.readFromSystemSettings(getContext());
+            mUserDefinedAndroidId.setData(userAndroidId);
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("userAndroidId: " + String.valueOf(userAndroidId));
         } catch (Throwable e) {
             XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -2265,7 +2275,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public String getUserDefinedLine1Number() throws RemoteException {
-        if (!BuildConfig.DEBUG) return null;
         long id = Binder.clearCallingIdentity();
         try {
             return mUserDefinedLine1Number.getData();
@@ -2276,7 +2285,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public String getUserDefinedDeviceId() throws RemoteException {
-        if (!BuildConfig.DEBUG) return null;
         long id = Binder.clearCallingIdentity();
         try {
             return mUserDefinedDeviceId.getData();
@@ -2286,8 +2294,60 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public String getUserDefinedAndroidId() throws RemoteException {
-        return getAndroidId();
+    public String getUserDefinedAndroidId() {
+        long id = Binder.clearCallingIdentity();
+        try {
+            return mUserDefinedAndroidId.getData();
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
+    }
+
+    @Override
+    @BinderCall
+    public String[] getPrivacyList() throws RemoteException {
+        enforceCallingPermissions();
+        long id = Binder.clearCallingIdentity();
+        try {
+            Set<String> all = mRepoProxy.getPrivacy().getAll();
+            return convertObjectArrayToStringArray(all.toArray());
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
+    }
+
+    @Override
+    @BinderCall(restrict = "any")
+    public boolean isPackageInPrivacyList(String pkg) throws RemoteException {
+        if (pkg == null) return false;
+        long id = Binder.clearCallingIdentity();
+        try {
+            return mRepoProxy.getPrivacy().has(pkg);
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
+    }
+
+    @Override
+    @BinderCall(restrict = "any")
+    public boolean isUidInPrivacyList(int uid) throws RemoteException {
+        return isPackageInPrivacyList(mPackagesCache.get(uid));
+    }
+
+    @Override
+    @BinderCall
+    public void addOrRemoveFromPrivacyList(String pkg, int op) throws RemoteException {
+        enforceCallingPermissions();
+        long id = Binder.clearCallingIdentity();
+        try {
+            if (op == XAshmanManager.Op.ADD) {
+                mRepoProxy.getPrivacy().add(pkg);
+            } else {
+                mRepoProxy.getPrivacy().remove(pkg);
+            }
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
     }
 
     @Override
@@ -2953,13 +3013,24 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         @Override
+        public void setUserDefinedAndroidId(String id) {
+            mUserDefinedAndroidId.setData(id);
+            SystemSettings.USER_DEFINED_ANDROID_ID_T_S
+                    .writeToSystemSettings(getContext(), id);
+        }
+
+        @Override
         public void setUserDefinedDeviceId(String id) {
             mUserDefinedDeviceId.setData(id);
+            SystemSettings.USER_DEFINED_DEVICE_ID_T_S
+                    .writeToSystemSettings(getContext(), id);
         }
 
         @Override
         public void setUserDefinedLine1Number(String id) {
             mUserDefinedLine1Number.setData(id);
+            SystemSettings.USER_DEFINED_LINE1_NUM_T_S
+                    .writeToSystemSettings(getContext(), id);
         }
 
         @Override
@@ -2975,16 +3046,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 SystemSettings.NETWORK_RESTRICT_B.writeToSystemSettings(getContext(), enabled);
                 // Restore all uid settings.
                 healRestrictionBlackList(enabled);
-            }
-        }
-
-        @Override
-        public void setUserDefinedAndroidId(String id) {
-            try {
-                Settings.Secure.putString(getContext().getContentResolver(),
-                        Settings.Secure.ANDROID_ID, id);
-            } catch (Throwable e) {
-                XposedLog.wtf("Fail set androidId: " + Log.getStackTraceString(e));
             }
         }
 

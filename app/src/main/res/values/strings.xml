@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">应用管理</string>
     <string name="manage_overlay">管理叠加层</string>
-    <string name="switch_on_text">已启用</string>
-    <string name="switch_off_text">已禁用</string>
+    <string name="switch_on_text">功能已打开</string>
+    <string name="switch_off_text">功能已关闭</string>
     <string name="test_noter">密码测试</string>
     <string name="input_password">%1$s 已锁定</string>
     <string name="dump_module">模块运行状态</string>

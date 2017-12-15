@@ -10,7 +10,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -58,7 +57,7 @@ class PhoneInterfaceManagerSubModule2 extends IntentFirewallAndroidSubModule {
                                 if (mode == AppOpsManagerCompat.MODE_IGNORED) {
                                     XposedLog.verbose("getDeviceId, MODE_IGNORED returning null for :" + callPackageName);
                                     param.setResult(null);
-                                } else if (BuildConfig.DEBUG) {
+                                } else {
                                     String userSetId = xAshmanManager.getUserDefinedDeviceId();
                                     if (userSetId != null) {
                                         XposedLog.verbose("getDeviceId, returning user device id :" + userSetId);

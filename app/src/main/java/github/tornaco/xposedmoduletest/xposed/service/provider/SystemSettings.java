@@ -354,6 +354,21 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
         }
     },
 
+    USER_DEFINED_ANDROID_ID_T_S("xxxxxxxxxx") {
+        @Override
+        public boolean writeToSystemSettings(Context context, Object value) {
+            ContentResolver resolver = context.getContentResolver();
+            return resolver != null && Settings.System.putString(resolver, name(), String.valueOf(value));
+        }
+
+        @Override
+        public Object readFromSystemSettings(Context context) {
+            ContentResolver resolver = context.getContentResolver();
+            if (resolver == null) return getDefValue();
+            return Settings.System.getString(resolver, name());
+        }
+    },
+
     LOCK_KILL_DELAY_L(0L) {
         @Override
         public boolean writeToSystemSettings(Context context, Object value) {

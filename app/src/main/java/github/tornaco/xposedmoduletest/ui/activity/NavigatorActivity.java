@@ -31,7 +31,6 @@ import java.util.List;
 
 import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
-import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.os.PowerManagerCompat;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
@@ -302,7 +301,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             Category category = new Category();
             category.titleRes = R.string.title_secure;
             category.addTile(new AppGuard(getActivity()));
-            if (BuildConfig.DEBUG) category.addTile(new Privacy(getActivity()));
+            category.addTile(new Privacy(getActivity()));
 
             Category rest = new Category();
             rest.titleRes = R.string.title_restrict;

@@ -31,5 +31,6 @@ public interface IIntentFirewallBridge extends IModuleBridge {
     void onAbandonAudioFocus(int res, int callingUid, String callingPkg);
 
     int checkPermission(String perm, int pid, int uid);
+
     int checkOperation(int code, int uid, String packageName, String reason);
 }

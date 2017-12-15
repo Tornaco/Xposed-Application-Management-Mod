@@ -53,7 +53,7 @@ public class ActivitySettingsAdapter extends ComponentListAdapter<ActivityInfoSe
 
         holder.getSummaryView().setText(getContext().getString(R.string.summary_service_info_comp, name));
         holder.getSummaryView2().setText(getContext().getString(R.string.summary_service_info_comp_maybe_ad));
-        holder.getSummaryView2().setVisibility(activityInfoSettings.mayBeAdComponent() ? View.VISIBLE : View.GONE);
+        holder.getSummaryView2().setVisibility(View.GONE);
 
         if (!xAshmanManager.isServiceAvailable()) {
             return;
