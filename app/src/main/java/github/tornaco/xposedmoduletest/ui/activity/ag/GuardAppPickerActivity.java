@@ -1,13 +1,12 @@
 package github.tornaco.xposedmoduletest.ui.activity.ag;
 
 import android.app.ProgressDialog;
-import android.graphics.Typeface;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import github.tornaco.android.common.Consumer;
@@ -15,13 +14,9 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.loader.PackageLoader;
 import github.tornaco.xposedmoduletest.provider.AppGuardPackageProvider;
-import github.tornaco.xposedmoduletest.ui.adapter.GuardAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.GuardAppPickerListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import ir.mirrajabi.searchdialog.SimpleSearchDialogCompat;
-import ir.mirrajabi.searchdialog.core.BaseSearchDialogCompat;
-import ir.mirrajabi.searchdialog.core.SearchResultListener;
 
 public class GuardAppPickerActivity extends GuardAppNavActivity {
 
@@ -84,7 +79,7 @@ public class GuardAppPickerActivity extends GuardAppNavActivity {
     }
 
     @Override
-    protected GuardAppListAdapter onCreateAdapter() {
+    protected RecyclerView.Adapter onCreateAdapter() {
         return new GuardAppPickerListAdapter(this);
     }
 

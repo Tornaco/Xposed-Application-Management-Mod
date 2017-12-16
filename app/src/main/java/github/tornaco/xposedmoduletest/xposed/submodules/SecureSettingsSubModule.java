@@ -10,6 +10,7 @@ import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -38,15 +39,20 @@ class SecureSettingsSubModule extends IntentFirewallAndroidSubModule {
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
                             String name = String.valueOf(param.args[1]);
-                            if (Settings.Secure.ANDROID_ID.equals(name)) {
+                            if (BuildConfig.DEBUG && Settings.Secure.ANDROID_ID.equals(name)) {
                                 // Use of defined id.
                                 XAshmanManager ash = XAshmanManager.get();
                                 if (ash.isServiceAvailable()) {
                                     int callingUid = Binder.getCallingUid();
-                                    boolean hook = ash.isUidInPrivacyList(callingUid);
-                                    if (hook) {
+                                    boolean priv = ash.isUidInPrivacyList(callingUid);
+                                    if (BuildConfig.DEBUG) {
+                                        Log.d(XposedLog.TAG_DANGER,
+                                                "getStringForUser, uid: " + callingUid + ", hook: " + priv);
+                                    }
+                                    if (priv) {
                                         String androidId = ash.getUserDefinedAndroidId();
                                         if (androidId != null) {
+                                            Log.d(XposedLog.TAG_DANGER, "Using user defined androidId!!! for: " + callingUid);
                                             param.setResult(androidId);
                                         }
                                     }

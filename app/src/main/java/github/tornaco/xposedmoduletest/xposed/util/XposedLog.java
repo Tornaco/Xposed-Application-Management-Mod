@@ -25,6 +25,7 @@ public abstract class XposedLog {
     private static final boolean FORCE_DEBUG = false;
 
     public static final String TAG_PREFIX = "X-APM-S-";
+    public static final String TAG_DANGER = "X-APM-DANGER-";
 
     private static LogLevel sLevel = BuildConfig.DEBUG ? LogLevel.ALL : LogLevel.WARN;
 
@@ -80,6 +81,12 @@ public abstract class XposedLog {
     public static void wtf(Object log) {
         if (isLoggable(LogLevel.WARN)) XposedBridge.log(TAG_PREFIX
                 + LogLevel.WARN.name()
+                + "-"
+                + String.valueOf(log));
+    }
+
+    public static void danger(Object log) {
+        if (isLoggable(LogLevel.WARN)) XposedBridge.log(TAG_DANGER
                 + "-"
                 + String.valueOf(log));
     }

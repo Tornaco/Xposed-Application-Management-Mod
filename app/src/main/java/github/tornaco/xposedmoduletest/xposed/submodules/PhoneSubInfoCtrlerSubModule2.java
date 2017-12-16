@@ -8,6 +8,7 @@ import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -45,16 +46,20 @@ class PhoneSubInfoCtrlerSubModule2 extends IntentFirewallAndroidSubModule {
                                 int mode = ashmanManager.getPermissionControlBlockModeForPkg(
                                         AppOpsManagerCompat.OP_GET_LINE1_NUMBER, callPackageName);
                                 if (mode == AppOpsManagerCompat.MODE_IGNORED) {
-                                    XposedLog.verbose("PhoneSubInfoCtrlerSubModule2 " +
-                                            "getLine1NumberForSubscriber, MODE_IGNORED returning null for :"
-                                            + callPackageName);
+                                    if (BuildConfig.DEBUG)
+                                        XposedLog.verbose("PhoneSubInfoCtrlerSubModule2 " +
+                                                "getLine1NumberForSubscriber, MODE_IGNORED returning null for :"
+                                                + callPackageName);
                                     param.setResult(null);
-                                } else {
-                                    String userNumber = ashmanManager.getUserDefinedLine1Number();
-                                    if (userNumber != null) {
-                                        XposedLog.verbose("PhoneSubInfoCtrlerSubModule2" +
-                                                "getLine1NumberForSubscriber, returning user defined num: " + userNumber);
-                                        param.setResult(userNumber);
+                                } else if (BuildConfig.DEBUG) {
+                                    boolean isPriv = ashmanManager.isPackageInPrivacyList(callPackageName);
+                                    if (isPriv) {
+                                        String userNumber = ashmanManager.getUserDefinedLine1Number();
+                                        if (userNumber != null) {
+                                            XposedLog.danger("PhoneSubInfoCtrlerSubModule2" +
+                                                    "getLine1NumberForSubscriber, returning user defined num: " + userNumber);
+                                            param.setResult(userNumber);
+                                        }
                                     }
                                 }
                             }

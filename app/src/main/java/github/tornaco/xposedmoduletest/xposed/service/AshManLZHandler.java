@@ -15,4 +15,6 @@ interface AshManLZHandler {
     void onPackageMoveToFront(String who);
 
     void onCompSetting(String pkg, boolean enable);
+
+    void onBroadcastAction(Intent action);
 }

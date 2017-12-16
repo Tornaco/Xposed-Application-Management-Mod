@@ -8,8 +8,7 @@ import android.widget.Toast;
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.ui.activity.ag.GuardAppNavActivity;
-import github.tornaco.xposedmoduletest.ui.activity.green.GreeningAppNavActivity;
+import github.tornaco.xposedmoduletest.ui.activity.green2.ExtraOpsSettingActivity;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -27,12 +26,12 @@ public class Greening extends QuickTile {
             public void onClick(View v) {
                 super.onClick(v);
                 Toast.makeText(context, "~~~~~~", Toast.LENGTH_SHORT).show();
-                context.startActivity(new Intent(context, GreeningAppNavActivity.class));
+                context.startActivity(new Intent(context, ExtraOpsSettingActivity.class));
             }
 
             @Override
             protected boolean useStaticTintColor() {
-                return false;
+                return true;
             }
         };
     }

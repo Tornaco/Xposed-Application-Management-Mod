@@ -12,6 +12,7 @@ import org.newstand.logger.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
@@ -711,20 +712,22 @@ public class XAshmanManager {
 
     public boolean isPackageInPrivacyList(String pkg) {
         ensureService();
-        try {
+        if (BuildConfig.DEBUG) try {
             return mService.isPackageInPrivacyList(pkg);
         } catch (RemoteException e) {
             return false;
         }
+        return false;
     }
 
     public boolean isUidInPrivacyList(int uid) {
         ensureService();
-        try {
+        if (BuildConfig.DEBUG) try {
             return mService.isUidInPrivacyList(uid);
         } catch (RemoteException e) {
             return false;
         }
+        return false;
     }
 
     public String[] getPrivacyList() {
@@ -778,11 +781,12 @@ public class XAshmanManager {
     }
 
     public boolean isPackageGreening(String packageName) {
-        try {
+        if (BuildConfig.DEBUG) try {
             return mService.isPackageGreening(packageName);
         } catch (RemoteException e) {
             return false;
         }
+        return false;
     }
 
     public boolean isUidGreening(int uid) {

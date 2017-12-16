@@ -84,5 +84,15 @@ public class AppSettings extends Observable {
                 .getBoolean(AppKey.SHOW_INFO_PREFIX + who, true);
     }
 
+    public static boolean show2ColumnsIn(Context context, String where) {
+        return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+                .getBoolean(AppKey.MAIN_DASH_COLUMN_COUNT + where, true);
+    }
+
+    public static void setShow2ColumnsIn(Context context, String who, boolean show) {
+        context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+                .edit().putBoolean(AppKey.MAIN_DASH_COLUMN_COUNT + who, show)
+                .apply();
+    }
 
 }

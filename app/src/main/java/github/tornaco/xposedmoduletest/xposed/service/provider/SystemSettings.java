@@ -254,7 +254,7 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
         }
     },
 
-    AUTO_BLACK_FOR_NEW_INSTALLED_APP_B(1) {
+    AUTO_BLACK_FOR_NEW_INSTALLED_APP_B(0) {
         @Override
         public boolean writeToSystemSettings(Context context, Object value) {
             ContentResolver resolver = context.getContentResolver();

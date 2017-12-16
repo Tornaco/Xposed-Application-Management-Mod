@@ -2,7 +2,6 @@ package github.tornaco.xposedmoduletest.ui.activity.perm;
 
 import android.annotation.SuppressLint;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.SwitchCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,7 +18,6 @@ import github.tornaco.xposedmoduletest.ui.activity.ag.GuardAppPickerActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.GuardAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.SpannableUtil;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
  * Created by guohao4 on 2017/11/18.
@@ -35,18 +33,18 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
         findViewById(R.id.fab).setVisibility(View.GONE);
 
         SwitchBar switchBar = findViewById(R.id.switchbar);
-        switchBar.show();
+        switchBar.hide();
 
-        if (XAshmanManager.get().isServiceAvailable()) {
-            boolean perctrl = XAshmanManager.get().isPermissionControlEnabled();
-            switchBar.setChecked(perctrl);
-            switchBar.addOnSwitchChangeListener(new SwitchBar.OnSwitchChangeListener() {
-                @Override
-                public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-                    XAshmanManager.get().setPermissionControlEnabled(isChecked);
-                }
-            });
-        }
+//        if (XAshmanManager.get().isServiceAvailable()) {
+//            boolean perctrl = XAshmanManager.get().isPermissionControlEnabled();
+//            switchBar.setChecked(perctrl);
+//            switchBar.addOnSwitchChangeListener(new SwitchBar.OnSwitchChangeListener() {
+//                @Override
+//                public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
+//                    XAshmanManager.get().setPermissionControlEnabled(isChecked);
+//                }
+//            });
+//        }
     }
 
     @Override

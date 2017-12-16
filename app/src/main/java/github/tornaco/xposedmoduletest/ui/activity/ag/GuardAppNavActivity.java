@@ -124,7 +124,7 @@ public class GuardAppNavActivity extends NeedLockActivity {
             }
         });
 
-        guardAppListAdapter = onCreateAdapter();
+        guardAppListAdapter = (GuardAppListAdapter) onCreateAdapter();
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false));
@@ -185,7 +185,7 @@ public class GuardAppNavActivity extends NeedLockActivity {
                 });
     }
 
-    protected GuardAppListAdapter onCreateAdapter() {
+    protected RecyclerView.Adapter onCreateAdapter() {
         return new GuardAppListAdapter(this) {
             @Override
             protected void onPackageRemoved(String p) {

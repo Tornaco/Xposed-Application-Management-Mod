@@ -83,7 +83,7 @@ public class GuardAppListAdapter extends RecyclerView.Adapter<GuardAppListAdapte
     }
 
     @LayoutRes
-    private int getTemplateLayoutRes() {
+    protected int getTemplateLayoutRes() {
         return R.layout.app_list_item_1;
     }
 
@@ -148,12 +148,13 @@ public class GuardAppListAdapter extends RecyclerView.Adapter<GuardAppListAdapte
 
     @Getter
     public static class AppViewHolder extends RecyclerView.ViewHolder {
-        private TextView lineOneTextView, systemAppIndicator;
+        private TextView lineOneTextView, lineTwoTextView, systemAppIndicator;
         private CheckableImageView checkableImageView;
 
         AppViewHolder(View itemView) {
             super(itemView);
             lineOneTextView = itemView.findViewById(android.R.id.title);
+            lineTwoTextView = itemView.findViewById(android.R.id.text2);
             systemAppIndicator = itemView.findViewById(android.R.id.text1);
             checkableImageView = itemView.findViewById(R.id.checkable_img_view);
         }

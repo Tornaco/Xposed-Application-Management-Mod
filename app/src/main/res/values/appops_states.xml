@@ -326,6 +326,7 @@
         <item>"读取ICC ID（getSimSerialNumber）"</item>
         <item>"读取电话号码（getLine1Number）"</item>
         <item>"设置定时器，可能用于唤醒服务等"</item>
+        <item>"启动后台服务"</item>
     </string-array>
     <string-array name="app_ops_labels">
         <item>"位置"</item>
@@ -368,7 +369,7 @@
         <item>"闹钟音量"</item>
         <item>"通知音量"</item>
         <item>"蓝牙音量"</item>
-        <item>"保持唤醒状态"</item>
+        <item>"唤醒锁"</item>
         <item>"位置"</item>
         <item>"位置信息"</item>
         <item>"获取使用情况统计信息"</item>
@@ -405,6 +406,7 @@
         <item>"读取ICC ID"</item>
         <item>"读取电话号码"</item>
         <item>"设置定时器"</item>
+        <item>"启动后台服务"</item>
     </string-array>
     <string-array name="long_press_timeout_selector_titles">
         <item>"短"</item>

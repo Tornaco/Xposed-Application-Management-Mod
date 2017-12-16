@@ -10,6 +10,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -49,21 +50,26 @@ class PhoneInterfaceManagerSubModule extends IntentFirewallAndroidSubModule {
                                     || "com.android.server.telecom".equals(callPackageName)) {
                                 return;
                             }
+
                             // Check op.
                             XAshmanManager xAshmanManager = XAshmanManager.get();
                             if (xAshmanManager.isServiceAvailable()) {
                                 int mode = xAshmanManager.getPermissionControlBlockModeForPkg(
                                         AppOpsManagerCompat.OP_GET_LINE1_NUMBER, callPackageName);
                                 if (mode == AppOpsManagerCompat.MODE_IGNORED) {
-                                    XposedLog.verbose("getLine1NumberForDisplay, MODE_IGNORED returning null for :"
-                                            + callPackageName);
+                                    if (BuildConfig.DEBUG)
+                                        XposedLog.verbose("getLine1NumberForDisplay, MODE_IGNORED returning null for :"
+                                                + callPackageName);
                                     param.setResult(null);
-                                }
-                                {
-                                    String userNumber = xAshmanManager.getUserDefinedLine1Number();
-                                    if (userNumber != null) {
-                                        XposedLog.verbose("getLine1NumberForDisplay, returning user defined num: " + userNumber);
-                                        param.setResult(userNumber);
+                                } else if (BuildConfig.DEBUG) {
+                                    // Check if we should hook this pkg.
+                                    boolean isPriv = xAshmanManager.isPackageInPrivacyList(callPackageName);
+                                    if (isPriv) {
+                                        String userNumber = xAshmanManager.getUserDefinedLine1Number();
+                                        if (userNumber != null) {
+                                            XposedLog.danger("getLine1NumberForDisplay, returning user defined num: " + userNumber);
+                                            param.setResult(userNumber);
+                                        }
                                     }
                                 }
                             }

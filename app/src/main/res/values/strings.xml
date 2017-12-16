@@ -345,6 +345,7 @@
     <string name="title_privacy_apps">查看应用隐匿设置的应用</string>
     <string name="title_privacy_items">项目</string>
     <string name="title_greening">绿色化</string>
-    <string name="summary_greening_app">绿色化某个应用，是禁止该应用任何时候，启动任何服务，设置唤醒（RTL WAKEUP）定时器，获取任何类型唤醒锁。\n\n小提示：你也可以前往权限管理，按照（定时器/唤醒锁）根据自己的想法控制这些行为。</string>
+    <string name="summary_greening_app">绿色化某个应用，可以禁止该应用任何时候，启动任何服务，设置唤醒（RTC WAKEUP）定时器，获取任何类型唤醒锁。\n\n小提示：你也可以前往权限管理，按照（服务/定时器/唤醒锁）根据自己的想法控制这些行为。</string>
+    <string name="title_change_column_count">切换布局</string>
 
 </resources>

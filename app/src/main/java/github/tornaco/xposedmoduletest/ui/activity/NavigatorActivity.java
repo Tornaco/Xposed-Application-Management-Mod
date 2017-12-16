@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.common.collect.ImmutableList;
 import com.jaredrummler.android.shell.Shell;
@@ -193,6 +194,13 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         if (item.getItemId() == R.id.action_help) {
             navigateToWebPage(getString(R.string.app_wiki_url));
         }
+
+        if (item.getItemId() == R.id.action_change_column_count) {
+            boolean two = AppSettings.show2ColumnsIn(getActivity(), NavigatorActivity.class.getSimpleName());
+            AppSettings.setShow2ColumnsIn(getContext(), NavigatorActivity.class.getSimpleName(), !two);
+            Toast.makeText(getContext(), "Dung~~~~~~~", Toast.LENGTH_SHORT).show();
+            finish();
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -239,7 +247,8 @@ public class NavigatorActivity extends WithWithCustomTabActivity
 
         @Override
         protected int getNumColumes() {
-            return 2;
+            boolean two = AppSettings.show2ColumnsIn(getActivity(), NavigatorActivity.class.getSimpleName());
+            return two ? 2 : 1;
         }
 
         @Override

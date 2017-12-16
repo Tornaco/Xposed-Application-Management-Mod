@@ -1103,12 +1103,12 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                                 new Notification.Builder(getContext())
                                         .setOngoing(true)
                                         .setContentTitle("应用管理")
-                                        .setContentText("调试模式已经打开，如果使用完毕请及时关闭")
+                                        .setContentText("调试模式已经打开。")
                                         .setSmallIcon(android.R.drawable.stat_sys_warning)
                                         .build());
             } catch (Throwable e) {
                 Toast.makeText(getContext(),
-                        "应用管理 调试模式已经打开，如果使用完毕请及时关闭，否则会新增加耗电，造成系统卡顿", Toast.LENGTH_LONG).show();
+                        "应用管理 调试模式已经打开，如果使用完毕请及时关闭，否则会新增加耗电，造成系统卡顿。", Toast.LENGTH_LONG).show();
             }
         } else {
             NotificationManagerCompat.from(getContext()).cancel(NOTIFICATION_ID);

@@ -65,6 +65,12 @@ public interface PermissionLoader {
                         return;
                     }
 
+
+                    if (code == AppOpsManagerCompat.OP_WAKE_LOCK) {
+                        Logger.w("Tem skip per control: " + s);
+                        return;
+                    }
+
                     p.setCode(code);
 
                     String name = AppOpsManagerCompat.getOpLabel(context, code);
@@ -83,12 +89,15 @@ public interface PermissionLoader {
                 }
             });
 
+            java.util.Collections.sort(permissions, new PermComparator());
+
             // Add our extra permissions.
             for (int ecode : AppOpsManagerCompat.EXTRA_OPS) {
                 Permission p = new Permission();
                 p.setPkgName(pkg);
                 p.setPermission(null);
                 p.setCode(ecode);
+                p.setCategory(AppOpsManagerCompat.CATEGORY_EXTRA);
                 String name = AppOpsManagerCompat.getOpLabel(context, ecode);
                 p.setName(name);
                 String summary = AppOpsManagerCompat.getOpSummary(context, ecode);
@@ -99,7 +108,7 @@ public interface PermissionLoader {
                 permissions.add(p);
             }
 
-            java.util.Collections.sort(permissions, new PermComparator());
+            java.util.Collections.reverse(permissions);
 
             return permissions;
         }

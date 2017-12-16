@@ -338,6 +338,7 @@ public final class AppOpsManagerCompat {
     public static final int OP_GET_SIM_SERIAL_NUMBER = 73;
     public static final int OP_GET_LINE1_NUMBER = 74;
     public static final int OP_SET_ALARM = 75;
+    public static final int OP_START_SERVICE = 76;
 
     public static final int[] EXTRA_OPS = new int[]{
             OP_READ_INSTALLED_APPS,
@@ -345,13 +346,18 @@ public final class AppOpsManagerCompat {
             OP_GET_DEVICE_ID,
             OP_GET_SIM_SERIAL_NUMBER,
             OP_GET_LINE1_NUMBER,
-            OP_SET_ALARM
+            OP_SET_ALARM,
+            OP_START_SERVICE,
+            OP_WAKE_LOCK,
     };
+
+    public static final int CATEGORY_EXTRA = 0x1;
+    public static final int CATEGORY_DEFAULT = 0x2;
 
     /**
      * @hide
      */
-    public static final int _NUM_OP = 76;
+    public static final int _NUM_OP = 77;
 
     /**
      * Access to coarse location information.
@@ -616,7 +622,9 @@ public final class AppOpsManagerCompat {
             R.drawable.ic_sim_card_black_24dp, //   OP_GET_SIM_SERIAL_NUMBER
             R.drawable.ic_sim_card_black_24dp, //   OP_GET_LINE1_NUMBER
             R.drawable.ic_access_alarm_black_24dp, //   ALARM
+            R.drawable.ic_room_service_black_24dp, // OP_START_SERVICE
     };
+
 
     /**
      * This provides a simple name for each operation to be used
@@ -701,6 +709,7 @@ public final class AppOpsManagerCompat {
             "OP_GET_SIM_SERIAL_NUMBER",
             "OP_GET_LINE1_NUMBER",
             "OP_SET_ALARM",
+            "OP_START_SERVICE",
     };
 
     /**
@@ -785,7 +794,8 @@ public final class AppOpsManagerCompat {
             null,
             null,
             null,
-            null
+            null,
+            null,
     };
 
     /**

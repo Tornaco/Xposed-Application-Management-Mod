@@ -30,7 +30,7 @@ public class PackageInfo implements Searchable {
     private Byte flags;
 
     @Transient
-    private boolean isSystemApp;
+    private boolean isSystemApp, service, alarm, wakeLock;
 
     @Generated(hash = 1854842808)
     public PackageInfo() {
@@ -165,6 +165,39 @@ public class PackageInfo implements Searchable {
     public String getTitle() {
         return getAppName();
     }
+
+    public boolean isAlarm() {
+        return alarm;
+    }
+
+    public boolean isService() {
+        return service;
+    }
+
+    public boolean isWakeLock() {
+        return wakeLock;
+    }
+
+    public void setAlarm(boolean alarm) {
+        this.alarm = alarm;
+    }
+
+    public void setService(boolean service) {
+        this.service = service;
+    }
+
+    public void setWakeLock(boolean wakeLock) {
+        this.wakeLock = wakeLock;
+    }
+
+    public boolean isAllExtraPermDisabled() {
+        return !isService() && !isAlarm() && !isWakeLock();
+    }
+
+    public boolean isAllExtraPermAllowed() {
+        return isService() && isAlarm() && isWakeLock();
+    }
+
     // KEEP METHODS END
 
 }
