@@ -9,7 +9,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -73,8 +72,6 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private CancellationSignal mCancellationSignal;
 
-    private Handler mHandler;
-
     private boolean mResNotified = false;
     private ScreenBroadcastReceiver mScreenBroadcastReceiver;
 
@@ -128,10 +125,6 @@ public class VerifyDisplayerActivity extends BaseActivity {
         setupIcon();
         setupLockView();
         setupCamera();
-
-        // We should finish anyway after 30s.
-        mHandler = new Handler();
-        mHandler.postDelayed(expireRunnable, 15 * 1000);
     }
 
     private Runnable expireRunnable = new Runnable() {
@@ -326,7 +319,6 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
 
     private void onPass() {
-        mHandler.removeCallbacks(expireRunnable);
         if (testMode || mResNotified) return;
 
         mResNotified = true;
@@ -391,7 +383,6 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private void onFail() {
-        mHandler.removeCallbacks(expireRunnable);
         if (testMode || mResNotified) {
             return;
         }
