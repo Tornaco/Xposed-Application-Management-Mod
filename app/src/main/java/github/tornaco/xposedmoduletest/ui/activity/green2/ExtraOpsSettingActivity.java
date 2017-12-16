@@ -9,6 +9,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import github.tornaco.android.common.Collections;
@@ -22,6 +24,7 @@ import github.tornaco.xposedmoduletest.ui.activity.ag.GuardAppPickerActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.GuardAppListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.SpannableUtil;
+import github.tornaco.xposedmoduletest.xposed.XApp;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
@@ -62,9 +65,14 @@ public class ExtraOpsSettingActivity extends GuardAppPickerActivity {
     protected List<PackageInfo> performLoading() {
         List<PackageInfo> res = PackageLoader.Impl.create(this).loadInstalled(mShowSystemApp);
         if (Collections.isNullOrEmpty(res)) return res;
+
+        final List<PackageInfo> checked = new ArrayList<>();
+
         Collections.consumeRemaining(res, new Consumer<PackageInfo>() {
             @Override
             public void accept(PackageInfo packageInfo) {
+                if (XApp.isInGlobalWhiteList(packageInfo.getPkgName())) return;
+
                 int modeService = XAshmanManager.get()
                         .getPermissionControlBlockModeForPkg(
                                 AppOpsManagerCompat.OP_START_SERVICE, packageInfo.getPkgName());
@@ -77,9 +85,21 @@ public class ExtraOpsSettingActivity extends GuardAppPickerActivity {
                 packageInfo.setService(modeService == AppOpsManagerCompat.MODE_ALLOWED);
                 packageInfo.setAlarm(modeAlarm == AppOpsManagerCompat.MODE_ALLOWED);
                 packageInfo.setWakeLock(modeWakelock == AppOpsManagerCompat.MODE_ALLOWED);
+
+                checked.add(packageInfo);
             }
         });
-        return res;
+
+        java.util.Collections.sort(checked, new Comparator<PackageInfo>() {
+            @Override
+            public int compare(PackageInfo o1, PackageInfo o2) {
+                if (o1.getDistance() > o2.getDistance()) return 1;
+                return -1;
+            }
+        });
+
+
+        return checked;
     }
 
     @Override

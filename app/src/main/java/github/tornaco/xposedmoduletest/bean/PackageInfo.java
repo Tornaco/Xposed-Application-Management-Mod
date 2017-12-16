@@ -198,6 +198,14 @@ public class PackageInfo implements Searchable {
         return isService() && isAlarm() && isWakeLock();
     }
 
+    public int getDistance() {
+        int d = 0;
+        if (isService()) d++;
+        if (isAlarm()) d++;
+        if (isWakeLock()) d++;
+        return d;
+    }
+
     // KEEP METHODS END
 
 }
