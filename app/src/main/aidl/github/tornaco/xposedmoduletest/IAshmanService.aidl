@@ -36,13 +36,6 @@ interface IAshmanService {
 
     boolean checkBroadcast(String action, int receiverUid, int callerUid);
 
-//    boolean isPackageStartBlockEnabled(String pkg);
-//    boolean isPackageBootBlockEnabled(String pkg);
-//    boolean isPackageLockKillEnabled(String pkg);
-//    boolean isPackageRFKillEnabled(String pkg);
-//
-//    List<String> getWhiteListPackages();
-
     List<BlockRecord2> getBlockRecords();
 
     void clearBlockRecords();

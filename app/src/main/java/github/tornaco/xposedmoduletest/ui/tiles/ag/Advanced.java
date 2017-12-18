@@ -14,7 +14,7 @@ import github.tornaco.xposedmoduletest.ui.activity.ag.AdvancedGuardSettings;
  * Created by guohao4 on 2017/11/2.
  * Email: Tornaco@163.com
  */
-
+@Deprecated
 public class Advanced extends QuickTile {
 
     public Advanced(@NonNull final Context context) {

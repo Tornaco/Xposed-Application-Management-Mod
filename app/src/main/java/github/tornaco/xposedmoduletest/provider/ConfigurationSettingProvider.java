@@ -26,7 +26,7 @@ import lombok.Getter;
  * Created by guohao4 on 2017/11/4.
  * Email: Tornaco@163.com
  */
-
+@Deprecated
 public class ConfigurationSettingProvider extends ContentProvider {
 
     public static final Uri CONTENT_URI = Uri.parse("content://github.tornaco.xposedmoduletest.config_setting_provider/pkgs");

@@ -19,8 +19,6 @@ interface AppGuardServiceHandler {
 
     void setVerifySettings(github.tornaco.xposedmoduletest.xposed.bean.VerifySettings settings);
 
-    void setBlurSettings(github.tornaco.xposedmoduletest.xposed.bean.BlurSettings settings);
-
     void setResult(int transactionID, int res);
 
     void verify(VerifyArgs verifyArgs);

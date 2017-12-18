@@ -21,9 +21,6 @@ interface IAppGuardService {
 
     VerifySettings getVerifySettings();
 
-    void setBlurSettings(in BlurSettings settings);
-    BlurSettings getBlurSettings();
-
     void setResult(int transactionID, int res);
 
     boolean isTransactionValid(int transactionID);
@@ -44,15 +41,16 @@ interface IAppGuardService {
 
     void onActivityPackageResume(String pkg);
 
-    String[] getSubModules();
-    int getSubModuleStatus(String token);
-
     boolean isInterruptFPEventVBEnabled(int event);
     void setInterruptFPEventVBEnabled(int event, boolean enabled);
 
     void addOrRemoveComponentReplacement(in ComponentName from, in ComponentName to, boolean add);
 
-    CongfigurationSetting getConfigurationSetting(String packageName);
-
     void forceReloadPackages();
+
+    String[] getLockApps(boolean lock);
+    void addOrRemoveLockApps(in String[] packages, boolean add);
+
+    String[] getBlurApps(boolean lock);
+    void addOrRemoveBlurApps(in String[] packages, boolean blur);
 }

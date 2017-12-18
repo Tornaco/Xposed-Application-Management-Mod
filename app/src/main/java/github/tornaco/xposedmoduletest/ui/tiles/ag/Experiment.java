@@ -13,7 +13,7 @@ import github.tornaco.xposedmoduletest.ui.activity.ag.ExperimentGuardSettings;
  * Created by guohao4 on 2017/11/8.
  * Email: Tornaco@163.com
  */
-
+@Deprecated
 public class Experiment extends QuickTile {
     public Experiment(final Context context) {
         super(context);

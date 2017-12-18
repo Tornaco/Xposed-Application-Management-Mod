@@ -272,14 +272,6 @@
             android:authorities="github.tornaco.xposedmoduletest.app_guard_package_provider"
             android:exported="true" />
         <provider
-            android:name=".provider.ComponentsProvider"
-            android:authorities="github.tornaco.xposedmoduletest.components_provider"
-            android:exported="true" />
-        <provider
-            android:name=".provider.ConfigurationSettingProvider"
-            android:authorities="github.tornaco.xposedmoduletest.config_setting_provider"
-            android:exported="true" />
-        <provider
             android:name=".provider.ComponentsReplacementProvider"
             android:authorities="github.tornaco.xposedmoduletest.components_replacement_provider"
             android:exported="true" />

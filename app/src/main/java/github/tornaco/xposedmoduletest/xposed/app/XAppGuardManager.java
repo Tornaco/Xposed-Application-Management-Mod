@@ -10,11 +10,8 @@ import org.newstand.logger.Logger;
 
 import github.tornaco.xposedmoduletest.IAppGuardService;
 import github.tornaco.xposedmoduletest.IAppGuardWatcher;
-import github.tornaco.xposedmoduletest.bean.CongfigurationSetting;
 import github.tornaco.xposedmoduletest.util.Singleton;
-import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
-import github.tornaco.xposedmoduletest.xposed.submodules.SubModule;
 
 /**
  * Created by guohao4 on 2017/10/23.
@@ -124,25 +121,6 @@ public class XAppGuardManager {
         ensureService();
         try {
             return mService.getVerifySettings();
-        } catch (RemoteException e) {
-            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
-            return null;
-        }
-    }
-
-    public void setBlurSettings(BlurSettings settings) {
-        ensureService();
-        try {
-            mService.setBlurSettings(settings);
-        } catch (RemoteException e) {
-            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
-        }
-    }
-
-    public BlurSettings getBlurSettings() {
-        ensureService();
-        try {
-            return mService.getBlurSettings();
         } catch (RemoteException e) {
             Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
             return null;
@@ -280,26 +258,6 @@ public class XAppGuardManager {
         }
     }
 
-    public String[] getSubModules() {
-        ensureService();
-        try {
-            return mService.getSubModules();
-        } catch (RemoteException e) {
-            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
-        }
-        return new String[0];
-    }
-
-    public int getSubModuleStatus(String token) {
-        ensureService();
-        try {
-            return mService.getSubModuleStatus(token);
-        } catch (RemoteException e) {
-            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
-        }
-        return SubModule.SubModuleStatus.UNKNOWN.ordinal();
-    }
-
     public boolean isInterruptFPEventVBEnabled(int event) {
         ensureService();
         try {
@@ -324,16 +282,6 @@ public class XAppGuardManager {
             mService.addOrRemoveComponentReplacement(from, to, add);
         } catch (RemoteException e) {
             Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
-        }
-    }
-
-    // Called by any app.
-    public CongfigurationSetting getConfigurationSetting(String packageName) {
-        ensureService();
-        try {
-            return mService.getConfigurationSetting(packageName);
-        } catch (RemoteException e) {
-            return null;
         }
     }
 }
