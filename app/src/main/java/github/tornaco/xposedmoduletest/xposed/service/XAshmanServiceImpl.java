@@ -7,7 +7,6 @@ import android.app.AlertDialog;
 import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,7 +14,6 @@ import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -78,18 +76,10 @@ import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
 import github.tornaco.xposedmoduletest.bean.AutoStartPackage;
-import github.tornaco.xposedmoduletest.bean.AutoStartPackageDaoUtil;
 import github.tornaco.xposedmoduletest.bean.BootCompletePackage;
-import github.tornaco.xposedmoduletest.bean.BootCompletePackageDaoUtil;
 import github.tornaco.xposedmoduletest.bean.LockKillPackage;
-import github.tornaco.xposedmoduletest.bean.LockKillPackageDaoUtil;
 import github.tornaco.xposedmoduletest.bean.RFKillPackage;
-import github.tornaco.xposedmoduletest.bean.RFKillPackageDaoUtil;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
-import github.tornaco.xposedmoduletest.provider.AutoStartPackageProvider;
-import github.tornaco.xposedmoduletest.provider.BootPackageProvider;
-import github.tornaco.xposedmoduletest.provider.LockKillPackageProvider;
-import github.tornaco.xposedmoduletest.provider.RFKillPackageProvider;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
@@ -98,7 +88,6 @@ import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.repo.StringSetRepo;
 import github.tornaco.xposedmoduletest.xposed.service.bandwidth.BandwidthCommandCompat;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
-import github.tornaco.xposedmoduletest.xposed.util.Closer;
 import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -401,190 +390,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         } catch (Exception ignored) {
             XposedLog.debug("Can not getSingleton UID for our client:" + ignored);
         }
-    }
-
-    // Try load providers and move data to our new data struct.
-    private void migrateFromOldDataBase() {
-
-        if (mDataHasBeenMigrated.get()) {
-            XposedLog.wtf("DATA migrateFromOldDataBase already migrated...");
-            mBootPkgLoaded.set(true);
-            mStartPkgLoaded.set(true);
-            return;
-        }
-
-        XposedLog.wtf("DATA migrateFromOldDataBase...");
-
-        AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
-            @Override
-            public boolean once() {
-                ValueExtra<Boolean, String> res = loadBootPackageSettings();
-                String extra = res.getExtra();
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.verbose("loadBootPackageSettings, extra: " + extra);
-                mBootPkgLoaded.set(true);
-                return res.getValue();
-            }
-        });
-
-        AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
-            @Override
-            public boolean once() {
-                ValueExtra<Boolean, String> res = loadStartPackageSettings();
-                String extra = res.getExtra();
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.verbose("loadStartPackageSettings, extra: " + extra);
-                mStartPkgLoaded.set(true);
-                return res.getValue();
-            }
-        });
-
-        AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
-            @Override
-            public boolean once() {
-                ValueExtra<Boolean, String> res = loadLockKillPackageSettings();
-                String extra = res.getExtra();
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.verbose("loadLockKillPackageSettings, extra: " + extra);
-                return res.getValue();
-            }
-        });
-
-        AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
-            @Override
-            public boolean once() {
-                ValueExtra<Boolean, String> res = loadRFKillPackageSettings();
-                String extra = res.getExtra();
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.verbose("loadRFKillPackageSettings, extra: " + extra);
-                return res.getValue();
-            }
-        });
-
-        // Simply think data migrate has been finished.
-        mDataHasBeenMigrated.set(true);
-        SystemSettings.DATA_MIGRATE_B.writeToSystemSettings(getContext(), true);
-    }
-
-    synchronized private ValueExtra<Boolean, String> loadBootPackageSettings() {
-        ContentResolver contentResolver = getContext().getContentResolver();
-        if (contentResolver == null) {
-            // Happen when early start.
-            return new ValueExtra<>(false, "contentResolver is null");
-        }
-        Cursor cursor = null;
-        try {
-            cursor = contentResolver.query(BootPackageProvider.CONTENT_URI, null, null, null, null);
-            if (cursor == null) {
-                return new ValueExtra<>(false, "cursor is null");
-            }
-
-            for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-                BootCompletePackage bootCompletePackage = BootCompletePackageDaoUtil.readEntity(cursor, 0);
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.verbose("Boot pkg reader readEntity of: " + bootCompletePackage);
-                String key = bootCompletePackage.getPkgName();
-                if (TextUtils.isEmpty(key)) continue;
-                mRepoProxy.getBoots().add(key);
-            }
-        } catch (Throwable e) {
-            XposedLog.wtf("Fail query boot pkgs:\n" + Log.getStackTraceString(e));
-            return new ValueExtra<>(false, String.valueOf(e));
-        } finally {
-            Closer.closeQuietly(cursor);
-        }
-        return new ValueExtra<>(true, "OK");
-    }
-
-    synchronized private ValueExtra<Boolean, String> loadStartPackageSettings() {
-        ContentResolver contentResolver = getContext().getContentResolver();
-        if (contentResolver == null) {
-            // Happen when early start.
-            return new ValueExtra<>(false, "contentResolver is null");
-        }
-        Cursor cursor = null;
-        try {
-            cursor = contentResolver.query(AutoStartPackageProvider.CONTENT_URI, null, null, null, null);
-            if (cursor == null) {
-                return new ValueExtra<>(false, "cursor is null");
-            }
-
-            for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-                AutoStartPackage autoStartPackage = AutoStartPackageDaoUtil.readEntity(cursor, 0);
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.verbose("Start white list pkg reader readEntity of: " + autoStartPackage);
-                String key = autoStartPackage.getPkgName();
-                if (TextUtils.isEmpty(key)) continue;
-                mRepoProxy.getStarts().add(key);
-            }
-        } catch (Throwable e) {
-            XposedLog.wtf("Fail query start pkgs:\n" + Log.getStackTraceString(e));
-            return new ValueExtra<>(false, String.valueOf(e));
-        } finally {
-            Closer.closeQuietly(cursor);
-        }
-
-        return new ValueExtra<>(true, "OK");
-    }
-
-    synchronized private ValueExtra<Boolean, String> loadLockKillPackageSettings() {
-        ContentResolver contentResolver = getContext().getContentResolver();
-        if (contentResolver == null) {
-            // Happen when early start.
-            return new ValueExtra<>(false, "contentResolver is null");
-        }
-        Cursor cursor = null;
-        try {
-            cursor = contentResolver.query(LockKillPackageProvider.CONTENT_URI, null, null, null, null);
-            if (cursor == null) {
-                return new ValueExtra<>(false, "cursor is null");
-            }
-
-            for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-                LockKillPackage lockKillPackage = LockKillPackageDaoUtil.readEntity(cursor, 0);
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.verbose("Lock kill white list pkg reader readEntity of: " + lockKillPackage);
-                String key = lockKillPackage.getPkgName();
-                if (TextUtils.isEmpty(key)) continue;
-                mRepoProxy.getLks().add(key);
-            }
-        } catch (Throwable e) {
-            XposedLog.wtf("Fail query lk pkgs:\n" + Log.getStackTraceString(e));
-        } finally {
-            Closer.closeQuietly(cursor);
-        }
-
-        return new ValueExtra<>(true, "OK");
-    }
-
-    synchronized private ValueExtra<Boolean, String> loadRFKillPackageSettings() {
-        ContentResolver contentResolver = getContext().getContentResolver();
-        if (contentResolver == null) {
-            // Happen when early start.
-            return new ValueExtra<>(false, "contentResolver is null");
-        }
-        Cursor cursor = null;
-        try {
-            cursor = contentResolver.query(RFKillPackageProvider.CONTENT_URI, null, null, null, null);
-            if (cursor == null) {
-                return new ValueExtra<>(false, "cursor is null");
-            }
-
-            for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-                RFKillPackage rfKillPackage = RFKillPackageDaoUtil.readEntity(cursor, 0);
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.verbose("RF kill white list pkg reader readEntity of: " + rfKillPackage);
-                String key = rfKillPackage.getPkgName();
-                if (TextUtils.isEmpty(key)) continue;
-                mRepoProxy.getRfks().add(key);
-            }
-        } catch (Throwable e) {
-            XposedLog.wtf("Fail query rf pkgs:\n" + Log.getStackTraceString(e));
-        } finally {
-            Closer.closeQuietly(cursor);
-        }
-
-        return new ValueExtra<>(true, "OK");
     }
 
     private void whiteIMEPackages() {
@@ -1923,7 +1728,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         checkSafeMode();
         registerReceiver();
 
-        migrateFromOldDataBase();
+        // No need any more.
+        // migrateFromOldDataBase();
     }
 
     // NMS API START.
