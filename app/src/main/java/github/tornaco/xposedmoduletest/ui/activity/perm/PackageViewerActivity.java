@@ -1,94 +1,60 @@
 package github.tornaco.xposedmoduletest.ui.activity.perm;
 
-import android.annotation.SuppressLint;
-import android.support.v4.content.ContextCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.AdapterView;
 
 import java.util.List;
 
-import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.bean.PackageInfo;
-import github.tornaco.xposedmoduletest.loader.PackageLoader;
-import github.tornaco.xposedmoduletest.provider.AppSettings;
-import github.tornaco.xposedmoduletest.ui.activity.ag.GuardAppPickerActivity;
-import github.tornaco.xposedmoduletest.ui.adapter.GuardAppListAdapter;
+import github.tornaco.xposedmoduletest.loader.ComponentLoader;
+import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
+import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
+import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
+import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoViewerAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.util.SpannableUtil;
 
 /**
  * Created by guohao4 on 2017/11/18.
  * Email: Tornaco@163.com
  */
-@RuntimePermissions
-public class PackageViewerActivity extends GuardAppPickerActivity {
+public class PackageViewerActivity extends CommonPackageInfoListActivity {
+
+    private boolean mShowSystemApp;
 
     @Override
     protected void initView() {
         super.initView();
+        fab.hide();
+    }
 
-        findViewById(R.id.fab).setVisibility(View.GONE);
-
-        SwitchBar switchBar = findViewById(R.id.switchbar);
+    @Override
+    protected void onInitSwitchBar(SwitchBar switchBar) {
         switchBar.hide();
-
-//        if (XAshmanManager.get().isServiceAvailable()) {
-//            boolean perctrl = XAshmanManager.get().isPermissionControlEnabled();
-//            switchBar.setChecked(perctrl);
-//            switchBar.addOnSwitchChangeListener(new SwitchBar.OnSwitchChangeListener() {
-//                @Override
-//                public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-//                    XAshmanManager.get().setPermissionControlEnabled(isChecked);
-//                }
-//            });
-//        }
     }
 
     @Override
-    protected void setSummaryView() {
-        String who = getClass().getSimpleName();
-        boolean showInfo = AppSettings.isShowInfoEnabled(this, who);
-        TextView textView = findViewById(R.id.summary);
-        if (!showInfo) {
-            textView.setVisibility(View.GONE);
-        } else {
-            int normalColor = ContextCompat.getColor(getActivity(), R.color.white);
-            int highlightColor = ContextCompat.getColor(getActivity(), R.color.amber);
-            int strId = R.string.summary_perm_control;
-            textView.setText(SpannableUtil.buildHighLightString(getActivity(), normalColor, highlightColor, strId));
-            textView.setVisibility(View.VISIBLE);
-        }
-    }
-
-
-    @Override
-    protected List<PackageInfo> performLoading() {
-        return PackageLoader.Impl.create(this).loadInstalled(mShowSystemApp);
+    protected int getSummaryRes() {
+        return R.string.summary_perm_control;
     }
 
     @Override
-    protected GuardAppListAdapter onCreateAdapter() {
-        return new GuardAppListAdapter(this) {
-
-            @SuppressLint("SetTextI18n")
+    protected CommonPackageInfoAdapter onCreateAdapter() {
+        CommonPackageInfoViewerAdapter adapter = new CommonPackageInfoViewerAdapter(this);
+        adapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onBindViewHolder(final AppViewHolder holder, final int position) {
-                super.onBindViewHolder(holder, position);
-
-                final PackageInfo packageInfo = getPackageInfos().get(position);
-
-                holder.itemView.setOnLongClickListener(null);
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        PermissionsListActivity.start(getActivity(), packageInfo.getPkgName());
-                    }
-                });
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                CommonPackageInfo info = getCommonPackageInfoAdapter().getCommonPackageInfos().get(position);
+                PermissionsListActivity.start(getActivity(), info.getPkgName());
             }
-        };
+        });
+        return adapter;
+    }
+
+    @Override
+    protected List<CommonPackageInfo> performLoading() {
+        return ComponentLoader.Impl.create(this).loadInstalledApps(mShowSystemApp);
     }
 
     @Override
@@ -98,14 +64,12 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.show_system_app).setChecked(mShowSystemApp);
-        menu.findItem(R.id.action_info).setVisible(true);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.show_system_app) {
+            mShowSystemApp = !mShowSystemApp;
+            item.setChecked(mShowSystemApp);
+            startLoading();
+        }
         return super.onOptionsItemSelected(item);
     }
 }

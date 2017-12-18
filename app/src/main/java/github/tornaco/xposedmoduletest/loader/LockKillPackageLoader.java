@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import github.tornaco.xposedmoduletest.bean.LockKillPackage;
+import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.util.PinyinComparator;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -21,7 +21,7 @@ import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 public interface LockKillPackageLoader {
 
     @NonNull
-    List<LockKillPackage> loadInstalled(boolean blocked);
+    List<CommonPackageInfo> loadInstalled(boolean blocked);
 
     class Impl implements LockKillPackageLoader {
 
@@ -37,9 +37,9 @@ public interface LockKillPackageLoader {
 
         @NonNull
         @Override
-        public List<LockKillPackage> loadInstalled(boolean willBeKill) {
+        public List<CommonPackageInfo> loadInstalled(boolean willBeKill) {
 
-            List<LockKillPackage> out = new ArrayList<>();
+            List<CommonPackageInfo> out = new ArrayList<>();
 
             XAshmanManager xAshmanManager = XAshmanManager.get();
             if (!xAshmanManager.isServiceAvailable()) return out;
@@ -53,8 +53,7 @@ public interface LockKillPackageLoader {
                     name = name.replace(" ", "");
                 }
 
-                LockKillPackage p = new LockKillPackage();
-                p.setKill(true);
+                CommonPackageInfo p = new CommonPackageInfo();
                 p.setAppName(name);
                 p.setPkgName(pkg);
                 p.setSystemApp(PkgUtil.isSystemApp(context, pkg));
@@ -67,8 +66,8 @@ public interface LockKillPackageLoader {
         }
     }
 
-    class LockComparator implements Comparator<LockKillPackage> {
-        public int compare(LockKillPackage o1, LockKillPackage o2) {
+    class LockComparator implements Comparator<CommonPackageInfo> {
+        public int compare(CommonPackageInfo o1, CommonPackageInfo o2) {
             return new PinyinComparator().compare(o1.getAppName(), o2.getAppName());
         }
     }

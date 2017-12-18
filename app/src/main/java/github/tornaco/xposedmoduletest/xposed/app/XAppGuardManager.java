@@ -284,4 +284,46 @@ public class XAppGuardManager {
             Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
         }
     }
+
+    public void forceReloadPackages() {
+        try {
+            mService.forceReloadPackages();
+        } catch (RemoteException e) {
+            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public String[] getLockApps(boolean lock) {
+        try {
+            return mService.getLockApps(lock);
+        } catch (RemoteException e) {
+            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
+            return new String[0];
+        }
+    }
+
+    public void addOrRemoveLockApps(String[] packages, boolean add) {
+        try {
+            mService.addOrRemoveLockApps(packages, add);
+        } catch (RemoteException e) {
+            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public String[] getBlurApps(boolean lock) {
+        try {
+            return mService.getBlurApps(lock);
+        } catch (RemoteException e) {
+            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
+            return new String[0];
+        }
+    }
+
+    public void addOrRemoveBlurApps(String[] packages, boolean blur) {
+        try {
+            mService.addOrRemoveBlurApps(packages, blur);
+        } catch (RemoteException e) {
+            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
 }

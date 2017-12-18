@@ -17,6 +17,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -24,16 +25,20 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.provider.Settings;
 import android.support.v4.app.NotificationManagerCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -57,8 +62,6 @@ import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.repo.StringSetRepo;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
-import github.tornaco.xposedmoduletest.xposed.submodules.AppGuardSubModuleManager;
-import github.tornaco.xposedmoduletest.xposed.submodules.SubModule;
 import github.tornaco.xposedmoduletest.xposed.util.Closer;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -109,11 +112,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     static {
         PREBUILT_WHITE_LIST.add("com.android.systemui");
-        // PREBUILT_WHITE_LIST.add("com.android.packageinstaller");
         PREBUILT_WHITE_LIST.add("android");
-        PREBUILT_WHITE_LIST.add("com.cyanogenmod.trebuchet");
-        // It is good for user if our mod crash.
-        // PREBUILT_WHITE_LIST.add("de.robv.android.xposed.installer");
         PREBUILT_WHITE_LIST.add(BuildConfig.APPLICATION_ID);
     }
 
@@ -143,13 +142,24 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 return;
             }
 
+            String packageName = intent.getData().getSchemeSpecificPart();
+            if (packageName == null) return;
+
             switch (action) {
                 case Intent.ACTION_PACKAGE_ADDED:
                 case Intent.ACTION_PACKAGE_REPLACED:
-                    String packageName = intent.getData().getSchemeSpecificPart();
-                    if (packageName == null) return;
-                    cacheUIDForPackages();
+                    cacheUIDForUs();
+                    parsePackageAsync(packageName);
                     break;
+                case Intent.ACTION_PACKAGE_REMOVED:
+                    boolean replacing = intent.getBooleanExtra(Intent.EXTRA_REPLACING, false);
+                    if (!replacing) {
+                        int uid = intent.getIntExtra(Intent.EXTRA_UID, -1);
+                        if (uid > 0) {
+                            String removed = mPackagesCache.remove(uid);
+                            XposedLog.debug("Package uninstalled, remove from cache: " + removed);
+                        }
+                    }
             }
         }
     };
@@ -194,7 +204,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     public void systemReady() {
         XposedLog.wtf("systemReady@" + getClass().getSimpleName());
         checkSafeMode();
-        cacheUIDForPackages();
+        cacheUIDForUs();
+        cachePackages();
 
         AsyncTrying.tryTillSuccess(mWorkingService, new AsyncTrying.Once() {
             @Override
@@ -221,7 +232,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         });
 
         registerReceiver();
-
         updateDebugMode();
     }
 
@@ -351,7 +361,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         return new ValueExtra<>(true, "OK");
     }
 
-    private void cacheUIDForPackages() {
+    private void cacheUIDForUs() {
         PackageManager pm = this.getContext().getPackageManager();
         try {
             ApplicationInfo applicationInfo = null;
@@ -365,6 +375,70 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             sClientUID = applicationInfo.uid;
         } catch (Exception ignored) {
             XposedLog.debug("Can not getSingleton UID for our client:" + ignored);
+        }
+    }
+
+    private void parsePackageAsync(final String... pkg) {
+        mWorkingService.execute(new Runnable() {
+            @Override
+            public void run() {
+                cachePackages(pkg);
+            }
+        });
+    }
+
+    private void cachePackages(final String... pkg) {
+
+        final PackageManager pm = getContext().getPackageManager();
+
+        Collections.consumeRemaining(pkg, new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                ApplicationInfo applicationInfo;
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        applicationInfo = pm.getApplicationInfo(s, PackageManager.MATCH_UNINSTALLED_PACKAGES);
+                    } else {
+                        applicationInfo = pm.getApplicationInfo(s, PackageManager.GET_UNINSTALLED_PACKAGES);
+                    }
+                    int uid = applicationInfo.uid;
+                    String pkg = applicationInfo.packageName;
+                    if (TextUtils.isEmpty(pkg)) return;
+
+                    if (XposedLog.isVerboseLoggable())
+                        XposedLog.verbose("Cached pkg:" + pkg + "-" + uid);
+                    mPackagesCache.put(uid, pkg);
+                } catch (Exception ignored) {
+
+                }
+            }
+        });
+    }
+
+    private void cachePackages() {
+        final PackageManager pm = this.getContext().getPackageManager();
+
+        try {
+            // Filter all apps.
+            List<ApplicationInfo> applicationInfos =
+                    android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N ?
+                            pm.getInstalledApplications(android.content.pm.PackageManager.MATCH_UNINSTALLED_PACKAGES)
+                            : pm.getInstalledApplications(android.content.pm.PackageManager.GET_UNINSTALLED_PACKAGES);
+
+            Collections.consumeRemaining(applicationInfos,
+                    new Consumer<ApplicationInfo>() {
+                        @Override
+                        public void accept(ApplicationInfo applicationInfo) {
+                            String pkg = applicationInfo.packageName;
+                            int uid = applicationInfo.uid;
+                            if (TextUtils.isEmpty(pkg)) return;
+
+                            // Add to package cache.
+                            mPackagesCache.put(uid, pkg);
+                        }
+                    });
+        } catch (Exception ignored) {
+            XposedLog.debug("Can not cachePackages:" + ignored);
         }
     }
 
@@ -531,6 +605,10 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         return mRepoProxy.getLocks().has(pkg);
     }
 
+    private boolean isPackageInBlurList(String pkg) {
+        return mRepoProxy.getBlurs().has(pkg);
+    }
+
     @Override
     public boolean onEarlyVerifyConfirm(String pkg) {
         if (pkg == null) {
@@ -556,7 +634,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
         if (mVerifiedPackages.contains(pkg)) {
             if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("onEarlyVerifyConfirm, false@verified-list:" + pkg);
+                XposedLog.verbose("onEarlyVerifyConfirm, false@in-verified-list:" + pkg);
             return false;
         } // Passed.
 
@@ -577,10 +655,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     private void verifyInternal(Bundle options, String pkg, int uid, int pid,
                                 boolean injectHomeOnFail, VerifyListener listener) {
-        if (mServiceHandler == null) {
-            XposedLog.wtf("WTF? AppGuardServiceHandler is null?");
-            return;
-        }
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("verifyInternal: " + pkg);
         VerifyArgs args = VerifyArgs.builder()
                 .bnds(options)
@@ -643,7 +717,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @Override
     public boolean isBlurForPkg(String pkg) {
-        return mRepoProxy.getLocks().has(pkg);
+        return isPackageInBlurList(pkg);
     }
 
     @Override
@@ -680,17 +754,19 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Override
     public void forceReloadPackages() throws RemoteException {
         enforceCallingPermissions();
-        mServiceHandler.post(new Runnable() {
+
+        mWorkingService.execute(new Runnable() {
             @Override
             public void run() {
-                cacheUIDForPackages();
+                cachePackages();
+                // Remove onwer package to fix previous bugs.
+                try {
+                    mRepoProxy.getLocks().remove(BuildConfig.APPLICATION_ID);
+                } catch (Throwable e) {
+                    XposedLog.wtf("Fail remove owner package from repo: " + Log.getStackTraceString(e));
+                }
             }
         });
-    }
-
-    @Override
-    public String[] getLockApps(boolean lock) throws RemoteException {
-        return null;
     }
 
     private void addOrRemoveFromRepo(String[] packages, StringSetRepo repo, boolean add) {
@@ -705,6 +781,55 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         }
     }
 
+    private static String[] convertObjectArrayToStringArray(Object[] objArr) {
+        if (objArr == null || objArr.length == 0) {
+            return new String[0];
+        }
+        String[] out = new String[objArr.length];
+        for (int i = 0; i < objArr.length; i++) {
+            Object o = objArr[i];
+            if (o == null) continue;
+            String pkg = String.valueOf(o);
+            out[i] = pkg;
+        }
+        return out;
+    }
+
+    @Override
+    public String[] getLockApps(boolean lock) throws RemoteException {
+        if (lock) {
+            Set<String> packages = mRepoProxy.getLocks().getAll();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+            return convertObjectArrayToStringArray(packages.toArray());
+        } else {
+            Collection<String> packages = mPackagesCache.values();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+
+            final List<String> outList = Lists.newArrayList();
+
+            // Remove those not in blocked list.
+            String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
+            Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
+                @Override
+                public void accept(String s) {
+                    if (outList.contains(s)) return;// Kik dup package.
+                    if (isPackageInLockList(s)) return;
+                    outList.add(s);
+                }
+            });
+
+            if (outList.size() == 0) {
+                return new String[0];
+            }
+            Object[] objArr = outList.toArray();
+            return convertObjectArrayToStringArray(objArr);
+        }
+    }
+
     @Override
     public void addOrRemoveLockApps(String[] packages, boolean add) throws RemoteException {
         if (XposedLog.isVerboseLoggable())
@@ -715,13 +840,47 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     @Override
-    public String[] getBlurApps(boolean lock) throws RemoteException {
-        return new String[0];
+    public String[] getBlurApps(boolean blur) throws RemoteException {
+        if (blur) {
+            Set<String> packages = mRepoProxy.getBlurs().getAll();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+            return convertObjectArrayToStringArray(packages.toArray());
+        } else {
+            Collection<String> packages = mPackagesCache.values();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+
+            final List<String> outList = Lists.newArrayList();
+
+            // Remove those not in blocked list.
+            String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
+            Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
+                @Override
+                public void accept(String s) {
+                    if (outList.contains(s)) return;// Kik dup package.
+                    if (isPackageInBlurList(s)) return;
+                    outList.add(s);
+                }
+            });
+
+            if (outList.size() == 0) {
+                return new String[0];
+            }
+            Object[] objArr = outList.toArray();
+            return convertObjectArrayToStringArray(objArr);
+        }
     }
 
     @Override
     public void addOrRemoveBlurApps(String[] packages, boolean blur) throws RemoteException {
-
+        if (XposedLog.isVerboseLoggable())
+            XposedLog.verbose("addOrRemoveBlurApps: " + Arrays.toString(packages));
+        enforceCallingPermissions();
+        if (packages == null || packages.length == 0) return;
+        addOrRemoveFromRepo(packages, mRepoProxy.getBlurs(), blur);
     }
 
     @Override

@@ -75,10 +75,6 @@ import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
-import github.tornaco.xposedmoduletest.bean.AutoStartPackage;
-import github.tornaco.xposedmoduletest.bean.BootCompletePackage;
-import github.tornaco.xposedmoduletest.bean.LockKillPackage;
-import github.tornaco.xposedmoduletest.bean.RFKillPackage;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
@@ -989,15 +985,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Object o = objArr[i];
             if (o == null) continue;
             String pkg = String.valueOf(o);
-            if (o instanceof AutoStartPackage) {
-                pkg = ((AutoStartPackage) o).getPkgName();
-            } else if (o instanceof BootCompletePackage) {
-                pkg = ((BootCompletePackage) o).getPkgName();
-            } else if (o instanceof LockKillPackage) {
-                pkg = ((LockKillPackage) o).getPkgName();
-            } else if (o instanceof RFKillPackage) {
-                pkg = ((RFKillPackage) o).getPkgName();
-            }
             out[i] = pkg;
         }
         return out;
@@ -1009,6 +996,28 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         enforceCallingPermissions();
         Object[] data = WHITE_LIST.toArray(); // FIXME, no sync protect?
         return convertObjectArrayToStringArray(data);
+    }
+
+    @Override
+    public String[] getInstalledApps(int filterOptions) throws RemoteException {
+        Collection<String> packages = mPackagesCache.values();
+        if (packages.size() == 0) {
+            return new String[0];
+        }
+
+        List<String> outList = Lists.newArrayList();
+        outList.addAll(packages);
+
+        final boolean showSystem = filterOptions == XAshmanManager.FLAG_SHOW_SYSTEM_APP;
+        final List<String> filtered = Lists.newArrayList();
+        Collections.consumeRemaining(outList, new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                if (!showSystem && isInSystemAppList(s)) return;
+                filtered.add(s);
+            }
+        });
+        return convertObjectArrayToStringArray(filtered.toArray());
     }
 
     private void addOrRemoveFromRepo(String[] packages, StringSetRepo repo, boolean add) {

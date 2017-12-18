@@ -1,220 +1,80 @@
 package github.tornaco.xposedmoduletest.ui.activity.lk;
 
 import android.content.Intent;
-import android.graphics.Typeface;
-import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import github.tornaco.android.common.Collections;
+import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.bean.LockKillPackage;
 import github.tornaco.xposedmoduletest.loader.LockKillPackageLoader;
-import github.tornaco.xposedmoduletest.provider.AppSettings;
-import github.tornaco.xposedmoduletest.ui.activity.WithRecyclerView;
-import github.tornaco.xposedmoduletest.ui.adapter.LockKillAppListAdapter;
+import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
+import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
+import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.util.SpannableUtil;
-import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
-import ir.mirrajabi.searchdialog.SimpleSearchDialogCompat;
-import ir.mirrajabi.searchdialog.core.BaseSearchDialogCompat;
-import ir.mirrajabi.searchdialog.core.SearchResultListener;
-import lombok.Getter;
 
-public class LockKillAppNavActivity extends WithRecyclerView {
-
-    protected FloatingActionButton fab;
-
-    private SwipeRefreshLayout swipeRefreshLayout;
-
-    @Getter
-    protected LockKillAppListAdapter lockKillAppListAdapter;
-
-    @Getter
-    protected RecyclerView recyclerView;
+public class LockKillAppNavActivity extends CommonPackageInfoListActivity implements SwitchBar.OnSwitchChangeListener {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(getLayoutRes());
-        setupToolbar();
-        showHomeAsUp();
-        initView();
-        startLoading();
-    }
-
-    protected int getLayoutRes() {
-        return R.layout.app_list;
+    protected void onRequestClearItemsInBackground() {
+        Collections.consumeRemaining(getCommonPackageInfoAdapter().getCommonPackageInfos(),
+                new Consumer<CommonPackageInfo>() {
+                    @Override
+                    public void accept(CommonPackageInfo commonPackageInfo) {
+                        if (commonPackageInfo.isChecked()) {
+                            XAshmanManager.get().addOrRemoveLKApps(new String[]{commonPackageInfo.getPkgName()},
+                                    XAshmanManager.Op.REMOVE);
+                        }
+                    }
+                });
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        startLoading();
+    protected void onInitSwitchBar(SwitchBar switchBar) {
+        switchBar.show();
+        switchBar.setChecked(XAshmanManager.get().isLockKillEnabled());
+        switchBar.addOnSwitchChangeListener(this);
     }
 
-    @SuppressWarnings("unchecked")
-    void onRequestSearch() {
-        final ArrayList<LockKillPackage> adapterData = (ArrayList<LockKillPackage>)
-                getLockKillAppListAdapter().getLockKillPackages();
-
-        final SimpleSearchDialogCompat<LockKillPackage> searchDialog =
-                new SimpleSearchDialogCompat(getActivity(), getString(R.string.title_search),
-                        getString(R.string.title_search_hint), null, adapterData,
-                        new SearchResultListener<LockKillPackage>() {
-
-                            @Override
-                            public void onSelected(BaseSearchDialogCompat baseSearchDialogCompat,
-                                                   LockKillPackage info, int i) {
-                                int index = indexOf(info);
-                                getRecyclerView().scrollToPosition(index);
-                                getLockKillAppListAdapter().setSelection(index);
-                                baseSearchDialogCompat.dismiss();
-                            }
-                        });
-
-
-        searchDialog.show();
-        searchDialog.getSearchBox().setTypeface(Typeface.SERIF);
+    @Override
+    protected void onRequestPick() {
+        LockKillAppPickerActivity.start(getActivity());
     }
 
-    private int indexOf(final LockKillPackage info) {
-        return getLockKillAppListAdapter().getLockKillPackages().indexOf(info);
+    @Override
+    protected int getSummaryRes() {
+        return R.string.summary_lock_kill_app;
     }
 
-    protected void initView() {
-        recyclerView = findViewById(R.id.recycler_view);
-        swipeRefreshLayout = findViewById(R.id.swipe);
-        swipeRefreshLayout.setColorSchemeColors(getResources().getIntArray(R.array.polluted_waves));
-        fab = findViewById(R.id.fab);
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(LockKillAppNavActivity.this, LockKillAppPickerActivity.class));
-            }
-        });
-
-        lockKillAppListAdapter = onCreateAdapter();
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this,
-                LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(lockKillAppListAdapter);
-
-
-        swipeRefreshLayout.setOnRefreshListener(
-                new SwipeRefreshLayout.OnRefreshListener() {
-                    @Override
-                    public void onRefresh() {
-                        startLoading();
-                    }
-                });
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                SwitchBar switchBar = findViewById(R.id.switchbar);
-                if (switchBar == null) return;
-                switchBar.setChecked(XAshmanManager.get().isServiceAvailable()
-                        && XAshmanManager.get().isLockKillEnabled());
-                switchBar.addOnSwitchChangeListener(new SwitchBar.OnSwitchChangeListener() {
-                    @Override
-                    public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-                        if (XAshmanManager.get().isServiceAvailable())
-                            XAshmanManager.get().setLockKillEnabled(isChecked);
-                        else showTips(R.string.title_service_not_connected_settings, false,
-                                null, null);
-                    }
-                });
-                switchBar.show();
-            }
-        });
-
-        setSummaryView();
+    @Override
+    protected CommonPackageInfoAdapter onCreateAdapter() {
+        return new CommonPackageInfoAdapter(this);
     }
 
-
-    protected void setSummaryView() {
-        String who = getClass().getSimpleName();
-        boolean showInfo = AppSettings.isShowInfoEnabled(this, who);
-        TextView textView = findViewById(R.id.summary);
-        if (!showInfo) {
-            textView.setVisibility(View.GONE);
-        } else {
-            int normalColor = ContextCompat.getColor(getActivity(), R.color.white);
-            int highlightColor = ContextCompat.getColor(getActivity(), R.color.amber);
-            int strId = XAshmanManager.get().isServiceAvailable()
-                    && XAshmanManager.get().isWhiteSysAppEnabled()
-                    ? R.string.summary_lock_kill_app_include_system : R.string.summary_lock_kill_app;
-            textView.setText(SpannableUtil.buildHighLightString(getActivity(), normalColor, highlightColor, strId));
-            textView.setVisibility(View.VISIBLE);
-        }
-    }
-
-    protected LockKillAppListAdapter onCreateAdapter() {
-        return new LockKillAppListAdapter(this) {
-            @Override
-            protected void onPackageRemoved(String p) {
-                super.onPackageRemoved(p);
-                startLoading();
-            }
-        };
-    }
-
-    protected void startLoading() {
-        swipeRefreshLayout.setRefreshing(true);
-        XExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                final List<LockKillPackage> res = performLoading();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        swipeRefreshLayout.setRefreshing(false);
-                        lockKillAppListAdapter.update(res);
-                    }
-                });
-            }
-        });
-    }
-
-    protected List<LockKillPackage> performLoading() {
+    @Override
+    protected List<CommonPackageInfo> performLoading() {
         return LockKillPackageLoader.Impl.create(this).loadInstalled(true);
     }
 
     @Override
+    public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
+        XAshmanManager.get().setLockKillEnabled(isChecked);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.lk, menu);
+        getMenuInflater().inflate(R.menu.lock_kill, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-        }
         if (item.getItemId() == R.id.action_settings) {
             startActivity(new Intent(this, LKSettingsDashboardActivity.class));
-        }
-        if (item.getItemId() == R.id.action_info) {
-            String who = getClass().getSimpleName();
-            AppSettings.setShowInfo(this, who, !AppSettings.isShowInfoEnabled(this, who));
-            setSummaryView();
-        }
-        if (item.getItemId() == R.id.action_search) {
-            onRequestSearch();
-            return true;
         }
         return super.onOptionsItemSelected(item);
     }

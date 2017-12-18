@@ -1,19 +1,17 @@
 package github.tornaco.xposedmoduletest.ui.activity.comp;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.PopupMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.AdapterView;
 import android.widget.Toast;
 
 import com.google.common.io.Files;
@@ -29,14 +27,14 @@ import java.util.List;
 import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.bean.PackageInfo;
 import github.tornaco.xposedmoduletest.compat.os.PowerManagerCompat;
 import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
-import github.tornaco.xposedmoduletest.loader.PackageLoader;
-import github.tornaco.xposedmoduletest.provider.AppSettings;
-import github.tornaco.xposedmoduletest.ui.activity.ag.GuardAppPickerActivity;
-import github.tornaco.xposedmoduletest.ui.activity.res.ConfigurationSettingActivity;
-import github.tornaco.xposedmoduletest.ui.adapter.GuardAppListAdapter;
+import github.tornaco.xposedmoduletest.loader.ComponentLoader;
+import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
+import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
+import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
+import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoViewerAdapter;
+import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -46,52 +44,49 @@ import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
  * Email: Tornaco@163.com
  */
 @RuntimePermissions
-public class PackageViewerActivity extends GuardAppPickerActivity {
+public class PackageViewerActivity extends CommonPackageInfoListActivity {
+
+    private boolean mShowSystemApp;
 
     private String disabledString = null;
 
     private String mAppPackageToExport = null;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        disabledString = getString(R.string.title_package_disabled);
-        findViewById(R.id.fab).setVisibility(View.GONE);
+    protected void initView() {
+        super.initView();
+        fab.hide();
     }
 
     @Override
-    protected GuardAppListAdapter onCreateAdapter() {
-        return new GuardAppListAdapter(this) {
-
-            @SuppressLint("SetTextI18n")
-            @Override
-            public void onBindViewHolder(final AppViewHolder holder, final int position) {
-                super.onBindViewHolder(holder, position);
-
-                // Block all when xash is not running.
-                if (!XAshmanManager.get().isServiceAvailable()) return;
-
-                final PackageInfo packageInfo = getPackageInfos().get(position);
-                final boolean disabled = packageInfo.isDisabled();
-                if (disabled) {
-                    holder.getLineOneTextView().setTextColor(Color.RED);
-                    holder.getLineOneTextView().setText(packageInfo.getAppName() + disabledString);
-                } else {
-                    holder.getLineOneTextView().setTextColor(Color.BLACK);
-                }
-                holder.itemView.setOnLongClickListener(null);
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (XAshmanManager.get().isServiceAvailable())
-                            showPopMenu(packageInfo, disabled, v);
-                    }
-                });
-            }
-        };
+    protected void onInitSwitchBar(SwitchBar switchBar) {
+        switchBar.hide();
     }
 
-    private void showPopMenu(final PackageInfo packageInfo, boolean isDisabledCurrently, View anchor) {
+    @Override
+    protected int getSummaryRes() {
+        return R.string.summary_comp_edit;
+    }
+
+    @Override
+    protected CommonPackageInfoAdapter onCreateAdapter() {
+        CommonPackageInfoViewerAdapter adapter = new CommonPackageInfoViewerAdapter(this);
+        adapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                CommonPackageInfo info = getCommonPackageInfoAdapter().getCommonPackageInfos().get(position);
+                showPopMenu(info, info.isDisabled(), view);
+            }
+        });
+        return adapter;
+    }
+
+    @Override
+    protected List<CommonPackageInfo> performLoading() {
+        return ComponentLoader.Impl.create(this).loadInstalledApps(mShowSystemApp);
+    }
+
+    private void showPopMenu(final CommonPackageInfo packageInfo, boolean isDisabledCurrently, View anchor) {
         PopupMenu popupMenu = new PopupMenu(PackageViewerActivity.this, anchor);
         popupMenu.inflate(R.menu.package_viewer_pop);
         if (isDisabledCurrently) {
@@ -166,9 +161,6 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
                                         PackageViewerActivity.this);
                         break;
 
-                    case R.id.action_config_setting:
-                        ConfigurationSettingActivity.start(getActivity(), packageInfo.getPkgName());
-                        break;
                 }
                 return true;
             }
@@ -178,7 +170,6 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
 
     private static final int REQUEST_CODE_PICK_APK_EXPORT_PATH = 0x111;
 
-    // FIXME Copy to File utils.
     @RequiresPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     static void pickSingleFile(Activity activity, int requestCode) {
         // This always works
@@ -201,46 +192,6 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
     }
 
     @Override
-    protected void setSummaryView() {
-        super.setSummaryView();
-        String who = getClass().getSimpleName();
-        boolean showInfo = AppSettings.isShowInfoEnabled(this, who);
-        TextView textView = findViewById(R.id.summary);
-        if (!showInfo) {
-            textView.setVisibility(View.GONE);
-        } else {
-            textView.setText(R.string.summary_comp_edit);
-            textView.setVisibility(View.VISIBLE);
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.package_viewer_nav, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.show_system_app).setChecked(mShowSystemApp);
-        menu.findItem(R.id.action_info).setVisible(true);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_settings_package_viewer) {
-            startActivity(new Intent(this, CompSettingsDashboardActivity.class));
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected List<PackageInfo> performLoading() {
-        return PackageLoader.Impl.create(this).loadInstalled(mShowSystemApp);
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_PICK_APK_EXPORT_PATH && resultCode == Activity.RESULT_OK) {
@@ -249,6 +200,12 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
             File file = Utils.getFileForUri(files.get(0));
             onApkExportPathPick(file);
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        PackageViewerActivityPermissionRequester.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     private void onApkExportPathPick(final File file) {
@@ -284,5 +241,21 @@ public class PackageViewerActivity extends GuardAppPickerActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.comp_viewer, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.show_system_app) {
+            mShowSystemApp = !mShowSystemApp;
+            item.setChecked(mShowSystemApp);
+            startLoading();
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

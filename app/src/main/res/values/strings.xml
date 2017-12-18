@@ -347,5 +347,6 @@
     <string name="title_greening">绿色化</string>
     <string name="summary_greening_app">默认情况下，系统可能会因为某些应用启动了某些后台服务，获取唤醒锁，或者设置了唤醒定时器导致设备运行卡顿，或者耗电增加。\n\n绿色化某个应用，可以禁止该应用任何时候，启动任何服务，设置唤醒（X_WAKEUP）定时器，获取任何类型唤醒锁。\n\n小提示：你也可以前往权限管理，按照（服务/定时器/唤醒锁）根据自己的想法控制这些行为。</string>
     <string name="title_change_column_count">切换布局</string>
+    <string name="title_error_occur">糟糕</string>
 
 </resources>

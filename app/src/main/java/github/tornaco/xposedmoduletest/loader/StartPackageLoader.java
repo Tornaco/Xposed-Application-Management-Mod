@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import github.tornaco.xposedmoduletest.bean.AutoStartPackage;
+import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
@@ -20,7 +20,7 @@ import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 public interface StartPackageLoader {
 
     @NonNull
-    List<AutoStartPackage> loadInstalled(boolean block);
+    List<CommonPackageInfo> loadInstalled(boolean block);
 
     class Impl implements StartPackageLoader {
 
@@ -36,9 +36,9 @@ public interface StartPackageLoader {
 
         @NonNull
         @Override
-        public List<AutoStartPackage> loadInstalled(boolean block) {
+        public List<CommonPackageInfo> loadInstalled(boolean block) {
 
-            List<AutoStartPackage> out = new ArrayList<>();
+            List<CommonPackageInfo> out = new ArrayList<>();
 
             XAshmanManager xAshmanManager = XAshmanManager.get();
             if (!xAshmanManager.isServiceAvailable()) return out;
@@ -52,8 +52,7 @@ public interface StartPackageLoader {
                     name = name.replace(" ", "");
                 }
 
-                AutoStartPackage p = new AutoStartPackage();
-                p.setAllow(false);
+                CommonPackageInfo p = new CommonPackageInfo();
                 p.setAppName(name);
                 p.setPkgName(pkg);
                 p.setSystemApp(PkgUtil.isSystemApp(context, pkg));
@@ -67,8 +66,8 @@ public interface StartPackageLoader {
         }
     }
 
-    class PinyinComparator implements Comparator<AutoStartPackage> {
-        public int compare(AutoStartPackage o1, AutoStartPackage o2) {
+    class PinyinComparator implements Comparator<CommonPackageInfo> {
+        public int compare(CommonPackageInfo o1, CommonPackageInfo o2) {
             return new github.tornaco.xposedmoduletest.util.PinyinComparator().compare(o1.getAppName(), o2.getAppName());
         }
     }

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import github.tornaco.xposedmoduletest.bean.BootCompletePackage;
+import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.util.PinyinComparator;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -21,7 +21,7 @@ import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 public interface BootPackageLoader {
 
     @NonNull
-    List<BootCompletePackage> loadInstalled(boolean blocked);
+    List<CommonPackageInfo> loadInstalled(boolean blocked);
 
     class Impl implements BootPackageLoader {
 
@@ -37,8 +37,8 @@ public interface BootPackageLoader {
 
         @NonNull
         @Override
-        public List<BootCompletePackage> loadInstalled(boolean blocked) {
-            List<BootCompletePackage> out = new ArrayList<>();
+        public List<CommonPackageInfo> loadInstalled(boolean blocked) {
+            List<CommonPackageInfo> out = new ArrayList<>();
 
             XAshmanManager xAshmanManager = XAshmanManager.get();
             if (!xAshmanManager.isServiceAvailable()) return out;
@@ -53,8 +53,7 @@ public interface BootPackageLoader {
                     name = name.replace(" ", "");
                 }
 
-                BootCompletePackage p = new BootCompletePackage();
-                p.setAllow(false);
+                CommonPackageInfo p = new CommonPackageInfo();
                 p.setAppName(name);
                 p.setPkgName(pkg);
                 p.setSystemApp(PkgUtil.isSystemApp(context, pkg));
@@ -67,8 +66,8 @@ public interface BootPackageLoader {
         }
     }
 
-    class BootComparator implements Comparator<BootCompletePackage> {
-        public int compare(BootCompletePackage o1, BootCompletePackage o2) {
+    class BootComparator implements Comparator<CommonPackageInfo> {
+        public int compare(CommonPackageInfo o1, CommonPackageInfo o2) {
             return new PinyinComparator().compare(o1.getAppName(), o2.getAppName());
         }
     }

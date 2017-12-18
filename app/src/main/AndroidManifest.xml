@@ -73,12 +73,12 @@
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
-            android:name=".ui.activity.BootAppNavActivity"
+            android:name=".ui.activity.boot.BootAppNavActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_app_boot"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
-            android:name=".ui.activity.BootAppPickerActivity"
+            android:name=".ui.activity.boot.BootAppPickerActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
@@ -89,16 +89,6 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.start.StartAppPickerActivity"
-            android:excludeFromRecents="true"
-            android:label="@string/title_picker"
-            android:theme="@style/AppThemeLight.NoActionBar" />
-        <activity
-            android:name=".ui.activity.green.GreeningAppNavActivity"
-            android:excludeFromRecents="true"
-            android:label="@string/title_greening"
-            android:theme="@style/AppThemeLight.NoActionBar" />
-        <activity
-            android:name=".ui.activity.green.GreeningAppPickerActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
@@ -229,11 +219,6 @@
             android:label="@string/title_perm_control"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
-            android:name=".ui.activity.res.ConfigurationSettingActivity"
-            android:excludeFromRecents="true"
-            android:label="@string/title_config_setting"
-            android:theme="@style/AppThemeLight.NoActionBar" />
-        <activity
             android:name=".ui.activity.DonateActivity"
             android:label="@string/title_activity_donate"
             android:theme="@style/AppThemeLight.NoActionBar" />
@@ -267,10 +252,6 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <provider
-            android:name=".provider.AppGuardPackageProvider"
-            android:authorities="github.tornaco.xposedmoduletest.app_guard_package_provider"
-            android:exported="true" />
         <provider
             android:name=".provider.ComponentsReplacementProvider"
             android:authorities="github.tornaco.xposedmoduletest.components_replacement_provider"

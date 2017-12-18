@@ -11,6 +11,7 @@ import com.google.common.collect.Lists;
 
 import org.newstand.logger.Logger;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -18,6 +19,7 @@ import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.model.ActivityInfoSettings;
 import github.tornaco.xposedmoduletest.model.ActivityInfoSettingsList;
+import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettings;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettingsList;
 import github.tornaco.xposedmoduletest.util.ComponentUtil;
@@ -32,6 +34,8 @@ import lombok.AllArgsConstructor;
  */
 
 public interface ComponentLoader {
+
+    List<CommonPackageInfo> loadInstalledApps(boolean showSystem);
 
     @NonNull
     List<ActivityInfoSettings> loadActivitySettings(String pkg);
@@ -58,6 +62,25 @@ public interface ComponentLoader {
 
         public static ComponentLoader create(Context context) {
             return new Impl(context);
+        }
+
+        @Override
+        public List<CommonPackageInfo> loadInstalledApps(boolean showSystem) {
+            String[] packages = XAshmanManager.get().getInstalledApps(
+                    showSystem ? XAshmanManager.FLAG_SHOW_SYSTEM_APP : XAshmanManager.FLAG_NONE);
+            List<CommonPackageInfo> res = new ArrayList<>();
+            for (String p : packages) {
+                CommonPackageInfo packageInfo = LoaderUtil.constructCommonPackageInfo(context, p);
+                if (packageInfo == null) continue;
+
+                int state = XAshmanManager.get().getApplicationEnabledSetting(p);
+                boolean disabled = state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                        && state != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
+                packageInfo.setDisabled(disabled);
+
+                res.add(packageInfo);
+            }
+            return res;
         }
 
         @NonNull

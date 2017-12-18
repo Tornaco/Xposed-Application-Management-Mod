@@ -69,6 +69,7 @@ interface IAshmanService {
 
     // Package loader API.
     String[] getWhiteListApps(int filterOptions);
+    String[] getInstalledApps(int filterOptions);
 
     String[] getBootBlockApps(boolean block);
     void addOrRemoveBootBlockApps(in String[] packages, int op);

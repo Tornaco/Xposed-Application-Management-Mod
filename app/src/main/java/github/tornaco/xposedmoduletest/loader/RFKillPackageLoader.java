@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import github.tornaco.xposedmoduletest.bean.RFKillPackage;
+import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.util.PinyinComparator;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -21,7 +21,7 @@ import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 public interface RFKillPackageLoader {
 
     @NonNull
-    List<RFKillPackage> loadInstalled(boolean blocked);
+    List<CommonPackageInfo> loadInstalled(boolean blocked);
 
     class Impl implements RFKillPackageLoader {
 
@@ -37,9 +37,9 @@ public interface RFKillPackageLoader {
 
         @NonNull
         @Override
-        public List<RFKillPackage> loadInstalled(boolean willBeKill) {
+        public List<CommonPackageInfo> loadInstalled(boolean willBeKill) {
 
-            List<RFKillPackage> out = new ArrayList<>();
+            List<CommonPackageInfo> out = new ArrayList<>();
 
             XAshmanManager xAshmanManager = XAshmanManager.get();
             if (!xAshmanManager.isServiceAvailable()) return out;
@@ -53,8 +53,7 @@ public interface RFKillPackageLoader {
                     name = name.replace(" ", "");
                 }
 
-                RFKillPackage p = new RFKillPackage();
-                p.setKill(true);
+                CommonPackageInfo p = new CommonPackageInfo();
                 p.setAppName(name);
                 p.setPkgName(pkg);
                 p.setSystemApp(PkgUtil.isSystemApp(context, pkg));
@@ -67,8 +66,8 @@ public interface RFKillPackageLoader {
         }
     }
 
-    class RFComparator implements Comparator<RFKillPackage> {
-        public int compare(RFKillPackage o1, RFKillPackage o2) {
+    class RFComparator implements Comparator<CommonPackageInfo> {
+        public int compare(CommonPackageInfo o1, CommonPackageInfo o2) {
             return new PinyinComparator().compare(o1.getAppName(), o2.getAppName());
         }
     }

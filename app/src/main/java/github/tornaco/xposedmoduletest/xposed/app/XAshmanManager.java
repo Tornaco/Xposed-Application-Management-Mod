@@ -27,19 +27,8 @@ import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 
 public class XAshmanManager {
 
-    private static String[] convertObjectArrayToStringArray(Object[] objArr) {
-        if (objArr == null || objArr.length == 0) {
-            return new String[0];
-        }
-        String[] out = new String[objArr.length];
-        for (int i = 0; i < objArr.length; i++) {
-            Object o = objArr[i];
-            if (o == null) continue;
-            String pkg = String.valueOf(o);
-            out[i] = pkg;
-        }
-        return out;
-    }
+    public static final int FLAG_SHOW_SYSTEM_APP = 0X100;
+    public static final int FLAG_NONE = 0X200;
 
     /**
      * Reject application network traffic on wifi network
@@ -794,6 +783,14 @@ public class XAshmanManager {
             return mService.isUidGreening(uid);
         } catch (RemoteException e) {
             return false;
+        }
+    }
+
+    public String[] getInstalledApps(int filterOptions) {
+        try {
+            return mService.getInstalledApps(filterOptions);
+        } catch (RemoteException e) {
+            return new String[0];
         }
     }
 }

@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.ui.activity.start;
+package github.tornaco.xposedmoduletest.ui.activity.boot;
 
 import android.content.Context;
 import android.content.Intent;
@@ -7,17 +7,17 @@ import java.util.List;
 
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
-import github.tornaco.xposedmoduletest.loader.StartPackageLoader;
+import github.tornaco.xposedmoduletest.loader.BootPackageLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListPickerActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoPickerAdapter;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
-public class StartAppPickerActivity extends CommonPackageInfoListPickerActivity {
+public class BootAppPickerActivity extends CommonPackageInfoListPickerActivity {
 
     public static void start(Context context) {
-        Intent starter = new Intent(context, StartAppPickerActivity.class);
+        Intent starter = new Intent(context, BootAppPickerActivity.class);
         context.startActivity(starter);
     }
 
@@ -28,7 +28,7 @@ public class StartAppPickerActivity extends CommonPackageInfoListPickerActivity 
                     @Override
                     public void accept(CommonPackageInfo commonPackageInfo) {
                         if (commonPackageInfo.isChecked()) {
-                            XAshmanManager.get().addOrRemoveStartBlockApps(new String[]{commonPackageInfo.getPkgName()},
+                            XAshmanManager.get().addOrRemoveBootBlockApps(new String[]{commonPackageInfo.getPkgName()},
                                     XAshmanManager.Op.ADD);
                         }
                     }
@@ -42,6 +42,6 @@ public class StartAppPickerActivity extends CommonPackageInfoListPickerActivity 
 
     @Override
     protected List<CommonPackageInfo> performLoading() {
-        return StartPackageLoader.Impl.create(this).loadInstalled(false);
+        return BootPackageLoader.Impl.create(this).loadInstalled(false);
     }
 }

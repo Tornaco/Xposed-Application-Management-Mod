@@ -6,18 +6,11 @@
         android:id="@+id/action_select_all"
         android:icon="@drawable/ic_select_all_white_24dp"
         android:title="@string/title_select_all"
-        android:visible="false"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/action_search"
         android:icon="@drawable/ic_search_white_24dp"
         android:title="@string/title_search"
-        android:visible="true"
         app:showAsAction="ifRoom" />
-    <item
-        android:id="@+id/show_system_app"
-        android:checkable="true"
-        android:checked="false"
-        android:title="@string/title_show_system_app" />
 </menu>
