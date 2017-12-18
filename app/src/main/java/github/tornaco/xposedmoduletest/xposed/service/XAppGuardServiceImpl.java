@@ -82,6 +82,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     private AtomicBoolean mEnabled = new AtomicBoolean(false);
     private AtomicBoolean mUninstallProEnabled = new AtomicBoolean(false);
+    private AtomicBoolean mBlurEnabled = new AtomicBoolean(false);
     private AtomicBoolean mDebugEnabled = new AtomicBoolean(false);
 
     private AtomicBoolean mInterruptFPSuccessVB = new AtomicBoolean(false);
@@ -249,6 +250,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             boolean uninstallProEnabled = (boolean) SystemSettings.UNINSTALL_GUARD_ENABLED_B.readFromSystemSettings(getContext());
             mUninstallProEnabled.set(uninstallProEnabled);
 
+            boolean blurEnabled = (boolean) SystemSettings.BLUR_ENABLED_B.readFromSystemSettings(getContext());
+            mBlurEnabled.set(blurEnabled);
+
             boolean interruptFPS = (boolean) SystemSettings.INTERRUPT_FP_SUCCESS_VB_ENABLED_B.readFromSystemSettings(getContext());
             mInterruptFPSuccessVB.set(interruptFPS);
 
@@ -262,14 +266,13 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             if (resolver == null) return;
             mVerifySettings = VerifySettings.from(Settings.System.getString(resolver, VerifySettings.KEY_SETTINGS));
 
-            if (XposedLog.isVerboseLoggable())
+            if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("mVerifySettings: " + String.valueOf(mVerifySettings));
-            if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("mUninstallProEnabled: " + String.valueOf(mUninstallProEnabled));
-            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("mBlurEnabled: " + String.valueOf(mBlurEnabled));
                 XposedLog.verbose("mInterruptFPSuccessVB: " + String.valueOf(mInterruptFPSuccessVB));
-            if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("mEnabled: " + String.valueOf(mEnabled));
+            }
         } catch (Throwable e) {
             XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -459,19 +462,21 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     public boolean interruptPackageRemoval(String pkg) {
         boolean enabled = isUninstallInterruptEnabled();
 
-        if (enabled && BuildConfig.APPLICATION_ID.equals(pkg)) {
-            return true;
-        }
-
         if (!enabled) {
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("interruptPackageRemoval false: not enabled.");
             return false;
         }
-        boolean confirm = onInterruptConfirm(pkg);
-        if (!confirm) {
+
+
+        if (BuildConfig.APPLICATION_ID.equals(pkg)) {
+            return true;
+        }
+
+        boolean userSet = isPackageInUPList(pkg);
+        if (!userSet) {
             if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("interruptPackageRemoval false: not confirmed.");
+                XposedLog.verbose("interruptPackageRemoval false: not in user list.");
             return false;
         }
         return true;
@@ -609,6 +614,10 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         return mRepoProxy.getBlurs().has(pkg);
     }
 
+    private boolean isPackageInUPList(String pkg) {
+        return mRepoProxy.getUninstall().has(pkg);
+    }
+
     @Override
     public boolean onEarlyVerifyConfirm(String pkg) {
         if (pkg == null) {
@@ -716,8 +725,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     @Override
+    @InternalCall
     public boolean isBlurForPkg(String pkg) {
-        return isPackageInBlurList(pkg);
+        return isBlurEnabled() && isPackageInBlurList(pkg);
     }
 
     @Override
@@ -884,6 +894,50 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     @Override
+    public String[] getUPApps(boolean lock) throws RemoteException {
+        if (lock) {
+            Set<String> packages = mRepoProxy.getUninstall().getAll();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+            return convertObjectArrayToStringArray(packages.toArray());
+        } else {
+            Collection<String> packages = mPackagesCache.values();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+
+            final List<String> outList = Lists.newArrayList();
+
+            // Remove those not in blocked list.
+            String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
+            Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
+                @Override
+                public void accept(String s) {
+                    if (outList.contains(s)) return;// Kik dup package.
+                    if (isPackageInUPList(s)) return;
+                    outList.add(s);
+                }
+            });
+
+            if (outList.size() == 0) {
+                return new String[0];
+            }
+            Object[] objArr = outList.toArray();
+            return convertObjectArrayToStringArray(objArr);
+        }
+    }
+
+    @Override
+    public void addOrRemoveUPApps(String[] packages, boolean add) throws RemoteException {
+        if (XposedLog.isVerboseLoggable())
+            XposedLog.verbose("addOrRemoveUPApps: " + Arrays.toString(packages));
+        enforceCallingPermissions();
+        if (packages == null || packages.length == 0) return;
+        addOrRemoveFromRepo(packages, mRepoProxy.getUninstall(), add);
+    }
+
+    @Override
     @BinderCall
     public boolean isEnabled() {
         enforceCallingPermissions();
@@ -894,8 +948,21 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @BinderCall
     public void setEnabled(boolean enabled) throws RemoteException {
         enforceCallingPermissions();
-        mServiceHandler.removeMessages(AppGuardServiceHandlerMessages.MSG_SETENABLED);
         mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_SETENABLED,
+                enabled ? 1 : 0, 0)
+                .sendToTarget();
+    }
+
+    @Override
+    public boolean isBlurEnabled() {
+        return mBlurEnabled.get();
+    }
+
+    @Override
+    public void setBlurEnabled(boolean enabled) throws RemoteException {
+        enforceCallingPermissions();
+        mServiceHandler.obtainMessage(
+                AppGuardServiceHandlerMessages.MSG_SETBLURENABLED,
                 enabled ? 1 : 0, 0)
                 .sendToTarget();
     }
@@ -904,14 +971,13 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @BinderCall
     public boolean isUninstallInterruptEnabled() {
         enforceCallingPermissions();
-        return isEnabled() && mUninstallProEnabled.get();
+        return mUninstallProEnabled.get();
     }
 
     @Override
     @BinderCall
     public void setUninstallInterruptEnabled(boolean enabled) throws RemoteException {
         enforceCallingPermissions();
-        mServiceHandler.removeMessages(AppGuardServiceHandlerMessages.MSG_SETUNINSTALLINTERRUPTENABLED);
         mServiceHandler.obtainMessage(
                 AppGuardServiceHandlerMessages.MSG_SETUNINSTALLINTERRUPTENABLED,
                 enabled ? 1 : 0, 0)
@@ -1092,6 +1158,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 case AppGuardServiceHandlerMessages.MSG_SETUNINSTALLINTERRUPTENABLED:
                     AppGuardServiceHandlerImpl.this.setUninstallInterruptEnabled(msg.arg1 == 1);
                     break;
+                case AppGuardServiceHandlerMessages.MSG_SETBLURENABLED:
+                    AppGuardServiceHandlerImpl.this.setBlurEnabled(msg.arg1 == 1);
+                    break;
                 case AppGuardServiceHandlerMessages.MSG_SETVERIFYSETTINGS:
                     AppGuardServiceHandlerImpl.this.setVerifySettings((VerifySettings) msg.obj);
                     break;
@@ -1139,6 +1208,13 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         public void setUninstallInterruptEnabled(boolean enabled) {
             if (mUninstallProEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.UNINSTALL_GUARD_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setBlurEnabled(boolean enabled) {
+            if (mBlurEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.BLUR_ENABLED_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 

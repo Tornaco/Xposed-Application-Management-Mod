@@ -14,6 +14,9 @@ interface IAppGuardService {
     boolean isEnabled();
     void setEnabled(boolean enabled);
 
+    boolean isBlurEnabled();
+    void setBlurEnabled(boolean enabled);
+
     boolean isUninstallInterruptEnabled();
     void setUninstallInterruptEnabled(boolean enabled);
 
@@ -53,4 +56,7 @@ interface IAppGuardService {
 
     String[] getBlurApps(boolean lock);
     void addOrRemoveBlurApps(in String[] packages, boolean blur);
+
+    String[] getUPApps(boolean lock);
+    void addOrRemoveUPApps(in String[] packages, boolean add);
 }

@@ -17,6 +17,8 @@ interface AppGuardServiceHandler {
 
     void setUninstallInterruptEnabled(boolean enabled);
 
+    void setBlurEnabled(boolean enabled);
+
     void setVerifySettings(github.tornaco.xposedmoduletest.xposed.bean.VerifySettings settings);
 
     void setResult(int transactionID, int res);

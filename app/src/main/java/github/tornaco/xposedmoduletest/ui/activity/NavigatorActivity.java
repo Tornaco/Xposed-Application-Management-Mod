@@ -43,6 +43,7 @@ import github.tornaco.xposedmoduletest.ui.activity.app.ToolsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
 import github.tornaco.xposedmoduletest.ui.tiles.AppStart;
+import github.tornaco.xposedmoduletest.ui.tiles.Blur;
 import github.tornaco.xposedmoduletest.ui.tiles.CompReplacement;
 import github.tornaco.xposedmoduletest.ui.tiles.ComponentManager;
 import github.tornaco.xposedmoduletest.ui.tiles.Greening;
@@ -51,6 +52,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.NFManager;
 import github.tornaco.xposedmoduletest.ui.tiles.PermControl;
 import github.tornaco.xposedmoduletest.ui.tiles.RFKill;
 import github.tornaco.xposedmoduletest.ui.tiles.SmartSense;
+import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -317,6 +319,8 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             Category category = new Category();
             category.titleRes = R.string.title_secure;
             category.addTile(new AppGuard(getActivity()));
+            category.addTile(new Blur(getActivity()));
+            category.addTile(new UnInstall(getActivity()));
             //if (BuildConfig.DEBUG) category.addTile(new Privacy(getActivity()));
 
             Category rest = new Category();

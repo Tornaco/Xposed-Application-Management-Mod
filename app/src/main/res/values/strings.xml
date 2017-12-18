@@ -48,8 +48,8 @@
     <string name="title_service_not_connected">未激活</string>
     <string name="theme_def">DEFAULT</string>
     <string name="title_open_source">源代码</string>
-    <string name="title_app_recent_blur">最近任务模糊</string>
-    <string name="summary_app_recent_blur">仅供测试效果，如果影响性能请关闭</string>
+    <string name="title_app_recent_blur">卡片模糊</string>
+    <string name="summary_app_recent_blur">仅供测试效果，如果影响性能请关闭。</string>
     <string name="title_default_verifyer">默认验证器</string>
     <string name="summary_app_recent_blur_all">启用该选项全部任务都会被模糊，否则只有需要验证的任务才会</string>
     <string name="title_app_recent_blur_all">模糊全部任务</string>

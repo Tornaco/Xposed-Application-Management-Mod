@@ -73,6 +73,26 @@
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
+            android:name=".ui.activity.blur.BlurAppNavActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_app_recent_blur"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.blur.BlurAppPickerActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_picker"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.uninstall.UnstallProAppNavActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_app_uninstall_pro"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.uninstall.UnstallProAppPickerActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_picker"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
             android:name=".ui.activity.boot.BootAppNavActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_app_boot"
