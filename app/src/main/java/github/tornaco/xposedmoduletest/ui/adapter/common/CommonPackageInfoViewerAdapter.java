@@ -39,7 +39,7 @@ public class CommonPackageInfoViewerAdapter extends CommonPackageInfoAdapter {
         final CommonPackageInfo packageInfo = commonPackageInfos.get(position);
         boolean disabled = packageInfo.isDisabled();
         if (disabled) {
-            holder.getLineOneTextView().setText(packageInfo.getAppName() + "*已冻结*");
+            holder.getLineOneTextView().setText(packageInfo.getAppName() + "\t*已冻结*");
             holder.getLineOneTextView().setTextColor(Color.RED);
         } else {
             holder.getLineOneTextView().setText(packageInfo.getAppName());

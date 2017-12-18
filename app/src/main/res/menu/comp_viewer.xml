@@ -22,4 +22,9 @@
         android:checked="false"
         android:title="@string/title_show_system_app" />
 
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/title_settings"
+        app:showAsAction="never" />
+
 </menu>
