@@ -5,6 +5,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
@@ -149,6 +150,15 @@ public class GuardAppNavActivity extends NeedLockActivity {
                 switchBar.addOnSwitchChangeListener(new SwitchBar.OnSwitchChangeListener() {
                     @Override
                     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
+                        if (isChecked) {
+                            new AlertDialog.Builder(getActivity())
+                                    .setTitle("注意")
+                                    .setMessage("以后如果要卸载【应用管理】可能需要先关闭应用锁！")
+                                    .setPositiveButton(android.R.string.ok, null)
+                                    .setCancelable(false)
+                                    .show();
+                        }
+
                         if (XAppGuardManager.get().isServiceAvailable())
                             XAppGuardManager.get().setEnabled(isChecked);
                         else showTips(R.string.title_service_not_connected_settings, false,

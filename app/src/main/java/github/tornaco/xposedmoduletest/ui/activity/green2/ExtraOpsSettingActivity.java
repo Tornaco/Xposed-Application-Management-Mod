@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -90,15 +91,17 @@ public class ExtraOpsSettingActivity extends GuardAppPickerActivity {
             }
         });
 
-        java.util.Collections.sort(checked, new Comparator<PackageInfo>() {
-            @Override
-            public int compare(PackageInfo o1, PackageInfo o2) {
-                if (o1.getDistance() > o2.getDistance()) return 1;
-                return -1;
-            }
-        });
-
-
+//        try {
+//            java.util.Collections.sort(checked, new Comparator<PackageInfo>() {
+//                @Override
+//                public int compare(PackageInfo o1, PackageInfo o2) {
+//                    if (o1.getDistance() > o2.getDistance()) return 1;
+//                    return -1;
+//                }
+//            });
+//        } catch (Throwable e) {
+//            Toast.makeText(getContext(), "排序出错~", Toast.LENGTH_SHORT).show();
+//        }
         return checked;
     }
 
