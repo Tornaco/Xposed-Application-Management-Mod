@@ -83,7 +83,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity {
 
     @Override
     protected List<CommonPackageInfo> performLoading() {
-        return ComponentLoader.Impl.create(this).loadInstalledApps(mShowSystemApp);
+        return ComponentLoader.Impl.create(this).loadInstalledApps(mShowSystemApp, ComponentLoader.Sort.byState());
     }
 
     private void showPopMenu(final CommonPackageInfo packageInfo, boolean isDisabledCurrently, View anchor) {

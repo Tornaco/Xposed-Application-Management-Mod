@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.ui.activity.green2;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,7 +23,6 @@ import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListA
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoViewerChooserAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.xposed.XApp;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
@@ -34,10 +34,16 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity {
 
     private boolean mShowSystemApp;
 
+    private int colorGreen, colorDefault, colorSet;
+
     @Override
     protected void initView() {
         super.initView();
         fab.hide();
+
+        colorDefault = ContextCompat.getColor(getContext(), R.color.grey);
+        colorGreen = ContextCompat.getColor(getContext(), R.color.green_dark);
+        colorSet = ContextCompat.getColor(getContext(), R.color.blue);
     }
 
     @Override
@@ -103,15 +109,20 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity {
 
                 String summary = "";
 
+                holder.getExtraIndicator().setVisibility(View.VISIBLE);
+
                 boolean cut = packageInfo.isAllExtraPermAllowed()
                         || packageInfo.isAllExtraPermDisabled();
                 if (cut) {
                     if (packageInfo.isAllExtraPermAllowed()) {
                         summary = "默认状态";
+                        holder.getExtraIndicator().setBackgroundColor(colorDefault);
                     } else if (packageInfo.isAllExtraPermDisabled()) {
                         summary = "纯绿色化";
+                        holder.getExtraIndicator().setBackgroundColor(colorGreen);
                     }
                 } else {
+                    holder.getExtraIndicator().setBackgroundColor(colorSet);
                     if (packageInfo.isServiceOpAllowed()) {
                         summary += "服务\t\t";
                     }
@@ -139,19 +150,8 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity {
 
     @Override
     protected List<CommonPackageInfo> performLoading() {
-        List<CommonPackageInfo> infos = ComponentLoader.Impl.create(this).loadInstalledApps(mShowSystemApp);
-
-        final List<CommonPackageInfo> checked = new ArrayList<>();
-
-        Collections.consumeRemaining(infos, new Consumer<CommonPackageInfo>() {
-            @Override
-            public void accept(CommonPackageInfo info) {
-                if (XApp.isInGlobalWhiteList(info.getPkgName())) return;
-                updateOpState(info);
-                checked.add(info);
-            }
-        });
-        return checked;
+        return ComponentLoader.Impl.create(this).loadInstalledAppsWithOp(mShowSystemApp,
+                ComponentLoader.Sort.byOp());
     }
 
     private static void updateOpState(CommonPackageInfo info) {

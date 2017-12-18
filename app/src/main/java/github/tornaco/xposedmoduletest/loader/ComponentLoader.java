@@ -17,6 +17,7 @@ import java.util.List;
 
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
+import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.model.ActivityInfoSettings;
 import github.tornaco.xposedmoduletest.model.ActivityInfoSettingsList;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
@@ -35,7 +36,41 @@ import lombok.AllArgsConstructor;
 
 public interface ComponentLoader {
 
-    List<CommonPackageInfo> loadInstalledApps(boolean showSystem);
+    abstract class Sort {
+
+        public abstract void performSort(List<CommonPackageInfo> commonPackageInfos);
+
+        public static Sort byName() {
+            return new Sort() {
+                @Override
+                public void performSort(List<CommonPackageInfo> commonPackageInfos) {
+                    LoaderUtil.commonSort(commonPackageInfos);
+                }
+            };
+        }
+
+        public static Sort byOp() {
+            return new Sort() {
+                @Override
+                public void performSort(List<CommonPackageInfo> commonPackageInfos) {
+                    LoaderUtil.opSort(commonPackageInfos);
+                }
+            };
+        }
+
+        public static Sort byState() {
+            return new Sort() {
+                @Override
+                public void performSort(List<CommonPackageInfo> commonPackageInfos) {
+                    LoaderUtil.stateSort(commonPackageInfos);
+                }
+            };
+        }
+    }
+
+    List<CommonPackageInfo> loadInstalledApps(boolean showSystem, Sort sort);
+
+    List<CommonPackageInfo> loadInstalledAppsWithOp(boolean showSystem, Sort sort);
 
     @NonNull
     List<ActivityInfoSettings> loadActivitySettings(String pkg);
@@ -65,7 +100,7 @@ public interface ComponentLoader {
         }
 
         @Override
-        public List<CommonPackageInfo> loadInstalledApps(boolean showSystem) {
+        public List<CommonPackageInfo> loadInstalledApps(boolean showSystem, Sort sort) {
             String[] packages = XAshmanManager.get().getInstalledApps(
                     showSystem ? XAshmanManager.FLAG_SHOW_SYSTEM_APP : XAshmanManager.FLAG_NONE);
             List<CommonPackageInfo> res = new ArrayList<>();
@@ -80,7 +115,43 @@ public interface ComponentLoader {
 
                 res.add(packageInfo);
             }
+            sort.performSort(res);
             return res;
+        }
+
+        @Override
+        public List<CommonPackageInfo> loadInstalledAppsWithOp(boolean showSystem, Sort sort) {
+            String[] packages = XAshmanManager.get().getInstalledApps(
+                    showSystem ? XAshmanManager.FLAG_SHOW_SYSTEM_APP : XAshmanManager.FLAG_NONE);
+            List<CommonPackageInfo> res = new ArrayList<>();
+            for (String p : packages) {
+                CommonPackageInfo packageInfo = LoaderUtil.constructCommonPackageInfo(context, p);
+                if (packageInfo == null) continue;
+
+                int state = XAshmanManager.get().getApplicationEnabledSetting(p);
+                boolean disabled = state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                        && state != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
+                packageInfo.setDisabled(disabled);
+                updateOpState(packageInfo);
+                res.add(packageInfo);
+            }
+            sort.performSort(res);
+            return res;
+        }
+
+        private static void updateOpState(CommonPackageInfo info) {
+            int modeService = XAshmanManager.get()
+                    .getPermissionControlBlockModeForPkg(
+                            AppOpsManagerCompat.OP_START_SERVICE, info.getPkgName());
+            int modeWakelock = XAshmanManager.get()
+                    .getPermissionControlBlockModeForPkg(
+                            AppOpsManagerCompat.OP_WAKE_LOCK, info.getPkgName());
+            int modeAlarm = XAshmanManager.get()
+                    .getPermissionControlBlockModeForPkg(
+                            AppOpsManagerCompat.OP_SET_ALARM, info.getPkgName());
+            info.setServiceOpAllowed(modeService == AppOpsManagerCompat.MODE_ALLOWED);
+            info.setAlarmOpAllowed(modeAlarm == AppOpsManagerCompat.MODE_ALLOWED);
+            info.setWakelockOpAllowed(modeWakelock == AppOpsManagerCompat.MODE_ALLOWED);
         }
 
         @NonNull
@@ -289,6 +360,9 @@ public interface ComponentLoader {
 
     class SComparator implements Comparator<ServiceInfoSettings> {
         public int compare(ServiceInfoSettings o1, ServiceInfoSettings o2) {
+            if (o1.isAllowed() != o2.isAllowed()) {
+                return o1.isAllowed() ? 1 : -1;
+            }
             return new PinyinComparator().compare(o1.simpleName(), o2.simpleName());
         }
     }

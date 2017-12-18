@@ -42,6 +42,7 @@ public interface LockPackageLoader {
                 if (packageInfo == null) continue;
                 res.add(packageInfo);
             }
+            LoaderUtil.commonSort(res);
             return res;
         }
     }

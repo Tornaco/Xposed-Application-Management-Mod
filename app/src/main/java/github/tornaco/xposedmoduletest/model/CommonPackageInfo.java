@@ -32,4 +32,12 @@ public class CommonPackageInfo implements Searchable {
     public boolean isAllExtraPermAllowed() {
         return isServiceOpAllowed() && isWakelockOpAllowed() && isAlarmOpAllowed();
     }
+
+    public int getOpDistance() {
+        int d = 0;
+        if (isServiceOpAllowed()) d++;
+        if (isAlarmOpAllowed()) d++;
+        if (isWakelockOpAllowed()) d++;
+        return d;
+    }
 }
