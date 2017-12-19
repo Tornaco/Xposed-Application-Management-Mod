@@ -738,6 +738,7 @@ public class XAshmanManager {
     }
 
     public String[] getGreeningApps(boolean greening) {
+        ensureService();
         try {
             return mService.getGreeningApps(greening);
         } catch (RemoteException e) {
@@ -746,6 +747,7 @@ public class XAshmanManager {
     }
 
     public void addOrRemoveGreeningApps(String[] packages, int op) {
+        ensureService();
         try {
             mService.addOrRemoveGreeningApps(packages, op);
         } catch (RemoteException ignored) {
@@ -754,6 +756,7 @@ public class XAshmanManager {
     }
 
     public void setGreeningEnabled(boolean enabled) {
+        ensureService();
         try {
             mService.setGreeningEnabled(enabled);
         } catch (RemoteException ignored) {
@@ -762,6 +765,7 @@ public class XAshmanManager {
     }
 
     public boolean isGreeningEnabled() {
+        ensureService();
         try {
             return mService.isGreeningEnabled();
         } catch (RemoteException e) {
@@ -770,6 +774,7 @@ public class XAshmanManager {
     }
 
     public boolean isPackageGreening(String packageName) {
+        ensureService();
         if (BuildConfig.DEBUG) try {
             return mService.isPackageGreening(packageName);
         } catch (RemoteException e) {
@@ -779,6 +784,7 @@ public class XAshmanManager {
     }
 
     public boolean isUidGreening(int uid) {
+        ensureService();
         try {
             return mService.isUidGreening(uid);
         } catch (RemoteException e) {
@@ -787,10 +793,20 @@ public class XAshmanManager {
     }
 
     public String[] getInstalledApps(int filterOptions) {
+        ensureService();
         try {
             return mService.getInstalledApps(filterOptions);
         } catch (RemoteException e) {
             return new String[0];
+        }
+    }
+
+    public void restoreDefaultSettings() {
+        ensureService();
+        try {
+            mService.restoreDefaultSettings();
+        } catch (RemoteException ignored) {
+
         }
     }
 }

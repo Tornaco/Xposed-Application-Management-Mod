@@ -14,6 +14,7 @@ import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.provider.XKey;
+import github.tornaco.xposedmoduletest.ui.activity.PhotoViewerActivity;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 
@@ -91,14 +92,14 @@ public class SecureGuardSettings extends GuardSettingsActivity {
                         }
                     });
 
-//                findPreference("key_view_photos")
-//                        .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-//                            @Override
-//                            public boolean onPreferenceClick(Preference preference) {
-//                                startActivity(new Intent(getActivity(), PhotoViewerActivity.class));
-//                                return true;
-//                            }
-//                        });
+                findPreference("key_view_photos")
+                        .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                            @Override
+                            public boolean onPreferenceClick(Preference preference) {
+                                startActivity(new Intent(getActivity(), PhotoViewerActivity.class));
+                                return true;
+                            }
+                        });
 
             } else {
                 getPreferenceScreen().setEnabled(false);

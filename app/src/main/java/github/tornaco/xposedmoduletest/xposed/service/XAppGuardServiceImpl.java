@@ -239,10 +239,10 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Override
     public void retrieveSettings() {
         XposedLog.wtf("retrieveSettings@" + getClass().getSimpleName());
-        getConfigFromSettings();
+        loadConfigFromSettings();
     }
 
-    private void getConfigFromSettings() {
+    private void loadConfigFromSettings() {
         try {
             boolean appGuardEnabled = (boolean) SystemSettings.APP_GUARD_ENABLED_B.readFromSystemSettings(getContext());
             mEnabled.set(appGuardEnabled);
@@ -274,7 +274,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 XposedLog.verbose("mEnabled: " + String.valueOf(mEnabled));
             }
         } catch (Throwable e) {
-            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
     }
 
@@ -938,6 +938,13 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     @Override
+    public void restoreDefaultSettings() throws RemoteException {
+        enforceCallingPermissions();
+        mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_RESTOREDEFAULTSETTINGS)
+                .sendToTarget();
+    }
+
+    @Override
     @BinderCall
     public boolean isEnabled() {
         enforceCallingPermissions();
@@ -1190,6 +1197,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                     AppGuardServiceHandlerImpl.this.addOrRemoveComponentReplacement((ComponentName) data[0],
                             (ComponentName) data[1], (Boolean) data[2]);
                     break;
+                case AppGuardServiceHandlerMessages.MSG_RESTOREDEFAULTSETTINGS:
+                    restoreDefaultSettings();
+                    break;
                 default:
                     AppGuardServiceHandlerImpl.this.setResult((Integer) msg.obj,
                             XAppVerifyMode.MODE_IGNORED);
@@ -1356,6 +1366,13 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             } else {
                 mComponentReplacementsMap.remove(from);
             }
+        }
+
+        @Override
+        public void restoreDefaultSettings() {
+            SystemSettings.restoreDefault(getContext());
+            RepoProxy.getProxy().deleteAll();
+            loadConfigFromSettings();
         }
 
         /**

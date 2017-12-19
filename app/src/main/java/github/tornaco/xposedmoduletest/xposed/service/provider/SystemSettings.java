@@ -5,8 +5,12 @@ import android.content.Context;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.provider.Settings;
+import android.util.Log;
 
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.repo.SettingsKey;
+import github.tornaco.xposedmoduletest.xposed.repo.SettingsProvider;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/11/1.
@@ -21,6 +25,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             ContentResolver resolver = context.getContentResolver();
             boolean enabled = (boolean) value;
             return resolver != null && Settings.System.putInt(resolver, name(), enabled ? 1 : 0);
+        }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
         }
 
         @Override
@@ -47,6 +57,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             int def = getDefValue();
             return Settings.System.getInt(resolver, name(), def) == 1;
         }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
+        }
     },
 
     UNINSTALL_GUARD_ENABLED_B(0) {
@@ -63,6 +79,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             if (resolver == null) return getDefValue();
             int def = getDefValue();
             return Settings.System.getInt(resolver, name(), def) == 1;
+        }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
         }
     },
 
@@ -81,6 +103,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             int def = getDefValue();
             return Settings.System.getInt(resolver, name(), def) == 1;
         }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
+        }
     },
 
     LOCK_KILL_ENABLED_B(0) {
@@ -97,6 +125,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             if (resolver == null) return getDefValue();
             int def = getDefValue();
             return Settings.System.getInt(resolver, name(), def) == 1;
+        }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
         }
     },
 
@@ -115,6 +149,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             int def = getDefValue();
             return Settings.System.getInt(resolver, name(), def) == 1;
         }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
+        }
     },
 
     LOCK_KILL_DONT_KILL_AUDIO_ENABLED_B(1) {
@@ -131,6 +171,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             if (resolver == null) return getDefValue();
             int def = getDefValue();
             return Settings.System.getInt(resolver, name(), def) == 1;
+        }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
         }
     },
 
@@ -150,6 +196,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             int def = getDefValue();
             return Settings.System.getInt(resolver, name(), def) == 1;
         }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
+        }
     },
 
     ROOT_ACTIVITY_KILL_ENABLED_B(0) {
@@ -166,6 +218,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             if (resolver == null) return getDefValue();
             int def = getDefValue();
             return Settings.System.getInt(resolver, name(), def) == 1;
+        }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
         }
     },
 
@@ -184,6 +242,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             int def = getDefValue();
             return Settings.System.getInt(resolver, name(), def) == 1;
         }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
+        }
     },
 
     BOOT_BLOCK_ENABLED_B(0) {
@@ -200,6 +264,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             if (resolver == null) return getDefValue();
             int def = getDefValue();
             return Settings.System.getInt(resolver, name(), def) == 1;
+        }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
         }
     },
 
@@ -218,6 +288,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             int def = getDefValue();
             return Settings.System.getInt(resolver, name(), def) == 1;
         }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
+        }
     },
 
     INTERRUPT_FP_SUCCESS_VB_ENABLED_B(0) {
@@ -234,6 +310,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             if (resolver == null) return getDefValue();
             int def = getDefValue();
             return Settings.System.getInt(resolver, name(), def) == 1;
+        }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
         }
     },
 
@@ -252,6 +334,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             int def = getDefValue();
             return Settings.System.getInt(resolver, name(), def) == 1;
         }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
+        }
     },
 
     ASH_CONTROL_MODE_I(XAshmanManager.ControlMode.BLACK_LIST) {
@@ -260,6 +348,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             ContentResolver resolver = context.getContentResolver();
             int mode = (int) value;
             return resolver != null && Settings.System.putInt(resolver, name(), mode);
+        }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def);
         }
 
         @Override
@@ -286,6 +380,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             int def = getDefValue();
             return Settings.System.getInt(resolver, name(), def) == 1;
         }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
+        }
     },
 
 
@@ -304,6 +404,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             int def = getDefValue();
             return Settings.System.getInt(resolver, name(), def) == 1;
         }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
+        }
     },
 
     PERMISSION_CONTROL_B(0) {
@@ -320,6 +426,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             if (resolver == null) return getDefValue();
             int def = getDefValue();
             return Settings.System.getInt(resolver, name(), def) == 1;
+        }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
         }
     },
 
@@ -339,6 +451,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             int def = getDefValue();
             return Settings.System.getInt(resolver, name(), def) == 1;
         }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
+        }
     },
 
     NETWORK_RESTRICT_B(0) {
@@ -356,6 +474,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             int def = getDefValue();
             return Settings.System.getInt(resolver, name(), def) == 1;
         }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
+        }
     },
 
     USER_DEFINED_LINE1_NUM_T_S("18888888888") {
@@ -370,6 +494,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             ContentResolver resolver = context.getContentResolver();
             if (resolver == null) return getDefValue();
             return Settings.System.getString(resolver, name());
+        }
+
+        @Override
+        public void restoreDef(Context context) {
+            String def = getDefValue();
+            writeToSystemSettings(context, def);
         }
     },
 
@@ -386,6 +516,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             if (resolver == null) return getDefValue();
             return Settings.System.getString(resolver, name());
         }
+
+        @Override
+        public void restoreDef(Context context) {
+            String def = getDefValue();
+            writeToSystemSettings(context, def);
+        }
     },
 
     USER_DEFINED_ANDROID_ID_T_S("xxxxxxxxxx") {
@@ -401,6 +537,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             if (resolver == null) return getDefValue();
             return Settings.System.getString(resolver, name());
         }
+
+        @Override
+        public void restoreDef(Context context) {
+            String def = getDefValue();
+            writeToSystemSettings(context, def);
+        }
     },
 
     LOCK_KILL_DELAY_L(0L) {
@@ -409,6 +551,12 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
             ContentResolver resolver = context.getContentResolver();
             long delay = (long) value;
             return resolver != null && Settings.System.putLong(resolver, name(), delay);
+        }
+
+        @Override
+        public void restoreDef(Context context) {
+            long def = getDefValue();
+            writeToSystemSettings(context, def);
         }
 
         @Override
@@ -443,6 +591,30 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
         if (resolver == null) return;
         resolver.registerContentObserver(getUri(), notifyForDescendants, observer);
     }
+
+    public static void moveToNewSettings(Context context) {
+        try {
+            for (SystemSettings s : values()) {
+                Object v = s.readFromSystemSettings(context);
+                String key = s.name();
+                SettingsProvider.get().putString(key, String.valueOf(v));
+            }
+
+            SettingsProvider.get().putBoolean(SettingsKey.SETTINGS_MERGED, true);
+        } catch (Throwable e) {
+            XposedLog.wtf("Error moveToNewSettings: " + Log.getStackTraceString(e));
+        }
+    }
+
+    public static void restoreDefault(Context context) {
+        try {
+            for (SystemSettings s : values()) {
+                s.restoreDef(context);
+            }
+        } catch (Throwable e) {
+            XposedLog.wtf("Error restoreDefault: " + Log.getStackTraceString(e));
+        }
+    }
 }
 
 
@@ -452,6 +624,8 @@ interface NameValueReader {
 
 interface NameValueWriter {
     boolean writeToSystemSettings(Context context, Object value);
+
+    void restoreDef(Context context);
 }
 
 interface UriProvider {

@@ -59,4 +59,6 @@ interface IAppGuardService {
 
     String[] getUPApps(boolean lock);
     void addOrRemoveUPApps(in String[] packages, boolean add);
+
+    void restoreDefaultSettings();
 }

@@ -278,6 +278,7 @@ public class XAppGuardManager {
     }
 
     public void addOrRemoveComponentReplacement(ComponentName from, ComponentName to, boolean add) {
+        ensureService();
         try {
             mService.addOrRemoveComponentReplacement(from, to, add);
         } catch (RemoteException e) {
@@ -286,6 +287,7 @@ public class XAppGuardManager {
     }
 
     public void forceReloadPackages() {
+        ensureService();
         try {
             mService.forceReloadPackages();
         } catch (RemoteException e) {
@@ -294,6 +296,7 @@ public class XAppGuardManager {
     }
 
     public String[] getLockApps(boolean lock) {
+        ensureService();
         try {
             return mService.getLockApps(lock);
         } catch (RemoteException e) {
@@ -303,6 +306,7 @@ public class XAppGuardManager {
     }
 
     public void addOrRemoveLockApps(String[] packages, boolean add) {
+        ensureService();
         try {
             mService.addOrRemoveLockApps(packages, add);
         } catch (RemoteException e) {
@@ -311,6 +315,7 @@ public class XAppGuardManager {
     }
 
     public String[] getBlurApps(boolean lock) {
+        ensureService();
         try {
             return mService.getBlurApps(lock);
         } catch (RemoteException e) {
@@ -320,6 +325,7 @@ public class XAppGuardManager {
     }
 
     public void addOrRemoveBlurApps(String[] packages, boolean blur) {
+        ensureService();
         try {
             mService.addOrRemoveBlurApps(packages, blur);
         } catch (RemoteException e) {
@@ -328,6 +334,7 @@ public class XAppGuardManager {
     }
 
     public String[] getUPApps(boolean lock) {
+        ensureService();
         try {
             return mService.getUPApps(lock);
         } catch (RemoteException e) {
@@ -337,6 +344,7 @@ public class XAppGuardManager {
     }
 
     public void addOrRemoveUPApps(String[] packages, boolean add) {
+        ensureService();
         try {
             mService.addOrRemoveUPApps(packages, add);
         } catch (RemoteException e) {
@@ -345,6 +353,7 @@ public class XAppGuardManager {
     }
 
     public boolean isBlurEnabled() {
+        ensureService();
         try {
             return mService.isBlurEnabled();
         } catch (RemoteException e) {
@@ -354,8 +363,18 @@ public class XAppGuardManager {
     }
 
     public void setBlurEnabled(boolean enabled) {
+        ensureService();
         try {
             mService.setBlurEnabled(enabled);
+        } catch (RemoteException e) {
+            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public void restoreDefaultSettings() {
+        ensureService();
+        try {
+            mService.restoreDefaultSettings();
         } catch (RemoteException e) {
             Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
         }

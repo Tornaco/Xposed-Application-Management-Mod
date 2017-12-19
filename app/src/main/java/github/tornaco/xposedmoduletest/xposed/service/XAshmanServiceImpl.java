@@ -81,8 +81,6 @@ import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
 import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestrictionList;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
-import github.tornaco.xposedmoduletest.xposed.repo.SettingsKey;
-import github.tornaco.xposedmoduletest.xposed.repo.SettingsProvider;
 import github.tornaco.xposedmoduletest.xposed.repo.StringSetRepo;
 import github.tornaco.xposedmoduletest.xposed.service.bandwidth.BandwidthCommandCompat;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
@@ -472,14 +470,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return mIsSystemReady;
     }
 
-    private void getConfigFromSettings() {
+    private void loadConfigFromSettings() {
         try {
             boolean whiteSysApp = (boolean) SystemSettings.ASH_WHITE_SYS_APP_ENABLED_B.readFromSystemSettings(getContext());
             mWhiteSysAppEnabled.set(whiteSysApp);
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("whiteSysAapp: " + String.valueOf(whiteSysApp));
         } catch (Throwable e) {
-            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
         try {
@@ -488,7 +486,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("bootBlockEnabled: " + String.valueOf(bootBlockEnabled));
         } catch (Throwable e) {
-            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
         try {
@@ -497,7 +495,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("startBlockEnabled:" + String.valueOf(startBlockEnabled));
         } catch (Throwable e) {
-            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
         try {
@@ -506,7 +504,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("lockKillEnabled: " + String.valueOf(lockKillEnabled));
         } catch (Throwable e) {
-            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
         try {
@@ -515,7 +513,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("greeningEnabled: " + String.valueOf(greeningEnabled));
         } catch (Throwable e) {
-            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
         try {
@@ -524,7 +522,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("permissionControlEnabled: " + String.valueOf(permissionControlEnabled));
         } catch (Throwable e) {
-            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
         try {
@@ -533,7 +531,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("networkRestrict: " + String.valueOf(networkRestrict));
         } catch (Throwable e) {
-            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
         try {
@@ -542,7 +540,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("userDeviceId: " + String.valueOf(userDeviceId));
         } catch (Throwable e) {
-            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
         try {
@@ -551,7 +549,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("userAndroidId: " + String.valueOf(userAndroidId));
         } catch (Throwable e) {
-            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
         try {
@@ -560,7 +558,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("userLine1Number: " + String.valueOf(userLine1Number));
         } catch (Throwable e) {
-            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
         try {
@@ -569,7 +567,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("migrated: " + String.valueOf(migrated));
         } catch (Throwable e) {
-            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
         try {
@@ -578,7 +576,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("autoAddBlack: " + String.valueOf(autoAddBlack));
         } catch (Throwable e) {
-            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
         try {
@@ -587,7 +585,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("showFocusedActivity: " + String.valueOf(showFocusedActivity));
         } catch (Throwable e) {
-            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
         try {
@@ -597,7 +595,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("lockKillDoNotKillAudioEnabled: " + String.valueOf(lockKillDoNotKillAudioEnabled));
         } catch (Throwable e) {
-            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
 
@@ -608,7 +606,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("rootKillEnabled: " + String.valueOf(rootKillEnabled));
         } catch (Throwable e) {
-            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
         try {
@@ -618,7 +616,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("compSettingBlockEnabled: " + String.valueOf(compSettingBlockEnabled));
         } catch (Throwable e) {
-            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
         try {
@@ -626,7 +624,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("mLockKillDelay: " + String.valueOf(mLockKillDelay));
         } catch (Throwable e) {
-            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
     }
 
@@ -2256,6 +2254,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    public void restoreDefaultSettings() throws RemoteException {
+        enforceCallingPermissions();
+        h.obtainMessage(AshManHandlerMessages.MSG_RESTOREDEFAULTSETTINGS).sendToTarget();
+    }
+
+    @Override
     public int checkPermission(String perm, int pid, int uid) {
         return PackageManager.PERMISSION_GRANTED;
     }
@@ -2388,9 +2392,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void retrieveSettings() {
         XposedLog.wtf("retrieveSettings@" + getClass().getSimpleName());
-        getConfigFromSettings();
+        loadConfigFromSettings();
         cachePackages();
         whiteIMEPackages();
+        SystemSettings.moveToNewSettings(getContext());
     }
 
     private void construct() {
@@ -2854,6 +2859,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETGREENINGENABLED:
                     HandlerImpl.this.setGreeningEnabled((Boolean) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_RESTOREDEFAULTSETTINGS:
+                    restoreDefaultSettings();
+                    break;
             }
         }
 
@@ -2962,6 +2970,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (mGreeningEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.GREENING_ENABLED_B.writeToSystemSettings(getContext(), enabled);
             }
+        }
+
+        @Override
+        public void restoreDefaultSettings() {
+            SystemSettings.restoreDefault(getContext());
+            RepoProxy.getProxy().deleteAll();
+            loadConfigFromSettings();
         }
 
         @Override

@@ -93,4 +93,13 @@ public class SettingsProvider {
             return def;
         }
     }
+
+    public boolean putBoolean(String name, boolean value) {
+        try {
+            return insertSettingLocked(name, String.valueOf(value));
+        } catch (Throwable e) {
+            Log.e(TAG, "putBoolean" + Log.getStackTraceString(e));
+            return false;
+        }
+    }
 }

@@ -13,7 +13,6 @@ import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.os.CancellationSignal;
@@ -36,9 +35,9 @@ import github.tornaco.xposedmoduletest.camera.CameraManager;
 import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerCompat;
 import github.tornaco.xposedmoduletest.provider.LockStorage;
 import github.tornaco.xposedmoduletest.provider.XSettings;
+import github.tornaco.xposedmoduletest.ui.activity.ag.PatternSetupActivity;
 import github.tornaco.xposedmoduletest.util.PatternLockViewListenerAdapter;
 import github.tornaco.xposedmoduletest.util.ViewAnimatorUtil;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 
 /**
  * Created by guohao4 on 2017/11/15.
@@ -53,7 +52,17 @@ public class NeedLockActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setupLockState();
+    }
+
+    private void setupLockState() {
         if (isLockNeeded()) {
+
+            boolean pwdSet = LockStorage.iaPatternSet(this);
+            if (!pwdSet) {
+                showPasswordSetupTips();
+                return;
+            }
 
             if (mLockView != null && mLockView.isAttached()) {
                 return;
@@ -67,6 +76,18 @@ public class NeedLockActivity extends BaseActivity {
                 showSimpleDialog(getString(R.string.fail_show_internal_lockview), msg);
             }
         }
+    }
+
+    private void showPasswordSetupTips() {
+        showTips(R.string.summary_setup_passcode_none_set,
+                true, getString(R.string.title_setup_passcode_now),
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        startActivity(new Intent(getApplicationContext(),
+                                PatternSetupActivity.class));
+                    }
+                });
     }
 
     protected String getLockLabel() {
@@ -106,9 +127,22 @@ public class NeedLockActivity extends BaseActivity {
 
             mRootView = LayoutInflater.from(activity)
                     .inflate(R.layout.verify_displayer, null, false);
+            mRootView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Hook click.
+                }
+            });
+            mRootView.findViewById(R.id.appbar).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
+
+            mRootView.requestFocus();
 
             setupLabel();
-            setupCamera();
             setupFP();
             setupLockView();
 
@@ -125,8 +159,8 @@ public class NeedLockActivity extends BaseActivity {
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG,
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                    PixelFormat.TRANSLUCENT);
+                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
+                    PixelFormat.RGB_565);
 
             Window w = activity.getWindow();
             mDecor = (ViewGroup) w.getDecorView();
@@ -192,9 +226,31 @@ public class NeedLockActivity extends BaseActivity {
 
         private void setupCamera() {
             // Setup camera preview.
-//            View softwareCameraPreview = mRootView.findViewById(R.id.surface);
-//            if (softwareCameraPreview != null)
-//                softwareCameraPreview.setVisibility(mTakePhoto ? View.VISIBLE : View.GONE);
+            View softwareCameraPreview = mRootView.findViewById(R.id.surface);
+            if (softwareCameraPreview != null)
+                softwareCameraPreview.setVisibility(mTakePhoto ? View.VISIBLE : View.GONE);
+        }
+
+        private void takePhoto() {
+            Logger.d("takePhoto, enabled: " + mTakePhoto);
+            if (mTakePhoto) {
+                try {
+                    setupCamera();
+                    CameraManager.get().captureSaveAsync(new CameraManager.PictureCallback() {
+                        @Override
+                        public void onImageReady(String path) {
+                            Logger.d("CameraManager- onImageReady@" + path);
+                        }
+
+                        @Override
+                        public void onFail(Exception e) {
+                            Logger.d("CameraManager- onFail@" + e);
+                        }
+                    });
+                } catch (Throwable e) {
+                    Logger.e("Fail take photo: " + Logger.getStackTraceString(e));
+                }
+            }
         }
 
         private void setupFP() {
@@ -223,6 +279,7 @@ public class NeedLockActivity extends BaseActivity {
                                 super.onAuthenticationFailed();
                                 Logger.d("onAuthenticationFailed");
                                 // vibrate();
+                                takePhoto();
                             }
 
                             @Override
@@ -231,6 +288,7 @@ public class NeedLockActivity extends BaseActivity {
                                 Logger.d("onAuthenticationError:" + errString);
                                 // mLabelView.setText(errString);
                                 // vibrate();
+                                takePhoto();
                             }
                         });
             }
@@ -305,6 +363,7 @@ public class NeedLockActivity extends BaseActivity {
                                 public void onMisMatch() {
                                     patternLockView.setViewMode(PatternLockView.PatternViewMode.WRONG);
                                     patternLockView.clearPattern();
+                                    takePhoto();
                                 }
                             });
                 }

@@ -134,4 +134,6 @@ interface IAshmanService {
 
     boolean networkRestrictEnabled();
     void setNetworkRestrictEnabled(boolean enabled);
+
+    void restoreDefaultSettings();
 }

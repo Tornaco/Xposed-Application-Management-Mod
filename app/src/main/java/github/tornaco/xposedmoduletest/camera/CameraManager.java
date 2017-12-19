@@ -51,6 +51,7 @@ import java.util.UUID;
 import github.tornaco.xposedmoduletest.bean.AccessInfo;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.XApp;
@@ -1017,6 +1018,10 @@ public class CameraManager implements FocusOverlayManager.Listener {
                                 }
 
                                 callback.onImageReady(picUrl);
+
+                                // Save new notification to settings.
+                                AppSettings.setShowInfo(XApp.getApp().getApplicationContext(),
+                                        "new_photo", true);
                             } catch (Exception e) {
                                 callback.onFail(e);
                             }

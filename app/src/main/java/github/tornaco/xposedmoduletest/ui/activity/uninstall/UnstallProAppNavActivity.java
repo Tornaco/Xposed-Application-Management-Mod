@@ -17,6 +17,11 @@ import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 public class UnstallProAppNavActivity extends CommonPackageInfoListActivity implements SwitchBar.OnSwitchChangeListener {
 
     @Override
+    protected boolean isLockNeeded() {
+        return true;
+    }
+
+    @Override
     protected void onRequestClearItemsInBackground() {
         Collections.consumeRemaining(getCommonPackageInfoAdapter().getCommonPackageInfos(),
                 new Consumer<CommonPackageInfo>() {

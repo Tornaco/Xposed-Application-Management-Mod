@@ -20,7 +20,7 @@ import java.util.List;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
-import github.tornaco.xposedmoduletest.ui.activity.WithRecyclerView;
+import github.tornaco.xposedmoduletest.ui.activity.NeedLockActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
@@ -34,7 +34,7 @@ import lombok.Getter;
  * Email: Tornaco@163.com
  */
 
-public abstract class CommonPackageInfoListActivity extends WithRecyclerView
+public abstract class CommonPackageInfoListActivity extends NeedLockActivity
         implements CommonPackageInfoAdapter.ChoiceModeListener {
 
     protected FloatingActionButton fab;
@@ -55,6 +55,11 @@ public abstract class CommonPackageInfoListActivity extends WithRecyclerView
         showHomeAsUp();
         initView();
         startLoading();
+    }
+
+    @Override
+    protected boolean isLockNeeded() {
+        return false;
     }
 
     protected int getLayoutRes() {

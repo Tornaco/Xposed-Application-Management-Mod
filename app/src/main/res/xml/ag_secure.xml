@@ -14,18 +14,18 @@
             android:title="@string/title_use_fp" />
     </PreferenceCategory>
 
-    <!--<PreferenceCategory android:title="@string/title_camera">-->
+    <PreferenceCategory android:title="@string/title_camera">
 
-        <!--<SwitchPreference-->
-            <!--android:defaultValue="false"-->
-            <!--android:key="key_take_photo_enabled"-->
-            <!--android:summary="@string/summary_take_photo"-->
-            <!--android:title="@string/title_take_photo" />-->
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="key_take_photo_enabled"
+            android:summary="@string/summary_take_photo"
+            android:title="@string/title_take_photo" />
 
-        <!--<Preference-->
-            <!--android:key="key_view_photos"-->
-            <!--android:title="@string/title_view_photos" />-->
-    <!--</PreferenceCategory>-->
+        <Preference
+            android:key="key_view_photos"
+            android:title="@string/title_view_photos" />
+    </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/title_verify_settings">
         <SwitchPreference

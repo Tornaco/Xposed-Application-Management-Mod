@@ -17,6 +17,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.AccessInfo;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.adapter.PhotoListAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 
@@ -42,13 +43,13 @@ public class PhotoViewerActivity extends BaseActivity {
     @SuppressWarnings("ConstantConditions")
     protected void initView() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        swipeRefreshLayout = findViewById(R.id.swipe);
         swipeRefreshLayout.setColorSchemeColors(getResources().getIntArray(R.array.polluted_waves));
 
         appListAdapter = onCreateAdapter();
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3,
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 1,
                 LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(appListAdapter);
 
@@ -78,6 +79,7 @@ public class PhotoViewerActivity extends BaseActivity {
             public void run() {
                 final List<AccessInfo> res = performLoading();
                 Logger.v("Photo load complete:" + res.size());
+                AppSettings.setShowInfo(getContext(), "new_photo", false);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

@@ -21,6 +21,11 @@ public class GuardAppNavActivity extends CommonPackageInfoListActivity
         implements SwitchBar.OnSwitchChangeListener {
 
     @Override
+    protected boolean isLockNeeded() {
+        return true;
+    }
+
+    @Override
     protected void onInitSwitchBar(SwitchBar switchBar) {
         switchBar.show();
         switchBar.setChecked(XAppGuardManager.get().isEnabled());

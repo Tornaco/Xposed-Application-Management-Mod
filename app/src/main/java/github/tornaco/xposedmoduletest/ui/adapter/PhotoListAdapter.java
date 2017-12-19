@@ -16,7 +16,6 @@ import java.util.Date;
 import java.util.List;
 
 import dev.tornaco.vangogh.Vangogh;
-import dev.tornaco.vangogh.display.CircleImageEffect;
 import dev.tornaco.vangogh.display.appliers.ResAnimationApplier;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.AccessInfo;
@@ -63,6 +62,7 @@ public class PhotoListAdapter extends RecyclerView.Adapter<PhotoListAdapter.Acce
     public void onBindViewHolder(final AccessiewHolder holder, int position) {
         final AccessInfo accessInfo = accessInfos.get(position);
         holder.textView.setText(FuzzyDateTimeFormatter.getTimeAgo(context, new Date(accessInfo.getWhen())));
+        holder.textView2.setText(accessInfo.getUrl());
         Vangogh.with(context)
                 .load(accessInfo.getUrl())
                 .skipMemoryCache(true)
@@ -103,12 +103,13 @@ public class PhotoListAdapter extends RecyclerView.Adapter<PhotoListAdapter.Acce
 
     static class AccessiewHolder extends RecyclerView.ViewHolder {
         private ImageView imageView;
-        private TextView textView;
+        private TextView textView, textView2;
 
         AccessiewHolder(View itemView) {
             super(itemView);
-            imageView = (ImageView) itemView.findViewById(R.id.photo);
-            textView = (TextView) itemView.findViewById(android.R.id.text1);
+            imageView = itemView.findViewById(R.id.photo);
+            textView = itemView.findViewById(android.R.id.text1);
+            textView2 = itemView.findViewById(android.R.id.text2);
         }
     }
 }

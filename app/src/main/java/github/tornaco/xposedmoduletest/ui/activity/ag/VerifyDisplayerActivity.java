@@ -17,6 +17,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.os.CancellationSignal;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -96,7 +97,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private void readSettings() {
-//        this.mTakePhoto = XSettings.getSingleton().takenPhotoEnabled(this);
+        this.mTakePhoto = XSettings.takenPhotoEnabled(this);
     }
 
     private void showVerifyView() {
@@ -124,15 +125,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
         setupLabel(getString(R.string.input_password, ApkUtil.loadNameByPkgName(this, pkg)));
         setupIcon();
         setupLockView();
-        setupCamera();
     }
-
-    private Runnable expireRunnable = new Runnable() {
-        @Override
-        public void run() {
-            onFail();
-        }
-    };
 
     private void setupIcon() {
         if (XSettings.showAppIconEnabled(this)) {
@@ -197,18 +190,25 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private void takePhoto() {
-        if (mTakePhoto)
-            CameraManager.get().captureSaveAsync(new CameraManager.PictureCallback() {
-                @Override
-                public void onImageReady(String path) {
-                    Logger.d("CameraManager- onImageReady@" + path);
-                }
+        Logger.d("takePhoto, enabled: " + mTakePhoto);
+        if (mTakePhoto) {
+            try {
+                setupCamera();
+                CameraManager.get().captureSaveAsync(new CameraManager.PictureCallback() {
+                    @Override
+                    public void onImageReady(String path) {
+                        Logger.d("CameraManager- onImageReady@" + path);
+                    }
 
-                @Override
-                public void onFail(Exception e) {
-                    Logger.d("CameraManager- onFail@" + e);
-                }
-            });
+                    @Override
+                    public void onFail(Exception e) {
+                        Logger.d("CameraManager- onFail@" + e);
+                    }
+                });
+            } catch (Throwable e) {
+                Logger.e("Fail take photo: " + Logger.getStackTraceString(e));
+            }
+        }
     }
 
     private void cancelCheckTask() {
@@ -223,10 +223,10 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private void setupCamera() {
-        // Setup camera preview.
-//        View softwareCameraPreview = findViewById(R.id.surface);
-//        if (softwareCameraPreview != null)
-//            softwareCameraPreview.setVisibility(mTakePhoto ? View.VISIBLE : View.GONE);
+        //  Setup camera preview.
+        View softwareCameraPreview = findViewById(R.id.surface);
+        if (softwareCameraPreview != null)
+            softwareCameraPreview.setVisibility(mTakePhoto ? View.VISIBLE : View.GONE);
     }
 
     private final class ScreenBroadcastReceiver extends BroadcastReceiver {
