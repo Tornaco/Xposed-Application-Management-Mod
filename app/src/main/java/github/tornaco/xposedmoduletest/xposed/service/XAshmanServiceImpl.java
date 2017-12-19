@@ -3004,6 +3004,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (!force) synchronized (mQuotaLock) {
                 boolean oldValue = isRestrictOnData(uid);
                 if (oldValue == restrict) {
+                    XposedLog.debug("restrictAppOnData oldValue == restrict: " + uid);
                     return;
                 }
             }
@@ -3015,11 +3016,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 XposedLog.debug("NativeDaemonConnector execute success: " + success);
 
                 synchronized (mQuotaLock) {
-                    NetworkRestriction match = new NetworkRestriction(POLICY_REJECT_ON_DATA, uid);
                     if (success) {
+                        NetworkRestriction clean = new NetworkRestriction(POLICY_REJECT_ON_DATA, uid);
+                        NetworkRestriction clean2 = new NetworkRestriction(POLICY_REJECT_NONE, uid);
+                        int policy = restrict ? POLICY_REJECT_ON_DATA : POLICY_REJECT_NONE;
+                        NetworkRestriction match = new NetworkRestriction(policy, uid);
+                        mDataBlackList.remove(clean.toJson());
+                        mDataBlackList.remove(clean2.toJson());
                         mDataBlackList.add(match.toJson());
-                    } else {
-                        mDataBlackList.remove(match.toJson());
                     }
                 }
             } catch (Exception e) {
@@ -3033,6 +3037,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (!force) synchronized (mQuotaLock) {
                 boolean oldValue = isRestrictOnWifi(uid);
                 if (oldValue == restrict) {
+                    XposedLog.debug("restrictAppOnWifi oldValue == restrict: " + uid);
                     return;
                 }
             }
@@ -3044,11 +3049,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 XposedLog.debug("NativeDaemonConnector execute success: " + success);
 
                 synchronized (mQuotaLock) {
-                    NetworkRestriction match = new NetworkRestriction(POLICY_REJECT_ON_WIFI, uid);
                     if (success) {
+                        NetworkRestriction clean = new NetworkRestriction(POLICY_REJECT_ON_WIFI, uid);
+                        NetworkRestriction clean2 = new NetworkRestriction(POLICY_REJECT_NONE, uid);
+                        int policy = restrict ? POLICY_REJECT_ON_WIFI : POLICY_REJECT_NONE;
+                        NetworkRestriction match = new NetworkRestriction(policy, uid);
+                        mWifiBlackList.remove(clean.toJson());
+                        mWifiBlackList.remove(clean2.toJson());
                         mWifiBlackList.add(match.toJson());
-                    } else {
-                        mWifiBlackList.remove(match.toJson());
                     }
                 }
 
