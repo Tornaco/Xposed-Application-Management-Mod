@@ -83,7 +83,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity {
 
     @Override
     public void onEnterChoiceMode() {
-        fab.setImageResource(R.drawable.ic_clear_all_black_24dp);
+        fab.setImageResource(R.drawable.ic_mode_edit_black_24dp);
         fab.show(new FloatingActionButton.OnVisibilityChangedListener() {
             @Override
             public void onHidden(FloatingActionButton fab) {

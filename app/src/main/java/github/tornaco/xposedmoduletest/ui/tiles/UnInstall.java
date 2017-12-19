@@ -19,7 +19,7 @@ public class UnInstall extends QuickTile {
     public UnInstall(final Context context) {
         super(context);
         this.titleRes = R.string.title_app_uninstall_pro;
-        this.iconRes = R.drawable.ic_delete_black_24dp;
+        this.iconRes = R.drawable.ic_do_not_disturb_on_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override
             public void onClick(View v) {

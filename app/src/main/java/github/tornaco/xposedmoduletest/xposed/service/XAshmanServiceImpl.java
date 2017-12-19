@@ -81,6 +81,8 @@ import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
 import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestrictionList;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
+import github.tornaco.xposedmoduletest.xposed.repo.SettingsKey;
+import github.tornaco.xposedmoduletest.xposed.repo.SettingsProvider;
 import github.tornaco.xposedmoduletest.xposed.repo.StringSetRepo;
 import github.tornaco.xposedmoduletest.xposed.service.bandwidth.BandwidthCommandCompat;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
@@ -479,15 +481,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         } catch (Throwable e) {
             XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
         }
-
-//        try {
-//            int controlMode = (int) SystemSettings.ASH_CONTROL_MODE_I.readFromSystemSettings(getContext());
-//            mControlMode.set(controlMode);
-//            if (XposedLog.isVerboseLoggable())
-//                XposedLog.verbose("controlMode: " + String.valueOf(controlMode));
-//        } catch (Throwable e) {
-//            XposedLog.wtf("Fail getConfigFromSettings:" + Log.getStackTraceString(e));
-//        }
 
         try {
             boolean bootBlockEnabled = (boolean) SystemSettings.BOOT_BLOCK_ENABLED_B.readFromSystemSettings(getContext());

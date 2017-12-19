@@ -23,7 +23,7 @@ public class SmartSense extends QuickTile {
             @Override
             public void onClick(View v) {
                 super.onClick(v);
-                Toast.makeText(context, "~~~~~~", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "埋头调试中@-@", Toast.LENGTH_SHORT).show();
             }
         };
     }

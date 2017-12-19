@@ -50,6 +50,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.Greening;
 import github.tornaco.xposedmoduletest.ui.tiles.LockKill;
 import github.tornaco.xposedmoduletest.ui.tiles.NFManager;
 import github.tornaco.xposedmoduletest.ui.tiles.PermControl;
+import github.tornaco.xposedmoduletest.ui.tiles.Privacy;
 import github.tornaco.xposedmoduletest.ui.tiles.RFKill;
 import github.tornaco.xposedmoduletest.ui.tiles.SmartSense;
 import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
@@ -321,7 +322,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             category.addTile(new AppGuard(getActivity()));
             category.addTile(new Blur(getActivity()));
             category.addTile(new UnInstall(getActivity()));
-            //if (BuildConfig.DEBUG) category.addTile(new Privacy(getActivity()));
+            category.addTile(new Privacy(getActivity()));
 
             Category rest = new Category();
             rest.titleRes = R.string.title_restrict;
@@ -335,7 +336,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             ash.addTile(new ComponentManager(getActivity()));
             ash.addTile(new CompReplacement(getActivity()));
             ash.addTile(new PermControl(getActivity()));
-            if (BuildConfig.DEBUG) ash.addTile(new SmartSense(getActivity()));
+            ash.addTile(new SmartSense(getActivity()));
             ash.addTile(new Greening(getActivity()));
             if (BuildConfig.DEBUG) ash.addTile(new NFManager(getActivity()));
 
