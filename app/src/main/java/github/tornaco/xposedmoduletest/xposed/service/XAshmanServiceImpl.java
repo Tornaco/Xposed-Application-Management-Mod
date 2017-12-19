@@ -22,7 +22,6 @@ import android.net.LinkProperties;
 import android.net.NetworkPolicyManager;
 import android.os.Binder;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -32,7 +31,6 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
 import android.provider.Settings;
-import android.support.annotation.GuardedBy;
 import android.support.v4.app.NotificationManagerCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -47,11 +45,9 @@ import com.android.internal.os.Zygote;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import java.io.File;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -79,12 +75,10 @@ import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
-import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestrictionList;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.repo.StringSetRepo;
 import github.tornaco.xposedmoduletest.xposed.service.bandwidth.BandwidthCommandCompat;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
-import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.AllArgsConstructor;
@@ -139,9 +133,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final AtomicBoolean mGreeningEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mPermissionControlEnabled = new AtomicBoolean(false);
-
-    // FIXME Set default to false.
-    private final AtomicBoolean mNetworkRestrictEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mDataHasBeenMigrated = new AtomicBoolean(false);
 
@@ -521,15 +512,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             mPermissionControlEnabled.set(permissionControlEnabled);
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("permissionControlEnabled: " + String.valueOf(permissionControlEnabled));
-        } catch (Throwable e) {
-            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
-        }
-
-        try {
-            boolean networkRestrict = (boolean) SystemSettings.NETWORK_RESTRICT_B.readFromSystemSettings(getContext());
-            mNetworkRestrictEnabled.set(networkRestrict);
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("networkRestrict: " + String.valueOf(networkRestrict));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -1744,193 +1726,33 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private SparseBooleanArray mPendingRestrictOnData = new SparseBooleanArray();
 
-    @GuardedBy("mQuotaLock")
-    private final SparseBooleanArray mWifiBlacklist = new SparseBooleanArray();
-    @GuardedBy("mQuotaLock")
-    private final SparseBooleanArray mDataBlacklist = new SparseBooleanArray();
-
     private final Object mQuotaLock = new Object();
 
-    private void initDataRestrictionBlackList() {
-        try {
-            File dataDir = Environment.getDataDirectory();
-            File systemDir = new File(dataDir, "system/tor/data_restrict/");
-            File blacklistFile = new File(systemDir, "blacklist2");
+    private StringSetRepo mWifiBlackList, mDataBlackList;
 
-            if (!blacklistFile.exists()) {
-                XposedLog.wtf("initDataRestrictionBlackList, blacklistFile not foun.@"
-                        + blacklistFile.getPath());
-                return;
-            }
-
-            NetworkRestrictionList networkRestrictionList
-                    = NetworkRestrictionList.fromJson(FileUtil.readString(blacklistFile.getPath()));
-            XposedLog.debug("initDataRestrictionBlackList, networkRestrictionList: " + networkRestrictionList);
-            if (networkRestrictionList == null) return;
-
-            List<NetworkRestriction> restrictionList = networkRestrictionList.getRestrictionList();
-            if (Collections.isNullOrEmpty(restrictionList)) return;
-
-            synchronized (mQuotaLock) {
-                Collections.consumeRemaining(restrictionList, new Consumer<NetworkRestriction>() {
-                    @Override
-                    public void accept(NetworkRestriction networkRestriction) {
-                        mDataBlacklist.put(networkRestriction.getUid(),
-                                (networkRestriction.getRestrictPolicy() & POLICY_REJECT_ON_DATA) != 0);
-                        if (XposedLog.isVerboseLoggable())
-                            XposedLog.verbose("Put uid networkRestriction: " + networkRestriction);
-                    }
-                });
-            }
-        } catch (Throwable e) {
-            XposedLog.wtf("Fail initDataRestrictionBlackList: " + e);
-        }
-    }
-
-    private void initWifiRestrictionBlackList() {
-        try {
-            File dataDir = Environment.getDataDirectory();
-            File systemDir = new File(dataDir, "system/tor/wifi_restrict/");
-            File blacklistFile = new File(systemDir, "blacklist2");
-
-            if (!blacklistFile.exists()) {
-                XposedLog.wtf("initWifiRestrictionBlackList, blacklistFile not found@"
-                        + blacklistFile.getPath());
-                return;
-            }
-
-            NetworkRestrictionList networkRestrictionList
-                    = NetworkRestrictionList.fromJson(FileUtil.readString(blacklistFile.getPath()));
-            XposedLog.debug("initWifiRestrictionBlackList, networkRestrictionList: " + networkRestrictionList);
-            if (networkRestrictionList == null) return;
-
-            List<NetworkRestriction> restrictionList = networkRestrictionList.getRestrictionList();
-            if (Collections.isNullOrEmpty(restrictionList)) return;
-
-            synchronized (mQuotaLock) {
-                Collections.consumeRemaining(restrictionList, new Consumer<NetworkRestriction>() {
-                    @Override
-                    public void accept(NetworkRestriction networkRestriction) {
-                        mWifiBlacklist.put(networkRestriction.getUid(),
-                                (networkRestriction.getRestrictPolicy() & POLICY_REJECT_ON_WIFI) != 0);
-                        if (XposedLog.isVerboseLoggable())
-                            XposedLog.verbose("Put uid networkRestriction: " + networkRestriction);
-                    }
-                });
-            }
-        } catch (Throwable e) {
-            XposedLog.wtf("Fail initWifiRestrictionBlackList: " + e);
-        }
+    private void initDataAndWifiRestrictionBlackList() {
+        mWifiBlackList = RepoProxy.getProxy().getWifi_restrict();
+        mDataBlackList = RepoProxy.getProxy().getData_restrict();
     }
 
     private void applyRestrictionBlackList() {
         synchronized (mQuotaLock) {
+            String[] allWifi = convertObjectArrayToStringArray(mWifiBlackList.getAll().toArray());
 
-            int N = mDataBlacklist.size();
-            for (int i = 0; i < N; i++) {
-                int key = mDataBlacklist.keyAt(i);
-                boolean value = mDataBlacklist.valueAt(i);
-
-                restrictAppOnDataForce(key, value);
-            }
-
-            N = mWifiBlacklist.size();
-            for (int i = 0; i < N; i++) {
-                int key = mWifiBlacklist.keyAt(i);
-                boolean value = mWifiBlacklist.valueAt(i);
-
+            for (String l : allWifi) {
+                NetworkRestriction n = NetworkRestriction.from(l);
+                int key = n.getUid();
+                boolean value = n.getRestrictPolicy() != POLICY_REJECT_NONE;
                 restrictAppOnWifiForce(key, value);
             }
-        }
-    }
 
-    private void healRestrictionBlackList(boolean restrict) {
-        synchronized (mQuotaLock) {
+            String[] allData = convertObjectArrayToStringArray(mDataBlackList.getAll().toArray());
 
-            int N = mDataBlacklist.size();
-            for (int i = 0; i < N; i++) {
-                int key = mDataBlacklist.keyAt(i);
-                h.obtainMessage(AshManHandlerMessages.MSG_HEALRESTRICTAPPONDATA, restrict ? 1 : 0, restrict ? 1 : 0, key)
-                        .sendToTarget();
-            }
-
-            N = mWifiBlacklist.size();
-            for (int i = 0; i < N; i++) {
-                int key = mWifiBlacklist.keyAt(i);
-                h.obtainMessage(AshManHandlerMessages.MSG_HEALRESTRICTAPPONWIFI, restrict ? 1 : 0, restrict ? 1 : 0, key)
-                        .sendToTarget();
-            }
-        }
-    }
-
-    @InternalCall
-    private void writeDataRestrictionBlackList() {
-        synchronized (mQuotaLock) {
-
-            try {
-                NetworkRestrictionList list = new NetworkRestrictionList();
-                List<NetworkRestriction> restrictionList = new ArrayList<>();
-
-                int N = mDataBlacklist.size();
-                for (int i = 0; i < N; i++) {
-                    int key = mDataBlacklist.keyAt(i);
-                    boolean value = mDataBlacklist.valueAt(i);
-                    NetworkRestriction n = new NetworkRestriction();
-                    n.setUid(key);
-                    n.setRestrictPolicy(value ? POLICY_REJECT_ON_DATA : POLICY_REJECT_NONE);
-
-                    restrictionList.add(n);
-                }
-
-                list.setRestrictionList(restrictionList);
-                String json = list.toJson();
-
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.verbose("writeDataRestrictionBlackList, js: " + json);
-
-                File dataDir = Environment.getDataDirectory();
-                File systemDir = new File(dataDir, "system/tor/data_restrict/");
-                File blacklistFile = new File(systemDir, "blacklist2");
-
-                FileUtil.writeString(json, blacklistFile.getPath());
-            } catch (Throwable e) {
-                XposedLog.wtf("Fail writeDataRestrictionBlackList: " + Log.getStackTraceString(e));
-            }
-        }
-    }
-
-    @InternalCall
-    private void writeWifiRestrictionBlackList() {
-        synchronized (mQuotaLock) {
-
-            try {
-                NetworkRestrictionList list = new NetworkRestrictionList();
-                List<NetworkRestriction> restrictionList = new ArrayList<>();
-
-                int N = mWifiBlacklist.size();
-                for (int i = 0; i < N; i++) {
-                    int key = mWifiBlacklist.keyAt(i);
-                    boolean value = mWifiBlacklist.valueAt(i);
-                    NetworkRestriction n = new NetworkRestriction();
-                    n.setUid(key);
-                    n.setRestrictPolicy(value ? POLICY_REJECT_ON_WIFI : POLICY_REJECT_NONE);
-
-                    restrictionList.add(n);
-                }
-
-                list.setRestrictionList(restrictionList);
-                String json = list.toJson();
-
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.verbose("writeWifiRestrictionBlackList, js: " + json);
-
-                File dataDir = Environment.getDataDirectory();
-                File systemDir = new File(dataDir, "system/tor/wifi_restrict/");
-                File blacklistFile = new File(systemDir, "blacklist2");
-
-                FileUtil.writeString(json, blacklistFile.getPath());
-            } catch (Throwable e) {
-                XposedLog.wtf("Fail writeDataRestrictionBlackList: " + Log.getStackTraceString(e));
+            for (String l : allData) {
+                NetworkRestriction n = NetworkRestriction.from(l);
+                int key = n.getUid();
+                boolean value = n.getRestrictPolicy() != POLICY_REJECT_NONE;
+                restrictAppOnDataForce(key, value);
             }
         }
     }
@@ -1945,12 +1767,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         initDataInterface();
 
-        initDataRestrictionBlackList();
-        initWifiRestrictionBlackList();
+        initDataAndWifiRestrictionBlackList();
 
-        if (mNetworkRestrictEnabled.get()) {
-            applyRestrictionBlackList();
-        }
+        applyRestrictionBlackList();
 
         // Note: processPendingDataRestrictRequests() will unregister
         // mPendingDataRestrictReceiver once it has been able to determine
@@ -2245,18 +2064,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public boolean networkRestrictEnabled() throws RemoteException {
-        enforceCallingPermissions();
-        return mNetworkRestrictEnabled.get();
-    }
-
-    @Override
-    public void setNetworkRestrictEnabled(boolean enabled) throws RemoteException {
-        enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETNETWORKRESTRICTENABLED, enabled).sendToTarget();
-    }
-
-    @Override
     public void restoreDefaultSettings() throws RemoteException {
         enforceCallingPermissions();
         h.obtainMessage(AshManHandlerMessages.MSG_RESTOREDEFAULTSETTINGS).sendToTarget();
@@ -2346,7 +2153,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @BinderCall
     public void restrictAppOnData(int uid, boolean restrict) {
-        if (!mNetworkRestrictEnabled.get()) return;
         XposedLog.debug("NMS restrictAppOnData: " + uid + ", restrict: " + restrict);
         enforceCallingPermissions();
         h.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONDATA, uid, -1, restrict)
@@ -2362,7 +2168,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @BinderCall
     public void restrictAppOnWifi(int uid, boolean restrict) {
-        if (!mNetworkRestrictEnabled.get()) return;
         XposedLog.debug("NMS restrictAppOnWifi: " + uid + ", restrict: " + restrict);
         enforceCallingPermissions();
         h.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONWIFI, uid, -1, restrict)
@@ -2377,18 +2182,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public boolean isRestrictOnData(int uid) throws RemoteException {
-        enforceCallingPermissions();
-        return mDataBlacklist.get(uid);
+    public boolean isRestrictOnData(int uid) {
+        NetworkRestriction match = new NetworkRestriction(POLICY_REJECT_ON_DATA, uid);
+        return mDataBlackList.has(match.toJson());
     }
 
     @Override
     @BinderCall
-    public boolean isRestrictOnWifi(int uid) throws RemoteException {
-        enforceCallingPermissions();
-        return mWifiBlacklist.get(uid);
+    public boolean isRestrictOnWifi(int uid) {
+        NetworkRestriction match = new NetworkRestriction(POLICY_REJECT_ON_WIFI, uid);
+        return mWifiBlackList.has(match.toJson());
     }
-
 
     // NMS API END.
 
@@ -2850,15 +2654,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETSHOWFOCUSEDACTIVITYINFOENABLED:
                     HandlerImpl.this.setShowFocusedActivityInfoEnabled((Boolean) msg.obj);
                     break;
-                case AshManHandlerMessages.MSG_SETNETWORKRESTRICTENABLED:
-                    HandlerImpl.this.setNetworkRestrictEnabled((Boolean) msg.obj);
-                    break;
-                case AshManHandlerMessages.MSG_HEALRESTRICTAPPONDATA:
-                    HandlerImpl.this.healRestrictAppOnData((Integer) msg.obj, msg.arg1 == 1);
-                    break;
-                case AshManHandlerMessages.MSG_HEALRESTRICTAPPONWIFI:
-                    HandlerImpl.this.healRestrictAppOnWifi((Integer) msg.obj, msg.arg1 == 1);
-                    break;
                 case AshManHandlerMessages.MSG_SETGREENINGENABLED:
                     HandlerImpl.this.setGreeningEnabled((Boolean) msg.obj);
                     break;
@@ -2956,15 +2751,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setShowFocusedActivityInfoEnabled(boolean enabled) {
             if (mShowFocusedActivityInfoEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.SHOW_FOCUSED_ACTIVITY_INFO_B.writeToSystemSettings(getContext(), enabled);
-            }
-        }
-
-        @Override
-        public void setNetworkRestrictEnabled(boolean enabled) {
-            if (mNetworkRestrictEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.NETWORK_RESTRICT_B.writeToSystemSettings(getContext(), enabled);
-                // Restore all uid settings.
-                healRestrictionBlackList(enabled);
             }
         }
 
@@ -3204,43 +2990,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             cancelProcessClearing("SCREEN ON");
         }
 
-
-        private Runnable writeDataRestrictionRunnable = new Runnable() {
-            @Override
-            public void run() {
-                writeDataRestrictionBlackList();
-            }
-        };
-
-        private Runnable writeWifiRestrictionRunnable = new Runnable() {
-            @Override
-            public void run() {
-                writeWifiRestrictionBlackList();
-            }
-        };
-
-        @Override
-        public void healRestrictAppOnData(int uid, boolean restrict) {
-            try {
-                boolean success = BandwidthCommandCompat.restrictAppOnData(mNativeDaemonConnector,
-                        uid, restrict, mDataInterfaceName);
-                XposedLog.debug("healRestrictAppOnData execute success: " + success);
-            } catch (Exception e) {
-                XposedLog.wtf("Fail restrictAppOnData: " + Log.getStackTraceString(e));
-            }
-        }
-
-        @Override
-        public void healRestrictAppOnWifi(int uid, boolean restrict) {
-            try {
-                boolean success = BandwidthCommandCompat.restrictAppOnWifi(mNativeDaemonConnector, uid,
-                        restrict, mWifiInterfaceName);
-                XposedLog.debug("healRestrictAppOnWifi execute success: " + success);
-            } catch (Exception e) {
-                XposedLog.wtf("Fail restrictAppOnWifi: " + Log.getStackTraceString(e));
-            }
-        }
-
         @Override
         public void restrictAppOnData(int uid, boolean restrict, boolean force) {
             initDataInterface();
@@ -3253,23 +3002,24 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
 
             if (!force) synchronized (mQuotaLock) {
-                boolean oldValue = mDataBlacklist.get(uid, false);
+                boolean oldValue = isRestrictOnData(uid);
                 if (oldValue == restrict) {
                     return;
                 }
             }
 
             try {
-                boolean success = BandwidthCommandCompat.restrictAppOnData(mNativeDaemonConnector,
+                boolean success = BandwidthCommandCompat.restrictAppOnData(
+                        mNativeDaemonConnector,
                         uid, restrict, mDataInterfaceName);
                 XposedLog.debug("NativeDaemonConnector execute success: " + success);
 
                 synchronized (mQuotaLock) {
+                    NetworkRestriction match = new NetworkRestriction(POLICY_REJECT_ON_DATA, uid);
                     if (success) {
-                        mDataBlacklist.put(uid, restrict);
-                        mWorkingService.execute(writeDataRestrictionRunnable);
+                        mDataBlackList.add(match.toJson());
                     } else {
-                        mDataBlacklist.delete(uid);
+                        mDataBlackList.remove(match.toJson());
                     }
                 }
             } catch (Exception e) {
@@ -3281,23 +3031,24 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void restrictAppOnWifi(int uid, boolean restrict, boolean force) {
 
             if (!force) synchronized (mQuotaLock) {
-                boolean oldValue = mWifiBlacklist.get(uid, false);
+                boolean oldValue = isRestrictOnWifi(uid);
                 if (oldValue == restrict) {
                     return;
                 }
             }
 
             try {
-                boolean success = BandwidthCommandCompat.restrictAppOnWifi(mNativeDaemonConnector, uid,
+                boolean success = BandwidthCommandCompat.restrictAppOnWifi(
+                        mNativeDaemonConnector, uid,
                         restrict, mWifiInterfaceName);
                 XposedLog.debug("NativeDaemonConnector execute success: " + success);
 
                 synchronized (mQuotaLock) {
+                    NetworkRestriction match = new NetworkRestriction(POLICY_REJECT_ON_WIFI, uid);
                     if (success) {
-                        mWifiBlacklist.put(uid, restrict);
-                        mWorkingService.execute(writeWifiRestrictionRunnable);
+                        mWifiBlackList.add(match.toJson());
                     } else {
-                        mWifiBlacklist.delete(uid);
+                        mWifiBlackList.remove(match.toJson());
                     }
                 }
 

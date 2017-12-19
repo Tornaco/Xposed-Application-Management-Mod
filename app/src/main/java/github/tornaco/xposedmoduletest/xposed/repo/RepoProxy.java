@@ -32,7 +32,10 @@ public class RepoProxy {
     }
 
     @Getter
-    private StringSetRepo boots, starts, lks, rfks, perms, privacy, greens, blurs, locks, uninstall;
+    private StringSetRepo boots, starts, lks, rfks,
+            perms, privacy, greens,
+            blurs, locks, uninstall,
+            data_restrict, wifi_restrict;
 
     @Getter
     private StringSetRepo comps;
@@ -58,6 +61,8 @@ public class RepoProxy {
         blurs = new StringSetRepo(new File(dir, "blurs"), h, io);
         locks = new StringSetRepo(new File(dir, "locks"), h, io);
         uninstall = new StringSetRepo(new File(dir, "uninstall"), h, io);
+        data_restrict = new StringSetRepo(new File(dir, "data_restrict"), h, io);
+        wifi_restrict = new StringSetRepo(new File(dir, "wifi_restrict"), h, io);
     }
 
     public void deleteAll() {
@@ -73,5 +78,7 @@ public class RepoProxy {
         comps.removeAll();
         locks.removeAll();
         uninstall.removeAll();
+        data_restrict.removeAll();
+        wifi_restrict.removeAll();
     }
 }

@@ -1,5 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed.bean;
 
+import com.google.gson.Gson;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,4 +20,12 @@ import lombok.ToString;
 public class NetworkRestriction {
     private int restrictPolicy;
     private int uid;
+
+    public static NetworkRestriction from(String json) {
+        return new Gson().fromJson(json, NetworkRestriction.class);
+    }
+
+    public String toJson() {
+        return new Gson().toJson(this);
+    }
 }

@@ -682,24 +682,6 @@ public class XAshmanManager {
         }
     }
 
-    public boolean networkRestrictEnabled() {
-        ensureService();
-        try {
-            return mService.networkRestrictEnabled();
-        } catch (RemoteException e) {
-            return false;
-        }
-    }
-
-    public void setNetworkRestrictEnabled(boolean enabled) {
-        ensureService();
-        try {
-            mService.setNetworkRestrictEnabled(enabled);
-        } catch (RemoteException ignored) {
-
-        }
-    }
-
     public boolean isPackageInPrivacyList(String pkg) {
         ensureService();
         if (BuildConfig.DEBUG) try {

@@ -3,7 +3,6 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 import java.util.HashSet;
 import java.util.Set;
 
-import github.tornaco.xposedmoduletest.BuildConfig;
 import lombok.Synchronized;
 
 /**
@@ -25,7 +24,7 @@ public class IntentFirewallSubModuleManager {
         SUBS.add(new PhoneSubInfoCtrlerSubModule());
         SUBS.add(new PhoneInterfaceManagerSubModule2());
         SUBS.add(new PhoneInterfaceManagerSubModule());
-        if (BuildConfig.DEBUG) SUBS.add(new NetworkManagementModule());
+        SUBS.add(new NetworkManagementModule());
         SUBS.add(new MediaFocusControlSubModule2());
         SUBS.add(new MediaFocusControlSubModule());
         SUBS.add(new PMSSubModule4());

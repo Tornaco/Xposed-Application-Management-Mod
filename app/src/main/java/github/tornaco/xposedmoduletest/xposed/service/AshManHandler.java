@@ -44,11 +44,7 @@ interface AshManHandler {
 
     void restrictAppOnData(int uid, boolean restrict, boolean force);
 
-    void healRestrictAppOnData(int uid, boolean restrict);
-
     void restrictAppOnWifi(int uid, boolean restrict, boolean force);
-
-    void healRestrictAppOnWifi(int uid, boolean restrict);
 
     /**
      * Set the enabled setting for a package component (activity, receiver, service, provider).
@@ -134,8 +130,6 @@ interface AshManHandler {
     void setUserDefinedLine1Number(String id);
 
     void setShowFocusedActivityInfoEnabled(boolean enabled);
-
-    void setNetworkRestrictEnabled(boolean enabled);
 
     void setGreeningEnabled(boolean enabled);
 

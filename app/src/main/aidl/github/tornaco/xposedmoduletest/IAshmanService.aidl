@@ -132,8 +132,5 @@ interface IAshmanService {
     boolean showFocusedActivityInfoEnabled();
     void setShowFocusedActivityInfoEnabled(boolean enabled);
 
-    boolean networkRestrictEnabled();
-    void setNetworkRestrictEnabled(boolean enabled);
-
     void restoreDefaultSettings();
 }
