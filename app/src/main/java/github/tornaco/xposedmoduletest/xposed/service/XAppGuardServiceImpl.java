@@ -98,6 +98,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     private final Set<String> mFeatures = new HashSet<>(FEATURE_COUNT);
 
     private static final Set<String> PREBUILT_WHITE_LIST = new HashSet<>();
+    private static final Set<String> SYSTEM_APPS = new HashSet<>();
 
     private RepoProxy mRepoProxy;
 
@@ -115,6 +116,16 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         PREBUILT_WHITE_LIST.add("com.android.systemui");
         PREBUILT_WHITE_LIST.add("android");
         PREBUILT_WHITE_LIST.add(BuildConfig.APPLICATION_ID);
+    }
+
+    private static boolean isInSystemAppList(String pkg) {
+        return SYSTEM_APPS.contains(pkg);
+    }
+
+    private synchronized static void addToSystemApps(String pkg) {
+        if (!SYSTEM_APPS.contains(pkg)) {
+            SYSTEM_APPS.add(pkg);
+        }
     }
 
     private final ExecutorService mWorkingService = Executors.newCachedThreadPool();
@@ -438,6 +449,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
                             // Add to package cache.
                             mPackagesCache.put(uid, pkg);
+
+                            boolean isSystemApp = (applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
+                            if (isSystemApp) {
+                                addToSystemApps(pkg);
+                            }
                         }
                     });
         } catch (Exception ignored) {
@@ -828,6 +844,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 public void accept(String s) {
                     if (outList.contains(s)) return;// Kik dup package.
                     if (isPackageInLockList(s)) return;
+                    if (PREBUILT_WHITE_LIST.contains(s)) return; // Do not set lock for these.
                     outList.add(s);
                 }
             });
@@ -872,6 +889,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 public void accept(String s) {
                     if (outList.contains(s)) return;// Kik dup package.
                     if (isPackageInBlurList(s)) return;
+                    if (PREBUILT_WHITE_LIST.contains(s)) return; // Do not set lock for these.
                     outList.add(s);
                 }
             });
@@ -916,6 +934,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 public void accept(String s) {
                     if (outList.contains(s)) return;// Kik dup package.
                     if (isPackageInUPList(s)) return;
+                    if (PREBUILT_WHITE_LIST.contains(s)) return; // Do not set lock for these.
+                    if (isInSystemAppList(s)) return;
                     outList.add(s);
                 }
             });

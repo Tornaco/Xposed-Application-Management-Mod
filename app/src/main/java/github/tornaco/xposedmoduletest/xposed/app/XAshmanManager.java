@@ -28,7 +28,8 @@ import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 public class XAshmanManager {
 
     public static final int FLAG_SHOW_SYSTEM_APP = 0X100;
-    public static final int FLAG_NONE = 0X200;
+    public static final int FLAG_SHOW_SYSTEM_APP_WITHOUT_CORE_APP = 0X200;
+    public static final int FLAG_NONE = 0;
 
     /**
      * Reject application network traffic on wifi network

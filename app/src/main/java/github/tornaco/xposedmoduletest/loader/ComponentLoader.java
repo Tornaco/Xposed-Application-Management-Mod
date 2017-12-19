@@ -122,7 +122,7 @@ public interface ComponentLoader {
         @Override
         public List<CommonPackageInfo> loadInstalledAppsWithOp(boolean showSystem, Sort sort) {
             String[] packages = XAshmanManager.get().getInstalledApps(
-                    showSystem ? XAshmanManager.FLAG_SHOW_SYSTEM_APP : XAshmanManager.FLAG_NONE);
+                    showSystem ? XAshmanManager.FLAG_SHOW_SYSTEM_APP_WITHOUT_CORE_APP : XAshmanManager.FLAG_NONE);
             List<CommonPackageInfo> res = new ArrayList<>();
             for (String p : packages) {
                 CommonPackageInfo packageInfo = LoaderUtil.constructCommonPackageInfo(context, p);

@@ -999,12 +999,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         List<String> outList = Lists.newArrayList();
         outList.addAll(packages);
 
-        final boolean showSystem = filterOptions == XAshmanManager.FLAG_SHOW_SYSTEM_APP;
+        final boolean showSystem = filterOptions == XAshmanManager.FLAG_SHOW_SYSTEM_APP
+                || filterOptions == XAshmanManager.FLAG_SHOW_SYSTEM_APP_WITHOUT_CORE_APP;
+        final boolean withoutCore = filterOptions == XAshmanManager.FLAG_SHOW_SYSTEM_APP_WITHOUT_CORE_APP;
         final List<String> filtered = Lists.newArrayList();
         Collections.consumeRemaining(outList, new Consumer<String>() {
             @Override
             public void accept(String s) {
-                if (!showSystem && isInSystemAppList(s)) return;
+                if (!showSystem && (isInSystemAppList(s) || isInWhiteList(s))) return;
+                if (withoutCore && isInWhiteList(s)) return;
                 filtered.add(s);
             }
         });
