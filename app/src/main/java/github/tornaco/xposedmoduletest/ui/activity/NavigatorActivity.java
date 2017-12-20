@@ -32,6 +32,7 @@ import java.util.List;
 
 import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.os.PowerManagerCompat;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
@@ -322,7 +323,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             category.addTile(new AppGuard(getActivity()));
             category.addTile(new Blur(getActivity()));
             category.addTile(new UnInstall(getActivity()));
-            category.addTile(new Privacy(getActivity()));
+            if (BuildConfig.DEBUG) category.addTile(new Privacy(getActivity()));
 
             Category rest = new Category();
             rest.titleRes = R.string.title_restrict;
@@ -339,7 +340,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             ash.addTile(new PermControl(getActivity()));
             ash.addTile(new SmartSense(getActivity()));
             ash.addTile(new Greening(getActivity()));
-            ash.addTile(new NFManager(getActivity()));
+            if (BuildConfig.DEBUG) ash.addTile(new NFManager(getActivity()));
 
             categories.add(category);
             categories.add(rest);

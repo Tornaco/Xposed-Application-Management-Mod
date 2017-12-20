@@ -62,8 +62,8 @@ public class RepoProxy {
         locks = new StringSetRepo(new File(dir, "locks"), h, io);
         uninstall = new StringSetRepo(new File(dir, "uninstall"), h, io);
         // FIXME java.io.FileNotFoundException: /data/system/tor/wifi_restrict: open failed: EISDIR (Is a directory)
-        data_restrict = new StringSetRepo(new File(dir, "data_restrict_28"), h, io);
-        wifi_restrict = new StringSetRepo(new File(dir, "wifi_restrict_28"), h, io);
+        data_restrict = new StringSetRepo(new File(dir, "data_restricts"), h, io);
+        wifi_restrict = new StringSetRepo(new File(dir, "wifi_restricts"), h, io);
     }
 
     public void deleteAll() {
