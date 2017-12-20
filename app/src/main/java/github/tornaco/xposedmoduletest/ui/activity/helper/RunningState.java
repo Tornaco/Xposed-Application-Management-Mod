@@ -33,6 +33,8 @@ import android.text.format.Formatter;
 import android.util.Log;
 import android.util.SparseArray;
 
+import org.newstand.logger.Logger;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -672,7 +674,7 @@ public class RunningState {
         return false;
     }
 
-    private void reset() {
+    void reset() {
         mServiceProcessesByName.clear();
         mServiceProcessesByPid.clear();
         mInterestingProcesses.clear();
@@ -682,6 +684,7 @@ public class RunningState {
     }
 
     private boolean update(Context context) {
+        Logger.d("update: " + Thread.currentThread().getName());
         final PackageManager pm = context.getPackageManager();
 
         mSequence++;

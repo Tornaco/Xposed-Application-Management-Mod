@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import java.util.ArrayList;
 import java.util.List;
 
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
@@ -33,7 +34,7 @@ public class RunningServicesActivity
     @Override
     public void onResume() {
         super.onResume();
-        mState.resume();
+        // mState.resume();
     }
 
     @Override
@@ -73,9 +74,16 @@ public class RunningServicesActivity
         ArrayList<RunningServiceInfoDisplay> displays = new ArrayList<>();
         for (RunningState.MergedItem m : items) {
             RunningServiceInfoDisplay d = new RunningServiceInfoDisplay(m);
+            if (BuildConfig.APPLICATION_ID.equals(d.getPkgName())) continue;
             d.setSystemApp(PkgUtil.isSystemApp(getApplicationContext(), d.getPkgName()));
             displays.add(d);
         }
         return displays;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mState.reset();
     }
 }
