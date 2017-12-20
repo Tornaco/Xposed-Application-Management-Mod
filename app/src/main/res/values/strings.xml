@@ -356,7 +356,7 @@
     <string name="message_running_services_fail">无法启动设置，请检查模块激活状态。</string>
     <string name="title_running_services">正在运行的服务</string>
     <string name="title_activity_user_giude">用户向导</string>
-    <string name="message_user_giude1">这是一份不得不写的声明，请仔细阅读后再继续。\n1. 关于应用管理数据，为了实现开机自启动限制，我们必须把某些数据存放到系统某个目录下，我们提供了删除数据的功能，如果你介意请退出！\n2. 关于内存占用，应用管理本身无需后台运行，你随时可以杀死。前台运行占用部分运行内存，如果你介意请退出！\n3. 关于稳定性，ROM众多，可能你的设备并不兼容，会导致一些使用上的问题，如果你介意，请退出！\n4. 关于bug，非常感谢所有朋友的bug反馈，本人会利用闲暇时间进行维护。\n\n最后感谢支持与理解！！！</string>
+    <string name="message_user_giude1">这是一份不得不写的声明，请仔细阅读后再继续。\n\n1. 关于应用管理数据，为了实现开机自启动限制，我们必须把某些数据存放到系统某个目录下，我们提供了删除数据的功能，如果你介意请退出！\n\n2. 关于内存占用，应用管理本身无需后台运行，你随时可以杀死。前台运行占用部分运行内存，如果你介意请退出！\n\n3. 关于稳定性，ROM众多，可能你的设备并不兼容，会导致一些使用上的问题，如果你介意，请退出！\n\n4. 关于bug，非常感谢所有朋友的bug反馈，本人会利用闲暇时间进行维护。\n\n最后感谢支持与理解！！！</string>
     <string name="user_notice_no">我不接收上述情况</string>
     <string name="user_notice_yes">我愿意尝试</string>
 
