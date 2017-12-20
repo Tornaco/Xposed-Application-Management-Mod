@@ -133,4 +133,12 @@ interface IAshmanService {
     void setShowFocusedActivityInfoEnabled(boolean enabled);
 
     void restoreDefaultSettings();
+
+    List<RunningServiceInfo> getRunningServices(int max);
+    List<RunningAppProcessInfo> getRunningAppProcesses();
+
+    void writeSystemSettings(String key, String value);
+    String getSystemSettings(String key);
+
+    long[] getProcessPss(in int[] pids);
 }

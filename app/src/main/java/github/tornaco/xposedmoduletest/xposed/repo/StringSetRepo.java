@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 import github.tornaco.xposedmoduletest.xposed.util.Closer;
+import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -75,6 +76,12 @@ public class StringSetRepo implements SetRepo<String> {
                 if (!mFile.getBaseFile().exists()) {
                     XposedLog.wtf("getBaseFile not exists, skip load: " + name());
                     return;
+                }
+
+                if (mFile.getBaseFile().isDirectory()) {
+                    XposedLog.wtf("getBaseFile isDirectory, clean up: " + name());
+                    FileUtil.deleteDir(mFile.getBaseFile());
+                    mFile.delete();
                 }
 
                 // A

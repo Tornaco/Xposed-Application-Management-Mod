@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.List;
 
 import dev.tornaco.vangogh.Vangogh;
+import dev.tornaco.vangogh.display.ImageApplier;
 import dev.tornaco.vangogh.display.appliers.FadeOutFadeInApplier;
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
@@ -68,7 +69,7 @@ public class CommonPackageInfoAdapter
     @Getter
     final List<CommonPackageInfo> commonPackageInfos = new ArrayList<>();
 
-    public void update(Collection<CommonPackageInfo> src) {
+    public void update(Collection<? extends CommonPackageInfo> src) {
         synchronized (commonPackageInfos) {
             commonPackageInfos.clear();
             commonPackageInfos.addAll(src);
@@ -111,7 +112,7 @@ public class CommonPackageInfoAdapter
                 .load(packageInfo.getPkgName())
                 .skipMemoryCache(true)
                 .usingLoader(vangoghAppLoader)
-                .applier(new FadeOutFadeInApplier())
+                .applier(onCreateImageApplier())
                 .placeHolder(0)
                 .fallback(R.mipmap.ic_launcher_round)
                 .into(holder.getCheckableImageView());
@@ -140,6 +141,10 @@ public class CommonPackageInfoAdapter
                 return onItemLongClick(v, holder.getAdapterPosition());
             }
         });
+    }
+
+    protected ImageApplier onCreateImageApplier() {
+        return new FadeOutFadeInApplier();
     }
 
     protected boolean onItemLongClick(View v, int position) {

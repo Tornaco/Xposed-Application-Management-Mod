@@ -158,6 +158,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
     private void setupPatternLockView() {
         final PatternLockView patternLockView = findViewById(R.id.pattern_lock_view);
         patternLockView.setTactileFeedbackEnabled(false);
+        patternLockView.setEnableHapticFeedback(false);
         patternLockView.addPatternLockListener(new PatternLockViewListenerAdapter() {
             @Override
             public void onComplete(List<PatternLockView.Dot> pattern) {

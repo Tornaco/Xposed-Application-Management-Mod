@@ -353,5 +353,7 @@
     <string name="title_restore_def">恢复默认设置</string>
     <string name="summary_restore_def">清除应用管理的所有设置数据（应用锁/抓拍/移花接木除外），包括所有名单。</string>
     <string name="summary_restore_done">已经为你恢复了默认设置</string>
+    <string name="message_running_services_fail">无法启动设置，请检查模块激活状态。</string>
+    <string name="title_running_services">正在运行的服务</string>
 
 </resources>

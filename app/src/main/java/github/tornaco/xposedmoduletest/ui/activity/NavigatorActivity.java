@@ -32,7 +32,6 @@ import java.util.List;
 
 import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
-import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.os.PowerManagerCompat;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
@@ -52,6 +51,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.NFManager;
 import github.tornaco.xposedmoduletest.ui.tiles.PermControl;
 import github.tornaco.xposedmoduletest.ui.tiles.Privacy;
 import github.tornaco.xposedmoduletest.ui.tiles.RFKill;
+import github.tornaco.xposedmoduletest.ui.tiles.RunningServices;
 import github.tornaco.xposedmoduletest.ui.tiles.SmartSense;
 import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
 import github.tornaco.xposedmoduletest.util.XExecutor;
@@ -330,6 +330,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             rest.addTile(new AppStart(getActivity()));
             rest.addTile(new LockKill(getActivity()));
             rest.addTile(new RFKill(getActivity()));
+            rest.addTile(new RunningServices(getActivity()));
 
             Category ash = new Category();
             ash.titleRes = R.string.title_control;
@@ -338,7 +339,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             ash.addTile(new PermControl(getActivity()));
             ash.addTile(new SmartSense(getActivity()));
             ash.addTile(new Greening(getActivity()));
-            if (BuildConfig.DEBUG) ash.addTile(new NFManager(getActivity()));
+            ash.addTile(new NFManager(getActivity()));
 
             categories.add(category);
             categories.add(rest);

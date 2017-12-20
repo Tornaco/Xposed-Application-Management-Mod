@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.xposed.service;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.ActivityManagerNative;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.content.BroadcastReceiver;
@@ -48,6 +49,7 @@ import com.google.common.collect.Lists;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -641,10 +643,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private CheckResult checkServiceDetailed(String servicePkgName, int callerUid) {
-        // if (!isSystemReady()) return CheckResult.SYSTEM_NOT_READY;
-        // Disabled case.
-        if (!isStartBlockEnabled()) return CheckResult.SERVICE_CHECK_DISABLED;
-
         if (TextUtils.isEmpty(servicePkgName)) return CheckResult.BAD_ARGS;
 
         if (isInWhiteList(servicePkgName)) {
@@ -655,12 +653,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.SYSTEM_APP;
         }
 
-        // Check Op for this package.
+        // Check Op first for this package.
         int mode = getPermissionControlBlockModeForPkg(
                 AppOpsManagerCompat.OP_START_SERVICE, servicePkgName);
         if (mode == AppOpsManagerCompat.MODE_IGNORED) {
             return CheckResult.DENIED_OP_DENIED;
         }
+
+        // if (!isSystemReady()) return CheckResult.SYSTEM_NOT_READY;
+        // Disabled case.
+        if (!isStartBlockEnabled()) return CheckResult.SERVICE_CHECK_DISABLED;
 
         // Check if this is green app.
         boolean isGreeningApp = isGreeningEnabled()
@@ -1465,11 +1467,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (blockByUser) {
             return CheckResult.USER_DENIED;
         }
-
-        if (!mStartPkgLoaded.get()) {
-            return CheckResult.DENIED_USER_LIST_NOT_READY;
-        }
-
         return CheckResult.ALLOWED_GENERAL;
     }
 
@@ -1531,11 +1528,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (blockByUser) {
             return CheckResult.USER_DENIED;
         }
-
-        if (!mBootPkgLoaded.get()) {
-            return CheckResult.DENIED_USER_LIST_NOT_READY;
-        }
-
         return CheckResult.ALLOWED_GENERAL;
     }
 
@@ -1699,9 +1691,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         ServiceManager.addService(XAshmanManager.ASH_MAN_SERVICE_NAME, asBinder());
         construct();
     }
-
-    // Flag to indicate if boot setting and start settings has been loaded.
-    private AtomicBoolean mBootPkgLoaded = new AtomicBoolean(false), mStartPkgLoaded = new AtomicBoolean(false);
 
     @Override
     public void systemReady() {
@@ -2070,6 +2059,65 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    public List<ActivityManager.RunningServiceInfo> getRunningServices(int max) throws RemoteException {
+        ActivityManager activityManager = (ActivityManager) getContext()
+                .getSystemService(Context.ACTIVITY_SERVICE);
+        if (activityManager != null) {
+            long id = Binder.clearCallingIdentity();
+            try {
+                return activityManager.getRunningServices(max);
+            } catch (Throwable e) {
+                XposedLog.wtf("Fail getRunningServices: " + Log.getStackTraceString(e));
+            } finally {
+                Binder.restoreCallingIdentity(id);
+            }
+        }
+
+        return new ArrayList<>(0);
+    }
+
+    @Override
+    public List<ActivityManager.RunningAppProcessInfo> getRunningAppProcesses() throws RemoteException {
+        ActivityManager activityManager = (ActivityManager) getContext()
+                .getSystemService(Context.ACTIVITY_SERVICE);
+        final long id = Binder.clearCallingIdentity();
+        try {
+            Binder.clearCallingIdentity();
+            if (activityManager != null) {
+                return activityManager.getRunningAppProcesses();
+            }
+        } catch (Throwable e) {
+            XposedLog.wtf("getRunningAppProcesses: " + Log.getStackTraceString(e));
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
+        return new ArrayList<>(0);
+    }
+
+    @Override
+    public void writeSystemSettings(final String key, final String value) throws RemoteException {
+        enforceCallingPermissions();
+    }
+
+    @Override
+    public String getSystemSettings(String key) throws RemoteException {
+        return Settings.Global.getString(getContext().getContentResolver(), key);
+    }
+
+    @Override
+    public long[] getProcessPss(int[] pids) throws RemoteException {
+        long id = Binder.clearCallingIdentity();
+        try {
+            return ActivityManagerNative.getDefault().getProcessPss(pids);
+        } catch (Throwable e) {
+            XposedLog.wtf("getProcessPss: " + Log.getStackTraceString(e));
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
+        return new long[0];
+    }
+
+    @Override
     public int checkPermission(String perm, int pid, int uid) {
         return PackageManager.PERMISSION_GRANTED;
     }
@@ -2202,7 +2250,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         loadConfigFromSettings();
         cachePackages();
         whiteIMEPackages();
-        SystemSettings.moveToNewSettings(getContext());
+        // SystemSettings.moveToNewSettings(getContext());
     }
 
     private void construct() {
@@ -3357,13 +3405,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @ToString
     private static class CheckResult {
         // Allowed cases.
-        public static final CheckResult SERVICE_CHECK_DISABLED = new CheckResult(true, "SERVICE_CHECK_DISABLED", false);
-        public static final CheckResult BOOT_CHECK_DISABLED = new CheckResult(true, "BOOT_CHECK_DISABLED", false);
-        public static final CheckResult BROADCAST_CHECK_DISABLED = new CheckResult(true, "BROADCAST_CHECK_DISABLED", false);
+        public static final CheckResult SERVICE_CHECK_DISABLED = new CheckResult(true, "SERVICE_CHECK_DISABLED", true);
+        public static final CheckResult BOOT_CHECK_DISABLED = new CheckResult(true, "BOOT_CHECK_DISABLED", true);
+        public static final CheckResult BROADCAST_CHECK_DISABLED = new CheckResult(true, "BROADCAST_CHECK_DISABLED", true);
         public static final CheckResult SYSTEM_NOT_READY = new CheckResult(true, "SYSTEM_NOT_READY", true);
 
-        public static final CheckResult WHITE_LISTED = new CheckResult(true, "WHITE_LISTED", false);
-        public static final CheckResult SYSTEM_APP = new CheckResult(true, "SYSTEM_APP", false);
+        public static final CheckResult WHITE_LISTED = new CheckResult(true, "WHITE_LISTED", true);
+        public static final CheckResult SYSTEM_APP = new CheckResult(true, "SYSTEM_APP", true);
 
         public static final CheckResult HOME_APP = new CheckResult(true, "HOME_APP", true);
         public static final CheckResult LAUNCHER_APP = new CheckResult(true, "LAUNCHER_APP", true);
@@ -3372,7 +3420,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public static final CheckResult APP_RUNNING = new CheckResult(true, "APP_RUNNING", true);
         public static final CheckResult SAME_CALLER = new CheckResult(true, "SAME_CALLER", true);
 
-        public static final CheckResult BAD_ARGS = new CheckResult(true, "BAD_ARGS", false);
+        public static final CheckResult BAD_ARGS = new CheckResult(true, "BAD_ARGS", true);
         public static final CheckResult USER_ALLOWED = new CheckResult(true, "USER_ALLOWED", true);
         public static final CheckResult USER_DENIED = new CheckResult(false, "USER_DENIED", true);
 
@@ -3380,7 +3428,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public static final CheckResult DENIED_GENERAL = new CheckResult(false, "DENIED_GENERAL", true);
         public static final CheckResult DENIED_OP_DENIED = new CheckResult(false, "DENIED_OP_DENIED", true);
         public static final CheckResult DENIED_GREEN_APP = new CheckResult(false, "DENIED_GREEN_APP", true);
-        public static final CheckResult DENIED_USER_LIST_NOT_READY = new CheckResult(false, "DENIED_USER_LIST_NOT_READY", true);
         public static final CheckResult ALLOWED_GENERAL = new CheckResult(true, "ALLOWED_GENERAL", true);
 
         private boolean res;

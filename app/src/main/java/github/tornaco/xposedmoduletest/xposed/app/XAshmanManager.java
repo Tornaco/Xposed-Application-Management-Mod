@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.app;
 
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.pm.PackageManager;
 import android.os.RemoteException;
@@ -790,6 +791,49 @@ public class XAshmanManager {
             mService.restoreDefaultSettings();
         } catch (RemoteException ignored) {
 
+        }
+    }
+
+    public List<ActivityManager.RunningServiceInfo> getRunningServices(int max) {
+        ensureService();
+        try {
+            return mService.getRunningServices(max);
+        } catch (RemoteException e) {
+            return new ArrayList<>(0);
+        }
+    }
+
+    public List<ActivityManager.RunningAppProcessInfo> getRunningAppProcesses() {
+        try {
+            return mService.getRunningAppProcesses();
+        } catch (RemoteException e) {
+            return new ArrayList<>(0);
+        }
+    }
+
+    public void writeSystemSettings(String key, String value) {
+        ensureService();
+        try {
+            mService.writeSystemSettings(key, value);
+        } catch (RemoteException ignored) {
+
+        }
+    }
+
+    public String getSystemSettings(String key) {
+        ensureService();
+        try {
+            return mService.getSystemSettings(key);
+        } catch (RemoteException e) {
+            return null;
+        }
+    }
+
+    public long[] getProcessPss(int[] pids) {
+        try {
+            return mService.getProcessPss(pids);
+        } catch (RemoteException e) {
+            return new long[0];
         }
     }
 }

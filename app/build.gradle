@@ -88,6 +88,7 @@ dependencies {
     // compile project(':keyguard')
     implementation project(':tiles')
     implementation project(':searchdialog')
+    implementation project(':patternlockview')
 
     implementation 'si.virag:fuzzydateformatter:1.1.0'
 
@@ -97,7 +98,6 @@ dependencies {
     // debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.4'
     // releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
 
-    implementation 'com.andrognito.patternlockview:patternlockview:1.0.0'
     implementation 'com.simplecityapps:recyclerview-fastscroll:1.0.9'
 
     implementation 'com.nononsenseapps:filepicker:4.1.0'

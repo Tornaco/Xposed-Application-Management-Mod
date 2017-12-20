@@ -82,7 +82,7 @@ public class SecureGuardSettings extends GuardSettingsActivity {
 
                 SwitchPreference photoPref = (SwitchPreference) findPreference(XKey.TAKE_PHOTO_ENABLED);
 
-                if (photoPref != null)
+                if (photoPref != null) {
                     photoPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                         @Override
                         public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -91,6 +91,7 @@ public class SecureGuardSettings extends GuardSettingsActivity {
                             return true;
                         }
                     });
+                }
 
                 findPreference("key_view_photos")
                         .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

@@ -224,7 +224,7 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity
         XExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                final List<CommonPackageInfo> res = performLoading();
+                final List<? extends CommonPackageInfo> res = performLoading();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -236,7 +236,7 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity
         });
     }
 
-    protected abstract List<CommonPackageInfo> performLoading();
+    protected abstract List<? extends CommonPackageInfo> performLoading();
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

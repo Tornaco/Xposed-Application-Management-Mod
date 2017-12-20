@@ -27,7 +27,7 @@ public class XSettings extends Observable {
 
     public static boolean takenPhotoEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(XKey.TAKE_PHOTO_ENABLED, true);
+                .getBoolean(XKey.TAKE_PHOTO_ENABLED, false);
     }
 
     public static boolean fpEnabled(Context context) {

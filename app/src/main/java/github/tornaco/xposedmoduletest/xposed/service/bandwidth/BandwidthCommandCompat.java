@@ -25,7 +25,7 @@ public class BandwidthCommandCompat {
             connector.execute("bandwidth", action + "restrictappsonwlan", uid);
             success = true;
         } catch (NativeDaemonConnector.NativeDaemonConnectorException e) {
-            XposedLog.wtf("Fail@aosp command restrictAppOnWifi: " + Log.getStackTraceString(e));
+            XposedLog.verbose("Fail@aosp command restrictAppOnWifi: " + Log.getStackTraceString(e));
             success = false;
         }
 
@@ -40,7 +40,7 @@ public class BandwidthCommandCompat {
             connector.execute("bandwidth", action + "restrictappsonwlan", ifaceName, uid);
             success = true;
         } catch (NativeDaemonConnector.NativeDaemonConnectorException e) {
-            XposedLog.wtf("Fail@los command restrictAppOnWifi: " + Log.getStackTraceString(e));
+            XposedLog.verbose("Fail@los command restrictAppOnWifi: " + Log.getStackTraceString(e));
             success = false;
         }
 
@@ -59,7 +59,7 @@ public class BandwidthCommandCompat {
             connector.execute("bandwidth", action + "restrictappsondata", uid);
             success = true;
         } catch (NativeDaemonConnector.NativeDaemonConnectorException e) {
-            XposedLog.wtf("Fail@aosp command restrictAppOnData: " + Log.getStackTraceString(e));
+            XposedLog.verbose("Fail@aosp command restrictAppOnData: " + Log.getStackTraceString(e));
             success = false;
         }
 
@@ -75,7 +75,7 @@ public class BandwidthCommandCompat {
             connector.execute("bandwidth", action + "restrictappsondata", ifaceName, uid);
             success = true;
         } catch (NativeDaemonConnector.NativeDaemonConnectorException e) {
-            XposedLog.wtf("Fail@los command restrictAppOnData: " + Log.getStackTraceString(e));
+            XposedLog.verbose("Fail@los command restrictAppOnData: " + Log.getStackTraceString(e));
             success = false;
         }
 

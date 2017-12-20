@@ -6,7 +6,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
-    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="com.fingerprints.service.ACCESS_FINGERPRINT_MANAGER" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -131,6 +130,11 @@
             android:name=".ui.activity.rf.RFKillAppPickerActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_picker"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.helper.RunningServicesActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_running_services"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.ag.SecureGuardSettings"

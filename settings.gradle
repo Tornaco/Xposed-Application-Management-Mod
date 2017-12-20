@@ -1,1 +1,1 @@
-include ':app', ':daogenerator', ':vangoghcore', ':api-gen-annotations', ':repo', ":api-gen-compiler", ':tiles', ':searchdialog'
+include ':app', ':daogenerator', ':vangoghcore', ':api-gen-annotations', ':repo', ":api-gen-compiler", ':tiles', ':searchdialog', ':patternlockview'
