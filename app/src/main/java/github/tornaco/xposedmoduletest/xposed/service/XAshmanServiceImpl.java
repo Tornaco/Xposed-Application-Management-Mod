@@ -134,7 +134,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final AtomicBoolean mLockKillEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mGreeningEnabled = new AtomicBoolean(false);
 
-    private final AtomicBoolean mPermissionControlEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mPermissionControlEnabled = new AtomicBoolean(true);
 
     private final AtomicBoolean mDataHasBeenMigrated = new AtomicBoolean(false);
 
@@ -510,15 +510,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         try {
-            boolean permissionControlEnabled = (boolean) SystemSettings.PERMISSION_CONTROL_B.readFromSystemSettings(getContext());
-            mPermissionControlEnabled.set(permissionControlEnabled);
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("permissionControlEnabled: " + String.valueOf(permissionControlEnabled));
-        } catch (Throwable e) {
-            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
-        }
-
-        try {
             String userDeviceId = (String) SystemSettings.USER_DEFINED_DEVICE_ID_T_S.readFromSystemSettings(getContext());
             mUserDefinedDeviceId.setData(userDeviceId);
             if (XposedLog.isVerboseLoggable())
@@ -640,6 +631,58 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
         }
         return res.res;
+    }
+
+    @Override
+    public boolean checkRestartService(String packageName, ComponentName componentName) throws RemoteException {
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("checkRestartService: " + componentName + ", pkg: " + packageName);
+        }
+        if (TextUtils.isEmpty(packageName)) return true;
+        if (isInWhiteList(packageName)) {
+            XposedLog.verbose("checkRestartService: allow white");
+            return true;
+        }
+
+        if (isWhiteSysAppEnabled() && isInSystemAppList(packageName)) {
+            XposedLog.verbose("checkRestartService: allow system");
+            return true;
+        }
+
+        // Check Op first for this package.
+        int mode = getPermissionControlBlockModeForPkg(
+                AppOpsManagerCompat.OP_START_SERVICE, packageName);
+        if (mode == AppOpsManagerCompat.MODE_IGNORED) {
+            XposedLog.verbose("checkRestartService: deny op");
+            return false;
+        }
+
+        if (PkgUtil.isHomeApp(getContext(), packageName)) {
+            XposedLog.verbose("checkRestartService: allow home");
+            return true;
+        }
+
+        if (PkgUtil.isDefaultSmsApp(getContext(), packageName)) {
+            XposedLog.verbose("checkRestartService: allow sms");
+            return true;
+        }
+
+        if (PkgUtil.isAppRunning(getContext(), packageName)) {
+            XposedLog.verbose("checkRestartService: allow is running");
+            return true;
+        }
+
+        if (isStartBlockEnabled() && isPackageStartBlockByUser(packageName)) {
+            XposedLog.verbose("checkRestartService: deny start block");
+            return false;
+        }
+
+        if (isBlockBlockEnabled() && isPackageBootBlockByUser(packageName)) {
+            XposedLog.verbose("checkRestartService: deny boot block");
+            return false;
+        }
+
+        return true;
     }
 
     private CheckResult checkServiceDetailed(String servicePkgName, int callerUid) {

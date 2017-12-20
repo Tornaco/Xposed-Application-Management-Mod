@@ -13,6 +13,8 @@ public interface IIntentFirewallBridge extends IModuleBridge {
     // API For Firewall.
     boolean checkService(ComponentName service, int callerUid) throws RemoteException;
 
+    boolean checkRestartService(String packageName, ComponentName componentName) throws RemoteException;
+
     boolean checkBroadcast(String action, int receiverUid, int callerUid) throws RemoteException;
 
     void onActivityDestroy(Intent intent, String reason);

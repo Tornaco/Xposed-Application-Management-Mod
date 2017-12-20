@@ -257,7 +257,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity {
             startLoading();
         }
         if (item.getItemId() == R.id.action_settings) {
-            CompSettingsDashboardActivity.start(getContext());
+            CompSettingsDashboardActivity.start(getActivity());
         }
         return super.onOptionsItemSelected(item);
     }

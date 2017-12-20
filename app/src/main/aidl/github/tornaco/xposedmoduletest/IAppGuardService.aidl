@@ -17,6 +17,9 @@ interface IAppGuardService {
     boolean isBlurEnabled();
     void setBlurEnabled(boolean enabled);
 
+    int getBlurRadius();
+    void setBlurRadius(int r);
+
     boolean isUninstallInterruptEnabled();
     void setUninstallInterruptEnabled(boolean enabled);
 

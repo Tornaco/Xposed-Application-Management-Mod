@@ -11,6 +11,7 @@ import org.newstand.logger.Logger;
 import github.tornaco.xposedmoduletest.IAppGuardService;
 import github.tornaco.xposedmoduletest.IAppGuardWatcher;
 import github.tornaco.xposedmoduletest.util.Singleton;
+import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 
 /**
@@ -375,6 +376,23 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.restoreDefaultSettings();
+        } catch (RemoteException e) {
+            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
+        }
+    }
+
+    public int getBlurRadius() {
+        try {
+            return mService.getBlurRadius();
+        } catch (RemoteException e) {
+            Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
+            return BlurSettings.BLUR_RADIUS;
+        }
+    }
+
+    public void setBlurRadius(int r) {
+        try {
+            mService.setBlurRadius(r);
         } catch (RemoteException e) {
             Logger.e("XAppGuardManager remote: " + Logger.getStackTraceString(e));
         }

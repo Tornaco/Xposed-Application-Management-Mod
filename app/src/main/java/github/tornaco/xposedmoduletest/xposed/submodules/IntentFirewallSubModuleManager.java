@@ -35,6 +35,7 @@ public class IntentFirewallSubModuleManager {
         SUBS.add(new AppOpsSubModule3());
         SUBS.add(new AppOpsSubModule2());
         SUBS.add(new AppOpsSubModule());
+        SUBS.add(new ActiveServiceSubModule());
         SUBS.add(new AMSSubModule9());
         SUBS.add(new AMSSubModule8());
         SUBS.add(new AMSSubModule6());

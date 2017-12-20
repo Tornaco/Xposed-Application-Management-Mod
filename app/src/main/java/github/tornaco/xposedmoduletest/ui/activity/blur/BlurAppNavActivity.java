@@ -1,6 +1,9 @@
 package github.tornaco.xposedmoduletest.ui.activity.blur;
 
+import android.content.Intent;
 import android.support.v7.widget.SwitchCompat;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import java.util.List;
 
@@ -59,5 +62,19 @@ public class BlurAppNavActivity extends CommonPackageInfoListActivity implements
     @Override
     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
         XAppGuardManager.get().setBlurEnabled(isChecked);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.blur, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_settings) {
+            startActivity(new Intent(this, BlurSettingsDashboardActivity.class));
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

@@ -8,6 +8,7 @@ import android.provider.Settings;
 import android.util.Log;
 
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.xposed.repo.SettingsKey;
 import github.tornaco.xposedmoduletest.xposed.repo.SettingsProvider;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -108,6 +109,30 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
         public void restoreDef(Context context) {
             int def = getDefValue();
             writeToSystemSettings(context, def == 1);
+        }
+    },
+
+
+    BLUR_RADIUS_I(BlurSettings.BLUR_RADIUS) {
+        @Override
+        public boolean writeToSystemSettings(Context context, Object value) {
+            ContentResolver resolver = context.getContentResolver();
+            int v = (int) value;
+            return resolver != null && Settings.System.putInt(resolver, name(), v);
+        }
+
+        @Override
+        public Object readFromSystemSettings(Context context) {
+            ContentResolver resolver = context.getContentResolver();
+            if (resolver == null) return getDefValue();
+            int def = getDefValue();
+            return Settings.System.getInt(resolver, name(), def);
+        }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def);
         }
     },
 

@@ -89,6 +89,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     private AtomicBoolean mInterruptFPERRORVB = new AtomicBoolean(false);
 
     private VerifySettings mVerifySettings;
+    private AtomicInteger mBlurRadius = new AtomicInteger(BlurSettings.BLUR_RADIUS);
 
     @SuppressLint("UseSparseArrays")
     private final Map<Integer, Transaction> mTransactionMap = new HashMap<>();
@@ -264,6 +265,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             boolean blurEnabled = (boolean) SystemSettings.BLUR_ENABLED_B.readFromSystemSettings(getContext());
             mBlurEnabled.set(blurEnabled);
 
+            int blurR = (int) SystemSettings.BLUR_RADIUS_I.readFromSystemSettings(getContext());
+            mBlurRadius.set(blurR);
+
             boolean interruptFPS = (boolean) SystemSettings.INTERRUPT_FP_SUCCESS_VB_ENABLED_B.readFromSystemSettings(getContext());
             mInterruptFPSuccessVB.set(interruptFPS);
 
@@ -283,6 +287,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 XposedLog.verbose("mBlurEnabled: " + String.valueOf(mBlurEnabled));
                 XposedLog.verbose("mInterruptFPSuccessVB: " + String.valueOf(mInterruptFPSuccessVB));
                 XposedLog.verbose("mEnabled: " + String.valueOf(mEnabled));
+                XposedLog.verbose("mBlurRadius: " + String.valueOf(mBlurRadius));
             }
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
@@ -755,7 +760,16 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Override
     @InternalCall
     public int getBlurRadius() {
-        return BlurSettings.BLUR_RADIUS;
+        return mBlurRadius.get();
+    }
+
+    @Override
+    public void setBlurRadius(int r) {
+        XposedLog.verbose("setBlurRadius: " + r);
+        enforceCallingPermissions();
+        int checkedR = r >= BlurSettings.BLUR_RADIUS_MAX ? BlurSettings.BLUR_RADIUS_MAX : r;
+        mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_SETBLURRADIUS, checkedR)
+                .sendToTarget();
     }
 
     @Override
@@ -1218,7 +1232,10 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                             (ComponentName) data[1], (Boolean) data[2]);
                     break;
                 case AppGuardServiceHandlerMessages.MSG_RESTOREDEFAULTSETTINGS:
-                    restoreDefaultSettings();
+                    AppGuardServiceHandlerImpl.this.restoreDefaultSettings();
+                    break;
+                case AppGuardServiceHandlerMessages.MSG_SETBLURRADIUS:
+                    AppGuardServiceHandlerImpl.this.setBlurRadius((Integer) msg.obj);
                     break;
                 default:
                     AppGuardServiceHandlerImpl.this.setResult((Integer) msg.obj,
@@ -1246,6 +1263,12 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             if (mBlurEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.BLUR_ENABLED_B.writeToSystemSettings(getContext(), enabled);
             }
+        }
+
+        @Override
+        public void setBlurRadius(int r) {
+            mBlurRadius.set(r);
+            SystemSettings.BLUR_RADIUS_I.writeToSystemSettings(getContext(), r);
         }
 
         @Override

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.os.RemoteException;
 import android.util.Log;
 
 import de.robv.android.xposed.XposedBridge;
@@ -95,6 +96,11 @@ public class XAshmanServiceImplDev extends XAshmanServiceImpl {
     @Override
     protected void enforceCallingPermissions() {
         // super.enforceCallingPermissions();
+    }
+
+    @Override
+    public boolean checkRestartService(String packageName, ComponentName componentName) throws RemoteException {
+        return super.checkRestartService(packageName, componentName);
     }
 
     @Override

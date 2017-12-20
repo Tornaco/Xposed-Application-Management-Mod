@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.xposed.service;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.RemoteException;
 
 /**
  * Created by guohao4 on 2017/11/1.
@@ -24,7 +25,7 @@ public interface IAppGuardBridge extends IModuleBridge {
 
     boolean isBlurForPkg(String pkg);
 
-    int getBlurRadius();
+    int getBlurRadius() throws RemoteException;
 
     float getBlurScale();
 

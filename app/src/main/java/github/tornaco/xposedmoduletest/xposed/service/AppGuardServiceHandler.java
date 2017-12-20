@@ -19,6 +19,8 @@ interface AppGuardServiceHandler {
 
     void setBlurEnabled(boolean enabled);
 
+    void setBlurRadius(int r);
+
     void setVerifySettings(github.tornaco.xposedmoduletest.xposed.bean.VerifySettings settings);
 
     void setResult(int transactionID, int res);
