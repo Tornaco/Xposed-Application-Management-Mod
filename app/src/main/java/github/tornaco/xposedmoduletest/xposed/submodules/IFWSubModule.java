@@ -10,6 +10,8 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.xposed.util.ObjectToStringUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -32,14 +34,15 @@ public class IFWSubModule extends IntentFirewallAndroidSubModule {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     super.beforeHookedMethod(param);
-//                    if (XposedLog.isVerboseLoggable()) {
-//                        try {
-//                            Intent intent = (Intent) param.args[1];
-//                            XposedLog.verbose("checkService@ intent: " + intent + "extra: " + intent.getExtras()
-//                                    + new IntentFormatter().format(intent));
-//                        } catch (Exception ignored) {
-//                        }
-//                    }
+                    if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
+                        try {
+                            Intent intent = (Intent) param.args[1];
+                            Log.d(XposedLog.TAG_PREFIX,
+                                    "checkService@ intent: " + intent + "extra: " + intent.getExtras()
+                                            + ObjectToStringUtil.intentToString(intent));
+                        } catch (Exception ignored) {
+                        }
+                    }
                     ComponentName componentName = (ComponentName) param.args[0];
                     int callerID = (int) param.args[2];
                     param.setResult(getIntentFirewallBridge().checkService(componentName, callerID));
@@ -53,6 +56,16 @@ public class IFWSubModule extends IntentFirewallAndroidSubModule {
                     int callerUid = (int) param.args[1];
                     int recUid = (int) param.args[4];
                     Intent intent = (Intent) param.args[0];
+
+                    if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
+                        try {
+                            Log.d(XposedLog.TAG_PREFIX,
+                                    "checkService@ intent: " + intent + "extra: " + intent.getExtras()
+                                            + ObjectToStringUtil.intentToString(intent));
+                        } catch (Exception ignored) {
+                        }
+                    }
+
                     String action = intent == null ? null : intent.getAction();
                     param.setResult(getIntentFirewallBridge().checkBroadcast(action, recUid, callerUid));
                 }

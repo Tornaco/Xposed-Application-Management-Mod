@@ -103,8 +103,6 @@ dependencies {
     implementation 'com.nononsenseapps:filepicker:4.1.0'
 
     implementation 'com.jaredrummler:android-shell:1.0.0'
-
-    // implementation 'com.lenovo:llog:1.0.4'
 }
 
 
