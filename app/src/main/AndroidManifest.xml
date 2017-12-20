@@ -270,7 +270,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.activity.nf.NetworkRestrictActivity"
             android:label="@string/title_nf"
@@ -285,7 +284,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
         <provider
             android:name=".provider.ComponentsReplacementProvider"
             android:authorities="github.tornaco.xposedmoduletest.components_replacement_provider"
@@ -310,6 +308,11 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/appwidget_info" />
         </receiver>
+
+        <activity
+            android:name=".ui.activity.whyyouhere.UserGiudeActivity"
+            android:label="@string/title_activity_user_giude"
+            android:theme="@style/AppThemeLight.NoActionBar"/>
     </application>
 
 </manifest>

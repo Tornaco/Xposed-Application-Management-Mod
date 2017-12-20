@@ -40,6 +40,7 @@ import github.tornaco.xposedmoduletest.ui.FragmentController;
 import github.tornaco.xposedmoduletest.ui.activity.app.AboutDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.AppDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.ToolsDashboardActivity;
+import github.tornaco.xposedmoduletest.ui.activity.whyyouhere.UserGiudeActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
 import github.tornaco.xposedmoduletest.ui.tiles.AppStart;
@@ -129,44 +130,9 @@ public class NavigatorActivity extends WithWithCustomTabActivity
     }
 
     private void initFirstRun() {
-//        boolean first = AppSettings.isFirstSee(this, "blacklistchange");
-//        if (first) {
-//            new AlertDialog.Builder(NavigatorActivity.this)
-//                    .setTitle(R.string.title_app_black_list)
-//                    .setMessage(getString(R.string.message_app_black_list))
-//                    .setCancelable(false)
-//                    .setNeutralButton(R.string.clear_data, new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            AppSettings.setFirstSee(getApplicationContext(), "blacklistchange");
-//
-//                            DaoSession s = DaoManager.getInstance().getSession(getContext());
-//                            if (s != null) {
-//                                s.getBlockRecordDao().deleteAll();
-//                                s.getBootCompletePackageDao().deleteAll();
-//                                s.getAutoStartPackageDao().deleteAll();
-//                                s.getRFKillPackageDao().deleteAll();
-//                                s.getLockKillPackageDao().deleteAll();
-//                            }
-//                            Toast.makeText(getContext(), "清理完成请重启", Toast.LENGTH_LONG).show();
-//                        }
-//                    })
-//                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            AppSettings.setFirstSee(getApplicationContext(), "blacklistchange");
-//                        }
-//                    })
-//                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            finish();
-//                        }
-//                    })
-//                    .show();
-//        }
 
         if (AppSettings.isFirstRun(getApplicationContext())) {
+            UserGiudeActivity.start(getActivity());
             new AlertDialog.Builder(NavigatorActivity.this)
                     .setTitle(R.string.title_app_update_log)
                     .setMessage(getString(R.string.message_first_run))
@@ -202,7 +168,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         if (item.getItemId() == R.id.action_change_column_count) {
             boolean two = AppSettings.show2ColumnsIn(getActivity(), NavigatorActivity.class.getSimpleName());
             AppSettings.setShow2ColumnsIn(getContext(), NavigatorActivity.class.getSimpleName(), !two);
-            Toast.makeText(getContext(), "Dung~~~~~~~", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Duang~~~~~~~", Toast.LENGTH_SHORT).show();
             finish();
         }
         return super.onOptionsItemSelected(item);

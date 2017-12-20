@@ -100,6 +100,11 @@
         <item name="colorButtonNormal">@color/green</item>
     </style>
 
+    <style name="ButtonBarGuide" parent="Theme.AppCompat.Light.Dialog">
+        <!-- Used by controls, e.g. CheckBox, ProgressBar, etc. -->
+        <item name="colorButtonNormal">@color/accent</item>
+    </style>
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat" />
