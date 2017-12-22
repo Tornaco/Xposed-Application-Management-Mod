@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
 import android.app.AlertDialog;
+import android.app.AndroidAppHelper;
 import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -631,8 +632,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    public boolean checkService(Intent service, String callingPackage, int callingPid, int callingUid,
+                                boolean callingFromFg) throws RemoteException {
+        return false;
+    }
+
+    @Override
     @InternalCall
     public boolean checkService(ComponentName serviceComp, int callerUid) {
+        XposedLog.verbose("checkService: " + AndroidAppHelper.currentPackageName());
         if (serviceComp == null) return true;
         String appPkg = serviceComp.getPackageName();
         CheckResult res = checkServiceDetailed(appPkg, callerUid);
@@ -802,6 +810,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
         }
         return res.res;
+    }
+
+    @Override
+    public boolean checkBroadcast(Intent intent, String callerPackage, int callingPid, int callingUid)
+            throws RemoteException {
+        return true;
     }
 
     @Override
@@ -1511,13 +1525,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         // Disabled case.
         if (!isStartBlockEnabled()) return CheckResult.BROADCAST_CHECK_DISABLED;
 
-        String receiverPkgName = PkgUtil.pkgForUid(getContext(), receiverUid);
-        if (TextUtils.isEmpty(receiverPkgName)) return CheckResult.BAD_ARGS;
-
         // Broadcast from/to same app is allowed.
         if (callerUid == receiverUid) {
             return CheckResult.SAME_CALLER;
         }
+
+        // FIXME Too slow.
+        String receiverPkgName = PkgUtil.pkgForUid(getContext(), receiverUid);
+        if (TextUtils.isEmpty(receiverPkgName)) return CheckResult.BAD_ARGS;
 
         return checkBroadcastDetailed(receiverPkgName);
     }

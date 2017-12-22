@@ -11,11 +11,18 @@ import android.os.RemoteException;
 
 public interface IIntentFirewallBridge extends IModuleBridge {
     // API For Firewall.
+    @Deprecated
     boolean checkService(ComponentName service, int callerUid) throws RemoteException;
+
+    boolean checkService(Intent service, String callingPackage, int callingPid, int callingUid, boolean callingFromFg)
+            throws RemoteException;
 
     boolean checkRestartService(String packageName, ComponentName componentName) throws RemoteException;
 
     boolean checkBroadcast(String action, int receiverUid, int callerUid) throws RemoteException;
+
+    // FIXME  We are not ready to use this one.
+    boolean checkBroadcast(Intent intent, String callerPackage, int callingPid, int callingUid) throws RemoteException;
 
     void onActivityDestroy(Intent intent, String reason);
 
