@@ -283,12 +283,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     mPackagesCache.put(pkg, uid);
                     PkgUtil.cachePkgUid(pkg, uid);
 
-                    if (isIME(pkg)) {
-                        addToWhiteList(pkg);
-                    }
-                    if (PkgUtil.isHomeApp(getContext(), pkg)) {
-                        addToWhiteList(pkg);
-                    }
+//                    if (isIME(pkg)) {
+//                        addToWhiteList(pkg);
+//                    }
+//                    if (PkgUtil.isHomeApp(getContext(), pkg)) {
+//                        addToWhiteList(pkg);
+//                    }
                     if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
                         addToWhiteList(pkg);
                     }
@@ -359,11 +359,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             if (isSystemApp) {
 
                                 // Check if persist.
-                                boolean isPersist = (applicationInfo.flags & ApplicationInfo.FLAG_PERSISTENT) != 0;
-                                if (isPersist) {
-                                    addToWhiteList(pkg);
-                                    return;
-                                }
+//                                boolean isPersist = (applicationInfo.flags & ApplicationInfo.FLAG_PERSISTENT) != 0;
+//                                if (isPersist) {
+//                                    addToWhiteList(pkg);
+//                                    return;
+//                                }
 
                                 android.content.pm.PackageInfo packageInfo = null;
                                 // Check if android system uid or media, phone.
@@ -390,17 +390,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 addToSystemApps(pkg);
                             }
 
-                            if (PkgUtil.isHomeApp(getContext(), pkg)) {
-                                addToWhiteList(pkg);
-                            }
+//                            if (PkgUtil.isHomeApp(getContext(), pkg)) {
+//                                addToWhiteList(pkg);
+//                            }
 
                             if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
                                 addToWhiteList(pkg);
                             }
 
-                            if (isIME(pkg)) {
-                                addToWhiteList(pkg);
-                            }
+//                            if (isIME(pkg)) {
+//                                addToWhiteList(pkg);
+//                            }
                         }
                     });
         } catch (Exception ignored) {
@@ -408,6 +408,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
+    @Deprecated
     private void whiteIMEPackages() {
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(INPUT_METHOD_SERVICE);
         List<InputMethodInfo> methodInfos = imm != null ? imm.getInputMethodList() : null;
@@ -2351,8 +2352,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         XposedLog.wtf("retrieveSettings@" + getClass().getSimpleName());
         loadConfigFromSettings();
         cachePackages();
-        whiteIMEPackages();
-        // SystemSettings.moveToNewSettings(getContext());
     }
 
     private void construct() {
@@ -3047,7 +3046,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             continue;
                         }
                         if (PkgUtil.isHomeApp(getContext(), runningPackageName)) {
-                            addToWhiteList(runningPackageName);
                             if (listener != null) try {
                                 listener.onIgnoredPkg(runningPackageName, "home-app");
                             } catch (RemoteException ignored) {

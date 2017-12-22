@@ -193,7 +193,7 @@
     <!-- The list item secondary text style/color -->
     <style name="ListItemSecondaryTextHighlight">
         <item name="android:textColor">@color/amber_dark</item>
-        <item name="android:textSize">@dimen/list_item_secondary_text_size</item>
+        <item name="android:textSize">@dimen/list_item_third_text_size</item>
         <item name="android:textStyle">bold</item>
         <item name="android:ellipsize">end</item>
     </style>
