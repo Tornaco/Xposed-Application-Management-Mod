@@ -104,6 +104,8 @@ import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_R
 
 public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
+    private static final String TAG_LK = "LOCK-KILL-";
+
     private static final boolean DEBUG_BROADCAST = BuildConfig.DEBUG;
     private static final boolean DEBUG_SERVICE = BuildConfig.DEBUG;
     private static final boolean DEBUG_OP = false && BuildConfig.DEBUG;
@@ -836,10 +838,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @InternalCall
     public boolean checkComponentSetting(ComponentName componentName, int newState,
                                          int flags, int callingUid) {
-        if (XposedLog.isVerboseLoggable())
+        if (DEBUG_COMP && XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("checkComponentSetting: " + componentName
                     + ", calling uid: " + callingUid
                     + ", state: " + newState);
+        }
 
         if (componentName == null) return true;
 
@@ -860,44 +863,53 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (newState != PackageManager.COMPONENT_ENABLED_STATE_ENABLED
                 && newState != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT) {
-            if (XposedLog.isVerboseLoggable())
+            if (DEBUG_COMP && XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("It is not enable state, allow component setting.");
+            }
             return true;
         }
 
         if (isInWhiteList(pkgName)) {
-            if (XposedLog.isVerboseLoggable())
+            if (DEBUG_COMP && XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("It is from while list, allow component setting.");
+            }
             return true;
         }
 
         if (isWhiteSysAppEnabled() && isInSystemAppList(pkgName)) {
-            if (XposedLog.isVerboseLoggable())
+            if (DEBUG_COMP && XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("It is from system app list, allow component setting.");
+            }
             return true;
         }
 
         if (callingUid == sClientUID || callingUid <= 1000
                 || callingUid == android.os.Process.myUid()) {
             // Do not block system settings.
-            if (XposedLog.isVerboseLoggable())
+            if (DEBUG_COMP && XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("It is us or the system, allow component setting.");
+            }
             return true;
         }
 
         if (!isCompSettingBlockEnabledEnabled()) {
-            if (XposedLog.isVerboseLoggable())
+            if (DEBUG_COMP && XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("Block is not enabled, allow component setting.");
+            }
             return true;
         }
 
         if (mRepoProxy.getComps().has(componentName.flattenToString())) {
-            if (XposedLog.isVerboseLoggable()) XposedLog.verbose("Block component setting.");
+            if (DEBUG_COMP && XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose("Block component setting.");
+            }
             return false;
         }
 
         // It is not disabled by us, allow.
-        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("It is not disabled by us, allow.");
+        if (DEBUG_COMP && XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("It is not disabled by us, allow.");
+        }
         return true;
     }
 
@@ -3065,15 +3077,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             }
 
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("clearProcess!!! doNotCleatWhenInter: " + doNotCleatWhenInter);
+            if (XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose(TAG_LK + "clearProcess!!! doNotCleatWhenInter: " + doNotCleatWhenInter);
+            }
 
             if (listener != null) try {
                 listener.onPrepareClearing();
             } catch (RemoteException ignored) {
 
             }
-            final boolean finalDoNotCleatWhenInter = doNotCleatWhenInter;
+
+            final boolean finalDoNotClearWhenInter = doNotCleatWhenInter;
+
             FutureTask<String[]> futureTask = new FutureTask<>(new SignalCallable<String[]>() {
 
                 @Override
@@ -3082,9 +3097,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     PowerManager power = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
                     ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
                     if (am == null) return null;
-                    List<ActivityManager.RunningAppProcessInfo> processes =
-                            am.getRunningAppProcesses();
-                    int count = processes == null ? 0 : processes.size();
+
+                    Set<String> runningPackages = PkgUtil.getRunningProcessPackages(getContext());
+                    if (BuildConfig.DEBUG) {
+                        XposedLog.verbose(TAG_LK + "Running packages: " + runningPackages.toString());
+                    }
+
+                    String[] packagesToClear = getLKApps(true);
+                    int count = packagesToClear.length;
 
                     if (listener != null) try {
                         listener.onStartClearing(count);
@@ -3095,31 +3115,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     String[] cleared = new String[count];
 
                     for (int i = 0; i < count; i++) {
-
                         // Check if canceled.
-                        if (power != null && (finalDoNotCleatWhenInter && power.isInteractive())) {
-                            XposedLog.wtf("isInteractive, skip clearing");
+                        if (power != null && (finalDoNotClearWhenInter && power.isInteractive())) {
+                            XposedLog.wtf(TAG_LK + "isInteractive, skip clearing");
                             return cleared;
                         }
 
-                        ActivityManager.RunningAppProcessInfo runningAppProcessInfo = processes.get(i);
-                        // FIXME Too slow.
-                        String runningPackageName = PkgUtil.pkgForUid(getContext(), runningAppProcessInfo.uid);
-                        if (runningPackageName == null) {
-                            if (listener != null) try {
-                                listener.onIgnoredPkg(null, "null");
-                            } catch (RemoteException ignored) {
+                        String runningPackageName = packagesToClear[i];
 
-                            }
-                            continue;
-                        }
-
-                        if (!isPackageLKByUser(runningPackageName)) {
+                        if (!runningPackages.contains(runningPackageName)) {
                             if (XposedLog.isVerboseLoggable()) {
-                                XposedLog.verbose("Won't kill app that not in user list: " + runningPackageName);
+                                XposedLog.verbose(TAG_LK + "Won't kill app which not running: " + runningPackageName);
                             }
                             if (listener != null) try {
-                                listener.onIgnoredPkg(null, "User let it go");
+                                listener.onIgnoredPkg(null, "Not running");
                             } catch (RemoteException ignored) {
 
                             }
@@ -3129,7 +3138,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         if (isLockKillDoNotKillAudioEnabled()
                                 && runningPackageName.equals(mAudioFocusedPackage.getData())) {
                             if (XposedLog.isVerboseLoggable()) {
-                                XposedLog.verbose("Won't kill app with audio focus: " + runningPackageName);
+                                XposedLog.verbose(TAG_LK + "Won't kill app with audio focus: " + runningPackageName);
                             }
                             if (listener != null) try {
                                 listener.onIgnoredPkg(null, "Audio focused");
@@ -3139,18 +3148,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             continue;
                         }
 
-                        // Check if we can control.
-                        boolean whiteApp = isInWhiteList(runningPackageName)
-                                || (isWhiteSysAppEnabled() && isInSystemAppList(runningPackageName));
-                        if (whiteApp) {
-                            if (listener != null) try {
-                                listener.onIgnoredPkg(runningPackageName, "white-list");
-                            } catch (RemoteException ignored) {
-
-                            }
-                            //if (XposedLog.isVerboseLoggable()) XposedLog.verbose("App is in white-listed, wont kill: " + runningPackageName);
-                            continue;
-                        }
                         if (PkgUtil.isAppRunningForeground(getContext(), runningPackageName)) {
 
                             if (listener != null) try {
@@ -3160,30 +3157,23 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             }
 
                             if (XposedLog.isVerboseLoggable())
-                                XposedLog.verbose("App is in foreground, wont kill: " + runningPackageName);
+                                XposedLog.verbose(TAG_LK + "App is in foreground, wont kill: " + runningPackageName);
                             continue;
                         }
-                        if (PkgUtil.isHomeApp(getContext(), runningPackageName)) {
-                            if (listener != null) try {
-                                listener.onIgnoredPkg(runningPackageName, "home-app");
-                            } catch (RemoteException ignored) {
 
-                            }
-
-                            if (XposedLog.isVerboseLoggable())
-                                XposedLog.verbose("App is in isHomeApp, wont kill: " + runningPackageName);
-                            continue;
-                        }
                         if (PkgUtil.isDefaultSmsApp(getContext(), runningPackageName)) {
+
                             addToWhiteList(runningPackageName);
+
                             if (listener != null) try {
                                 listener.onIgnoredPkg(runningPackageName, "sms-app");
                             } catch (RemoteException ignored) {
 
                             }
 
-                            if (XposedLog.isVerboseLoggable())
-                                XposedLog.verbose("App is in isDefaultSmsApp, wont kill: " + runningPackageName);
+                            if (XposedLog.isVerboseLoggable()) {
+                                XposedLog.verbose(TAG_LK + "App is in isDefaultSmsApp, wont kill: " + runningPackageName);
+                            }
                             continue;
                         }
 
@@ -3194,15 +3184,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         }
 
                         // Clearing using kill command.
-                        if (power != null && (finalDoNotCleatWhenInter && power.isInteractive())) {
-                            XposedLog.wtf("isInteractive, skip clearing");
+                        if (power != null && (finalDoNotClearWhenInter && power.isInteractive())) {
+                            XposedLog.wtf(TAG_LK + "isInteractive, skip clearing");
                             return cleared;
                         }
-                        PkgUtil.kill(getContext(), runningAppProcessInfo);
+
+                        PkgUtil.kill(getContext(), runningPackageName);
 
                         cleared[i] = runningPackageName;
-                        if (XposedLog.isVerboseLoggable())
-                            XposedLog.verbose("Force stopped: " + runningPackageName);
+
+                        XposedLog.verbose(TAG_LK + "Force stopped: " + runningPackageName);
 
                         if (listener != null) try {
                             listener.onClearedPkg(runningPackageName);
@@ -3220,6 +3211,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     return cleared;
                 }
             });
+
             mWorkingService.execute(futureTask);
         }
 

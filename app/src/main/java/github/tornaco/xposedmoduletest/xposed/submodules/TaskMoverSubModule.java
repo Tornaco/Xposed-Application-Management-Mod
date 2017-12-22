@@ -51,7 +51,9 @@ class TaskMoverSubModule extends AppGuardAndroidSubModule {
                         XposedLog.wtf("findTaskToMoveToFrontLocked:" + pkgName);
 
                         // Package has been passed.
-                        if (!getAppGuardBridge().onEarlyVerifyConfirm(pkgName)) return;
+                        if (!getAppGuardBridge().onEarlyVerifyConfirm(pkgName, "findTaskToMoveToFrontLocked")) {
+                            return;
+                        }
 
                         getAppGuardBridge().verify(null, pkgName, 0, 0,
                                 new VerifyListener() {

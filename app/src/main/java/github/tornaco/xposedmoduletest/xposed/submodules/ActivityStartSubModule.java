@@ -134,7 +134,7 @@ class ActivityStartSubModule extends AppGuardAndroidSubModule {
                         }
 
                         // Package has been passed.
-                        if (!getAppGuardBridge().onEarlyVerifyConfirm(pkgName)) {
+                        if (!getAppGuardBridge().onEarlyVerifyConfirm(pkgName, "startActivityMayWait")) {
                             return;
                         }
 

@@ -648,7 +648,16 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     @Override
-    public boolean onEarlyVerifyConfirm(String pkg) {
+    public boolean onEarlyVerifyConfirm(String pkg, String res) {
+        if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("onEarlyVerifyConfirm: " + res + " calling by: " + Binder.getCallingUid());
+            Collections.consumeRemaining(mVerifiedPackages, new Consumer<String>() {
+                @Override
+                public void accept(String s) {
+                    XposedLog.verbose("@@@@ " + s);
+                }
+            });
+        }
         if (pkg == null) {
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("onEarlyVerifyConfirm, false@pkg-null");
@@ -1299,6 +1308,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 XposedLog.debug("Can not find transaction for:" + transactionID);
                 return;
             }
+
+            if (XposedLog.isVerboseLoggable()) XposedLog.verbose("setResult: " + res);
+
             if (res == XAppVerifyMode.MODE_ALLOWED) {
                 mVerifiedPackages.add(transaction.pkg);
             }
@@ -1329,7 +1341,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             try {
                 getContext().startActivity(intent, bnds);
             } catch (ActivityNotFoundException anf) {
-                XposedLog.debug("*** FATAL ERROR *** ActivityNotFoundException!!!");
+                XposedLog.wtf("*** FATAL ERROR *** ActivityNotFoundException!!!");
                 setResult(tid, XAppVerifyMode.MODE_ALLOWED);
             }
         }
@@ -1386,7 +1398,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             if (pkg == null) {
                 return;
             }
-            if (!onEarlyVerifyConfirm(pkg)) {
+            if (!onEarlyVerifyConfirm(pkg, "onUserPresent")) {
                 return;
             }
             verifyInternal(null, pkg, 0, 0, true, VerifyListenerAdapter.getDefault());

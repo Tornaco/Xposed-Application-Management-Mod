@@ -297,7 +297,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             rest.addTile(new AppStart(getActivity()));
             rest.addTile(new LockKill(getActivity()));
             rest.addTile(new RFKill(getActivity()));
-            rest.addTile(new RunningServices(getActivity()));
+            if (BuildConfig.DEBUG) rest.addTile(new RunningServices(getActivity()));
 
             Category ash = new Category();
             ash.titleRes = R.string.title_control;

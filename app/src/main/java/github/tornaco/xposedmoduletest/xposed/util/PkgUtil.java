@@ -19,7 +19,10 @@ import android.provider.Telephony;
 import android.util.SparseArray;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by guohao4 on 2017/11/9.
@@ -227,6 +230,21 @@ public class PkgUtil {
         String def = Telephony.Sms.getDefaultSmsPackage(context);
         return def != null && def.equals(packageName);
     }
+
+    public static Set<String> getRunningProcessPackages(Context context) {
+        @SuppressWarnings("ConstantConditions") List<ActivityManager.RunningAppProcessInfo> processes =
+                ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE))
+                        .getRunningAppProcesses();
+        HashSet<String> h = new HashSet<>();
+        if (processes == null || processes.size() == 0) return h;
+        for (ActivityManager.RunningAppProcessInfo info : processes) {
+            if (info.pkgList != null) {
+                Collections.addAll(h, info.pkgList);
+            }
+        }
+        return h;
+    }
+
 
     @SuppressWarnings("ConstantConditions")
     public static boolean isAppRunning(Context context, String pkg) {

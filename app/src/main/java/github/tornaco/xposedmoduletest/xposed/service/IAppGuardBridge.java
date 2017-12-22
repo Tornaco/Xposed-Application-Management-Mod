@@ -15,7 +15,7 @@ public interface IAppGuardBridge extends IModuleBridge {
     // API for AppGuard.
     boolean interruptPackageRemoval(String pkg);
 
-    boolean onEarlyVerifyConfirm(String pkg);
+    boolean onEarlyVerifyConfirm(String pkg, String reason);
 
     void verify(Bundle options, String pkg, int uid, int pid, VerifyListener listener);
 
