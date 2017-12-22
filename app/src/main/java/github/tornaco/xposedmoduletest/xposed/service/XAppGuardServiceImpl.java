@@ -510,6 +510,14 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         ComponentName fromComp = from.getComponent();
         if (fromComp == null) return from;
 
+        // Check if this component is disabled.
+        int compState = getPackageManager().getComponentEnabledSetting(fromComp);
+        if (compState == PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+                || compState == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER) {
+            XposedLog.wtf("ComponentName is disabled, do not launch:" + fromComp);
+            return null;
+        }
+
         if (!mComponentReplacementsMap.containsKey(fromComp)) {
             return from;
         }
@@ -591,7 +599,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         }
     }
 
-    public PackageManager getPackageManager() {
+    private PackageManager getPackageManager() {
         if (mPackageManager == null) mPackageManager = getContext().getPackageManager();
         return mPackageManager;
     }

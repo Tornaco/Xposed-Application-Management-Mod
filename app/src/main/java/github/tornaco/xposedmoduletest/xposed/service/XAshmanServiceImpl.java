@@ -2240,7 +2240,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void onApplicationUncaughtException(String packageName, String thread, String exception, String trace)
+    public boolean onApplicationUncaughtException(String packageName, String thread, String exception, String trace)
             throws RemoteException {
         h.removeMessages(AshManHandlerMessages.MSG_ONAPPLICATIONUNCAUGHTEXCEPTION);
         h.obtainMessage(AshManHandlerMessages.MSG_ONAPPLICATIONUNCAUGHTEXCEPTION,
@@ -2251,6 +2251,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         .trace(trace)
                         .build())
                 .sendToTarget();
+        return false;
     }
 
     @Override

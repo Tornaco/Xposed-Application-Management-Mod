@@ -142,7 +142,7 @@ interface IAshmanService {
 
     long[] getProcessPss(in int[] pids);
 
-    void onApplicationUncaughtException(String packageName, String thread, String exception, String trace);
+    boolean onApplicationUncaughtException(String packageName, String thread, String exception, String trace);
     boolean isAppCrashDumpEnabled();
     void setAppCrashDumpEnabled(boolean enabled);
 }

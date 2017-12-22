@@ -838,12 +838,12 @@ public class XAshmanManager {
         }
     }
 
-    public void onApplicationUncaughtException(String packageName, String thread, String exception, String trace) {
+    public boolean onApplicationUncaughtException(String packageName, String thread, String exception, String trace) {
         ensureService();
         try {
-            mService.onApplicationUncaughtException(packageName, thread, exception, trace);
+            return mService.onApplicationUncaughtException(packageName, thread, exception, trace);
         } catch (RemoteException ignored) {
-
+            return false;
         }
     }
 

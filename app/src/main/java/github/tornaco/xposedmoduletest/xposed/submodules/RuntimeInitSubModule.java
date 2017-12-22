@@ -47,7 +47,12 @@ class RuntimeInitSubModule extends IntentFirewallAndroidSubModule {
                             // Now report to ash man.
                             XAshmanManager xAshmanManager = XAshmanManager.get();
                             if (xAshmanManager.isServiceAvailable()) {
-                                xAshmanManager.onApplicationUncaughtException(currentPackage, t.getName(), e.toString(), trace);
+                                boolean shouldInterruptCrash =
+                                        xAshmanManager.onApplicationUncaughtException(currentPackage,
+                                                t.getName(), e.getClass().getName(), trace);
+                                if (shouldInterruptCrash) {
+                                    param.setResult(null);
+                                }
                             }
                         }
                     });
