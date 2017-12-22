@@ -741,7 +741,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.DENIED_GREEN_APP;
         }
 
-        int serviceUid = mPackagesCache.get(servicePkgName);
+        Integer serviceUidInt = mPackagesCache.get(servicePkgName);
+        int serviceUid = serviceUidInt == null ? -1 : serviceUidInt;
         // Service from/to same app is allowed.
         if (serviceUid == callerUid) {
             return CheckResult.SAME_CALLER;
