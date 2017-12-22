@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
 import android.app.AlertDialog;
-import android.app.AndroidAppHelper;
 import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -640,7 +639,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @InternalCall
     public boolean checkService(ComponentName serviceComp, int callerUid) {
-        XposedLog.verbose("checkService: " + AndroidAppHelper.currentPackageName());
         if (serviceComp == null) return true;
         String appPkg = serviceComp.getPackageName();
         CheckResult res = checkServiceDetailed(appPkg, callerUid);
