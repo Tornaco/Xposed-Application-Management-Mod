@@ -7,6 +7,8 @@ import android.app.ActivityManagerNative;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.content.BroadcastReceiver;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -102,8 +104,8 @@ import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_R
 
 public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
-    private static final boolean DEBUG_BROADCAST = false && BuildConfig.DEBUG;
-    private static final boolean DEBUG_SERVICE = false && BuildConfig.DEBUG;
+    private static final boolean DEBUG_BROADCAST = BuildConfig.DEBUG;
+    private static final boolean DEBUG_SERVICE = BuildConfig.DEBUG;
     private static final boolean DEBUG_OP = false && BuildConfig.DEBUG;
     private static final boolean DEBUG_COMP = false && BuildConfig.DEBUG;
 
@@ -139,6 +141,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final AtomicBoolean mPermissionControlEnabled = new AtomicBoolean(true);
 
     private final AtomicBoolean mDataHasBeenMigrated = new AtomicBoolean(false);
+    private final AtomicBoolean mShowAppCrashDumpEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mAutoAddToBlackListForNewApp = new AtomicBoolean(false);
     private final AtomicBoolean mShowFocusedActivityInfoEnabled = new AtomicBoolean(false);
@@ -207,6 +210,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         long id = Binder.clearCallingIdentity();
         try {
+            // Disable app guard.
+            SystemSettings.APP_GUARD_ENABLED_B.writeToSystemSettings(getContext(), false);
+
             AlertDialog d = new AlertDialog.Builder(getContext())
                     .setTitle("应用管理")
                     .setMessage("应用管理已经被卸载，是否要清除 自启动/关联启动/锁屏清理/后台限制 的名单等设置数据？" +
@@ -569,6 +575,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             mDataHasBeenMigrated.set(migrated);
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("migrated: " + String.valueOf(migrated));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            boolean dumpCrash = (boolean) SystemSettings.SHOW_CRASH_DUMP_B.readFromSystemSettings(getContext());
+            mShowAppCrashDumpEnabled.set(dumpCrash);
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("dumpCrash: " + String.valueOf(dumpCrash));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -2218,6 +2233,37 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return new long[0];
     }
 
+    @Builder
+    @Getter
+    private static class UncaughtException {
+        String packageName, thread, exception, trace;
+    }
+
+    @Override
+    public void onApplicationUncaughtException(String packageName, String thread, String exception, String trace)
+            throws RemoteException {
+        h.removeMessages(AshManHandlerMessages.MSG_ONAPPLICATIONUNCAUGHTEXCEPTION);
+        h.obtainMessage(AshManHandlerMessages.MSG_ONAPPLICATIONUNCAUGHTEXCEPTION,
+                UncaughtException.builder()
+                        .exception(exception)
+                        .packageName(packageName)
+                        .thread(thread)
+                        .trace(trace)
+                        .build())
+                .sendToTarget();
+    }
+
+    @Override
+    public boolean isAppCrashDumpEnabled() throws RemoteException {
+        return mShowAppCrashDumpEnabled.get();
+    }
+
+    @Override
+    public void setAppCrashDumpEnabled(boolean enabled) throws RemoteException {
+        enforceCallingPermissions();
+        h.obtainMessage(AshManHandlerMessages.MSG_SETAPPCRASHDUMPENABLED, enabled).sendToTarget();
+    }
+
     @Override
     public int checkPermission(String perm, int pid, int uid) {
         return PackageManager.PERMISSION_GRANTED;
@@ -2807,7 +2853,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     HandlerImpl.this.setGreeningEnabled((Boolean) msg.obj);
                     break;
                 case AshManHandlerMessages.MSG_RESTOREDEFAULTSETTINGS:
-                    restoreDefaultSettings();
+                    HandlerImpl.this.restoreDefaultSettings();
+                    break;
+                case AshManHandlerMessages.MSG_ONAPPLICATIONUNCAUGHTEXCEPTION:
+                    UncaughtException ue = (UncaughtException) msg.obj;
+                    HandlerImpl.this.onApplicationUncaughtException(ue.packageName, ue.thread, ue.exception, ue.trace);
+                    break;
+                case AshManHandlerMessages.MSG_SETAPPCRASHDUMPENABLED:
+                    HandlerImpl.this.setAppCrashDumpEnabled((Boolean) msg.obj);
                     break;
             }
         }
@@ -2915,6 +2968,70 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             SystemSettings.restoreDefault(getContext());
             RepoProxy.getProxy().deleteAll();
             loadConfigFromSettings();
+        }
+
+        // Only show one dialog at one time.
+        private boolean mCrashDialogShowing;
+
+        @SuppressWarnings("ConstantConditions")
+        @Override
+        public void onApplicationUncaughtException(String packageName, String thread, String exception, final String trace) {
+            if (mCrashDialogShowing) return;
+
+            if (!mShowAppCrashDumpEnabled.get()) {
+                mCrashDialogShowing = false;
+                return;
+            }
+
+            try {
+                AlertDialog d = new AlertDialog.Builder(getContext())
+                        .setTitle("调试模式")
+                        .setMessage(String.format(
+                                "应用管理检测到 %s 发生了异常，已经为你取得了错误信息与堆栈，截图反馈给开发者或许可以帮助解决该问题。\n\n" +
+                                        "错误线程：%s\n" +
+                                        "堆栈：%s\n\n" +
+                                        "你也可以在Xposed日志中查看该错误信息。",
+                                PkgUtil.loadNameByPkgName(getContext(), packageName),
+                                thread,
+                                trace
+                        ))
+                        .setCancelable(false)
+                        .setPositiveButton(android.R.string.copy,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        try {
+                                            ClipboardManager cmb = (ClipboardManager) getContext()
+                                                    .getSystemService(Context.CLIPBOARD_SERVICE);
+                                            if (cmb != null) {
+                                                cmb.setPrimaryClip(ClipData.newPlainText("service_config", trace));
+                                            }
+                                        } catch (Throwable ignored) {
+                                        }
+                                    }
+                                })
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+                                mCrashDialogShowing = false;
+                            }
+                        })
+                        .create();
+                d.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG);
+                d.show();
+                mCrashDialogShowing = true;
+
+            } catch (Exception e) {
+                XposedLog.wtf("Fail show system dialog: " + Log.getStackTraceString(e));
+            }
+        }
+
+        @Override
+        public void setAppCrashDumpEnabled(boolean enabled) {
+            if (mShowAppCrashDumpEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.SHOW_CRASH_DUMP_B.writeToSystemSettings(getContext(), enabled);
+            }
         }
 
         @Override

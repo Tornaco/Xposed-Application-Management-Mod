@@ -135,6 +135,10 @@ interface AshManHandler {
 
     void restoreDefaultSettings();
 
+    void onApplicationUncaughtException(String packageName, String thread, String exception, String trace);
+
+    void setAppCrashDumpEnabled(boolean enabled);
+
     @Getter
     class WatcherClient implements IBinder.DeathRecipient {
 

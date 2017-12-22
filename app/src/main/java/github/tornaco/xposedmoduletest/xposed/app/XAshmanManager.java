@@ -830,10 +830,36 @@ public class XAshmanManager {
     }
 
     public long[] getProcessPss(int[] pids) {
+        ensureService();
         try {
             return mService.getProcessPss(pids);
         } catch (RemoteException e) {
             return new long[0];
+        }
+    }
+
+    public void onApplicationUncaughtException(String packageName, String thread, String exception, String trace) {
+        ensureService();
+        try {
+            mService.onApplicationUncaughtException(packageName, thread, exception, trace);
+        } catch (RemoteException ignored) {
+
+        }
+    }
+
+    public boolean isAppCrashDumpEnabled() {
+        try {
+            return mService.isAppCrashDumpEnabled();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public void setAppCrashDumpEnabled(boolean enabled) {
+        try {
+            mService.setAppCrashDumpEnabled(enabled);
+        } catch (RemoteException ignored) {
+
         }
     }
 }

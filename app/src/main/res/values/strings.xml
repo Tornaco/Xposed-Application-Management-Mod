@@ -12,9 +12,9 @@
     <string name="title_dev_mode">调试模式</string>
     <string name="title_exp">实验</string>
     <string name="title_advance">高级</string>
-    <string name="summary_dev_mode">激活日志输出，启用某些实验性能，耗电会增加，非开发者无需启用此项设置</string>
-    <string name="summary_take_photo">当密码输入错误时，尝试保存一张前置摄像头的照片，注意，能否保存成功一定程度上取决于你设备的相机预览开启速度以及输入者手速</string>
-    <string name="summary_manage_overlay">我们将使用系统对话框的形式展示解锁界面，因此你必须在系统设置内打开叠加层才能使用最基本的功能</string>
+    <string name="summary_dev_mode">激活日志输出，启用某些实验性能，耗电会增加，非开发者无需启用此项设置。</string>
+    <string name="summary_take_photo">当密码输入错误时，尝试保存一张前置摄像头的照片，注意，能否保存成功一定程度上取决于你设备的相机预览开启速度以及输入者手速。</string>
+    <string name="summary_manage_overlay">我们将使用系统对话框的形式展示解锁界面，因此你必须在系统设置内打开叠加层才能使用最基本的功能。</string>
     <string name="title_basic">基本</string>
     <string name="title_fullscreen_noter">使用全屏密码</string>
     <string name="title_not_available">不可用</string>
@@ -325,7 +325,7 @@
     <string name="action_tools">工具箱</string>
     <string name="title_dev_tools">开发者工具</string>
     <string name="title_show_focused_activity">显示当前活动</string>
-    <string name="summary_show_focused_activity">以Toast的形式显示当前的Activity</string>
+    <string name="summary_show_focused_activity">以Toast的形式显示当前的Activity。</string>
     <string name="title_privacy">隐匿</string>
     <string name="title_doo">幸福</string>
     <string name="title_privacy_android_id">安卓序列号</string>
@@ -359,5 +359,9 @@
     <string name="message_user_giude1">这是一份不得不写的声明，请仔细阅读后再继续。\n\n1. 关于应用管理数据，为了实现开机自启动限制，我们必须把某些数据存放到系统某个目录下，我们提供了删除数据的功能，如果你介意请退出！\n\n2. 关于内存占用，应用管理本身无需后台运行，你随时可以杀死。前台运行占用部分运行内存，如果你介意请退出！\n\n3. 关于稳定性，ROM众多，可能你的设备并不兼容，会导致一些使用上的问题，如果你介意，请退出！\n\n4. 关于bug，非常感谢所有朋友的bug反馈，本人会利用闲暇时间进行维护。\n\n本程序提供的高级功能，例如组件编辑，绿化等，使用不当可能会导致应用闪退等，请使用前仔细看好说明。\n\n最后感谢支持与理解！！！</string>
     <string name="user_notice_no">我不接收上述情况</string>
     <string name="user_notice_yes">我愿意尝试</string>
+    <string name="title_crash_dump">错误报告</string>
+    <string name="summary_crash_dump">当某个应用发生异常闪退时，显示一个详细的错误堆栈并转储到Xposed日志，通常可以反馈给该应用开发者以帮助解决该问题。</string>
+    <string name="title_crash_moke">模拟崩溃</string>
+    <string name="summary_crash_moke">点击后，应用管理会进行闪退</string>
 
 </resources>

@@ -10,6 +10,8 @@ import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppDevMode;
+import github.tornaco.xposedmoduletest.ui.tiles.app.CrashDump;
+import github.tornaco.xposedmoduletest.ui.tiles.app.MokeCrash;
 import github.tornaco.xposedmoduletest.ui.tiles.app.ShowFocusedActivity;
 
 /**
@@ -37,7 +39,15 @@ public class ToolsDashboardActivity extends WithWithCustomTabActivity {
             settings.addTile(new AppDevMode(getActivity()));
             settings.addTile(new ShowFocusedActivity(getActivity()));
 
+            Category hook = new Category();
+            hook.addTile(new CrashDump(getActivity()));
+
+            Category hook2 = new Category();
+            hook2.addTile(new MokeCrash(getActivity()));
+
             categories.add(settings);
+            categories.add(hook);
+            categories.add(hook2);
         }
     }
 
