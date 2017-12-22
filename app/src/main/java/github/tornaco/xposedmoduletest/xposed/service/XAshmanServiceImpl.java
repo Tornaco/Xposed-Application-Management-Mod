@@ -102,8 +102,10 @@ import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_R
 
 public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
-    private static final boolean DEBUG_BROADCAST = BuildConfig.DEBUG;
-    private static final boolean DEBUG_SERVICE = BuildConfig.DEBUG;
+    private static final boolean DEBUG_BROADCAST = false && BuildConfig.DEBUG;
+    private static final boolean DEBUG_SERVICE = false && BuildConfig.DEBUG;
+    private static final boolean DEBUG_OP = false && BuildConfig.DEBUG;
+    private static final boolean DEBUG_COMP = false && BuildConfig.DEBUG;
 
     private static final Set<String> WHITE_LIST = new HashSet<>();
     private static final Set<Pattern> WHITE_LIST_PATTERNS = new HashSet<>();
@@ -120,7 +122,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final ExecutorService mLoggingService = Executors.newSingleThreadExecutor();
 
     @SuppressLint("UseSparseArrays")
-    private final Map<Integer, String> mPackagesCache = new HashMap<>();
+    private final Map<String, Integer> mPackagesCache = new HashMap<>();
+
+    private final static AtomicInteger DUP_UID_HOOK_ID = new AtomicInteger(0);
 
     private final Map<String, BlockRecord2> mBlockRecords = new HashMap<>();
 
@@ -273,9 +277,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     String pkg = applicationInfo.packageName;
                     if (TextUtils.isEmpty(pkg)) return;
 
-                    if (XposedLog.isVerboseLoggable())
+                    if (XposedLog.isVerboseLoggable()) {
                         XposedLog.verbose("Cached pkg:" + pkg + "-" + uid);
-                    mPackagesCache.put(uid, pkg);
+                    }
+                    mPackagesCache.put(pkg, uid);
 
                     if (isIME(pkg)) {
                         addToWhiteList(pkg);
@@ -326,10 +331,26 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         public void accept(ApplicationInfo applicationInfo) {
                             String pkg = applicationInfo.packageName;
                             int uid = applicationInfo.uid;
-                            if (TextUtils.isEmpty(pkg)) return;
+                            if (TextUtils.isEmpty(pkg)) {
+                                XposedLog.wtf("Found no pkg app:" + applicationInfo);
+                                return;
+                            }
 
                             // Add to package cache.
-                            mPackagesCache.put(uid, pkg);
+                            if (BuildConfig.DEBUG && pkg.contains("google")) {
+                                XposedLog.wtf("Add google pkg: " + pkg);
+                            }
+
+                            // Some apps may use same uid!!!
+//                            boolean hasUid = mPackagesCache.containsKey(uid);
+//                            if (hasUid) {
+//                                XposedLog.wtf("Found dup uid pkg: " + pkg);
+//                                int offset = DUP_UID_HOOK_ID.getAndIncrement();
+//                                uid = Integer.MAX_VALUE - offset;
+//                                XposedLog.wtf("Fix with fake uid pkg: " + uid);
+//                            }
+
+                            mPackagesCache.put(pkg, uid);
 
                             // Add system apps to system list.
                             boolean isSystemApp = (applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
@@ -347,9 +368,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 try {
                                     packageInfo = pm.getPackageInfo(pkg, 0);
                                     String sharedUserId = packageInfo.sharedUserId;
-                                    if ("android.uid.system".equals(sharedUserId)
-                                            || "android.uid.phone".equals(sharedUserId)
-                                            || "android.media".equals(sharedUserId)) {
+                                    if (
+                                        // Someone want for fuck the system apps anyway
+                                        // Let it go~
+                                        // "android.uid.system".equals(sharedUserId)||
+                                            "android.uid.phone".equals(sharedUserId)
+                                        //        || "android.media".equals(sharedUserId)
+                                            ) {
                                         if (XposedLog.isVerboseLoggable())
                                             XposedLog.debug("Add to white list package: "
                                                     + pkg + ", sharedUid: " + sharedUserId);
@@ -714,16 +739,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.DENIED_GREEN_APP;
         }
 
-        String callerPkgName =
-                mPackagesCache.get(callerUid);
-        if (callerPkgName == null) {
-            callerPkgName = PkgUtil.pkgForUid(getContext(), callerUid);
-        }
-
-        if (TextUtils.isEmpty(callerPkgName)) return CheckResult.BAD_ARGS;
-
+        int serviceUid = mPackagesCache.get(servicePkgName);
         // Service from/to same app is allowed.
-        if (servicePkgName.equals(callerPkgName)) {
+        if (serviceUid == callerUid) {
             return CheckResult.SAME_CALLER;
         }
 
@@ -772,7 +790,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verboseOn("XAshmanService checkBroadcast returning: "
                                 + res + " for: "
-                                + PkgUtil.loadNameByPkgName(getContext(), mPackagesCache.get(receiverUid))
+                                + PkgUtil.loadNameByPkgName(getContext(), PkgUtil.pkgForUid(getContext(), receiverUid))
                                 + " receiverUid: " + receiverUid
                                 + " callerUid: " + callerUid
                                 + " action: " + action
@@ -1018,7 +1036,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public String[] getInstalledApps(int filterOptions) throws RemoteException {
-        Collection<String> packages = mPackagesCache.values();
+        Collection<String> packages = mPackagesCache.keySet();
         if (packages.size() == 0) {
             return new String[0];
         }
@@ -1058,22 +1076,43 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getBootBlockApps: " + block);
         enforceCallingPermissions();
         if (!block) {
-            Collection<String> packages = mPackagesCache.values();
+            Collection<String> packages = mPackagesCache.keySet();
             if (packages.size() == 0) {
                 return new String[0];
             }
+
+            XposedLog.verbose("getBootBlockApps, has size: " + packages.size());
+            XposedLog.verbose("getBootBlockApps, has gms: " + packages.contains("com.google.android.gms"));
 
             final List<String> outList = Lists.newArrayList();
 
             // Remove those not in blocked list.
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
+            XposedLog.verbose("getBootBlockApps, allPackagesArr size: " + allPackagesArr.length);
+            XposedLog.verbose("getBootBlockApps, allPackagess: " + Arrays.toString(allPackagesArr));
+
             Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
                 @Override
                 public void accept(String s) {
-                    if (outList.contains(s)) return;// Kik dup package.
-                    if (isPackageBootBlockByUser(s)) return;
-                    if (isInWhiteList(s)) return;
-                    if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
+                    if (outList.contains(s)) {
+                        XposedLog.verbose("// Kik dup package: " + s);
+                        return;// Kik dup package.
+                    }
+                    if (isPackageBootBlockByUser(s)) {
+                        XposedLog.verbose("// Kik blocked package: " + s);
+                        return;
+                    }
+                    if (isInWhiteList(s)) {
+                        XposedLog.verbose("// Kik white package: " + s);
+                        return;
+                    }
+                    if (isWhiteSysAppEnabled() && isInSystemAppList(s)) {
+                        XposedLog.verbose("// Kik system package: " + s);
+                        return;
+                    }
+                    if (XposedLog.isVerboseLoggable()) {
+                        XposedLog.verbose(XposedLog.TAG_LIST + "Adding no-boot pkg: " + s);
+                    }
                     outList.add(s);
                 }
             });
@@ -1118,7 +1157,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getStartBlockApps: " + block);
         enforceCallingPermissions();
         if (!block) {
-            Collection<String> packages = mPackagesCache.values();
+            Collection<String> packages = mPackagesCache.keySet();
             if (packages.size() == 0) {
                 return new String[0];
             }
@@ -1178,7 +1217,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getLKApps: " + kill);
         enforceCallingPermissions();
         if (!kill) {
-            Collection<String> packages = mPackagesCache.values();
+            Collection<String> packages = mPackagesCache.keySet();
             if (packages.size() == 0) {
                 return new String[0];
             }
@@ -1238,7 +1277,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getRFKApps: " + kill);
         enforceCallingPermissions();
         if (!kill) {
-            Collection<String> packages = mPackagesCache.values();
+            Collection<String> packages = mPackagesCache.keySet();
             if (packages.size() == 0) {
                 return new String[0];
             }
@@ -1298,7 +1337,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getGreeningApps: " + greening);
         enforceCallingPermissions();
         if (!greening) {
-            Collection<String> packages = mPackagesCache.values();
+            Collection<String> packages = mPackagesCache.keySet();
             if (packages.size() == 0) {
                 return new String[0];
             }
@@ -1379,7 +1418,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             if (!isGreeningEnabled()) return false;
 
-            String packageName = mPackagesCache.get(uid);
+            // FIXME Too slow.
+            String packageName = PkgUtil.pkgForUid(getContext(), uid);
             if (packageName == null) return false;
             if (isInSystemAppList(packageName)) return false;
             if (isWhiteSysAppEnabled() && isInSystemAppList(packageName)) return false;
@@ -1468,11 +1508,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         // Disabled case.
         if (!isStartBlockEnabled()) return CheckResult.BROADCAST_CHECK_DISABLED;
 
-        String receiverPkgName =
-                mPackagesCache.get(receiverUid);
-        if (receiverPkgName == null) {
-            receiverPkgName = PkgUtil.pkgForUid(getContext(), receiverUid);
-        }
+        String receiverPkgName = PkgUtil.pkgForUid(getContext(), receiverUid);
         if (TextUtils.isEmpty(receiverPkgName)) return CheckResult.BAD_ARGS;
 
         // Broadcast from/to same app is allowed.
@@ -1542,11 +1578,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         // Disabled case.
         if (!isBlockBlockEnabled()) return CheckResult.BOOT_CHECK_DISABLED;
 
-        String receiverPkgName =
-                mPackagesCache.get(receiverUid);
-        if (receiverPkgName == null) {
-            receiverPkgName = PkgUtil.pkgForUid(getContext(), receiverUid);
-        }
+        // FIXME Too Slow.
+        String receiverPkgName = PkgUtil.pkgForUid(getContext(), receiverUid);
 
         if (TextUtils.isEmpty(receiverPkgName)) return CheckResult.BAD_ARGS;
 
@@ -1609,7 +1642,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             public void run() {
 
                 String receiverPkgName =
-                        mPackagesCache.get(broadcastEvent.receiver);
+                        PkgUtil.pkgForUid(getContext(), broadcastEvent.receiver);
                 if (receiverPkgName == null) {
                     receiverPkgName = PkgUtil.pkgForUid(getContext(), broadcastEvent.receiver);
                     if (receiverPkgName == null) return;
@@ -1820,12 +1853,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @InternalCall
     public void onRequestAudioFocus(int type, int res, int callingUid, String callingPkg) {
-        String pkgName = mPackagesCache.get(callingUid);
-        if (pkgName == null) return;
+        // FIXME Too slow
+        String pkgName = PkgUtil.pkgForUid(getContext(), callingUid);
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("onRequestAudioFocus: " + pkgName + " ,uid: " + callingUid
                     + ", type: " + type + ", res: " + res);
         }
+        if (pkgName == null) return;
 
         if (res == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
             return;
@@ -1847,7 +1881,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (res == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
             return;
         }
-        String pkgName = mPackagesCache.get(callingUid);
+        // FIXME Too slow
+        String pkgName = PkgUtil.pkgForUid(getContext(), callingUid);
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("onAbandonAudioFocus: " + callingPkg + "--" + callingUid);
         }
@@ -1872,7 +1907,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @BinderCall(restrict = "any")
     public int getPermissionControlBlockModeForPkg(int code, String pkg) {
-        XposedLog.verbose("getPermissionControlBlockModeForPkg code %s pkg %s", code, pkg);
+        if (DEBUG_OP) {
+            XposedLog.verbose("getPermissionControlBlockModeForPkg code %s pkg %s", code, pkg);
+        }
 
         if (isInWhiteList(pkg)) return AppOpsManagerCompat.MODE_ALLOWED;
         if (isWhiteSysAppEnabled() && isInSystemAppList(pkg))
@@ -1895,8 +1932,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @BinderCall(restrict = "any")
     public int getPermissionControlBlockModeForUid(int code, int uid) throws RemoteException {
-        XposedLog.verbose("getPermissionControlBlockModeForUid code %s pkg %s", code, uid);
-        String pkg = mPackagesCache.get(uid);
+        if (DEBUG_OP) {
+            XposedLog.verbose("getPermissionControlBlockModeForUid code %s pkg %s", code, uid);
+        }
+        // FIXME Too slow.
+        String pkg = PkgUtil.pkgForUid(getContext(), uid);
         if (pkg == null) {
             return AppOpsManagerCompat.MODE_ALLOWED;
         }
@@ -2065,7 +2105,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @BinderCall(restrict = "any")
     public boolean isUidInPrivacyList(int uid) throws RemoteException {
-        return isPackageInPrivacyList(mPackagesCache.get(uid));
+        // FIXME Too slow.
+        return isPackageInPrivacyList(PkgUtil.pkgForUid(getContext(), uid));
     }
 
     @Override
@@ -2180,7 +2221,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (isWhiteSysAppEnabled() && isInSystemAppList(packageName))
             return AppOpsManagerCompat.MODE_ALLOWED;
 
-        if (XposedLog.isVerboseLoggable()) {
+        if (DEBUG_OP && XposedLog.isVerboseLoggable()) {
             String permName = AppOpsManagerCompat.opToPermission(code);
             XposedLog.verbose("checkOperation: reason %s code %s perm %s uid %s pkg %s",
                     reason, code, permName, uid, packageName);
@@ -2191,7 +2232,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         long id = Binder.clearCallingIdentity();
         try {
             if (isInPermissionBlockList(pattern)) {
-                XposedLog.verbose("checkOperation: returning MODE_IGNORED");
+                if (DEBUG_OP) {
+                    XposedLog.verbose("checkOperation: returning MODE_IGNORED");
+                }
                 return AppOpsManagerCompat.MODE_IGNORED;
             }
         } finally {
@@ -2927,7 +2970,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         }
 
                         ActivityManager.RunningAppProcessInfo runningAppProcessInfo = processes.get(i);
-                        String runningPackageName = mPackagesCache.get(runningAppProcessInfo.uid);
+                        // FIXME Too slow.
+                        String runningPackageName = PkgUtil.pkgForUid(getContext(), runningAppProcessInfo.uid);
                         if (runningPackageName == null) {
                             if (listener != null) try {
                                 listener.onIgnoredPkg(null, "null");
@@ -3354,7 +3398,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     if (!replacing) try {
                         uid = intent.getIntExtra(Intent.EXTRA_UID, -1);
                         if (uid > 0) {
-                            String removed = mPackagesCache.remove(uid);
+                            // FIXME Too slow.
+                            int removed = mPackagesCache.remove(PkgUtil.pkgForUid(getContext(), uid));
                             XposedLog.debug("Package uninstalled, remove from cache: " + removed);
                         }
 

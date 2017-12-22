@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.UserHandle;
 import android.print.PrintManager;
 import android.provider.Telephony;
+import android.util.SparseArray;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,7 +101,14 @@ public class PkgUtil {
         }
     }
 
+    private static final SparseArray<String> sUidMap = new SparseArray<>();
+
+    // FIXME Add a cache.
     public static String pkgForUid(Context context, int uid) {
+        // Check if in map.
+        String cached = sUidMap.get(uid);
+        if (cached != null) return cached;
+
         PackageManager pm = context.getPackageManager();
         List<android.content.pm.PackageInfo> packages;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
@@ -110,8 +118,13 @@ public class PkgUtil {
         }
         if (packages == null) return null;
         for (android.content.pm.PackageInfo packageInfo : packages) {
+            if (packageInfo.applicationInfo == null) continue;
             if (packageInfo.applicationInfo.uid == uid) {
-                return packageInfo.packageName;
+                String pkg = packageInfo.packageName;
+                if (pkg != null) {
+                    sUidMap.put(uid, pkg);
+                    return pkg;
+                }
             }
         }
         return null;

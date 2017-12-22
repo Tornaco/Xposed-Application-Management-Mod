@@ -34,7 +34,7 @@ public class IFWSubModule extends IntentFirewallAndroidSubModule {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     super.beforeHookedMethod(param);
-                    if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
+                    if (false && BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
                         try {
                             Intent intent = (Intent) param.args[1];
                             Log.d(XposedLog.TAG_PREFIX,
@@ -57,7 +57,7 @@ public class IFWSubModule extends IntentFirewallAndroidSubModule {
                     int recUid = (int) param.args[4];
                     Intent intent = (Intent) param.args[0];
 
-                    if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
+                    if (false && BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
                         try {
                             Log.d(XposedLog.TAG_PREFIX,
                                     "checkService@ intent: " + intent + "extra: " + intent.getExtras()

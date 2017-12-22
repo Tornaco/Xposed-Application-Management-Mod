@@ -70,13 +70,15 @@ class AlarmManagerSubModule extends IntentFirewallAndroidSubModule {
                             }
 
                             // Check OP.
-                            int mode = XAshmanManager.get().getPermissionControlBlockModeForPkg(
-                                    AppOpsManagerCompat.OP_SET_ALARM, pkgName);
-                            if (mode == AppOpsManagerCompat.MODE_IGNORED) {
-                                if (BuildConfig.DEBUG) {
-                                    Log.d(XposedLog.TAG_PREFIX, "set alarm, MODE_IGNORED returning...");
+                            if (XAshmanManager.get().isServiceAvailable()) {
+                                int mode = XAshmanManager.get().getPermissionControlBlockModeForPkg(
+                                        AppOpsManagerCompat.OP_SET_ALARM, pkgName);
+                                if (mode == AppOpsManagerCompat.MODE_IGNORED) {
+                                    if (BuildConfig.DEBUG) {
+                                        Log.d(XposedLog.TAG_PREFIX, "set alarm, MODE_IGNORED returning...");
+                                    }
+                                    param.setResult(null);
                                 }
-                                param.setResult(null);
                             }
                         }
                     });

@@ -35,7 +35,7 @@ import lombok.Getter;
  */
 
 public abstract class CommonPackageInfoListActivity extends NeedLockActivity
-        implements CommonPackageInfoAdapter.ChoiceModeListener {
+        implements CommonPackageInfoAdapter.ChoiceModeListener, CommonPackageInfoAdapter.ItemCheckListener {
 
     protected FloatingActionButton fab;
 
@@ -54,7 +54,6 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity
         setupToolbar();
         showHomeAsUp();
         initView();
-        startLoading();
     }
 
     @Override
@@ -116,6 +115,7 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity
 
         commonPackageInfoAdapter = onCreateAdapter();
         commonPackageInfoAdapter.setChoiceModeListener(this);
+        commonPackageInfoAdapter.setItemCheckListener(this);
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this,
@@ -149,6 +149,11 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity
         } else {
             onRequestPick();
         }
+    }
+
+    @Override
+    public void onItemCheckChanged(int total, int checked) {
+
     }
 
     private void onRequestClearItems() {

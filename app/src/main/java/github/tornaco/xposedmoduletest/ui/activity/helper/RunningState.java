@@ -633,7 +633,11 @@ public class RunningState {
 
     void updateNow() {
         synchronized (mLock) {
-            update(mApplicationContext);
+            try {
+                update(mApplicationContext);
+            } catch (Throwable e) {
+                Logger.e("updateNow: " + Logger.getStackTraceString(e));
+            }
         }
     }
 

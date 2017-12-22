@@ -23,7 +23,8 @@ import ir.mirrajabi.searchdialog.SimpleSearchFilter;
  * Created by MADNESS on 5/14/2017.
  */
 
-public abstract class BaseSearchDialogCompat<T extends Searchable> extends AppCompatDialog implements Filterable {
+public abstract class BaseSearchDialogCompat<T extends Searchable>
+        extends AppCompatDialog implements Filterable {
     private Filter mFilter;
     private ArrayList<T> mItems;
     private RecyclerView.Adapter mAdapter;

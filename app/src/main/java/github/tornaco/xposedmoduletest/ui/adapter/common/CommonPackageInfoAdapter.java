@@ -85,6 +85,7 @@ public class CommonPackageInfoAdapter
             }
         });
         notifyDataSetChanged();
+        onItemCheckChanged();
     }
 
     @Override
@@ -107,6 +108,7 @@ public class CommonPackageInfoAdapter
         holder.getExtraIndicator().setVisibility(View.INVISIBLE);
 
         holder.getLineOneTextView().setText(packageInfo.getAppName());
+
         holder.getCheckableImageView().setChecked(false, false);
         Vangogh.with(context)
                 .load(packageInfo.getPkgName())
@@ -131,6 +133,7 @@ public class CommonPackageInfoAdapter
                 public void onClick(View v) {
                     commonPackageInfo.setChecked(!commonPackageInfo.isChecked());
                     holder.getCheckableImageView().setChecked(commonPackageInfo.isChecked());
+                    onItemCheckChanged();
                 }
             });
         }
@@ -141,6 +144,20 @@ public class CommonPackageInfoAdapter
                 return onItemLongClick(v, holder.getAdapterPosition());
             }
         });
+    }
+
+    public interface ItemCheckListener {
+        void onItemCheckChanged(int total, int checked);
+    }
+
+    @Getter
+    @Setter
+    private ItemCheckListener itemCheckListener;
+
+    private void onItemCheckChanged() {
+        if (itemCheckListener != null) {
+            itemCheckListener.onItemCheckChanged(getItemCount(), getCheckedCount());
+        }
     }
 
     protected ImageApplier onCreateImageApplier() {
@@ -187,6 +204,18 @@ public class CommonPackageInfoAdapter
     @Override
     public int getItemCount() {
         return commonPackageInfos.size();
+    }
+
+    public int getCheckedCount() {
+        final int[] c = {0};
+        Collections.consumeRemaining(commonPackageInfos,
+                new Consumer<CommonPackageInfo>() {
+                    @Override
+                    public void accept(CommonPackageInfo info) {
+                        if (info.isChecked()) c[0]++;
+                    }
+                });
+        return c[0];
     }
 
     @NonNull

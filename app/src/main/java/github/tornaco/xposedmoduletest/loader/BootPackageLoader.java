@@ -2,9 +2,11 @@ package github.tornaco.xposedmoduletest.loader;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
+
+import org.newstand.logger.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -44,21 +46,25 @@ public interface BootPackageLoader {
             if (!xAshmanManager.isServiceAvailable()) return out;
 
             String[] packages = xAshmanManager.getBootBlockApps(blocked);
+            Logger.d(Arrays.toString(packages));
+            int length = packages.length;
 
             for (String pkg : packages) {
-                if (!PkgUtil.isPkgInstalled(context, pkg)) continue;
-                String name = String.valueOf(PkgUtil.loadNameByPkgName(context, pkg));
-
-                if (!TextUtils.isEmpty(name)) {
-                    name = name.replace(" ", "");
+                if (!PkgUtil.isPkgInstalled(context, pkg)) {
+                    Logger.d("Package not installed: " + pkg);
+                    continue;
                 }
-
+                String name = String.valueOf(PkgUtil.loadNameByPkgName(context, pkg));
                 CommonPackageInfo p = new CommonPackageInfo();
                 p.setAppName(name);
                 p.setPkgName(pkg);
                 p.setSystemApp(PkgUtil.isSystemApp(context, pkg));
+                Logger.d("Adding: " + pkg);
                 out.add(p);
             }
+
+            int size = out.size();
+            Logger.d("Adding: " + size + ", expected: " + length);
 
             java.util.Collections.sort(out, new BootComparator());
 

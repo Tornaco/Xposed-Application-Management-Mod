@@ -66,6 +66,7 @@ public class RunningServicesActivity
 
     @Override
     protected List<? extends CommonPackageInfo> performLoading() {
+        if (isDestroyed()) return new ArrayList<>();
         mState.updateNow();
         ArrayList<RunningState.MergedItem> items =
                 mShowCache ?
@@ -79,6 +80,11 @@ public class RunningServicesActivity
             displays.add(d);
         }
         return displays;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 
     @Override

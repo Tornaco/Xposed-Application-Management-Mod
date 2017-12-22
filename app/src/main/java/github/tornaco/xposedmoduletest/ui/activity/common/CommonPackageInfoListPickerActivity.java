@@ -19,11 +19,20 @@ public abstract class CommonPackageInfoListPickerActivity
         extends CommonPackageInfoListActivity {
 
     private boolean selectAll = false;
+    private String mRawTitle;
 
     @Override
     protected void initView() {
         super.initView();
         fab.setImageResource(R.drawable.ic_check_white_24dp);
+        mRawTitle = String.valueOf(getTitle());
+    }
+
+    @Override
+    public void onItemCheckChanged(int total, int checked) {
+        super.onItemCheckChanged(total, checked);
+        String tips = "\t" + checked + "/" + total;
+        setTitle(mRawTitle + tips);
     }
 
     @Override

@@ -41,4 +41,9 @@ public class RunningServiceAdapter extends CommonPackageInfoAdapter {
     protected boolean onItemLongClick(View v, int position) {
         return false;
     }
+
+    @Override
+    public boolean onBackPressed() {
+        return false;
+    }
 }
