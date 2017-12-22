@@ -103,6 +103,10 @@ public class PkgUtil {
 
     private static final SparseArray<String> sUidMap = new SparseArray<>();
 
+    public static synchronized void cachePkgUid(String pkg, int uid) {
+        sUidMap.put(uid, pkg);
+    }
+
     // FIXME Add a cache.
     public static String pkgForUid(Context context, int uid) {
         // Check if in map.

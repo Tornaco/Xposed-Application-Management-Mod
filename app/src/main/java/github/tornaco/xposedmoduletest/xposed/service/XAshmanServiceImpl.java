@@ -124,8 +124,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @SuppressLint("UseSparseArrays")
     private final Map<String, Integer> mPackagesCache = new HashMap<>();
 
-    private final static AtomicInteger DUP_UID_HOOK_ID = new AtomicInteger(0);
-
     private final Map<String, BlockRecord2> mBlockRecords = new HashMap<>();
 
     private Handler h, lazyH;
@@ -280,7 +278,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     if (XposedLog.isVerboseLoggable()) {
                         XposedLog.verbose("Cached pkg:" + pkg + "-" + uid);
                     }
+
+                    // Cache it.
                     mPackagesCache.put(pkg, uid);
+                    PkgUtil.cachePkgUid(pkg, uid);
 
                     if (isIME(pkg)) {
                         addToWhiteList(pkg);
@@ -351,6 +352,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 //                            }
 
                             mPackagesCache.put(pkg, uid);
+                            PkgUtil.cachePkgUid(pkg, uid);
 
                             // Add system apps to system list.
                             boolean isSystemApp = (applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
