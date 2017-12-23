@@ -40,6 +40,7 @@ import github.tornaco.xposedmoduletest.ui.FragmentController;
 import github.tornaco.xposedmoduletest.ui.activity.app.AboutDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.AppDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.ToolsDashboardActivity;
+import github.tornaco.xposedmoduletest.ui.activity.helper.RunningServicesActivity;
 import github.tornaco.xposedmoduletest.ui.activity.whyyouhere.UserGiudeActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
@@ -163,6 +164,10 @@ public class NavigatorActivity extends WithWithCustomTabActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_help) {
             navigateToWebPage(getString(R.string.app_wiki_url));
+        }
+
+        if (item.getItemId() == R.id.action_view_running_services) {
+            startActivity(new Intent(this, RunningServicesActivity.class));
         }
 
         if (item.getItemId() == R.id.action_change_column_count) {
@@ -297,7 +302,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             rest.addTile(new AppStart(getActivity()));
             rest.addTile(new LockKill(getActivity()));
             rest.addTile(new RFKill(getActivity()));
-            if (BuildConfig.DEBUG) rest.addTile(new RunningServices(getActivity()));
 
             Category ash = new Category();
             ash.titleRes = R.string.title_control;
@@ -306,7 +310,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             ash.addTile(new PermControl(getActivity()));
             ash.addTile(new SmartSense(getActivity()));
             ash.addTile(new Greening(getActivity()));
-            if (BuildConfig.DEBUG) ash.addTile(new NFManager(getActivity()));
+            ash.addTile(new NFManager(getActivity()));
 
             categories.add(category);
             categories.add(rest);

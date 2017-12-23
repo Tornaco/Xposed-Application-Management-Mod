@@ -3,7 +3,6 @@ package github.tornaco.xposedmoduletest.ui.tiles;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
-import android.widget.Toast;
 
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
@@ -25,7 +24,6 @@ public class Greening extends QuickTile {
             @Override
             public void onClick(View v) {
                 super.onClick(v);
-                Toast.makeText(context, "~~~~~~", Toast.LENGTH_SHORT).show();
                 context.startActivity(new Intent(context, ExtraOpsSettingActivity.class));
             }
 

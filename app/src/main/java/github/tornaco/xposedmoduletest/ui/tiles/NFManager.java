@@ -19,6 +19,7 @@ public class NFManager extends QuickTile {
     public NFManager(final Context context) {
         super(context);
         this.titleRes = R.string.title_nf;
+        this.summaryRes = R.string.summary_exp;
         this.iconRes = R.drawable.ic_data_usage_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override

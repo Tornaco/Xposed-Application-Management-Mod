@@ -70,7 +70,7 @@
     <string name="title_btn_size">按钮大小</string>
     <string name="title_text_size">文字大小</string>
     <string name="title_app_uninstall_pro">阻止卸载</string>
-    <string name="summary_app_uninstall_pro">阻止任何方式（adb/installer）卸载已经加锁的应用，而且如果想卸载[应用管理]必须先禁用应用锁。某些设备可能无效。</string>
+    <string name="summary_app_uninstall_pro">阻止任何方式（adb/installer）卸载已经加锁的应用，而且如果想卸载[应用管理]必须先禁用应用锁。</string>
     <string name="title_hide_app_icon">隐藏桌面图标</string>
     <string name="title_secure">安全</string>
     <string name="title_personal">个人</string>
@@ -101,11 +101,11 @@
     <string name="summary_lock_kill_app">"以下应用在锁屏后 @会 被强行停止。"</string>
     <string name="summary_lock_kill_app_include_system">"以下应用在锁屏后 @会 被强行停止。"</string>
 
-    <string name="summary_rf_kill_app">"以下应用在按返回键退出后会被强行停止。\n\n目前对微博等某些应用无效，也可能会造成某些应用被误杀，请酌情使用，或者等后续更新。"</string>
-    <string name="summary_rf_kill_app_include_system">"以下应用在按返回键退出后会被强行停止。\n\n目前对微博等某些应用无效，也可能会造成某些应用被误杀，请酌情使用，或者等后续更新。"</string>
+    <string name="summary_rf_kill_app">"以下应用在按返回键退出，或者从最近任务划掉后会被强行停止。\n\n目前对微博等某些应用无效，也可能会造成某些应用被误杀，请酌情使用，或者等后续更新。"</string>
+    <string name="summary_rf_kill_app_include_system">"以下应用在按返回键退出，或者从最近任务划掉后会被强行停止。\n\n目前对微博等某些应用无效，也可能会造成某些应用被误杀，请酌情使用，或者等后续更新。"</string>
 
-    <string name="summary_start_app">"@禁止 以下应用被其他应用（通过服务，广播）启动"</string>
-    <string name="summary_start_app_include_system">"@禁止 以下应用被其他应用（通过服务，广播）启动。"</string>
+    <string name="summary_start_app">"@禁止 以下应用被其他应用（通过服务或者广播）启动（微信和支付宝建议不要加入，否则可能无法发起付款）。"</string>
+    <string name="summary_start_app_include_system">"@禁止 以下应用被其他应用（通过服务或者广播）启动（微信和支付宝建议不要加入，否则可能无法发起付款）。"</string>
 
     <string name="app_intro">你需要在 Xposed 中激活 应用管理 模块，并且重启才可以使用下面的功能。</string>
 
@@ -257,7 +257,7 @@
     <string name="summary_unlock_vibrate_enabled">同时会修改屏幕解锁的设置</string>
     <string name="summary_error_vibrate_enabled">同时会修改屏幕解锁的设置</string>
     <string name="title_component_block">阻止应用启用组件</string>
-    <string name="summary_component_block">某些应用会主动启用自己的组件，顽固，勾选后可以阻止该行为</string>
+    <string name="summary_component_block">某些应用会主动启用自己已经被禁用的组件，勾选后可以阻止该行为</string>
     <string name="title_app_recent_blur_radius">模糊半径</string>
     <string name="summary_app_recent_blur_radius">加大模糊算法半径参数可以降低资源消耗，减少算法处理时间，但是会造成生成的图像变更加模糊</string>
     <string name="title_system_app">系统应用</string>
@@ -362,6 +362,7 @@
     <string name="title_crash_dump">错误报告</string>
     <string name="summary_crash_dump">当某个应用发生异常闪退时，显示一个详细的错误堆栈并转储到Xposed日志，通常可以反馈给该应用开发者以帮助解决该问题。</string>
     <string name="title_crash_moke">模拟崩溃</string>
-    <string name="summary_crash_moke">点击后，应用管理会进行闪退</string>
+    <string name="summary_crash_moke">点击后，应用管理会进行闪退。</string>
+    <string name="summary_exp">实验功能</string>
 
 </resources>

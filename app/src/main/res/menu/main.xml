@@ -6,11 +6,17 @@
         android:id="@+id/action_change_column_count"
         android:icon="@drawable/ic_view_stream_white_24dp"
         android:title="@string/title_change_column_count"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_view_running_services"
+        android:icon="@drawable/ic_room_service_black_24dp"
+        android:title="@string/title_running_services"
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/action_help"
         android:icon="@drawable/ic_help_white_24dp"
         android:title="@string/title_help"
-        app:showAsAction="always" />
+        app:showAsAction="never" />
 </menu>
