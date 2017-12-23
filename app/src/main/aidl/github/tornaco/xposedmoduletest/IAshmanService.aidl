@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
+import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 
 
@@ -145,4 +146,14 @@ interface IAshmanService {
     boolean onApplicationUncaughtException(String packageName, String thread, String exception, String trace);
     boolean isAppCrashDumpEnabled();
     void setAppCrashDumpEnabled(boolean enabled);
+
+    void registerOnTopPackageChangeListener(in ITopPackageChangeListener listener);
+    void unRegisterOnTopPackageChangeListener(in ITopPackageChangeListener listener);
+
+    boolean isLazyModeEnabled();
+    boolean isLazyModeEnabledForPackage(String pkg);
+    void setLazyModeEnabled(boolean enabled);
+
+    String[] getLazyApps(boolean lazy);
+    void addOrRemoveLazyApps(in String[] packages, int op);
 }

@@ -17,4 +17,6 @@ interface AshManLZHandler {
     void onCompSetting(String pkg, boolean enable);
 
     void onBroadcastAction(Intent action);
+
+    void notifyTopPackageChanged(final String from, final String to);
 }

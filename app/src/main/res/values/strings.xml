@@ -345,7 +345,7 @@
     <string name="title_privacy_apps">查看应用隐匿设置的应用</string>
     <string name="title_privacy_items">项目</string>
     <string name="title_greening">绿色化</string>
-    <string name="summary_greening_app">默认情况下，系统可能会因为某些应用启动了某些后台服务，获取唤醒锁，或者设置了唤醒定时器导致设备运行卡顿，或者耗电增加。\n\n绿色化某个应用，可以禁止该应用任何时候，启动任何服务，设置唤醒（X_WAKEUP）定时器，获取任何类型唤醒锁。\n\n小提示：你也可以前往权限管理，按照（服务/定时器/唤醒锁）根据自己的想法控制这些行为。</string>
+    <string name="summary_greening_app">你可以从列表中找到你想绿化的应用，进行绿化，绿化可以禁止该应用启动服务/唤醒设备/设置定时器。\n\n默认情况下应用管理不对应用做任何修改，对勾选中表示允许该项启动。\n\n小提示：你也可以前往权限管理，按照（服务/定时器/唤醒锁）根据自己的想法控制这些行为。\n\n 什么是服务？https://developer.android.google.cn/guide/components/services.html?hl=zh-cn \n\n什么是唤醒锁？https://developer.android.google.cn/training/scheduling/wakelock.html \n\n什么是定时器？https://developer.android.google.cn/training/scheduling/alarms.html</string>
     <string name="title_change_column_count">切换布局</string>
     <string name="title_error_occur">糟糕</string>
     <string name="title_new_photo">有人闯入</string>
@@ -364,5 +364,7 @@
     <string name="title_crash_moke">模拟崩溃</string>
     <string name="summary_crash_moke">点击后，应用管理会进行闪退。</string>
     <string name="summary_exp">实验功能</string>
+    <string name="summary_app_lazy">待补充</string>
+    <string name="title_app_lazy">乖巧模式</string>
 
 </resources>

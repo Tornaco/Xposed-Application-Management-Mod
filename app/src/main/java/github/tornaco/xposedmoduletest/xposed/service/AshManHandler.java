@@ -28,6 +28,8 @@ interface AshManHandler {
 
     void setLockKillDoNotKillAudioEnabled(boolean enabled);
 
+    void setLazyModeEnabled(boolean enabled);
+
     void setRFKillEnabled(boolean enabled);
 
     void setCompSettingBlockEnabled(boolean enabled);

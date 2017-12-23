@@ -49,6 +49,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.Blur;
 import github.tornaco.xposedmoduletest.ui.tiles.CompReplacement;
 import github.tornaco.xposedmoduletest.ui.tiles.ComponentManager;
 import github.tornaco.xposedmoduletest.ui.tiles.Greening;
+import github.tornaco.xposedmoduletest.ui.tiles.Lazy;
 import github.tornaco.xposedmoduletest.ui.tiles.LockKill;
 import github.tornaco.xposedmoduletest.ui.tiles.NFManager;
 import github.tornaco.xposedmoduletest.ui.tiles.PermControl;
@@ -302,6 +303,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             rest.addTile(new AppStart(getActivity()));
             rest.addTile(new LockKill(getActivity()));
             rest.addTile(new RFKill(getActivity()));
+            rest.addTile(new Lazy(getActivity()));
 
             Category ash = new Category();
             ash.titleRes = R.string.title_control;

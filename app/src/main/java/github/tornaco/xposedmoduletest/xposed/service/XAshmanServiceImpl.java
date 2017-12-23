@@ -30,6 +30,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.Process;
+import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
@@ -38,6 +39,7 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 import android.util.SparseBooleanArray;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodInfo;
@@ -75,6 +77,7 @@ import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
+import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
@@ -144,6 +147,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private final AtomicBoolean mDataHasBeenMigrated = new AtomicBoolean(false);
     private final AtomicBoolean mShowAppCrashDumpEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mLazyEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mAutoAddToBlackListForNewApp = new AtomicBoolean(false);
     private final AtomicBoolean mShowFocusedActivityInfoEnabled = new AtomicBoolean(false);
@@ -591,6 +595,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         try {
+            boolean lazy = (boolean) SystemSettings.LAZY_ENABLED_B.readFromSystemSettings(getContext());
+            mLazyEnabled.set(lazy);
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("lazy: " + String.valueOf(lazy));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
             boolean autoAddBlack = (boolean) SystemSettings.AUTO_BLACK_FOR_NEW_INSTALLED_APP_B.readFromSystemSettings(getContext());
             mAutoAddToBlackListForNewApp.set(autoAddBlack);
             if (XposedLog.isVerboseLoggable())
@@ -686,6 +699,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public boolean checkRestartService(String packageName, ComponentName componentName) throws RemoteException {
+
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("checkRestartService: " + componentName + ", pkg: " + packageName);
         }
@@ -1614,6 +1628,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return isInStringRepo(mRepoProxy.getRfks(), pkg);
     }
 
+    private boolean isPackageLazyByUser(String pkg) {
+        return isInStringRepo(mRepoProxy.getLazy(), pkg);
+    }
+
     private boolean isPackageGreeningByUser(String pkg) {
         return isInStringRepo(mRepoProxy.getGreens(), pkg);
     }
@@ -2278,6 +2296,124 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         h.obtainMessage(AshManHandlerMessages.MSG_SETAPPCRASHDUMPENABLED, enabled).sendToTarget();
     }
 
+    private RemoteCallbackList<ITopPackageChangeListener> mTopPackageListenerCallbacks;
+
+    @Override
+    public void registerOnTopPackageChangeListener(ITopPackageChangeListener listener) throws RemoteException {
+        XposedLog.verbose("registerOnTopPackageChangeListener: " + listener);
+        Preconditions.checkNotNull(listener);
+        mTopPackageListenerCallbacks.register(listener);
+    }
+
+    @Override
+    public void unRegisterOnTopPackageChangeListener(ITopPackageChangeListener listener) throws RemoteException {
+        XposedLog.verbose(XposedLog.TAG_LAZY + "unRegisterOnTopPackageChangeListener: " + listener);
+        Preconditions.checkNotNull(listener);
+        mTopPackageListenerCallbacks.unregister(listener);
+    }
+
+    @Override
+    public boolean isLazyModeEnabled() throws RemoteException {
+        return mLazyEnabled.get();
+    }
+
+    @Override
+    public boolean isLazyModeEnabledForPackage(String pkg) throws RemoteException {
+        return isLazyModeEnabled() && isPackageLazyByUser(pkg);
+    }
+
+    @Override
+    public void setLazyModeEnabled(boolean enabled) throws RemoteException {
+        enforceCallingPermissions();
+        h.obtainMessage(AshManHandlerMessages.MSG_SETLAZYMODEENABLED, enabled)
+                .sendToTarget();
+    }
+
+    @Override
+    public String[] getLazyApps(boolean lazy) throws RemoteException {
+        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getLazyApps: " + lazy);
+        enforceCallingPermissions();
+        if (!lazy) {
+            Collection<String> packages = mPackagesCache.keySet();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+
+            final List<String> outList = Lists.newArrayList();
+
+            // Remove those not in blocked list.
+            String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
+            Collections.consumeRemaining(allPackagesArr,
+                    new Consumer<String>() {
+                        @Override
+                        public void accept(String s) {
+                            if (outList.contains(s)) return;// Kik dup package.
+                            if (isPackageLazyByUser(s)) return;
+                            if (isInWhiteList(s)) return;
+                            if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
+                            outList.add(s);
+                        }
+                    });
+
+            if (outList.size() == 0) {
+                return new String[0];
+            }
+            Object[] objArr = outList.toArray();
+            return convertObjectArrayToStringArray(objArr);
+        } else {
+            Set<String> packages = mRepoProxy.getLazy().getAll();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+
+            final List<String> noSys = Lists.newArrayList();
+
+            Collections.consumeRemaining(packages, new Consumer<String>() {
+                @Override
+                public void accept(String p) {
+                    if (isWhiteSysAppEnabled() && isInSystemAppList(p)) {
+                        return;
+                    }
+                    noSys.add(p);
+                }
+            });
+            return convertObjectArrayToStringArray(noSys.toArray());
+        }
+    }
+
+    @Override
+    public void addOrRemoveLazyApps(String[] packages, int op) throws RemoteException {
+        if (XposedLog.isVerboseLoggable())
+            XposedLog.verbose("addOrRemoveLazyApps: " + Arrays.toString(packages));
+        enforceCallingPermissions();
+        if (packages == null || packages.length == 0) return;
+        addOrRemoveFromRepo(packages, mRepoProxy.getLazy(), op == XAshmanManager.Op.ADD);
+    }
+
+    private void postNotifyTopPackageChanged(final String from, final String to) {
+        lazyH.removeMessages(AshManLZHandlerMessages.MSG_NOTIFYTOPPACKAGECHANGED);
+        lazyH.obtainMessage(AshManLZHandlerMessages.MSG_NOTIFYTOPPACKAGECHANGED,
+                new Pair<>(from, to))
+                .sendToTarget();
+    }
+
+    private void notifyTopPackageChanged(final String from, final String to) {
+        int itemCount = mTopPackageListenerCallbacks.beginBroadcast();
+        try {
+            for (int i = 0; i < itemCount; i++) {
+                ITopPackageChangeListener l = mTopPackageListenerCallbacks.getBroadcastItem(i);
+                try {
+                    l.onChange(from, to);
+                } catch (Throwable ignored) {
+                }
+            }
+        } catch (Exception e) {
+            XposedLog.wtf("Fail broadcast top listener: " + e);
+        } finally {
+            mTopPackageListenerCallbacks.finishBroadcast();
+        }
+    }
+
     @Override
     public int checkPermission(String perm, int pid, int uid) {
         return PackageManager.PERMISSION_GRANTED;
@@ -2425,6 +2561,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (mRepoProxy == null) {
             XposedLog.wtf("Can not construct RepoProxy, WTF???????????");
         }
+        mTopPackageListenerCallbacks = new RemoteCallbackList<>();
     }
 
     protected Handler onCreateServiceHandler() {
@@ -2876,6 +3013,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETAPPCRASHDUMPENABLED:
                     HandlerImpl.this.setAppCrashDumpEnabled((Boolean) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_SETLAZYMODEENABLED:
+                    HandlerImpl.this.setLazyModeEnabled((Boolean) msg.obj);
+                    break;
             }
         }
 
@@ -3052,6 +3192,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setLockKillDoNotKillAudioEnabled(boolean enabled) {
             if (mLockKillDoNotKillAudioEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.LOCK_KILL_DONT_KILL_AUDIO_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setLazyModeEnabled(boolean enabled) {
+            if (mLazyEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.LAZY_ENABLED_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 
@@ -3454,7 +3601,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         @Override
         public void onPackageMoveToFront(String who) {
+            String from = mTopPackage.getData();
             mTopPackage.setData(who);
+            postNotifyTopPackageChanged(from, who);
         }
 
         @Override
@@ -3551,6 +3700,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         }
 
+        @Override
+        public void notifyTopPackageChanged(String from, String to) {
+            XAshmanServiceImpl.this.notifyTopPackageChanged(from, to);
+        }
+
         private String getTopPackage() {
             return mTopPackage.getData();
         }
@@ -3572,6 +3726,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     break;
                 case AshManLZHandlerMessages.MSG_ONBROADCASTACTION:
                     LazyHandler.this.onBroadcastAction((Intent) msg.obj);
+                    break;
+                case AshManLZHandlerMessages.MSG_NOTIFYTOPPACKAGECHANGED:
+                    @SuppressWarnings("unchecked") Pair<String, String> p = (Pair<String, String>) msg.obj;
+                    LazyHandler.this.notifyTopPackageChanged(p.first, p.second);
                     break;
             }
         }

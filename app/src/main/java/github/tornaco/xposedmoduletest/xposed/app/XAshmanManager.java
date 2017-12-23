@@ -17,6 +17,7 @@ import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
+import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
@@ -858,6 +859,61 @@ public class XAshmanManager {
     public void setAppCrashDumpEnabled(boolean enabled) {
         try {
             mService.setAppCrashDumpEnabled(enabled);
+        } catch (RemoteException ignored) {
+
+        }
+    }
+
+    public void registerOnTopPackageChangeListener(ITopPackageChangeListener listener) {
+        try {
+            mService.registerOnTopPackageChangeListener(listener);
+        } catch (RemoteException ignored) {
+        }
+    }
+
+    public void unRegisterOnTopPackageChangeListener(ITopPackageChangeListener listener) {
+        try {
+            mService.unRegisterOnTopPackageChangeListener(listener);
+        } catch (RemoteException ignored) {
+
+        }
+    }
+
+    public boolean isLazyModeEnabled() {
+        try {
+            return mService.isLazyModeEnabled();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public boolean isLazyModeEnabledForPackage(String pkg) {
+        try {
+            return mService.isLazyModeEnabledForPackage(pkg);
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public void setLazyModeEnabled(boolean enabled) {
+        try {
+            mService.setLazyModeEnabled(enabled);
+        } catch (RemoteException ignored) {
+
+        }
+    }
+
+    public String[] getLazyApps(boolean lazy) {
+        try {
+            return mService.getLazyApps(lazy);
+        } catch (RemoteException e) {
+            return new String[0];
+        }
+    }
+
+    public void addOrRemoveLazyApps(String[] packages, int op) {
+        try {
+            mService.addOrRemoveLazyApps(packages, op);
         } catch (RemoteException ignored) {
 
         }

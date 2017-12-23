@@ -27,6 +27,7 @@ public abstract class XposedLog {
     public static final String TAG_PREFIX = "X-APM-S-";
     public static final String TAG_DANGER = "X-APM-DANGER-";
     public static final String TAG_LIST = "X-APM-LIST-";
+    public static final String TAG_LAZY = "X-APM-LAZY-";
 
     private static LogLevel sLevel = BuildConfig.DEBUG ? LogLevel.ALL : LogLevel.WARN;
 
