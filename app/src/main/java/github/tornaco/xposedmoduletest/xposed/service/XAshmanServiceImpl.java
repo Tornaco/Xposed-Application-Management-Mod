@@ -768,6 +768,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.DENIED_OP_DENIED;
         }
 
+        // Lazy but not running on top.
+        boolean isLazy = isLazyModeEnabled()
+                && isPackageLazyByUser(servicePkgName);
+        if (isLazy && !servicePkgName.equals(mTopPackage.getData())) {
+            return CheckResult.DENIED_LAZY;
+        }
+
         // if (!isSystemReady()) return CheckResult.SYSTEM_NOT_READY;
         // Disabled case.
         if (!isStartBlockEnabled()) return CheckResult.SERVICE_CHECK_DISABLED;
@@ -2313,7 +2320,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public boolean isLazyModeEnabled() throws RemoteException {
+    public boolean isLazyModeEnabled() {
         return mLazyEnabled.get();
     }
 
@@ -3550,9 +3557,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
-    private class LazyHandler extends Handler implements AshManLZHandler {
+    private final Holder<String> mTopPackage = new Holder<>();
 
-        private final Holder<String> mTopPackage = new Holder<>();
+    private class LazyHandler extends Handler implements AshManLZHandler {
 
         public LazyHandler(Looper looper) {
             super(looper);
@@ -3604,6 +3611,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             String from = mTopPackage.getData();
             mTopPackage.setData(who);
             postNotifyTopPackageChanged(from, who);
+        }
+
+        public boolean isPackageRunningOnTop(String pkg) {
+            return pkg != null && pkg.equals(mTopPackage.getData());
         }
 
         @Override
@@ -3798,6 +3809,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         // Denied cases.
         public static final CheckResult DENIED_GENERAL = new CheckResult(false, "DENIED_GENERAL", true);
         public static final CheckResult DENIED_OP_DENIED = new CheckResult(false, "DENIED_OP_DENIED", true);
+        public static final CheckResult DENIED_LAZY = new CheckResult(false, "DENIED_LAZY", true);
         public static final CheckResult DENIED_GREEN_APP = new CheckResult(false, "DENIED_GREEN_APP", true);
         public static final CheckResult ALLOWED_GENERAL = new CheckResult(true, "ALLOWED_GENERAL", true);
 

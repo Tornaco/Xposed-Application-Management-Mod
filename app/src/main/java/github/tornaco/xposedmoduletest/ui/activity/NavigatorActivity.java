@@ -55,7 +55,6 @@ import github.tornaco.xposedmoduletest.ui.tiles.NFManager;
 import github.tornaco.xposedmoduletest.ui.tiles.PermControl;
 import github.tornaco.xposedmoduletest.ui.tiles.Privacy;
 import github.tornaco.xposedmoduletest.ui.tiles.RFKill;
-import github.tornaco.xposedmoduletest.ui.tiles.RunningServices;
 import github.tornaco.xposedmoduletest.ui.tiles.SmartSense;
 import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
 import github.tornaco.xposedmoduletest.util.XExecutor;
@@ -303,7 +302,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             rest.addTile(new AppStart(getActivity()));
             rest.addTile(new LockKill(getActivity()));
             rest.addTile(new RFKill(getActivity()));
-            rest.addTile(new Lazy(getActivity()));
+            if (BuildConfig.DEBUG) rest.addTile(new Lazy(getActivity()));
 
             Category ash = new Category();
             ash.titleRes = R.string.title_control;

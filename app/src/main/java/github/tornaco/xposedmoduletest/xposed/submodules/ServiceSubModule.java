@@ -72,6 +72,7 @@ class ServiceSubModule extends IntentFirewallAndroidSubModule {
                                     }
                                 };
 
+                                Log.d(XposedLog.TAG_LAZY, "Registering listener: " + l);
                                 XAshmanManager.get().registerOnTopPackageChangeListener(l);
                             }
                         }
