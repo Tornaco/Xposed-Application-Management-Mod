@@ -922,7 +922,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         lazyH.obtainMessage(AshManLZHandlerMessages.MSG_ONACTIVITYDESTROY, intent).sendToTarget();
     }
 
-    private boolean isPackageRFKillEnabled(String pkg) {
+    private boolean shouldLKPackage(String pkg) {
         if (!isRFKillEnabled()) return false;
         // If this app is not in good condition, but user
         // does not block, we also allow it to start.
@@ -939,7 +939,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return false;
         }
 
-        if (PkgUtil.isHomeApp(getContext(), pkg)) {
+        // Do not kill audio package.
+        if (pkg.equals(mAudioFocusedPackage.getData())) {
             return false;
         }
 
@@ -3425,7 +3426,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 XposedLog.verbose("onActivityDestroy, packageName: " + packageName
                         + ", isMainIntent: " + isMainIntent + ", topPkg: " + getTopPackage());
 
-            if (!isPackageRFKillEnabled(packageName)) {
+            if (!shouldLKPackage(packageName)) {
                 if (XposedLog.isVerboseLoggable()) XposedLog.verbose("PackageRFKill not enabled");
                 return;
             }
