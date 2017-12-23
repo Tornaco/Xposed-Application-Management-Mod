@@ -32,10 +32,10 @@ task clean(type: Delete) {
 ext {
     minSdkVersion = 21
     compileSdkVersion = 26
-    targetSdkVersion = 26
-    buildToolsVersion = '26.0.2'
+    targetSdkVersion = 27
+    buildToolsVersion = '27.0.2'
 
-    supportLibraryVersion = '26.1.0'
+    supportLibraryVersion = '27.0.2'
 
     supportAppCompat = "com.android.support:appcompat-v7:$supportLibraryVersion"
     supportDesign = "com.android.support:design:$supportLibraryVersion"

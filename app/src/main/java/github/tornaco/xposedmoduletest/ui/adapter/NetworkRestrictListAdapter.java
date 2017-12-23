@@ -20,14 +20,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import dev.tornaco.vangogh.Vangogh;
-import dev.tornaco.vangogh.display.appliers.FadeOutFadeInApplier;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
+import github.tornaco.xposedmoduletest.loader.GlideApp;
+import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.model.NetworkRestrictionItem;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import lombok.Getter;
 import lombok.Setter;
+
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 /**
  * Created by guohao4 on 2017/12/5.
@@ -43,7 +44,6 @@ public class NetworkRestrictListAdapter
     private boolean restrictWifi, restrictData;
 
     private Context context;
-    private VangoghAppLoader vangoghAppLoader;
 
     @Getter
     private int selection = -1;
@@ -54,7 +54,6 @@ public class NetworkRestrictListAdapter
 
     public NetworkRestrictListAdapter(Context context) {
         this.context = context;
-        vangoghAppLoader = new VangoghAppLoader(context);
 
         this.highlightColor = ContextCompat.getColor(context, R.color.blue_grey);
         this.normalColor = ContextCompat.getColor(context, R.color.card);
@@ -110,14 +109,15 @@ public class NetworkRestrictListAdapter
             });
         }
 
-        Vangogh.with(context)
-                .load(item.getPackageName())
-                .skipMemoryCache(true)
-                .usingLoader(vangoghAppLoader)
-                .applier(new FadeOutFadeInApplier())
-                .placeHolder(0)
+        CommonPackageInfo c = new CommonPackageInfo();
+        c.setPkgName(item.getPackageName());
+        GlideApp.with(context)
+                .load(c)
+                .placeholder(0)
+                .error(R.mipmap.ic_launcher_round)
                 .fallback(R.mipmap.ic_launcher_round)
-                .into(holder.getIconView());
+                .transition(withCrossFade())
+                .into(holder.iconView);
 
         if (getSelection() >= 0 && position == selection) {
             holder.itemView.setBackgroundColor(highlightColor);

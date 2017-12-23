@@ -9,7 +9,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.ActivityCompat;
@@ -30,18 +29,14 @@ import org.newstand.logger.Logger;
 
 import java.util.List;
 
-import dev.tornaco.vangogh.Vangogh;
-import dev.tornaco.vangogh.display.CircleImageEffect;
-import dev.tornaco.vangogh.display.ImageEffect;
-import dev.tornaco.vangogh.display.appliers.ScaleInXYApplier;
-import dev.tornaco.vangogh.media.Image;
 import github.tornaco.android.common.util.ApkUtil;
 import github.tornaco.android.common.util.ColorUtil;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.camera.CameraManager;
 import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerCompat;
+import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
-import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
+import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.provider.LockStorage;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
@@ -49,6 +44,7 @@ import github.tornaco.xposedmoduletest.util.PatternLockViewListenerAdapter;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 import static github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager.EXTRA_INJECT_HOME_WHEN_FAIL_ID;
 import static github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager.EXTRA_PKG_NAME;
 import static github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager.EXTRA_TRANS_ID;
@@ -130,23 +126,14 @@ public class VerifyDisplayerActivity extends BaseActivity {
     private void setupIcon() {
         if (XSettings.showAppIconEnabled(this)) {
             ImageView imageView = findViewById(R.id.icon);
-            Vangogh.with(this)
-                    .load(pkg)
-                    .placeHolder(0)
-                    .fallback(R.mipmap.ic_header_avatar)
-                    .usingLoader(new VangoghAppLoader(this))
-                    .applier(new ScaleInXYApplier())
-                    // FIXME Make it simple.
-                    .effect(XSettings.cropEnabled(this)
-                            ? new CircleImageEffect() : new ImageEffect() {
-                        @NonNull
-                        @Override
-                        public Image process(Context context, @NonNull Image image) {
-                            return image;
-                        }
-                    })
-                    .skipDiskCache(true)
-                    .skipMemoryCache(true)
+            CommonPackageInfo c = new CommonPackageInfo();
+            c.setPkgName(pkg);
+            GlideApp.with(this)
+                    .load(c)
+                    .placeholder(0)
+                    .error(R.mipmap.ic_launcher_round)
+                    .fallback(R.mipmap.ic_launcher_round)
+                    .transition(withCrossFade())
                     .into(imageView);
         }
     }

@@ -84,7 +84,7 @@ dependencies {
     implementation "com.squareup.retrofit2:adapter-rxjava:${rootProject.ext.retrofitVersion}"
     implementation "org.jsoup:jsoup:${rootProject.ext.jsoupVersion}"
 
-    implementation project(':vangoghcore')
+    // implementation project(':vangoghcore')
     // compile project(':keyguard')
     implementation project(':tiles')
     implementation project(':searchdialog')
@@ -103,6 +103,10 @@ dependencies {
     implementation 'com.nononsenseapps:filepicker:4.1.0'
 
     implementation 'com.jaredrummler:android-shell:1.0.0'
+
+    // Image loader.
+    implementation 'com.github.bumptech.glide:glide:4.4.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.4.0'
 }
 
 

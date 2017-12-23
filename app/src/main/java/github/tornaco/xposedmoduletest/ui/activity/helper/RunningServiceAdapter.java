@@ -3,7 +3,6 @@ package github.tornaco.xposedmoduletest.ui.activity.helper;
 import android.content.Context;
 import android.view.View;
 
-import dev.tornaco.vangogh.display.ImageApplier;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 
@@ -23,10 +22,6 @@ public class RunningServiceAdapter extends CommonPackageInfoAdapter {
         return R.layout.app_list_item_2;
     }
 
-    @Override
-    protected ImageApplier onCreateImageApplier() {
-        return null;
-    }
 
     @Override
     public void onBindViewHolder(CommonViewHolder holder, int position) {

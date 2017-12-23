@@ -17,17 +17,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import dev.tornaco.vangogh.Vangogh;
-import dev.tornaco.vangogh.display.ImageApplier;
-import dev.tornaco.vangogh.display.appliers.FadeOutFadeInApplier;
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
+import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import lombok.Getter;
 import lombok.Setter;
 import tornaco.lib.widget.CheckableImageView;
+
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 /**
  * Created by guohao4 on 2017/12/18.
@@ -39,7 +38,6 @@ public class CommonPackageInfoAdapter
         implements FastScrollRecyclerView.SectionedAdapter {
 
     private Context context;
-    private VangoghAppLoader vangoghAppLoader;
 
     @Getter
     private int selection = -1;
@@ -58,8 +56,6 @@ public class CommonPackageInfoAdapter
 
     public CommonPackageInfoAdapter(Context context) {
         this.context = context;
-        vangoghAppLoader = new VangoghAppLoader(context);
-
         this.highlightColor = ContextCompat.getColor(context, R.color.accent);
         this.normalColor = ContextCompat.getColor(context, R.color.card);
 
@@ -110,13 +106,13 @@ public class CommonPackageInfoAdapter
         holder.getLineOneTextView().setText(packageInfo.getAppName());
 
         holder.getCheckableImageView().setChecked(false, false);
-        Vangogh.with(context)
-                .load(packageInfo.getPkgName())
-                .skipMemoryCache(true)
-                .usingLoader(vangoghAppLoader)
-                .applier(onCreateImageApplier())
-                .placeHolder(0)
+
+        GlideApp.with(context)
+                .load(packageInfo)
+                .placeholder(0)
+                .error(R.mipmap.ic_launcher_round)
                 .fallback(R.mipmap.ic_launcher_round)
+                .transition(withCrossFade())
                 .into(holder.getCheckableImageView());
 
         if (getSelection() >= 0 && position == selection) {
@@ -158,10 +154,6 @@ public class CommonPackageInfoAdapter
         if (itemCheckListener != null) {
             itemCheckListener.onItemCheckChanged(getItemCount(), getCheckedCount());
         }
-    }
-
-    protected ImageApplier onCreateImageApplier() {
-        return new FadeOutFadeInApplier();
     }
 
     protected boolean onItemLongClick(View v, int position) {

@@ -31,12 +31,6 @@
             android:key="show_app_icon_enabled"
             android:title="@string/title_show_app_icon" />
 
-        <SwitchPreference
-            android:defaultValue="false"
-            android:dependency="show_app_icon_enabled"
-            android:key="key_crop_circle_enabled"
-            android:title="@string/title_crop_enabled" />
-
     </PreferenceCategory>
 
 </PreferenceScreen>

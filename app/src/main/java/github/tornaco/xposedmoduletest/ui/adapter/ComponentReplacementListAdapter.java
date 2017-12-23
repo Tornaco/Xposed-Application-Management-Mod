@@ -19,13 +19,14 @@ import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
 
-import dev.tornaco.vangogh.Vangogh;
-import dev.tornaco.vangogh.display.appliers.FadeOutFadeInApplier;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.ComponentReplacement;
-import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
+import github.tornaco.xposedmoduletest.loader.GlideApp;
+import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import lombok.Getter;
 import lombok.Setter;
+
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 /**
  * Created by guohao4 on 2017/11/17.
@@ -42,8 +43,6 @@ public class ComponentReplacementListAdapter
 
     private Context context;
 
-    private VangoghAppLoader vangoghAppLoader;
-
     @ColorInt
     @Setter
     private int highlightColor, normalColor;
@@ -52,7 +51,6 @@ public class ComponentReplacementListAdapter
         this.context = context;
         this.highlightColor = ContextCompat.getColor(context, R.color.blue_grey);
         this.normalColor = ContextCompat.getColor(context, R.color.card);
-        vangoghAppLoader = new VangoghAppLoader(context);
     }
 
     public void update(Collection<ComponentReplacement> src) {
@@ -98,13 +96,15 @@ public class ComponentReplacementListAdapter
         holder.getSummaryView().setText(t.fromFlattenToString());
         holder.getSummaryView2().setText(t.toFlattenToString());
 
-        Vangogh.with(context)
-                .load(t.getAppPackageName())
-                .skipMemoryCache(true)
-                .usingLoader(vangoghAppLoader)
-                .applier(new FadeOutFadeInApplier())
-                .placeHolder(0)
+
+        CommonPackageInfo c = new CommonPackageInfo();
+        c.setPkgName(t.getAppPackageName());
+        GlideApp.with(context)
+                .load(c)
+                .placeholder(0)
+                .error(R.mipmap.ic_launcher_round)
                 .fallback(R.mipmap.ic_launcher_round)
+                .transition(withCrossFade())
                 .into(holder.getIconView());
     }
 

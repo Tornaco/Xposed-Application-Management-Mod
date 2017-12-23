@@ -15,14 +15,15 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import dev.tornaco.vangogh.Vangogh;
-import dev.tornaco.vangogh.display.appliers.ResAnimationApplier;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.AccessInfo;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
+import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.util.MediaUtil;
 import si.virag.fuzzydateformatter.FuzzyDateTimeFormatter;
+
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 /**
  * Created by guohao4 on 2017/10/18.
@@ -63,13 +64,15 @@ public class PhotoListAdapter extends RecyclerView.Adapter<PhotoListAdapter.Acce
         final AccessInfo accessInfo = accessInfos.get(position);
         holder.textView.setText(FuzzyDateTimeFormatter.getTimeAgo(context, new Date(accessInfo.getWhen())));
         holder.textView2.setText(accessInfo.getUrl());
-        Vangogh.with(context)
+
+        GlideApp.with(context)
                 .load(accessInfo.getUrl())
-                .skipMemoryCache(true)
-                .applier(new ResAnimationApplier(context, R.anim.grow_fade_in))
-                .placeHolder(0)
-                .fallback(R.mipmap.ic_launcher_round)
+                .placeholder(0)
+                .error(0)
+                .fallback(0)
+                .transition(withCrossFade())
                 .into(holder.imageView);
+
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @SuppressWarnings("ResultOfMethodCallIgnored")
             @Override

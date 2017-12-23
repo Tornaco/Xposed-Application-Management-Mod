@@ -16,12 +16,13 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import dev.tornaco.vangogh.Vangogh;
-import dev.tornaco.vangogh.display.appliers.FadeOutFadeInApplier;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.loader.VangoghAppLoader;
+import github.tornaco.xposedmoduletest.loader.GlideApp;
+import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import si.virag.fuzzydateformatter.FuzzyDateTimeFormatter;
+
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 /**
  * Created by guohao4 on 2017/10/18.
@@ -32,14 +33,12 @@ public class BlockRecord2ListAdapter extends RecyclerView.Adapter<BlockRecord2Li
         implements SectionIndexer {
 
     private Context context;
-    private VangoghAppLoader vangoghAppLoader;
 
     public BlockRecord2ListAdapter(Context context) {
         this.context = context;
-        vangoghAppLoader = new VangoghAppLoader(context);
     }
 
-    final List<BlockRecord2> blockRecords = new ArrayList<>();
+    private final List<BlockRecord2> blockRecords = new ArrayList<>();
 
     public void update(Collection<BlockRecord2> src) {
         synchronized (blockRecords) {
@@ -73,13 +72,15 @@ public class BlockRecord2ListAdapter extends RecyclerView.Adapter<BlockRecord2Li
                 context.getString(R.string.block_record_summary,
                         String.valueOf(blockRecord.getHowManyTimes()),
                         FuzzyDateTimeFormatter.getTimeAgo(context, new Date(blockRecord.getTimeWhen()))));
-        Vangogh.with(context)
-                .load(blockRecord.getPkgName())
-                .skipMemoryCache(true)
-                .usingLoader(vangoghAppLoader)
-                .applier(new FadeOutFadeInApplier())
-                .placeHolder(0)
+
+        CommonPackageInfo c = new CommonPackageInfo();
+        c.setPkgName(blockRecord.getPkgName());
+        GlideApp.with(context)
+                .load(c)
+                .placeholder(0)
+                .error(R.mipmap.ic_launcher_round)
                 .fallback(R.mipmap.ic_launcher_round)
+                .transition(withCrossFade())
                 .into(holder.getAppIconView());
     }
 
