@@ -808,14 +808,20 @@ public class PatternLockView extends View {
                 addCellToPattern(fillInGapDot);
             }
             addCellToPattern(dot);
-//            if (mEnableHapticFeedback) {
-//                performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY,
-//                        HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING
-//                                | HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
-//            }
+            if (drawableVibrateEnabled) {
+                performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY,
+                        HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING
+                                | HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
+            }
             return dot;
         }
         return null;
+    }
+
+    private boolean drawableVibrateEnabled;
+
+    public void setDrawableVibrateEnabled(boolean drawableVibrateEnabled) {
+        this.drawableVibrateEnabled = drawableVibrateEnabled;
     }
 
     private void addCellToPattern(Dot newDot) {

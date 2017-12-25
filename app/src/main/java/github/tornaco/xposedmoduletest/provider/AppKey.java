@@ -12,4 +12,5 @@ public interface AppKey {
     String BUILD_DATE = "build_date";
     String SHOW_INFO_PREFIX = "key_show_info_";
     String MAIN_DASH_COLUMN_COUNT = "main_col_count_";
+    String DRAW_VIBRATE = "draw_vibrate_enabled";
 }

@@ -314,7 +314,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             ash.addTile(new PermControl(getActivity()));
             ash.addTile(new SmartSense(getActivity()));
             ash.addTile(new Greening(getActivity()));
-            if (OSUtil.isMOrAbove()) ash.addTile(new NFManager(getActivity()));
+            if (BuildConfig.DEBUG && OSUtil.isMOrAbove()) ash.addTile(new NFManager(getActivity()));
 
             categories.add(category);
             categories.add(rest);

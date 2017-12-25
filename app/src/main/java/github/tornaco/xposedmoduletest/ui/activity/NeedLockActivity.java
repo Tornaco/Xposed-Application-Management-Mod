@@ -33,6 +33,7 @@ import java.util.List;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.camera.CameraManager;
 import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerCompat;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.provider.LockStorage;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.ag.PatternSetupActivity;
@@ -345,6 +346,7 @@ public class NeedLockActivity extends BaseActivity {
 
         private void setupPatternLockView() {
             final PatternLockView patternLockView = mRootView.findViewById(R.id.pattern_lock_view);
+            patternLockView.setDrawableVibrateEnabled(AppSettings.isDrawVibrateEnabled(getContext()));
             patternLockView.addPatternLockListener(new PatternLockViewListenerAdapter() {
                 @Override
                 public void onComplete(List<PatternLockView.Dot> pattern) {

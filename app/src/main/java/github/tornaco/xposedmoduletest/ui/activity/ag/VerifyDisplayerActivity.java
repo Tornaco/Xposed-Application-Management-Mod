@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import com.andrognito.patternlockview.PatternLockView;
 import com.andrognito.patternlockview.utils.PatternLockUtils;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 
 import org.newstand.logger.Logger;
 
@@ -37,6 +38,7 @@ import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerComp
 import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.provider.LockStorage;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
@@ -125,10 +127,22 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private void setupIcon() {
         if (XSettings.showAppIconEnabled(this)) {
+            boolean useRoundIcon = XSettings.cropEnabled(this);
+
             ImageView imageView = findViewById(R.id.icon);
+
             CommonPackageInfo c = new CommonPackageInfo();
             c.setPkgName(pkg);
-            GlideApp.with(this)
+
+            if (useRoundIcon) GlideApp.with(this)
+                    .load(c)
+                    .placeholder(0)
+                    .error(R.mipmap.ic_launcher_round)
+                    .fallback(R.mipmap.ic_launcher_round)
+                    .transition(withCrossFade())
+                    .transform(new CircleCrop())
+                    .into(imageView);
+            else GlideApp.with(this)
                     .load(c)
                     .placeholder(0)
                     .error(R.mipmap.ic_launcher_round)
@@ -146,6 +160,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
         final PatternLockView patternLockView = findViewById(R.id.pattern_lock_view);
         patternLockView.setTactileFeedbackEnabled(false);
         patternLockView.setEnableHapticFeedback(false);
+        patternLockView.setDrawableVibrateEnabled(AppSettings.isDrawVibrateEnabled(this));
         patternLockView.addPatternLockListener(new PatternLockViewListenerAdapter() {
             @Override
             public void onComplete(List<PatternLockView.Dot> pattern) {

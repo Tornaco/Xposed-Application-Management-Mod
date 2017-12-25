@@ -279,7 +279,7 @@
     <string name="err_file_not_found">文件不存在</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="title_nf">网络防火墙</string>
-    <string name="summary_nf">注意该功能仍处于【试验】阶段！！！ @非基于LOS 的ROM，@软重启 之后，在 @设备完全重启 之前，网络控制设置修改后 将 @无法生效 。</string>
+    <string name="summary_nf">注意该功能仍处于实验阶段！！！如果有BUG就不要尝试使用了:(\n\n 非基于LOS 的ROM，软重启之后，在设备完全重启之前，网络控制设置修改无法生效。</string>
     <string name="title_nf_warn">注意！！！</string>
     <string name="title_copy_name">复制完整名称</string>
     <string name="titile_lk_do_not_kill_audio">不清理音频播放</string>
@@ -366,5 +366,6 @@
     <string name="summary_exp">实验功能</string>
     <string name="summary_app_lazy">应用不老实？乖巧模式下的应用在前台运行时不受限制，当应用回到后台时主动停止服务。\n\n注意，该模式与绿化会冲突，如果你对该应用绿化了服务，那么该应用前台是依然无法启动任何服务。\n\n此功能测试功能，不要报bug。</string>
     <string name="title_app_lazy">乖巧模式</string>
+    <string name="title_draw_vibrate">绘图过程震动</string>
 
 </resources>

@@ -27,6 +27,11 @@ public class AppSettings extends Observable {
         return sMe;
     }
 
+    public static boolean isDrawVibrateEnabled(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(AppKey.DRAW_VIBRATE, false);
+    }
+
     public static boolean isFirstRun(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(AppKey.FIRST_RUN, true);

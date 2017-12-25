@@ -20,6 +20,7 @@ public class Lazy extends QuickTile {
     public Lazy(final Context context) {
         super(context);
         this.titleRes = R.string.title_app_lazy;
+        this.summaryRes = R.string.summary_exp;
         this.iconRes = R.drawable.ic_child_care_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override

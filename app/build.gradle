@@ -10,8 +10,8 @@ android {
         applicationId "github.tornaco.xposedmoduletest"
         minSdkVersion rootProject.ext.minSdkVersion as int
         targetSdkVersion rootProject.ext.compileSdkVersion as int
-        versionCode 2850
-        versionName "2.8.5"
+        versionCode 2860
+        versionName "2.8.6"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -106,6 +106,7 @@ dependencies {
     // Image loader.
     implementation 'com.github.bumptech.glide:glide:4.4.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.4.0'
+    implementation 'jp.wasabeef:glide-transformations:3.0.1'
 }
 
 

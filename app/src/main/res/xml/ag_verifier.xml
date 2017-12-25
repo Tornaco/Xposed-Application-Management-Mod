@@ -4,6 +4,12 @@
     <PreferenceCategory android:title="@string/title_feedback">
 
         <SwitchPreference
+            android:defaultValue="false"
+            android:key="draw_vibrate_enabled"
+            android:persistent="true"
+            android:title="@string/title_draw_vibrate" />
+
+        <SwitchPreference
             android:defaultValue="true"
             android:key="unlock_vibrate_enabled"
             android:persistent="false"
@@ -30,6 +36,12 @@
             android:defaultValue="false"
             android:key="show_app_icon_enabled"
             android:title="@string/title_show_app_icon" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:dependency="show_app_icon_enabled"
+            android:key="key_crop_circle_enabled"
+            android:title="@string/title_crop_enabled" />
 
     </PreferenceCategory>
 
