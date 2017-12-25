@@ -57,6 +57,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.Privacy;
 import github.tornaco.xposedmoduletest.ui.tiles.RFKill;
 import github.tornaco.xposedmoduletest.ui.tiles.SmartSense;
 import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -302,7 +303,9 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             rest.addTile(new AppStart(getActivity()));
             rest.addTile(new LockKill(getActivity()));
             rest.addTile(new RFKill(getActivity()));
-            if (BuildConfig.DEBUG) rest.addTile(new Lazy(getActivity()));
+            if (AppSettings.isShowInfoEnabled(getContext(), "show_lazy_ui", false)) {
+                rest.addTile(new Lazy(getActivity()));
+            }
 
             Category ash = new Category();
             ash.titleRes = R.string.title_control;
@@ -311,7 +314,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             ash.addTile(new PermControl(getActivity()));
             ash.addTile(new SmartSense(getActivity()));
             ash.addTile(new Greening(getActivity()));
-            ash.addTile(new NFManager(getActivity()));
+            if (OSUtil.isMOrAbove()) ash.addTile(new NFManager(getActivity()));
 
             categories.add(category);
             categories.add(rest);

@@ -1,11 +1,14 @@
 package github.tornaco.xposedmoduletest.ui.tiles.app;
 
 import android.content.Context;
+import android.view.View;
+import android.widget.Toast;
 
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildHostInfo;
 
 /**
@@ -14,7 +17,9 @@ import github.tornaco.xposedmoduletest.xposed.XAppBuildHostInfo;
  */
 
 public class AppVersion extends QuickTile {
-    public AppVersion(Context context) {
+    private int clickedTimes = 0;
+
+    public AppVersion(final Context context) {
         super(context);
 
         this.titleRes = R.string.title_app_ver;
@@ -25,6 +30,20 @@ public class AppVersion extends QuickTile {
 //                + "\nServer序列号：" + (XAshmanManager.get().isServiceAvailable() ? XAshmanManager.get().getBuildSerial() : "UNKNOWN")
 //                + "\nApp序列号：" + BuildFingerprintBuildHostInfo.BUILD_FINGER_PRINT;
         this.iconRes = R.drawable.ic_info_black_24dp;
-        this.tileView = new QuickTileView(context, this);
+        this.tileView = new QuickTileView(context, this) {
+            @Override
+            public void onClick(View v) {
+                super.onClick(v);
+                clickedTimes++;
+
+                if (clickedTimes >= 8) {
+                    if (!AppSettings.isShowInfoEnabled(context, "show_lazy_ui", false)) {
+                        AppSettings.setShowInfo(context, "show_lazy_ui", true);
+                        Toast.makeText(context, "@$#%@&#%@^#%^#", Toast.LENGTH_SHORT).show();
+                    }
+                    clickedTimes = 0;
+                }
+            }
+        };
     }
 }

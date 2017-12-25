@@ -3,7 +3,6 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 import java.util.HashSet;
 import java.util.Set;
 
-import github.tornaco.xposedmoduletest.BuildConfig;
 import lombok.Synchronized;
 
 /**
@@ -22,24 +21,24 @@ public class IntentFirewallSubModuleManager {
         SUBS.add(new AlarmManagerSubModule());
         SUBS.add(new WakelockSubModule());
         SUBS.add(new SecureSettingsSubModule());
-        SUBS.add(new PhoneSubInfoCtrlerSubModule2());
-        SUBS.add(new PhoneSubInfoCtrlerSubModule());
-        SUBS.add(new PhoneInterfaceManagerSubModule2());
-        SUBS.add(new PhoneInterfaceManagerSubModule());
-        if (BuildConfig.DEBUG) SUBS.add(new NetworkManagementModule());
+
+        SUBS.add(new TelephonyManagerSubModule());
+
+        SUBS.add(new NetworkManagementModule());
         SUBS.add(new MediaFocusControlSubModule2());
         SUBS.add(new MediaFocusControlSubModule());
         SUBS.add(new PMSSubModule4());
         SUBS.add(new PMSSubModule2());
         SUBS.add(new ASDSubModule());
         SUBS.add(new IFWSubModule());
-        // SUBS.add(new ActiveServiceSubModule2());
         SUBS.add(new AppOpsSubModule4());
         SUBS.add(new AppOpsSubModule3());
         SUBS.add(new AppOpsSubModule2());
         SUBS.add(new AppOpsSubModule());
+
         SUBS.add(new ActiveServiceSubModule());
         SUBS.add(new RuntimeInitSubModule());
+
         SUBS.add(new AMSSubModule9());
         SUBS.add(new AMSSubModule8());
         SUBS.add(new AMSSubModule6());

@@ -36,17 +36,16 @@ class RuntimeInitSubModule extends IntentFirewallAndroidSubModule {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
-                            // Wrap err log to xp log.
-                            Thread t = (Thread) param.args[0];
-                            Throwable e = (Throwable) param.args[1];
-                            String currentPackage = AndroidAppHelper.currentPackageName();
-                            String trace = Log.getStackTraceString(e);
-                            XposedLog.verbose("uncaughtException on currentPackage@%s, thread@%s, throwable@%s", currentPackage, t, e);
-                            XposedLog.verbose("***** FATAL EXCEPTION TRACE DUMP APM-S*****\n%s", trace);
-
                             // Now report to ash man.
                             XAshmanManager xAshmanManager = XAshmanManager.get();
-                            if (xAshmanManager.isServiceAvailable()) {
+                            if (xAshmanManager.isServiceAvailable()
+                                    && xAshmanManager.isAppCrashDumpEnabled()) {
+                                // Wrap err log to xp log.
+                                Thread t = (Thread) param.args[0];
+                                Throwable e = (Throwable) param.args[1];
+                                String currentPackage = AndroidAppHelper.currentPackageName();
+                                String trace = Log.getStackTraceString(e);
+
                                 boolean shouldInterruptCrash =
                                         xAshmanManager.onApplicationUncaughtException(currentPackage,
                                                 t.getName(), e.getClass().getName(), trace);

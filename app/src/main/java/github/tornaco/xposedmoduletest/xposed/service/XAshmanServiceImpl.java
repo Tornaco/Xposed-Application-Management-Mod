@@ -109,9 +109,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private static final String TAG_LK = "LOCK-KILL-";
 
-    private static final boolean DEBUG_BROADCAST = BuildConfig.DEBUG;
-    private static final boolean DEBUG_SERVICE = BuildConfig.DEBUG;
-    private static final boolean DEBUG_OP = false && BuildConfig.DEBUG;
+    private static final boolean DEBUG_BROADCAST = true || BuildConfig.DEBUG;
+    private static final boolean DEBUG_SERVICE = true || BuildConfig.DEBUG;
+    private static final boolean DEBUG_OP = true || BuildConfig.DEBUG;
     private static final boolean DEBUG_COMP = false && BuildConfig.DEBUG;
 
     private static final Set<String> WHITE_LIST = new HashSet<>();
@@ -371,11 +371,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             if (isSystemApp) {
 
                                 // Check if persist.
-//                                boolean isPersist = (applicationInfo.flags & ApplicationInfo.FLAG_PERSISTENT) != 0;
-//                                if (isPersist) {
-//                                    addToWhiteList(pkg);
-//                                    return;
-//                                }
+                                boolean isPersist = (applicationInfo.flags & ApplicationInfo.FLAG_PERSISTENT) != 0;
+                                if (isPersist) {
+                                    addToWhiteList(pkg);
+                                    XposedLog.wtf("Adding persist pkg: " + pkg);
+                                    return;
+                                }
 
                                 android.content.pm.PackageInfo packageInfo = null;
                                 // Check if android system uid or media, phone.
@@ -385,9 +386,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                     if (
                                         // Someone want for fuck the system apps anyway
                                         // Let it go~
-                                        // "android.uid.system".equals(sharedUserId)||
-                                            "android.uid.phone".equals(sharedUserId)
-                                        //        || "android.media".equals(sharedUserId)
+                                            "android.uid.system".equals(sharedUserId) ||
+                                                    "android.uid.phone".equals(sharedUserId)
+                                                    || "android.media".equals(sharedUserId)
                                             ) {
                                         if (XposedLog.isVerboseLoggable())
                                             XposedLog.debug("Add to white list package: "
@@ -401,18 +402,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 }
                                 addToSystemApps(pkg);
                             }
-
-//                            if (PkgUtil.isHomeApp(getContext(), pkg)) {
-//                                addToWhiteList(pkg);
-//                            }
-
                             if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
                                 addToWhiteList(pkg);
                             }
-
-//                            if (isIME(pkg)) {
-//                                addToWhiteList(pkg);
-//                            }
                         }
                     });
         } catch (Exception ignored) {
@@ -752,6 +744,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private CheckResult checkServiceDetailed(String servicePkgName, int callerUid) {
         if (TextUtils.isEmpty(servicePkgName)) return CheckResult.BAD_ARGS;
+
+        if (PkgUtil.isSystemOrPhoneOrShell(callerUid)){
+            XposedLog.wtf("This is called by system, dangerous blocking!!!");
+        }
 
         if (isInWhiteList(servicePkgName)) {
             return CheckResult.WHITE_LISTED;
@@ -1848,8 +1844,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         checkSafeMode();
         registerReceiver();
 
-        // No need any more.
-        // migrateFromOldDataBase();
+        // Try to setup the list after 15s.
+        lazyH.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    applyRestrictionBlackList();
+                } catch (Throwable ignored) {
+                }
+            }
+        }, 10 * 1000);
     }
 
     // NMS API START.
@@ -1912,7 +1916,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         mPendingDataRestrictReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                processPendingDataRestrictRequests();
+                try {
+                    applyRestrictionBlackList();
+                    processPendingDataRestrictRequests();
+                } catch (Exception e) {
+                    XposedLog.wtf(Log.getStackTraceString(e));
+                }
             }
         };
         final IntentFilter filter = new IntentFilter();
@@ -2280,6 +2289,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public boolean onApplicationUncaughtException(String packageName, String thread, String exception, String trace)
             throws RemoteException {
+
+        XposedLog.verbose("uncaughtException on currentPackage@%s, thread@%s, throwable@%s", packageName, thread, exception);
+        XposedLog.verbose("***** FATAL EXCEPTION TRACE DUMP APM-S*****\n%s", trace);
+
         h.removeMessages(AshManHandlerMessages.MSG_ONAPPLICATIONUNCAUGHTEXCEPTION);
         h.obtainMessage(AshManHandlerMessages.MSG_ONAPPLICATIONUNCAUGHTEXCEPTION,
                 UncaughtException.builder()
@@ -2289,6 +2302,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         .trace(trace)
                         .build())
                 .sendToTarget();
+
+        // Do not interrupt app crash.
         return false;
     }
 
@@ -2478,8 +2493,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return;
         }
         if (mPendingDataRestrictReceiver != null) {
-            getContext().unregisterReceiver(mPendingDataRestrictReceiver);
-            mPendingDataRestrictReceiver = null;
+            // getContext().unregisterReceiver(mPendingDataRestrictReceiver);
+            // mPendingDataRestrictReceiver = null;
         }
         int count = mPendingRestrictOnData.size();
         for (int i = 0; i < count; i++) {
@@ -2906,7 +2921,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         private final Runnable clearProcessRunnable = new Runnable() {
             @Override
             public void run() {
-                clearProcess(null);
+                try {
+                    clearProcess(null);
+                } catch (Throwable e) {
+                    XposedLog.wtf("Error on clearProcessRunnable: " + Log.getStackTraceString(e));
+                }
             }
         };
 
@@ -3591,16 +3610,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        if (XposedLog.isVerboseLoggable())
-                            XposedLog.verbose("Killing maybeRootActivityFinish: " + packageName);
-
-                        if (packageName.equals(getTopPackage())) {
+                        try {
                             if (XposedLog.isVerboseLoggable())
-                                XposedLog.verbose("Top package is now him, let it go~");
-                            return;
-                        }
+                                XposedLog.verbose("Killing maybeRootActivityFinish: " + packageName);
 
-                        PkgUtil.kill(getContext(), packageName);
+                            if (packageName.equals(getTopPackage())) {
+                                if (XposedLog.isVerboseLoggable())
+                                    XposedLog.verbose("Top package is now him, let it go~");
+                                return;
+                            }
+
+                            PkgUtil.kill(getContext(), packageName);
+                        } catch (Throwable e) {
+                            XposedLog.wtf("Fail rf kill in runnable: " + Log.getStackTraceString(e));
+                        }
                     }
                 }, 666);
             }
@@ -3794,6 +3817,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         public static final CheckResult WHITE_LISTED = new CheckResult(true, "WHITE_LISTED", true);
         public static final CheckResult SYSTEM_APP = new CheckResult(true, "SYSTEM_APP", true);
+        public static final CheckResult CALLED_BY_SYSTEM = new CheckResult(true, "CALLED_BY_SYSTEM", true);
 
         public static final CheckResult HOME_APP = new CheckResult(true, "HOME_APP", true);
         public static final CheckResult LAUNCHER_APP = new CheckResult(true, "LAUNCHER_APP", true);

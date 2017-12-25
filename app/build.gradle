@@ -10,8 +10,8 @@ android {
         applicationId "github.tornaco.xposedmoduletest"
         minSdkVersion rootProject.ext.minSdkVersion as int
         targetSdkVersion rootProject.ext.compileSdkVersion as int
-        versionCode 2830
-        versionName "2.8.3"
+        versionCode 2850
+        versionName "2.8.5"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -61,7 +61,6 @@ dependencies {
     implementation 'com.github.Tornaco:AndroidCommon:v1.0'
     implementation 'com.github.Tornaco:CheckableImageView:1.0'
 
-    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     provided project(':api-gen-annotations')
     annotationProcessor project(':api-gen-compiler')
 

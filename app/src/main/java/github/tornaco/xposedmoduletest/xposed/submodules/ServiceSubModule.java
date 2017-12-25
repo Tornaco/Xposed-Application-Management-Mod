@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import android.app.Service;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
@@ -14,6 +15,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -39,12 +41,18 @@ class ServiceSubModule extends IntentFirewallAndroidSubModule {
                         protected void afterHookedMethod(final MethodHookParam param)
                                 throws Throwable {
                             super.afterHookedMethod(param);
+
+                            // Do not hook any system service.
+                            int callingUid = Binder.getCallingUid();
+                            if (PkgUtil.isSystemOrPhoneOrShell(callingUid)) return;
+
                             final Service service = (Service) param.thisObject;
                             final String hostPackage = service.getPackageName();
 
-                            Log.d(XposedLog.TAG_LAZY, "Service onCreate: " + service);
                             if (XAshmanManager.get().isServiceAvailable()
                                     && XAshmanManager.get().isLazyModeEnabledForPackage(hostPackage)) {
+
+                                Log.d(XposedLog.TAG_LAZY, "Service onCreate: " + service);
 
                                 final Handler h = new Handler(service.getMainLooper()) {
                                     @Override

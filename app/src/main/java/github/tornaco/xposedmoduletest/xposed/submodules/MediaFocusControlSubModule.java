@@ -6,10 +6,12 @@ import android.util.Log;
 
 import java.util.Set;
 
+import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -20,12 +22,22 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 class MediaFocusControlSubModule extends IntentFirewallAndroidSubModule {
 
     @Override
-    public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        hookMediaFocusCtrl(lpparam);
+    public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {
+        super.initZygote(startupParam);
+
+        // L or below, locate MC in frameworks/base/media.
+        if (!OSUtil.isMOrAbove()) {
+            hookMediaFocusCtrlForL();
+        }
     }
 
-    private void hookMediaFocusCtrl(XC_LoadPackage.LoadPackageParam lpparam) {
-        XposedLog.verbose("hookMediaFocusCtrl...");
+    @Override
+    public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
+        if (OSUtil.isMOrAbove()) hookMediaFocusCtrlForMOrAbove(lpparam);
+    }
+
+    private void hookMediaFocusCtrlForMOrAbove(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedLog.verbose("hookMediaFocusCtrlForMOrAbove...");
         try {
             final Class ams = XposedHelpers.findClass("com.android.server.audio.MediaFocusControl",
                     lpparam.classLoader);
@@ -39,43 +51,51 @@ class MediaFocusControlSubModule extends IntentFirewallAndroidSubModule {
                     } catch (Throwable e) {
                         XposedLog.wtf("AudioAttributes cast fail: " + Log.getStackTraceString(e));
                     }
-
-//                    /**
-//                     * Content type value to use when the content type is unknown, or other than the ones defined.
-//                     */
-//                    public final static int CONTENT_TYPE_UNKNOWN = 0;
-//                    /**
-//                     * Content type value to use when the content type is speech.
-//                     */
-//                    public final static int CONTENT_TYPE_SPEECH = 1;
-//                    /**
-//                     * Content type value to use when the content type is music.
-//                     */
-//                    public final static int CONTENT_TYPE_MUSIC = 2;
-//                    /**
-//                     * Content type value to use when the content type is a soundtrack, typically accompanying
-//                     * a movie or TV program.
-//                     */
-//                    public final static int CONTENT_TYPE_MOVIE = 3;
-//                    /**
-//                     * Content type value to use when the content type is a sound used to accompany a user
-//                     * action, such as a beep or sound effect expressing a key click, or event, such as the
-//                     * type of a sound for a bonus being received in a game. These sounds are mostly synthesized
-//                     * or short Foley sounds.
-//                     */
-//                    public final static int CONTENT_TYPE_SONIFICATION = 4;
-
-
                     int contentType = at == null ? AudioAttributes.CONTENT_TYPE_MUSIC : at.getContentType();
                     int res = (int) param.getResult();
                     int callingUid = Binder.getCallingUid();
                     getIntentFirewallBridge().onRequestAudioFocus(contentType, res, callingUid, null);
                 }
             });
-            XposedLog.verbose("hookMediaFocusCtrl OK:" + unHooks);
+            XposedLog.verbose("hookMediaFocusCtrlForMOrAbove OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XposedLog.verbose("Fail hook hookMediaFocusCtrl");
+            XposedLog.verbose("Fail hook hookMediaFocusCtrlForMOrAbove");
+            setStatus(SubModuleStatus.ERROR);
+            setErrorMessage(Log.getStackTraceString(e));
+        }
+    }
+
+    private void hookMediaFocusCtrlForL() {
+        XposedLog.verbose("hookMediaFocusCtrlForL...");
+        try {
+            final Class ams = XposedHelpers.findClass("android.media.MediaFocusControl", null);
+            Set unHooks = XposedBridge.hookAllMethods(ams, "requestAudioFocus", new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    super.afterHookedMethod(param);
+
+                    if (Binder.getCallingUid() > 2000) {
+                        Log.e(XposedLog.TAG_DANGER, "hookMediaFocusCtrlForL this is a err caller, please file a bug!");
+                        return;
+                    }
+
+                    AudioAttributes at = null;
+                    try {
+                        at = (AudioAttributes) param.args[0];
+                    } catch (Throwable e) {
+                        XposedLog.wtf("AudioAttributes cast fail: " + Log.getStackTraceString(e));
+                    }
+                    int contentType = at == null ? AudioAttributes.CONTENT_TYPE_MUSIC : at.getContentType();
+                    int res = (int) param.getResult();
+                    int callingUid = Binder.getCallingUid();
+                    getIntentFirewallBridge().onRequestAudioFocus(contentType, res, callingUid, null);
+                }
+            });
+            XposedLog.verbose("hookMediaFocusCtrlForL OK:" + unHooks);
+            setStatus(unhooksToStatus(unHooks));
+        } catch (Exception e) {
+            XposedLog.verbose("Fail hook hookMediaFocusCtrlForL");
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

@@ -19,7 +19,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 // https://github.com/LineageOS/android_frameworks_base/blob/cm-14.1/services/core/java/com/android/server/am/ActiveServices.java
 // Hook hookRetrieveService settings.
 
-
+@Deprecated
 class ActiveServiceSubModule2 extends IntentFirewallAndroidSubModule {
 
 //    14.1

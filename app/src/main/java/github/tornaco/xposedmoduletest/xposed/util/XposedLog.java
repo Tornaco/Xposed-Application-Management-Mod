@@ -24,10 +24,10 @@ public abstract class XposedLog {
 
     private static final boolean FORCE_DEBUG = false;
 
-    public static final String TAG_PREFIX = "X-APM-S-";
-    public static final String TAG_DANGER = "X-APM-DANGER-";
-    public static final String TAG_LIST = "X-APM-LIST-";
-    public static final String TAG_LAZY = "X-APM-LAZY-";
+    public static final String TAG_PREFIX = "X-APM-S-" + BuildConfig.VERSION_NAME + "-";
+    public static final String TAG_DANGER = "X-APM-DANGER-" + BuildConfig.VERSION_NAME + "-";
+    public static final String TAG_LIST = "X-APM-LIST-" + BuildConfig.VERSION_NAME + "-";
+    public static final String TAG_LAZY = "X-APM-LAZY-" + BuildConfig.VERSION_NAME + "-";
 
     private static LogLevel sLevel = BuildConfig.DEBUG ? LogLevel.ALL : LogLevel.WARN;
 

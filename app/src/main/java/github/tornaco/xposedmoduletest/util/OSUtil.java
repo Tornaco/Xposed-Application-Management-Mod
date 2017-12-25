@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.util;
 
+import android.os.Build;
 import android.os.SystemProperties;
 import android.text.TextUtils;
 
@@ -28,5 +29,9 @@ public abstract class OSUtil {
 
     public static boolean isLOS() {
         return false;
+    }
+
+    public static boolean isMOrAbove() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
     }
 }
