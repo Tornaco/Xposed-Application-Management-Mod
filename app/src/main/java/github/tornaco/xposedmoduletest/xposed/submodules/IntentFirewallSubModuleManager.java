@@ -18,7 +18,7 @@ public class IntentFirewallSubModuleManager {
     private final Set<SubModule> SUBS = new HashSet<>();
 
     private IntentFirewallSubModuleManager() {
-        SUBS.add(new ServiceSubModule());
+        // SUBS.add(new ServiceSubModule());
         SUBS.add(new AlarmManagerSubModule());
         SUBS.add(new WakelockSubModule());
         SUBS.add(new SecureSettingsSubModule());
@@ -38,7 +38,7 @@ public class IntentFirewallSubModuleManager {
         SUBS.add(new AppOpsSubModule());
 
         SUBS.add(new ActiveServiceSubModule());
-        SUBS.add(new RuntimeInitSubModule());
+        // SUBS.add(new RuntimeInitSubModule());
 
         SUBS.add(new AMSSubModule9());
         SUBS.add(new AMSSubModule8());

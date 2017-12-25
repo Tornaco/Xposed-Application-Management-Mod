@@ -14,6 +14,7 @@ import java.util.Set;
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.apigen.BuildHostInfo;
+import github.tornaco.apigen.BuildVar;
 import github.tornaco.apigen.GithubCommitSha;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.provider.XSettings;
@@ -25,6 +26,7 @@ import github.tornaco.xposedmoduletest.util.XExecutor;
  */
 @GithubCommitSha
 @BuildHostInfo
+@BuildVar
 public class XApp extends Application implements Runnable {
 
     private static final Set<String> WHITE_LIST = new HashSet<>();

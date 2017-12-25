@@ -304,7 +304,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             rest.addTile(new LockKill(getActivity()));
             rest.addTile(new RFKill(getActivity()));
             if (AppSettings.isShowInfoEnabled(getContext(), "show_lazy_ui", false)) {
-                rest.addTile(new Lazy(getActivity()));
+                // rest.addTile(new Lazy(getActivity()));
             }
 
             Category ash = new Category();
