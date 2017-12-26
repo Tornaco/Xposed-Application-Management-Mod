@@ -12,7 +12,6 @@ import java.util.concurrent.Executors;
 
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
-import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -49,6 +48,9 @@ public class RepoProxy {
 
         File systemFile = new File(Environment.getDataDirectory(), "system");
         File dir = new File(systemFile, "tor_apm");
+        if (!dir.exists()) {
+            dir = new File(systemFile, "tor");
+        }
 
         boots = new StringSetRepo(new File(dir, "boots"), h, io);
         starts = new StringSetRepo(new File(dir, "starts"), h, io);
