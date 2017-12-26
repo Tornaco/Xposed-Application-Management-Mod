@@ -11,6 +11,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -21,6 +22,10 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 // Hook hookGetDeviceID settings.
 class TelephonyManagerSubModule extends IntentFirewallAndroidSubModule {
+    @Override
+    public String needBuildVar() {
+        return XAppBuildVar.APP_OPS;
+    }
 
     @Override
     public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {

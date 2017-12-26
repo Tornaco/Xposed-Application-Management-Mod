@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import android.app.AndroidAppHelper;
+import android.os.Binder;
 import android.util.Log;
 
 import java.util.Set;
@@ -10,6 +11,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -36,6 +38,11 @@ class RuntimeInitSubModule extends IntentFirewallAndroidSubModule {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
+
+                            if (PkgUtil.isSystemOrPhoneOrShell(Binder.getCallingUid())) {
+                                return;
+                            }
+
                             // Now report to ash man.
                             XAshmanManager xAshmanManager = XAshmanManager.get();
                             if (xAshmanManager.isServiceAvailable()

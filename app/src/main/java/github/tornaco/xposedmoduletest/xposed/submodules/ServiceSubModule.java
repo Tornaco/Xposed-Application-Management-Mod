@@ -15,6 +15,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
+import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -25,6 +26,11 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 class ServiceSubModule extends IntentFirewallAndroidSubModule {
+
+    @Override
+    public String needBuildVar() {
+        return XAppBuildVar.APP_LAZY;
+    }
 
     @Override
     public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {

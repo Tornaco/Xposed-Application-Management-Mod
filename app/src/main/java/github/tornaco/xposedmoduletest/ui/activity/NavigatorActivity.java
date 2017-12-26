@@ -32,7 +32,6 @@ import java.util.List;
 
 import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
-import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.os.PowerManagerCompat;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
@@ -49,6 +48,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.Blur;
 import github.tornaco.xposedmoduletest.ui.tiles.CompReplacement;
 import github.tornaco.xposedmoduletest.ui.tiles.ComponentManager;
 import github.tornaco.xposedmoduletest.ui.tiles.Greening;
+import github.tornaco.xposedmoduletest.ui.tiles.Lazy;
 import github.tornaco.xposedmoduletest.ui.tiles.LockKill;
 import github.tornaco.xposedmoduletest.ui.tiles.NFManager;
 import github.tornaco.xposedmoduletest.ui.tiles.PermControl;
@@ -292,33 +292,64 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             Category category = new Category();
             category.titleRes = R.string.title_secure;
 
-            category.addTile(new AppGuard(getActivity()));
-            category.addTile(new Blur(getActivity()));
-            category.addTile(new UnInstall(getActivity()));
-            if (BuildConfig.DEBUG) category.addTile(new Privacy(getActivity()));
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_LOCK)) {
+                category.addTile(new AppGuard(getActivity()));
+            }
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_BLUR)) {
+                category.addTile(new Blur(getActivity()));
+            }
+
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_UNINSTALL)) {
+                category.addTile(new UnInstall(getActivity()));
+            }
+
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_PRIVACY)) {
+                category.addTile(new Privacy(getActivity()));
+            }
 
             Category rest = new Category();
             rest.titleRes = R.string.title_restrict;
-            rest.addTile(new AppBoot(getActivity()));
-            rest.addTile(new AppStart(getActivity()));
-            rest.addTile(new LockKill(getActivity()));
-            rest.addTile(new RFKill(getActivity()));
-            if (AppSettings.isShowInfoEnabled(getContext(), "show_lazy_ui", false)) {
-                // rest.addTile(new Lazy(getActivity()));
+
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_BOOT)) {
+                rest.addTile(new AppBoot(getActivity()));
+            }
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_START)) {
+                rest.addTile(new AppStart(getActivity()));
+            }
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_LK)) {
+                rest.addTile(new LockKill(getActivity()));
+            }
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_RFK)) {
+                rest.addTile(new RFKill(getActivity()));
+            }
+
+            if (AppSettings.isShowInfoEnabled(getContext(), "show_lazy_ui", false)
+                    && (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_LAZY))) {
+                rest.addTile(new Lazy(getActivity()));
             }
 
             Category ash = new Category();
             ash.titleRes = R.string.title_control;
 
-            ash.addTile(new ComponentManager(getActivity()));
-            ash.addTile(new CompReplacement(getActivity()));
-            ash.addTile(new PermControl(getActivity()));
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_COMP_EDIT)) {
+                ash.addTile(new ComponentManager(getActivity()));
+            }
+
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_COMP_REPLACE)) {
+                ash.addTile(new CompReplacement(getActivity()));
+            }
+
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_OPS)) {
+                ash.addTile(new PermControl(getActivity()));
+            }
 
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_SMART_SENSE)) {
                 ash.addTile(new SmartSense(getActivity()));
             }
 
-            ash.addTile(new Greening(getActivity()));
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_GREEN)) {
+                ash.addTile(new Greening(getActivity()));
+            }
 
             // Only add when firewall is enabled for this build.
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_FIREWALL)) {

@@ -18,6 +18,14 @@ import github.tornaco.xposedmoduletest.provider.XSettings;
 @GithubCommitSha
 @BuildHostInfo
 @BuildVar
+
+
+
+
+
+
+
+
 public class XApp extends Application {
 
     @SuppressLint("StaticFieldLeak")

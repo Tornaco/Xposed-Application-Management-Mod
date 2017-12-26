@@ -41,13 +41,6 @@ class AMSSubModule8 extends IntentFirewallAndroidSubModule {
                         if (XposedLog.isVerboseLoggable()) {
                             XposedLog.debug("START_ANY_ACTIVITY ALLOWED!!!");
                         }
-                    } else {
-                        int pid = (int) param.args[1];
-                        int uid = (int) param.args[2];
-                        int userMode = getIntentFirewallBridge().checkPermission(permission, pid, uid);
-                        if (userMode != PackageManager.PERMISSION_GRANTED) {
-                            param.setResult(PackageManager.PERMISSION_DENIED);
-                        }
                     }
                 }
             });

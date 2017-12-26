@@ -45,5 +45,5 @@ interface AppGuardServiceHandler {
 
     void restoreDefaultSettings();
 
-    void updateDebugMode();
+    void warnIfDebug();
 }

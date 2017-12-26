@@ -1,3 +1,10 @@
 app_lock
-app_restrict
-app_control
+app_blur
+app_uninstall
+app_boot
+app_start
+app_green
+app_lk
+app_rfk
+app_comp_edit
+app_comp_replace

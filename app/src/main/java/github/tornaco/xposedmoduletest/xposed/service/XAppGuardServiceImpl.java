@@ -256,7 +256,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     private void loadConfigFromSettings() {
         try {
-            boolean appGuardEnabled = (boolean) SystemSettings.APP_GUARD_ENABLED_B.readFromSystemSettings(getContext());
+            boolean appGuardEnabled = (boolean) SystemSettings.APP_GUARD_ENABLED_NEW_B.readFromSystemSettings(getContext());
             mEnabled.set(appGuardEnabled);
 
             boolean uninstallProEnabled = (boolean) SystemSettings.UNINSTALL_GUARD_ENABLED_B.readFromSystemSettings(getContext());
@@ -512,6 +512,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         if (fromComp == null) return from;
 
         // Check if this component is disabled.
+        if (getPackageManager() == null) return from;
         int compState = getPackageManager().getComponentEnabledSetting(fromComp);
         if (compState == PackageManager.COMPONENT_ENABLED_STATE_DISABLED
                 || compState == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER) {
@@ -603,37 +604,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     private PackageManager getPackageManager() {
         if (mPackageManager == null) mPackageManager = getContext().getPackageManager();
         return mPackageManager;
-    }
-
-    private boolean onInterruptConfirm(String pkg) {
-        if (pkg == null) {
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("onEarlyVerifyConfirm, false@pkg-null");
-            return false;
-        }
-        if (mIsSafeMode) {
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("onEarlyVerifyConfirm, false@safe-mode:" + pkg);
-            return false;
-        }
-        if (!mEnabled.get()) {
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("onEarlyVerifyConfirm, false@disabled:" + pkg);
-            return false;
-        }
-        if (PREBUILT_WHITE_LIST.contains(pkg)) {
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("onEarlyVerifyConfirm, false@prebuilt-w-list:" + pkg);
-            return false;
-        } // White list.
-
-        boolean inUserSetList = isPackageInLockList(pkg);
-        if (!inUserSetList) {
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("onEarlyVerifyConfirm, false@not-in-guard-list:" + pkg);
-            return false;
-        }
-        return true;
     }
 
     private boolean isPackageInLockList(String pkg) {
@@ -1118,7 +1088,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     private final static int NOTIFICATION_ID = 20182018;
 
     private void updateDebugMode() {
-        mServiceHandler.sendEmptyMessageDelayed(AppGuardServiceHandlerMessages.MSG_UPDATEDEBUGMODE, 10 * 1000);
+        mServiceHandler.sendEmptyMessageDelayed(AppGuardServiceHandlerMessages.MSG_WARNIFDEBUG, 10 * 1000);
     }
 
     @Override
@@ -1235,8 +1205,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 case AppGuardServiceHandlerMessages.MSG_SETBLURRADIUS:
                     AppGuardServiceHandlerImpl.this.setBlurRadius((Integer) msg.obj);
                     break;
-                case AppGuardServiceHandlerMessages.MSG_UPDATEDEBUGMODE:
-                    AppGuardServiceHandlerImpl.this.updateDebugMode();
+                case AppGuardServiceHandlerMessages.MSG_WARNIFDEBUG:
+                    AppGuardServiceHandlerImpl.this.warnIfDebug();
                     break;
                 default:
                     if (msg.obj == null) return;
@@ -1249,7 +1219,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         @Override
         public void setEnabled(boolean enabled) {
             if (mEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.APP_GUARD_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                SystemSettings.APP_GUARD_ENABLED_NEW_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 
@@ -1368,7 +1338,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             if (mDebugEnabled.compareAndSet(!debug, debug)) {
                 SystemSettings.APP_GUARD_DEBUG_MODE_B_S.writeToSystemSettings(getContext(), debug);
             }
-            updateDebugMode();
+            XposedLog.setLogLevel(mDebugEnabled.get() ? XposedLog.LogLevel.ALL : XposedLog.LogLevel.WARN);
+            warnIfDebug();
         }
 
         @Override
@@ -1424,7 +1395,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         }
 
         @Override
-        public void updateDebugMode() {
+        public void warnIfDebug() {
             boolean isDevMode = mDebugEnabled.get();
             try {
                 if (isDevMode) {

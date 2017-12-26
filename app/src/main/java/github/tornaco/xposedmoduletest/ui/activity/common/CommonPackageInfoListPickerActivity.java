@@ -29,6 +29,12 @@ public abstract class CommonPackageInfoListPickerActivity
     }
 
     @Override
+    protected void startLoading() {
+        super.startLoading();
+        setTitle(mRawTitle);
+    }
+
+    @Override
     public void onItemCheckChanged(int total, int checked) {
         super.onItemCheckChanged(total, checked);
         String tips = "\t" + checked + "/" + total;

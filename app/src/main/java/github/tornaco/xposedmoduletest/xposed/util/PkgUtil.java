@@ -238,7 +238,7 @@ public class PkgUtil {
         HashSet<String> h = new HashSet<>();
         if (processes == null || processes.size() == 0) return h;
         for (ActivityManager.RunningAppProcessInfo info : processes) {
-            if (info.pkgList != null) {
+            if (info != null && info.pkgList != null && info.pkgList.length > 0) {
                 Collections.addAll(h, info.pkgList);
             }
         }

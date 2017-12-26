@@ -129,7 +129,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final ExecutorService mWorkingService = Executors.newCachedThreadPool();
     private final ExecutorService mLoggingService = Executors.newSingleThreadExecutor();
 
-    @SuppressLint("UseSparseArrays")
     private final Map<String, Integer> mPackagesCache = new HashMap<>();
 
     private final Map<String, BlockRecord2> mBlockRecords = new HashMap<>();
@@ -218,14 +217,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         long id = Binder.clearCallingIdentity();
         try {
             // Disable app guard.
-            SystemSettings.APP_GUARD_ENABLED_B.writeToSystemSettings(getContext(), false);
+            SystemSettings.APP_GUARD_ENABLED_NEW_B.writeToSystemSettings(getContext(), false);
 
             AlertDialog d = new AlertDialog.Builder(getContext())
                     .setTitle("应用管理")
                     .setMessage("应用管理已经被卸载，是否要清除 自启动/关联启动/锁屏清理/后台限制 的名单等设置数据？" +
                             "如果你是想安装新版本，强烈建议你保留该数据。")
                     .setCancelable(false)
-                    .setPositiveButton("清除数据", new DialogInterface.OnClickListener() {
+                    .setPositiveButton("清除数据",
+                            new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             RepoProxy.getProxy().deleteAll();
@@ -876,6 +876,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @InternalCall
     public boolean checkComponentSetting(ComponentName componentName, int newState,
                                          int flags, int callingUid) {
+
         if (DEBUG_COMP && XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("checkComponentSetting: " + componentName
                     + ", calling uid: " + callingUid
@@ -2483,8 +2484,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public int checkOperation(int code, int uid, String packageName, String reason) {
-        if (!mPermissionControlEnabled.get()) return AppOpsManagerCompat.MODE_ALLOWED;
-
         if (packageName == null) return AppOpsManagerCompat.MODE_ALLOWED;
 
         if (BuildConfig.APPLICATION_ID.equals(packageName)) return AppOpsManagerCompat.MODE_ALLOWED;

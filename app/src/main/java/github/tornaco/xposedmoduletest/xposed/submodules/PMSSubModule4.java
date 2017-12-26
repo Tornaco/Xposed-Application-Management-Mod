@@ -14,6 +14,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -24,6 +25,11 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 class PMSSubModule4 extends IntentFirewallAndroidSubModule {
+
+    @Override
+    public String needBuildVar() {
+        return XAppBuildVar.APP_OPS;
+    }
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {

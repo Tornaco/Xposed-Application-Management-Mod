@@ -9,6 +9,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -18,6 +19,10 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 // Hook hookCheckOp settings.
 class AppOpsSubModule extends IntentFirewallAndroidSubModule {
+    @Override
+    public String needBuildVar() {
+        return XAppBuildVar.APP_OPS;
+    }
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
@@ -36,7 +41,7 @@ class AppOpsSubModule extends IntentFirewallAndroidSubModule {
                     int code = (int) param.args[0];
                     int uid = (int) param.args[1];
                     String pkgName = (String) param.args[2];
-                    int mode = getIntentFirewallBridge().checkOperation(code, uid, pkgName, "checkOperation");
+                    int mode = getIntentFirewallBridge().checkOperation(code, uid, pkgName, null);
                     if (mode == AppOpsManager.MODE_IGNORED) {
                         param.setResult(AppOpsManager.MODE_IGNORED);
                     }

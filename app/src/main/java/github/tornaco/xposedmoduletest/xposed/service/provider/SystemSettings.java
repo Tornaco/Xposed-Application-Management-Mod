@@ -20,7 +20,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvider, ContentObservable {
 
-    APP_GUARD_ENABLED_B(0) {
+    APP_GUARD_ENABLED_NEW_B(0) {
         @Override
         public boolean writeToSystemSettings(Context context, Object value) {
             ContentResolver resolver = context.getContentResolver();
