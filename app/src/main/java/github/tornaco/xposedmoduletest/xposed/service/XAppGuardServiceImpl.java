@@ -60,7 +60,7 @@ import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
-import github.tornaco.xposedmoduletest.xposed.repo.StringSetRepo;
+import github.tornaco.xposedmoduletest.xposed.repo.SetRepo;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.util.Closer;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -276,6 +276,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
             boolean debug = BuildConfig.DEBUG;
             mDebugEnabled.set(debug);
+            XposedLog.setLogLevel(mDebugEnabled.get() ? XposedLog.LogLevel.ALL : XposedLog.LogLevel.WARN);
 
             ContentResolver resolver = getContext().getContentResolver();
             if (resolver == null) return;
@@ -826,7 +827,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         });
     }
 
-    private void addOrRemoveFromRepo(String[] packages, StringSetRepo repo, boolean add) {
+    private void addOrRemoveFromRepo(String[] packages, SetRepo<String> repo, boolean add) {
         long id = Binder.clearCallingIdentity();
         try {
             for (String p : packages) {
@@ -1117,27 +1118,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     private final static int NOTIFICATION_ID = 20182018;
 
     private void updateDebugMode() {
-        XposedLog.setLogLevel(mDebugEnabled.get() ? XposedLog.LogLevel.ALL : XposedLog.LogLevel.WARN);
-
-        boolean isDevMode = mDebugEnabled.get();
-        if (isDevMode) {
-            try {
-                NotificationManagerCompat.from(getContext()).cancel(NOTIFICATION_ID);
-                NotificationManagerCompat.from(getContext())
-                        .notify(NOTIFICATION_ID,
-                                new Notification.Builder(getContext())
-                                        .setOngoing(true)
-                                        .setContentTitle("应用管理")
-                                        .setContentText("调试模式已经打开。")
-                                        .setSmallIcon(android.R.drawable.stat_sys_warning)
-                                        .build());
-            } catch (Throwable e) {
-                Toast.makeText(getContext(),
-                        "应用管理 调试模式已经打开，如果使用完毕请及时关闭，否则会新增加耗电，造成系统卡顿。", Toast.LENGTH_LONG).show();
-            }
-        } else {
-            NotificationManagerCompat.from(getContext()).cancel(NOTIFICATION_ID);
-        }
+        mServiceHandler.sendEmptyMessageDelayed(AppGuardServiceHandlerMessages.MSG_UPDATEDEBUGMODE, 10 * 1000);
     }
 
     @Override
@@ -1254,7 +1235,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 case AppGuardServiceHandlerMessages.MSG_SETBLURRADIUS:
                     AppGuardServiceHandlerImpl.this.setBlurRadius((Integer) msg.obj);
                     break;
+                case AppGuardServiceHandlerMessages.MSG_UPDATEDEBUGMODE:
+                    AppGuardServiceHandlerImpl.this.updateDebugMode();
+                    break;
                 default:
+                    if (msg.obj == null) return;
                     AppGuardServiceHandlerImpl.this.setResult((Integer) msg.obj,
                             XAppVerifyMode.MODE_IGNORED);
                     break;
@@ -1436,6 +1421,30 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             SystemSettings.restoreDefault(getContext());
             RepoProxy.getProxy().deleteAll();
             loadConfigFromSettings();
+        }
+
+        @Override
+        public void updateDebugMode() {
+            boolean isDevMode = mDebugEnabled.get();
+            try {
+                if (isDevMode) {
+                    NotificationManagerCompat.from(getContext()).cancel(NOTIFICATION_ID);
+                    NotificationManagerCompat.from(getContext())
+                            .notify(NOTIFICATION_ID,
+                                    new Notification.Builder(getContext())
+                                            .setOngoing(true)
+                                            .setContentTitle("应用管理")
+                                            .setContentText("调试模式已经打开。")
+                                            .setSmallIcon(android.R.drawable.stat_sys_warning)
+                                            .build());
+                } else {
+                    NotificationManagerCompat.from(getContext()).cancel(NOTIFICATION_ID);
+
+                }
+            } catch (Throwable e) {
+                Toast.makeText(getContext(),
+                        "应用管理 调试模式已经打开，如果使用完毕请及时关闭，否则会新增加耗电，造成系统卡顿。", Toast.LENGTH_LONG).show();
+            }
         }
 
         /**

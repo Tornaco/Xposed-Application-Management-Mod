@@ -8,8 +8,6 @@ import android.os.ServiceManager;
 
 import com.google.common.base.Preconditions;
 
-import org.newstand.logger.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +25,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
  * Email: Tornaco@163.com
  */
 
+@SuppressWarnings("EmptyCatchBlock")
 public class XAshmanManager {
 
     public static final int FLAG_SHOW_SYSTEM_APP = 0X100;
@@ -90,8 +89,7 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.clearProcess(adapter);
-        } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
+        } catch (RemoteException ignored) {
         }
     }
 
@@ -100,7 +98,6 @@ public class XAshmanManager {
         try {
             mService.setBootBlockEnabled(enabled);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -109,7 +106,6 @@ public class XAshmanManager {
         try {
             return mService.isBlockBlockEnabled();
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return false;
         }
     }
@@ -119,7 +115,6 @@ public class XAshmanManager {
         try {
             mService.setStartBlockEnabled(enabled);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -128,7 +123,6 @@ public class XAshmanManager {
         try {
             return mService.isStartBlockEnabled();
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return false;
         }
     }
@@ -138,7 +132,6 @@ public class XAshmanManager {
         try {
             mService.setLockKillEnabled(enabled);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -147,7 +140,6 @@ public class XAshmanManager {
         try {
             return mService.getBlockRecords();
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return new ArrayList<>(0);
         }
     }
@@ -157,7 +149,6 @@ public class XAshmanManager {
         try {
             mService.clearBlockRecords();
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -166,7 +157,6 @@ public class XAshmanManager {
         try {
             return mService.isLockKillEnabled();
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return false;
         }
     }
@@ -176,7 +166,6 @@ public class XAshmanManager {
         try {
             mService.setLockKillDelay(delay);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -185,7 +174,6 @@ public class XAshmanManager {
         try {
             return mService.getLockKillDelay();
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return 0L;
         }
     }
@@ -194,7 +182,6 @@ public class XAshmanManager {
         try {
             mService.setRFKillEnabled(enabled);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -202,7 +189,6 @@ public class XAshmanManager {
         try {
             return mService.isRFKillEnabled();
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return false;
         }
     }
@@ -212,7 +198,6 @@ public class XAshmanManager {
         try {
             return mService.checkService(servicePkgName, callerUid);
         } catch (RemoteException ignored) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(ignored));
             return true;
         }
     }
@@ -222,7 +207,6 @@ public class XAshmanManager {
         try {
             return mService.checkBroadcast(action, receiverUid, callerUid);
         } catch (RemoteException ignored) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(ignored));
             return true;
         }
     }
@@ -232,7 +216,6 @@ public class XAshmanManager {
         try {
             mService.setComponentEnabledSetting(componentName, newState, flags);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -241,7 +224,6 @@ public class XAshmanManager {
         try {
             return mService.getComponentEnabledSetting(componentName);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return Integer.MIN_VALUE + PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
         }
     }
@@ -250,7 +232,6 @@ public class XAshmanManager {
         try {
             return mService.getApplicationEnabledSetting(packageName);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return Integer.MIN_VALUE + PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
         }
     }
@@ -259,7 +240,6 @@ public class XAshmanManager {
         try {
             mService.setApplicationEnabledSetting(packageName, newState, flags);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -268,7 +248,6 @@ public class XAshmanManager {
         try {
             mService.watch(w);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -277,7 +256,6 @@ public class XAshmanManager {
         try {
             mService.unWatch(w);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -286,7 +264,6 @@ public class XAshmanManager {
         try {
             mService.setNetworkPolicyUidPolicy(uid, policy);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -295,7 +272,6 @@ public class XAshmanManager {
         try {
             mService.restart();
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -304,7 +280,6 @@ public class XAshmanManager {
         try {
             mService.setCompSettingBlockEnabled(enabled);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -313,7 +288,6 @@ public class XAshmanManager {
         try {
             return mService.isCompSettingBlockEnabledEnabled();
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return false;
         }
     }
@@ -323,7 +297,6 @@ public class XAshmanManager {
         try {
             return mService.getWhiteListApps(filterOptions);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return new String[0];
         }
     }
@@ -333,7 +306,6 @@ public class XAshmanManager {
         try {
             return mService.getBootBlockApps(block);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return new String[0];
         }
     }
@@ -343,7 +315,6 @@ public class XAshmanManager {
         try {
             mService.addOrRemoveBootBlockApps(packages, op);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -352,7 +323,6 @@ public class XAshmanManager {
         try {
             return mService.getStartBlockApps(block);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return new String[0];
         }
     }
@@ -362,7 +332,6 @@ public class XAshmanManager {
         try {
             mService.addOrRemoveStartBlockApps(packages, op);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -371,7 +340,6 @@ public class XAshmanManager {
         try {
             return mService.getLKApps(kill);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return new String[0];
         }
     }
@@ -381,7 +349,6 @@ public class XAshmanManager {
         try {
             mService.addOrRemoveLKApps(packages, op);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -390,7 +357,6 @@ public class XAshmanManager {
         try {
             return mService.getRFKApps(kill);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return new String[0];
         }
     }
@@ -400,7 +366,6 @@ public class XAshmanManager {
         try {
             mService.addOrRemoveRFKApps(packages, op);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -409,7 +374,6 @@ public class XAshmanManager {
         try {
             mService.setWhiteSysAppEnabled(enabled);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -418,7 +382,6 @@ public class XAshmanManager {
         try {
             return mService.isWhiteSysAppEnabled();
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return true;
         }
     }
@@ -428,7 +391,6 @@ public class XAshmanManager {
         try {
             mService.unInstallPackage(pkg, callback);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -437,7 +399,6 @@ public class XAshmanManager {
         try {
             mService.restrictAppOnData(uid, restrict);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -446,7 +407,6 @@ public class XAshmanManager {
         try {
             mService.restrictAppOnWifi(uid, restrict);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -455,7 +415,6 @@ public class XAshmanManager {
         try {
             return mService.isRestrictOnData(uid);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return false;
         }
     }
@@ -465,7 +424,6 @@ public class XAshmanManager {
         try {
             return mService.isRestrictOnWifi(uid);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return false;
         }
     }
@@ -475,7 +433,6 @@ public class XAshmanManager {
         try {
             return mService.isLockKillDoNotKillAudioEnabled();
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return false;
         }
     }
@@ -485,7 +442,6 @@ public class XAshmanManager {
         try {
             mService.setLockKillDoNotKillAudioEnabled(enabled);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -493,7 +449,6 @@ public class XAshmanManager {
         try {
             return mService.getControlMode();
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
             return ControlMode.UNKNOWN;
         }
     }
@@ -503,7 +458,6 @@ public class XAshmanManager {
         try {
             mService.setControlMode(mode);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -530,7 +484,6 @@ public class XAshmanManager {
         try {
             mService.setAutoAddBlackEnable(enable);
         } catch (RemoteException ignored) {
-
         }
     }
 
@@ -539,7 +492,6 @@ public class XAshmanManager {
         try {
             mService.forceReloadPackages();
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -548,7 +500,6 @@ public class XAshmanManager {
         try {
             mService.setPermissionControlEnabled(enabled);
         } catch (RemoteException e) {
-            Logger.e("XAshmanManager remote: " + Logger.getStackTraceString(e));
         }
     }
 
@@ -718,7 +669,6 @@ public class XAshmanManager {
         try {
             mService.addOrRemoveFromPrivacyList(pkg, op);
         } catch (RemoteException ignored) {
-
         }
     }
 
@@ -736,7 +686,6 @@ public class XAshmanManager {
         try {
             mService.addOrRemoveGreeningApps(packages, op);
         } catch (RemoteException ignored) {
-
         }
     }
 
@@ -745,7 +694,6 @@ public class XAshmanManager {
         try {
             mService.setGreeningEnabled(enabled);
         } catch (RemoteException ignored) {
-
         }
     }
 
@@ -791,7 +739,6 @@ public class XAshmanManager {
         try {
             mService.restoreDefaultSettings();
         } catch (RemoteException ignored) {
-
         }
     }
 
@@ -817,7 +764,6 @@ public class XAshmanManager {
         try {
             mService.writeSystemSettings(key, value);
         } catch (RemoteException ignored) {
-
         }
     }
 
@@ -899,7 +845,6 @@ public class XAshmanManager {
         try {
             mService.setLazyModeEnabled(enabled);
         } catch (RemoteException ignored) {
-
         }
     }
 
@@ -915,7 +860,6 @@ public class XAshmanManager {
         try {
             mService.addOrRemoveLazyApps(packages, op);
         } catch (RemoteException ignored) {
-
         }
     }
 }

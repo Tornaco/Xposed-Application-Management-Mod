@@ -22,8 +22,6 @@ public abstract class XposedLog {
         NONE;
     }
 
-    private static final boolean FORCE_DEBUG = false;
-
     public static final String TAG_PREFIX = "X-APM-S-" + BuildConfig.VERSION_NAME + "-";
     public static final String TAG_DANGER = "X-APM-DANGER-" + BuildConfig.VERSION_NAME + "-";
     public static final String TAG_LIST = "X-APM-LIST-" + BuildConfig.VERSION_NAME + "-";
@@ -36,7 +34,7 @@ public abstract class XposedLog {
     }
 
     private static boolean isLoggable(LogLevel logLevel) {
-        return FORCE_DEBUG || logLevel.ordinal() >= sLevel.ordinal();
+        return logLevel.ordinal() >= sLevel.ordinal();
     }
 
     public static boolean isVerboseLoggable() {

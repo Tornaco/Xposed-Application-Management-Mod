@@ -84,7 +84,7 @@ import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
-import github.tornaco.xposedmoduletest.xposed.repo.StringSetRepo;
+import github.tornaco.xposedmoduletest.xposed.repo.SetRepo;
 import github.tornaco.xposedmoduletest.xposed.service.bandwidth.BandwidthCommandCompat;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -110,10 +110,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private static final String TAG_LK = "LOCK-KILL-";
 
-    private static final boolean DEBUG_BROADCAST = true || BuildConfig.DEBUG;
-    private static final boolean DEBUG_SERVICE = true || BuildConfig.DEBUG;
-    private static final boolean DEBUG_OP = true || BuildConfig.DEBUG;
-    private static final boolean DEBUG_COMP = false && BuildConfig.DEBUG;
+    private static final boolean DEBUG_BROADCAST = BuildConfig.DEBUG;
+    private static final boolean DEBUG_SERVICE = BuildConfig.DEBUG;
+    private static final boolean DEBUG_OP = BuildConfig.DEBUG;
+    private static final boolean DEBUG_COMP = BuildConfig.DEBUG;
 
     private static final Set<String> WHITE_LIST = new HashSet<>();
     private static final Set<Pattern> WHITE_LIST_PATTERNS = new HashSet<>();
@@ -977,11 +977,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return false;
         }
 
-        // Do not kill audio package.
-        if (pkg.equals(mAudioFocusedPackage.getData())) {
-            return false;
-        }
-
         if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
             return false;
         }
@@ -1141,7 +1136,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return convertObjectArrayToStringArray(filtered.toArray());
     }
 
-    private void addOrRemoveFromRepo(String[] packages, StringSetRepo repo, boolean add) {
+    private void addOrRemoveFromRepo(String[] packages, SetRepo<String> repo, boolean add) {
         long id = Binder.clearCallingIdentity();
         try {
             for (String p : packages) {
@@ -1632,7 +1627,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return CheckResult.ALLOWED_GENERAL;
     }
 
-    private boolean isInStringRepo(StringSetRepo repo, String pkg) {
+    private boolean isInStringRepo(SetRepo<String> repo, String pkg) {
         return repo.has(pkg);
     }
 
@@ -1898,7 +1893,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private final Object mQuotaLock = new Object();
 
-    private StringSetRepo mWifiBlackList, mDataBlackList;
+    private SetRepo<String> mWifiBlackList, mDataBlackList;
 
     private void initDataAndWifiRestrictionBlackList() {
         mWifiBlackList = RepoProxy.getProxy().getWifi_restrict();
@@ -2457,6 +2452,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void postNotifyTopPackageChanged(final String from, final String to) {
+        if (from == null || to == null) return;
         lazyH.removeMessages(AshManLZHandlerMessages.MSG_NOTIFYTOPPACKAGECHANGED);
         lazyH.obtainMessage(AshManLZHandlerMessages.MSG_NOTIFYTOPPACKAGECHANGED,
                 new Pair<>(from, to))
@@ -2464,8 +2460,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void notifyTopPackageChanged(final String from, final String to) {
-        int itemCount = mTopPackageListenerCallbacks.beginBroadcast();
         try {
+            int itemCount = mTopPackageListenerCallbacks.beginBroadcast();
             for (int i = 0; i < itemCount; i++) {
                 ITopPackageChangeListener l = mTopPackageListenerCallbacks.getBroadcastItem(i);
                 try {
@@ -3662,7 +3658,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             boolean maybeRootActivityFinish = !packageName.equals(getTopPackage());
 
             if (maybeRootActivityFinish) {
-                postDelayed(new Runnable() {
+                postDelayed(new ErrorCatchRunnable(new Runnable() {
                     @Override
                     public void run() {
                         try {
@@ -3680,7 +3676,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             XposedLog.wtf("Fail rf kill in runnable: " + Log.getStackTraceString(e));
                         }
                     }
-                }, 666);
+                }, "maybeRootActivityFinish"), 666);
             }
         }
 
@@ -3817,7 +3813,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     LazyHandler.this.onBroadcastAction((Intent) msg.obj);
                     break;
                 case AshManLZHandlerMessages.MSG_NOTIFYTOPPACKAGECHANGED:
-                    @SuppressWarnings("unchecked") Pair<String, String> p = (Pair<String, String>) msg.obj;
+                    @SuppressWarnings("unchecked")
+                    Pair<String, String> p = (Pair<String, String>) msg.obj;
                     LazyHandler.this.notifyTopPackageChanged(p.first, p.second);
                     break;
             }

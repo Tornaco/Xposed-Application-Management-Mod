@@ -10,9 +10,9 @@ android {
         applicationId "github.tornaco.xposedmoduletest"
         minSdkVersion rootProject.ext.minSdkVersion as int
         targetSdkVersion rootProject.ext.compileSdkVersion as int
-        versionCode 2860
-        versionName "2.8.6"
-        multiDexEnabled true
+        versionCode 2870
+        versionName "2.8.7"
+        // multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -47,8 +47,6 @@ greendao {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-
-    implementation 'com.android.support:multidex:1.0.1'
 
     implementation rootProject.ext.supportAppCompat
     implementation rootProject.ext.supportCardView
@@ -106,7 +104,6 @@ dependencies {
     // Image loader.
     implementation 'com.github.bumptech.glide:glide:4.4.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.4.0'
-    implementation 'jp.wasabeef:glide-transformations:3.0.1'
 }
 
 

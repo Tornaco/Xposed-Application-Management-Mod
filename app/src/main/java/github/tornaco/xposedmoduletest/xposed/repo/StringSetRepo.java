@@ -4,7 +4,6 @@ import android.os.Handler;
 import android.util.AtomicFile;
 import android.util.Log;
 
-import com.google.common.base.Preconditions;
 import com.google.common.io.Files;
 
 import java.io.BufferedReader;
@@ -38,9 +37,6 @@ public class StringSetRepo implements SetRepo<String> {
     private AtomicFile mFile;
 
     StringSetRepo(File file, Handler handler, ExecutorService service) {
-        Preconditions.checkNotNull("File can not be null", file);
-        Preconditions.checkNotNull("Handler can not be null", file);
-
         this.mFile = new AtomicFile(file);
         this.mExe = service;
         this.mHandler = handler;

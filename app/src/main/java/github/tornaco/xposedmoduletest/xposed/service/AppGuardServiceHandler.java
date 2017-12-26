@@ -44,4 +44,6 @@ interface AppGuardServiceHandler {
     void addOrRemoveComponentReplacement(ComponentName from, ComponentName to, boolean add);
 
     void restoreDefaultSettings();
+
+    void updateDebugMode();
 }
