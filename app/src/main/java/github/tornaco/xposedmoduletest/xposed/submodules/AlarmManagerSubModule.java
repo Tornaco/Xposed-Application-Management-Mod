@@ -59,6 +59,10 @@ class AlarmManagerSubModule extends IntentFirewallAndroidSubModule {
 
                             String pkgName = AndroidAppHelper.currentPackageName();
 
+                            if (BuildConfig.DEBUG) {
+                                Log.d(XposedLog.TAG_PREFIX, "set alarm: " + pkgName);
+                            }
+
                             if ("android".equals(pkgName)) return;
 
                             // Check Greening.

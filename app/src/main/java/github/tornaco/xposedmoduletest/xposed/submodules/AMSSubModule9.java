@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import android.app.ActivityManager;
+import android.app.AndroidAppHelper;
 import android.os.Binder;
 import android.util.Log;
 
@@ -12,6 +13,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -47,6 +49,7 @@ class AMSSubModule9 extends IntentFirewallAndroidSubModule {
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
                             int callingUid = Binder.getCallingUid();
+
                             if (PkgUtil.isSystemOrPhoneOrShell(callingUid)) return;
                             // Check op.
                             XAshmanManager xAshmanManager = XAshmanManager.get();

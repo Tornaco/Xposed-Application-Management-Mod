@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
+import android.app.AndroidAppHelper;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.ParceledListSlice;
@@ -13,6 +14,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -48,7 +50,9 @@ class PMSSubModule4 extends IntentFirewallAndroidSubModule {
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
                             int uid = Binder.getCallingUid();
+
                             if (PkgUtil.isSystemOrPhoneOrShell(uid)) return;
+
                             // Check op.
                             XAshmanManager xAshmanManager = XAshmanManager.get();
                             if (xAshmanManager.isServiceAvailable()) {
@@ -87,20 +91,23 @@ class PMSSubModule4 extends IntentFirewallAndroidSubModule {
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
                             int uid = Binder.getCallingUid();
+
+                            if (PkgUtil.isSystemOrPhoneOrShell(uid)) return;
+
                             // Check op.
                             XAshmanManager xAshmanManager = XAshmanManager.get();
                             if (xAshmanManager.isServiceAvailable()) {
                                 int mode = xAshmanManager.getPermissionControlBlockModeForUid(
                                         AppOpsManagerCompat.OP_READ_INSTALLED_APPS, uid);
                                 if (mode == AppOpsManagerCompat.MODE_IGNORED) {
-                                    XposedLog.verbose("getInstalledApplications, MODE_IGNORED returning empty for :" + uid);
+                                    Log.d(XposedLog.TAG_PREFIX, "getInstalledApplications, MODE_IGNORED returning empty for :" + uid);
                                     try {
                                         // M has no method named empty.
                                         ParceledListSlice<ApplicationInfo> empty = new ParceledListSlice<>(Collections.<ApplicationInfo>emptyList());
                                         param.setResult(empty);
                                     } catch (Exception e) {
                                         param.setResult(null);
-                                        XposedLog.wtf("Fail get empty ParceledListSlice:" + e);
+                                        Log.d(XposedLog.TAG_PREFIX, "Fail get empty ParceledListSlice:" + e);
                                     }
                                 }
                             }

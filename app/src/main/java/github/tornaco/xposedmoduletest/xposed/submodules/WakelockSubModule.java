@@ -45,6 +45,10 @@ class WakelockSubModule extends IntentFirewallAndroidSubModule {
                             super.beforeHookedMethod(param);
                             String pkgName = AndroidAppHelper.currentPackageName();
 
+                            if (BuildConfig.DEBUG) {
+                                Log.d(XposedLog.TAG_PREFIX, "acquire wakelock: " + pkgName);
+                            }
+
                             // Check Greening.
                             boolean greening = XAshmanManager.get().isServiceAvailable()
                                     && XAshmanManager.get().isPackageGreening(pkgName);

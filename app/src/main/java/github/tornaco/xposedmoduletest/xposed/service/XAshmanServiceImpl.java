@@ -190,6 +190,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 }
             };
 
+    private BroadcastReceiver mUserReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent == null) return;
+            if (Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
+                try {
+                    int userHandler = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, -1);
+                    XposedLog.verbose(XposedLog.TAG_USER + "User changed: " + userHandler);
+                } catch (Throwable e) {
+                    XposedLog.wtf(e);
+                }
+            }
+        }
+    };
+
     private void onUserPresent() {
         h.sendEmptyMessage(AshManHandlerMessages.MSG_ONSCREENON);
     }
@@ -226,11 +241,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     .setCancelable(false)
                     .setPositiveButton("清除数据",
                             new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            RepoProxy.getProxy().deleteAll();
-                        }
-                    })
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    RepoProxy.getProxy().deleteAll();
+                                }
+                            })
                     .setNegativeButton("暂不清除", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -1764,6 +1779,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
         intentFilter.addDataScheme("package");
         getContext().registerReceiver(mPackageReceiver, intentFilter);
+
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_USER_SWITCHED);
+        getContext().registerReceiver(mUserReceiver, intentFilter);
     }
 
     private void inflateWhiteList() {
@@ -3757,8 +3776,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         uid = intent.getIntExtra(Intent.EXTRA_UID, -1);
                         if (uid > 0) {
                             // FIXME Too slow.
-                            int removed = mPackagesCache.remove(PkgUtil.pkgForUid(getContext(), uid));
-                            XposedLog.debug("Package uninstalled, remove from cache: " + removed);
+                            String needRem = PkgUtil.pkgForUid(getContext(), uid);
+                            if (needRem != null) {
+                                int removed = mPackagesCache.remove(needRem);
+                            }
+                            XposedLog.debug("Package uninstalled, remove from cache: " + needRem);
                         }
 
                         XAshmanManager x = XAshmanManager.get();

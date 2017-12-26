@@ -116,24 +116,27 @@ public class PkgUtil {
         String cached = sUidMap.get(uid);
         if (cached != null) return cached;
 
-        PackageManager pm = context.getPackageManager();
-        List<android.content.pm.PackageInfo> packages;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            packages = pm.getInstalledPackages(PackageManager.MATCH_UNINSTALLED_PACKAGES);
-        } else {
-            packages = pm.getInstalledPackages(PackageManager.GET_UNINSTALLED_PACKAGES);
-        }
-        if (packages == null) return null;
-        for (android.content.pm.PackageInfo packageInfo : packages) {
-            if (packageInfo.applicationInfo == null) continue;
-            if (packageInfo.applicationInfo.uid == uid) {
-                String pkg = packageInfo.packageName;
-                if (pkg != null) {
-                    sUidMap.put(uid, pkg);
-                    return pkg;
-                }
-            }
-        }
+        // This is fucking dangerous!!!!!!!!! to call get installed apps cross system.
+        // This cause the overflow error!!!!!!!!!!!!!!!!!!
+//
+//        PackageManager pm = context.getPackageManager();
+//        List<android.content.pm.PackageInfo> packages;
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+//            packages = pm.getInstalledPackages(PackageManager.MATCH_UNINSTALLED_PACKAGES);
+//        } else {
+//            packages = pm.getInstalledPackages(PackageManager.GET_UNINSTALLED_PACKAGES);
+//        }
+//        if (packages == null) return null;
+//        for (android.content.pm.PackageInfo packageInfo : packages) {
+//            if (packageInfo.applicationInfo == null) continue;
+//            if (packageInfo.applicationInfo.uid == uid) {
+//                String pkg = packageInfo.packageName;
+//                if (pkg != null) {
+//                    sUidMap.put(uid, pkg);
+//                    return pkg;
+//                }
+//            }
+//        }
         return null;
     }
 
@@ -152,13 +155,13 @@ public class PkgUtil {
     }
 
     public static boolean isSystemApp(Context context, int uid) {
-        return uid <= 1000
+        return isSystemOrPhoneOrShell(uid)
                 || isSystemApp(context, pkgForUid(context, uid));
     }
 
     // Check if uid is system, shell or phone.
     public static boolean isSystemOrPhoneOrShell(int uid) {
-        return uid <= 2000;
+        return uid <= 2000 || (uid % UserHandle.PER_USER_RANGE <= 2000);
     }
 
     public static boolean isSystemApp(Context context, String pkg) {
