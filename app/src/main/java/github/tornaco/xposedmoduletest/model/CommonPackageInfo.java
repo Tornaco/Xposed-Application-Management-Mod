@@ -1,14 +1,19 @@
 package github.tornaco.xposedmoduletest.model;
 
-import ir.mirrajabi.searchdialog.core.Searchable;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Created by guohao4 on 2017/12/18.
  * Email: Tornaco@163.com
  */
-@Data
-public class CommonPackageInfo implements Searchable {
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class CommonPackageInfo {
 
     private String pkgName;
     private String appName;
@@ -19,11 +24,6 @@ public class CommonPackageInfo implements Searchable {
     private boolean isAlarmOpAllowed;
     private boolean isWakelockOpAllowed;
     private boolean isDisabled; // Used for package viewer in comp list.
-
-    @Override
-    public String getTitle() {
-        return getAppName();
-    }
 
     public boolean isAllExtraPermDisabled() {
         return !isServiceOpAllowed() && !isAlarmOpAllowed() && !isWakelockOpAllowed();
@@ -39,5 +39,10 @@ public class CommonPackageInfo implements Searchable {
         if (isAlarmOpAllowed()) d++;
         if (isWakelockOpAllowed()) d++;
         return d;
+    }
+
+    @Override
+    public String toString() {
+        return getAppName();
     }
 }

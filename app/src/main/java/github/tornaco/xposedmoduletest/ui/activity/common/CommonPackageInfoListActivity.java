@@ -1,8 +1,8 @@
 package github.tornaco.xposedmoduletest.ui.activity.common;
 
 import android.app.ProgressDialog;
-import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -17,6 +17,8 @@ import org.newstand.logger.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
+import github.tornaco.android.common.Collections;
+import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
@@ -24,9 +26,6 @@ import github.tornaco.xposedmoduletest.ui.activity.NeedLockActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import ir.mirrajabi.searchdialog.SimpleSearchDialogCompat;
-import ir.mirrajabi.searchdialog.core.BaseSearchDialogCompat;
-import ir.mirrajabi.searchdialog.core.SearchResultListener;
 import lombok.Getter;
 
 /**
@@ -34,8 +33,9 @@ import lombok.Getter;
  * Email: Tornaco@163.com
  */
 
-public abstract class CommonPackageInfoListActivity extends NeedLockActivity
-        implements CommonPackageInfoAdapter.ChoiceModeListener, CommonPackageInfoAdapter.ItemCheckListener {
+public abstract class CommonPackageInfoListActivity extends NeedLockActivity<CommonPackageInfo>
+        implements CommonPackageInfoAdapter.ChoiceModeListener,
+        CommonPackageInfoAdapter.ItemCheckListener {
 
     protected FloatingActionButton fab;
 
@@ -73,27 +73,8 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity
 
     @SuppressWarnings("unchecked")
     void onRequestSearch() {
-        final ArrayList<CommonPackageInfo> adapterData = (ArrayList<CommonPackageInfo>)
-                getCommonPackageInfoAdapter().getCommonPackageInfos();
-
-        final SimpleSearchDialogCompat<CommonPackageInfo> searchDialog =
-                new SimpleSearchDialogCompat(getActivity(), getString(R.string.title_search),
-                        getString(R.string.title_search_hint), null, adapterData,
-                        new SearchResultListener<CommonPackageInfo>() {
-
-                            @Override
-                            public void onSelected(BaseSearchDialogCompat baseSearchDialogCompat,
-                                                   CommonPackageInfo info, int i) {
-                                int index = indexOf(info);
-                                getRecyclerView().scrollToPosition(index);
-                                getCommonPackageInfoAdapter().setSelection(index);
-                                baseSearchDialogCompat.dismiss();
-                            }
-                        });
-
-
-        searchDialog.show();
-        searchDialog.getSearchBox().setTypeface(Typeface.SERIF);
+        mSearchView.display();
+        openKeyboard();
     }
 
     private int indexOf(final CommonPackageInfo pkg) {
@@ -292,5 +273,28 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity
                 startLoading();
             }
         });
+    }
+
+    @Override
+    public void onItemClicked(CommonPackageInfo item) {
+        int index = indexOf(item);
+        getRecyclerView().scrollToPosition(index);
+        getCommonPackageInfoAdapter().setSelection(index);
+    }
+
+    @NonNull
+    @Override
+    public ArrayList<CommonPackageInfo> findItem(final String query, int page) {
+        final ArrayList<CommonPackageInfo> res = new ArrayList<>();
+        Collections.consumeRemaining(getCommonPackageInfoAdapter().getCommonPackageInfos(),
+                new Consumer<CommonPackageInfo>() {
+                    @Override
+                    public void accept(CommonPackageInfo info) {
+                        if (info.getAppName().toLowerCase().contains(query.toLowerCase())) {
+                            res.add(info);
+                        }
+                    }
+                });
+        return res;
     }
 }

@@ -12,7 +12,6 @@ android {
         targetSdkVersion rootProject.ext.compileSdkVersion as int
         versionCode 2870
         versionName "2.8.7"
-        // multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -27,7 +26,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
@@ -84,8 +83,8 @@ dependencies {
     // implementation project(':vangoghcore')
     // compile project(':keyguard')
     implementation project(':tiles')
-    implementation project(':searchdialog')
     implementation project(':patternlockview')
+    implementation project(':mdsearch')
 
     implementation 'si.virag:fuzzydateformatter:1.1.0'
 

@@ -9,7 +9,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -32,11 +31,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.google.common.collect.Lists;
 import com.nononsenseapps.filepicker.FilePickerActivity;
 import com.nononsenseapps.filepicker.Utils;
+import com.shahroz.svlibrary.interfaces.onSimpleSearchActionsListener;
+import com.shahroz.svlibrary.widgets.SearchViewResults;
 
 import org.newstand.logger.Logger;
 
@@ -56,11 +56,11 @@ import github.tornaco.xposedmoduletest.loader.ComponentLoader;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.model.ActivityInfoSettings;
 import github.tornaco.xposedmoduletest.model.ActivityInfoSettingsList;
-import github.tornaco.xposedmoduletest.model.SampleModel;
+import github.tornaco.xposedmoduletest.model.Searchable;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettings;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettingsList;
 import github.tornaco.xposedmoduletest.provider.XSettings;
-import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
+import github.tornaco.xposedmoduletest.ui.activity.WithSearchActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.ActivitySettingsAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.ComponentListAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.ReceiverSettingsAdapter;
@@ -70,14 +70,12 @@ import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
-import ir.mirrajabi.searchdialog.SimpleSearchDialogCompat;
-import ir.mirrajabi.searchdialog.core.BaseSearchDialogCompat;
-import ir.mirrajabi.searchdialog.core.SearchResultListener;
 import lombok.Getter;
 import lombok.Setter;
 
 @RuntimePermissions
-public class ComponentEditorActivity extends BaseActivity implements LoadingListener, ObserableHost {
+public class ComponentEditorActivity extends WithSearchActivity<Searchable>
+        implements LoadingListener, ObserableHost {
 
     private static final String EXTRA_PKG = "ce_extra_pkg";
     private static final String EXTRA_INDEX = "ce_extra_index";
@@ -89,21 +87,6 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
         intent.putExtra(EXTRA_PKG, pkg);
         context.startActivity(intent);
     }
-
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
-    private ViewPager mViewPager;
 
     private String mPackageName;
 
@@ -129,24 +112,18 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
     }
 
     private void initView() {
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = findViewById(R.id.container);
+        SectionsPagerAdapter mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        ViewPager mViewPager = findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 mCurrentFragment = mFragments.get(position);
-                Logger.d("onPageScrolled: " + mCurrentFragment);
             }
 
             @Override
             public void onPageSelected(int position) {
                 mCurrentFragment = mFragments.get(position);
-                Logger.d("onPageSelected: " + mCurrentFragment);
             }
 
             @Override
@@ -167,6 +144,7 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
                 setTitle(PkgUtil.loadNameByPkgName(getApplicationContext(), mPackageName));
             }
         });
+
     }
 
     private static final int INDEX_SERVICE = 0;
@@ -225,9 +203,20 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
         return !TextUtils.isEmpty(mPackageName);
     }
 
+    @NonNull
+    @Override
+    public ArrayList<Searchable> findItem(String query, int page) {
+        return mCurrentFragment.findItem(query, page);
+    }
+
+    @Override
+    public void onItemClicked(Searchable item) {
+        super.onItemClicked(item);
+
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.component_editor, menu);
         return true;
     }
@@ -238,7 +227,8 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
 
         if (id == R.id.action_search) {
             if (mCurrentFragment != null) {
-                mCurrentFragment.onRequestSearch();
+                mSearchView.display();
+                openKeyboard();
             }
             return true;
         }
@@ -542,6 +532,7 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
                 });
     }
 
+    @SuppressWarnings("ConstantConditions")
     public static class ActivityListFragment extends ComponentListFragment {
 
         public static ActivityListFragment newInstance(String pkg, int index) {
@@ -564,34 +555,8 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
             return new ActivitySettingsAdapter(getActivity());
         }
 
-        @SuppressWarnings("unchecked")
         @Override
-        void onRequestSearch() {
-            super.onRequestSearch();
-            final ArrayList<ActivityInfoSettings> adapterData = (ArrayList<ActivityInfoSettings>)
-                    getComponentListAdapter().getData();
-
-            final SimpleSearchDialogCompat<ActivityInfoSettings> searchDialog =
-                    new SimpleSearchDialogCompat(getActivity(), getString(R.string.title_search),
-                            getString(R.string.title_search_hint), null, adapterData,
-                            new SearchResultListener<ActivityInfoSettings>() {
-
-                                @Override
-                                public void onSelected(BaseSearchDialogCompat baseSearchDialogCompat,
-                                                       ActivityInfoSettings serviceInfoSettings, int i) {
-                                    int index = indexOf(serviceInfoSettings);
-                                    getRecyclerView().scrollToPosition(index);
-                                    getComponentListAdapter().setSelection(index);
-                                    baseSearchDialogCompat.dismiss();
-                                }
-                            });
-
-
-            searchDialog.show();
-            searchDialog.getSearchBox().setTypeface(Typeface.SERIF);
-        }
-
-        private int indexOf(final ActivityInfoSettings serviceInfoSettings) {
+        public int indexOf(final Searchable serviceInfoSettings) {
             return getComponentListAdapter().getData().indexOf(serviceInfoSettings);
         }
     }
@@ -618,34 +583,8 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
             return new ReceiverSettingsAdapter(getActivity());
         }
 
-        @SuppressWarnings("unchecked")
         @Override
-        void onRequestSearch() {
-            super.onRequestSearch();
-            final ArrayList<ActivityInfoSettings> adapterData = (ArrayList<ActivityInfoSettings>)
-                    getComponentListAdapter().getData();
-
-            final SimpleSearchDialogCompat<ActivityInfoSettings> searchDialog =
-                    new SimpleSearchDialogCompat(getActivity(), getString(R.string.title_search),
-                            getString(R.string.title_search_hint), null, adapterData,
-                            new SearchResultListener<ActivityInfoSettings>() {
-
-                                @Override
-                                public void onSelected(BaseSearchDialogCompat baseSearchDialogCompat,
-                                                       ActivityInfoSettings serviceInfoSettings, int i) {
-                                    int index = indexOf(serviceInfoSettings);
-                                    getRecyclerView().scrollToPosition(index);
-                                    getComponentListAdapter().setSelection(index);
-                                    baseSearchDialogCompat.dismiss();
-                                }
-                            });
-
-
-            searchDialog.show();
-            searchDialog.getSearchBox().setTypeface(Typeface.SERIF);
-        }
-
-        private int indexOf(final ActivityInfoSettings serviceInfoSettings) {
+        public int indexOf(final Searchable serviceInfoSettings) {
             return getComponentListAdapter().getData().indexOf(serviceInfoSettings);
         }
     }
@@ -661,6 +600,7 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
             return fragment;
         }
 
+        @SuppressWarnings("ConstantConditions")
         @Override
         protected List<ServiceInfoSettings> performLoading() {
             return ComponentLoader.Impl.create(getActivity().getApplicationContext())
@@ -672,70 +612,17 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
             return new ServiceSettingsAdapter(getActivity());
         }
 
-        void provideSimpleDialog() {
-            SimpleSearchDialogCompat dialog = new SimpleSearchDialogCompat(getActivity(), "Search...",
-                    "What are you looking for...?", null, createSampleData(),
-                    new SearchResultListener<SampleModel>() {
-                        @Override
-                        public void onSelected(BaseSearchDialogCompat dialog,
-                                               SampleModel item, int position) {
-                            Toast.makeText(getActivity(), item.getTitle(),
-                                    Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-                        }
-                    });
-            dialog.show();
-            dialog.getSearchBox().setTypeface(Typeface.SERIF);
-        }
-
-        private ArrayList<SampleModel> createSampleData() {
-            ArrayList<SampleModel> items = new ArrayList<>();
-            items.add(new SampleModel("First item"));
-            items.add(new SampleModel("Second item"));
-            items.add(new SampleModel("Third item"));
-            items.add(new SampleModel("The ultimate item"));
-            items.add(new SampleModel("Last item"));
-            items.add(new SampleModel("Lorem ipsum"));
-            items.add(new SampleModel("Dolor sit"));
-            items.add(new SampleModel("Some random word"));
-            items.add(new SampleModel("guess who's back"));
-            return items;
-        }
-
-        @SuppressWarnings("unchecked")
         @Override
-        void onRequestSearch() {
-            super.onRequestSearch();
-            final ArrayList<ServiceInfoSettings> adapterData = (ArrayList<ServiceInfoSettings>)
-                    getComponentListAdapter().getData();
-
-            final SimpleSearchDialogCompat<ServiceInfoSettings> searchDialog =
-                    new SimpleSearchDialogCompat(getActivity(), getString(R.string.title_search),
-                            getString(R.string.title_search_hint), null, adapterData,
-                            new SearchResultListener<ServiceInfoSettings>() {
-
-                                @Override
-                                public void onSelected(BaseSearchDialogCompat baseSearchDialogCompat,
-                                                       ServiceInfoSettings serviceInfoSettings, int i) {
-                                    int index = indexOf(serviceInfoSettings);
-                                    getRecyclerView().scrollToPosition(index);
-                                    getComponentListAdapter().setSelection(index);
-                                    baseSearchDialogCompat.dismiss();
-                                }
-                            });
-
-
-            searchDialog.show();
-            searchDialog.getSearchBox().setTypeface(Typeface.SERIF);
-        }
-
-        private int indexOf(final ServiceInfoSettings serviceInfoSettings) {
+        public int indexOf(final Searchable serviceInfoSettings) {
             return getComponentListAdapter().getData().indexOf(serviceInfoSettings);
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Getter
-    public static class ComponentListFragment extends Fragment {
+    public static class ComponentListFragment extends Fragment
+            implements SearchViewResults.SearchPerformer<Searchable>,
+            onSimpleSearchActionsListener<Searchable> {
 
         private SwipeRefreshLayout swipeRefreshLayout;
         private ComponentListAdapter componentListAdapter;
@@ -819,7 +706,7 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+        public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.component_list, container, false);
             setupView(rootView);
@@ -858,10 +745,6 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
                             startLoading();
                         }
                     });
-        }
-
-        void onRequestSearch() {
-
         }
 
         void onRequestEnabledAll() {
@@ -943,6 +826,34 @@ public class ComponentEditorActivity extends BaseActivity implements LoadingList
 
         void onRequestDisableAll() {
             onRequestEnabledDisableAll(false);
+        }
+
+        @SuppressWarnings("unchecked")
+        @NonNull
+        @Override
+        public ArrayList<Searchable> findItem(String query, int page) {
+            return (ArrayList<Searchable>) getComponentListAdapter().getData();
+        }
+
+        @Override
+        public void onItemClicked(Searchable item) {
+            int index = indexOf(item);
+            getRecyclerView().scrollToPosition(index);
+            getComponentListAdapter().setSelection(index);
+        }
+
+        public int indexOf(Searchable item) {
+            return 0;
+        }
+
+        @Override
+        public void onScroll() {
+
+        }
+
+        @Override
+        public void error(String localizedMessage) {
+
         }
     }
 

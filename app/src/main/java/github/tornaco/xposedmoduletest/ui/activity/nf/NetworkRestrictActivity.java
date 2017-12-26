@@ -2,8 +2,8 @@ package github.tornaco.xposedmoduletest.ui.activity.nf;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -23,6 +23,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.shahroz.svlibrary.interfaces.onSimpleSearchActionsListener;
+import com.shahroz.svlibrary.widgets.SearchViewResults;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,23 +33,13 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.NetworkRestrictLoader;
 import github.tornaco.xposedmoduletest.model.NetworkRestrictionItem;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
-import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
+import github.tornaco.xposedmoduletest.ui.activity.WithSearchActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.NetworkRestrictListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.SpannableUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import ir.mirrajabi.searchdialog.SimpleSearchDialogCompat;
-import ir.mirrajabi.searchdialog.core.BaseSearchDialogCompat;
-import ir.mirrajabi.searchdialog.core.SearchResultListener;
 
-public class NetworkRestrictActivity extends BaseActivity {
-
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
-    private ViewPager mViewPager;
+public class NetworkRestrictActivity extends WithSearchActivity<NetworkRestrictionItem> {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,10 +58,13 @@ public class NetworkRestrictActivity extends BaseActivity {
     private void setupViews() {
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        SectionsPagerAdapter mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = findViewById(R.id.container);
+        /*
+      The {@link ViewPager} that will host the section contents.
+     */
+        ViewPager mViewPager = findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         TabLayout tabLayout = findViewById(R.id.tabs);
@@ -156,7 +152,8 @@ public class NetworkRestrictActivity extends BaseActivity {
             setSummaryView();
         }
         if (item.getItemId() == R.id.action_search) {
-            if (mCurrentFragment != null) mCurrentFragment.onRequestSearch();
+            mSearchView.display();
+            openKeyboard();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -174,12 +171,26 @@ public class NetworkRestrictActivity extends BaseActivity {
         mFragments.add(RestrictAppListFragment.newInstance(INDEX_WIFI));
     }
 
+    @NonNull
+    @Override
+    public ArrayList<NetworkRestrictionItem> findItem(String query, int page) {
+        return mCurrentFragment.findItem(query, page);
+    }
+
+    @Override
+    public void onItemClicked(NetworkRestrictionItem item) {
+        super.onItemClicked(item);
+        mCurrentFragment.onItemClicked(item);
+    }
+
     private RestrictAppListFragment mCurrentFragment;
 
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class RestrictAppListFragment extends Fragment {
+    public static class RestrictAppListFragment extends Fragment
+            implements SearchViewResults.SearchPerformer<NetworkRestrictionItem>,
+            onSimpleSearchActionsListener<NetworkRestrictionItem> {
 
         /**
          * The fragment argument representing the section number for this
@@ -225,31 +236,6 @@ public class NetworkRestrictActivity extends BaseActivity {
 
         protected NetworkRestrictListAdapter onCreateAdapter() {
             return new NetworkRestrictListAdapter(getActivity());
-        }
-
-        @SuppressWarnings("unchecked")
-        void onRequestSearch() {
-            final ArrayList<NetworkRestrictionItem> adapterData = (ArrayList<NetworkRestrictionItem>)
-                    networkRestrictListAdapter.getNetworkRestrictionItems();
-
-            final SimpleSearchDialogCompat<NetworkRestrictionItem> searchDialog =
-                    new SimpleSearchDialogCompat(getActivity(), getString(R.string.title_search),
-                            getString(R.string.title_search_hint), null, adapterData,
-                            new SearchResultListener<NetworkRestrictionItem>() {
-
-                                @Override
-                                public void onSelected(BaseSearchDialogCompat baseSearchDialogCompat,
-                                                       NetworkRestrictionItem info, int i) {
-                                    int index = indexOf(info);
-                                    recyclerView.scrollToPosition(index);
-                                    networkRestrictListAdapter.setSelection(index);
-                                    baseSearchDialogCompat.dismiss();
-                                }
-                            });
-
-
-            searchDialog.show();
-            searchDialog.getSearchBox().setTypeface(Typeface.SERIF);
         }
 
         private int indexOf(final NetworkRestrictionItem pkg) {
@@ -339,6 +325,30 @@ public class NetworkRestrictActivity extends BaseActivity {
                             startLoading();
                         }
                     });
+        }
+
+        @NonNull
+        @Override
+        public ArrayList<NetworkRestrictionItem> findItem(String query, int page) {
+            return (ArrayList<NetworkRestrictionItem>)
+                    networkRestrictListAdapter.getNetworkRestrictionItems();
+        }
+
+        @Override
+        public void onItemClicked(NetworkRestrictionItem item) {
+            int index = indexOf(item);
+            recyclerView.scrollToPosition(index);
+            networkRestrictListAdapter.setSelection(index);
+        }
+
+        @Override
+        public void onScroll() {
+
+        }
+
+        @Override
+        public void error(String localizedMessage) {
+
         }
     }
 

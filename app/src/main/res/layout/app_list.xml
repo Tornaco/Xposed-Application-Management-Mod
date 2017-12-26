@@ -42,10 +42,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:layout_marginTop="@dimen/activity_horizontal_margin_marco"
+                android:autoLink="all"
                 android:paddingEnd="@dimen/activity_vertical_margin"
                 android:paddingStart="@dimen/activity_vertical_margin"
                 android:paddingTop="@dimen/activity_horizontal_margin_small"
-                android:autoLink="all"
                 android:text="@string/summary_app_guard"
                 android:visibility="visible" />
         </LinearLayout>
@@ -59,6 +59,7 @@
         android:layout_below="@+id/app_bar"
         android:layout_marginEnd="@dimen/activity_horizontal_margin_small"
         android:layout_marginStart="@dimen/activity_horizontal_margin_small">
+
 
         <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
             android:id="@+id/recycler_view"
@@ -85,5 +86,4 @@
         android:focusable="true"
         android:tint="@color/white"
         app:srcCompat="@drawable/ic_add_black_24dp" />
-
 </RelativeLayout>

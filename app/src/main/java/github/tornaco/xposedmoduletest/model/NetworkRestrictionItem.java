@@ -1,11 +1,9 @@
 package github.tornaco.xposedmoduletest.model;
 
-import ir.mirrajabi.searchdialog.core.Searchable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 /**
  * Created by guohao4 on 2017/12/5.
@@ -13,10 +11,9 @@ import lombok.ToString;
  */
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @Getter
 @Setter
-public class NetworkRestrictionItem implements Searchable {
+public class NetworkRestrictionItem {
 
     private String packageName;
     private String appName;
@@ -26,7 +23,7 @@ public class NetworkRestrictionItem implements Searchable {
     private boolean isRestrictedWifi;
 
     @Override
-    public String getTitle() {
-        return String.valueOf(getAppName());
+    public String toString() {
+        return appName == null ? packageName : appName;
     }
 }

@@ -165,9 +165,7 @@
 -dontwarn com.google.common.**
 
 # Bean
--keep class github.tornaco.xposedmoduletest.bean.** {*;}
--keep class github.tornaco.xposedmoduletest.model.** {*;}
--keep class github.tornaco.xposedmoduletest.xposed.** {*;}
+-keep class github.tornaco.xposedmoduletest.** {*;}
 
 # Glide
 -keep public class * implements com.bumptech.glide.module.GlideModule
@@ -177,5 +175,16 @@
   public *;
 }
 
-# for DexGuard only
--keepresourcexmlelements manifest/application/meta-data@value=GlideModule
+# http://greenrobot.org/greendao/documentation/updating-to-greendao-3-and-annotations/
+-keepclassmembers class * extends org.greenrobot.greendao.AbstractDao {
+public static java.lang.String TABLENAME;
+}
+-keep class **$Properties
+
+# If you do not use SQLCipher:
+-dontwarn org.greenrobot.greendao.database.**
+# If you do not use Rx:
+-dontwarn rx.**
+
+-keep class br.com.mauker.MsvAuthority
+-keepclassmembers class br.com.mauker.** { *; }

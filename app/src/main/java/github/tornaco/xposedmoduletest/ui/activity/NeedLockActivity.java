@@ -46,7 +46,7 @@ import github.tornaco.xposedmoduletest.util.ViewAnimatorUtil;
  */
 
 @SuppressLint("Registered")
-public class NeedLockActivity extends BaseActivity {
+public class NeedLockActivity<T> extends WithSearchActivity<T> {
 
     private LockView mLockView;
 
