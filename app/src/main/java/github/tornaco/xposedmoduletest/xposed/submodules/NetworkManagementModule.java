@@ -8,6 +8,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.service.NativeDaemonConnector;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -45,5 +46,10 @@ class NetworkManagementModule extends IntentFirewallAndroidSubModule {
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }
+    }
+
+    @Override
+    public String needBuildVar() {
+        return XAppBuildVar.APP_FIREWALL;
     }
 }

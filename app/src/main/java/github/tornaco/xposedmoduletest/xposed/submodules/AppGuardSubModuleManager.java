@@ -3,7 +3,7 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 import java.util.HashSet;
 import java.util.Set;
 
-import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import lombok.Synchronized;
 
 /**
@@ -17,22 +17,26 @@ public class AppGuardSubModuleManager {
 
     private final Set<SubModule> SUBS = new HashSet<>();
 
-    private AppGuardSubModuleManager() {
-        // SUBS.add(new ResourceSubModule());
-        SUBS.add(new FPSubModule());
-        SUBS.add(new ScreenshotApplicationsSubModule());
-        SUBS.add(new PackageInstallerSubModule());
-        SUBS.add(new PMSSubModule());
-        SUBS.add(new TaskMoverSubModuleDelegate());
-        SUBS.add(new ActivityStartSubModuleDelegate());
-        SUBS.add(new AMSSubModule5());
-        SUBS.add(new AMSSubModule4());
-        SUBS.add(new AMSSubModule3());
-        SUBS.add(new AMSSubModule2());
-        SUBS.add(new AMSSubModule());
-        if (BuildConfig.DEBUG) {
-            SUBS.add(new IconModule());
+
+    private void addToSubsChecked(SubModule subModule) {
+        String var = subModule.needBuildVar();
+        if (var == null || XAppBuildVar.BUILD_VARS.contains(var)) {
+            SUBS.add(subModule);
         }
+    }
+
+    private AppGuardSubModuleManager() {
+        addToSubsChecked(new FPSubModule());
+        addToSubsChecked(new ScreenshotApplicationsSubModule());
+        addToSubsChecked(new PackageInstallerSubModule());
+        addToSubsChecked(new PMSSubModule());
+        addToSubsChecked(new TaskMoverSubModuleDelegate());
+        addToSubsChecked(new ActivityStartSubModuleDelegate());
+        addToSubsChecked(new AMSSubModule5());
+        addToSubsChecked(new AMSSubModule4());
+        addToSubsChecked(new AMSSubModule3());
+        addToSubsChecked(new AMSSubModule2());
+        addToSubsChecked(new AMSSubModule());
     }
 
     @Synchronized

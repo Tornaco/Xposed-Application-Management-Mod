@@ -49,7 +49,6 @@ import github.tornaco.xposedmoduletest.ui.tiles.Blur;
 import github.tornaco.xposedmoduletest.ui.tiles.CompReplacement;
 import github.tornaco.xposedmoduletest.ui.tiles.ComponentManager;
 import github.tornaco.xposedmoduletest.ui.tiles.Greening;
-import github.tornaco.xposedmoduletest.ui.tiles.Lazy;
 import github.tornaco.xposedmoduletest.ui.tiles.LockKill;
 import github.tornaco.xposedmoduletest.ui.tiles.NFManager;
 import github.tornaco.xposedmoduletest.ui.tiles.PermControl;
@@ -57,8 +56,8 @@ import github.tornaco.xposedmoduletest.ui.tiles.Privacy;
 import github.tornaco.xposedmoduletest.ui.tiles.RFKill;
 import github.tornaco.xposedmoduletest.ui.tiles.SmartSense;
 import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
-import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import lombok.Getter;
@@ -292,6 +291,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             super.onCreateDashCategories(categories);
             Category category = new Category();
             category.titleRes = R.string.title_secure;
+
             category.addTile(new AppGuard(getActivity()));
             category.addTile(new Blur(getActivity()));
             category.addTile(new UnInstall(getActivity()));
@@ -309,16 +309,25 @@ public class NavigatorActivity extends WithWithCustomTabActivity
 
             Category ash = new Category();
             ash.titleRes = R.string.title_control;
+
             ash.addTile(new ComponentManager(getActivity()));
             ash.addTile(new CompReplacement(getActivity()));
             ash.addTile(new PermControl(getActivity()));
-            ash.addTile(new SmartSense(getActivity()));
-            ash.addTile(new Greening(getActivity()));
-            if (BuildConfig.DEBUG && OSUtil.isMOrAbove()) ash.addTile(new NFManager(getActivity()));
 
-            categories.add(category);
-            categories.add(rest);
-            categories.add(ash);
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_SMART_SENSE)) {
+                ash.addTile(new SmartSense(getActivity()));
+            }
+
+            ash.addTile(new Greening(getActivity()));
+
+            // Only add when firewall is enabled for this build.
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_FIREWALL)) {
+                ash.addTile(new NFManager(getActivity()));
+            }
+
+            if (category.getTilesCount() > 0) categories.add(category);
+            if (rest.getTilesCount() > 0) categories.add(rest);
+            if (ash.getTilesCount() > 0) categories.add(ash);
         }
 
         @SuppressWarnings("unchecked")

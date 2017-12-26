@@ -28,6 +28,11 @@ abstract class AbsSubModule implements SubModule {
     private String errorMessage;
 
     @Override
+    public String needBuildVar() {
+        return null;
+    }
+
+    @Override
     public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {
         // Empty.
     }

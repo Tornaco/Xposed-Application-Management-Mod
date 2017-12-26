@@ -79,6 +79,7 @@ import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
@@ -745,10 +746,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private CheckResult checkServiceDetailed(String servicePkgName, int callerUid) {
         if (TextUtils.isEmpty(servicePkgName)) return CheckResult.BAD_ARGS;
 
-        if (PkgUtil.isSystemOrPhoneOrShell(callerUid)){
-            XposedLog.wtf("This is called by system, dangerous blocking!!!");
-        }
-
         if (isInWhiteList(servicePkgName)) {
             return CheckResult.WHITE_LISTED;
         }
@@ -761,6 +758,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         int mode = getPermissionControlBlockModeForPkg(
                 AppOpsManagerCompat.OP_START_SERVICE, servicePkgName);
         if (mode == AppOpsManagerCompat.MODE_IGNORED) {
+
+            if (PkgUtil.isSystemOrPhoneOrShell(callerUid)) {
+                if (XposedLog.isVerboseLoggable())
+                    XposedLog.wtf("This is called by system, dangerous blocking!!!");
+            }
+
             return CheckResult.DENIED_OP_DENIED;
         }
 
@@ -768,6 +771,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         boolean isLazy = isLazyModeEnabled()
                 && isPackageLazyByUser(servicePkgName);
         if (isLazy && !servicePkgName.equals(mTopPackage.getData())) {
+
+            if (PkgUtil.isSystemOrPhoneOrShell(callerUid)) {
+                if (XposedLog.isVerboseLoggable())
+                    XposedLog.wtf("This is called by system, dangerous blocking!!!");
+            }
+
             return CheckResult.DENIED_LAZY;
         }
 
@@ -779,6 +788,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         boolean isGreeningApp = isGreeningEnabled()
                 && isPackageGreeningByUser(servicePkgName);
         if (isGreeningApp) {
+
+            if (PkgUtil.isSystemOrPhoneOrShell(callerUid)) {
+                if (XposedLog.isVerboseLoggable())
+                    XposedLog.wtf("This is called by system, dangerous blocking!!!");
+            }
+
             return CheckResult.DENIED_GREEN_APP;
         }
 
@@ -805,6 +820,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         boolean blockedByUser = isPackageStartBlockByUser(servicePkgName);
         // User block!!!
         if (blockedByUser) {
+
+            if (PkgUtil.isSystemOrPhoneOrShell(callerUid)) {
+                if (XposedLog.isVerboseLoggable())
+                    XposedLog.wtf("This is called by system, dangerous blocking!!!");
+            }
+
             return CheckResult.USER_DENIED;
         }
 
@@ -1844,16 +1865,26 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         checkSafeMode();
         registerReceiver();
 
-        // Try to setup the list after 15s.
-        lazyH.postDelayed(new Runnable() {
+        // Dump build vars.
+        Collections.consumeRemaining(XAppBuildVar.BUILD_VARS, new Consumer() {
             @Override
-            public void run() {
-                try {
-                    applyRestrictionBlackList();
-                } catch (Throwable ignored) {
-                }
+            public void accept(Object o) {
+                XposedLog.wtf("BUILD_VARS: " + o);
             }
-        }, 10 * 1000);
+        });
+
+        // Try to setup the list after 15s if network control is enabled.
+        if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_FIREWALL)) {
+            lazyH.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        applyRestrictionBlackList();
+                    } catch (Throwable ignored) {
+                    }
+                }
+            }, 10 * 1000);
+        }
     }
 
     // NMS API START.
@@ -1900,6 +1931,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @InternalCall
     public void onNetWorkManagementServiceReady(NativeDaemonConnector connector) {
         XposedLog.debug("NMS onNetWorkManagementServiceReady: " + connector);
+
+        if (!XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_FIREWALL)) {
+            XposedLog.wtf("onNetWorkManagementServiceReady, " +
+                    "What the fuck? the firewall is not enabled at this build, but we got it up?");
+            return;
+        }
+
         this.mNativeDaemonConnector = connector;
         this.mWifiInterfaceName = SystemProperties.get("wifi.interface");
         XposedLog.debug("NMS mWifiInterfaceName: " + mWifiInterfaceName);
@@ -1916,6 +1954,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         mPendingDataRestrictReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+
+                if (!XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_FIREWALL)) {
+                    XposedLog.wtf("onReceive, What the fuck? the firewall is not enabled at this build, but we got it up?");
+                    return;
+                }
+
                 try {
                     applyRestrictionBlackList();
                     processPendingDataRestrictRequests();
@@ -2523,6 +2567,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @BinderCall
     public void restrictAppOnData(int uid, boolean restrict) {
         XposedLog.debug("NMS restrictAppOnData: " + uid + ", restrict: " + restrict);
+
+        if (!XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_FIREWALL)) {
+            throw new IllegalStateException("restrictAppOnData, " +
+                    "What the fuck? the firewall is not enabled at this build, but we got it up?");
+        }
+
         enforceCallingPermissions();
         h.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONDATA, uid, -1, restrict)
                 .sendToTarget();
@@ -2537,6 +2587,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @BinderCall
     public void restrictAppOnWifi(int uid, boolean restrict) {
+        if (!XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_FIREWALL)) {
+            throw new IllegalStateException("restrictAppOnWifi, " +
+                    "What the fuck? the firewall is not enabled at this build, but we got it up?");
+        }
+
         XposedLog.debug("NMS restrictAppOnWifi: " + uid + ", restrict: " + restrict);
         enforceCallingPermissions();
         h.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONWIFI, uid, -1, restrict)

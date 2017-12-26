@@ -3,7 +3,7 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 import java.util.HashSet;
 import java.util.Set;
 
-import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import lombok.Synchronized;
 
 /**
@@ -17,37 +17,49 @@ public class IntentFirewallSubModuleManager {
 
     private final Set<SubModule> SUBS = new HashSet<>();
 
+    private void addToSubsChecked(SubModule subModule) {
+        String var = subModule.needBuildVar();
+        if (var == null || XAppBuildVar.BUILD_VARS.contains(var)) {
+            SUBS.add(subModule);
+        }
+    }
+
     private IntentFirewallSubModuleManager() {
-        // SUBS.add(new ServiceSubModule());
-        SUBS.add(new AlarmManagerSubModule());
-        SUBS.add(new WakelockSubModule());
-        SUBS.add(new SecureSettingsSubModule());
+        addToSubsChecked(new ServiceSubModule());
 
-        SUBS.add(new TelephonyManagerSubModule());
+        addToSubsChecked(new AlarmManagerSubModule());
+        addToSubsChecked(new WakelockSubModule());
+        addToSubsChecked(new SecureSettingsSubModule());
 
-        if (BuildConfig.DEBUG) SUBS.add(new NetworkManagementModule());
-        SUBS.add(new MediaFocusControlSubModule2());
-        SUBS.add(new MediaFocusControlSubModule());
-        SUBS.add(new PMSSubModule4());
-        SUBS.add(new PMSSubModule2());
-        SUBS.add(new ASDSubModule());
-        SUBS.add(new IFWSubModule());
-        SUBS.add(new AppOpsSubModule4());
-        SUBS.add(new AppOpsSubModule3());
-        SUBS.add(new AppOpsSubModule2());
-        SUBS.add(new AppOpsSubModule());
+        addToSubsChecked(new TelephonyManagerSubModule());
 
-        SUBS.add(new ActiveServiceSubModule());
-        // SUBS.add(new RuntimeInitSubModule());
+        addToSubsChecked(new NetworkManagementModule());
 
-        SUBS.add(new AMSSubModule9());
-        SUBS.add(new AMSSubModule8());
-        SUBS.add(new AMSSubModule6());
-        SUBS.add(new AMSSubModule5());
-        SUBS.add(new AMSSubModule4());
-        SUBS.add(new AMSSubModule3());
-        SUBS.add(new AMSSubModule2());
-        SUBS.add(new AMSSubModule());
+        addToSubsChecked(new MediaFocusControlSubModule2());
+        addToSubsChecked(new MediaFocusControlSubModule());
+
+        addToSubsChecked(new PMSSubModule4());
+        addToSubsChecked(new PMSSubModule2());
+
+        addToSubsChecked(new ASDSubModule());
+        addToSubsChecked(new IFWSubModule());
+
+        addToSubsChecked(new AppOpsSubModule4());
+        addToSubsChecked(new AppOpsSubModule3());
+        addToSubsChecked(new AppOpsSubModule2());
+        addToSubsChecked(new AppOpsSubModule());
+
+        addToSubsChecked(new ActiveServiceSubModule());
+        addToSubsChecked(new RuntimeInitSubModule());
+
+        addToSubsChecked(new AMSSubModule9());
+        addToSubsChecked(new AMSSubModule8());
+        addToSubsChecked(new AMSSubModule6());
+        addToSubsChecked(new AMSSubModule5());
+        addToSubsChecked(new AMSSubModule4());
+        addToSubsChecked(new AMSSubModule3());
+        addToSubsChecked(new AMSSubModule2());
+        addToSubsChecked(new AMSSubModule());
     }
 
     @Synchronized

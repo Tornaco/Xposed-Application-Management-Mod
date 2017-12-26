@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
+import android.app.AndroidAppHelper;
 import android.app.Service;
 import android.os.Binder;
 import android.os.Handler;
@@ -47,6 +48,12 @@ class ServiceSubModule extends IntentFirewallAndroidSubModule {
                             if (PkgUtil.isSystemOrPhoneOrShell(callingUid)) return;
 
                             final Service service = (Service) param.thisObject;
+
+                            if (service == null) {
+                                Log.d(XposedLog.TAG_LAZY, "We got null service for:" + AndroidAppHelper.currentPackageName());
+                                return;
+                            }
+
                             final String hostPackage = service.getPackageName();
 
                             if (XAshmanManager.get().isServiceAvailable()

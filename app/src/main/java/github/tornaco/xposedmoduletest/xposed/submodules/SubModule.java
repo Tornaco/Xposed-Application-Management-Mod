@@ -27,6 +27,8 @@ public interface SubModule {
 
     String name();
 
+    String needBuildVar();
+
     enum SubModuleStatus {
         UNKNOWN,
         ERROR,
