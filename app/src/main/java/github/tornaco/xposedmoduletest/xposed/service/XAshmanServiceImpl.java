@@ -113,6 +113,8 @@ import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_R
 
 public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
+    private static final String SYSTEM_UI_PKG = "com.android.systemui";
+
     private static final String TAG_LK = "LOCK-KILL-";
 
     private static final boolean DEBUG_BROADCAST = false && BuildConfig.DEBUG;
@@ -1013,7 +1015,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return keyguardManager != null && keyguardManager.inKeyguardRestrictedInputMode();
     }
 
-    private boolean shouldLKPackage(String pkg) {
+    private boolean shouldRFKPackage(String pkg) {
         // If this app is not in good condition, but user
         // does not block, we also allow it to start.
         boolean rfkByUser = isPackageRFKByUser(pkg);
@@ -2515,6 +2517,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @BinderCall
     public void setLPBKEnabled(boolean enabled) throws RemoteException {
         enforceCallingPermissions();
         h.obtainMessage(AshManHandlerMessages.MSG_SETLPBKENABLED, enabled)
@@ -2522,8 +2525,67 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @BinderCall
     public boolean isLPBKEnabled() {
         return mLongPressBackKillEnabled.get();
+    }
+
+    @Override
+    @BinderCall
+    public void onTaskRemoving(int callingUid, int taskId) throws RemoteException {
+        String callingPkg = PkgUtil.pkgForUid(getContext(), callingUid);
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("removeTask: uid %s pkg %s task %s", callingUid, callingPkg, taskId);
+        }
+
+        if (!isRFKillEnabled()) {
+            if (XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose("removeTask: rfk is not enabled");
+            }
+            return;
+        }
+
+        if (isSystemUIPackage(callingPkg)) {
+            // We will kill removed pkg.
+            ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
+            // Assume systemui has this permission.
+            if (am != null) {
+                List<ActivityManager.RecentTaskInfo> tasks = am.getRecentTasks(99,
+                        ActivityManager.RECENT_WITH_EXCLUDED);
+                if (tasks != null) {
+                    String pkgOfThisTask = null;
+                    for (ActivityManager.RecentTaskInfo rc : tasks) {
+                        if (rc != null && rc.persistentId == taskId) {
+                            pkgOfThisTask = PkgUtil.packageNameOf(rc.baseIntent);
+                            break;
+                        }
+                    }
+                    XposedLog.verbose("removeTask, pkgOfThisTask: " + pkgOfThisTask);
+                    if (pkgOfThisTask != null) {
+
+                        if (!shouldRFKPackage(pkgOfThisTask)) {
+                            XposedLog.verbose("removeTask PackageRFKill not enabled for this package");
+                            return;
+                        }
+
+                        // Now we kill this pkg delay to let am handle first.
+                        final String finalPkgOfThisTask = pkgOfThisTask;
+                        lazyH.postDelayed(new ErrorCatchRunnable(new Runnable() {
+                            @Override
+                            public void run() {
+                                XposedLog.verbose("removeTask, killing: " + finalPkgOfThisTask);
+                                PkgUtil.kill(getContext(), finalPkgOfThisTask);
+                            }
+                        }, "removeTask-kill"), 888); // FIXME why 888?
+                    }
+                }
+            }
+
+        }
+    }
+
+    private boolean isSystemUIPackage(String pkgName) {
+        return pkgName != null && pkgName.equals(SYSTEM_UI_PKG);
     }
 
     private void postNotifyTopPackageChanged(final String from, final String to) {
@@ -3737,7 +3799,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 XposedLog.verbose("onActivityDestroy, packageName: " + packageName
                         + ", isMainIntent: " + isMainIntent + ", topPkg: " + getTopPackage());
 
-            if (!shouldLKPackage(packageName)) {
+            if (!shouldRFKPackage(packageName)) {
                 if (XposedLog.isVerboseLoggable()) XposedLog.verbose("PackageRFKill not enabled");
                 return;
             }
@@ -4000,7 +4062,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 return;
             }
 
-            if (!shouldLKPackage(packageName)) {
+            if (!shouldRFKPackage(packageName)) {
                 XposedLog.verbose(XposedLog.TAG_KEY + "PackageRFKill not enabled for this package");
                 return;
             }

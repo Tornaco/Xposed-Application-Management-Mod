@@ -55,6 +55,7 @@ public class IntentFirewallSubModuleManager {
         addToSubsChecked(new ActiveServiceSubModule());
         addToSubsChecked(new RuntimeInitSubModule());
 
+        addToSubsChecked(new AMSSubModule10());
         addToSubsChecked(new AMSSubModule9());
         addToSubsChecked(new AMSSubModule8());
         addToSubsChecked(new AMSSubModule6());

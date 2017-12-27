@@ -160,4 +160,7 @@ interface IAshmanService {
     // Long press back kill.
     void setLPBKEnabled(boolean enabled);
     boolean isLPBKEnabled();
+
+    // Usually called by systemui.
+    void onTaskRemoving(int callingUid, int taskId);
 }

@@ -874,8 +874,16 @@ public class XAshmanManager {
     public boolean isLPBKEnabled() {
         try {
             return mService.isLPBKEnabled();
-        } catch (RemoteException e) {
+        } catch (RemoteException ignored) {
             return false;
+        }
+    }
+
+    public void onTaskRemoving(int callingUid, int taskId) {
+        try {
+            mService.onTaskRemoving(callingUid, taskId);
+        } catch (RemoteException ignored) {
+
         }
     }
 }
