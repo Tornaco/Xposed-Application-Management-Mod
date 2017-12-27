@@ -161,7 +161,8 @@ public class PkgUtil {
 
     // Check if uid is system, shell or phone.
     public static boolean isSystemOrPhoneOrShell(int uid) {
-        return uid <= 2000 || (uid % UserHandle.PER_USER_RANGE <= 2000);
+        return uid <= 2000
+                || (uid > UserHandle.PER_USER_RANGE && (uid % UserHandle.PER_USER_RANGE <= 2000));
     }
 
     public static boolean isSystemApp(Context context, String pkg) {

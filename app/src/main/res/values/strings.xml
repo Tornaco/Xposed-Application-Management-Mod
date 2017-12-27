@@ -36,7 +36,7 @@
     <string name="title_donate">捐赠</string>
     <string name="title_show_system_app">显示系统应用</string>
     <string name="first_run_title">XXXXX？!</string>
-    <string name="message_first_run">不要禁用本应用的任何组件。\n介于现在的ROM众多繁杂适配难以一下全部囊括。\n使用中如果遇到问题，麻烦尽量帮忙查看Xposed Installer内的log，反馈出来，这样才会使其发展的更好。\n如果支持的话请给好评，感谢！</string>
+    <string name="message_first_run">常用软件不要禁，流氓应用关牢笼；\n\n遇到问题不要急，看看说明或可以；\n\n实在不行抓log，发给开发谢谢你！</string>
     <string name="title_use_fp">使用指纹</string>
     <string name="title_ver_on_home">应用切换时重新验证</string>
     <string name="summary_always_need_verify">默认机制是当屏幕熄灭重新点亮时，之前验证过的应用才会需要重新验证，如果启用了此选项，将会每次都需要验证</string>
@@ -266,7 +266,7 @@
     <string name="title_app_settings">限制设置</string>
     <string name="title_white_system_app">不限制任何系统应用</string>
     <string name="summary_white_system_app">不对任何的系统应用做自启动，关联启动，强行清理等限制处理</string>
-    <string name="title_app_update_log">抵制毒瘤，从我做起</string>
+    <string name="title_app_update_log">内功心法</string>
     <string name="title_app_black_list">很重要的通知</string>
     <string name="message_app_black_list">新用户请绕过。\n\n由于各个亲爱的用户的反馈中，有很多是因为应用被误杀，造成一些使用问题，因此，从这个版本起，我们的 [限制] 部分由之前的白名单模式改为了黑名单模式，你可能需要前往下面的各项设置重新进行配置。</string>
     <string name="no_remind">同意并记住</string>

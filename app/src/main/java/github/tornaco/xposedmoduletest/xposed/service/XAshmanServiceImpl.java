@@ -1583,8 +1583,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void forceReloadPackages() throws RemoteException {
-        enforceCallingPermissions();
+    public void forceReloadPackages() {
         h.removeMessages(AshManHandlerMessages.MSG_FORCERELOADPACKAGES);
         h.sendEmptyMessage(AshManHandlerMessages.MSG_FORCERELOADPACKAGES);
     }
@@ -1900,6 +1899,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 }
             }, 10 * 1000);
         }
+
+        // Reload packages after 15s, for those apps installed on sd.
+        lazyH.postDelayed(new ErrorCatchRunnable(new Runnable() {
+            @Override
+            public void run() {
+                forceReloadPackages();
+            }
+        }, "reload installed apps"), 15 * 1000);
     }
 
     // NMS API START.
