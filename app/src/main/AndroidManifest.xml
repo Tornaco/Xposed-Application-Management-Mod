@@ -172,6 +172,11 @@
             android:label="@string/title_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
+            android:name=".ui.activity.smartsense.SmartSenseDashboardActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_smart_sense"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
             android:name=".ui.activity.blur.BlurSettingsDashboardActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_settings"
@@ -322,7 +327,7 @@
         <activity
             android:name=".ui.activity.whyyouhere.UserGiudeActivity"
             android:label="@string/title_activity_user_giude"
-            android:theme="@style/AppThemeLight.NoActionBar"/>
+            android:theme="@style/AppThemeLight.NoActionBar" />
     </application>
 
 </manifest>

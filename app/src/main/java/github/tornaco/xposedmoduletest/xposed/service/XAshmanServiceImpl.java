@@ -974,6 +974,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return true;
     }
 
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @Override
     @InternalCall
     @Deprecated
@@ -991,6 +992,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 if (BuildConfig.DEBUG) {
                     XposedLog.verbose("Ignore key event in keyguard");
                 }
+                return false;
             }
             lazyH.obtainMessage(AshManLZHandlerMessages.MSG_ONKEYEVENT, keyEvent).sendToTarget();
         }
@@ -3961,7 +3963,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         @Override
         public void maybeBackLongPressed(String targetPackage) {
-            XposedLog.verbose(XposedLog.TAG_KEY + "maybeBackLongPressed: " + getTopPackage());
+            XposedLog.verbose(XposedLog.TAG_KEY + "maybeBackLongPressed: " + targetPackage);
+
+            if (isInWhiteList(targetPackage)) {
+                return;
+            }
 
             // Check if long press kill is enabled.
             boolean enabled = isLPBKEnabled();
