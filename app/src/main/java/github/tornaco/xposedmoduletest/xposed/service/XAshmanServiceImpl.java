@@ -5,6 +5,9 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
 import android.app.AlertDialog;
+import android.app.IActivityManager;
+import android.app.IAppTask;
+import android.app.KeyguardManager;
 import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
@@ -41,6 +44,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseBooleanArray;
+import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -97,6 +101,7 @@ import lombok.ToString;
 
 import static android.content.Context.CONTEXT_IGNORE_SECURITY;
 import static android.content.Context.INPUT_METHOD_SERVICE;
+import static android.content.Context.KEYGUARD_SERVICE;
 import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_NONE;
 import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_ON_DATA;
 import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_ON_WIFI;
@@ -110,10 +115,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private static final String TAG_LK = "LOCK-KILL-";
 
-    private static final boolean DEBUG_BROADCAST = BuildConfig.DEBUG;
-    private static final boolean DEBUG_SERVICE = BuildConfig.DEBUG;
-    private static final boolean DEBUG_OP = BuildConfig.DEBUG;
-    private static final boolean DEBUG_COMP = BuildConfig.DEBUG;
+    private static final boolean DEBUG_BROADCAST = false && BuildConfig.DEBUG;
+    private static final boolean DEBUG_SERVICE = false && BuildConfig.DEBUG;
+    private static final boolean DEBUG_OP = false && BuildConfig.DEBUG;
+    private static final boolean DEBUG_COMP = false && BuildConfig.DEBUG;
 
     private static final Set<String> WHITE_LIST = new HashSet<>();
     private static final Set<Pattern> WHITE_LIST_PATTERNS = new HashSet<>();
@@ -154,6 +159,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private final AtomicBoolean mLockKillDoNotKillAudioEnabled = new AtomicBoolean(true);
     private final AtomicBoolean mRootActivityFinishKillEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mLongPressBackKillEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mCompSettingBlockEnabled = new AtomicBoolean(false);
 
     private final Holder<String> mUserDefinedDeviceId = new Holder<>();
@@ -642,6 +648,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         try {
+            boolean longPressBackKill = (boolean) SystemSettings.LONG_PRESS_BACK_KILL_ENABLED_B
+                    .readFromSystemSettings(getContext());
+            mLongPressBackKillEnabled.set(longPressBackKill);
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("longPressBackKill: " + String.valueOf(longPressBackKill));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
             boolean compSettingBlockEnabled = (boolean) SystemSettings.COMP_SETTING_BLOCK_ENABLED_B
                     .readFromSystemSettings(getContext());
             mCompSettingBlockEnabled.set(compSettingBlockEnabled);
@@ -960,15 +976,42 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @InternalCall
+    @Deprecated
+    @DeprecatedSince("3.0.2")
     public void onActivityDestroy(Intent intent, String reason) {
-        if (XposedLog.isVerboseLoggable())
-            XposedLog.verbose("onActivityDestroy: " + intent + ", reason: " + reason);
-        if (!isRFKillEnabled()) return;
-        lazyH.obtainMessage(AshManLZHandlerMessages.MSG_ONACTIVITYDESTROY, intent).sendToTarget();
+        // Nothing to do.
+    }
+
+    @Override
+    @InternalCall
+    public boolean onKeyEvent(KeyEvent keyEvent) {
+        if (keyEvent != null) {
+            boolean inKeyguard = isKeyguard();
+            if (inKeyguard) {
+                if (BuildConfig.DEBUG) {
+                    XposedLog.verbose("Ignore key event in keyguard");
+                }
+            }
+            lazyH.obtainMessage(AshManLZHandlerMessages.MSG_ONKEYEVENT, keyEvent).sendToTarget();
+        }
+        return false;
+    }
+
+    private KeyguardManager mKeyguardManager;
+
+    private KeyguardManager getKeyguardManager() {
+        if (mKeyguardManager == null) {
+            mKeyguardManager = (KeyguardManager) getContext().getSystemService(KEYGUARD_SERVICE);
+        }
+        return mKeyguardManager;
+    }
+
+    private boolean isKeyguard() {
+        KeyguardManager keyguardManager = getKeyguardManager();
+        return keyguardManager != null && keyguardManager.inKeyguardRestrictedInputMode();
     }
 
     private boolean shouldLKPackage(String pkg) {
-        if (!isRFKillEnabled()) return false;
         // If this app is not in good condition, but user
         // does not block, we also allow it to start.
         boolean rfkByUser = isPackageRFKByUser(pkg);
@@ -2469,6 +2512,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         addOrRemoveFromRepo(packages, mRepoProxy.getLazy(), op == XAshmanManager.Op.ADD);
     }
 
+    @Override
+    public void setLPBKEnabled(boolean enabled) throws RemoteException {
+        enforceCallingPermissions();
+        h.obtainMessage(AshManHandlerMessages.MSG_SETLPBKENABLED, enabled)
+                .sendToTarget();
+    }
+
+    @Override
+    public boolean isLPBKEnabled() {
+        return mLongPressBackKillEnabled.get();
+    }
+
     private void postNotifyTopPackageChanged(final String from, final String to) {
         if (from == null || to == null) return;
         lazyH.removeMessages(AshManLZHandlerMessages.MSG_NOTIFYTOPPACKAGECHANGED);
@@ -2668,6 +2723,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public void shutdown() {
+    }
+
+    private IActivityManager getActivityManager() {
+        return ActivityManagerNative.getDefault();
     }
 
     // For debug.
@@ -3109,6 +3168,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETLAZYMODEENABLED:
                     HandlerImpl.this.setLazyModeEnabled((Boolean) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_SETLPBKENABLED:
+                    HandlerImpl.this.setLPBKEnabled((Boolean) msg.obj);
+                    break;
             }
         }
 
@@ -3299,6 +3361,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setRFKillEnabled(boolean enabled) {
             if (mRootActivityFinishKillEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.ROOT_ACTIVITY_KILL_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setLPBKEnabled(boolean enabled) {
+            if (mLongPressBackKillEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.LONG_PRESS_BACK_KILL_ENABLED_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 
@@ -3671,6 +3740,33 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 return;
             }
 
+            IActivityManager activityManager = getActivityManager();
+            if (activityManager == null) {
+                return;
+            }
+
+            try {
+                List tasks = activityManager.getAppTasks(packageName);
+                XposedLog.wtf("AppTask: " + tasks.size());
+
+                if (BuildConfig.DEBUG) {
+                    Collections.consumeRemaining(tasks, new Consumer() {
+                        @Override
+                        public void accept(Object o) {
+                            try {
+                                IAppTask appTask = (IAppTask) o;
+                                XposedLog.verbose("AppTask: " + appTask.getTaskInfo().baseIntent);
+                            } catch (Exception e) {
+                                XposedLog.wtf("Fail getTaskInfo for apptask: " + Log.getStackTraceString(e));
+                            }
+                        }
+                    });
+                }
+
+            } catch (Exception e) {
+                XposedLog.wtf("Fail getAppTask: " + Log.getStackTraceString(e));
+            }
+
             boolean maybeRootActivityFinish = !packageName.equals(getTopPackage());
 
             if (maybeRootActivityFinish) {
@@ -3809,6 +3905,123 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XAshmanServiceImpl.this.notifyTopPackageChanged(from, to);
         }
 
+        private static final long LONG_PRESS_DETECTION_TIME_MILLS = 1500;
+        private static final long BACK_PRESS_DETECTION_TIME_MILLS = 666;
+
+        @Override
+        public void onKeyEvent(KeyEvent keyEvent) {
+
+            int keyCode = keyEvent.getKeyCode();
+            int action = keyEvent.getAction();
+
+
+            if (BuildConfig.DEBUG) {
+                XposedLog.verbose(XposedLog.TAG_KEY + "onKeyEvent: %s %s, current package: %s",
+                        keyCode,
+                        action,
+                        mTopPackage.getData());
+            }
+
+            String currentPkg = getTopPackage();
+            if (currentPkg == null) return;
+
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_BACK:
+                    if (action == KeyEvent.ACTION_DOWN) {
+
+                        if (hasMessages(AshManLZHandlerMessages.MSG_MAYBEBACKLONGPRESSED)
+                                || hasMessages(AshManLZHandlerMessages.MSG_MAYBEBACKPRESSED)) {
+                            XposedLog.verbose("Ignore back down event when we already has message in queue.");
+                            return;
+                        }
+
+                        sendMessageDelayed(
+                                obtainMessage(AshManLZHandlerMessages.MSG_MAYBEBACKLONGPRESSED, currentPkg),
+                                LONG_PRESS_DETECTION_TIME_MILLS);
+
+                    } else if (action == KeyEvent.ACTION_UP) {
+
+                        // Key is up, remove long press detection.
+                        boolean hasLongInQueue = hasMessages(AshManLZHandlerMessages.MSG_MAYBEBACKLONGPRESSED);
+
+                        if (hasLongInQueue) {
+                            removeMessages(AshManLZHandlerMessages.MSG_MAYBEBACKLONGPRESSED);
+
+                            if (!hasMessages(AshManLZHandlerMessages.MSG_MAYBEBACKPRESSED)) {
+                                sendMessageDelayed(
+                                        obtainMessage(AshManLZHandlerMessages.MSG_MAYBEBACKPRESSED, currentPkg),
+                                        BACK_PRESS_DETECTION_TIME_MILLS);
+                            }
+                        }
+                    }
+
+                    break;
+            }
+        }
+
+        @Override
+        public void maybeBackLongPressed(String targetPackage) {
+            XposedLog.verbose(XposedLog.TAG_KEY + "maybeBackLongPressed: " + getTopPackage());
+
+            // Check if long press kill is enabled.
+            boolean enabled = isLPBKEnabled();
+            if (!enabled) {
+                XposedLog.verbose(XposedLog.TAG_KEY + "maybeBackLongPressed not enabled");
+                return;
+            }
+
+            boolean mayBeKillThisPackage = getTopPackage() != null && getTopPackage().equals(targetPackage);
+            if (mayBeKillThisPackage) {
+                XposedLog.verbose(XposedLog.TAG_KEY + "mayBeKillThisPackage after long back: " + targetPackage);
+                PkgUtil.kill(getContext(), targetPackage);
+            }
+        }
+
+        @Override
+        public void maybeBackPressed(String targetPackage) {
+            if (targetPackage != null && !targetPackage.equals(getTopPackage())) {
+                onBackPressed(targetPackage);
+            }
+        }
+
+        private void onBackPressed(final String packageName) {
+            XposedLog.verbose(XposedLog.TAG_KEY + "onBackPressed: " + packageName);
+
+            if (packageName == null) return;
+
+            if (!isRFKillEnabled()) {
+                XposedLog.verbose(XposedLog.TAG_KEY + "PackageRFKill not enabled for all package");
+                return;
+            }
+
+            if (!shouldLKPackage(packageName)) {
+                XposedLog.verbose(XposedLog.TAG_KEY + "PackageRFKill not enabled for this package");
+                return;
+            }
+
+            boolean killPackageWhenBackPressed = !packageName.equals(getTopPackage());
+
+            if (killPackageWhenBackPressed) {
+                postDelayed(new ErrorCatchRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            XposedLog.verbose(XposedLog.TAG_KEY + "Killing killPackageWhenBackPressed: " + packageName);
+
+                            if (packageName.equals(getTopPackage())) {
+                                XposedLog.verbose(XposedLog.TAG_KEY + "Top package is now him, let it go~");
+                                return;
+                            }
+
+                            PkgUtil.kill(getContext(), packageName);
+                        } catch (Throwable e) {
+                            XposedLog.wtf(XposedLog.TAG_KEY + "Fail rf kill in runnable: " + Log.getStackTraceString(e));
+                        }
+                    }
+                }, "killPackageWhenBackPressed"), 666);
+            }
+        }
+
         private String getTopPackage() {
             return mTopPackage.getData();
         }
@@ -3835,6 +4048,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     @SuppressWarnings("unchecked")
                     Pair<String, String> p = (Pair<String, String>) msg.obj;
                     LazyHandler.this.notifyTopPackageChanged(p.first, p.second);
+                    break;
+                case AshManLZHandlerMessages.MSG_ONKEYEVENT:
+                    LazyHandler.this.onKeyEvent((KeyEvent) msg.obj);
+                    break;
+                case AshManLZHandlerMessages.MSG_MAYBEBACKLONGPRESSED:
+                    LazyHandler.this.maybeBackLongPressed((String) msg.obj);
+                    break;
+                case AshManLZHandlerMessages.MSG_MAYBEBACKPRESSED:
+                    LazyHandler.this.maybeBackPressed((String) msg.obj);
                     break;
             }
         }

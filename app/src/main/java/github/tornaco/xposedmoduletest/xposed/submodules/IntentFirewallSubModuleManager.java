@@ -38,6 +38,9 @@ public class IntentFirewallSubModuleManager {
         addToSubsChecked(new MediaFocusControlSubModule2());
         addToSubsChecked(new MediaFocusControlSubModule());
 
+        // RFK.
+        addToSubsChecked(new PWMSubModule());
+
         addToSubsChecked(new PMSSubModule4());
         addToSubsChecked(new PMSSubModule2());
 

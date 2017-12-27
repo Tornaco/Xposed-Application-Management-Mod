@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
 import android.content.Intent;
+import android.view.KeyEvent;
 
 import github.tornaco.apigen.CreateMessageIdWithMethods;
 
@@ -19,4 +20,10 @@ interface AshManLZHandler {
     void onBroadcastAction(Intent action);
 
     void notifyTopPackageChanged(final String from, final String to);
+
+    void onKeyEvent(KeyEvent keyEvent);
+
+    void maybeBackLongPressed(String targetPackage);
+
+    void maybeBackPressed(String targetPackage);
 }

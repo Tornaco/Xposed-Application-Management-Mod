@@ -27,6 +27,7 @@ import android.provider.Settings;
 import android.support.v4.app.NotificationManagerCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
@@ -731,6 +732,12 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Override
     public String serial() {
         return mSerialUUID.toString();
+    }
+
+    @Override
+    public boolean onKeyEvent(KeyEvent keyEvent) {
+        // Nothing to do.
+        return false;
     }
 
     @Override

@@ -32,6 +32,8 @@ interface AshManHandler {
 
     void setRFKillEnabled(boolean enabled);
 
+    void setLPBKEnabled(boolean enabled);
+
     void setCompSettingBlockEnabled(boolean enabled);
 
     void clearProcess(IProcessClearListener listener);

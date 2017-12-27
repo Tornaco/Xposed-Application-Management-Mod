@@ -862,4 +862,20 @@ public class XAshmanManager {
         } catch (RemoteException ignored) {
         }
     }
+
+    public void setLPBKEnabled(boolean enabled) {
+        try {
+            mService.setLPBKEnabled(enabled);
+        } catch (RemoteException ignored) {
+
+        }
+    }
+
+    public boolean isLPBKEnabled() {
+        try {
+            return mService.isLPBKEnabled();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
 }

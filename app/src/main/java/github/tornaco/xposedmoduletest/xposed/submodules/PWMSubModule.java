@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.WindowManagerPolicy;
 
 import java.util.Set;
 
@@ -15,16 +16,17 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Created by guohao4 on 2017/10/31.
  * Email: Tornaco@163.com
  */
-@Deprecated
 class PWMSubModule extends AndroidSubModuleModule {
+
+    private static final int ACTION_PASS_TO_USER = WindowManagerPolicy.ACTION_PASS_TO_USER;
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        hookPWM(lpparam);
+        hookInterceptKeyBeforeQueueing(lpparam);
     }
 
-    private void hookPWM(final XC_LoadPackage.LoadPackageParam lpparam) {
-        XposedLog.verbose("hookPWM...");
+    private void hookInterceptKeyBeforeQueueing(final XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedLog.verbose("hookInterceptKeyBeforeQueueing...");
         try {
             Class clz = XposedHelpers.findClass("com.android.server.policy.PhoneWindowManager",
                     lpparam.classLoader);
@@ -34,13 +36,13 @@ class PWMSubModule extends AndroidSubModuleModule {
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             super.afterHookedMethod(param);
                             KeyEvent keyEvent = (KeyEvent) param.args[0];
-//                            getBridge().onKeyEvent(keyEvent);
+                            getBridge().onKeyEvent(keyEvent);
                         }
                     });
-            XposedLog.verbose("hookPWM OK:" + unHooks);
+            XposedLog.verbose("hookInterceptKeyBeforeQueueing OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XposedLog.verbose("Fail hookPWM:" + e);
+            XposedLog.verbose("Fail hookInterceptKeyBeforeQueueing:" + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

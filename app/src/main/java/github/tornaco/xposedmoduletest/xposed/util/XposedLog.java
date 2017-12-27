@@ -26,7 +26,8 @@ public abstract class XposedLog {
     public static final String TAG_DANGER = "X-APM-DANGER-" + BuildConfig.VERSION_NAME + "-";
     public static final String TAG_LIST = "X-APM-LIST-" + BuildConfig.VERSION_NAME + "-";
     public static final String TAG_LAZY = "X-APM-LAZY-" + BuildConfig.VERSION_NAME + "-";
-    public static final String TAG_USER = "X-APM-USER-" + BuildConfig.VERSION_NAME + "-";
+    public static final String TAG_USER = "USER-";
+    public static final String TAG_KEY = "KEY-";
 
     private static LogLevel sLevel = BuildConfig.DEBUG ? LogLevel.ALL : LogLevel.WARN;
 

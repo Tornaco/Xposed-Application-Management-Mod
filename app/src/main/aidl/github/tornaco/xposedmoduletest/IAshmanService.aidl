@@ -156,4 +156,8 @@ interface IAshmanService {
 
     String[] getLazyApps(boolean lazy);
     void addOrRemoveLazyApps(in String[] packages, int op);
+
+    // Long press back kill.
+    void setLPBKEnabled(boolean enabled);
+    boolean isLPBKEnabled();
 }
