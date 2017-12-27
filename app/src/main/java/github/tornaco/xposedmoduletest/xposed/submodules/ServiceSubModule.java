@@ -17,6 +17,7 @@ import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.service.DeprecatedSince;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -24,7 +25,8 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Created by guohao4 on 2017/10/31.
  * Email: Tornaco@163.com
  */
-
+@Deprecated
+@DeprecatedSince("3.0.2")
 class ServiceSubModule extends IntentFirewallAndroidSubModule {
 
     @Override
@@ -56,11 +58,12 @@ class ServiceSubModule extends IntentFirewallAndroidSubModule {
                             final Service service = (Service) param.thisObject;
 
                             if (service == null) {
-                                Log.d(XposedLog.TAG_LAZY, "We got null service for:" + AndroidAppHelper.currentPackageName());
+                                Log.d(XposedLog.TAG_LAZY, "We got null service for:"
+                                        + AndroidAppHelper.currentPackageName());
                                 return;
                             }
 
-                            final String hostPackage = service.getPackageName();
+                            final String hostPackage = AndroidAppHelper.currentPackageName();
 
                             if (XAshmanManager.get().isServiceAvailable()
                                     && XAshmanManager.get().isLazyModeEnabledForPackage(hostPackage)) {

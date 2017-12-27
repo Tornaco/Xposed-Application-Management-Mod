@@ -37,6 +37,7 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
+import android.os.UserHandle;
 import android.provider.Settings;
 import android.support.v4.app.NotificationManagerCompat;
 import android.telephony.TelephonyManager;
@@ -823,7 +824,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         Integer serviceUidInt = mPackagesCache.get(servicePkgName);
         int serviceUid = serviceUidInt == null ? -1 : serviceUidInt;
-        // Service from/to same app is allowed.
+        // Service targetServicePkg/to same app is allowed.
         if (serviceUid == callerUid) {
             return CheckResult.SAME_CALLER;
         }
@@ -934,14 +935,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (isInWhiteList(pkgName)) {
             if (DEBUG_COMP && XposedLog.isVerboseLoggable()) {
-                XposedLog.verbose("It is from while list, allow component setting.");
+                XposedLog.verbose("It is targetServicePkg while list, allow component setting.");
             }
             return true;
         }
 
         if (isWhiteSysAppEnabled() && isInSystemAppList(pkgName)) {
             if (DEBUG_COMP && XposedLog.isVerboseLoggable()) {
-                XposedLog.verbose("It is from system app list, allow component setting.");
+                XposedLog.verbose("It is targetServicePkg system app list, allow component setting.");
             }
             return true;
         }
@@ -1638,7 +1639,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         // Disabled case.
         if (!isStartBlockEnabled()) return CheckResult.BROADCAST_CHECK_DISABLED;
 
-        // Broadcast from/to same app is allowed.
+        // Broadcast targetServicePkg/to same app is allowed.
         if (callerUid == receiverUid) {
             return CheckResult.SAME_CALLER;
         }
@@ -2594,6 +2595,80 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         lazyH.obtainMessage(AshManLZHandlerMessages.MSG_NOTIFYTOPPACKAGECHANGED,
                 new Pair<>(from, to))
                 .sendToTarget();
+
+
+        /*
+        if (!isLazyModeEnabled() || !isPackageLazyByUser(from)) {
+            return;
+        }
+
+        // Try retrieve running services.
+        Runnable lazyKill = new LazyServiceKiller(from);
+        ErrorCatchRunnable ecr = new ErrorCatchRunnable(lazyKill, "lazyKill");
+        // Kill all service after 3s.
+        lazyH.postDelayed(ecr, 3 * 1000);
+         */
+    }
+
+
+    private boolean isPackageRunningOnTop(String pkg) {
+        return pkg != null && pkg.equals(mTopPackage.getData());
+    }
+
+    @Getter
+    @AllArgsConstructor
+    private class LazyServiceKiller implements Runnable {
+
+        private String targetServicePkg;
+
+        @Override
+        public void run() {
+
+            if (BuildConfig.DEBUG) {
+                XposedLog.verbose("LAZY, checking if need clean up service:" + targetServicePkg);
+            }
+
+            // If current top package is that we want to kill, skip it.
+            if (isPackageRunningOnTop(targetServicePkg)) {
+                XposedLog.wtf("LAZY, package is still running on top, won't kill it's services");
+                return;
+            }
+
+            final PackageManager pm = getContext().getPackageManager();
+            ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
+            if (am != null && pm != null) {
+                List<ActivityManager.RunningServiceInfo> runningServices = am.getRunningServices(99);
+
+                if (!Collections.isNullOrEmpty(runningServices)) {
+                    Collections.consumeRemaining(runningServices,
+                            new Consumer<ActivityManager.RunningServiceInfo>() {
+                                @Override
+                                public void accept(ActivityManager.RunningServiceInfo runningServiceInfo) {
+                                    if (runningServiceInfo.service == null
+                                            || !runningServiceInfo.started) return;
+                                    String pkgNameOfThisService = runningServiceInfo.service.getPackageName();
+                                    if (targetServicePkg.equals(pkgNameOfThisService)) {
+                                        ComponentName c = runningServiceInfo.service;
+                                        if (XposedLog.isVerboseLoggable()) {
+                                            XposedLog.verbose("LAZY Kill service %s for lazy pkg %s", c, targetServicePkg);
+                                        }
+                                        Intent intent = new Intent();
+                                        intent.setComponent(c);
+                                        IActivityManager iActivityManager = getActivityManager();
+                                        try {
+                                            int res = iActivityManager.stopService(null, intent, intent.getType(),
+                                                    UserHandle.USER_CURRENT);
+                                            XposedLog.verbose("LAZY Kill service %s res %s", c, res);
+                                        } catch (Exception e) {
+                                            XposedLog.wtf("LAZY Fail kill service:" + Log.getStackTraceString(e));
+                                        }
+                                    }
+                                }
+                            });
+                }
+            }
+
+        }
     }
 
     private void notifyTopPackageChanged(final String from, final String to) {
@@ -2954,7 +3029,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         super.dump(fd, fout, args);
         // For secure and CTS.
         if (getContext().checkCallingOrSelfPermission(Manifest.permission.DUMP) != PackageManager.PERMISSION_GRANTED) {
-            fout.println("Permission denial: can not dump Ashman service from pid= " + Binder.getCallingPid()
+            fout.println("Permission denial: can not dump Ashman service targetServicePkg pid= " + Binder.getCallingPid()
                     + ", uid= " + Binder.getCallingUid());
             return;
         }
@@ -3288,7 +3363,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         mRepoProxy.getLks().remove(BuildConfig.APPLICATION_ID);
                         mRepoProxy.getPrivacy().remove(BuildConfig.APPLICATION_ID);
                     } catch (Throwable e) {
-                        XposedLog.wtf("Fail remove owner package from repo: " + Log.getStackTraceString(e));
+                        XposedLog.wtf("Fail remove owner package targetServicePkg repo: " + Log.getStackTraceString(e));
                     }
                 }
             });
@@ -3859,12 +3934,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         @Override
         public void onPackageMoveToFront(String who) {
             String from = mTopPackage.getData();
-            mTopPackage.setData(who);
-            postNotifyTopPackageChanged(from, who);
-        }
-
-        public boolean isPackageRunningOnTop(String pkg) {
-            return pkg != null && pkg.equals(mTopPackage.getData());
+            if (who != null && !who.equals(from)) {
+                mTopPackage.setData(who);
+                postNotifyTopPackageChanged(from, who);
+            }
         }
 
         @Override
@@ -3929,7 +4002,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
                     replacing = intent.getBooleanExtra(Intent.EXTRA_REPLACING, false);
 
-                    // We will remove from cache and black list when this app is uninstall.
+                    // We will remove targetServicePkg cache and black list when this app is uninstall.
                     if (!replacing) try {
                         uid = intent.getIntExtra(Intent.EXTRA_UID, -1);
                         if (uid > 0) {
@@ -3938,7 +4011,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             if (needRem != null) {
                                 int removed = mPackagesCache.remove(needRem);
                             }
-                            XposedLog.debug("Package uninstalled, remove from cache: " + needRem);
+                            XposedLog.debug("Package uninstalled, remove targetServicePkg cache: " + needRem);
                         }
 
                         XAshmanManager x = XAshmanManager.get();
