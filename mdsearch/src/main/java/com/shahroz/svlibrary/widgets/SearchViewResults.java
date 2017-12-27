@@ -17,9 +17,6 @@ import com.shahroz.svlibrary.interfaces.onSearchActionsListener;
 
 import java.util.ArrayList;
 
-/**
- * Created by shahroz on 1/8/2016.
- */
 public class SearchViewResults<T> implements
         AdapterView.OnItemClickListener, AbsListView.OnScrollListener {
     private static final int TRIGGER_SEARCH = 1;
@@ -167,6 +164,7 @@ public class SearchViewResults<T> implements
                     mListener.listEmpty();
                 } else {
                     mAdapter.notifyDataSetInvalidated();
+                    mAdapter.clear();
                     mAdapter.addAll(result);
                     mAdapter.notifyDataSetChanged();
                 }

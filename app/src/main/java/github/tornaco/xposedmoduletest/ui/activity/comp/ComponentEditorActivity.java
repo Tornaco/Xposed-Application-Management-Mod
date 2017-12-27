@@ -212,7 +212,7 @@ public class ComponentEditorActivity extends WithSearchActivity<Searchable>
     @Override
     public void onItemClicked(Searchable item) {
         super.onItemClicked(item);
-
+        mCurrentFragment.onItemClicked(item);
     }
 
     @Override
@@ -831,8 +831,18 @@ public class ComponentEditorActivity extends WithSearchActivity<Searchable>
         @SuppressWarnings("unchecked")
         @NonNull
         @Override
-        public ArrayList<Searchable> findItem(String query, int page) {
-            return (ArrayList<Searchable>) getComponentListAdapter().getData();
+        public ArrayList<Searchable> findItem(final String query, int page) {
+            ArrayList all = (ArrayList<Searchable>) getComponentListAdapter().getData();
+            final ArrayList<Searchable> res = new ArrayList<>();
+            Collections.consumeRemaining(all, new Consumer() {
+                @Override
+                public void accept(Object o) {
+                    if (String.valueOf(o).toLowerCase().contains(query.toLowerCase())) {
+                        res.add((Searchable) o);
+                    }
+                }
+            });
+            return res;
         }
 
         @Override

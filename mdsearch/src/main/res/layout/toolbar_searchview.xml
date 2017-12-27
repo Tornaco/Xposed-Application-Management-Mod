@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:background="#50000000"
         android:clickable="true"
+        android:focusable="true"
         android:visibility="invisible">
 
     </RelativeLayout>
@@ -39,7 +40,8 @@
                     android:layout_height="48dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
-                    android:contentDescription="Search"
+                    android:contentDescription="@string/search"
+                    android:focusable="true"
                     android:padding="12dp"
                     android:src="@drawable/ic_md_search_black_24dp" />
 
@@ -50,7 +52,7 @@
                     android:layout_weight="1"
                     android:background="#fff"
                     android:gravity="center_vertical"
-                    android:hint="Search"
+                    android:hint="@string/search"
                     android:imeOptions="actionSearch"
                     android:inputType="textCapWords"
                     android:paddingLeft="12dp"
@@ -63,7 +65,7 @@
                     android:layout_height="48dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
-                    android:contentDescription="Cancel"
+                    android:contentDescription="@string/cancel"
                     android:padding="12dp"
                     android:src="@drawable/ic_md_close_black_24dp"
                     android:visibility="invisible" />
@@ -104,8 +106,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:fontFamily="roboto"
-                    android:text="No Results Found"
-                    android:textColor="@color/color_accent"
+                    android:text="@string/no_res"
+                    android:textColor="?colorAccent"
                     android:textSize="16sp" />
 
             </FrameLayout>

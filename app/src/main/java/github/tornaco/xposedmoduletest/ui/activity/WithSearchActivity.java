@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.ui.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
@@ -22,6 +23,7 @@ import github.tornaco.xposedmoduletest.R;
  * Email: Tornaco@163.com
  */
 
+@SuppressLint("Registered")
 public class WithSearchActivity<T> extends BaseActivity
         implements onSearchListener, onSimpleSearchActionsListener<T>,
         SearchViewResults.SearchPerformer<T> {
@@ -40,7 +42,6 @@ public class WithSearchActivity<T> extends BaseActivity
         mSearchView.setOnSearchListener(this);
         mSearchView.setSearchResultsListener(this);
         mSearchView.setSearchPerformer(this);
-        mSearchView.setHintText("Search");
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {

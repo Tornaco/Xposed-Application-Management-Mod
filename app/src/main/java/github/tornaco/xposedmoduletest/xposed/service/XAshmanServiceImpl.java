@@ -370,15 +370,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 XposedLog.wtf("Add google pkg: " + pkg);
                             }
 
-                            // Some apps may use same uid!!!
-//                            boolean hasUid = mPackagesCache.containsKey(uid);
-//                            if (hasUid) {
-//                                XposedLog.wtf("Found dup uid pkg: " + pkg);
-//                                int offset = DUP_UID_HOOK_ID.getAndIncrement();
-//                                uid = Integer.MAX_VALUE - offset;
-//                                XposedLog.wtf("Fix with fake uid pkg: " + uid);
-//                            }
-
                             mPackagesCache.put(pkg, uid);
                             PkgUtil.cachePkgUid(pkg, uid);
 

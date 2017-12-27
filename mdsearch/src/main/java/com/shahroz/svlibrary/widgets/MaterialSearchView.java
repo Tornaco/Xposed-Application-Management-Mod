@@ -79,6 +79,7 @@ public class MaterialSearchView<T> extends FrameLayout implements View.OnClickLi
     @Override
     public void onItemClicked(T item) {
         this.searchListener.onItemClicked(item);
+        onCancelSearch();
     }
 
     @Override
