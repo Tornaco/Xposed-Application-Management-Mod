@@ -27,11 +27,13 @@
     <item
         android:id="@+id/action_app_focused_action"
         android:title="@string/title_app_focused"
+        android:visible="false"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/action_app_unfocused_action"
         android:title="@string/title_app_unfocused"
+        android:visible="false"
         app:showAsAction="never" />
 
     <item

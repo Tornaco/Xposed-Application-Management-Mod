@@ -10,6 +10,7 @@ import java.util.List;
 import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.smartsense.AppFocusAction;
 import github.tornaco.xposedmoduletest.ui.tiles.smartsense.LongPressBackKey;
@@ -49,7 +50,10 @@ public class SmartSenseDashboardActivity extends BaseActivity {
             app.addTile(new AppFocusAction(getActivity()));
 
             categories.add(keys);
-            categories.add(app);
+
+            if (XSettings.isDevMode(getActivity())) {
+                categories.add(app);
+            }
         }
     }
 

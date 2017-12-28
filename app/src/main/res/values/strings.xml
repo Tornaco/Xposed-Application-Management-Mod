@@ -382,5 +382,6 @@
     <string name="action_data_off">关闭移动数据</string>
     <string name="action_crash">FC（意外停止）</string>
     <string name="title_action_exe_by_sort">将按照选中顺序执行</string>
+    <string name="summary_long_press_back">如果应用重定义了长按事件则无效</string>
 
 </resources>

@@ -795,9 +795,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         // Lazy but not running on top.
+        // Retrieve imd top package ensure our top pkg correct.
         boolean isLazy = isLazyModeEnabled()
                 && isPackageLazyByUser(servicePkgName);
-        if (isLazy && !servicePkgName.equals(mTopPackage.getData())) {
+        if (isLazy && !servicePkgName.equals(mTopPackageImd.getData())) {
 
             if (PkgUtil.isSystemOrPhoneOrShell(callerUid)) {
                 if (XposedLog.isVerboseLoggable())
@@ -2961,10 +2962,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
-    private void onPackageMoveToFront(String who) {
+    private static final long PKG_MOVE_TO_FRONT_EVENT_DELAY = 300;
+
+    private void onPackageMoveToFront(final String who) {
         if (who == null) return;
+
+        // Update top imd right now.
+        mTopPackageImd.setData(who);
+
         lazyH.removeMessages(AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONT);
-        lazyH.obtainMessage(AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONT, who).sendToTarget();
+        lazyH.sendMessageDelayed(lazyH.obtainMessage(
+                AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONT, who)
+                , PKG_MOVE_TO_FRONT_EVENT_DELAY);
     }
 
     @Override
@@ -3907,7 +3916,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
+    // This is updated with a short delay to give a short time for us to handle back event.
     private final Holder<String> mTopPackage = new Holder<>();
+    // This is updated no delay.
+    private final Holder<String> mTopPackageImd = new Holder<>();
 
     private class LazyHandler extends Handler implements AshManLZHandler {
 
@@ -4107,15 +4119,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             int keyCode = keyEvent.getKeyCode();
             int action = keyEvent.getAction();
 
+            String currentPkg = getTopPackage();
 
             if (BuildConfig.DEBUG) {
                 XposedLog.verbose(XposedLog.TAG_KEY + "onKeyEvent: %s %s, current package: %s",
                         keyCode,
                         action,
-                        mTopPackage.getData());
+                        currentPkg);
             }
 
-            String currentPkg = getTopPackage();
             if (currentPkg == null) return;
 
             switch (keyCode) {

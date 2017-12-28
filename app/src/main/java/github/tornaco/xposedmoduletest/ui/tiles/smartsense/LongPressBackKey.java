@@ -18,6 +18,7 @@ public class LongPressBackKey extends QuickTile {
     public LongPressBackKey(final Context context) {
         super(context);
         this.titleRes = R.string.title_long_press_back;
+        this.summaryRes = R.string.summary_long_press_back;
         this.iconRes = R.drawable.ic_touch_app_black_24dp;
         this.tileView = new SwitchTileView(context) {
             @Override
