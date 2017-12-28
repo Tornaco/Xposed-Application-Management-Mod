@@ -28,7 +28,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 public class StringSetRepo implements SetRepo<String> {
 
     // Flush data too many times, may drain battery.
-    private static final int FLUSH_DELAY = 2000;
+    private static final int FLUSH_DELAY = 5000;
     private static final int FLUSH_DELAY_FAST = 100;
 
     private Handler mHandler;
@@ -175,19 +175,23 @@ public class StringSetRepo implements SetRepo<String> {
     @Override
     public boolean add(String s) {
         if (s == null) return false;
-        mStorage.add(s);
-        mHandler.removeCallbacks(mFlushCaller);
-        mHandler.postDelayed(mFlushCaller, FLUSH_DELAY);
-        return true;
+        boolean added = mStorage.add(s);
+        if (added) {
+            mHandler.removeCallbacks(mFlushCaller);
+            mHandler.postDelayed(mFlushCaller, FLUSH_DELAY);
+        }
+        return added;
     }
 
     @Override
     public boolean remove(String s) {
         if (s == null) return false;
-        mStorage.remove(s);
-        mHandler.removeCallbacks(mFlushCaller);
-        mHandler.postDelayed(mFlushCaller, FLUSH_DELAY);
-        return true;
+        boolean removed = mStorage.remove(s);
+        if (removed) {
+            mHandler.removeCallbacks(mFlushCaller);
+            mHandler.postDelayed(mFlushCaller, FLUSH_DELAY);
+        }
+        return removed;
     }
 
     @Override
