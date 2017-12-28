@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="torCardBackgroundColor" format="color" />
+    <attr name="torCardAccentBackgroundColor" format="color" />
+    <attr name="torCardTitleColor" format="color" />
+    <attr name="torCardSummaryColor" format="color" />
+    <attr name="torCardIconTintColor" format="color" />
+
+    <attr name="torMainWindowBackgroundColor" format="color" />
+
+    <attr name="torListItemTitleTextSize" format="dimension" />
+    <attr name="torListItemSummaryTextSize" format="dimension" />
+    <attr name="torListItemHighlightTextSize" format="dimension" />
+
+    <attr name="torListItemTitleTextColor" format="color" />
+    <attr name="torListItemSummaryTextColor" format="color" />
+    <attr name="torListItemHighlightTextColor" format="color" />
+</resources>

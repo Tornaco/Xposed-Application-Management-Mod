@@ -35,7 +35,7 @@
                     android:id="@+id/header1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@color/green"
+                    android:background="?torCardAccentBackgroundColor"
                     android:elevation="@dimen/card_elevation"
                     android:padding="@dimen/header_padding_small">
 
@@ -96,7 +96,7 @@
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:layout_marginTop="@dimen/header_padding_tiny"
                     android:background="@color/dividerLight"
-                    android:visibility="visible" />
+                    android:visibility="gone" />
 
                 <RelativeLayout
                     android:id="@+id/button_container"

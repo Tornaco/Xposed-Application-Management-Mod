@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="torTileContainerBackgroundColor" format="color" />
+    <attr name="torTileTitleTextColor" format="color" />
+    <attr name="torTileSummaryTextColor" format="color" />
+    <attr name="torTileBackgroundColor" format="color" />
+    <attr name="torTileIconTintColor" format="color" />
+</resources>

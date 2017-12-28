@@ -44,7 +44,7 @@
     <dimen name="dashboard_tile_image_size">28dp</dimen>
 
     <!-- Dashboard tile image margin start / end -->
-    <dimen name="dashboard_tile_image_margin_start">12dp</dimen>
+    <dimen name="dashboard_tile_image_margin_start">16dp</dimen>
     <dimen name="dashboard_tile_image_margin_end">12dp</dimen>
 
     <dimen name="dashboard_tile_action_margin">24dp</dimen>

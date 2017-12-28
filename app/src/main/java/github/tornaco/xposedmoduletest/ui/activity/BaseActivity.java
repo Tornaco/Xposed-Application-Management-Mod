@@ -34,6 +34,16 @@ public class BaseActivity extends AppCompatActivity implements View {
 
     private Handler uiThreadHandler;
 
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setTheme(getUserSetThemeResId());
+    }
+
+    protected int getUserSetThemeResId() {
+        return R.style.AppTheme_NoActionBar;
+    }
+
     @Synchronized
     // Lazy.
     public Handler getUIThreadHandler() {

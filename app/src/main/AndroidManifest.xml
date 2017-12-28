@@ -50,7 +50,7 @@
         <activity
             android:name=".ui.activity.NavigatorActivity"
             android:excludeFromRecents="true"
-            android:theme="@style/AppThemeLightDrawer.NoActionBar">
+            android:theme="@style/AppThemeLight.Drawer.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

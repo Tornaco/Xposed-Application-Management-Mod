@@ -2,7 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
     <!-- Main colors -->
-    <color name="black">#333333</color>
+    <color name="black">#000</color>
     <color name="semitransparent_black">#a0333333</color>
     <color name="white">#fafafa</color>
     <color name="grey">#9e9e9e</color>

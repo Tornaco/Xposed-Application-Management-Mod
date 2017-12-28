@@ -18,7 +18,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dip"
-    android:background="@android:color/white"
+    android:background="?torTileContainerBackgroundColor"
     android:elevation="@dimen/dashboard_category_elevation"
     android:orientation="vertical"
     android:paddingEnd="@dimen/dashboard_category_padding_end"

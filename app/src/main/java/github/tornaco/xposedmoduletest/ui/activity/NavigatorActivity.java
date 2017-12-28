@@ -74,6 +74,11 @@ public class NavigatorActivity extends WithWithCustomTabActivity
     private FragmentController cardController;
 
     @Override
+    protected int getUserSetThemeResId() {
+        return R.style.AppTheme_Drawer_NoActionBar;
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_drawer_navigator);
