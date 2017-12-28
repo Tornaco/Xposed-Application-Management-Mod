@@ -330,8 +330,15 @@ public class NetworkRestrictActivity extends WithSearchActivity<NetworkRestricti
         @NonNull
         @Override
         public ArrayList<NetworkRestrictionItem> findItem(String query, int page) {
-            return (ArrayList<NetworkRestrictionItem>)
+            ArrayList<NetworkRestrictionItem> items = (ArrayList<NetworkRestrictionItem>)
                     networkRestrictListAdapter.getNetworkRestrictionItems();
+            ArrayList<NetworkRestrictionItem> res = new ArrayList<>();
+            for (NetworkRestrictionItem i : items) {
+                if (i.getAppName().toLowerCase().contains(query.toLowerCase())) {
+                    res.add(i);
+                }
+            }
+            return res;
         }
 
         @Override

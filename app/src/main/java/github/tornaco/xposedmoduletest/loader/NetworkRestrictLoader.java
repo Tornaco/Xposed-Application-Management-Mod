@@ -107,6 +107,23 @@ public interface NetworkRestrictLoader {
     class PinyinComparator implements Comparator<NetworkRestrictionItem> {
 
         public int compare(NetworkRestrictionItem o1, NetworkRestrictionItem o2) {
+            int disO1 = 0;
+            if (o1.isRestrictedData()) {
+                disO1++;
+            }
+            if (o1.isRestrictedWifi()) {
+                disO1++;
+            }
+            int disO2 = 0;
+            if (o2.isRestrictedData()) {
+                disO2++;
+            }
+            if (o2.isRestrictedWifi()) {
+                disO2++;
+            }
+            if (disO1 != disO2) {
+                return disO1 > disO2 ? -1 : 1;
+            }
             return new github.tornaco.xposedmoduletest.util.PinyinComparator().compare(o1.getAppName(), o2.getAppName());
         }
     }
