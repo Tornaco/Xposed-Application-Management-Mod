@@ -25,6 +25,16 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_app_focused_action"
+        android:title="@string/title_app_focused"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_app_unfocused_action"
+        android:title="@string/title_app_unfocused"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_comp_export_apk"
         android:title="@string/title_comp_export_apk"
         app:showAsAction="never" />

@@ -3,9 +3,13 @@ package github.tornaco.xposedmoduletest.xposed.repo;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.support.annotation.NonNull;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,13 +43,22 @@ public class RepoProxy {
             data_restrict, wifi_restrict,
             lazy, comps;
 
+    private MapRepo<String, String> appFocused, appUnFocused;
+
     private RepoProxy() {
+
+        // Sync in a new handler thread.
         HandlerThread hr = new HandlerThread("Repo proxy");
         hr.start();
         Handler h = new Handler(hr.getLooper());
 
         ExecutorService io = Executors.newSingleThreadExecutor();
 
+        bringBases(h, io);
+        bringUpSenses(h, io);
+    }
+
+    private void bringBases(Handler h, ExecutorService io) {
         File systemFile = new File(Environment.getDataDirectory(), "system");
         File dir = new File(systemFile, "tor_apm");
         if (!dir.exists()) {
@@ -73,7 +86,19 @@ public class RepoProxy {
         }
     }
 
-    private static final SetRepo<String> NULL_HACK = new SetRepo<String>() {
+    private void bringUpSenses(Handler h, ExecutorService io) {
+
+        File systemFile = new File(Environment.getDataDirectory(), "system");
+        File dir = new File(systemFile, "tor_apm");
+        if (!dir.exists()) {
+            dir = new File(systemFile, "tor");
+        }
+
+        appFocused = new StringMapRepo(new File(dir, "app_focused"), h, io);
+        appUnFocused = new StringMapRepo(new File(dir, "app_unfocused"), h, io);
+    }
+
+    private static final SetRepo<String> STRING_SET_NULL_HACK = new SetRepo<String>() {
         @Override
         public Set<String> getAll() {
             XposedLog.verbose("getAll element on NULL-HACK");
@@ -129,60 +154,168 @@ public class RepoProxy {
         }
     };
 
+    private MapRepo<String, String> MAP_SET_NULL_HACK = new MapRepo<String, String>() {
+        @Override
+        public void reload() {
+
+        }
+
+        @Override
+        public void reloadAsync() {
+
+        }
+
+        @Override
+        public void flush() {
+
+        }
+
+        @Override
+        public void flushAsync() {
+
+        }
+
+        @Override
+        public String name() {
+            return "MAP_SET_NULL_HACK";
+        }
+
+        @Override
+        public int size() {
+            XposedLog.verbose("size element on MAP_SET_NULL_HACK");
+            return 0;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            XposedLog.verbose("isEmpty element on MAP_SET_NULL_HACK");
+            return true;
+        }
+
+        @Override
+        public boolean containsKey(Object key) {
+            XposedLog.verbose("containsKey element on MAP_SET_NULL_HACK");
+            return false;
+        }
+
+        @Override
+        public boolean containsValue(Object value) {
+            XposedLog.verbose("containsValue element on MAP_SET_NULL_HACK");
+            return false;
+        }
+
+        @Override
+        public String get(Object key) {
+            XposedLog.verbose("get element on MAP_SET_NULL_HACK");
+            return null;
+        }
+
+        @Override
+        public String put(String key, String value) {
+            XposedLog.verbose("put element on MAP_SET_NULL_HACK");
+            return null;
+        }
+
+        @Override
+        public String remove(Object key) {
+            XposedLog.verbose("remove element on MAP_SET_NULL_HACK");
+            return null;
+        }
+
+        @Override
+        public void putAll(@NonNull Map<? extends String, ? extends String> m) {
+            XposedLog.verbose("putAll element on MAP_SET_NULL_HACK");
+        }
+
+        @Override
+        public void clear() {
+            XposedLog.verbose("size element on MAP_SET_NULL_HACK");
+        }
+
+        @NonNull
+        @Override
+        public Set<String> keySet() {
+            XposedLog.verbose("keySet element on MAP_SET_NULL_HACK");
+            return new HashSet<>(0);
+        }
+
+        @NonNull
+        @Override
+        public Collection<String> values() {
+            XposedLog.verbose("values element on MAP_SET_NULL_HACK");
+            return new ArrayList<>(0);
+        }
+
+        @NonNull
+        @Override
+        public Set<Entry<String, String>> entrySet() {
+            XposedLog.verbose("entrySet element on MAP_SET_NULL_HACK");
+            return new HashSet<>(0);
+        }
+    };
+
     public SetRepo<String> getBoots() {
-        return boots == null ? NULL_HACK : boots;
+        return boots == null ? STRING_SET_NULL_HACK : boots;
     }
 
     public SetRepo<String> getStarts() {
-        return starts == null ? NULL_HACK : starts;
+        return starts == null ? STRING_SET_NULL_HACK : starts;
     }
 
     public SetRepo<String> getLks() {
-        return lks == null ? NULL_HACK : lks;
+        return lks == null ? STRING_SET_NULL_HACK : lks;
     }
 
     public SetRepo<String> getRfks() {
-        return rfks == null ? NULL_HACK : rfks;
+        return rfks == null ? STRING_SET_NULL_HACK : rfks;
     }
 
     public SetRepo<String> getPerms() {
-        return perms == null ? NULL_HACK : perms;
+        return perms == null ? STRING_SET_NULL_HACK : perms;
     }
 
     public SetRepo<String> getPrivacy() {
-        return privacy == null ? NULL_HACK : privacy;
+        return privacy == null ? STRING_SET_NULL_HACK : privacy;
     }
 
     public SetRepo<String> getGreens() {
-        return greens == null ? NULL_HACK : greens;
+        return greens == null ? STRING_SET_NULL_HACK : greens;
     }
 
     public SetRepo<String> getBlurs() {
-        return blurs == null ? NULL_HACK : blurs;
+        return blurs == null ? STRING_SET_NULL_HACK : blurs;
     }
 
     public SetRepo<String> getLocks() {
-        return locks == null ? NULL_HACK : locks;
+        return locks == null ? STRING_SET_NULL_HACK : locks;
     }
 
     public SetRepo<String> getUninstall() {
-        return uninstall == null ? NULL_HACK : uninstall;
+        return uninstall == null ? STRING_SET_NULL_HACK : uninstall;
     }
 
     public SetRepo<String> getData_restrict() {
-        return data_restrict == null ? NULL_HACK : data_restrict;
+        return data_restrict == null ? STRING_SET_NULL_HACK : data_restrict;
     }
 
     public SetRepo<String> getWifi_restrict() {
-        return wifi_restrict == null ? NULL_HACK : wifi_restrict;
+        return wifi_restrict == null ? STRING_SET_NULL_HACK : wifi_restrict;
     }
 
     public SetRepo<String> getLazy() {
-        return lazy == null ? NULL_HACK : lazy;
+        return lazy == null ? STRING_SET_NULL_HACK : lazy;
     }
 
     public SetRepo<String> getComps() {
-        return comps == null ? NULL_HACK : comps;
+        return comps == null ? STRING_SET_NULL_HACK : comps;
+    }
+
+    public MapRepo<String, String> getAppFocused() {
+        return appFocused == null ? MAP_SET_NULL_HACK : appFocused;
+    }
+
+    public MapRepo<String, String> getAppUnFocused() {
+        return appUnFocused == null ? MAP_SET_NULL_HACK : appUnFocused;
     }
 
     public void deleteAll() {
@@ -201,5 +334,8 @@ public class RepoProxy {
         getData_restrict().removeAll();
         getWifi_restrict().removeAll();
         getLazy().removeAll();
+
+        getAppFocused().clear();
+        getAppUnFocused().clear();
     }
 }

@@ -886,4 +886,52 @@ public class XAshmanManager {
 
         }
     }
+
+    public void addOrRemoveAppFocusAction(String pkg, String[] actions, boolean add) {
+        try {
+            mService.addOrRemoveAppFocusAction(pkg, actions, add);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public void addOrRemoveAppUnFocusAction(String pkg, String[] actions, boolean add) {
+        try {
+            mService.addOrRemoveAppUnFocusAction(pkg, actions, add);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public String[] getAppFocusActionPackages() {
+        try {
+            return mService.getAppFocusActionPackages();
+        } catch (RemoteException e) {
+            return new String[0];
+        }
+    }
+
+    public String[] getAppFocusActions(String pkg) {
+        try {
+            return mService.getAppFocusActions(pkg);
+        } catch (RemoteException e) {
+            return new String[0];
+        }
+    }
+
+    public String[] getAppUnFocusActionPackages() {
+        try {
+            return mService.getAppUnFocusActionPackages();
+        } catch (RemoteException e) {
+            return new String[0];
+        }
+    }
+
+    public String[] getAppUnFocusActions(String pkg) {
+        try {
+            return mService.getAppUnFocusActions(pkg);
+        } catch (RemoteException e) {
+            return new String[0];
+        }
+    }
 }

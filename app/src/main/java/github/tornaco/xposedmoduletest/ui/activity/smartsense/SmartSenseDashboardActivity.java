@@ -11,6 +11,7 @@ import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
+import github.tornaco.xposedmoduletest.ui.tiles.smartsense.AppFocusAction;
 import github.tornaco.xposedmoduletest.ui.tiles.smartsense.LongPressBackKey;
 
 /**
@@ -38,10 +39,17 @@ public class SmartSenseDashboardActivity extends BaseActivity {
         @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
+
             Category keys = new Category();
             keys.titleRes = R.string.title_keys;
             keys.addTile(new LongPressBackKey(getActivity()));
+
+            Category app = new Category();
+            app.titleRes = R.string.title_app;
+            app.addTile(new AppFocusAction(getActivity()));
+
             categories.add(keys);
+            categories.add(app);
         }
     }
 

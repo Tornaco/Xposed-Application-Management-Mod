@@ -369,5 +369,18 @@
     <string name="title_draw_vibrate">绘图过程震动</string>
     <string name="title_keys">按键</string>
     <string name="title_long_press_back">长按返回结束当前应用</string>
+    <string name="title_app_focus_acions">应用焦点事件</string>
+    <string name="title_app_focused">应用前台运行时</string>
+    <string name="title_app_unfocused">应用回到后台时</string>
+    <string name="action_gps_on">打开GPS</string>
+    <string name="action_gps_off">关闭GPS</string>
+    <string name="action_bt_on">打开蓝牙</string>
+    <string name="action_bt_off">关闭蓝牙</string>
+    <string name="action_wifi_on">打开WLAN</string>
+    <string name="action_wifi_off">关闭WIFI</string>
+    <string name="action_data_on">打开移动数据</string>
+    <string name="action_data_off">关闭移动数据</string>
+    <string name="action_crash">FC（意外停止）</string>
+    <string name="title_action_exe_by_sort">将按照选中顺序执行</string>
 
 </resources>

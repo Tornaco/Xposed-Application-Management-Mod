@@ -2,11 +2,13 @@ package github.tornaco.xposedmoduletest.ui.activity.comp;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,6 +24,7 @@ import org.newstand.logger.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import github.tornaco.permission.requester.RequiresPermission;
@@ -31,10 +34,12 @@ import github.tornaco.xposedmoduletest.compat.os.PowerManagerCompat;
 import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.loader.ComponentLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
+import github.tornaco.xposedmoduletest.model.SenseAction;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoViewerAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
+import github.tornaco.xposedmoduletest.util.ArrayUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -161,6 +166,13 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity {
                                         PackageViewerActivity.this);
                         break;
 
+                    case R.id.action_app_focused_action:
+                        onRequestAddAppFocusedAction(packageInfo.getPkgName());
+                        break;
+                    case R.id.action_app_unfocused_action:
+                        onRequestAddAppUnFocusedAction(packageInfo.getPkgName());
+                        break;
+
                 }
                 return true;
             }
@@ -241,6 +253,68 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity {
                 }
             }
         });
+    }
+
+    private void onRequestAddAppFocusedAction(final String who) {
+        pickAppFocusActions(new ActionReceiver() {
+            @Override
+            public void onActionReceived(List<String> actions) {
+                String[] actionString = ArrayUtil.convertObjectArrayToStringArray(actions.toArray());
+                XAshmanManager.get().addOrRemoveAppFocusAction(who, actionString, true);
+            }
+        });
+    }
+
+    private void onRequestAddAppUnFocusedAction(final String who) {
+        pickAppFocusActions(new ActionReceiver() {
+            @Override
+            public void onActionReceived(List<String> actions) {
+                String[] actionString = ArrayUtil.convertObjectArrayToStringArray(actions.toArray());
+                XAshmanManager.get().addOrRemoveAppUnFocusAction(who, actionString, true);
+            }
+        });
+    }
+
+    private void pickAppFocusActions(final ActionReceiver receiver) {
+
+        final SenseAction[] items = SenseAction.values();
+        final String[] actionNames = new String[items.length];
+        for (int i = 0; i < actionNames.length; i++) {
+            actionNames[i] = getString(items[i].getStringRes());
+        }
+
+        final List<String> actionSet = new ArrayList<>(items.length);
+
+        // Default all false.
+        boolean[] def = new boolean[items.length];
+
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.title_action_exe_by_sort)
+                .setCancelable(false)
+                .setMultiChoiceItems(actionNames, def,
+                        new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                SenseAction sa = items[which];
+                                if (isChecked) {
+                                    actionSet.add(sa.name());
+                                } else {
+                                    actionSet.remove(sa.name());
+                                }
+                            }
+                        })
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        receiver.onActionReceived(actionSet);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private interface ActionReceiver {
+        void onActionReceived(List<String> actions);
     }
 
     @Override

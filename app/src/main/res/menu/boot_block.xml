@@ -24,10 +24,4 @@
         android:visible="false"
         app:showAsAction="never" />
 
-    <item
-        android:id="@+id/action_block_record_viewer"
-        android:icon="@drawable/ic_build_white_24dp"
-        android:title="@string/title_block_viewer"
-        app:showAsAction="never" />
-
 </menu>

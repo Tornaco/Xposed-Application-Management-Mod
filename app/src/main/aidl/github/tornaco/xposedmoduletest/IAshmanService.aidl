@@ -163,4 +163,12 @@ interface IAshmanService {
 
     // Usually called by systemui.
     void onTaskRemoving(int callingUid, int taskId);
+
+    void addOrRemoveAppFocusAction(String pkg, in String[] actions, boolean add);
+    String[] getAppFocusActionPackages();
+    String[] getAppFocusActions(String pkg);
+
+    void addOrRemoveAppUnFocusAction(String pkg, in String[] actions, boolean add);
+    String[] getAppUnFocusActionPackages();
+    String[] getAppUnFocusActions(String pkg);
 }

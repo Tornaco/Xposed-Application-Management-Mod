@@ -256,6 +256,8 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity {
                                 getCommonPackageInfoAdapter().notifyDataSetChanged();
                             }
                         })
+
+                .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
 

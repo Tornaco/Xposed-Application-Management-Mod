@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -248,7 +249,7 @@ public class StringMapRepo implements MapRepo<String, String> {
     @NonNull
     @Override
     public Set<String> keySet() {
-        return mStorage.keySet();
+        return new HashSet<>(mStorage.keySet());
     }
 
     @NonNull
@@ -260,6 +261,6 @@ public class StringMapRepo implements MapRepo<String, String> {
     @NonNull
     @Override
     public Set<Entry<String, String>> entrySet() {
-        return mStorage.entrySet();
+        return new HashSet<>(mStorage.entrySet());
     }
 }

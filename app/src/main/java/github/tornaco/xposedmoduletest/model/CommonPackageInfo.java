@@ -24,6 +24,7 @@ public class CommonPackageInfo {
     private boolean isAlarmOpAllowed;
     private boolean isWakelockOpAllowed;
     private boolean isDisabled; // Used for package viewer in comp list.
+    private String[] payload;
 
     public boolean isAllExtraPermDisabled() {
         return !isServiceOpAllowed() && !isAlarmOpAllowed() && !isWakelockOpAllowed();

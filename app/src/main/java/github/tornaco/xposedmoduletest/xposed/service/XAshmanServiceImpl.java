@@ -84,6 +84,8 @@ import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.util.ArrayUtil;
+import github.tornaco.xposedmoduletest.util.GsonUtil;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
@@ -1145,17 +1147,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private static String[] convertObjectArrayToStringArray(Object[] objArr) {
-        if (objArr == null || objArr.length == 0) {
-            return new String[0];
-        }
-        String[] out = new String[objArr.length];
-        for (int i = 0; i < objArr.length; i++) {
-            Object o = objArr[i];
-            if (o == null) continue;
-            String pkg = String.valueOf(o);
-            out[i] = pkg;
-        }
-        return out;
+        return ArrayUtil.convertObjectArrayToStringArray(objArr);
     }
 
     @Override
@@ -2582,6 +2574,70 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 }
             }
 
+        }
+    }
+
+    @Override
+    @BinderCall
+    public void addOrRemoveAppFocusAction(String pkg, String[] actions, boolean add) throws RemoteException {
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("addOrRemoveAppFocusAction: %s %s %s", pkg, Arrays.toString(actions), String.valueOf(add));
+        }
+        enforceCallingPermissions();
+        if (add) {
+            RepoProxy.getProxy().getAppFocused().put(pkg, GsonUtil.getGson().toJson(actions));
+        } else {
+            RepoProxy.getProxy().getAppFocused().remove(pkg);
+        }
+    }
+
+    @Override
+    public String[] getAppFocusActionPackages() throws RemoteException {
+        Set<String> allSet = RepoProxy.getProxy().getAppFocused().keySet();
+        return convertObjectArrayToStringArray(allSet.toArray());
+    }
+
+    @Override
+    public String[] getAppFocusActions(String pkg) throws RemoteException {
+        String v = RepoProxy.getProxy().getAppFocused().get(pkg);
+        if (v == null) return new String[0];
+        try {
+            return GsonUtil.getGson().fromJson(v, String[].class);
+        } catch (Exception e) {
+            XposedLog.wtf("Fail from gson: " + e.getLocalizedMessage());
+            return new String[0];
+        }
+    }
+
+    @Override
+    @BinderCall
+    public void addOrRemoveAppUnFocusAction(String pkg, String[] actions, boolean add) throws RemoteException {
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("addOrRemoveAppUnFocusAction: %s %s %s", pkg, Arrays.toString(actions), String.valueOf(add));
+        }
+        enforceCallingPermissions();
+        if (add) {
+            RepoProxy.getProxy().getAppUnFocused().put(pkg, GsonUtil.getGson().toJson(actions));
+        } else {
+            RepoProxy.getProxy().getAppUnFocused().remove(pkg);
+        }
+    }
+
+    @Override
+    public String[] getAppUnFocusActionPackages() throws RemoteException {
+        Set<String> allSet = RepoProxy.getProxy().getAppUnFocused().keySet();
+        return convertObjectArrayToStringArray(allSet.toArray());
+    }
+
+    @Override
+    public String[] getAppUnFocusActions(String pkg) throws RemoteException {
+        String v = RepoProxy.getProxy().getAppUnFocused().get(pkg);
+        if (v == null) return new String[0];
+        try {
+            return GsonUtil.getGson().fromJson(v, String[].class);
+        } catch (Exception e) {
+            XposedLog.wtf("Fail from gson: " + e.getLocalizedMessage());
+            return new String[0];
         }
     }
 
