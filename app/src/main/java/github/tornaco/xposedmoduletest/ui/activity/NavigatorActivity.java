@@ -15,6 +15,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -275,11 +276,18 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                     }
                 });
             } else {
+
+                TypedValue typedValue = new TypedValue();
+                getActivity().getTheme().resolveAttribute(R.attr.torCardAccentBackgroundColor, typedValue, true);
+                int resId = typedValue.resourceId;
+
+                int cardAccentColor = ContextCompat.getColor(getActivity(), resId);
+
                 summaryView.setText(R.string.app_intro);
                 ViewGroup header = findView(rootView, R.id.header1);
                 header.setBackgroundColor(
                         XAppGuardManager.get().isServiceAvailable() ?
-                                ContextCompat.getColor(getActivity(), R.color.green)
+                                ContextCompat.getColor(getActivity(), cardAccentColor)
                                 : ContextCompat.getColor(getActivity(), R.color.red));
                 imageView.setImageResource(isServiceAvailable()
                         ? R.drawable.ic_check_circle_black_24dp
