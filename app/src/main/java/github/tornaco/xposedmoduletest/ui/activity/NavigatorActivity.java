@@ -287,7 +287,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                 ViewGroup header = findView(rootView, R.id.header1);
                 header.setBackgroundColor(
                         XAppGuardManager.get().isServiceAvailable() ?
-                                ContextCompat.getColor(getActivity(), cardAccentColor)
+                                cardAccentColor
                                 : ContextCompat.getColor(getActivity(), R.color.red));
                 imageView.setImageResource(isServiceAvailable()
                         ? R.drawable.ic_check_circle_black_24dp

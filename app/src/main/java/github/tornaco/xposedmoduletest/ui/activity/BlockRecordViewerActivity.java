@@ -12,6 +12,7 @@ import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.BlockRecord2Loader;
+import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.adapter.BlockRecord2ListAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
@@ -30,6 +31,11 @@ public class BlockRecordViewerActivity extends WithRecyclerView {
         Intent intent = new Intent(context, BlockRecordViewerActivity.class);
         intent.putExtra(EXTRA_PKG, pkg);
         context.startActivity(intent);
+    }
+
+    @Override
+    protected int getUserSetThemeResId(Themes themes) {
+        return themes.getThemeStyleRes();
     }
 
     @Override

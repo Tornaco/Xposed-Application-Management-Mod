@@ -206,7 +206,7 @@ public class NetworkRestrictActivity extends WithSearchActivity<NetworkRestricti
 
         private int index;
 
-        protected boolean mShowSystemApp;
+        protected boolean mShowSystemApp = true;
 
         protected void startLoading() {
             swipeRefreshLayout.setRefreshing(true);
