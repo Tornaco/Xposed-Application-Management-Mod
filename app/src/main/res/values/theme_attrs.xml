@@ -6,6 +6,11 @@
     <attr name="torCardSummaryColor" format="color" />
     <attr name="torCardIconTintColor" format="color" />
 
+    <attr name="torAppbarDescriptionBackgroundColor" format="color" />
+
+    <attr name="torAppbarPopupTheme" format="reference" />
+    <attr name="torAppbarTheme" format="reference" />
+
     <attr name="torMainWindowBackgroundColor" format="color" />
 
     <attr name="torListItemTitleTextSize" format="dimension" />

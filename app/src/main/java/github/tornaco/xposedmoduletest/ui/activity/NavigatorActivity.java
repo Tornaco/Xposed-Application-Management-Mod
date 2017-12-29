@@ -36,6 +36,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.os.PowerManagerCompat;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.FragmentController;
+import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.activity.app.AboutDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.AppDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.ToolsDashboardActivity;
@@ -73,9 +74,8 @@ public class NavigatorActivity extends WithWithCustomTabActivity
     @Getter
     private FragmentController cardController;
 
-    @Override
-    protected int getUserSetThemeResId() {
-        return R.style.AppTheme_Drawer_NoActionBar;
+    protected int getUserSetThemeResId(Themes themes) {
+        return themes.getThemeStyleResNoActionBarDrawer();
     }
 
     @Override

@@ -6,6 +6,7 @@ import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,7 +58,12 @@ public class CommonPackageInfoAdapter
     public CommonPackageInfoAdapter(Context context) {
         this.context = context;
         this.highlightColor = ContextCompat.getColor(context, R.color.accent);
-        this.normalColor = ContextCompat.getColor(context, R.color.card);
+
+        TypedValue typedValue = new TypedValue();
+        context.getTheme().resolveAttribute(R.attr.torCardBackgroundColor, typedValue, true);
+        int resId = typedValue.resourceId;
+
+        this.normalColor = ContextCompat.getColor(context, resId);
 
         setChoiceMode(false);
     }

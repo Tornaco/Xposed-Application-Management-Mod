@@ -43,7 +43,7 @@
     <string name="title_reboot_take_effect">某些设置项可能需要重启才会生效</string>
     <string name="title_passcode_wrong">密码错误，请重试</string>
     <string name="title_delete_success">已经删除</string>
-    <string name="title_theme">主题色</string>
+    <string name="title_theme">主题</string>
     <string name="title_service_connected">已激活</string>
     <string name="title_service_not_connected">未激活</string>
     <string name="theme_def">DEFAULT</string>
@@ -383,5 +383,9 @@
     <string name="action_crash">FC（意外停止）</string>
     <string name="title_action_exe_by_sort">将按照选中顺序执行</string>
     <string name="summary_long_press_back">如果应用重定义了长按事件则无效</string>
+    <string name="title_style">外观</string>
+    <string name="theme_name_dark">深色</string>
+    <string name="theme_name_def">浅色</string>
+    <string name="title_theme_need_restart_app">主题设置将在下次进入应用时生效</string>
 
 </resources>

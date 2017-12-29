@@ -12,7 +12,7 @@
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/AppThemeLight.AppBarOverlay">
+        android:theme="?torAppbarTheme">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
@@ -20,7 +20,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|enterAlways"
-            app:popupTheme="@style/AppThemeLight.PopupOverlay" />
+            app:popupTheme="?torAppbarPopupTheme" />
 
         <github.tornaco.xposedmoduletest.ui.widget.SwitchBar
             android:id="@+id/switchbar"
@@ -55,7 +55,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/switchbar"
-            android:background="@color/white"
+            android:background="?torAppbarDescriptionBackgroundColor"
             android:visibility="visible">
 
             <TextView

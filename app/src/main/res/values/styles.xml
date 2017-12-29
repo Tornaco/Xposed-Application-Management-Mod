@@ -20,6 +20,9 @@
         <item name="torListItemSummaryTextColor">@color/white</item>
         <item name="torListItemHighlightTextColor">@color/white</item>
         <item name="torTileContainerBackgroundColor">?colorPrimary</item>
+        <item name="torAppbarDescriptionBackgroundColor">?colorPrimary</item>
+        <item name="torAppbarPopupTheme">@style/AppTheme.PopupOverlay</item>
+        <item name="torAppbarTheme">@style/AppTheme.AppBarOverlay</item>
     </style>
 
     <!-- Base application theme. -->
@@ -46,6 +49,9 @@
         <item name="torListItemSummaryTextColor">@color/black</item>
         <item name="torListItemHighlightTextColor">@color/black</item>
         <item name="torTileContainerBackgroundColor">@color/white</item>
+        <item name="torAppbarDescriptionBackgroundColor">@color/white</item>
+        <item name="torAppbarPopupTheme">@style/AppThemeLight.PopupOverlay</item>
+        <item name="torAppbarTheme">@style/AppThemeLight.AppBarOverlay</item>
     </style>
 
     <style name="AppThemeLight.Drawer">
@@ -192,7 +198,7 @@
 
     <!-- The list item main text style/color -->
     <style name="ListItemMainText">
-        <item name="android:textColor">@color/primary_text</item>
+        <item name="android:textColor">?torListItemTitleTextColor</item>
         <item name="android:textSize">@dimen/list_item_main_text_size</item>
         <item name="android:textStyle">normal</item>
         <item name="android:ellipsize">end</item>
@@ -209,7 +215,7 @@
 
     <!-- The list item secondary text style/color -->
     <style name="ListItemSecondaryText">
-        <item name="android:textColor">@color/secondary_text</item>
+        <item name="android:textColor">?torListItemSummaryTextColor</item>
         <item name="android:textSize">@dimen/list_item_secondary_text_size</item>
         <item name="android:textStyle">normal</item>
         <item name="android:ellipsize">end</item>

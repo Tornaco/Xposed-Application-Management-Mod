@@ -21,6 +21,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.provider.XSettings;
+import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.View;
 import lombok.Synchronized;
 
@@ -37,11 +39,11 @@ public class BaseActivity extends AppCompatActivity implements View {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTheme(getUserSetThemeResId());
+        setTheme(getUserSetThemeResId(XSettings.getThemes(this.getContext())));
     }
 
-    protected int getUserSetThemeResId() {
-        return R.style.AppTheme_NoActionBar;
+    protected int getUserSetThemeResId(Themes themes) {
+        return themes.getThemeStyleResNoActionBar();
     }
 
     @Synchronized

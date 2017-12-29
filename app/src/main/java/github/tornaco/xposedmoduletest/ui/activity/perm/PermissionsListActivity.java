@@ -96,7 +96,7 @@ public class PermissionsListActivity extends WithRecyclerView {
 
     private void initColor() {
         // Apply theme color.
-        int color = ContextCompat.getColor(this, XSettings.getThemes(this).getThemeColorRes());
+        int color = ContextCompat.getColor(this, XSettings.getThemes(this).getThemeColor());
 
         // Apply palette color.
         PaletteColorPicker.pickPrimaryColor(this, new PaletteColorPicker.PickReceiver() {

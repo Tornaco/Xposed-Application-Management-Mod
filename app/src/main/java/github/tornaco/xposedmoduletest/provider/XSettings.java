@@ -90,4 +90,11 @@ public class XSettings extends Observable {
         return Themes.valueOfChecked(PreferenceManager.getDefaultSharedPreferences(c)
                 .getString(XKey.THEME, Themes.DEFAULT.name()));
     }
+
+    public static void setThemes(Context context, Themes themes) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putString(XKey.THEME, themes.name())
+                .apply();
+    }
 }
