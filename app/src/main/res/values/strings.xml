@@ -233,7 +233,7 @@
         "when a user tries to pick up one of cards.\n\n"
     </string>
     <string name="action_settings">设置</string>
-    <string name="donate_intro">如果你喜欢我的作品，欢迎你以下列方式（微信/支付宝）进行捐赠，金额请随意，一分也是爱。\n你的支持就是我的动力！！！捐赠时尽量备注自己的昵称。</string>
+    <string name="donate_intro">开发个应用很辛苦。请我吃一包辣条吧。。。。。。。。请我的话记得留下昵称~</string>
     <string name="title_developer">开发者</string>
     <string name="title_support">支持我</string>
     <string name="title_export">导出</string>
@@ -387,5 +387,10 @@
     <string name="theme_name_dark">深色</string>
     <string name="theme_name_def">浅色</string>
     <string name="title_theme_need_restart_app">主题设置将在下次进入应用时生效</string>
+    <string name="title_get_play">获取Play版本</string>
+    <string name="desc_play_version">Play版本有啥区别？</string>
+    <string name="desc_play_version_a">\n除了要0.99美刀外，没有区别。很尴尬！！！</string>
+    <string name="title_get_play_now">前往Play下载</string>
+    <string name="title_open_market">目标市场</string>
 
 </resources>

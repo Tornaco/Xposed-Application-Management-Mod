@@ -723,6 +723,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("checkRestartService: " + componentName + ", pkg: " + packageName);
         }
+
         if (TextUtils.isEmpty(packageName)) return true;
         if (isInWhiteList(packageName)) {
             XposedLog.verbose("checkRestartService: allow white");
@@ -739,6 +740,22 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 AppOpsManagerCompat.OP_START_SERVICE, packageName);
         if (mode == AppOpsManagerCompat.MODE_IGNORED) {
             XposedLog.verbose("checkRestartService: deny op");
+            return false;
+        }
+
+        // Check if in rf/lk list.
+        if (isPackageLKByUser(packageName) && isKeyguard()) {
+            XposedLog.verbose("checkRestartService: deny in lock screen and lk");
+            return false;
+        }
+
+        if (isPackageRFKByUser(packageName)) {
+            XposedLog.verbose("checkRestartService: deny in rfk list");
+            return false;
+        }
+
+        if (PkgUtil.justBringDown(packageName)) {
+            XposedLog.verbose("checkRestartService: deny just bring down");
             return false;
         }
 
@@ -779,6 +796,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (isWhiteSysAppEnabled() && isInSystemAppList(servicePkgName)) {
             return CheckResult.SYSTEM_APP;
+        }
+
+        if (PkgUtil.justBringDown(servicePkgName)) {
+            return CheckResult.JUST_BRING_DOWN;
         }
 
         // Check Op first for this package.
@@ -1660,6 +1681,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (PkgUtil.isDefaultSmsApp(getContext(), receiverPkgName)) {
             return CheckResult.SMS_APP;
+        }
+
+        if (PkgUtil.justBringDown(receiverPkgName)) {
+            return CheckResult.JUST_BRING_DOWN;
         }
 
         if (PkgUtil.isAppRunning(getContext(), receiverPkgName)) {
@@ -2962,7 +2987,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
-    private static final long PKG_MOVE_TO_FRONT_EVENT_DELAY = 300;
+    private static final long PKG_MOVE_TO_FRONT_EVENT_DELAY = 256;
 
     private void onPackageMoveToFront(final String who) {
         if (who == null) return;
@@ -4335,6 +4360,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         // Denied cases.
         public static final CheckResult DENIED_GENERAL = new CheckResult(false, "DENIED_GENERAL", true);
         public static final CheckResult DENIED_OP_DENIED = new CheckResult(false, "DENIED_OP_DENIED", true);
+        public static final CheckResult JUST_BRING_DOWN = new CheckResult(false, "JUST_BRING_DOWN", true);
         public static final CheckResult DENIED_LAZY = new CheckResult(false, "DENIED_LAZY", true);
         public static final CheckResult DENIED_GREEN_APP = new CheckResult(false, "DENIED_GREEN_APP", true);
         public static final CheckResult ALLOWED_GENERAL = new CheckResult(true, "ALLOWED_GENERAL", true);

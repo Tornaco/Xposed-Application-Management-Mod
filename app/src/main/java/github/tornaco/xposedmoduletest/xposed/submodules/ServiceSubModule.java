@@ -38,6 +38,7 @@ class ServiceSubModule extends IntentFirewallAndroidSubModule {
     public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {
         super.initZygote(startupParam);
         hookTheFuckingService();
+        hookTheFuckingServiceBind();
     }
 
     private void hookTheFuckingService() {
@@ -105,6 +106,42 @@ class ServiceSubModule extends IntentFirewallAndroidSubModule {
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
             XposedLog.verbose("Fail hookTheFuckingService:" + e);
+            setStatus(SubModuleStatus.ERROR);
+            setErrorMessage(Log.getStackTraceString(e));
+        }
+    }
+
+    private void hookTheFuckingServiceBind() {
+        XposedLog.verbose("hookTheFuckingServiceBind...");
+        try {
+            Class clz = XposedHelpers.findClass("android.app.Service", null);
+            Set unHooks = XposedBridge.hookAllMethods(clz,
+                    "onBind", new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(final MethodHookParam param)
+                                throws Throwable {
+                            super.afterHookedMethod(param);
+
+                            // Do not hook any system service.
+                            int callingUid = Binder.getCallingUid();
+                            if (PkgUtil.isSystemOrPhoneOrShell(callingUid)) return;
+
+                            final Service service = (Service) param.thisObject;
+
+                            if (service == null) {
+                                Log.d(XposedLog.TAG_LAZY, "We got null service for:"
+                                        + AndroidAppHelper.currentPackageName());
+                                return;
+                            }
+
+                            final String hostPackage = AndroidAppHelper.currentPackageName();
+                            Log.d(XposedLog.TAG_LAZY, "onBind service: " + hostPackage);
+                        }
+                    });
+            XposedLog.verbose("hookTheFuckingServiceBind OK:" + unHooks);
+            setStatus(unhooksToStatus(unHooks));
+        } catch (Exception e) {
+            XposedLog.verbose("Fail hookTheFuckingServiceBind:" + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

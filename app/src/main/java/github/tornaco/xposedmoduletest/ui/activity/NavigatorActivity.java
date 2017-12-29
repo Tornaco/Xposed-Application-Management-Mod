@@ -35,11 +35,13 @@ import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.os.PowerManagerCompat;
+import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.FragmentController;
 import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.activity.app.AboutDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.AppDashboardActivity;
+import github.tornaco.xposedmoduletest.ui.activity.app.GetPlayVersionActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.ToolsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.helper.RunningServicesActivity;
 import github.tornaco.xposedmoduletest.ui.activity.whyyouhere.UserGiudeActivity;
@@ -94,6 +96,8 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         }
 
         initFirstRun();
+
+        showBatteryDrainFuckingDialog();
     }
 
     private void setupView() {
@@ -108,6 +112,12 @@ public class NavigatorActivity extends WithWithCustomTabActivity
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        MenuItem play = navigationView.getMenu().findItem(R.id.action_play_version);
+        MenuItem donate = navigationView.getMenu().findItem(R.id.action_donate);
+        boolean isPlayVersion = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.PLAY);
+        play.setVisible(!isPlayVersion);
+        donate.setVisible(!isPlayVersion);
 
         navigationView.setCheckedItem(R.id.action_home);
     }
@@ -166,6 +176,34 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         }
     }
 
+    private void showBatteryDrainFuckingDialog() {
+        if (AppSettings.isShowInfoEnabled(getContext(), "showBatteryDrainFuckingDialog")) {
+            new AlertDialog.Builder(NavigatorActivity.this)
+                    .setTitle("关于耗电情况")
+                    .setMessage("必须申明，软件无需后台运行。如果你开启了闯入抓拍，会造成系统耗电增加，因此造成的电池使用情况不理想请不要埋怨。")
+                    .setPositiveButton("继续使用", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    })
+                    .setNeutralButton("别再啰嗦", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            AppSettings.setShowInfo(getContext(), "showBatteryDrainFuckingDialog", false);
+                        }
+                    })
+                    .setNegativeButton("我要卸载", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                            PackageManagerCompat.unInstallUserAppWithIntent(getContext(), getPackageName());
+                        }
+                    })
+                    .setCancelable(false)
+                    .show();
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_help) {
@@ -193,6 +231,10 @@ public class NavigatorActivity extends WithWithCustomTabActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.action_settings) {
             startActivity(new Intent(this, AppDashboardActivity.class));
+        }
+
+        if (item.getItemId() == R.id.action_play_version) {
+            GetPlayVersionActivity.start(getActivity());
         }
 
         if (item.getItemId() == R.id.action_about) {

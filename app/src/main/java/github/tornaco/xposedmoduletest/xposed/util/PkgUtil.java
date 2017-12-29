@@ -13,6 +13,9 @@ import android.content.pm.Signature;
 import android.content.res.Resources;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Message;
 import android.os.UserHandle;
 import android.print.PrintManager;
 import android.provider.Telephony;
@@ -316,12 +319,56 @@ public class PkgUtil {
         }
     }
 
+    private static final Object sLock = new Object();
+    private static Handler sPkgBringDownHandler;
+
+    private static void initBringDownHandler() {
+        HandlerThread hr = new HandlerThread("BringDownHandler");
+        hr.start();
+        sPkgBringDownHandler = new Handler(hr.getLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                try {
+                    String pkg = (String) msg.obj;
+                    bringDownComplete(pkg);
+                } catch (Exception e) {
+                    XposedLog.wtf("BringDownHandler" + e.getLocalizedMessage());
+                }
+            }
+        };
+        XposedLog.verbose("initBringDownHandler: " + sPkgBringDownHandler);
+    }
+
+    private static final Set<String> BRING_DOWN_PACKAGES = new HashSet<>();
+
+    public static boolean justBringDown(String pkg) {
+        return BRING_DOWN_PACKAGES.contains(pkg);
+    }
+
+    private static void onBringDown(String who) {
+        BRING_DOWN_PACKAGES.add(who);
+        XposedLog.verbose("onBringDown: " + who);
+        synchronized (sLock) {
+            if (sPkgBringDownHandler == null) {
+                initBringDownHandler();
+            }
+        }
+        sPkgBringDownHandler.sendMessageDelayed(sPkgBringDownHandler.obtainMessage(0, who), 3000);
+    }
+
+    private static void bringDownComplete(String who) {
+        BRING_DOWN_PACKAGES.remove(who);
+        XposedLog.verbose("bringDownComplete: " + who);
+    }
+
     public static void kill(Context context, String pkg) {
         if (pkg == null) return;
         try {
             ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
             if (am != null) {
                 am.forceStopPackage(pkg);
+                onBringDown(pkg);
             }
         } catch (Exception ignored) {
         }

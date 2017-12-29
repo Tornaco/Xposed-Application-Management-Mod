@@ -6,26 +6,25 @@ import android.view.View;
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
+import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 
 /**
  * Created by guohao4 on 2017/11/10.
  * Email: Tornaco@163.com
  */
 
-public class OpenSource extends QuickTile {
+public class OpenMarket extends QuickTile {
 
-    public OpenSource(final Context context) {
+    public OpenMarket(final Context context) {
         super(context);
-        this.titleRes = R.string.title_open_source;
-        this.summary = " @/Tornaco/XAppGuard";
-        this.iconRes = R.drawable.ic_code_white_24dp;
+        this.titleRes = R.string.title_open_market;
+        this.iconRes = R.drawable.ic_shop_black_24dp;
+        boolean isPlayVersion = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.PLAY);
+        this.summary = !isPlayVersion ? "其他应用市场" : "Google play";
         this.tileView = new QuickTileView(context, this) {
             @Override
             public void onClick(View v) {
                 super.onClick(v);
-                WithWithCustomTabActivity withWithCustomTabActivity = (WithWithCustomTabActivity) context;
-                withWithCustomTabActivity.navigateToWebPage(context.getString(R.string.app_source_url));
             }
         };
     }

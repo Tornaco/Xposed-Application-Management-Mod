@@ -62,6 +62,9 @@
                 android:resource="@xml/shortcuts" />
         </activity>
         <activity
+            android:name=".ui.activity.app.GetPlayVersionActivity"
+            android:label="@string/title_get_play" />
+        <activity
             android:name=".ui.activity.ag.GuardAppNavActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_app_guard"
