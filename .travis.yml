@@ -11,6 +11,7 @@ android:
   - extra-android-m2repository
   - extra-android-support
 script:
+- cp -f ./build_var_config ./build_var_controls/bk
 - "./gradlew assembleRelease"
 - cp app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/app-release-default.apk
 - cp -f ./build_var_controls/build_var_config_stable ./build_var_config
@@ -22,6 +23,7 @@ script:
 - cp -f ./build_var_controls/build_var_config_aio ./build_var_config
 - "./gradlew assembleRelease"
 - cp app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/app-release-aio.apk
+- cp -f ./build_var_controls/bk ./build_var_config
 before_script:
 - mkdir -p "$ANDROID_HOME/licenses"
 - cp ./android-sdk-license "$ANDROID_HOME/licenses/"
