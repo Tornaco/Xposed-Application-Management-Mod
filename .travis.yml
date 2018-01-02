@@ -12,15 +12,19 @@ android:
   - extra-android-support
 script:
 - cp -f ./build_var_config ./build_var_controls/bk
+- "./gradlew clean"
 - "./gradlew assembleRelease"
 - cp app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/app-release-default.apk
 - cp -f ./build_var_controls/build_var_config_stable ./build_var_config
+- "./gradlew clean"
 - "./gradlew assembleRelease"
 - cp app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/app-release-stable.apk
 - cp -f ./build_var_controls/build_var_config_stable_play ./build_var_config
+- "./gradlew clean"
 - "./gradlew assembleRelease"
 - cp app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/app-release-stable-play.apk
 - cp -f ./build_var_controls/build_var_config_aio ./build_var_config
+- "./gradlew clean"
 - "./gradlew assembleRelease"
 - cp app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/app-release-aio.apk
 - cp -f ./build_var_controls/bk ./build_var_config
