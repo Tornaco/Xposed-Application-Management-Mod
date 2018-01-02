@@ -238,6 +238,7 @@
     <string name="title_support">支持我</string>
     <string name="title_export">导出</string>
     <string name="title_export_success">成功</string>
+    <string name="title_export_or_import_fail">无法导入或导出</string>
     <string name="title_export_fail">无法导出</string>
     <string name="title_import_fail">导入失败</string>
     <string name="title_import_success">导入成功</string>
@@ -351,7 +352,7 @@
     <string name="title_new_photo">有人闯入</string>
     <string name="title_data">数据</string>
     <string name="title_restore_def">恢复默认设置</string>
-    <string name="summary_restore_def">清除应用管理的所有设置数据（应用锁/抓拍/移花接木除外），包括所有名单。</string>
+    <string name="summary_restore_def">清除应用管理的所有设置数据，包括所有名单与开关。</string>
     <string name="summary_restore_done">已经为你恢复了默认设置</string>
     <string name="message_running_services_fail">无法启动设置，请检查模块激活状态。</string>
     <string name="title_running_services">正在运行的服务</string>
@@ -393,5 +394,13 @@
     <string name="title_get_play_now">前往Play下载</string>
     <string name="title_open_market">目标市场</string>
     <string name="title_launching_apps">已解锁，正在启动应用</string>
+    <string name="title_import_old_comp_replacements">导入旧版数据</string>
+    <string name="message_import_old_comp_replacements">从3.0.6版本开始，为了提升兼容性与适用性，移花接木不再使用ContentProvider做数据通信，如果你刚刚完成从3.0.6之前的版本升级，点击导入按钮，将其导入到现用的数据库中吧。</string>
+    <string name="title_import">导入</string>
+    <string name="title_backup">数据备份</string>
+    <string name="summary_title_backup">备份本应用的 自启，关联，锁屏清理，返回强退，模糊，应用锁，阻止卸载，乖巧，隐匿 名单设置到外部存储根目录，为了安全起见其他数据（各个功能开关，防火墙设置，组件控制，绿化）暂时不支持备份。移花接木由于比较麻烦，时间有限，后续支持直接再此处备份，当前版本请前往移花接木，单独导出进行备份。</string>
+    <string name="title_backup_restore_success">完成</string>
+    <string name="title_restore">从备份恢复</string>
+    <string name="summary_title_restore">选择一个备份文件进行数据恢复。</string>
 
 </resources>

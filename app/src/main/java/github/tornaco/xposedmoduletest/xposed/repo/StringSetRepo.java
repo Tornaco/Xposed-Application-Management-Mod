@@ -36,7 +36,7 @@ public class StringSetRepo implements SetRepo<String> {
 
     private AtomicFile mFile;
 
-    StringSetRepo(File file, Handler handler, ExecutorService service) {
+    public StringSetRepo(File file, Handler handler, ExecutorService service) {
         this.mFile = new AtomicFile(file);
         this.mExe = service;
         this.mHandler = handler;
@@ -176,7 +176,7 @@ public class StringSetRepo implements SetRepo<String> {
     public boolean add(String s) {
         if (s == null) return false;
         boolean added = mStorage.add(s);
-        if (added) {
+        if (added && mHandler != null) {
             mHandler.removeCallbacks(mFlushCaller);
             mHandler.postDelayed(mFlushCaller, FLUSH_DELAY);
         }
@@ -187,7 +187,7 @@ public class StringSetRepo implements SetRepo<String> {
     public boolean remove(String s) {
         if (s == null) return false;
         boolean removed = mStorage.remove(s);
-        if (removed) {
+        if (removed && mHandler != null) {
             mHandler.removeCallbacks(mFlushCaller);
             mHandler.postDelayed(mFlushCaller, FLUSH_DELAY);
         }
@@ -197,8 +197,10 @@ public class StringSetRepo implements SetRepo<String> {
     @Override
     public void removeAll() {
         mStorage.clear();
-        mHandler.removeCallbacks(mFlushCaller);
-        mHandler.postDelayed(mFlushCaller, FLUSH_DELAY_FAST);
+        if (mHandler != null) {
+            mHandler.removeCallbacks(mFlushCaller);
+            mHandler.postDelayed(mFlushCaller, FLUSH_DELAY_FAST);
+        }
     }
 
     @Override

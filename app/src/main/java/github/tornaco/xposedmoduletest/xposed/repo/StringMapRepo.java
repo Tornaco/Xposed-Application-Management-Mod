@@ -32,6 +32,8 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 public class StringMapRepo implements MapRepo<String, String> {
 
+    private static final String NULL_INDICATOR = "NULL";
+
     private final Map<String, String> mStorage = new HashMap<>();
 
     // Flush data too many times, may drain battery.
@@ -149,7 +151,9 @@ public class StringMapRepo implements MapRepo<String, String> {
                 PrintWriter printWriter = new PrintWriter(fos);
 
                 for (String key : m.keySet()) {
-                    printWriter.println(key + "-" + m.get(key));
+                    String value = m.get(key);
+                    // Use NULL_INDICATOR to indicate null value.
+                    printWriter.println(key + "-" + (value == null ? NULL_INDICATOR : value));
                 }
 
                 printWriter.flush();
@@ -192,6 +196,17 @@ public class StringMapRepo implements MapRepo<String, String> {
     }
 
     @Override
+    public Map<String, String> dup() {
+        return new HashMap<>(mStorage);
+    }
+
+    @Override
+    public boolean hasNoneNullValue(String s) {
+        String v = mStorage.get(s);
+        return v != null && (!NULL_INDICATOR.equals(v));
+    }
+
+    @Override
     public int size() {
         return mStorage.size();
     }
@@ -218,7 +233,7 @@ public class StringMapRepo implements MapRepo<String, String> {
 
     @Override
     public String put(String key, String value) {
-        String res = mStorage.put(key, value);
+        String res = mStorage.put(key, value == null ? NULL_INDICATOR : value);
         mHandler.removeCallbacks(mFlushCaller);
         mHandler.postDelayed(mFlushCaller, FLUSH_DELAY);
         return res;

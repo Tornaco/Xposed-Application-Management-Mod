@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.loader;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.bean.ComponentReplacement;
@@ -18,6 +20,7 @@ import github.tornaco.xposedmoduletest.bean.ComponentReplacementList;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.util.PinyinComparator;
+import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import lombok.AllArgsConstructor;
 
@@ -29,7 +32,10 @@ import lombok.AllArgsConstructor;
 public interface ComponentReplacementsLoader {
 
     @NonNull
-    List<ComponentReplacement> loadAll();
+    List<ComponentReplacement> loadAllFromProvider();
+
+    @NonNull
+    List<ComponentReplacement> loadAllFromAPMS();
 
     @NonNull
     List<ComponentReplacement> parseJson(String json);
@@ -48,20 +54,21 @@ public interface ComponentReplacementsLoader {
 
         @NonNull
         @Override
-        public List<ComponentReplacement> loadAll() {
+        public List<ComponentReplacement> loadAllFromProvider() {
             DaoManager daoManager = DaoManager.getInstance();
             DaoSession session = daoManager.getSession(context);
             if (session == null) return new ArrayList<>(0);
             List<ComponentReplacement> all = session.getComponentReplacementDao().loadAll();
             if (all == null) return new ArrayList<>(0);
-            github.tornaco.android.common.Collections.consumeRemaining(all, new Consumer<ComponentReplacement>() {
-                @Override
-                public void accept(ComponentReplacement componentReplacement) {
-                    componentReplacement.setAppPackageName(componentReplacement.getCompFromPackageName());
-                    componentReplacement.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(context,
-                            componentReplacement.getAppPackageName())));
-                }
-            });
+            github.tornaco.android.common.Collections.consumeRemaining(all,
+                    new Consumer<ComponentReplacement>() {
+                        @Override
+                        public void accept(ComponentReplacement componentReplacement) {
+                            componentReplacement.setAppPackageName(componentReplacement.getCompFromPackageName());
+                            componentReplacement.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(context,
+                                    componentReplacement.getAppPackageName())));
+                        }
+                    });
             Collections.sort(all, new SComparator());
 
             try {
@@ -70,6 +77,37 @@ public interface ComponentReplacementsLoader {
             }
 
             return all;
+        }
+
+        @NonNull
+        @Override
+        public List<ComponentReplacement> loadAllFromAPMS() {
+            if (!XAppGuardManager.get().isServiceAvailable()) {
+                return new ArrayList<>(0);
+            }
+            XAppGuardManager ag = XAppGuardManager.get();
+            Map replacements = ag.getComponentReplacements();
+            List<ComponentReplacement> res = new ArrayList<>();
+            for (Object k : replacements.keySet()) {
+                String key = k.toString();
+                ComponentName from = ComponentName.unflattenFromString(key);
+                if (from == null) continue;
+                ComponentReplacement cr = new ComponentReplacement();
+                cr.setCompFromPackageName(from.getPackageName());
+                cr.setCompFromClassName(from.getClassName());
+                cr.setAppPackageName(from.getPackageName());
+                cr.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(context, from.getPackageName())));
+
+                // Inflate to.
+                Object v = replacements.get(k);
+                ComponentName to = v == null ? null : ComponentName.unflattenFromString(v.toString());
+                if (to != null) {
+                    cr.setCompToPackageName(to.getPackageName());
+                    cr.setCompToClassName(to.getClassName());
+                }
+                res.add(cr);
+            }
+            return res;
         }
 
         @NonNull

@@ -18,4 +18,8 @@ public interface MapRepo<K, V> extends Map<K, V> {
     void flushAsync();
 
     String name();
+
+    Map<K, V> dup();
+
+    boolean hasNoneNullValue(K k);
 }

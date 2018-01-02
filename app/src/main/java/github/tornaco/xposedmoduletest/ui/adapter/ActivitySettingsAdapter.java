@@ -18,7 +18,6 @@ import org.newstand.logger.Logger;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.model.ActivityInfoSettings;
 import github.tornaco.xposedmoduletest.util.ComponentUtil;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
@@ -99,12 +98,6 @@ public class ActivitySettingsAdapter extends ComponentListAdapter<ActivityInfoSe
                         Logger.w("content: " + content);
                         cmb.setPrimaryClip(ClipData.newPlainText("comp_name", content));
                     }
-
-                    ComponentName from = ComponentName.unflattenFromString("com.ss.android.article.news/.activity.SplashBadgeActivity");
-                    ComponentName to = ComponentName.unflattenFromString("com.ss.android.article.news/.activity.MainActivity");
-                    XAppGuardManager.get()
-                            .addOrRemoveComponentReplacement(from, to, true);
-
                     return true;
                 }
                 return false;

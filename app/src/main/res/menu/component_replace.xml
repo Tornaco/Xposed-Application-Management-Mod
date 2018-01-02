@@ -28,5 +28,11 @@
         android:title="@string/title_import_comp_replacements"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/action_import_old"
+        android:icon="@drawable/ic_sync_white_24dp"
+        android:title="@string/title_import_old_comp_replacements"
+        app:showAsAction="never" />
+
 </menu>
 

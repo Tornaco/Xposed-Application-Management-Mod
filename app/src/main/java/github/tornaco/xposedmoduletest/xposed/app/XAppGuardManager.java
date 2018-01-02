@@ -6,6 +6,9 @@ import android.os.ServiceManager;
 
 import com.google.common.base.Preconditions;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import github.tornaco.xposedmoduletest.IAppGuardService;
 import github.tornaco.xposedmoduletest.IAppGuardWatcher;
 import github.tornaco.xposedmoduletest.util.Singleton;
@@ -28,6 +31,7 @@ public class XAppGuardManager {
     public static final String APP_GUARD_SERVICE = "user.tor_ag";
 
     public static final String EXTRA_PKG_NAME = "extra.pkg";
+
     public static final String EXTRA_TRANS_ID = "extra.tid";
     public static final String EXTRA_INJECT_HOME_WHEN_FAIL_ID = "extra.inject_home_on_fail";
 
@@ -277,11 +281,22 @@ public class XAppGuardManager {
     }
 
     public void addOrRemoveComponentReplacement(ComponentName from, ComponentName to, boolean add) {
+        if (from == null) return;
         ensureService();
         try {
             mService.addOrRemoveComponentReplacement(from, to, add);
         } catch (RemoteException e) {
 
+        }
+    }
+
+
+    public Map getComponentReplacements() {
+        ensureService();
+        try {
+            return mService.getComponentReplacements();
+        } catch (RemoteException e) {
+            return new HashMap(0);
         }
     }
 

@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -55,7 +56,7 @@ public class RepoProxy {
         ExecutorService io = Executors.newSingleThreadExecutor();
 
         bringBases(h, io);
-        bringUpComponentReplacements(h, io);
+        bringUpMaps(h, io);
     }
 
     private void bringBases(Handler h, ExecutorService io) {
@@ -86,7 +87,7 @@ public class RepoProxy {
         }
     }
 
-    private void bringUpComponentReplacements(Handler h, ExecutorService io) {
+    private void bringUpMaps(Handler h, ExecutorService io) {
 
         File systemFile = new File(Environment.getDataDirectory(), "system");
         File dir = new File(systemFile, "tor_apm");
@@ -96,6 +97,7 @@ public class RepoProxy {
 
         appFocused = new StringMapRepo(new File(dir, "app_focused"), h, io);
         appUnFocused = new StringMapRepo(new File(dir, "app_unfocused"), h, io);
+        componentReplacement = new StringMapRepo(new File(dir, "component_replacement"), h, io);
     }
 
     private static final SetRepo<String> STRING_SET_NULL_HACK = new SetRepo<String>() {
@@ -178,6 +180,16 @@ public class RepoProxy {
         @Override
         public String name() {
             return "MAP_SET_NULL_HACK";
+        }
+
+        @Override
+        public Map<String, String> dup() {
+            return new HashMap<>(0);
+        }
+
+        @Override
+        public boolean hasNoneNullValue(String s) {
+            return false;
         }
 
         @Override
@@ -318,6 +330,10 @@ public class RepoProxy {
         return appUnFocused == null ? MAP_SET_NULL_HACK : appUnFocused;
     }
 
+    public MapRepo<String, String> getComponentReplacement() {
+        return componentReplacement == null ? MAP_SET_NULL_HACK : componentReplacement;
+    }
+
     public void deleteAll() {
         XposedLog.wtf("deleteAll data...");
         getBoots().removeAll();
@@ -337,5 +353,6 @@ public class RepoProxy {
 
         getAppFocused().clear();
         getAppUnFocused().clear();
+        getComponentReplacement().clear();
     }
 }

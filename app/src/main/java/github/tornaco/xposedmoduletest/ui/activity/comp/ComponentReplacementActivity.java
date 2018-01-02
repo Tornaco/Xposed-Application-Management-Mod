@@ -45,7 +45,6 @@ import github.tornaco.xposedmoduletest.bean.ComponentReplacementList;
 import github.tornaco.xposedmoduletest.license.ComponentReplacements;
 import github.tornaco.xposedmoduletest.loader.ComponentReplacementsLoader;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
-import github.tornaco.xposedmoduletest.provider.ComponentsReplacementProvider;
 import github.tornaco.xposedmoduletest.ui.activity.WithRecyclerView;
 import github.tornaco.xposedmoduletest.ui.adapter.ComponentReplacementListAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
@@ -116,7 +115,7 @@ public class ComponentReplacementActivity extends WithRecyclerView {
             @Override
             public void run() {
                 final List<ComponentReplacement> res = performLoading();
-                runOnUiThread(new Runnable() {
+                runOnUiThreadChecked(new Runnable() {
                     @Override
                     public void run() {
                         swipeRefreshLayout.setRefreshing(false);
@@ -190,7 +189,7 @@ public class ComponentReplacementActivity extends WithRecyclerView {
     }
 
     protected List<ComponentReplacement> performLoading() {
-        return ComponentReplacementsLoader.Impl.create(this).loadAll();
+        return ComponentReplacementsLoader.Impl.create(this).loadAllFromAPMS();
     }
 
     protected ComponentReplacementListAdapter onCreateAdapter() {
@@ -204,8 +203,13 @@ public class ComponentReplacementActivity extends WithRecyclerView {
                             public boolean onMenuItemClick(MenuItem item) {
 
                                 if (item.getItemId() == R.id.action_remove) {
-                                    ComponentsReplacementProvider.delete(getApplicationContext(), t);
-                                    startLoading();
+                                    ComponentName from = ComponentName.unflattenFromString(t.fromFlattenToString());
+                                    if (from != null) {
+                                        XAppGuardManager.get().addOrRemoveComponentReplacement(from, null, false);
+                                        startLoading();
+                                    } else {
+                                        Toast.makeText(getActivity(), R.string.title_from_comp_null, Toast.LENGTH_SHORT).show();
+                                    }
                                 } else if (item.getItemId() == R.id.action_edit) {
                                     showAddRuleDialog(t.fromFlattenToString(), t.toFlattenToString());
                                 } else if (item.getItemId() == R.id.action_copy_to_clipboard) {
@@ -213,7 +217,7 @@ public class ComponentReplacementActivity extends WithRecyclerView {
                                     if (cmb != null) {
                                         String content = t.toJson();
                                         Logger.w("content: " + content);
-                                        cmb.setPrimaryClip(ClipData.newPlainText("ComponentReplacement", content));
+                                        cmb.setPrimaryClip(ClipData.newPlainText("  ComponentReplacement", content));
                                     }
                                 }
 
@@ -255,6 +259,11 @@ public class ComponentReplacementActivity extends WithRecyclerView {
 
         if (item.getItemId() == R.id.action_import) {
             ComponentReplacementActivityPermissionRequester.importFromFileChecked(this);
+            return true;
+        }
+
+        if (item.getItemId() == R.id.action_import_old) {
+            onRequestMergeOldData();
             return true;
         }
 
@@ -312,6 +321,68 @@ public class ComponentReplacementActivity extends WithRecyclerView {
                     });
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void onRequestMergeOldData() {
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.title_import_old_comp_replacements)
+                .setMessage(R.string.message_import_old_comp_replacements)
+                .setPositiveButton(R.string.title_import, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mergeOldData();
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .create()
+                .show();
+    }
+
+    private void mergeOldData() {
+        final ProgressDialog p = new ProgressDialog(getActivity());
+        p.setCancelable(false);
+        p.setIndeterminate(true);
+        XExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    runOnUiThreadChecked(new Runnable() {
+                        @Override
+                        public void run() {
+                            p.show();
+                        }
+                    });
+
+                    Collections.consumeRemaining(ComponentReplacementsLoader.Impl.create(getContext())
+                            .loadAllFromProvider(), new Consumer<ComponentReplacement>() {
+                        @Override
+                        public void accept(ComponentReplacement replacement) {
+                            ComponentName fromCompName = ComponentName.unflattenFromString(replacement.fromFlattenToString());
+                            ComponentName toCompName = ComponentName.unflattenFromString(replacement.toFlattenToString());
+                            XAppGuardManager.get().addOrRemoveComponentReplacement(fromCompName, toCompName, true);
+                        }
+                    });
+
+                    if (!isDestroyed()) {
+                        runOnUiThreadChecked(new Runnable() {
+                            @Override
+                            public void run() {
+                                startLoading();
+                            }
+                        });
+                    }
+
+                } catch (Exception e) {
+                    if (!isDestroyed()) {
+                        Toast.makeText(getActivity(), getString(R.string.title_import_fail)
+                                + Logger.getStackTraceString(e), Toast.LENGTH_SHORT).show();
+                    }
+                } finally {
+                    p.dismiss();
+                }
+            }
+        });
     }
 
     private void performImport(ComponentReplacementList list) {
