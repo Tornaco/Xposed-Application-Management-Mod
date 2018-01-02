@@ -26,7 +26,7 @@
     android:clickable="true"
     android:foreground="?android:attr/selectableItemBackgroundBorderless"
     android:padding="2dp"
-    app:cardBackgroundColor="@android:color/white"
+    android:theme="@style/CardCommon"
     app:cardCornerRadius="0dp"
     app:cardElevation="1dp"
     app:cardMaxElevation="2dp"
@@ -56,7 +56,7 @@
             android:layout_toEndOf="@+id/avatar"
             android:singleLine="true"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="@color/primary_text"
+            android:textColor="?torListItemTitleTextColor"
             android:textStyle="normal" />
 
     </RelativeLayout>

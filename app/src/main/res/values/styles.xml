@@ -23,6 +23,7 @@
         <item name="torAppbarDescriptionBackgroundColor">?colorPrimary</item>
         <item name="torAppbarPopupTheme">@style/AppTheme.PopupOverlay</item>
         <item name="torAppbarTheme">@style/AppTheme.AppBarOverlay</item>
+        <item name="torMDSearchBackground">?colorPrimary</item>
     </style>
 
     <!-- Base application theme. -->
@@ -52,6 +53,7 @@
         <item name="torAppbarDescriptionBackgroundColor">@color/white</item>
         <item name="torAppbarPopupTheme">@style/AppThemeLight.PopupOverlay</item>
         <item name="torAppbarTheme">@style/AppThemeLight.AppBarOverlay</item>
+        <item name="torMDSearchBackground">?colorPrimary</item>
     </style>
 
     <style name="AppThemeLight.Drawer">

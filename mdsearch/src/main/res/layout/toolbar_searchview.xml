@@ -9,7 +9,7 @@
         android:id="@+id/view_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#50000000"
+        android:background="?torMDSearchBackground"
         android:clickable="true"
         android:focusable="true"
         android:visibility="invisible">
@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
         android:visibility="invisible"
-        card_view:cardBackgroundColor="@android:color/white"
+        card_view:cardBackgroundColor="?torMDSearchBackground"
         card_view:cardCornerRadius="2dp">
 
         <RelativeLayout
@@ -50,7 +50,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="#fff"
+                    android:background="?torMDSearchBackground"
                     android:gravity="center_vertical"
                     android:hint="@string/search"
                     android:imeOptions="actionSearch"
@@ -76,7 +76,7 @@
                 android:layout_width="match_parent"
                 android:layout_height=".5dp"
                 android:layout_below="@+id/linearLayout_search"
-                android:background="#eee" />
+                android:background="?torMDSearchBackground" />
 
             <ListView
                 android:id="@+id/material_search_container"
