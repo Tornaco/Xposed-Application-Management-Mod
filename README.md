@@ -42,11 +42,20 @@
 参考README最下方demo视频。
 
 ## 3. 设计思路
+系统服务Hook与Binder服务注入。
 
+核心服务：
+https://github.com/Tornaco/X-APM/blob/master/app/src/main/java/github/tornaco/xposedmoduletest/xposed/service/XAshmanServiceImpl.java
+https://github.com/Tornaco/X-APM/blob/master/app/src/main/java/github/tornaco/xposedmoduletest/xposed/service/XAppGuardServiceImpl.java
 
+Xposed模块代理：
+https://github.com/Tornaco/X-APM/blob/master/app/src/main/java/github/tornaco/xposedmoduletest/xposed/XModuleDelegate.java
 
 ## 4. 编译
 依赖hiddenapi，Xposed-Framework。
+
+## 4.1 自选编译
+https://github.com/Tornaco/X-APM/tree/master/build_var_controls
 
 ## 5. 测试
 5.1 [查看最新测试报告](TestResults-XAppGuardManagerTest.html)

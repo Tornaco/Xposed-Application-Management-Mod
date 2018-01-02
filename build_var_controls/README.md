@@ -3,16 +3,14 @@
 ### 编译环境配置
 * 需要配置Android SDK （推荐v26）（不会的百度）
 * 需要配置Gradle（不会的百度）
-* 需要配置Hidden API 参考连接：https://github.com/anggrayudi/android-hidden-api
+* 需要配置Hidden API 参考连接：https://github.com/anggrayudi/android-hidden-api本项目使用的是v26版本，代码目录hiddenapi下已经包含。
 
 ### 克隆代码到本地
 ```git clone https://github.com/Tornaco/X-APM X-APM```
 
 ### 配置需要编译的模块
 
-默认编译配置文件路径为：```build_var_config```，里面定义了此次编译要包含的模块。
-
-可以根据需求增加或者删除。
+> 默认编译配置文件路径为：源码根目录```build_var_config```，里面定义了此次编译要包含的模块，可以根据需求增加或者删除。
 
 具体各个可用模块：
 

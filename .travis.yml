@@ -24,6 +24,7 @@ script:
 - "./gradlew assembleRelease"
 - cp app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/app-release-aio.apk
 - cp -f ./build_var_controls/bk ./build_var_config
+- git checkout build_var_config
 before_script:
 - mkdir -p "$ANDROID_HOME/licenses"
 - cp ./android-sdk-license "$ANDROID_HOME/licenses/"
@@ -31,7 +32,7 @@ before_script:
 - cp ./hiddenapi/25/android.jar "$ANDROID_HOME/platforms/android-25/"
 after_script:
 - sudo apt-get install tree
-- tree app/
+- tree app
 notifications:
   email:
     recipients:
@@ -50,6 +51,7 @@ deploy:
   - app/build/outputs/apk/release/app-release-stable.apk
   - app/build/outputs/apk/release/app-release-stable-play.apk
   - app/build/outputs/apk/release/app-release-aio.apk
+  skip_cleanup: true
   on:
     repo: Tornaco/X-APM
     tags: true
