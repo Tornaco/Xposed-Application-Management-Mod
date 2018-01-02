@@ -93,6 +93,8 @@ import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.repo.SetRepo;
 import github.tornaco.xposedmoduletest.xposed.service.bandwidth.BandwidthCommandCompat;
+import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
+import github.tornaco.xposedmoduletest.xposed.service.doze.DozeStateRetriever;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -685,6 +687,32 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public boolean checkService(Intent service, String callingPackage, int callingPid, int callingUid,
                                 boolean callingFromFg) throws RemoteException {
         return false;
+    }
+
+    private static final long SLEEP_TIME_TO_LIGHT_DOZE_MODE = 5000;
+    private static final long SLEEP_INTERVAL_TO_DOZE_MODE = 1000;
+    private DeviceIdleControllerProxy mDeviceIdleController;
+
+    @Override
+    public void attachDeviceIdleController(DeviceIdleControllerProxy proxy) {
+        mDeviceIdleController = proxy;
+        XposedLog.verbose("mDeviceIdleController: " + proxy);
+    }
+
+    // Go to doze mode.
+    private void enterIdleMode() {
+        if (mDeviceIdleController == null) {
+            return;
+        }
+        while (!DozeStateRetriever.isDeviceIdleMode(getContext())) {
+            lazyH.postDelayed(new ErrorCatchRunnable(new Runnable() {
+                @Override
+                public void run() {
+                    mDeviceIdleController.stepIdleStateLocked();
+                    XposedLog.verbose("stepIdleStateLocked");
+                }
+            }, "stepIdleStateLocked"), SLEEP_INTERVAL_TO_DOZE_MODE);
+        }
     }
 
     @Override

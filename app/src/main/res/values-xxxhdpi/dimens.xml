@@ -6,7 +6,7 @@
     <dimen name="activity_horizontal_margin_marco">5dp</dimen>
     <dimen name="activity_horizontal_margin_transport_progress">9dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="activity_vertical_margin_large">48dp</dimen>
+    <dimen name="activity_vertical_margin_large">36dp</dimen>
     <dimen name="activity_vertical_margin_huge">64dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
 
@@ -38,6 +38,6 @@
     <dimen name="focus_outer_stroke">3dp</dimen>
     <dimen name="focus_inner_stroke">2dp</dimen>
 
-    <dimen name="pattern_lock_size">420dp</dimen>
-    <dimen name="pattern_lock_info_container_padding">32dp</dimen>
+    <dimen name="pattern_lock_size">360dp</dimen>
+    <dimen name="pattern_lock_info_container_padding">18dp</dimen>
 </resources>
