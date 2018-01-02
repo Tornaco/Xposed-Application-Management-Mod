@@ -18,6 +18,7 @@ import github.tornaco.xposedmoduletest.bean.AccessInfo;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
+import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.adapter.PhotoListAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 
@@ -31,6 +32,11 @@ public class PhotoViewerActivity extends BaseActivity {
     private SwipeRefreshLayout swipeRefreshLayout;
 
     protected PhotoListAdapter appListAdapter;
+
+    @Override
+    protected int getUserSetThemeResId(Themes themes) {
+        return themes.getThemeStyleRes();
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

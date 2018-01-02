@@ -227,9 +227,9 @@ public class NeedLockActivity<T> extends WithSearchActivity<T> {
 
         private void setupCamera() {
             // Setup camera preview.
-            View softwareCameraPreview = mRootView.findViewById(R.id.surface);
-            if (softwareCameraPreview != null)
-                softwareCameraPreview.setVisibility(mTakePhoto ? View.VISIBLE : View.GONE);
+//            View softwareCameraPreview = mRootView.findViewById(R.id.surface);
+//            if (softwareCameraPreview != null)
+//                softwareCameraPreview.setVisibility(mTakePhoto ? View.VISIBLE : View.GONE);
         }
 
         private void takePhoto() {

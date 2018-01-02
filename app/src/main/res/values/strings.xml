@@ -392,5 +392,6 @@
     <string name="desc_play_version_a">\n除了要0.99美刀外，没有区别。很尴尬！！！</string>
     <string name="title_get_play_now">前往Play下载</string>
     <string name="title_open_market">目标市场</string>
+    <string name="title_launching_apps">已解锁，正在启动应用</string>
 
 </resources>

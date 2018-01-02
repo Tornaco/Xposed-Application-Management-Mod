@@ -97,7 +97,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
 
         initFirstRun();
 
-        showBatteryDrainFuckingDialog();
+        // showBatteryDrainFuckingDialog();
     }
 
     private void setupView() {

@@ -16,7 +16,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.os.CancellationSignal;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -172,6 +171,8 @@ public class VerifyDisplayerActivity extends BaseActivity {
                             @Override
                             public void onMatch() {
                                 patternLockView.setViewMode(PatternLockView.PatternViewMode.CORRECT);
+                                patternLockView.clearPattern();
+
                                 onPass();
                             }
 
@@ -227,9 +228,9 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private void setupCamera() {
         //  Setup camera preview.
-        View softwareCameraPreview = findViewById(R.id.surface);
-        if (softwareCameraPreview != null)
-            softwareCameraPreview.setVisibility(mTakePhoto ? View.VISIBLE : View.GONE);
+//        View softwareCameraPreview = findViewById(R.id.surface);
+//        if (softwareCameraPreview != null)
+//            softwareCameraPreview.setVisibility(mTakePhoto ? View.VISIBLE : View.GONE);
     }
 
     private final class ScreenBroadcastReceiver extends BroadcastReceiver {
@@ -322,6 +323,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
 
     private void onPass() {
+        setupLabel(getString(R.string.title_launching_apps));
         if (testMode || mResNotified) return;
 
         mResNotified = true;

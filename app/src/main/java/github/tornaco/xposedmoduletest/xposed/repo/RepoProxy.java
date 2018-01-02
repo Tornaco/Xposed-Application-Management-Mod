@@ -43,7 +43,7 @@ public class RepoProxy {
             data_restrict, wifi_restrict,
             lazy, comps;
 
-    private MapRepo<String, String> appFocused, appUnFocused;
+    private MapRepo<String, String> componentReplacement, appFocused, appUnFocused;
 
     private RepoProxy() {
 
@@ -55,7 +55,7 @@ public class RepoProxy {
         ExecutorService io = Executors.newSingleThreadExecutor();
 
         bringBases(h, io);
-        bringUpSenses(h, io);
+        bringUpComponentReplacements(h, io);
     }
 
     private void bringBases(Handler h, ExecutorService io) {
@@ -86,7 +86,7 @@ public class RepoProxy {
         }
     }
 
-    private void bringUpSenses(Handler h, ExecutorService io) {
+    private void bringUpComponentReplacements(Handler h, ExecutorService io) {
 
         File systemFile = new File(Environment.getDataDirectory(), "system");
         File dir = new File(systemFile, "tor_apm");
