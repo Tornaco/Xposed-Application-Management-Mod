@@ -42,14 +42,13 @@ before_install:
 deploy:
   provider: releases
   api_key:
-    secure: X+GW206d6MM62TgdzKjsg0MAHlG3ePNtKRxtY5sW/zXrjEcoT5RGwA+j2GissO2uhFKkFPemUzR2HJQ2GbA00dQghF13r/7Pyhi1Ufwb7KXqaGNq7danFA9naC+zZuTpFuz+2iTkfn28JAC+ciRHmSFePcX95HiTxbXd+KN0DTsnsKcdyuNKirADcGGaG+oVIrtG2opSDG0vIiwXsgvL88c+VtYj6Yy6Bz/FRQrzxqv281bnTjThDn1s4e323z4qC7qOMd+lih7GnpAxi2AcR4El86gorO2qMmvWVfnH4fx9T9IsJ+AluD/0H9BxjfBEpj9AW04d9wF/OrXfic5yQ4iyd3se1fmRrxtPraz4XuaU3zP6ZIst/Sw0qTVkRwPF5cP58eiYXn+QOpuQ3xcTJAA0I5vRZrK4UAWcQFFsHJ2STJM/t2VgAgnlmnYk3RPh94/GyXQOSxlvBLdpMuJcJ029U4Xr+BjW0XeN0jqpmcWrzHi8Lok0GnEj2zKm1d51CtHvw5w88uyaNAUFualR4vrCImJ9GdYW3zBD+4w2ssSxqyQAkr4nW6ZJScnU108UGZYtA9Qe8+H95L1zVfSLnGfHv4uTkQP4jF7v6u8FZPeWDvfcLQi+FJqOalkXr3vA2Shc1LvScAuzokhzsfxuJGgsBy6pfIfprDmapWjyu5Y=
+    secure: QGGIdCX9U+piuLrgHk7KhC3gIKJg7JeqocLWKw5g0lfdbcNjEUWO/mDSs8ucqk27WIoD/Nj0uzRGFq6P68WIpehpwEjoCild4bfTFhQomGG/kJ1GnvlPFG0K13qB0Ll3PXrRt661OAQcnpbiGzwoaiJOe+BozOCcmuJQxvCbATj8VQ88uZeCE4w+Ap/4FraCMb8qifeme2QjFZoXzh6zHelT13IB23+HQRCGczbalgmhUXo+rk8aCd+WE8MzDny9mOMizcMXG78kdhYzSJfW9B2WwFg6iKSkxPdkRvQedLr+sVA4katRhnUr5uJ1hOBnjB0KxPjUu44DEWaVBjqCzXAJh/z5CLLwmhi4qoKbc60LReiwCwgRuUNqeIYyIWO4fCwEY1SahL03jNjVQm9DI9mPGsUzwKY088hFqe5im79PCdWQETvnxGtSFWhqmztd1WwlAJZBc8zXbK99vf3DTa0yI3OU9XaIN8cgTIckWtavC3yY0Yuj2HIvGWaU4emE0LoNVSsQCUg/78rmy9GeKGtnHQJY5/LJC1xogP3IxQyiVDDU+HgE/8Be1l8ZtNw0/8DiFRCMckYrotpvtoG6ATzmVf+VLqGMs3EYG6a52LL5tPFWUl8HF2Ng2St/M6nk9C8hStyKpdhyJsLWX5sA25UzOg1itXIvyc90gAUnGtY=
   file:
   - app/build/outputs/apk/release/app-release-default.apk
   - app/build/outputs/apk/release/app-release-stable.apk
   - app/build/outputs/apk/release/app-release-stable-play.apk
   - app/build/outputs/apk/release/app-release-aio.apk
-  skip_cleanup: true
   on:
-    repo: Tornaco/XAppGuard
+    repo: Tornaco/X-APM
     tags: true
     all_branches: true
