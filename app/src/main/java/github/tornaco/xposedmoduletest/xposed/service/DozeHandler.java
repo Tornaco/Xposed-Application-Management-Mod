@@ -16,4 +16,8 @@ interface DozeHandler {
     void onScreenOff();
 
     void onBatteryStateChange(BatterState batterState);
+
+    void setDozeDelayMills(long delayMills);
+
+    void setDozeEnabled(boolean enable);
 }

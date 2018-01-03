@@ -166,6 +166,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final AtomicBoolean mDataHasBeenMigrated = new AtomicBoolean(false);
     private final AtomicBoolean mShowAppCrashDumpEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mLazyEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mDozeEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mAutoAddToBlackListForNewApp = new AtomicBoolean(false);
     private final AtomicBoolean mShowFocusedActivityInfoEnabled = new AtomicBoolean(false);
@@ -182,7 +183,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     // FIXME Now we force set control mode to BLACK LIST.
     private AtomicInteger mControlMode = new AtomicInteger(XAshmanManager.ControlMode.BLACK_LIST);
 
-    private long mLockKillDelay;
+    private long mLockKillDelay, mDozeDelay;
 
     // NEW DATA STRU.
     private RepoProxy mRepoProxy;
@@ -707,6 +708,23 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
+
+        try {
+            mDozeDelay = (long) SystemSettings.DOZE_DELAY_L.readFromSystemSettings(getContext());
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("mDozeDelay: " + String.valueOf(mDozeDelay));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            boolean doze = (boolean) SystemSettings.APM_DOZE_ENABLE_B.readFromSystemSettings(getContext());
+            mDozeEnabled.set(doze);
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("doze: " + String.valueOf(doze));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
     }
 
     @Override
@@ -803,6 +821,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case DozeHandlerMessages.MSG_ONBATTERYSTATECHANGE:
                     DozeHandlerImpl.this.onBatteryStateChange((BatterState) msg.obj);
                     break;
+                case DozeHandlerMessages.MSG_SETDOZEDELAYMILLS:
+                    DozeHandlerImpl.this.setDozeDelayMills((Long) msg.obj);
+                    break;
+                case DozeHandlerMessages.MSG_SETDOZEENABLED:
+                    DozeHandlerImpl.this.setDozeEnabled((Boolean) msg.obj);
+                    break;
             }
 
             super.handleMessage(msg);
@@ -846,6 +870,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void onBatteryStateChange(BatterState batterState) {
             XposedLog.verbose("onBatteryStateChange: " + batterState);
             mBatteryState = batterState;
+        }
+
+        @Override
+        public void setDozeDelayMills(long delayMills) {
+            mDozeDelay = delayMills;
+            SystemSettings.DOZE_DELAY_L.writeToSystemSettings(getContext(), delayMills);
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("setDozeDelayMills to: " + mDozeDelay);
+        }
+
+        @Override
+        public void setDozeEnabled(boolean enabled) {
+            if (mDozeEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.APM_DOZE_ENABLE_B.writeToSystemSettings(getContext(), enabled);
+            }
         }
 
         private boolean isDeviceStateReadyToDoze() {
@@ -2898,6 +2937,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    public void setDozeEnabled(boolean enable) throws RemoteException {
+        enforceCallingPermissions();
+        if (dozeH != null) {
+            dozeH.obtainMessage(DozeHandlerMessages.MSG_SETDOZEENABLED, enable)
+                    .sendToTarget();
+        }
+    }
+
+    @Override
+    public boolean isDozeEnabled() throws RemoteException {
+        return mDozeEnabled.get();
+    }
+
+    @Override
     @BinderCall
     public long getLastDozeEnterTimeMills() throws RemoteException {
         synchronized (mDozeEvents) {
@@ -2906,6 +2959,22 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
             DozeEvent last = mDozeEvents.get(0);
             return last.getEnterTimeMills();
+        }
+    }
+
+    @Override
+    @BinderCall
+    public long getDozeDelayMills() throws RemoteException {
+        return mDozeDelay;
+    }
+
+    @Override
+    @BinderCall
+    public void setDozeDelayMills(long delayMills) throws RemoteException {
+        enforceCallingPermissions();
+        if (dozeH != null) {
+            dozeH.obtainMessage(DozeHandlerMessages.MSG_SETDOZEDELAYMILLS, delayMills)
+                    .sendToTarget();
         }
     }
 

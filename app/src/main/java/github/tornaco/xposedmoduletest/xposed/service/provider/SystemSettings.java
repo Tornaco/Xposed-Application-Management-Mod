@@ -577,6 +577,29 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
         }
     },
 
+    APM_DOZE_ENABLE_B(0) {
+        @Override
+        public boolean writeToSystemSettings(Context context, Object value) {
+            ContentResolver resolver = context.getContentResolver();
+            boolean enabled = (boolean) value;
+            return resolver != null && Settings.System.putInt(resolver, name(), enabled ? 1 : 0);
+        }
+
+        @Override
+        public Object readFromSystemSettings(Context context) {
+            ContentResolver resolver = context.getContentResolver();
+            if (resolver == null) return getDefValue();
+            int def = getDefValue();
+            return Settings.System.getInt(resolver, name(), def) == 1;
+        }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
+        }
+    },
+
     USER_DEFINED_LINE1_NUM_T_S("18888888888") {
         @Override
         public boolean writeToSystemSettings(Context context, Object value) {
@@ -637,6 +660,29 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
         public void restoreDef(Context context) {
             String def = getDefValue();
             writeToSystemSettings(context, def);
+        }
+    },
+
+    DOZE_DELAY_L(5 * 60 * 1000L) {
+        @Override
+        public boolean writeToSystemSettings(Context context, Object value) {
+            ContentResolver resolver = context.getContentResolver();
+            long delay = (long) value;
+            return resolver != null && Settings.System.putLong(resolver, name(), delay);
+        }
+
+        @Override
+        public void restoreDef(Context context) {
+            long def = getDefValue();
+            writeToSystemSettings(context, def);
+        }
+
+        @Override
+        public Object readFromSystemSettings(Context context) {
+            ContentResolver resolver = context.getContentResolver();
+            if (resolver == null) return getDefValue();
+            long def = getDefValue();
+            return Settings.System.getLong(resolver, name(), def);
         }
     },
 

@@ -172,5 +172,10 @@ interface IAshmanService {
     String[] getAppUnFocusActionPackages();
     String[] getAppUnFocusActions(String pkg);
 
+    void setDozeEnabled(boolean enable);
+    boolean isDozeEnabled();
+
     long getLastDozeEnterTimeMills();
+    long getDozeDelayMills();
+    void setDozeDelayMills(long delayMills);
 }

@@ -942,4 +942,36 @@ public class XAshmanManager {
             return -1;
         }
     }
+
+    public void setDozeEnabled(boolean enable) {
+        try {
+            mService.setDozeEnabled(enable);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public boolean isDozeEnabled() {
+        try {
+            return mService.isDozeEnabled();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public long getDozeDelayMills() {
+        try {
+            return mService.getDozeDelayMills();
+        } catch (RemoteException e) {
+            return -1; // FIXME Make a meaningful res.
+        }
+    }
+
+    public void setDozeDelayMills(long delayMills) {
+        try {
+            mService.setDozeDelayMills(delayMills);
+        } catch (RemoteException e) {
+
+        }
+    }
 }
