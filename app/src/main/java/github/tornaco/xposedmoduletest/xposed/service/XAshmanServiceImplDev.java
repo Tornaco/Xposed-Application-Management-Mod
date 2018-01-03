@@ -9,7 +9,6 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
-import de.robv.android.xposed.XposedBridge;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -168,6 +167,24 @@ public class XAshmanServiceImplDev extends XAshmanServiceImpl {
         });
     }
 
+    @Override
+    protected Handler onCreateDozeHandler() {
+        HandlerThread hr = new HandlerThread("ASHMAN-DOZE-H");
+        hr.start();
+        final Handler doze = super.onCreateDozeHandler();
+        return new Handler(hr.getLooper(), new Handler.Callback() {
+            @Override
+            public boolean handleMessage(final Message msg) {
+                return makeSafeCall(new Call() {
+                    @Override
+                    public void onCall() throws Throwable {
+                        doze.handleMessage(msg);
+                    }
+                });
+            }
+        });
+    }
+
     private boolean makeSafeCall(XAshmanServiceImplDev.Call call) {
         try {
             call.onCall();
@@ -179,10 +196,10 @@ public class XAshmanServiceImplDev extends XAshmanServiceImpl {
     }
 
     private void onException(Throwable e) {
-        String logMsg = "XAppGuard-ERROR:"
+        String logMsg = "X-APM-ERROR:"
                 + String.valueOf(e) + "\n"
                 + Log.getStackTraceString(e);
-        XposedBridge.log(logMsg);
-        XposedLog.debug(logMsg);
+        XposedLog.wtf(logMsg);
+        Log.e("X-APM-ERROR", logMsg);
     }
 }

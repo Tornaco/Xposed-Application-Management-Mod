@@ -8,6 +8,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -18,6 +19,10 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 // Hook hookConstructor settings.
 class DeviceIdleControllerSubModule extends IntentFirewallAndroidSubModule {
+    @Override
+    public String needBuildVar() {
+        return XAppBuildVar.APP_DOZE;
+    }
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {

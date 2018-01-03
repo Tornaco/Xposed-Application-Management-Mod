@@ -171,4 +171,6 @@ interface IAshmanService {
     void addOrRemoveAppUnFocusAction(String pkg, in String[] actions, boolean add);
     String[] getAppUnFocusActionPackages();
     String[] getAppUnFocusActions(String pkg);
+
+    long getLastDozeEnterTimeMills();
 }

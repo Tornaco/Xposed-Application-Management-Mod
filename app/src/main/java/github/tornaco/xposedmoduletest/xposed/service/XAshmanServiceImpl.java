@@ -26,6 +26,7 @@ import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.LinkProperties;
 import android.net.NetworkPolicyManager;
+import android.os.BatteryManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
@@ -93,7 +94,9 @@ import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.repo.SetRepo;
 import github.tornaco.xposedmoduletest.xposed.service.bandwidth.BandwidthCommandCompat;
+import github.tornaco.xposedmoduletest.xposed.service.doze.BatterState;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
+import github.tornaco.xposedmoduletest.xposed.service.doze.DozeEvent;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DozeStateRetriever;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -110,6 +113,9 @@ import static android.content.Context.KEYGUARD_SERVICE;
 import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_NONE;
 import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_ON_DATA;
 import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_ON_WIFI;
+import static github.tornaco.xposedmoduletest.xposed.service.doze.DozeEvent.FAIL_DEVICE_INTERACTIVE;
+import static github.tornaco.xposedmoduletest.xposed.service.doze.DozeEvent.FAIL_RETRY_TIMEOUT;
+import static java.lang.Thread.sleep;
 
 /**
  * Created by guohao4 on 2017/11/9.
@@ -145,7 +151,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private final Map<String, BlockRecord2> mBlockRecords = new HashMap<>();
 
-    private Handler h, lazyH;
+    private Handler h, lazyH, dozeH;
 
     private final Holder<String> mAudioFocusedPackage = new Holder<>();
 
@@ -189,6 +195,22 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private boolean mIsSystemReady = false;
 
+    private BroadcastReceiver mBatteryStateReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action != null && action.equals(Intent.ACTION_BATTERY_CHANGED)) {
+                int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_UNKNOWN);
+                int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
+                BatterState bs = new BatterState(status, level);
+                dozeH.obtainMessage(DozeHandlerMessages.MSG_ONBATTERYSTATECHANGE, bs)
+                        .sendToTarget();
+            }
+        }
+    };
+
+
     private BroadcastReceiver mScreenReceiver =
             new BroadcastReceiver() {
                 @Override
@@ -220,10 +242,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private void onUserPresent() {
         h.sendEmptyMessage(AshManHandlerMessages.MSG_ONSCREENON);
+        cancelEnterIdleModePosts();
     }
 
     private void onScreenOff() {
         h.sendEmptyMessage(AshManHandlerMessages.MSG_ONSCREENOFF);
+        if (dozeH != null) {
+            dozeH.sendEmptyMessage(DozeHandlerMessages.MSG_ONSCREENOFF);
+        }
     }
 
     private BroadcastReceiver mPackageReceiver = new BroadcastReceiver() {
@@ -686,12 +712,159 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public boolean checkService(Intent service, String callingPackage, int callingPid, int callingUid,
                                 boolean callingFromFg) throws RemoteException {
-        return false;
+        return true;
     }
+
 
     private static final long SLEEP_TIME_TO_LIGHT_DOZE_MODE = 5000;
     private static final long SLEEP_INTERVAL_TO_DOZE_MODE = 1000;
+    private static final int MAX_RETRY_TIME_TO_SIZE = 10;
+
     private DeviceIdleControllerProxy mDeviceIdleController;
+
+    private final List<DozeEvent> mDozeEvents = new ArrayList<>();
+
+    // This should be executed on worker thread.
+    private final ErrorCatchRunnable mDozeStepperErrorCatch
+            = new ErrorCatchRunnable(new Runnable() {
+        @Override
+        public void run() {
+
+            XposedLog.verbose(XposedLog.TAG_DOZE + "mDozeStepper execute");
+
+            if (mDeviceIdleController == null) {
+                XposedLog.wtf(XposedLog.TAG_DOZE + "Calling postEnterIdleMode with mDeviceIdleController is null");
+                return;
+            }
+
+            final AtomicInteger enterDozeTryingTimes = new AtomicInteger(0);
+
+            boolean alreadyInDoze = DozeStateRetriever.isDeviceIdleMode(getContext());
+            while (!alreadyInDoze) {
+
+                if (enterDozeTryingTimes.get() > MAX_RETRY_TIME_TO_SIZE) {
+                    XposedLog.wtf(XposedLog.TAG_DOZE + "Fail enter doze mode after trying max times");
+                    // Post doze message again.
+                    postEnterIdleMode();
+
+                    // Add to events.
+                    onDozeEnterFail(FAIL_RETRY_TIMEOUT);
+                    return;
+                }
+
+                // Increase try times.
+                int time = enterDozeTryingTimes.incrementAndGet();
+
+                dozeH.sendEmptyMessage(DozeHandlerMessages.MSG_STEPIDLESTATELOCKED);
+
+                try {
+                    sleep(SLEEP_INTERVAL_TO_DOZE_MODE);
+                } catch (InterruptedException ignored) {
+                    // Do not bother.
+                }
+
+                XposedLog.verbose(XposedLog.TAG_DOZE + "Step idle @" + time);
+            }
+
+            XposedLog.debug(XposedLog.TAG_DOZE + "We are in doze mode!");
+
+            // Cancel any pending post.
+            cancelEnterIdleModePosts();
+
+            // Add to events.
+            onDozeEnterSuccess();
+        }
+    }, "mDozeStepper");
+
+    @SuppressLint("HandlerLeak")
+    private class DozeHandlerImpl extends Handler implements DozeHandler {
+
+        private BatterState mBatteryState;
+
+        DozeHandlerImpl() {
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            if (XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose(DozeHandlerMessages.decodeMessage(msg.what));
+            }
+
+            switch (msg.what) {
+                case DozeHandlerMessages.MSG_ENTERIDLEMODE:
+                    DozeHandlerImpl.this.enterIdleMode();
+                    break;
+                case DozeHandlerMessages.MSG_STEPIDLESTATELOCKED:
+                    DozeHandlerImpl.this.stepIdleStateLocked();
+                    break;
+                case DozeHandlerMessages.MSG_ONSCREENOFF:
+                    DozeHandlerImpl.this.onScreenOff();
+                    break;
+                case DozeHandlerMessages.MSG_ONBATTERYSTATECHANGE:
+                    DozeHandlerImpl.this.onBatteryStateChange((BatterState) msg.obj);
+                    break;
+            }
+
+            super.handleMessage(msg);
+        }
+
+        @Override
+        public void enterIdleMode() {
+            if (!isDeviceStateReadyToDoze()) {
+                XposedLog.wtf(XposedLog.TAG_DOZE + "Device not ready!!!");
+                // Add to events.
+                onDozeEnterFail(FAIL_DEVICE_INTERACTIVE);
+                return;
+            }
+
+            boolean alreadyPost = hasCallbacks(mDozeStepperErrorCatch);
+            if (alreadyPost) {
+                XposedLog.wtf(XposedLog.TAG_DOZE + "Already post mDozeStepperErrorCatch!!!");
+                return;
+            }
+
+            post(mDozeStepperErrorCatch);
+        }
+
+        @Override
+        public void stepIdleStateLocked() {
+            if (mDeviceIdleController == null) {
+                XposedLog.wtf(XposedLog.TAG_DOZE + "Calling postEnterIdleMode with mDeviceIdleController is null");
+                return;
+            }
+
+            mDeviceIdleController.stepIdleStateLocked();
+            XposedLog.verbose(XposedLog.TAG_DOZE + "stepIdleStateLocked");
+        }
+
+        @Override
+        public void onScreenOff() {
+            postEnterIdleMode();
+        }
+
+        @Override
+        public void onBatteryStateChange(BatterState batterState) {
+            XposedLog.verbose("onBatteryStateChange: " + batterState);
+            mBatteryState = batterState;
+        }
+
+        private boolean isDeviceStateReadyToDoze() {
+            XposedLog.verbose("isDeviceStateReadyToDoze: " + mBatteryState);
+            if (mBatteryState == null) return false;
+
+//            int state = mBatteryState.getStatus();
+//            if (state == BatteryManager.BATTERY_STATUS_CHARGING
+//                    || state == BatteryManager.BATTERY_STATUS_UNKNOWN) {
+//                return false;
+//            }
+
+            PowerManager powerManager = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
+            boolean isInteractive = powerManager != null && powerManager.isInteractive();
+            if (isInteractive) return false;
+
+            return true;
+        }
+    }
 
     @Override
     public void attachDeviceIdleController(DeviceIdleControllerProxy proxy) {
@@ -700,18 +873,41 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     // Go to doze mode.
-    private void enterIdleMode() {
-        if (mDeviceIdleController == null) {
-            return;
+    private void postEnterIdleMode() {
+        XposedLog.verbose(XposedLog.TAG_DOZE + "postEnterIdleMode");
+        if (dozeH != null) {
+            dozeH.sendEmptyMessageDelayed(DozeHandlerMessages.MSG_ENTERIDLEMODE, 60 * 1000);
+        } else {
+            XposedLog.wtf(XposedLog.TAG_DOZE + "postEnterIdleMode while handler is null");
         }
-        while (!DozeStateRetriever.isDeviceIdleMode(getContext())) {
-            lazyH.postDelayed(new ErrorCatchRunnable(new Runnable() {
-                @Override
-                public void run() {
-                    mDeviceIdleController.stepIdleStateLocked();
-                    XposedLog.verbose("stepIdleStateLocked");
-                }
-            }, "stepIdleStateLocked"), SLEEP_INTERVAL_TO_DOZE_MODE);
+    }
+
+    private void cancelEnterIdleModePosts() {
+        XposedLog.verbose(XposedLog.TAG_DOZE + "cancelEnterIdleModePosts");
+        if (dozeH != null) {
+            dozeH.removeMessages(DozeHandlerMessages.MSG_ENTERIDLEMODE);
+        } else {
+            XposedLog.wtf(XposedLog.TAG_DOZE + "cancelEnterIdleModePosts while handler is null");
+        }
+    }
+
+    private void onDozeEnterSuccess() {
+        DozeEvent de = DozeEvent.builder()
+                .enterTimeMills(System.currentTimeMillis())
+                .result(DozeEvent.RESULT_SUCCESS)
+                .build();
+        synchronized (mDozeEvents) {
+            mDozeEvents.add(de);
+        }
+    }
+
+    private void onDozeEnterFail(int failCode) {
+        DozeEvent de = DozeEvent.builder()
+                .enterTimeMills(System.currentTimeMillis())
+                .result(DozeEvent.RESULT_FAIL)
+                .build();
+        synchronized (mDozeEvents) {
+            mDozeEvents.add(de);
         }
     }
 
@@ -1867,6 +2063,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_USER_SWITCHED);
         getContext().registerReceiver(mUserReceiver, intentFilter);
+
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
+        getContext().registerReceiver(mBatteryStateReceiver, intentFilter);
     }
 
     private void inflateWhiteList() {
@@ -2678,12 +2878,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @BinderCall
     public String[] getAppUnFocusActionPackages() throws RemoteException {
         Set<String> allSet = RepoProxy.getProxy().getAppUnFocused().keySet();
         return convertObjectArrayToStringArray(allSet.toArray());
     }
 
     @Override
+    @BinderCall
     public String[] getAppUnFocusActions(String pkg) throws RemoteException {
         String v = RepoProxy.getProxy().getAppUnFocused().get(pkg);
         if (v == null) return new String[0];
@@ -2692,6 +2894,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         } catch (Exception e) {
             XposedLog.wtf("Fail from gson: " + e.getLocalizedMessage());
             return new String[0];
+        }
+    }
+
+    @Override
+    @BinderCall
+    public long getLastDozeEnterTimeMills() throws RemoteException {
+        synchronized (mDozeEvents) {
+            if (mDozeEvents.size() == 0) {
+                return -1;
+            }
+            DozeEvent last = mDozeEvents.get(0);
+            return last.getEnterTimeMills();
         }
     }
 
@@ -2945,15 +3159,30 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private void construct() {
         h = onCreateServiceHandler();
+
         lazyH = onCreateLazyHandler();
-        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("construct, h: " + h
-                + ", lazyH: " + lazyH
-                + " -" + serial());
+
+        boolean hasDozeFeature = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_DOZE);
+        if (hasDozeFeature) {
+            dozeH = onCreateDozeHandler();
+        } else {
+            XposedLog.wtf("Will not create doze handler when no doze feature");
+        }
+
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.debug(
+                    "construct, h: " + h
+                            + ", lazyH: " + lazyH
+                            + ", dozeH: " + dozeH
+                            + ", @serial: " + serial());
+        }
+
         mRepoProxy = RepoProxy.getProxy();
         XposedLog.verbose("Repo proxy: " + mRepoProxy);
         if (mRepoProxy == null) {
             XposedLog.wtf("Can not construct RepoProxy, WTF???????????");
         }
+
         mTopPackageListenerCallbacks = new RemoteCallbackList<>();
     }
 
@@ -2963,6 +3192,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     protected Handler onCreateLazyHandler() {
         return new LazyHandler();
+    }
+
+    protected Handler onCreateDozeHandler() {
+        return new DozeHandlerImpl();
     }
 
     @Override

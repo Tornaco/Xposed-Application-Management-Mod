@@ -934,4 +934,12 @@ public class XAshmanManager {
             return new String[0];
         }
     }
+
+    public long getLastDozeEnterTimeMills() {
+        try {
+            return mService.getLastDozeEnterTimeMills();
+        } catch (RemoteException e) {
+            return -1;
+        }
+    }
 }
