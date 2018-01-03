@@ -633,7 +633,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     @Override
-    public boolean onKeyEvent(KeyEvent keyEvent) {
+    public boolean onKeyEvent(KeyEvent keyEvent, String source) {
         // Nothing to do.
         return false;
     }

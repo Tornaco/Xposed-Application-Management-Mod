@@ -102,6 +102,7 @@ import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerP
 import github.tornaco.xposedmoduletest.xposed.service.doze.DozeEvent;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DozeStateRetriever;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
+import github.tornaco.xposedmoduletest.xposed.submodules.InputManagerSubModule;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.AllArgsConstructor;
@@ -1301,15 +1302,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @InternalCall
-    public boolean onKeyEvent(KeyEvent keyEvent) {
+    public boolean onKeyEvent(KeyEvent keyEvent, String source) {
         if (XposedLog.isVerboseLoggable()) {
-            XposedLog.verbose("onKeyEvent: " + keyEvent);
+            XposedLog.verbose("source: " + source + ", onKeyEvent: " + keyEvent);
         }
+
+        if (source.equals(InputManagerSubModule.EVENT_SOURCE)) {
+            return false;
+        }
+
         if (keyEvent != null) {
             boolean inKeyguard = isKeyguard();
             if (inKeyguard) {
                 XposedLog.verbose("Ignore key event in keyguard");
-                // return false;
+                return false;
             }
             lazyH.obtainMessage(AshManLZHandlerMessages.MSG_ONKEYEVENT, keyEvent).sendToTarget();
         }

@@ -30,5 +30,5 @@ public interface IModuleBridge {
 
     String serial();
 
-    boolean onKeyEvent(KeyEvent keyEvent);
+    boolean onKeyEvent(KeyEvent keyEvent, String source);
 }

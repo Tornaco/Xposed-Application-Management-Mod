@@ -40,6 +40,7 @@ public class IntentFirewallSubModuleManager {
 
         // RFK.
         addToSubsChecked(new PWMSubModule());
+        addToSubsChecked(new InputManagerSubModule());
 
         addToSubsChecked(new PMSSubModule4());
         addToSubsChecked(new PMSSubModule2());
