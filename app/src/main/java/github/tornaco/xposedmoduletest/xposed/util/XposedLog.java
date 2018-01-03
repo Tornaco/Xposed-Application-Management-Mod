@@ -28,7 +28,7 @@ public abstract class XposedLog {
     public static final String TAG_LAZY = "X-APM-LAZY-" + BuildConfig.VERSION_NAME + "-";
     public static final String TAG_USER = "USER-";
     public static final String TAG_KEY = "KEY-";
-    public static final String TAG_DOZE= "DOZE-";
+    public static final String TAG_DOZE = "DOZE-";
 
     private static LogLevel sLevel = BuildConfig.DEBUG ? LogLevel.ALL : LogLevel.WARN;
 
@@ -84,6 +84,14 @@ public abstract class XposedLog {
     public static void wtf(Object log) {
         if (isLoggable(LogLevel.WARN)) XposedBridge.log(TAG_PREFIX
                 + LogLevel.WARN.name()
+                + "-"
+                + String.valueOf(log));
+    }
+
+
+    public static void boot(Object log) {
+        XposedBridge.log(TAG_PREFIX
+                + "BOOT_STAGE"
                 + "-"
                 + String.valueOf(log));
     }

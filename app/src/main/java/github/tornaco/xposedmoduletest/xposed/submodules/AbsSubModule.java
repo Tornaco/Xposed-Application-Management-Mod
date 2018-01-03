@@ -53,6 +53,14 @@ abstract class AbsSubModule implements SubModule {
         return getClass().getSimpleName();
     }
 
+    public void logOnBootStage(Object log) {
+        XposedLog.boot(log);
+    }
+
+    public void logOnBootStage(String format, Object... args) {
+        XposedLog.boot(String.format(format, args));
+    }
+
     static SubModuleStatus unhooksToStatus(Set unHooks) {
         if (unHooks == null || unHooks.size() == 0) return SubModuleStatus.ERROR;
         return SubModuleStatus.READY;

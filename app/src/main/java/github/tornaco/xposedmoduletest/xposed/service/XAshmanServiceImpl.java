@@ -1302,13 +1302,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @InternalCall
     public boolean onKeyEvent(KeyEvent keyEvent) {
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("onKeyEvent: " + keyEvent);
+        }
         if (keyEvent != null) {
             boolean inKeyguard = isKeyguard();
             if (inKeyguard) {
-                if (BuildConfig.DEBUG) {
-                    XposedLog.verbose("Ignore key event in keyguard");
-                }
-                return false;
+                XposedLog.verbose("Ignore key event in keyguard");
+                // return false;
             }
             lazyH.obtainMessage(AshManLZHandlerMessages.MSG_ONKEYEVENT, keyEvent).sendToTarget();
         }
@@ -4612,7 +4613,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         @Override
         public void maybeBackPressed(String targetPackage) {
-            if (targetPackage != null && !targetPackage.equals(getTopPackage())) {
+            String current = getTopPackage();
+            XposedLog.verbose("maybeBackPressed target: %s, current: %s", targetPackage, current);
+            if (targetPackage != null && !targetPackage.equals(current)) {
                 onBackPressed(targetPackage);
             }
         }
