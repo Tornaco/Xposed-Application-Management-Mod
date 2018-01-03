@@ -68,7 +68,9 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
     @Override
     public void onResume() {
         super.onResume();
-        startLoading();
+        if (hasRecyclerView()) {
+            startLoading();
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -81,10 +83,11 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
         return getCommonPackageInfoAdapter().getCommonPackageInfos().indexOf(pkg);
     }
 
+    protected boolean hasRecyclerView() {
+        return true;
+    }
+
     protected void initView() {
-        recyclerView = findViewById(R.id.recycler_view);
-        swipeRefreshLayout = findViewById(R.id.swipe);
-        swipeRefreshLayout.setColorSchemeColors(getResources().getIntArray(R.array.polluted_waves));
         fab = findViewById(R.id.fab);
 
         fab.setOnClickListener(new View.OnClickListener() {
@@ -94,23 +97,30 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
             }
         });
 
-        commonPackageInfoAdapter = onCreateAdapter();
-        commonPackageInfoAdapter.setChoiceModeListener(this);
-        commonPackageInfoAdapter.setItemCheckListener(this);
-
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this,
-                LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(commonPackageInfoAdapter);
+        if (hasRecyclerView()) {
+            recyclerView = findViewById(R.id.recycler_view);
+            swipeRefreshLayout = findViewById(R.id.swipe);
+            swipeRefreshLayout.setColorSchemeColors(getResources().getIntArray(R.array.polluted_waves));
 
 
-        swipeRefreshLayout.setOnRefreshListener(
-                new SwipeRefreshLayout.OnRefreshListener() {
-                    @Override
-                    public void onRefresh() {
-                        startLoading();
-                    }
-                });
+            commonPackageInfoAdapter = onCreateAdapter();
+            commonPackageInfoAdapter.setChoiceModeListener(this);
+            commonPackageInfoAdapter.setItemCheckListener(this);
+
+            recyclerView.setHasFixedSize(true);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this,
+                    LinearLayoutManager.VERTICAL, false));
+            recyclerView.setAdapter(commonPackageInfoAdapter);
+
+
+            swipeRefreshLayout.setOnRefreshListener(
+                    new SwipeRefreshLayout.OnRefreshListener() {
+                        @Override
+                        public void onRefresh() {
+                            startLoading();
+                        }
+                    });
+        }
 
         runOnUiThread(new Runnable() {
             @Override
@@ -206,6 +216,7 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
     protected abstract CommonPackageInfoAdapter onCreateAdapter();
 
     protected void startLoading() {
+        if (!hasRecyclerView()) return;
         swipeRefreshLayout.setRefreshing(true);
         XExecutor.execute(new Runnable() {
             @Override
@@ -243,7 +254,8 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
 
     @Override
     public void onBackPressed() {
-        if (getCommonPackageInfoAdapter().onBackPressed()) {
+        if (hasRecyclerView()
+                && getCommonPackageInfoAdapter().onBackPressed()) {
             return;
         }
         super.onBackPressed();

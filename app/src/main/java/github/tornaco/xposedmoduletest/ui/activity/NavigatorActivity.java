@@ -51,6 +51,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.AppStart;
 import github.tornaco.xposedmoduletest.ui.tiles.Blur;
 import github.tornaco.xposedmoduletest.ui.tiles.CompReplacement;
 import github.tornaco.xposedmoduletest.ui.tiles.ComponentManager;
+import github.tornaco.xposedmoduletest.ui.tiles.Doze;
 import github.tornaco.xposedmoduletest.ui.tiles.Greening;
 import github.tornaco.xposedmoduletest.ui.tiles.Lazy;
 import github.tornaco.xposedmoduletest.ui.tiles.LockKill;
@@ -411,9 +412,17 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                 ash.addTile(new NFManager(getActivity()));
             }
 
+            Category battery = new Category();
+            battery.titleRes = R.string.title_battery;
+
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_DOZE)) {
+                battery.addTile(new Doze(getActivity()));
+            }
+
             if (category.getTilesCount() > 0) categories.add(category);
             if (rest.getTilesCount() > 0) categories.add(rest);
             if (ash.getTilesCount() > 0) categories.add(ash);
+            if (ash.getTilesCount() > 0) categories.add(battery);
         }
 
         @SuppressWarnings("unchecked")

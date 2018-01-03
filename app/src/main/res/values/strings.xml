@@ -402,5 +402,20 @@
     <string name="title_backup_restore_success">完成</string>
     <string name="title_restore">从备份恢复</string>
     <string name="summary_title_restore">选择一个备份文件进行数据恢复。</string>
+    <string name="title_doze">DOZE</string>
+    <string name="summary_doze">说明</string>
+    <string name="title_battery">电池</string>
+    <string name="title_state">状态</string>
+    <string name="title_last_doze">Doze记录</string>
+    <string name="summary_last_doze">自此次开机以来，上次由应用管理催使系统在灭屏后进入DOZE模式的时间是 %1$s</string>
+    <string name="summary_last_doze_unknown">暂无</string>
+    <string name="summary_delay_unknown">未知</string>
+    <string name="summary_delay_mills">%1$s毫秒</string>
+    <string name="title_delay">延迟</string>
+    <string name="summary_delay">灭屏后催促系统进入DOZE模式的延迟为 %1$s</string>
+    <string name="title_config">配置</string>
+    <string name="summary_delay_config_title">设置延迟时间</string>
+    <string name="summary_delay_should_be_positive">延迟时间必须大于零</string>
+    <string name="summary_delay_invalid">输入字符非法，请检查</string>
 
 </resources>

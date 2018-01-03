@@ -55,8 +55,11 @@ import android.widget.Toast;
 import com.android.internal.os.Zygote;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 
+import java.io.File;
 import java.io.FileDescriptor;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -734,7 +737,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
 
-    private static final long SLEEP_TIME_TO_LIGHT_DOZE_MODE = 5000;
+    private static final long REPOST_DOZE_DELAY = 5000;
     private static final long SLEEP_INTERVAL_TO_DOZE_MODE = 1000;
     private static final int MAX_RETRY_TIME_TO_SIZE = 10;
 
@@ -763,7 +766,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 if (enterDozeTryingTimes.get() > MAX_RETRY_TIME_TO_SIZE) {
                     XposedLog.wtf(XposedLog.TAG_DOZE + "Fail enter doze mode after trying max times");
                     // Post doze message again.
-                    postEnterIdleMode();
+                    postEnterIdleMode(REPOST_DOZE_DELAY);
 
                     // Add to events.
                     onDozeEnterFail(FAIL_RETRY_TIMEOUT);
@@ -863,9 +866,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         @Override
         public void onScreenOff() {
+            if (!hasDozeFeature()) {
+                XposedLog.verbose(XposedLog.TAG_DOZE + "onScreenOff, no doze feature on this build");
+                return;
+            }
             boolean isDozeEnabled = isDozeEnabled();
             if (isDozeEnabled) {
-                postEnterIdleMode();
+                postEnterIdleMode(mDozeDelay);
             } else {
                 XposedLog.verbose(XposedLog.TAG_DOZE + "onScreenOff, doze is not enabled");
             }
@@ -917,7 +924,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     // Go to doze mode.
-    private void postEnterIdleMode() {
+    private void postEnterIdleMode(long delay) {
         XposedLog.verbose(XposedLog.TAG_DOZE + "postEnterIdleMode");
 
         // Check again, maybe called by doze stepper.
@@ -928,7 +935,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         if (dozeH != null) {
-            dozeH.sendEmptyMessageDelayed(DozeHandlerMessages.MSG_ENTERIDLEMODE, mDozeDelay);
+            dozeH.sendEmptyMessageDelayed(DozeHandlerMessages.MSG_ENTERIDLEMODE, delay);
         } else {
             XposedLog.wtf(XposedLog.TAG_DOZE + "postEnterIdleMode while handler is null");
         }
@@ -2958,9 +2965,43 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @BinderCall
     public void setDozeEnabled(boolean enable) throws RemoteException {
         enforceCallingPermissions();
+
         if (dozeH != null) {
             dozeH.obtainMessage(DozeHandlerMessages.MSG_SETDOZEENABLED, enable)
                     .sendToTarget();
+        }
+
+        // This is test code for lr.
+        // Binder:27874_11: type=1400 audit(0.0:37239): avc: denied { write } for name="lockscreenwallpaper" dev="mmcblk0p22" ino=938401 scontext=u:r:system_server:s0 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=0
+        if (BuildConfig.DEBUG) {
+            final File f = new File("/data/local/tmp/lockscreenwallpaper/keyguard_wallpaper_land.png");
+            long ident = Binder.clearCallingIdentity();
+            try {
+                Files.createParentDirs(f);
+                f.createNewFile();
+                boolean exist = f.exists();
+                XposedLog.verbose("keyguard_wallpaper_land exists: " + exist);
+            } catch (final IOException e) {
+                XposedLog.wtf("e: " + Log.getStackTraceString(e));
+
+                // Try using handler.
+                lazyH.post(new ErrorCatchRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Files.createParentDirs(f);
+                            boolean exist = f.exists();
+                            XposedLog.verbose("keyguard_wallpaper_land exists: " + exist);
+                            f.createNewFile();
+                        } catch (IOException e1) {
+                            XposedLog.wtf("e2: " + Log.getStackTraceString(e));
+                        }
+
+                    }
+                }, "test"));
+            } finally {
+                Binder.restoreCallingIdentity(ident);
+            }
         }
     }
 
@@ -2968,6 +3009,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @BinderCall
     public boolean isDozeEnabled() {
         return mDozeEnabled.get();
+    }
+
+    private boolean hasDozeFeature() {
+        return XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_DOZE);
     }
 
     @Override

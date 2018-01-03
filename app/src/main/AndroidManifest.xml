@@ -145,6 +145,11 @@
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
+            android:name=".ui.activity.doze.DozeNavActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_doze"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
             android:name=".ui.activity.helper.RunningServicesActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_running_services"
