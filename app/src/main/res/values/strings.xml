@@ -403,7 +403,7 @@
     <string name="title_restore">从备份恢复</string>
     <string name="summary_title_restore">选择一个备份文件进行数据恢复。</string>
     <string name="title_doze">DOZE</string>
-    <string name="summary_doze">说明</string>
+    <string name="summary_doze">该功能可以在设备屏幕关闭时，催促系统尽快的进入DOZE模式，以尽可能的降低电量消耗。\n\n注意，使用之前请提前了解什么时DOZE。</string>
     <string name="title_battery">电池</string>
     <string name="title_state">状态</string>
     <string name="title_last_doze">Doze记录</string>

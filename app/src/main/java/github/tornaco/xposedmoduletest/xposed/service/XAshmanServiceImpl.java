@@ -737,7 +737,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
 
-    private static final long REPOST_DOZE_DELAY = 5000;
+    // If we fail into doze, retry in 5min.
+    private static final long REPOST_DOZE_DELAY = 5 * 60 * 1000;
     private static final long SLEEP_INTERVAL_TO_DOZE_MODE = 1000;
     private static final int MAX_RETRY_TIME_TO_SIZE = 10;
 
