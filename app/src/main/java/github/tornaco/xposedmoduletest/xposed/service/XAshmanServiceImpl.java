@@ -863,7 +863,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         @Override
         public void onScreenOff() {
-            postEnterIdleMode();
+            boolean isDozeEnabled = isDozeEnabled();
+            if (isDozeEnabled) {
+                postEnterIdleMode();
+            } else {
+                XposedLog.verbose(XposedLog.TAG_DOZE + "onScreenOff, doze is not enabled");
+            }
         }
 
         @Override
@@ -914,8 +919,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     // Go to doze mode.
     private void postEnterIdleMode() {
         XposedLog.verbose(XposedLog.TAG_DOZE + "postEnterIdleMode");
+
+        // Check again, maybe called by doze stepper.
+        boolean isDozeEnabled = isDozeEnabled();
+        if (!isDozeEnabled) {
+            XposedLog.wtf("postEnterIdleMode when doze is not enabled, ignore.");
+            return;
+        }
+
         if (dozeH != null) {
-            dozeH.sendEmptyMessageDelayed(DozeHandlerMessages.MSG_ENTERIDLEMODE, 60 * 1000);
+            dozeH.sendEmptyMessageDelayed(DozeHandlerMessages.MSG_ENTERIDLEMODE, mDozeDelay);
         } else {
             XposedLog.wtf(XposedLog.TAG_DOZE + "postEnterIdleMode while handler is null");
         }
@@ -927,6 +940,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             dozeH.removeMessages(DozeHandlerMessages.MSG_ENTERIDLEMODE);
         } else {
             XposedLog.wtf(XposedLog.TAG_DOZE + "cancelEnterIdleModePosts while handler is null");
+        }
+
+        if (XposedLog.isVerboseLoggable()) {
+            boolean isIdleMode = DozeStateRetriever.isDeviceIdleMode(getContext());
+            XposedLog.verbose(XposedLog.TAG_DOZE + "cancelEnterIdleModePosts, isDeviceIdleMode: " + isIdleMode);
         }
     }
 
@@ -2937,6 +2955,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @BinderCall
     public void setDozeEnabled(boolean enable) throws RemoteException {
         enforceCallingPermissions();
         if (dozeH != null) {
@@ -2946,7 +2965,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public boolean isDozeEnabled() throws RemoteException {
+    @BinderCall
+    public boolean isDozeEnabled() {
         return mDozeEnabled.get();
     }
 
@@ -2971,6 +2991,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @BinderCall
     public void setDozeDelayMills(long delayMills) throws RemoteException {
+        if (delayMills < 0) {
+            throw new IllegalArgumentException("Doze delayMills should be positive");
+        }
         enforceCallingPermissions();
         if (dozeH != null) {
             dozeH.obtainMessage(DozeHandlerMessages.MSG_SETDOZEDELAYMILLS, delayMills)
