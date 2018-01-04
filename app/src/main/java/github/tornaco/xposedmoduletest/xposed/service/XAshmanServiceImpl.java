@@ -209,24 +209,25 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private boolean mIsSystemReady = false;
 
-    private BroadcastReceiver mBatteryStateReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver mBatteryStateReceiver =
+            new ProtectedBroadcastReceiver(new BroadcastReceiver() {
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action != null && action.equals(Intent.ACTION_BATTERY_CHANGED)) {
-                int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_UNKNOWN);
-                int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
-                BatterState bs = new BatterState(status, level);
-                dozeH.obtainMessage(DozeHandlerMessages.MSG_ONBATTERYSTATECHANGE, bs)
-                        .sendToTarget();
-            }
-        }
-    };
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    String action = intent.getAction();
+                    if (dozeH != null && action != null && action.equals(Intent.ACTION_BATTERY_CHANGED)) {
+                        int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_UNKNOWN);
+                        int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
+                        BatterState bs = new BatterState(status, level);
+                        dozeH.obtainMessage(DozeHandlerMessages.MSG_ONBATTERYSTATECHANGE, bs)
+                                .sendToTarget();
+                    }
+                }
+            });
 
 
     private BroadcastReceiver mScreenReceiver =
-            new BroadcastReceiver() {
+            new ProtectedBroadcastReceiver(new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
@@ -237,9 +238,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         onUserPresent();
                     }
                 }
-            };
+            });
 
-    private BroadcastReceiver mUserReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver mUserReceiver = new ProtectedBroadcastReceiver(new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent == null) return;
@@ -252,7 +253,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 }
             }
         }
-    };
+    });
 
     private void onUserPresent() {
         h.sendEmptyMessage(AshManHandlerMessages.MSG_ONSCREENON);
@@ -268,7 +269,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
-    private BroadcastReceiver mPackageReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver mPackageReceiver =
+            new ProtectedBroadcastReceiver(new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
 
@@ -279,7 +281,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
             lazyH.obtainMessage(AshManLZHandlerMessages.MSG_ONBROADCASTACTION, intent).sendToTarget();
         }
-    };
+    });
 
     private void onAppGuardClientUninstalled() {
         if (PkgUtil.isPkgInstalled(getContext(), BuildConfig.APPLICATION_ID)) return;

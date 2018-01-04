@@ -125,7 +125,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     private final ExecutorService mWorkingService = Executors.newCachedThreadPool();
 
     private BroadcastReceiver mScreenReceiver =
-            new BroadcastReceiver() {
+            new ProtectedBroadcastReceiver(new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
@@ -136,9 +136,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                         onUserPresent();
                     }
                 }
-            };
+            });
 
-    private BroadcastReceiver mPackageReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver mPackageReceiver = new ProtectedBroadcastReceiver(new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
 
@@ -168,7 +168,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                     }
             }
         }
-    };
+    });
 
     private PackageManager mPackageManager;
 

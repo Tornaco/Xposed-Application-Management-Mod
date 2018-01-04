@@ -77,6 +77,8 @@ public class IntentFirewallSubModuleManager {
         addToSubsChecked(new AMSSubModule2());
         addToSubsChecked(new AMSSubModule());
 
+        addToSubsChecked(new ActivityRecordSubModule());
+
         addToSubsChecked(new DeviceIdleControllerSubModule());
         addToSubsChecked(new NotificationManagerServiceSubModule());
     }
