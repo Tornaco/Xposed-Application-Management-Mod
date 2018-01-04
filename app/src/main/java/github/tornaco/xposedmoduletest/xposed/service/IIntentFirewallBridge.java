@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.RemoteException;
 
 import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
+import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 
 /**
  * Created by guohao4 on 2017/11/1.
@@ -14,6 +15,8 @@ import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerP
 public interface IIntentFirewallBridge extends IModuleBridge {
 
     void attachDeviceIdleController(DeviceIdleControllerProxy proxy);
+
+    void attachNotificationService(NotificationManagerServiceProxy proxy);
 
     // API For Firewall.
     @Deprecated

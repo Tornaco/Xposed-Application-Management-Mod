@@ -67,6 +67,7 @@ public class IntentFirewallSubModuleManager {
         addToSubsChecked(new AMSSubModule());
 
         addToSubsChecked(new DeviceIdleControllerSubModule());
+        addToSubsChecked(new NotificationManagerServiceSubModule());
     }
 
     @Synchronized

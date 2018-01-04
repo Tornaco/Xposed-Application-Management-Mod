@@ -1009,4 +1009,22 @@ public class XAshmanManager {
 
         }
     }
+
+    public void setDoNotKillSBNEnabled(boolean enable) {
+        ensureService();
+        try {
+            mService.setDoNotKillSBNEnabled(enable);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public boolean isDoNotKillSBNEnabled() {
+        ensureService();
+        try {
+            return mService.isDoNotKillSBNEnabled();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
 }

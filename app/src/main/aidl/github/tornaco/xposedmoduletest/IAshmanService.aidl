@@ -183,4 +183,7 @@ interface IAshmanService {
 
     long getDozeDelayMills();
     void setDozeDelayMills(long delayMills);
+
+    void setDoNotKillSBNEnabled(boolean enable);
+    boolean isDoNotKillSBNEnabled();
 }

@@ -40,6 +40,7 @@ import android.os.ServiceManager;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.provider.Settings;
+import android.service.notification.StatusBarNotification;
 import android.support.v4.app.NotificationManagerCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -101,6 +102,7 @@ import github.tornaco.xposedmoduletest.xposed.service.bandwidth.BandwidthCommand
 import github.tornaco.xposedmoduletest.xposed.service.doze.BatterState;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DozeStateRetriever;
+import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.submodules.InputManagerSubModule;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -176,6 +178,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final AtomicBoolean mShowFocusedActivityInfoEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mLockKillDoNotKillAudioEnabled = new AtomicBoolean(true);
+    private final AtomicBoolean mDoNotKillSBNEnabled = new AtomicBoolean(true);
     private final AtomicBoolean mRootActivityFinishKillEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mLongPressBackKillEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mCompSettingBlockEnabled = new AtomicBoolean(false);
@@ -194,6 +197,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     // FIXME Change to remote callbacks.
     private final Set<AshManHandler.WatcherClient> mWatcherClients = new HashSet<>();
+
+    private NotificationManagerServiceProxy mNotificationService;
 
     // Safe mode is the last clear place user can stay.
     private boolean mIsSafeMode = false;
@@ -552,8 +557,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         try {
             boolean whiteSysApp = (boolean) SystemSettings.ASH_WHITE_SYS_APP_ENABLED_B.readFromSystemSettings(getContext());
             mWhiteSysAppEnabled.set(whiteSysApp);
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("whiteSysAapp: " + String.valueOf(whiteSysApp));
+            XposedLog.boot("whiteSysAapp: " + String.valueOf(whiteSysApp));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -561,8 +565,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         try {
             boolean bootBlockEnabled = (boolean) SystemSettings.BOOT_BLOCK_ENABLED_B.readFromSystemSettings(getContext());
             mBootBlockEnabled.set(bootBlockEnabled);
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("bootBlockEnabled: " + String.valueOf(bootBlockEnabled));
+            XposedLog.boot("bootBlockEnabled: " + String.valueOf(bootBlockEnabled));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -570,8 +573,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         try {
             boolean startBlockEnabled = (boolean) SystemSettings.START_BLOCK_ENABLED_B.readFromSystemSettings(getContext());
             mStartBlockEnabled.set(startBlockEnabled);
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("startBlockEnabled:" + String.valueOf(startBlockEnabled));
+            XposedLog.boot("startBlockEnabled:" + String.valueOf(startBlockEnabled));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -579,8 +581,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         try {
             boolean lockKillEnabled = (boolean) SystemSettings.LOCK_KILL_ENABLED_B.readFromSystemSettings(getContext());
             mLockKillEnabled.set(lockKillEnabled);
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("lockKillEnabled: " + String.valueOf(lockKillEnabled));
+            XposedLog.boot("lockKillEnabled: " + String.valueOf(lockKillEnabled));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -588,8 +589,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         try {
             boolean greeningEnabled = (boolean) SystemSettings.GREENING_ENABLED_B.readFromSystemSettings(getContext());
             mGreeningEnabled.set(greeningEnabled);
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("greeningEnabled: " + String.valueOf(greeningEnabled));
+            XposedLog.boot("greeningEnabled: " + String.valueOf(greeningEnabled));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -597,8 +597,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         try {
             String userDeviceId = (String) SystemSettings.USER_DEFINED_DEVICE_ID_T_S.readFromSystemSettings(getContext());
             mUserDefinedDeviceId.setData(userDeviceId);
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("userDeviceId: " + String.valueOf(userDeviceId));
+            XposedLog.boot("userDeviceId: " + String.valueOf(userDeviceId));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -606,8 +605,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         try {
             String userAndroidId = (String) SystemSettings.USER_DEFINED_ANDROID_ID_T_S.readFromSystemSettings(getContext());
             mUserDefinedAndroidId.setData(userAndroidId);
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("userAndroidId: " + String.valueOf(userAndroidId));
+            XposedLog.boot("userAndroidId: " + String.valueOf(userAndroidId));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -615,8 +613,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         try {
             String userLine1Number = (String) SystemSettings.USER_DEFINED_LINE1_NUM_T_S.readFromSystemSettings(getContext());
             mUserDefinedLine1Number.setData(userLine1Number);
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("userLine1Number: " + String.valueOf(userLine1Number));
+            XposedLog.boot("userLine1Number: " + String.valueOf(userLine1Number));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -624,8 +621,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         try {
             boolean migrated = (boolean) SystemSettings.DATA_MIGRATE_B.readFromSystemSettings(getContext());
             mDataHasBeenMigrated.set(migrated);
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("migrated: " + String.valueOf(migrated));
+            XposedLog.boot("migrated: " + String.valueOf(migrated));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -633,8 +629,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         try {
             boolean dumpCrash = (boolean) SystemSettings.SHOW_CRASH_DUMP_B.readFromSystemSettings(getContext());
             mShowAppCrashDumpEnabled.set(dumpCrash);
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("dumpCrash: " + String.valueOf(dumpCrash));
+            XposedLog.boot("dumpCrash: " + String.valueOf(dumpCrash));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -642,8 +637,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         try {
             boolean lazy = (boolean) SystemSettings.LAZY_ENABLED_B.readFromSystemSettings(getContext());
             mLazyEnabled.set(lazy);
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("lazy: " + String.valueOf(lazy));
+            XposedLog.boot("lazy: " + String.valueOf(lazy));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -651,8 +645,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         try {
             boolean autoAddBlack = (boolean) SystemSettings.AUTO_BLACK_FOR_NEW_INSTALLED_APP_B.readFromSystemSettings(getContext());
             mAutoAddToBlackListForNewApp.set(autoAddBlack);
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("autoAddBlack: " + String.valueOf(autoAddBlack));
+            XposedLog.boot("autoAddBlack: " + String.valueOf(autoAddBlack));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -660,8 +653,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         try {
             boolean showFocusedActivity = (boolean) SystemSettings.SHOW_FOCUSED_ACTIVITY_INFO_B.readFromSystemSettings(getContext());
             mShowFocusedActivityInfoEnabled.set(showFocusedActivity);
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("showFocusedActivity: " + String.valueOf(showFocusedActivity));
+            XposedLog.boot("showFocusedActivity: " + String.valueOf(showFocusedActivity));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -670,19 +662,25 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             boolean lockKillDoNotKillAudioEnabled = (boolean) SystemSettings.LOCK_KILL_DONT_KILL_AUDIO_ENABLED_B
                     .readFromSystemSettings(getContext());
             mLockKillDoNotKillAudioEnabled.set(lockKillDoNotKillAudioEnabled);
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("lockKillDoNotKillAudioEnabled: " + String.valueOf(lockKillDoNotKillAudioEnabled));
+            XposedLog.boot("lockKillDoNotKillAudioEnabled: " + String.valueOf(lockKillDoNotKillAudioEnabled));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
+        try {
+            boolean doNotKillSBNEnabled = (boolean) SystemSettings.ASH_WONT_KILL_SBN_APP_B
+                    .readFromSystemSettings(getContext());
+            mDoNotKillSBNEnabled.set(doNotKillSBNEnabled);
+            XposedLog.boot("doNotKillSBNEnabled: " + String.valueOf(doNotKillSBNEnabled));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
 
         try {
             boolean rootKillEnabled = (boolean) SystemSettings.ROOT_ACTIVITY_KILL_ENABLED_B
                     .readFromSystemSettings(getContext());
             mRootActivityFinishKillEnabled.set(rootKillEnabled);
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("rootKillEnabled: " + String.valueOf(rootKillEnabled));
+            XposedLog.boot("rootKillEnabled: " + String.valueOf(rootKillEnabled));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -691,8 +689,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             boolean longPressBackKill = (boolean) SystemSettings.LONG_PRESS_BACK_KILL_ENABLED_B
                     .readFromSystemSettings(getContext());
             mLongPressBackKillEnabled.set(longPressBackKill);
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("longPressBackKill: " + String.valueOf(longPressBackKill));
+            XposedLog.boot("longPressBackKill: " + String.valueOf(longPressBackKill));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -701,24 +698,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             boolean compSettingBlockEnabled = (boolean) SystemSettings.COMP_SETTING_BLOCK_ENABLED_B
                     .readFromSystemSettings(getContext());
             mCompSettingBlockEnabled.set(compSettingBlockEnabled);
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("compSettingBlockEnabled: " + String.valueOf(compSettingBlockEnabled));
+            XposedLog.boot("compSettingBlockEnabled: " + String.valueOf(compSettingBlockEnabled));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
         try {
             mLockKillDelay = (long) SystemSettings.LOCK_KILL_DELAY_L.readFromSystemSettings(getContext());
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("mLockKillDelay: " + String.valueOf(mLockKillDelay));
+            XposedLog.boot("mLockKillDelay: " + String.valueOf(mLockKillDelay));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
         try {
             mDozeDelay = (long) SystemSettings.DOZE_DELAY_L.readFromSystemSettings(getContext());
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("mDozeDelay: " + String.valueOf(mDozeDelay));
+            XposedLog.boot("mDozeDelay: " + String.valueOf(mDozeDelay));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -726,8 +720,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         try {
             boolean doze = (boolean) SystemSettings.APM_DOZE_ENABLE_B.readFromSystemSettings(getContext());
             mDozeEnabled.set(doze);
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("doze: " + String.valueOf(doze));
+            XposedLog.boot("doze: " + String.valueOf(doze));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -972,7 +965,46 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void attachDeviceIdleController(DeviceIdleControllerProxy proxy) {
         mDeviceIdleController = proxy;
-        XposedLog.verbose("mDeviceIdleController: " + proxy);
+        XposedLog.boot("mDeviceIdleController: " + proxy);
+    }
+
+    @Override
+    public void attachNotificationService(NotificationManagerServiceProxy proxy) {
+        mNotificationService = proxy;
+        XposedLog.boot("mNotificationService: " + proxy);
+    }
+
+    private boolean hasNotificationForPackage(String pkg) {
+        if (mNotificationService == null) {
+            XposedLog.wtf("hasNotificationForPackage called when nms is null");
+            return false;
+        }
+        ArrayList<StatusBarNotification> sbns = mNotificationService.getStatusBarNotifications();
+        if (sbns == null || sbns.size() == 0) return false;
+
+        if (XposedLog.isVerboseLoggable()) {
+            for (StatusBarNotification sbn : sbns) {
+                XposedLog.verbose("StatusBarNotification: " + sbn + ", from pkg: " + sbn.getPackageName());
+            }
+        }
+
+        for (StatusBarNotification sbn : sbns) {
+            if (pkg.equals(sbn.getPackageName())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void dumpNotifications() {
+        XposedLog.wtf("------dumpNotifications START-------");
+        ArrayList<StatusBarNotification> sbns = mNotificationService.getStatusBarNotifications();
+        if (sbns == null || sbns.size() == 0) return;
+        for (StatusBarNotification sbn : sbns) {
+            XposedLog.verbose("StatusBarNotification: " + sbn + ", from pkg: " + sbn.getPackageName());
+        }
+        XposedLog.wtf("------dumpNotifications END-------");
     }
 
     // Go to doze mode.
@@ -2970,6 +3002,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             return;
                         }
 
+                        boolean doNotKillAppWithSBNEnabled = isDoNotKillSBNEnabled();
+                        XposedLog.verbose("removeTask, doNotKillAppWithSBNEnabled: " + doNotKillAppWithSBNEnabled);
+                        if (doNotKillAppWithSBNEnabled && hasNotificationForPackage(pkgOfThisTask)) {
+                            XposedLog.verbose("removeTask has SBN for this package");
+                            return;
+                        }
+
                         // Now we kill this pkg delay to let am handle first.
                         final String finalPkgOfThisTask = pkgOfThisTask;
                         lazyH.postDelayed(new ErrorCatchRunnable(new Runnable() {
@@ -3138,6 +3177,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             dozeH.obtainMessage(DozeHandlerMessages.MSG_SETDOZEDELAYMILLS, delayMills)
                     .sendToTarget();
         }
+    }
+
+    @Override
+    public void setDoNotKillSBNEnabled(boolean enable) throws RemoteException {
+        enforceCallingPermissions();
+        h.obtainMessage(AshManHandlerMessages.MSG_SETDONOTKILLSBNENABLED, enable)
+                .sendToTarget();
+    }
+
+    @Override
+    public boolean isDoNotKillSBNEnabled() {
+        return mDoNotKillSBNEnabled.get();
     }
 
     private boolean isSystemUIPackage(String pkgName) {
@@ -3892,6 +3943,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETLPBKENABLED:
                     HandlerImpl.this.setLPBKEnabled((Boolean) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_SETDONOTKILLSBNENABLED:
+                    HandlerImpl.this.setDoNotKillSBNEnabled((Boolean) msg.obj);
+                    break;
             }
         }
 
@@ -3899,6 +3953,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setWhiteSysAppEnabled(boolean enabled) {
             if (mWhiteSysAppEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.ASH_WHITE_SYS_APP_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setDoNotKillSBNEnabled(boolean enabled) {
+            if (mDoNotKillSBNEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.ASH_WONT_KILL_SBN_APP_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 
@@ -4101,6 +4162,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         @Override
         public void clearProcess(final IProcessClearListener listener) {
+            boolean doNotKillAppWithSBNEnabled = isDoNotKillSBNEnabled();
+            XposedLog.verbose("clearProcess, doNotKillAppWithSBNEnabled: " + doNotKillAppWithSBNEnabled);
+
+            if (XposedLog.isVerboseLoggable()) {
+                dumpNotifications();
+            }
+
             boolean doNotCleatWhenInter = true;
             if (listener != null) try {
                 doNotCleatWhenInter = listener.doNotClearWhenIntervative();
@@ -4204,6 +4272,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
                             if (XposedLog.isVerboseLoggable()) {
                                 XposedLog.verbose(TAG_LK + "App is in isDefaultSmsApp, wont kill: " + runningPackageName);
+                            }
+                            continue;
+                        }
+
+                        if (hasNotificationForPackage(runningPackageName)) {
+
+                            if (listener != null) try {
+                                listener.onIgnoredPkg(runningPackageName, "sbn-app");
+                            } catch (RemoteException ignored) {
+
+                            }
+
+                            if (XposedLog.isVerboseLoggable()) {
+                                XposedLog.verbose(TAG_LK + "SBN app, wont kill: " + runningPackageName);
                             }
                             continue;
                         }
@@ -4448,6 +4530,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         @Override
+        @Deprecated
         public void onActivityDestroy(Intent intent) {
             boolean isMainIntent = PkgUtil.isMainIntent(intent);
 
@@ -4696,6 +4779,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 return;
             }
 
+            boolean doNotKillAppWithSBNEnabled = isDoNotKillSBNEnabled();
+            XposedLog.verbose("maybeBackLongPressed, doNotKillAppWithSBNEnabled: " + doNotKillAppWithSBNEnabled);
+            if (doNotKillAppWithSBNEnabled && hasNotificationForPackage(targetPackage)) {
+                XposedLog.verbose("maybeBackLongPressed has SBN for this package");
+                return;
+            }
+
             boolean mayBeKillThisPackage = getTopPackage() != null && getTopPackage().equals(targetPackage);
             if (mayBeKillThisPackage) {
                 XposedLog.verbose(XposedLog.TAG_KEY + "mayBeKillThisPackage after long back: " + targetPackage);
@@ -4738,6 +4828,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
                             if (packageName.equals(getTopPackage())) {
                                 XposedLog.verbose(XposedLog.TAG_KEY + "Top package is now him, let it go~");
+                                return;
+                            }
+
+                            boolean doNotKillAppWithSBNEnabled = isDoNotKillSBNEnabled();
+                            XposedLog.verbose("killPackageWhenBackPressed, doNotKillAppWithSBNEnabled: "
+                                    + doNotKillAppWithSBNEnabled);
+                            if (doNotKillAppWithSBNEnabled && hasNotificationForPackage(packageName)) {
+                                XposedLog.verbose("killPackageWhenBackPressed has SBN for this package");
                                 return;
                             }
 

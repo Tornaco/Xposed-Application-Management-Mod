@@ -20,6 +20,8 @@ interface AshManHandler {
 
     void setWhiteSysAppEnabled(boolean enabled);
 
+    void setDoNotKillSBNEnabled(boolean enable);
+
     void setBootBlockEnabled(boolean enabled);
 
     void setStartBlockEnabled(boolean enabled);

@@ -5,12 +5,14 @@ import android.util.Log;
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.AllArgsConstructor;
+import lombok.ToString;
 
 /**
  * Created by guohao4 on 2018/1/2.
  * Email: Tornaco@163.com
  */
 @AllArgsConstructor
+@ToString
 public class DeviceIdleControllerProxy {
 
 
