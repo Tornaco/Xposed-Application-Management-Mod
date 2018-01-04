@@ -271,17 +271,25 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private BroadcastReceiver mPackageReceiver =
             new ProtectedBroadcastReceiver(new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
+                @Override
+                public void onReceive(Context context, Intent intent) {
 
-            String action = intent.getAction();
-            if (action == null || intent.getData() == null) {
-                // They send us bad action~
-                return;
-            }
-            lazyH.obtainMessage(AshManLZHandlerMessages.MSG_ONBROADCASTACTION, intent).sendToTarget();
-        }
-    });
+                    String action = intent.getAction();
+                    if (action == null || intent.getData() == null) {
+                        // They send us bad action~
+                        return;
+                    }
+                    lazyH.obtainMessage(AshManLZHandlerMessages.MSG_ONBROADCASTACTION, intent).sendToTarget();
+                }
+            });
+
+    private BroadcastReceiver mTestProtectedBroadcastReceiver =
+            new ProtectedBroadcastReceiver(new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    throw new IllegalStateException("This is a test");
+                }
+            });
 
     private void onAppGuardClientUninstalled() {
         if (PkgUtil.isPkgInstalled(getContext(), BuildConfig.APPLICATION_ID)) return;
@@ -2296,6 +2304,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
         getContext().registerReceiver(mBatteryStateReceiver, intentFilter);
+
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
+        getContext().registerReceiver(mTestProtectedBroadcastReceiver, intentFilter);
     }
 
     private void inflateWhiteList() {
