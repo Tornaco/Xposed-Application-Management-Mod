@@ -61,6 +61,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.Privacy;
 import github.tornaco.xposedmoduletest.ui.tiles.RFKill;
 import github.tornaco.xposedmoduletest.ui.tiles.SmartSense;
 import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
@@ -415,7 +416,8 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             Category battery = new Category();
             battery.titleRes = R.string.title_battery;
 
-            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_DOZE)) {
+            // L do not support doze.
+            if (OSUtil.isMOrAbove() && XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_DOZE)) {
                 battery.addTile(new Doze(getActivity()));
             }
 

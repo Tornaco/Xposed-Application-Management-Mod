@@ -1,9 +1,12 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
+import android.os.Build;
+
 import java.util.HashSet;
 import java.util.Set;
 
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Synchronized;
 
 /**
@@ -21,7 +24,14 @@ public class AppGuardSubModuleManager {
     private void addToSubsChecked(SubModule subModule) {
         String var = subModule.needBuildVar();
         if (var == null || XAppBuildVar.BUILD_VARS.contains(var)) {
-            SUBS.add(subModule);
+            int minSDK = subModule.needMinSdk();
+            if (Build.VERSION.SDK_INT >= minSDK) {
+                SUBS.add(subModule);
+            } else {
+                XposedLog.boot("Skip submodule for min sdk not match: " + subModule.name());
+            }
+        } else {
+            XposedLog.boot("Skip submodule for var not match: " + subModule.name());
         }
     }
 

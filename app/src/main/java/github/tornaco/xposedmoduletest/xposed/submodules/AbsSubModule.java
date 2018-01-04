@@ -1,5 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
+import android.os.Build;
+
 import java.util.Set;
 
 import de.robv.android.xposed.IXposedHookZygoteInit;
@@ -30,6 +32,11 @@ abstract class AbsSubModule implements SubModule {
     @Override
     public String needBuildVar() {
         return null;
+    }
+
+    @Override
+    public int needMinSdk() {
+        return Build.VERSION_CODES.LOLLIPOP;
     }
 
     @Override
