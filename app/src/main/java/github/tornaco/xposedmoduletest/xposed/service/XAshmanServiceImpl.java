@@ -2565,8 +2565,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         if (isInWhiteList(pkg)) return AppOpsManagerCompat.MODE_ALLOWED;
-        if (isWhiteSysAppEnabled() && isInSystemAppList(pkg))
-            return AppOpsManagerCompat.MODE_ALLOWED;
+
+        // User want to do this.
+//        if (isWhiteSysAppEnabled() && isInSystemAppList(pkg))
+//            return AppOpsManagerCompat.MODE_ALLOWED;
 
         long id = Binder.clearCallingIdentity();
         String pattern = constructPatternForPermission(code, pkg);

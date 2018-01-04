@@ -95,7 +95,7 @@
 
     <string name="summary_app_guard">以下应用在启动时需要经过密码验证。</string>
 
-    <string name="summary_boot_app">"禁止以下应用开机自动启动。"</string>
+    <string name="summary_boot_app">"禁止以下应用开机自动启动。\n\n提示，尽管你禁止了某些应用开机自启动，某些应用开机后仍有可能被其他应用/广播启动，如果想要禁止，请同时设置关联启动。"</string>
 
     <string name="summary_lock_kill_app">"以下应用在锁屏后会被强行停止。\n\n注意，为了防止错过重要通知，默认情况下在对选中应用进行清理时，会跳过有通知消息的应用，你可以到通用设置中更改此项设定。"</string>
 
@@ -176,7 +176,7 @@
     <string name="title_common_settings">通用设置</string>
     <string name="title_app_settings">限制设置</string>
     <string name="title_white_system_app">不限制任何系统应用</string>
-    <string name="summary_white_system_app">不对任何的系统应用做自启动，关联启动，强行清理等限制处理。</string>
+    <string name="summary_white_system_app">不对任何的系统应用做自启动，关联启动，划卡清理，锁屏清理，返回强退，长按返回强退处理。</string>
     <string name="title_app_update_log">内功心法</string>
     <string name="title_app_black_list">很重要的通知</string>
     <string name="message_app_black_list">新用户请绕过。\n\n由于各个亲爱的用户的反馈中，有很多是因为应用被误杀，造成一些使用问题，因此，从这个版本起，我们的 [限制] 部分由之前的白名单模式改为了黑名单模式，你可能需要前往下面的各项设置重新进行配置。</string>
@@ -256,7 +256,7 @@
     <string name="title_privacy_apps">查看应用隐匿设置的应用</string>
     <string name="title_privacy_items">项目</string>
     <string name="title_greening">绿色化</string>
-    <string name="summary_greening_app">你可以从列表中找到你想绿化的应用，进行绿化，绿化可以禁止该应用启动服务/唤醒设备/设置定时器。\n\n默认情况下应用管理不对应用做任何修改，对勾选中表示允许该项启动。\n\n小提示：你也可以前往权限管理，按照（服务/定时器/唤醒锁）根据自己的想法控制这些行为。\n\n 什么是服务？https://developer.android.google.cn/guide/components/services.html?hl=zh-cn \n\n什么是唤醒锁？https://developer.android.google.cn/training/scheduling/wakelock.html \n\n什么是定时器？https://developer.android.google.cn/training/scheduling/alarms.html</string>
+    <string name="summary_greening_app">你可以从列表中找到你想绿化的应用，进行绿化，绿化可以禁止该应用启动服务/唤醒设备/设置定时器。\n\n默认情况下应用管理不对应用做任何修改，对勾选中表示允许该项启动，绿化用户安装的应用可能导致该应用无法正常运行；绿化系统应用可能会导致设备无法正常运行，甚至无法启动，请谨慎操作！\n\n小提示：你也可以前往权限管理，按照（服务/定时器/唤醒锁）根据自己的想法控制这些行为。</string>
     <string name="title_change_column_count">切换布局</string>
     <string name="title_error_occur">糟糕</string>
     <string name="title_new_photo">有人闯入</string>
