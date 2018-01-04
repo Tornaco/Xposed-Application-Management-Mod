@@ -2305,9 +2305,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
         getContext().registerReceiver(mBatteryStateReceiver, intentFilter);
 
-        intentFilter = new IntentFilter();
-        intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
-        getContext().registerReceiver(mTestProtectedBroadcastReceiver, intentFilter);
+        if (BuildConfig.DEBUG) {
+            intentFilter = new IntentFilter();
+            intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
+            getContext().registerReceiver(mTestProtectedBroadcastReceiver, intentFilter);
+        }
     }
 
     private void inflateWhiteList() {
