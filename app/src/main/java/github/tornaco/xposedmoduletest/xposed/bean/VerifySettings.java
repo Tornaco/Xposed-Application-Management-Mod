@@ -59,11 +59,19 @@ public class VerifySettings implements Parcelable, Cloneable {
     }
 
     public String formatJson() {
-        return new Gson().toJson(this);
+        try {
+            return new Gson().toJson(this);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public static VerifySettings from(String str) {
-        return new Gson().fromJson(str, VerifySettings.class);
+        try {
+            return new Gson().fromJson(str, VerifySettings.class);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public VerifySettings duplicate() {

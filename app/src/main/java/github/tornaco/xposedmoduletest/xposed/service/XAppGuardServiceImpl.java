@@ -1160,7 +1160,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 public void run() {
                     // Saving to db.
                     ContentResolver resolver = getContext().getContentResolver();
-                    Settings.System.putString(resolver, VerifySettings.KEY_SETTINGS, settings.formatJson());
+                    String js = settings.formatJson();
+                    if (js != null) {
+                        Settings.System.putString(resolver, VerifySettings.KEY_SETTINGS, js);
+                        XposedLog.verbose("setVerifySettings, putting: " + js);
+                    }
                 }
             });
         }
