@@ -22,6 +22,8 @@ interface AshManHandler {
 
     void setDoNotKillSBNEnabled(boolean enable);
 
+    void setTaskRemoveKillEnabled(boolean enable);
+
     void setBootBlockEnabled(boolean enabled);
 
     void setStartBlockEnabled(boolean enabled);

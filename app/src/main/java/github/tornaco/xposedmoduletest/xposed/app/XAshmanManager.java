@@ -1027,4 +1027,36 @@ public class XAshmanManager {
             return false;
         }
     }
+
+    public void setTaskRemoveKillEnabled(boolean enable) {
+        try {
+            mService.setTaskRemoveKillEnabled(enable);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public boolean isTaskRemoveKillEnabled() {
+        try {
+            return mService.isTaskRemoveKillEnabled();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public String[] getTRKApps(boolean kill) {
+        try {
+            return mService.getTRKApps(kill);
+        } catch (RemoteException e) {
+            return new String[0];
+        }
+    }
+
+    public void addOrRemoveTRKApps(String[] packages, int op) {
+        try {
+            mService.addOrRemoveTRKApps(packages, op);
+        } catch (RemoteException e) {
+
+        }
+    }
 }

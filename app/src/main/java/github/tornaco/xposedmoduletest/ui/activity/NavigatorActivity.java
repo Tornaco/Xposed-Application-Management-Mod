@@ -60,6 +60,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.PermControl;
 import github.tornaco.xposedmoduletest.ui.tiles.Privacy;
 import github.tornaco.xposedmoduletest.ui.tiles.RFKill;
 import github.tornaco.xposedmoduletest.ui.tiles.SmartSense;
+import github.tornaco.xposedmoduletest.ui.tiles.TRKill;
 import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
@@ -376,8 +377,10 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_LK)) {
                 rest.addTile(new LockKill(getActivity()));
             }
+
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_RFK)) {
                 rest.addTile(new RFKill(getActivity()));
+                rest.addTile(new TRKill(getActivity()));
             }
 
             if (AppSettings.isShowInfoEnabled(getContext(), "show_lazy_ui", false)

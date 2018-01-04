@@ -186,4 +186,11 @@ interface IAshmanService {
 
     void setDoNotKillSBNEnabled(boolean enable);
     boolean isDoNotKillSBNEnabled();
+
+    void setTaskRemoveKillEnabled(boolean enable);
+    boolean isTaskRemoveKillEnabled();
+
+    // Get or Add task remove kill apps.
+    String[] getTRKApps(boolean kill);
+    void addOrRemoveTRKApps(in String[] packages, int op);
 }

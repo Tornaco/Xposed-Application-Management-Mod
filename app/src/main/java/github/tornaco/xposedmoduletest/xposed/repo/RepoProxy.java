@@ -38,7 +38,7 @@ public class RepoProxy {
         return sProxy.get();
     }
 
-    private SetRepo<String> boots, starts, lks, rfks,
+    private SetRepo<String> boots, starts, lks, rfks, trks,
             perms, privacy, greens,
             blurs, locks, uninstall,
             data_restrict, wifi_restrict,
@@ -70,6 +70,7 @@ public class RepoProxy {
         starts = new StringSetRepo(new File(dir, "starts"), h, io);
         lks = new StringSetRepo(new File(dir, "lks"), h, io);
         rfks = new StringSetRepo(new File(dir, "rfks"), h, io);
+        trks = new StringSetRepo(new File(dir, "trks"), h, io);
         comps = new StringSetRepo(new File(dir, "comps"), h, io);
         perms = new StringSetRepo(new File(dir, "perms"), h, io);
         privacy = new StringSetRepo(new File(dir, "privacy"), h, io);
@@ -282,6 +283,10 @@ public class RepoProxy {
         return rfks == null ? STRING_SET_NULL_HACK : rfks;
     }
 
+    public SetRepo<String> getTrks() {
+        return trks == null ? STRING_SET_NULL_HACK : trks;
+    }
+
     public SetRepo<String> getPerms() {
         return perms == null ? STRING_SET_NULL_HACK : perms;
     }
@@ -340,6 +345,7 @@ public class RepoProxy {
         getStarts().removeAll();
         getLks().removeAll();
         getRfks().removeAll();
+        getTrks().removeAll();
         getPerms().removeAll();
         getPrivacy().removeAll();
         getGreens().removeAll();

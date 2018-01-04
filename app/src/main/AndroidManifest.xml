@@ -145,6 +145,16 @@
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
+            android:name=".ui.activity.trk.TRKillAppNavActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_app_tr_kill"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.trk.TRKillAppPickerActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_picker"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
             android:name=".ui.activity.doze.DozeNavActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_doze"

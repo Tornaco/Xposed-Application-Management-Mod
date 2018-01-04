@@ -180,6 +180,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final AtomicBoolean mLockKillDoNotKillAudioEnabled = new AtomicBoolean(true);
     private final AtomicBoolean mDoNotKillSBNEnabled = new AtomicBoolean(true);
     private final AtomicBoolean mRootActivityFinishKillEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mTaskRemovedKillEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mLongPressBackKillEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mCompSettingBlockEnabled = new AtomicBoolean(false);
 
@@ -681,6 +682,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     .readFromSystemSettings(getContext());
             mRootActivityFinishKillEnabled.set(rootKillEnabled);
             XposedLog.boot("rootKillEnabled: " + String.valueOf(rootKillEnabled));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            boolean taskRemovedKillEnabled = (boolean) SystemSettings.REMOVE_TASK_KILL_ENABLED_B
+                    .readFromSystemSettings(getContext());
+            mTaskRemovedKillEnabled.set(taskRemovedKillEnabled);
+            XposedLog.boot("taskRemovedKillEnabled: " + String.valueOf(taskRemovedKillEnabled));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -1473,6 +1483,28 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return true;
     }
 
+    private boolean shouldTRKPackage(String pkg) {
+        // If this app is not in good condition, but user
+        // does not block, we also allow it to start.
+        boolean trkByUser = isPackageTRKByUser(pkg);
+        if (!trkByUser) {
+            return false;
+        }
+
+        if (isInWhiteList(pkg)) {
+            return false;
+        }
+
+        if (isWhiteSysAppEnabled() && isInSystemAppList(pkg)) {
+            return false;
+        }
+
+        if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
+            return false;
+        }
+        return true;
+    }
+
     @Override
     @BinderCall
     public List<BlockRecord2> getBlockRecords() throws RemoteException {
@@ -2128,6 +2160,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private boolean isPackageRFKByUser(String pkg) {
         return isInStringRepo(mRepoProxy.getRfks(), pkg);
+    }
+
+    private boolean isPackageTRKByUser(String pkg) {
+        return isInStringRepo(mRepoProxy.getTrks(), pkg);
     }
 
     private boolean isPackageLazyByUser(String pkg) {
@@ -2972,9 +3008,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.verbose("removeTask: uid %s pkg %s task %s", callingUid, callingPkg, taskId);
         }
 
-        if (!isRFKillEnabled()) {
+        if (!isTaskRemoveKillEnabled()) {
             if (XposedLog.isVerboseLoggable()) {
-                XposedLog.verbose("removeTask: rfk is not enabled");
+                XposedLog.verbose("removeTask: trk is not enabled");
             }
             return;
         }
@@ -2987,18 +3023,22 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 List<ActivityManager.RecentTaskInfo> tasks = am.getRecentTasks(99,
                         ActivityManager.RECENT_WITH_EXCLUDED);
                 if (tasks != null) {
+
                     String pkgOfThisTask = null;
+
                     for (ActivityManager.RecentTaskInfo rc : tasks) {
                         if (rc != null && rc.persistentId == taskId) {
                             pkgOfThisTask = PkgUtil.packageNameOf(rc.baseIntent);
                             break;
                         }
                     }
+
                     XposedLog.verbose("removeTask, pkgOfThisTask: " + pkgOfThisTask);
+
                     if (pkgOfThisTask != null) {
 
-                        if (!shouldRFKPackage(pkgOfThisTask)) {
-                            XposedLog.verbose("removeTask PackageRFKill not enabled for this package");
+                        if (!shouldTRKPackage(pkgOfThisTask)) {
+                            XposedLog.verbose("removeTask TRKPackage not enabled for this package");
                             return;
                         }
 
@@ -3180,6 +3220,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @BinderCall
     public void setDoNotKillSBNEnabled(boolean enable) throws RemoteException {
         enforceCallingPermissions();
         h.obtainMessage(AshManHandlerMessages.MSG_SETDONOTKILLSBNENABLED, enable)
@@ -3187,8 +3228,83 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @BinderCall
     public boolean isDoNotKillSBNEnabled() {
         return mDoNotKillSBNEnabled.get();
+    }
+
+    @Override
+    @BinderCall
+    public void setTaskRemoveKillEnabled(boolean enable) throws RemoteException {
+        enforceCallingPermissions();
+        h.obtainMessage(AshManHandlerMessages.MSG_SETTASKREMOVEKILLENABLED, enable)
+                .sendToTarget();
+    }
+
+    @Override
+    @BinderCall
+    public boolean isTaskRemoveKillEnabled() {
+        return mTaskRemovedKillEnabled.get();
+    }
+
+    @Override
+    public String[] getTRKApps(boolean kill) throws RemoteException {
+        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getTRKApps: " + kill);
+        enforceCallingPermissions();
+        if (!kill) {
+            Collection<String> packages = mPackagesCache.keySet();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+
+            final List<String> outList = Lists.newArrayList();
+
+            String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
+            Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
+                @Override
+                public void accept(String s) {
+                    if (outList.contains(s)) return;// Kik dup package.
+                    if (isPackageTRKByUser(s)) return;
+                    if (isInWhiteList(s)) return;
+                    if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
+                    outList.add(s);
+                }
+            });
+
+            if (outList.size() == 0) {
+                return new String[0];
+            }
+
+            Object[] objArr = outList.toArray();
+            return convertObjectArrayToStringArray(objArr);
+        } else {
+            Set<String> packages = mRepoProxy.getTrks().getAll();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+
+            final List<String> noSys = Lists.newArrayList();
+
+            Collections.consumeRemaining(packages, new Consumer<String>() {
+                @Override
+                public void accept(String p) {
+                    if (isWhiteSysAppEnabled() && isInSystemAppList(p)) {
+                        return;
+                    }
+                    noSys.add(p);
+                }
+            });
+            return convertObjectArrayToStringArray(noSys.toArray());
+        }
+    }
+
+    @Override
+    public void addOrRemoveTRKApps(String[] packages, int op) throws RemoteException {
+        if (XposedLog.isVerboseLoggable())
+            XposedLog.verbose("addOrRemoveTRKApps: " + Arrays.toString(packages));
+        enforceCallingPermissions();
+        if (packages == null || packages.length == 0) return;
+        addOrRemoveFromRepo(packages, mRepoProxy.getTrks(), op == XAshmanManager.Op.ADD);
     }
 
     private boolean isSystemUIPackage(String pkgName) {
@@ -3946,6 +4062,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETDONOTKILLSBNENABLED:
                     HandlerImpl.this.setDoNotKillSBNEnabled((Boolean) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_SETTASKREMOVEKILLENABLED:
+                    HandlerImpl.this.setTaskRemoveKillEnabled((Boolean) msg.obj);
+                    break;
             }
         }
 
@@ -3960,6 +4079,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setDoNotKillSBNEnabled(boolean enabled) {
             if (mDoNotKillSBNEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.ASH_WONT_KILL_SBN_APP_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setTaskRemoveKillEnabled(boolean enabled) {
+            if (mTaskRemovedKillEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.REMOVE_TASK_KILL_ENABLED_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 
