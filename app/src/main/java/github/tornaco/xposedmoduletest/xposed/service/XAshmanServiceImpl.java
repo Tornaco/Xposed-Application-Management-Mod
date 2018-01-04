@@ -4226,15 +4226,22 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (mShowFocusedActivityInfoEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.SHOW_FOCUSED_ACTIVITY_INFO_B.writeToSystemSettings(getContext(), enabled);
             }
+
+            // Hide float view in lazy handler.
             if (!enabled) {
-                if (mFloatView != null) {
-                    try {
-                        mFloatView.hideAndDetach();
-                        mFloatView = null;
-                    } catch (Throwable e) {
-                        XposedLog.wtf("Fail detach float view: " + Log.getStackTraceString(e));
+                lazyH.post(new ErrorCatchRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mFloatView != null) {
+                            try {
+                                mFloatView.hideAndDetach();
+                                mFloatView = null;
+                            } catch (Throwable e) {
+                                XposedLog.wtf("Fail detach float view: " + Log.getStackTraceString(e));
+                            }
+                        }
                     }
-                }
+                }, "hideAndDetach"));
             }
         }
 

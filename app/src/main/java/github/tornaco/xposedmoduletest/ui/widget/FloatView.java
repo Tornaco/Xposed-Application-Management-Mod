@@ -312,18 +312,13 @@ public class FloatView extends LinearLayout {
     }
 
     public void detach() {
-        post(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    XposedLog.verbose("detach");
-                    mWm.removeViewImmediate(FloatView.this);
-                } catch (Exception ignored) {
-                    XposedLog.wtf("Fail detach float view: " + Log.getStackTraceString(ignored));
-                } finally {
-                }
-            }
-        });
+        try {
+            XposedLog.verbose("detach");
+            mWm.removeViewImmediate(FloatView.this);
+        } catch (Exception ignored) {
+            XposedLog.wtf("Fail detach float view: " + Log.getStackTraceString(ignored));
+        } finally {
+        }
     }
 
     public boolean isShowing() {
