@@ -892,7 +892,7 @@ public class XAshmanManager {
         }
     }
 
-    public void onTaskRemoving(int callingUid, int taskId) {
+       public void onTaskRemoving(int callingUid, int taskId) {
         ensureService();
         try {
             mService.onTaskRemoving(callingUid, taskId);

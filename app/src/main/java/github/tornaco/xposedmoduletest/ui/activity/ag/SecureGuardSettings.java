@@ -56,6 +56,7 @@ public class SecureGuardSettings extends GuardSettingsActivity {
 
                 final boolean verifyOnHome = verifySettings.isVerifyOnAppSwitch();
                 SwitchPreference homePref = (SwitchPreference) findPreference("ver_on_home");
+                homePref.setChecked(verifyOnHome);
                 homePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -65,7 +66,7 @@ public class SecureGuardSettings extends GuardSettingsActivity {
                         return true;
                     }
                 });
-                homePref.setChecked(verifyOnHome);
+
                 boolean verifyOnScreen = verifySettings != null && verifySettings.isVerifyOnScreenOff();
                 SwitchPreference screenPref = (SwitchPreference) findPreference("ver_on_screenoff");
                 screenPref.setChecked(verifyOnScreen);
@@ -74,6 +75,19 @@ public class SecureGuardSettings extends GuardSettingsActivity {
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean v = (boolean) newValue;
                         verifySettings.setVerifyOnScreenOff(v);
+                        XAppGuardManager.get().setVerifySettings(verifySettings);
+                        return true;
+                    }
+                });
+
+                boolean verifyOnTaskRemoved = verifySettings != null && verifySettings.isVerifyOnTaskRemoved();
+                SwitchPreference taskPref = (SwitchPreference) findPreference("ver_on_task_removed");
+                taskPref.setChecked(verifyOnTaskRemoved);
+                taskPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        boolean v = (boolean) newValue;
+                        verifySettings.setVerifyOnTaskRemoved(v);
                         XAppGuardManager.get().setVerifySettings(verifySettings);
                         return true;
                     }

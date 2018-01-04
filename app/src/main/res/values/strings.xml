@@ -330,5 +330,7 @@
     <string name="title_do_not_kill_sbn_app">保护有通知的应用</string>
     <string name="summary_do_not_kill_sbn_app">不对有通知消息的应用进行锁屏清理，返回强退，最近任务划掉强退，长按返回强退。</string>
     <string name="title_app_tr_kill">划卡强退</string>
+    <string name="summary_verify_on_task_removed">当应用从最近任务卡片中划掉时，该应用下次启动需要重新验证。</string>
+    <string name="title_ver_on_task_removed">后台卡片划掉重新验证</string>
 
 </resources>

@@ -92,6 +92,7 @@ import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.util.ArrayUtil;
 import github.tornaco.xposedmoduletest.util.GsonUtil;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
+import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
@@ -3038,6 +3039,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     XposedLog.verbose("removeTask, pkgOfThisTask: " + pkgOfThisTask);
 
                     if (pkgOfThisTask != null) {
+
+                        // Tell app guard service to clean up verify res.
+                        if (XAppGuardManager.get().isServiceAvailable()) {
+                            XAppGuardManager.get().onTaskRemoving(pkgOfThisTask);
+                        }
 
                         if (!shouldTRKPackage(pkgOfThisTask)) {
                             XposedLog.verbose("removeTask TRKPackage not enabled for this package");

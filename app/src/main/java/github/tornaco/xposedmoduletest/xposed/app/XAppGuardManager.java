@@ -395,6 +395,7 @@ public class XAppGuardManager {
     }
 
     public int getBlurRadius() {
+        ensureService();
         try {
             return mService.getBlurRadius();
         } catch (RemoteException e) {
@@ -404,8 +405,18 @@ public class XAppGuardManager {
     }
 
     public void setBlurRadius(int r) {
+        ensureService();
         try {
             mService.setBlurRadius(r);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public void onTaskRemoving(String pkg) {
+        ensureService();
+        try {
+            mService.onTaskRemoving(pkg);
         } catch (RemoteException e) {
 
         }

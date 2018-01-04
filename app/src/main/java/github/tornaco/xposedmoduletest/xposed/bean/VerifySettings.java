@@ -26,10 +26,12 @@ public class VerifySettings implements Parcelable, Cloneable {
 
     private boolean verifyOnScreenOff;
     private boolean verifyOnAppSwitch;
+    private boolean verifyOnTaskRemoved;
 
     protected VerifySettings(Parcel in) {
         verifyOnScreenOff = in.readByte() != 0;
         verifyOnAppSwitch = in.readByte() != 0;
+        verifyOnTaskRemoved = in.readByte() != 0;
     }
 
     public static final Creator<VerifySettings> CREATOR = new Creator<VerifySettings>() {
@@ -53,6 +55,7 @@ public class VerifySettings implements Parcelable, Cloneable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeByte((byte) (verifyOnScreenOff ? 1 : 0));
         dest.writeByte((byte) (verifyOnAppSwitch ? 1 : 0));
+        dest.writeByte((byte) (verifyOnTaskRemoved ? 1 : 0));
     }
 
     public String formatJson() {

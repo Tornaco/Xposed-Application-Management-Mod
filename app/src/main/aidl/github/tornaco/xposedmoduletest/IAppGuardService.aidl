@@ -66,4 +66,6 @@ interface IAppGuardService {
     void addOrRemoveUPApps(in String[] packages, boolean add);
 
     void restoreDefaultSettings();
+
+    void onTaskRemoving(String pkg);
 }

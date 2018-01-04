@@ -872,6 +872,12 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     @Override
+    public void onTaskRemoving(String pkg) throws RemoteException {
+        mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_ONAPPTASKREMOVED,
+                pkg).sendToTarget();
+    }
+
+    @Override
     @BinderCall
     public boolean isEnabled() {
         enforceCallingPermissions();
@@ -1108,6 +1114,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 case AppGuardServiceHandlerMessages.MSG_WARNIFDEBUG:
                     AppGuardServiceHandlerImpl.this.warnIfDebug();
                     break;
+                case AppGuardServiceHandlerMessages.MSG_ONAPPTASKREMOVED:
+                    AppGuardServiceHandlerImpl.this.onAppTaskRemoved((String) msg.obj);
+                    break;
                 default:
                     if (msg.obj == null) return;
                     AppGuardServiceHandlerImpl.this.setResult((Integer) msg.obj,
@@ -1318,6 +1327,17 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 if (clearOnAppSwitch) {
                     mVerifiedPackages.clear();
                     mVerifiedPackages.add(who);
+                }
+            }
+        }
+
+        @Override
+        public void onAppTaskRemoved(String pkg) {
+            XposedLog.verbose("onAppTaskRemoved: " + pkg);
+            if (mVerifySettings != null) {
+                boolean clearOnTaskRemoved = mVerifySettings.isVerifyOnTaskRemoved();
+                if (clearOnTaskRemoved) {
+                    mVerifiedPackages.remove(pkg);
                 }
             }
         }

@@ -44,4 +44,6 @@ interface AppGuardServiceHandler {
     void restoreDefaultSettings();
 
     void warnIfDebug();
+
+    void onAppTaskRemoved(String pkg);
 }

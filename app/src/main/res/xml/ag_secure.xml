@@ -41,6 +41,13 @@
             android:persistent="false"
             android:summary="@string/summary_verify_on_screenoff"
             android:title="@string/title_ver_on_screenoff" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="ver_on_task_removed"
+            android:persistent="false"
+            android:summary="@string/summary_verify_on_task_removed"
+            android:title="@string/title_ver_on_task_removed" />
     </PreferenceCategory>
 
 </PreferenceScreen>
