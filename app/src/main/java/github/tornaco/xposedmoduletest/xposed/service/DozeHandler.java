@@ -20,4 +20,6 @@ interface DozeHandler {
     void setDozeDelayMills(long delayMills);
 
     void setDozeEnabled(boolean enable);
+
+    void updateDozeEndState();
 }

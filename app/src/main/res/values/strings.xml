@@ -319,7 +319,7 @@
     <string name="title_battery">电池</string>
     <string name="title_state">状态</string>
     <string name="title_last_doze">Doze记录</string>
-    <string name="summary_last_doze">自此次开机以来，上次由应用管理催使系统在灭屏后进入DOZE模式的时间是 %1$s</string>
+    <string name="summary_last_doze">上次灭屏后，由应用管理催使系统尽快进入DOZE模式的时间是 %1$s，此次DOZE持续时间 %2$s</string>
     <string name="summary_last_doze_unknown">暂无</string>
     <string name="summary_delay_unknown">未知</string>
     <string name="summary_delay_mills">%1$s毫秒</string>

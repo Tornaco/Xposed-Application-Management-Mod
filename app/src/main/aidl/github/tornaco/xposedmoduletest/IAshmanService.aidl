@@ -5,6 +5,7 @@ import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
+import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 
 
 interface IAshmanService {
@@ -175,7 +176,11 @@ interface IAshmanService {
     void setDozeEnabled(boolean enable);
     boolean isDozeEnabled();
 
+    // Deperacated, please use getLastDozeEvent instead.
     long getLastDozeEnterTimeMills();
+
+    DozeEvent getLastDozeEvent();
+
     long getDozeDelayMills();
     void setDozeDelayMills(long delayMills);
 }

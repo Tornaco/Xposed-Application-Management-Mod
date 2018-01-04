@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.pm.PackageManager;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.support.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
 
@@ -19,6 +20,7 @@ import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
+import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 
 /**
  * Created by guohao4 on 2017/11/9.
@@ -795,6 +797,7 @@ public class XAshmanManager {
     }
 
     public boolean isAppCrashDumpEnabled() {
+        ensureService();
         try {
             return mService.isAppCrashDumpEnabled();
         } catch (RemoteException e) {
@@ -803,6 +806,7 @@ public class XAshmanManager {
     }
 
     public void setAppCrashDumpEnabled(boolean enabled) {
+        ensureService();
         try {
             mService.setAppCrashDumpEnabled(enabled);
         } catch (RemoteException ignored) {
@@ -811,6 +815,7 @@ public class XAshmanManager {
     }
 
     public void registerOnTopPackageChangeListener(ITopPackageChangeListener listener) {
+        ensureService();
         try {
             mService.registerOnTopPackageChangeListener(listener);
         } catch (RemoteException ignored) {
@@ -818,6 +823,7 @@ public class XAshmanManager {
     }
 
     public void unRegisterOnTopPackageChangeListener(ITopPackageChangeListener listener) {
+        ensureService();
         try {
             mService.unRegisterOnTopPackageChangeListener(listener);
         } catch (RemoteException ignored) {
@@ -826,6 +832,7 @@ public class XAshmanManager {
     }
 
     public boolean isLazyModeEnabled() {
+        ensureService();
         try {
             return mService.isLazyModeEnabled();
         } catch (RemoteException e) {
@@ -834,6 +841,7 @@ public class XAshmanManager {
     }
 
     public boolean isLazyModeEnabledForPackage(String pkg) {
+        ensureService();
         try {
             return mService.isLazyModeEnabledForPackage(pkg);
         } catch (RemoteException e) {
@@ -842,6 +850,7 @@ public class XAshmanManager {
     }
 
     public void setLazyModeEnabled(boolean enabled) {
+        ensureService();
         try {
             mService.setLazyModeEnabled(enabled);
         } catch (RemoteException ignored) {
@@ -849,6 +858,7 @@ public class XAshmanManager {
     }
 
     public String[] getLazyApps(boolean lazy) {
+        ensureService();
         try {
             return mService.getLazyApps(lazy);
         } catch (RemoteException e) {
@@ -857,6 +867,7 @@ public class XAshmanManager {
     }
 
     public void addOrRemoveLazyApps(String[] packages, int op) {
+        ensureService();
         try {
             mService.addOrRemoveLazyApps(packages, op);
         } catch (RemoteException ignored) {
@@ -864,6 +875,7 @@ public class XAshmanManager {
     }
 
     public void setLPBKEnabled(boolean enabled) {
+        ensureService();
         try {
             mService.setLPBKEnabled(enabled);
         } catch (RemoteException ignored) {
@@ -872,6 +884,7 @@ public class XAshmanManager {
     }
 
     public boolean isLPBKEnabled() {
+        ensureService();
         try {
             return mService.isLPBKEnabled();
         } catch (RemoteException ignored) {
@@ -880,6 +893,7 @@ public class XAshmanManager {
     }
 
     public void onTaskRemoving(int callingUid, int taskId) {
+        ensureService();
         try {
             mService.onTaskRemoving(callingUid, taskId);
         } catch (RemoteException ignored) {
@@ -888,6 +902,7 @@ public class XAshmanManager {
     }
 
     public void addOrRemoveAppFocusAction(String pkg, String[] actions, boolean add) {
+        ensureService();
         try {
             mService.addOrRemoveAppFocusAction(pkg, actions, add);
         } catch (RemoteException e) {
@@ -896,6 +911,7 @@ public class XAshmanManager {
     }
 
     public void addOrRemoveAppUnFocusAction(String pkg, String[] actions, boolean add) {
+        ensureService();
         try {
             mService.addOrRemoveAppUnFocusAction(pkg, actions, add);
         } catch (RemoteException e) {
@@ -904,6 +920,7 @@ public class XAshmanManager {
     }
 
     public String[] getAppFocusActionPackages() {
+        ensureService();
         try {
             return mService.getAppFocusActionPackages();
         } catch (RemoteException e) {
@@ -912,6 +929,7 @@ public class XAshmanManager {
     }
 
     public String[] getAppFocusActions(String pkg) {
+        ensureService();
         try {
             return mService.getAppFocusActions(pkg);
         } catch (RemoteException e) {
@@ -920,6 +938,7 @@ public class XAshmanManager {
     }
 
     public String[] getAppUnFocusActionPackages() {
+        ensureService();
         try {
             return mService.getAppUnFocusActionPackages();
         } catch (RemoteException e) {
@@ -928,6 +947,7 @@ public class XAshmanManager {
     }
 
     public String[] getAppUnFocusActions(String pkg) {
+        ensureService();
         try {
             return mService.getAppUnFocusActions(pkg);
         } catch (RemoteException e) {
@@ -936,6 +956,7 @@ public class XAshmanManager {
     }
 
     public long getLastDozeEnterTimeMills() {
+        ensureService();
         try {
             return mService.getLastDozeEnterTimeMills();
         } catch (RemoteException e) {
@@ -943,7 +964,18 @@ public class XAshmanManager {
         }
     }
 
+    @Nullable
+    public DozeEvent getLastDozeEvent() {
+        ensureService();
+        try {
+            return mService.getLastDozeEvent();
+        } catch (RemoteException e) {
+            return null;
+        }
+    }
+
     public void setDozeEnabled(boolean enable) {
+        ensureService();
         try {
             mService.setDozeEnabled(enable);
         } catch (RemoteException e) {
@@ -952,6 +984,7 @@ public class XAshmanManager {
     }
 
     public boolean isDozeEnabled() {
+        ensureService();
         try {
             return mService.isDozeEnabled();
         } catch (RemoteException e) {
@@ -960,6 +993,7 @@ public class XAshmanManager {
     }
 
     public long getDozeDelayMills() {
+        ensureService();
         try {
             return mService.getDozeDelayMills();
         } catch (RemoteException e) {
@@ -968,6 +1002,7 @@ public class XAshmanManager {
     }
 
     public void setDozeDelayMills(long delayMills) {
+        ensureService();
         try {
             mService.setDozeDelayMills(delayMills);
         } catch (RemoteException e) {

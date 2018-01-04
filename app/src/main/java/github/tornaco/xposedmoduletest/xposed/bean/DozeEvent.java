@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.xposed.service.doze;
+package github.tornaco.xposedmoduletest.xposed.bean;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Created by guohao4 on 2018/1/3.
@@ -14,12 +16,15 @@ import lombok.NoArgsConstructor;
  */
 @Builder
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DozeEvent implements Parcelable {
+@ToString
+public class DozeEvent implements Parcelable, Cloneable {
 
     public static final int RESULT_SUCCESS = 0x1;
     public static final int RESULT_FAIL = 0x2;
+    public static final int RESULT_UNKNOWN = 0x3;
 
     public static final int FAIL_UNKNOWN = 0x100;
     public static final int FAIL_DEVICE_INTERACTIVE = 0x101;
@@ -62,5 +67,13 @@ public class DozeEvent implements Parcelable {
         dest.writeLong(startTimeMills);
         dest.writeLong(enterTimeMills);
         dest.writeLong(endTimeMills);
+    }
+
+    public DozeEvent duplicate() {
+        try {
+            return (DozeEvent) clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
     }
 }
