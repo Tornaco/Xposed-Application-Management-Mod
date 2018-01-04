@@ -41,6 +41,7 @@ import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.service.notification.StatusBarNotification;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationManagerCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -51,7 +52,6 @@ import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
 
 import com.android.internal.os.Zygote;
 import com.google.common.base.Preconditions;
@@ -89,6 +89,8 @@ import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.ui.widget.ClickableToastManager;
+import github.tornaco.xposedmoduletest.ui.widget.FloatView;
 import github.tornaco.xposedmoduletest.util.ArrayUtil;
 import github.tornaco.xposedmoduletest.util.GsonUtil;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
@@ -652,13 +654,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
-        try {
-            boolean showFocusedActivity = (boolean) SystemSettings.SHOW_FOCUSED_ACTIVITY_INFO_B.readFromSystemSettings(getContext());
-            mShowFocusedActivityInfoEnabled.set(showFocusedActivity);
-            XposedLog.boot("showFocusedActivity: " + String.valueOf(showFocusedActivity));
-        } catch (Throwable e) {
-            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
-        }
+        // Do not read from settings anymore, this is dangerous...
+//        try {
+//            boolean showFocusedActivity = (boolean) SystemSettings.SHOW_FOCUSED_ACTIVITY_INFO_B.readFromSystemSettings(getContext());
+//            mShowFocusedActivityInfoEnabled.set(showFocusedActivity);
+//            XposedLog.boot("showFocusedActivity: " + String.valueOf(showFocusedActivity));
+//        } catch (Throwable e) {
+//            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+//        }
 
         try {
             boolean lockKillDoNotKillAudioEnabled = (boolean) SystemSettings.LOCK_KILL_DONT_KILL_AUDIO_ENABLED_B
@@ -3617,9 +3620,52 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return ActivityManagerNative.getDefault();
     }
 
-    // For debug.
-    private Toast mDebugToast;
     private ComponentName mFocusedCompName;
+
+    private ClickableToastManager.OnToastClickListener mOnToastClickListener
+            = new ClickableToastManager.OnToastClickListener() {
+        @Override
+        public void onToastClick(String text) {
+            // Do not crash anyway.
+            try {
+                ClipboardManager cmb = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                if (cmb != null) {
+                    cmb.setPrimaryClip(ClipData.newPlainText("service_config", text));
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+    };
+
+    private FloatView.Callback mFloatCallback = new FloatView.Callback() {
+        @Override
+        public void onSingleTap(String text) {
+            XposedLog.verbose("onSingleTap:" + text);
+            mOnToastClickListener.onToastClick(text);
+        }
+
+        @Override
+        public void onDoubleTap() {
+            XposedLog.verbose("onDoubleTap");
+        }
+
+        @Override
+        public void onSwipeDirection(@NonNull FloatView.SwipeDirection direction) {
+            XposedLog.verbose("onSwipeDirection");
+        }
+
+        @Override
+        public void onSwipeDirectionLargeDistance(@NonNull FloatView.SwipeDirection direction) {
+            XposedLog.verbose("onSwipeDirectionLargeDistance");
+        }
+
+        @Override
+        public void onLongPress() {
+            XposedLog.verbose("onLongPress");
+        }
+    };
+
+    private FloatView mFloatView;
 
     private Runnable toastRunnable = new Runnable() {
         @Override
@@ -3627,14 +3673,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             ComponentName c = mFocusedCompName;
             if (c != null) {
                 try {
-                    if (mDebugToast != null) {
-                        mDebugToast.cancel();
+                    if (mFloatView == null) {
+                        mFloatView = new FloatView(getContext(), mFloatCallback);
+                        mFloatView.attach();
+                        mFloatView.show();
                     }
-                    mDebugToast = Toast.makeText(getContext(),
-                            "应用管理 调试模式：\n" +
-                                    c.flattenToString(), Toast.LENGTH_LONG);
-                    mDebugToast.show();
+                    String raw = c.flattenToString();
+                    mFloatView.setText(raw);
                 } catch (Throwable ignored) {
+                    Log.e(XposedLog.TAG_PREFIX, "toastRunnable: " + Log.getStackTraceString(ignored));
                 }
             }
         }
@@ -4178,6 +4225,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setShowFocusedActivityInfoEnabled(boolean enabled) {
             if (mShowFocusedActivityInfoEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.SHOW_FOCUSED_ACTIVITY_INFO_B.writeToSystemSettings(getContext(), enabled);
+            }
+            if (!enabled) {
+                if (mFloatView != null) {
+                    try {
+                        mFloatView.hideAndDetach();
+                        mFloatView = null;
+                    } catch (Throwable e) {
+                        XposedLog.wtf("Fail detach float view: " + Log.getStackTraceString(e));
+                    }
+                }
             }
         }
 

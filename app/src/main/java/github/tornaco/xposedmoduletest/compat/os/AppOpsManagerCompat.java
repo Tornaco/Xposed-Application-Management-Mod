@@ -384,7 +384,7 @@ public final class AppOpsManagerCompat {
     public static final String OPSTR_GET_USAGE_STATS
             = "android:get_usage_stats";
     /**
-     * Activate a VPN connection without user intervention. @hide
+     * Activate a VPN connection without user intervention. @hideAndDetach
      */
     public static final String OPSTR_ACTIVATE_VPN
             = "android:activate_vpn";
@@ -784,7 +784,7 @@ public final class AppOpsManagerCompat {
             null, // no permission for changing accessibility volume
             Manifest.permission.READ_PHONE_NUMBERS,
             Manifest.permission.REQUEST_INSTALL_PACKAGES,
-            null, // no permission for entering picture-in-picture on hide
+            null, // no permission for entering picture-in-picture on hideAndDetach
             Manifest.permission.INSTANT_APP_FOREGROUND_SERVICE,
             Manifest.permission.ANSWER_PHONE_CALLS,
 

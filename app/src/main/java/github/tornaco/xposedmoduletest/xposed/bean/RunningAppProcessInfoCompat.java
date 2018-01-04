@@ -375,7 +375,7 @@ public class RunningAppProcessInfoCompat implements Parcelable {
 
     /**
      * When {@link #importanceReasonPid} is non-0, this is the importance
-     * of the other pid. @hide
+     * of the other pid. @hideAndDetach
      */
     public int importanceReasonImportance;
 
