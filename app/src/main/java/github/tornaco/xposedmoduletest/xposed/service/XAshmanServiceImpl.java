@@ -805,6 +805,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             // We are not in doze mode now, will start to doze.
             if (!alreadyInDoze) {
+                mDeviceIdleController.setForceIdle(true);
+                XposedLog.verbose("isForceIdle: " + mDeviceIdleController.isForceIdle());
                 onDozeEnterStart();
             }
 

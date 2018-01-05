@@ -129,6 +129,14 @@ public class DeviceIdleControllerProxy {
 
     private Object deviceIdleController;
 
+    public void setForceIdle(boolean force) {
+        try {
+            XposedHelpers.setObjectField(deviceIdleController, "mForceIdle", force);
+        } catch (Exception e) {
+            XposedLog.wtf("deviceIdleController call fail: " + Log.getStackTraceString(e));
+        }
+    }
+
     public void stepIdleStateLocked() {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
             XposedLog.verbose("deviceIdleController for M");
@@ -153,6 +161,15 @@ public class DeviceIdleControllerProxy {
         } catch (Throwable e) {
             XposedLog.wtf("getState call fail: " + Log.getStackTraceString(e));
             return STATE_UNKNOWN;
+        }
+    }
+
+    public boolean isForceIdle() {
+        try {
+            return XposedHelpers.getBooleanField(deviceIdleController, "mForceIdle");
+        } catch (Throwable e) {
+            XposedLog.wtf("isForceIdle call fail: " + Log.getStackTraceString(e));
+            return false;
         }
     }
 }
