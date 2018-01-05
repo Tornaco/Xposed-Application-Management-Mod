@@ -7,6 +7,7 @@ import android.app.ActivityManagerNative;
 import android.app.AlertDialog;
 import android.app.IActivityManager;
 import android.app.IAppTask;
+import android.app.IApplicationThread;
 import android.app.KeyguardManager;
 import android.app.Notification;
 import android.content.BroadcastReceiver;
@@ -996,6 +997,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             return true;
         }
+    }
+
+    @Override
+    public boolean checkBroadcastIntent(IApplicationThread caller, Intent intent) {
+        if (BuildConfig.DEBUG) {
+            int callingUid = Binder.getCallingUid();
+            XposedLog.verbose("checkBroadcastIntent: %s, callingUid %s", intent, callingUid);
+        }
+        return true;
     }
 
     @Override

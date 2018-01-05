@@ -168,6 +168,11 @@ public class PkgUtil {
                 || (uid > UserHandle.PER_USER_RANGE && (uid % UserHandle.PER_USER_RANGE <= 2000));
     }
 
+    public static boolean isSystemCall(int uid) {
+        return uid == 1000
+                || (uid > UserHandle.PER_USER_RANGE && (uid % UserHandle.PER_USER_RANGE == 1000));
+    }
+
     public static boolean isSystemApp(Context context, String pkg) {
         if ("android".equals(pkg)) return true;
         PackageManager pm = context.getPackageManager();

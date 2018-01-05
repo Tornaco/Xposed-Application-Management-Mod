@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
+import android.app.IApplicationThread;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.RemoteException;

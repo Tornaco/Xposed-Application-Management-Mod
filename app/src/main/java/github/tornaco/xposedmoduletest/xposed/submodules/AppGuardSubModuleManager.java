@@ -42,6 +42,8 @@ public class AppGuardSubModuleManager {
         addToSubsChecked(new PMSSubModule());
         addToSubsChecked(new TaskMoverSubModuleDelegate());
         addToSubsChecked(new ActivityStartSubModuleDelegate());
+
+        addToSubsChecked(new AMSSubModule12());
         addToSubsChecked(new AMSSubModule5());
         addToSubsChecked(new AMSSubModule4());
         addToSubsChecked(new AMSSubModule3());

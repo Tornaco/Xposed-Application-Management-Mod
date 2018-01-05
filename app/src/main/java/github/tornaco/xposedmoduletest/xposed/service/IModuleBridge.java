@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
+import android.app.IApplicationThread;
 import android.content.Context;
 import android.content.Intent;
 import android.view.KeyEvent;
@@ -31,4 +32,11 @@ public interface IModuleBridge {
     String serial();
 
     boolean onKeyEvent(KeyEvent keyEvent, String source);
+
+    boolean checkBroadcastIntent(IApplicationThread caller,
+                                 Intent intent
+//            , String resolvedType, IIntentReceiver resultTo,
+//                                 int resultCode, String resultData, Bundle map,
+//                                 String requiredPermission, int appOp, boolean serialized, boolean sticky, int userId
+    );
 }

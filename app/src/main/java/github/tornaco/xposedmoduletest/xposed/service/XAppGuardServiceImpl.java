@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.xposed.service;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.IApplicationThread;
 import android.app.KeyguardManager;
 import android.app.Notification;
 import android.content.ActivityNotFoundException;
@@ -644,6 +645,20 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     public boolean onKeyEvent(KeyEvent keyEvent, String source) {
         // Nothing to do.
         return false;
+    }
+
+    // FIXME Below is a good way to receive screen broadcast, try it.
+    @Override
+    public boolean checkBroadcastIntent(IApplicationThread caller, Intent intent) {
+        // Do not debug because ash alreay do it.
+//        int callingUid = Binder.getCallingUid();
+//        if (PkgUtil.isSystemCall(callingUid)) {
+//            if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())
+//                    || Intent.ACTION_USER_PRESENT.equals(intent.getAction())) {
+//                mScreenReceiver.onReceive(getContext(), intent);
+//            }
+//        }
+        return true;
     }
 
     @Override
