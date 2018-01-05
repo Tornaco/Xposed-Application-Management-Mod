@@ -895,10 +895,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         @Override
         public void enterIdleMode() {
-            if (!isDeviceStateReadyToDoze()) {
+            int preCheckCode = isDeviceStateReadyToDoze();
+            if (preCheckCode != DozeEvent.FAIL_NOOP) {
                 XposedLog.wtf(XposedLog.TAG_DOZE + "Device not ready!!!");
                 // Add to events.
-                onDozeEnterFail(FAIL_DEVICE_INTERACTIVE);
+                onDozeEnterFail(preCheckCode);
                 return;
             }
 
@@ -981,21 +982,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
         }
 
-        private boolean isDeviceStateReadyToDoze() {
+        private int isDeviceStateReadyToDoze() {
             XposedLog.verbose("isDeviceStateReadyToDoze: " + mBatteryState);
-            if (mBatteryState == null) return false;
+            if (mBatteryState == null) return DozeEvent.FAIL_NOOP;
 
-//            int state = mBatteryState.getStatus();
-//            if (state == BatteryManager.BATTERY_STATUS_CHARGING
-//                    || state == BatteryManager.BATTERY_STATUS_UNKNOWN) {
-//                return false;
-//            }
+            int state = mBatteryState.getStatus();
+            if (state == BatteryManager.BATTERY_STATUS_CHARGING
+                    || state == BatteryManager.BATTERY_STATUS_UNKNOWN) {
+                return DozeEvent.FAIL_POWER_CHARGING;
+            }
 
             PowerManager powerManager = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
             boolean isInteractive = powerManager != null && powerManager.isInteractive();
-            if (isInteractive) return false;
+            if (isInteractive) return DozeEvent.FAIL_DEVICE_INTERACTIVE;
 
-            return true;
+            return DozeEvent.FAIL_NOOP;
         }
     }
 
