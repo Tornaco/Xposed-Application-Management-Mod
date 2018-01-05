@@ -892,7 +892,7 @@ public class XAshmanManager {
         }
     }
 
-       public void onTaskRemoving(int callingUid, int taskId) {
+    public void onTaskRemoving(int callingUid, int taskId) {
         ensureService();
         try {
             mService.onTaskRemoving(callingUid, taskId);
@@ -1057,6 +1057,14 @@ public class XAshmanManager {
             mService.addOrRemoveTRKApps(packages, op);
         } catch (RemoteException e) {
 
+        }
+    }
+
+    public List<DozeEvent> getDozeEventHistory() {
+        try {
+            return mService.getDozeEventHistory();
+        } catch (RemoteException e) {
+            return new ArrayList<>(0);
         }
     }
 }

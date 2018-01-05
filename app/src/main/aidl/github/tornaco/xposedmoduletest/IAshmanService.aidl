@@ -193,4 +193,6 @@ interface IAshmanService {
     // Get or Add task remove kill apps.
     String[] getTRKApps(boolean kill);
     void addOrRemoveTRKApps(in String[] packages, int op);
+
+    List<DozeEvent> getDozeEventHistory();
 }

@@ -22,7 +22,9 @@ import lombok.ToString;
 @ToString
 public class VerifySettings implements Parcelable, Cloneable {
 
-    public static final String KEY_SETTINGS = "tornaco.ag_verify";
+    public static final VerifySettings DEFAULT_SETTINGS = new VerifySettings(true, false, true);
+
+    public static final String KEY_SETTINGS = "tor.ag_verify";
 
     private boolean verifyOnScreenOff;
     private boolean verifyOnAppSwitch;
@@ -70,7 +72,8 @@ public class VerifySettings implements Parcelable, Cloneable {
         try {
             return new Gson().fromJson(str, VerifySettings.class);
         } catch (Exception e) {
-            return null;
+            // Default settings.
+            return new VerifySettings(true, false, true);
         }
     }
 

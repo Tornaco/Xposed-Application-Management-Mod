@@ -68,6 +68,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -767,6 +768,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private final DozeEvent mLastDozeEvent = new DozeEvent();
 
+    private final static int MAX_DOZE_HISTORY_SIZE = 20;
+
+    private final LinkedList<DozeEvent> mDozeHistory = new LinkedList<>();
+
     private final Object mDozeLock = new Object();
 
     // This should be executed on worker thread.
@@ -778,13 +783,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.verbose(XposedLog.TAG_DOZE + "mDozeStepper execute");
 
             if (mDeviceIdleController == null) {
-                XposedLog.wtf(XposedLog.TAG_DOZE + "Calling postEnterIdleMode with mDeviceIdleController is null");
+                XposedLog.wtf(XposedLog.TAG_DOZE
+                        + "Calling postEnterIdleMode with mDeviceIdleController is null");
                 return;
             }
 
             final AtomicInteger enterDozeTryingTimes = new AtomicInteger(0);
 
             boolean alreadyInDoze = DozeStateRetriever.isDeviceIdleMode(getContext());
+
+            // We are not in doze mode now, will start to doze.
+            if (!alreadyInDoze) {
+                onDozeEnterStart();
+            }
+
             while (!alreadyInDoze) {
 
                 if (enterDozeTryingTimes.get() > MAX_RETRY_TIME_TO_SIZE) {
@@ -1063,6 +1075,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
+    private void onDozeEnterStart() {
+        // Save to history first.
+        addToDozeHistory(mLastDozeEvent.duplicate());
+
+        synchronized (mDozeLock) {
+            mLastDozeEvent.setStartTimeMills(System.currentTimeMillis());
+            mLastDozeEvent.setResult(DozeEvent.RESULT_PENDING);
+        }
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("onDozeEnterStart: " + mLastDozeEvent);
+        }
+    }
+
     private void onDozeEnterSuccess() {
         synchronized (mDozeLock) {
             mLastDozeEvent.setEnterTimeMills(System.currentTimeMillis());
@@ -1099,6 +1124,24 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("onDozeEnd: " + mLastDozeEvent);
+        }
+    }
+
+    private void addToDozeHistory(DozeEvent event) {
+        synchronized (mDozeHistory) {
+            checkDozeHistorySize();
+            mDozeHistory.addFirst(event);
+        }
+    }
+
+    // If history larger than MAX, remove last one.
+    private void checkDozeHistorySize() {
+        synchronized (mDozeHistory) {
+            int size = mDozeHistory.size();
+            XposedLog.verbose("checkDozeHistorySize: " + size);
+            if (size > MAX_DOZE_HISTORY_SIZE) {
+                mDozeHistory.removeLast();
+            }
         }
     }
 
@@ -3332,6 +3375,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
         addOrRemoveFromRepo(packages, mRepoProxy.getTrks(), op == XAshmanManager.Op.ADD);
+    }
+
+    @Override
+    @BinderCall
+    public List<DozeEvent> getDozeEventHistory() throws RemoteException {
+        enforceCallingPermissions();
+        synchronized (mDozeHistory) {
+            List<DozeEvent> events = new ArrayList<>(mDozeHistory.size());
+            events.addAll(mDozeHistory);
+            return events;
+        }
     }
 
     private boolean isSystemUIPackage(String pkgName) {

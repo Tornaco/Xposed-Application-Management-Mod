@@ -18,6 +18,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.provider.Settings;
@@ -248,17 +249,23 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             XposedLog.setLogLevel(mDebugEnabled.get() ? XposedLog.LogLevel.ALL : XposedLog.LogLevel.WARN);
 
             ContentResolver resolver = getContext().getContentResolver();
-            if (resolver == null) return;
-            mVerifySettings = VerifySettings.from(Settings.System.getString(resolver, VerifySettings.KEY_SETTINGS));
-
-            if (XposedLog.isVerboseLoggable()) {
-                XposedLog.verbose("mVerifySettings: " + String.valueOf(mVerifySettings));
-                XposedLog.verbose("mUninstallProEnabled: " + String.valueOf(mUninstallProEnabled));
-                XposedLog.verbose("mBlurEnabled: " + String.valueOf(mBlurEnabled));
-                XposedLog.verbose("mInterruptFPSuccessVB: " + String.valueOf(mInterruptFPSuccessVB));
-                XposedLog.verbose("mEnabled: " + String.valueOf(mEnabled));
-                XposedLog.verbose("mBlurRadius: " + String.valueOf(mBlurRadius));
+            if (resolver != null) {
+                mVerifySettings = VerifySettings.from(Settings.System.getString(resolver, VerifySettings.KEY_SETTINGS));
+            } else {
+                XposedLog.boot("resolver is null ,fail retrieve VerifySettings");
             }
+
+            // Use default value.
+            if (mVerifySettings == null) {
+                mVerifySettings = VerifySettings.DEFAULT_SETTINGS;
+            }
+
+            XposedLog.boot("mVerifySettings: " + String.valueOf(mVerifySettings));
+            XposedLog.boot("mUninstallProEnabled: " + String.valueOf(mUninstallProEnabled));
+            XposedLog.boot("mBlurEnabled: " + String.valueOf(mBlurEnabled));
+            XposedLog.boot("mInterruptFPSuccessVB: " + String.valueOf(mInterruptFPSuccessVB));
+            XposedLog.boot("mEnabled: " + String.valueOf(mEnabled));
+            XposedLog.boot("mBlurRadius: " + String.valueOf(mBlurRadius));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -520,7 +527,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     @Override
     public boolean onEarlyVerifyConfirm(String pkg, String res) {
         if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
-            XposedLog.verbose("onEarlyVerifyConfirm: " + res + " calling by: " + Binder.getCallingUid());
+            XposedLog.verbose("onEarlyVerifyConfirm: " + res + " calling by: "
+                    + Binder.getCallingUid());
             Collections.consumeRemaining(mVerifiedPackages, new Consumer<String>() {
                 @Override
                 public void accept(String s) {
@@ -1020,12 +1028,15 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     private void onScreenOff() {
+        XposedLog.verbose("onScreenOff@AppGuard: " + mVerifySettings);
         if (mVerifySettings != null) {
             boolean verifyOnScreenOff = mVerifySettings.isVerifyOnScreenOff();
             if (verifyOnScreenOff) {
-                if (XposedLog.isVerboseLoggable())
+                if (XposedLog.isVerboseLoggable()) {
                     XposedLog.verbose("SCREEN OFF, Clearing passed pkgs...");
+                }
                 mVerifiedPackages.clear();
+                XposedLog.verbose("SCREEN OFF, mVerifiedPackages cleared...");
             }
         }
     }
@@ -1064,7 +1075,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             super.handleMessage(msg);
             int wht = msg.what;
             if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("handleMessage@" + AppGuardServiceHandlerMessages.decodeMessage(wht));
+                XposedLog.verbose("AppGuardServiceHandlerImpl-handleMessage@"
+                        + AppGuardServiceHandlerMessages.decodeMessage(wht));
             switch (wht) {
                 case AppGuardServiceHandlerMessages.MSG_SETENABLED:
                     AppGuardServiceHandlerImpl.this.setEnabled(msg.arg1 == 1);
@@ -1264,6 +1276,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         @Override
         public void onUserPresent() {
             String pkg = mTopActivityPkg.getData();
+            XposedLog.verbose("onUserPresent: " + pkg);
             if (pkg == null) {
                 return;
             }
@@ -1326,11 +1339,19 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
          * @param who Only Keep the switched package.
          */
         private void onAppSwitchedTo(String who) {
+            XposedLog.verbose("onAppSwitchedTo: " + who);
             if (mVerifySettings != null) {
                 boolean clearOnAppSwitch = mVerifySettings.isVerifyOnAppSwitch();
                 if (clearOnAppSwitch) {
                     mVerifiedPackages.clear();
-                    mVerifiedPackages.add(who);
+
+                    // Add to verified list only when screen on.
+                    PowerManager powerManager = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
+                    boolean isScreenOn = powerManager != null && powerManager.isInteractive();
+                    if (isScreenOn) {
+                        XposedLog.verbose("add to verified list when screen id ON");
+                        mVerifiedPackages.add(who);
+                    }
                 }
             }
         }

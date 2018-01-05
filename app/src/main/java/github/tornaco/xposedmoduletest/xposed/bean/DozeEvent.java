@@ -25,6 +25,8 @@ public class DozeEvent implements Parcelable, Cloneable {
     public static final int RESULT_SUCCESS = 0x1;
     public static final int RESULT_FAIL = 0x2;
     public static final int RESULT_UNKNOWN = 0x3;
+    // Just started, wait for steps.
+    public static final int RESULT_PENDING = 0x4;
 
     public static final int FAIL_UNKNOWN = 0x100;
     public static final int FAIL_DEVICE_INTERACTIVE = 0x101;

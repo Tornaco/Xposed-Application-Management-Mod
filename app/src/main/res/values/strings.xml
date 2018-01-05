@@ -322,7 +322,7 @@
     <string name="summary_delay_unknown">未知</string>
     <string name="summary_delay_mills">%1$s毫秒</string>
     <string name="title_delay">延迟</string>
-    <string name="summary_delay">灭屏后催促系统进入打盹模式的延迟为 %1$s</string>
+    <string name="summary_delay">灭屏后催促系统进入打盹模式的延迟为 %1$s，时间不宜过短，5分钟以上体验最佳。</string>
     <string name="title_config">配置</string>
     <string name="summary_delay_config_title">设置延迟时间</string>
     <string name="summary_delay_should_be_positive">延迟时间必须大于零</string>

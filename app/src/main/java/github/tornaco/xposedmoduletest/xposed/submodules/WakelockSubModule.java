@@ -45,18 +45,18 @@ class WakelockSubModule extends IntentFirewallAndroidSubModule {
                             super.beforeHookedMethod(param);
                             String pkgName = AndroidAppHelper.currentPackageName();
 
-                            if (BuildConfig.DEBUG) {
-                                Log.d(XposedLog.TAG_PREFIX, "acquire wakelock: " + pkgName);
-                            }
+//                            if (BuildConfig.DEBUG) {
+//                                Log.d(XposedLog.TAG_PREFIX, "acquire wakelock: " + pkgName);
+//                            }
 
                             // Check Greening.
                             boolean greening = XAshmanManager.get().isServiceAvailable()
                                     && XAshmanManager.get().isPackageGreening(pkgName);
-                            if (BuildConfig.DEBUG) {
-                                Log.d(XposedLog.TAG_PREFIX, "acquire wake lock: "
-                                        + pkgName
-                                        + ", greening: " + greening);
-                            }
+//                            if (BuildConfig.DEBUG) {
+//                                Log.d(XposedLog.TAG_PREFIX, "acquire wake lock: "
+//                                        + pkgName
+//                                        + ", greening: " + greening);
+//                            }
                             if (greening) {
                                 param.setResult(null);
                                 return;
@@ -66,7 +66,7 @@ class WakelockSubModule extends IntentFirewallAndroidSubModule {
                             int mode = XAshmanManager.get().getPermissionControlBlockModeForPkg(
                                     AppOpsManagerCompat.OP_WAKE_LOCK, pkgName);
                             if (mode == AppOpsManagerCompat.MODE_IGNORED) {
-                                XposedLog.verbose("acquire wake lock, MODE_IGNORED returning...");
+//                                XposedLog.verbose("acquire wake lock, MODE_IGNORED returning...");
                                 param.setResult(null);
                             }
                         }
