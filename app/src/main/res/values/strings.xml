@@ -99,9 +99,9 @@
 
     <string name="summary_lock_kill_app">"以下应用在锁屏后会被强行停止。为了提升用户体验，锁屏清理过程中，任何和设备交互的行为都会中断清理过程。\n\n注意，为了防止错过重要通知，默认情况下在对选中应用进行清理时，会跳过有通知消息的应用，你可以到通用设置中更改此项设定。"</string>
 
-    <string name="summary_rf_kill_app">"以下应用在按返回键退出后会被强行停止。\n\n注意，为了防止错过重要通知，默认情况下在对选中应用进行清理时，会跳过有通知消息的应用，你可以到通用设置中更改此项设定。"</string>
+    <string name="summary_rf_kill_app">"以下应用在按返回键退出后会被强行停止。"</string>
 
-    <string name="summary_tr_kill_app">"以下应用在从最近任务划掉后会被强行停止。\n\n注意，为了防止错过重要通知，默认情况下在对选中应用进行清理时，会跳过有通知消息的应用，你可以到通用设置中更改此项设定。"</string>
+    <string name="summary_tr_kill_app">"以下应用在从最近任务划掉后会被强行停止。"</string>
 
     <string name="summary_start_app">"禁止以下应用被其他应用（通过服务或者广播）启动（微信和支付宝建议不要加入，否则可能无法发起付款，输入法建议也不要禁止，否则无法唤起输入）。"</string>
 
@@ -328,7 +328,7 @@
     <string name="summary_delay_should_be_positive">延迟时间必须大于零</string>
     <string name="summary_delay_invalid">输入字符非法，请检查</string>
     <string name="title_do_not_kill_sbn_app">保护有通知的应用</string>
-    <string name="summary_do_not_kill_sbn_app">不对有通知消息的应用进行锁屏清理，返回强退，最近任务划掉强退，长按返回强退。</string>
+    <string name="summary_do_not_kill_sbn_app">不对有通知消息的应用进行锁屏清理。</string>
     <string name="title_app_tr_kill">划卡强退</string>
     <string name="summary_verify_on_task_removed">当应用从最近任务卡片中划掉时，该应用下次启动需要重新验证。</string>
     <string name="title_ver_on_task_removed">后台卡片划掉重新验证</string>

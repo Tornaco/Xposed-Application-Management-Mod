@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.service.doze;
 
+import android.os.Build;
 import android.util.Log;
 
 import de.robv.android.xposed.XposedHelpers;
@@ -129,10 +130,20 @@ public class DeviceIdleControllerProxy {
     private Object deviceIdleController;
 
     public void stepIdleStateLocked() {
-        try {
-            XposedHelpers.callMethod(deviceIdleController, "stepIdleStateLocked", "s:shell");
-        } catch (Throwable e) {
-            XposedLog.wtf("deviceIdleController call fail: " + Log.getStackTraceString(e));
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
+            XposedLog.verbose("deviceIdleController for M");
+            try {
+                XposedHelpers.callMethod(deviceIdleController, "stepIdleStateLocked");
+            } catch (Throwable e) {
+                XposedLog.wtf("deviceIdleController call fail: " + Log.getStackTraceString(e));
+            }
+        } else {
+            XposedLog.verbose("deviceIdleController for N/O");
+            try {
+                XposedHelpers.callMethod(deviceIdleController, "stepIdleStateLocked", "s:shell");
+            } catch (Throwable e) {
+                XposedLog.wtf("deviceIdleController call fail: " + Log.getStackTraceString(e));
+            }
         }
     }
 

@@ -999,7 +999,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             int state = mBatteryState.getStatus();
             if (state == BatteryManager.BATTERY_STATUS_CHARGING
                     || state == BatteryManager.BATTERY_STATUS_UNKNOWN) {
-                return DozeEvent.FAIL_POWER_CHARGING;
+                // Do not block when in debug
+                if (!BuildConfig.DEBUG) {
+                    return DozeEvent.FAIL_POWER_CHARGING;
+                }
             }
 
             PowerManager powerManager = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
@@ -3185,12 +3188,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             return;
                         }
 
-                        boolean doNotKillAppWithSBNEnabled = isDoNotKillSBNEnabled();
-                        XposedLog.verbose("removeTask, doNotKillAppWithSBNEnabled: " + doNotKillAppWithSBNEnabled);
-                        if (doNotKillAppWithSBNEnabled && hasNotificationForPackage(pkgOfThisTask)) {
-                            XposedLog.verbose("removeTask has SBN for this package");
-                            return;
-                        }
+//                        boolean doNotKillAppWithSBNEnabled = isDoNotKillSBNEnabled();
+//                        XposedLog.verbose("removeTask, doNotKillAppWithSBNEnabled: " + doNotKillAppWithSBNEnabled);
+//                        if (doNotKillAppWithSBNEnabled && hasNotificationForPackage(pkgOfThisTask)) {
+//                            XposedLog.verbose("removeTask has SBN for this package");
+//                            return;
+//                        }
 
                         // Now we kill this pkg delay to let am handle first.
                         final String finalPkgOfThisTask = pkgOfThisTask;
@@ -5141,12 +5144,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 return;
             }
 
-            boolean doNotKillAppWithSBNEnabled = isDoNotKillSBNEnabled();
-            XposedLog.verbose("maybeBackLongPressed, doNotKillAppWithSBNEnabled: " + doNotKillAppWithSBNEnabled);
-            if (doNotKillAppWithSBNEnabled && hasNotificationForPackage(targetPackage)) {
-                XposedLog.verbose("maybeBackLongPressed has SBN for this package");
-                return;
-            }
+//            boolean doNotKillAppWithSBNEnabled = isDoNotKillSBNEnabled();
+//            XposedLog.verbose("maybeBackLongPressed, doNotKillAppWithSBNEnabled: " + doNotKillAppWithSBNEnabled);
+//            if (doNotKillAppWithSBNEnabled && hasNotificationForPackage(targetPackage)) {
+//                XposedLog.verbose("maybeBackLongPressed has SBN for this package");
+//                return;
+//            }
 
             boolean mayBeKillThisPackage = getTopPackage() != null && getTopPackage().equals(targetPackage);
             if (mayBeKillThisPackage) {
@@ -5193,13 +5196,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 return;
                             }
 
-                            boolean doNotKillAppWithSBNEnabled = isDoNotKillSBNEnabled();
-                            XposedLog.verbose("killPackageWhenBackPressed, doNotKillAppWithSBNEnabled: "
-                                    + doNotKillAppWithSBNEnabled);
-                            if (doNotKillAppWithSBNEnabled && hasNotificationForPackage(packageName)) {
-                                XposedLog.verbose("killPackageWhenBackPressed has SBN for this package");
-                                return;
-                            }
+//                            boolean doNotKillAppWithSBNEnabled = isDoNotKillSBNEnabled();
+//                            XposedLog.verbose("killPackageWhenBackPressed, doNotKillAppWithSBNEnabled: "
+//                                    + doNotKillAppWithSBNEnabled);
+//                            if (doNotKillAppWithSBNEnabled && hasNotificationForPackage(packageName)) {
+//                                XposedLog.verbose("killPackageWhenBackPressed has SBN for this package");
+//                                return;
+//                            }
 
                             PkgUtil.kill(getContext(), packageName);
                         } catch (Throwable e) {
