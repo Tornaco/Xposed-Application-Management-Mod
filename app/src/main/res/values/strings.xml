@@ -308,7 +308,7 @@
     <string name="message_import_old_comp_replacements">从3.0.6版本开始，为了提升兼容性与适用性，移花接木不再使用ContentProvider做数据通信，如果你刚刚完成从3.0.6之前的版本升级，点击导入按钮，将其导入到现用的数据库中吧。</string>
     <string name="title_import">导入</string>
     <string name="title_backup">数据备份</string>
-    <string name="summary_title_backup">备份本应用的 自启，关联，锁屏清理，返回强退，模糊，应用锁，阻止卸载，乖巧，隐匿 名单设置到外部存储根目录，为了安全起见其他数据（各个功能开关，防火墙设置，组件控制，绿化）暂时不支持备份。移花接木由于比较麻烦，时间有限，后续支持直接再此处备份，当前版本请前往移花接木，单独导出进行备份。</string>
+    <string name="summary_title_backup">备份本应用的 自启，关联，锁屏清理，返回强退，划卡强退，模糊，应用锁，阻止卸载，乖巧，隐匿 名单设置到外部存储根目录，为了安全起见其他数据（各个功能开关，防火墙设置，组件控制，绿化）暂时不支持备份。移花接木由于比较麻烦，时间有限，后续支持直接再此处备份，当前版本请前往移花接木，单独导出进行备份。</string>
     <string name="title_backup_restore_success">完成</string>
     <string name="title_restore">从备份恢复</string>
     <string name="summary_title_restore">选择一个备份文件进行数据恢复。</string>
@@ -317,7 +317,7 @@
     <string name="title_battery">电池</string>
     <string name="title_state">状态</string>
     <string name="title_last_doze">打盹记录</string>
-    <string name="summary_last_doze">上次灭屏后，由应用管理催使系统尽快进入打盹模式的时间是 %1$s，此次打盹持续时间 %2$s</string>
+    <string name="summary_last_doze">上次灭屏后，由应用管理催使系统尽快进入打盹模式的时间是 %1$s，此次打盹持续时间 %2$s，点击查看更早的记录。</string>
     <string name="summary_last_doze_unknown">暂无</string>
     <string name="summary_delay_unknown">未知</string>
     <string name="summary_delay_mills">%1$s毫秒</string>

@@ -58,6 +58,7 @@ public abstract class DataBackup {
         appendStringArray(new File(tmpDir, "start"), ash.getStartBlockApps(true), listener);
         appendStringArray(new File(tmpDir, "lk"), ash.getLKApps(true), listener);
         appendStringArray(new File(tmpDir, "rfk"), ash.getRFKApps(true), listener);
+        appendStringArray(new File(tmpDir, "trk"), ash.getTRKApps(true), listener);
         appendStringArray(new File(tmpDir, "lazy"), ash.getLazyApps(true), listener);
         appendStringArray(new File(tmpDir, "privacy"), ash.getPrivacyList(), listener);
 
@@ -169,6 +170,17 @@ public abstract class DataBackup {
                 br = new BufferedReader(fr);
                 while ((line = br.readLine()) != null) {
                     ash.addOrRemoveRFKApps(new String[]{line}, XAshmanManager.Op.ADD);
+                }
+                Closer.closeQuietly(fr);
+                Closer.closeQuietly(br);
+            }
+
+            // TRK.
+            if (new File(tmpDir, "trk").exists()) {
+                fr = new InputStreamReader(Files.asByteSource(new File(tmpDir, "trk")).openStream());
+                br = new BufferedReader(fr);
+                while ((line = br.readLine()) != null) {
+                    ash.addOrRemoveTRKApps(new String[]{line}, XAshmanManager.Op.ADD);
                 }
                 Closer.closeQuietly(fr);
                 Closer.closeQuietly(br);
