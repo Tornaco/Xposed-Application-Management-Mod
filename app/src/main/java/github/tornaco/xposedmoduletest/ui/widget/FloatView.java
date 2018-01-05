@@ -160,11 +160,13 @@ public class FloatView extends LinearLayout {
         mContainerView.setLayoutParams(layoutParams);
         mContainerView.setPadding(18, 18, 18, 18);
         mContainerView.setBackgroundColor(Color.WHITE);
+        mContainerView.setAlpha(0.6f);
+        setAlpha(0.6f);
         mContainerView.setFocusable(true);
         mContainerView.setClickable(true);
 
         mTextView = new TextView(context);
-        mTextView.setTypeface(Typeface.MONOSPACE);
+        mTextView.setTypeface(Typeface.DEFAULT_BOLD);
         mTextView.setFocusable(true);
         mTextView.setClickable(true);
         mTextView.setTextColor(Color.BLACK);
@@ -257,7 +259,7 @@ public class FloatView extends LinearLayout {
     }
 
     public void setText(String text) {
-        String textToShow = "应用管理-当前活动，点击可复制：\n" + text;
+        String textToShow = "当前活动，长按可移动，点击可复制：\n" + text;
         if (isShowing()) {
             mTextView.setText(textToShow);
         }

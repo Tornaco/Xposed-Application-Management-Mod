@@ -760,7 +760,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
 
     // If we fail into doze, retry in 5min.
-    private static final long REPOST_DOZE_DELAY = 60 * 1000;
+    private static final long REPOST_DOZE_DELAY = 5 * 60 * 1000;
     private static final long END_DOZE_CHECK_DELAY = 2000;
     private static final long SLEEP_INTERVAL_TO_DOZE_MODE = 1000;
     private static final int MAX_RETRY_TIME_TO_SIZE = 12;
@@ -803,7 +803,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 if (enterDozeTryingTimes.get() > MAX_RETRY_TIME_TO_SIZE) {
                     XposedLog.wtf(XposedLog.TAG_DOZE + "Fail enter doze mode after trying max times");
                     // Post doze message again.
-                    postEnterIdleMode(REPOST_DOZE_DELAY);
+                    postEnterIdleMode(mDozeDelay);
 
                     // Add to events.
                     onDozeEnterFail(FAIL_RETRY_TIMEOUT);
@@ -1092,6 +1092,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         synchronized (mDozeLock) {
             mLastDozeEvent.setStartTimeMills(System.currentTimeMillis());
             mLastDozeEvent.setResult(DozeEvent.RESULT_PENDING);
+            mLastDozeEvent.setFailCode(DozeEvent.FAIL_UNKNOWN);
         }
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("onDozeEnterStart: " + mLastDozeEvent);

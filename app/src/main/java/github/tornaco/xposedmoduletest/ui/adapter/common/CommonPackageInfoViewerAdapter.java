@@ -59,7 +59,9 @@ public class CommonPackageInfoViewerAdapter extends CommonPackageInfoAdapter {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onItemClickListener.onItemClick(null, v, holder.getAdapterPosition(), holder.getItemId());
+                if (onItemClickListener!=null){
+                    onItemClickListener.onItemClick(null, v, holder.getAdapterPosition(), holder.getItemId());
+                }
             }
         });
     }

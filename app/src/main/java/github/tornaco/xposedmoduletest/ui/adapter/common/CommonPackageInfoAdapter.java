@@ -113,13 +113,15 @@ public class CommonPackageInfoAdapter
 
         holder.getCheckableImageView().setChecked(false, false);
 
-        GlideApp.with(context)
-                .load(packageInfo)
-                .placeholder(0)
-                .error(R.mipmap.ic_launcher_round)
-                .fallback(R.mipmap.ic_launcher_round)
-                .transition(withCrossFade())
-                .into(holder.getCheckableImageView());
+        if (imageLoadingEnabled()) {
+            GlideApp.with(context)
+                    .load(packageInfo)
+                    .placeholder(0)
+                    .error(R.mipmap.ic_launcher_round)
+                    .fallback(R.mipmap.ic_launcher_round)
+                    .transition(withCrossFade())
+                    .into(holder.getCheckableImageView());
+        }
 
         if (getSelection() >= 0 && position == selection) {
             holder.itemView.setBackgroundColor(highlightColor);
@@ -176,6 +178,10 @@ public class CommonPackageInfoAdapter
     private void onInfoItemLongClickSelected(int position) {
         getCommonPackageInfos().get(position).setChecked(true);
         notifyDataSetChanged();
+    }
+
+    protected boolean imageLoadingEnabled() {
+        return true;
     }
 
     public boolean onBackPressed() {

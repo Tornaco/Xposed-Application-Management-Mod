@@ -71,12 +71,8 @@ public class DozeDelayTile extends QuickTile {
                         XAshmanManager.get().setDozeDelayMills(delay);
 
                         // Update summary.
-                        final long delayMills = XAshmanManager.get()
-                                .isServiceAvailable() ?
-                                XAshmanManager.get().getDozeDelayMills()
-                                : -1;
-                        final String delayMillsStr = delayMills > 0
-                                ? context.getResources().getString(R.string.summary_delay_mills, String.valueOf(delayMills))
+                        final String delayMillsStr = delay > 0
+                                ? context.getResources().getString(R.string.summary_delay_mills, String.valueOf(delay))
                                 : context.getResources().getString(R.string.summary_delay_unknown);
                         getSummaryTextView().setText(context.getResources().getString(R.string.summary_delay, delayMillsStr));
                     }

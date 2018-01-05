@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.ui.tiles.doze;
 
 import android.content.Context;
+import android.view.View;
 
 import org.newstand.logger.Logger;
 
@@ -9,6 +10,7 @@ import java.util.Date;
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.ui.activity.doze.DozeEventHistoryViewerActivity;
 import github.tornaco.xposedmoduletest.util.TimeUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
@@ -45,6 +47,12 @@ public class DozeEnterTile extends QuickTile {
 
         this.summary = context.getResources().getString(R.string.summary_last_doze, enterTimeStr, dozeTime);
         this.iconRes = R.drawable.ic_access_time_black_24dp;
-        this.tileView = new QuickTileView(context, this);
+        this.tileView = new QuickTileView(context, this) {
+            @Override
+            public void onClick(View v) {
+                super.onClick(v);
+                DozeEventHistoryViewerActivity.start(context);
+            }
+        };
     }
 }

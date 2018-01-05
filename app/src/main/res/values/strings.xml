@@ -332,5 +332,13 @@
     <string name="title_app_tr_kill">划卡强退</string>
     <string name="summary_verify_on_task_removed">当应用从最近任务卡片中划掉时，该应用下次启动需要重新验证。</string>
     <string name="title_ver_on_task_removed">后台卡片划掉重新验证</string>
+    <string name="title_doze_history_summary">失败原因 %1$s\n最后尝试进入打盹时设备状态为 %2$s</string>
+    <string name="title_doze_res_fail">失败</string>
+    <string name="title_doze_res_success">成功</string>
+    <string name="title_doze_res_unknown">未知</string>
+    <string name="title_doze_res_pending">推迟</string>
+    <string name="title_doze_fail_device_interactive">设备正处于交互状态</string>
+    <string name="title_doze_fail_device_charging">设备处于充电状态</string>
+    <string name="title_doze_fail_device_max">尝试多次依然无法进入</string>
 
 </resources>

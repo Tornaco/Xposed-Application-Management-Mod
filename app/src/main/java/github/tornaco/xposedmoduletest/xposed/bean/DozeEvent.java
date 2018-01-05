@@ -35,11 +35,13 @@ public class DozeEvent implements Parcelable, Cloneable {
 
     private int result;
     private int failCode;
+    private int lastState;
     private long startTimeMills, enterTimeMills, endTimeMills;
 
     private DozeEvent(Parcel in) {
         result = in.readInt();
         failCode = in.readInt();
+        lastState = in.readInt();
         startTimeMills = in.readLong();
         enterTimeMills = in.readLong();
         endTimeMills = in.readLong();
@@ -66,6 +68,7 @@ public class DozeEvent implements Parcelable, Cloneable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(result);
         dest.writeInt(failCode);
+        dest.writeInt(lastState);
         dest.writeLong(startTimeMills);
         dest.writeLong(enterTimeMills);
         dest.writeLong(endTimeMills);
