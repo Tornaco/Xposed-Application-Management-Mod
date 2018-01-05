@@ -123,6 +123,17 @@ public class PrivacyNavActivity extends CommonPackageInfoListActivity
         return super.onOptionsItemSelected(item);
     }
 
+    public void reload() {
+        getUIThreadHandler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (!isDestroyed()) {
+                    mDash.reload();
+                }
+            }
+        }, 500);
+    }
+
     public static class Dashboards extends DashboardFragment {
 
         public void reload() {

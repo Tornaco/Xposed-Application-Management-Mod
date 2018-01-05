@@ -1,11 +1,12 @@
 package github.tornaco.xposedmoduletest.ui.tiles;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 
-import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.ui.activity.app.PrivacyNavActivity;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
@@ -13,7 +14,7 @@ import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
  * Email: Tornaco@163.com
  */
 
-public class PrivacyIccSerial extends QuickTile {
+public class PrivacyIccSerial extends PrivacyItemTile {
 
     public PrivacyIccSerial(final Context context) {
         super(context);
@@ -27,6 +28,17 @@ public class PrivacyIccSerial extends QuickTile {
             @Override
             public void onClick(View v) {
                 super.onClick(v);
+                showEditTextDialog((Activity) context, new EditTextAction() {
+                    @Override
+                    public void onAction(String text) {
+                        XAshmanManager.get().setUserDefinedLine1Number(text);
+
+
+                        PrivacyNavActivity pa = (PrivacyNavActivity) context;
+                        pa.reload();
+                    }
+                });
+
             }
         };
     }

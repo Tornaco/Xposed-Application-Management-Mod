@@ -1,11 +1,12 @@
 package github.tornaco.xposedmoduletest.ui.tiles;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 
-import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.ui.activity.app.PrivacyNavActivity;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
@@ -13,7 +14,7 @@ import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
  * Email: Tornaco@163.com
  */
 
-public class PrivacyDeviceId extends QuickTile {
+public class PrivacyDeviceId extends PrivacyItemTile {
 
     public PrivacyDeviceId(final Context context) {
         super(context);
@@ -26,6 +27,18 @@ public class PrivacyDeviceId extends QuickTile {
             @Override
             public void onClick(View v) {
                 super.onClick(v);
+
+                showEditTextDialog((Activity) context, new PrivacyItemTile.EditTextAction() {
+                    @Override
+                    public void onAction(String text) {
+                        XAshmanManager.get().setUserDefinedDeviceId(text);
+
+                        PrivacyNavActivity pa = (PrivacyNavActivity) context;
+                        pa.reload();
+                    }
+                });
+
+
             }
         };
     }
