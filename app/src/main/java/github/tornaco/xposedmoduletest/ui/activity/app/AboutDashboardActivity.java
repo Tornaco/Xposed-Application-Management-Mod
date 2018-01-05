@@ -12,6 +12,7 @@ import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppDeveloper;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppVersion;
 import github.tornaco.xposedmoduletest.ui.tiles.app.OpenMarket;
+import github.tornaco.xposedmoduletest.ui.tiles.app.PrivacyPolicy;
 
 /**
  * Created by guohao4 on 2017/11/2.
@@ -40,6 +41,7 @@ public class AboutDashboardActivity extends WithWithCustomTabActivity {
 
             Category hook = new Category();
             hook.addTile(new OpenMarket(getActivity()));
+            hook.addTile(new PrivacyPolicy(getActivity()));
 
             Category hook2 = new Category();
             hook2.addTile(new AppVersion(getActivity()));

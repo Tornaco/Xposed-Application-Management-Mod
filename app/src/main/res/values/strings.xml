@@ -251,7 +251,7 @@
     <string name="title_privacy_line_number">手机号码</string>
     <string name="title_privacy_update_later">稍后将刷新</string>
     <string name="title_privacy_input_code">请输入</string>
-    <string name="summary_privacy">应用了隐匿的应用，在其尝试读取AndroidID，设备ICC号码，与设备序列号时，使用用户设定的数值来代替当前设备的原始数值（不会改变当前设备原始数值）。\n\n本功能仅供研究学习使用，不得用作非法用途，如果因此造成的任何法律或个人的问题，请自负。\n\n提示：尽量不要对常用社交APP使用，否则可能造成账号登陆异常。</string>
+    <string name="summary_privacy">应用了隐匿的应用，在其尝试读取AndroidID，设备ICC号码，与设备序列号时，使用用户设定的数值来代替当前设备的原始数值（不会改变当前设备原始数值）。\n\n提示：尽量不要对常用社交APP使用，否则可能造成账号登陆异常。</string>
     <string name="title_smart_sense">情景模式</string>
     <string name="title_privacy_apps">查看应用隐匿设置的应用</string>
     <string name="title_privacy_items">隐匿项目</string>
@@ -343,5 +343,6 @@
     <string name="summary_tile_privacy_common">原始值 %1$s\n用户设定值 %2$s</string>
     <string name="summary_tile_privacy_apps_count">%1$s个应用将会应用隐匿设置</string>
     <string name="title_apps">应用列表</string>
+    <string name="title_privacy_policy">隐私权政策</string>
 
 </resources>
