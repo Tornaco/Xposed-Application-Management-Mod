@@ -213,4 +213,9 @@ public class StringSetRepo implements SetRepo<String> {
         return Files.getNameWithoutExtension(mFile.getBaseFile().getPath());
     }
 
+    @Override
+    public int size() {
+        return mStorage.size();
+    }
+
 }

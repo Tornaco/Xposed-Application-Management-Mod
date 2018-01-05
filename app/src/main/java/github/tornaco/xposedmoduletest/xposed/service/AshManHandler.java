@@ -17,6 +17,7 @@ import lombok.Getter;
  */
 @CreateMessageIdWithMethods(fallbackMessageDecode = "UNKNOWN")
 interface AshManHandler {
+    void setPrivacyEnabled(boolean enable);
 
     void setWhiteSysAppEnabled(boolean enabled);
 

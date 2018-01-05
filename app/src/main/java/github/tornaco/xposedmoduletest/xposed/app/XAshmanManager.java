@@ -637,6 +637,22 @@ public class XAshmanManager {
         }
     }
 
+    public void setPrivacyEnabled(boolean enable) {
+        try {
+            mService.setPrivacyEnabled(enable);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public boolean isPrivacyEnabled() {
+        try {
+            return mService.isPrivacyEnabled();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
     public boolean isPackageInPrivacyList(String pkg) {
         ensureService();
         if (BuildConfig.DEBUG) try {
@@ -657,12 +673,20 @@ public class XAshmanManager {
         return false;
     }
 
-    public String[] getPrivacyList() {
+    public String[] getPrivacyList(boolean priv) {
         ensureService();
         try {
-            return mService.getPrivacyList();
+            return mService.getPrivacyList(priv);
         } catch (RemoteException ignored) {
             return new String[0];
+        }
+    }
+
+    public int getPrivacyAppsCount() {
+        try {
+            return mService.getPrivacyAppsCount();
+        } catch (RemoteException e) {
+            return 0;
         }
     }
 

@@ -155,6 +155,16 @@
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
+            android:name=".ui.activity.app.PrivacyAppListNavActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_privacy_apps"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.app.PrivacyAppListPickerActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_picker"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
             android:name=".ui.activity.doze.DozeNavActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_doze"
@@ -220,7 +230,7 @@
             android:label="@string/title_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
-            android:name=".ui.activity.app.PrivacySettingsActivity"
+            android:name=".ui.activity.app.PrivacyNavActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_privacy"
             android:theme="@style/AppThemeLight.NoActionBar" />

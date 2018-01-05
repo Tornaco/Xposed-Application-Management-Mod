@@ -251,10 +251,10 @@
     <string name="title_privacy_line_number">手机号码</string>
     <string name="title_privacy_update_later">稍后将刷新</string>
     <string name="title_privacy_input_code">请输入</string>
-    <string name="summary_privacy">如果你不清楚下面这些是做什么的请退出。\n\n本功能仅供研究学习使用，请与下载后24小时忘掉。不得用作非法用途，如果因此造成的任何法律或个人的问题，本软件概不负责。</string>
+    <string name="summary_privacy">应用了隐匿的应用，在其尝试读取AndroidID，设备ICC号码，与设备序列号时，使用用户设定的数值来代替当前设备的原始数值（不会改变当前设备原始数值）。\n\n本功能仅供研究学习使用，不得用作非法用途，如果因此造成的任何法律或个人的问题，请自负。\n\n提示：尽量不要对常用社交APP使用，否则可能造成账号登陆异常。</string>
     <string name="title_smart_sense">情景模式</string>
     <string name="title_privacy_apps">查看应用隐匿设置的应用</string>
-    <string name="title_privacy_items">项目</string>
+    <string name="title_privacy_items">隐匿项目</string>
     <string name="title_greening">绿色化</string>
     <string name="summary_greening_app">你可以从列表中找到你想绿化的应用，进行绿化，绿化可以禁止该应用启动服务/唤醒设备/设置定时器。\n\n默认情况下应用管理不对应用做任何修改，对勾选中表示允许该项启动，绿化用户安装的应用可能导致该应用无法正常运行；绿化系统应用可能会导致设备无法正常运行，甚至无法启动，请谨慎操作！\n\n小提示：你也可以前往权限管理，按照（服务/定时器/唤醒锁）根据自己的想法控制这些行为。</string>
     <string name="title_change_column_count">切换布局</string>
@@ -313,7 +313,7 @@
     <string name="title_restore">从备份恢复</string>
     <string name="summary_title_restore">选择一个备份文件进行数据恢复。</string>
     <string name="title_doze">打盹</string>
-    <string name="summary_doze">该功能可以在设备屏幕关闭时，催促系统尽快的进入打盹模式，以尽可能的降低电量消耗。\n\n注意，亮屏或者充电等某些用户与设备的交互行为会中断催促与打盹过程，催促打盹期间与打盹期间可能会导致设备某些功能暂时不可用。使用之前请提前了解什么是打盹（Doze）。</string>
+    <string name="summary_doze">该功能可以在设备屏幕关闭且未在充电状态时，催促系统尽快的进入打盹模式，以尽可能的降低电量消耗。\n\n注意，亮屏或者充电等某些用户与设备的交互行为会中断催促与打盹过程，催促打盹期间与打盹期间可能会导致设备某些功能暂时不可用。使用之前请提前了解什么是打盹（Doze）。</string>
     <string name="title_battery">电池</string>
     <string name="title_state">状态</string>
     <string name="title_last_doze">打盹记录</string>
@@ -340,5 +340,8 @@
     <string name="title_doze_fail_device_interactive">设备正处于交互状态</string>
     <string name="title_doze_fail_device_charging">设备处于充电状态</string>
     <string name="title_doze_fail_device_max">尝试多次依然无法进入</string>
+    <string name="summary_tile_privacy_common">原始值 %1$s\n用户设定值 %2$s</string>
+    <string name="summary_tile_privacy_apps_count">%1$s个应用将会应用隐匿设置</string>
+    <string name="title_apps">应用列表</string>
 
 </resources>

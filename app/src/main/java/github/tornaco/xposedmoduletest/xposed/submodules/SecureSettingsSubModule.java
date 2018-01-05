@@ -1,6 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
-import android.os.Binder;
+import android.app.AndroidAppHelper;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -44,20 +44,23 @@ class SecureSettingsSubModule extends IntentFirewallAndroidSubModule {
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
                             String name = String.valueOf(param.args[1]);
-                            if (BuildConfig.DEBUG && Settings.Secure.ANDROID_ID.equals(name)) {
+                            if (Settings.Secure.ANDROID_ID.equals(name)) {
                                 // Use of defined id.
                                 XAshmanManager ash = XAshmanManager.get();
                                 if (ash.isServiceAvailable()) {
-                                    int callingUid = Binder.getCallingUid();
-                                    boolean priv = ash.isUidInPrivacyList(callingUid);
+                                    String pkgName = AndroidAppHelper.currentPackageName();
+                                    boolean priv =
+                                            pkgName != null
+                                                    && ash.isPrivacyEnabled()
+                                                    && ash.isPackageInPrivacyList(pkgName);
                                     if (BuildConfig.DEBUG) {
                                         Log.d(XposedLog.TAG_DANGER,
-                                                "getStringForUser, uid: " + callingUid + ", hook: " + priv);
+                                                "get ANDROID_ID, pkg:" + pkgName);
                                     }
                                     if (priv) {
                                         String androidId = ash.getUserDefinedAndroidId();
                                         if (androidId != null) {
-                                            Log.d(XposedLog.TAG_DANGER, "Using user defined androidId!!! for: " + callingUid);
+                                            Log.d(XposedLog.TAG_DANGER, "Using user defined ANDROID_ID!!! for: " + pkgName);
                                             param.setResult(androidId);
                                         }
                                     }

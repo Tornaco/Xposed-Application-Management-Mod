@@ -28,4 +28,6 @@ public interface SetRepo<T> {
     boolean has(T t);
 
     String name();
+
+    int size();
 }

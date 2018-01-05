@@ -174,6 +174,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private final AtomicBoolean mPermissionControlEnabled = new AtomicBoolean(true);
 
+    private final AtomicBoolean mPrivacyEnabled = new AtomicBoolean(false);
+
     private final AtomicBoolean mDataHasBeenMigrated = new AtomicBoolean(false);
     private final AtomicBoolean mShowAppCrashDumpEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mLazyEnabled = new AtomicBoolean(false);
@@ -598,6 +600,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             boolean lockKillEnabled = (boolean) SystemSettings.LOCK_KILL_ENABLED_B.readFromSystemSettings(getContext());
             mLockKillEnabled.set(lockKillEnabled);
             XposedLog.boot("lockKillEnabled: " + String.valueOf(lockKillEnabled));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            boolean privEnabled = (boolean) SystemSettings.PRIVACY_ENABLED_B.readFromSystemSettings(getContext());
+            mPrivacyEnabled.set(privEnabled);
+            XposedLog.boot("lockKillEnabled: " + String.valueOf(privEnabled));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -2223,6 +2233,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return isInStringRepo(mRepoProxy.getStarts(), pkg);
     }
 
+    private boolean isPackageprivacyByUser(String pkg) {
+        return isInStringRepo(mRepoProxy.getPrivacy(), pkg);
+    }
+
     private boolean isPackageLKByUser(String pkg) {
         return isInStringRepo(mRepoProxy.getLks(), pkg);
     }
@@ -2807,14 +2821,53 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public String[] getPrivacyList() throws RemoteException {
+    public String[] getPrivacyList(boolean priv) throws RemoteException {
+        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getPrivacyList: " + priv);
         enforceCallingPermissions();
-        long id = Binder.clearCallingIdentity();
-        try {
-            Set<String> all = mRepoProxy.getPrivacy().getAll();
-            return convertObjectArrayToStringArray(all.toArray());
-        } finally {
-            Binder.restoreCallingIdentity(id);
+        if (!priv) {
+            Collection<String> packages = mPackagesCache.keySet();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+
+            final List<String> outList = Lists.newArrayList();
+
+            // Remove those not in blocked list.
+            String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
+            Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
+                @Override
+                public void accept(String s) {
+                    if (outList.contains(s)) return;// Kik dup package.
+                    if (isPackageprivacyByUser(s)) return;
+                    if (isInWhiteList(s)) return;
+                    if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
+                    outList.add(s);
+                }
+            });
+
+            if (outList.size() == 0) {
+                return new String[0];
+            }
+            Object[] objArr = outList.toArray();
+            return convertObjectArrayToStringArray(objArr);
+        } else {
+            Set<String> packages = mRepoProxy.getPrivacy().getAll();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+
+            final List<String> noSys = Lists.newArrayList();
+
+            Collections.consumeRemaining(packages, new Consumer<String>() {
+                @Override
+                public void accept(String p) {
+                    if (isWhiteSysAppEnabled() && isInSystemAppList(p)) {
+                        return;
+                    }
+                    noSys.add(p);
+                }
+            });
+            return convertObjectArrayToStringArray(noSys.toArray());
         }
     }
 
@@ -2832,6 +2885,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
+
     @Override
     @BinderCall(restrict = "any")
     public boolean isUidInPrivacyList(int uid) throws RemoteException {
@@ -2841,7 +2895,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
+    public int getPrivacyAppsCount() throws RemoteException {
+        return mRepoProxy.getPrivacy().size();
+    }
+
+    @Override
+    @BinderCall
     public void addOrRemoveFromPrivacyList(String pkg, int op) throws RemoteException {
+        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("addOrRemoveFromPrivacyList: " + pkg);
         enforceCallingPermissions();
         long id = Binder.clearCallingIdentity();
         try {
@@ -3398,6 +3459,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             events.addAll(mDozeHistory);
             return events;
         }
+    }
+
+    @Override
+    public void setPrivacyEnabled(boolean enable) throws RemoteException {
+        enforceCallingPermissions();
+        h.obtainMessage(AshManHandlerMessages.MSG_SETPRIVACYENABLED, enable).sendToTarget();
+    }
+
+    @Override
+    public boolean isPrivacyEnabled() throws RemoteException {
+        return mPrivacyEnabled.get();
     }
 
     private boolean isSystemUIPackage(String pkgName) {
@@ -4202,6 +4274,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETTASKREMOVEKILLENABLED:
                     HandlerImpl.this.setTaskRemoveKillEnabled((Boolean) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_SETPRIVACYENABLED:
+                    HandlerImpl.this.setPrivacyEnabled((Boolean) msg.obj);
+                    break;
+            }
+        }
+
+        @Override
+        public void setPrivacyEnabled(boolean enabled) {
+            if (mPrivacyEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.PRIVACY_ENABLED_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 

@@ -129,6 +129,11 @@ public class RepoProxy {
         }
 
         @Override
+        public int size() {
+            return 0;
+        }
+
+        @Override
         public boolean add(String s) {
             XposedLog.verbose("add element on NULL-HACK");
             return false;

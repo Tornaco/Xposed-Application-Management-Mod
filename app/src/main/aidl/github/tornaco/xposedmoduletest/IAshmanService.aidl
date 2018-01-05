@@ -128,7 +128,9 @@ interface IAshmanService {
 
     boolean isPackageInPrivacyList(String pkg);
     boolean isUidInPrivacyList(int uid);
-    String[] getPrivacyList();
+    int getPrivacyAppsCount();
+
+    String[] getPrivacyList(boolean priv);
     void addOrRemoveFromPrivacyList(String pkg, int op);
 
     boolean showFocusedActivityInfoEnabled();
@@ -195,4 +197,7 @@ interface IAshmanService {
     void addOrRemoveTRKApps(in String[] packages, int op);
 
     List<DozeEvent> getDozeEventHistory();
+
+    void setPrivacyEnabled(boolean enable);
+    boolean isPrivacyEnabled();
 }

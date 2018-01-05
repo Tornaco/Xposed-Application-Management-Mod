@@ -67,9 +67,11 @@ class TelephonyManagerSubModule extends IntentFirewallAndroidSubModule {
                                 if (mode == AppOpsManagerCompat.MODE_IGNORED) {
                                     XposedLog.verbose("getDeviceId, MODE_IGNORED returning null for :" + callPackageName);
                                     param.setResult(null);
-                                } else if (BuildConfig.DEBUG) {
+                                } else {
                                     // Check if is priv enabled for this app.
-                                    boolean isPriv = xAshmanManager.isPackageInPrivacyList(callPackageName);
+                                    boolean isPriv =
+                                            xAshmanManager.isPrivacyEnabled()
+                                                    && xAshmanManager.isPackageInPrivacyList(callPackageName);
                                     if (isPriv) {
                                         String userSetId = xAshmanManager.getUserDefinedDeviceId();
                                         if (userSetId != null) {
@@ -122,8 +124,10 @@ class TelephonyManagerSubModule extends IntentFirewallAndroidSubModule {
                                 if (mode == AppOpsManagerCompat.MODE_IGNORED) {
                                     XposedLog.verbose("getLine1Number, MODE_IGNORED returning null for :" + callPackageName);
                                     param.setResult(null);
-                                } else if (BuildConfig.DEBUG) {
-                                    boolean isPriv = xAshmanManager.isPackageInPrivacyList(callPackageName);
+                                } else {
+                                    boolean isPriv =
+                                            xAshmanManager.isPrivacyEnabled()
+                                                    && xAshmanManager.isPackageInPrivacyList(callPackageName);
                                     if (isPriv) {
                                         String userNumber = xAshmanManager.getUserDefinedLine1Number();
                                         if (userNumber != null) {

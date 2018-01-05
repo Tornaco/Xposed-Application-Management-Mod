@@ -60,7 +60,7 @@ public abstract class DataBackup {
         appendStringArray(new File(tmpDir, "rfk"), ash.getRFKApps(true), listener);
         appendStringArray(new File(tmpDir, "trk"), ash.getTRKApps(true), listener);
         appendStringArray(new File(tmpDir, "lazy"), ash.getLazyApps(true), listener);
-        appendStringArray(new File(tmpDir, "privacy"), ash.getPrivacyList(), listener);
+        appendStringArray(new File(tmpDir, "privacy"), ash.getPrivacyList(true), listener);
 
         appendStringArray(new File(tmpDir, "lock"), ag.getLockApps(true), listener);
         appendStringArray(new File(tmpDir, "blur"), ag.getBlurApps(true), listener);

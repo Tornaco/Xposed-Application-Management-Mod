@@ -347,6 +347,7 @@ public class XAppGuardManager {
         }
     }
 
+    // Uninstall pro.
     public String[] getUPApps(boolean lock) {
         ensureService();
         try {

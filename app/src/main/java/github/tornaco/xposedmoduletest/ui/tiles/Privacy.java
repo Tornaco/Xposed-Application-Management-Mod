@@ -1,14 +1,12 @@
 package github.tornaco.xposedmoduletest.ui.tiles;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.View;
-import android.widget.Toast;
 
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.ui.activity.app.PrivacySettingsActivity;
+import github.tornaco.xposedmoduletest.ui.activity.app.PrivacyNavActivity;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -25,7 +23,7 @@ public class Privacy extends QuickTile {
             @Override
             public void onClick(View v) {
                 super.onClick(v);
-                Toast.makeText(context, "埋头调试中@-@", Toast.LENGTH_SHORT).show();
+                PrivacyNavActivity.start(context);
             }
         };
     }

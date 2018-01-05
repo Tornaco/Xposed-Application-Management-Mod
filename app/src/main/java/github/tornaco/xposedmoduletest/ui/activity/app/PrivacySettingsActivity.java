@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -32,7 +33,13 @@ import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
  * Email: Tornaco@163.com
  */
 @RuntimePermissions
+@Deprecated
 public class PrivacySettingsActivity extends WithWithCustomTabActivity {
+
+    public static void start(Context context) {
+        Intent starter = new Intent(context, PrivacySettingsActivity.class);
+        context.startActivity(starter);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
