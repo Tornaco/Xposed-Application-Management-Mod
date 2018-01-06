@@ -22,6 +22,7 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.os.UserHandle;
 import android.provider.Settings;
 import android.support.v4.app.NotificationManagerCompat;
 import android.text.TextUtils;
@@ -217,6 +218,10 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
         registerReceiver();
         updateDebugMode();
+
+        UserHandle userHandle = UserHandle.CURRENT;
+        XposedLog.boot("userHandle, is system: " + userHandle.isSystem());
+
     }
 
     @Override
@@ -658,6 +663,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 //                mScreenReceiver.onReceive(getContext(), intent);
 //            }
 //        }
+        if (BuildConfig.DEBUG && Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
+            XposedLog.verbose("ACTION_USER_SWITCHED");
+        }
         return true;
     }
 

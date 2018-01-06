@@ -22,6 +22,7 @@ public class ProtectedBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         try {
+            XposedLog.verbose("ProtectedBroadcastReceiver: received" + intent);
             host.onReceive(context, intent);
         } catch (Throwable e) {
             XposedLog.wtf("Fail onReceive: " + Log.getStackTraceString(e));

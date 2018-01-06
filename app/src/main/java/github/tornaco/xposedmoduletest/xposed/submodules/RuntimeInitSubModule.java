@@ -10,6 +10,7 @@ import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -25,7 +26,11 @@ class RuntimeInitSubModule extends IntentFirewallAndroidSubModule {
     @Override
     public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {
         super.initZygote(startupParam);
-        hookUnCaughtErr();
+        if (!OSUtil.isMIUI()) {
+            hookUnCaughtErr();
+        } else {
+            XposedLog.boot("Skip hookUnCaughtErr for MIUI ");
+        }
     }
 
     private void hookUnCaughtErr() {

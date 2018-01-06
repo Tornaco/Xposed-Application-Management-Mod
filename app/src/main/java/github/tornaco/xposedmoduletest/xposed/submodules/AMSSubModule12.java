@@ -11,6 +11,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -23,7 +24,9 @@ class AMSSubModule12 extends AndroidSubModuleModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        hookBroadcastIntent(lpparam);
+        if (BuildConfig.DEBUG) {
+            hookBroadcastIntent(lpparam);
+        }
     }
 
     private void hookBroadcastIntent(XC_LoadPackage.LoadPackageParam lpparam) {

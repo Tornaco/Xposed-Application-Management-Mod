@@ -178,6 +178,9 @@ interface IAshmanService {
     void setDozeEnabled(boolean enable);
     boolean isDozeEnabled();
 
+    void setForceDozeEnabled(boolean enable);
+    boolean isForceDozeEnabled();
+
     // Deperacated, please use getLastDozeEvent instead.
     long getLastDozeEnterTimeMills();
 

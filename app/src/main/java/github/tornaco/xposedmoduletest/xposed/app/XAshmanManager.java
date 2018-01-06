@@ -1091,4 +1091,20 @@ public class XAshmanManager {
             return new ArrayList<>(0);
         }
     }
+
+    public void setForceDozeEnabled(boolean enable) {
+        try {
+            mService.setForceDozeEnabled(enable);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public boolean isForceDozeEnabled() {
+        try {
+            return mService.isForceDozeEnabled();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
 }

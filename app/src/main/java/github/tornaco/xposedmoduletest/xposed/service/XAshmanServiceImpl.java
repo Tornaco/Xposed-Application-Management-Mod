@@ -180,6 +180,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final AtomicBoolean mShowAppCrashDumpEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mLazyEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mDozeEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mForeDozeEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mAutoAddToBlackListForNewApp = new AtomicBoolean(false);
     private final AtomicBoolean mShowFocusedActivityInfoEnabled = new AtomicBoolean(false);
@@ -238,6 +239,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         onScreenOff();
                     }
 
+                    if (Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
+                        onScreenOn();
+                    }
+
                     if (Intent.ACTION_USER_PRESENT.equals(intent.getAction())) {
                         onUserPresent();
                     }
@@ -270,6 +275,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         h.sendEmptyMessage(AshManHandlerMessages.MSG_ONSCREENOFF);
         if (dozeH != null) {
             dozeH.sendEmptyMessage(DozeHandlerMessages.MSG_ONSCREENOFF);
+        }
+    }
+
+    private void onScreenOn() {
+        if (dozeH != null) {
+            dozeH.sendEmptyMessage(DozeHandlerMessages.MSG_ONSCREENON);
         }
     }
 
@@ -760,6 +771,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
+
+        try {
+            boolean forceDoze = (boolean) SystemSettings.APM_FORCE_DOZE_ENABLE_B.readFromSystemSettings(getContext());
+            mForeDozeEnabled.set(forceDoze);
+            XposedLog.boot("forceDoze: " + String.valueOf(forceDoze));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
     }
 
     @Override
@@ -772,7 +791,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     // If we fail into doze, retry in 5min.
     private static final long REPOST_DOZE_DELAY = 5 * 60 * 1000;
     private static final long END_DOZE_CHECK_DELAY = 2000;
-    private static final long SLEEP_INTERVAL_TO_DOZE_MODE = 1000;
+    private static final long SLEEP_INTERVAL_TO_DOZE_MODE = 0;
     private static final int MAX_RETRY_TIME_TO_SIZE = 12;
 
     private DeviceIdleControllerProxy mDeviceIdleController;
@@ -805,8 +824,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             // We are not in doze mode now, will start to doze.
             if (!alreadyInDoze) {
-                mDeviceIdleController.setForceIdle(true);
                 XposedLog.verbose("isForceIdle: " + mDeviceIdleController.isForceIdle());
+                mDeviceIdleController.setDeepIdle(true);
+                mDeviceIdleController.setForceIdle(isForceDozeEnabled());
+                XposedLog.verbose("isForceIdle: " + mDeviceIdleController.isForceIdle());
+                mDeviceIdleController.becomeInactiveIfAppropriateLocked();
+
                 onDozeEnterStart();
             }
 
@@ -819,6 +842,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
                     // Add to events.
                     onDozeEnterFail(FAIL_RETRY_TIMEOUT);
+
+                    // Exit force.
+                    mDeviceIdleController.exitForceIdleLocked();
                     return;
                 }
 
@@ -900,6 +926,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case DozeHandlerMessages.MSG_UPDATEDOZEENDSTATE:
                     DozeHandlerImpl.this.updateDozeEndState();
                     break;
+                case DozeHandlerMessages.MSG_SETFORCEDOZEENABLED:
+                    DozeHandlerImpl.this.setForceDozeEnabled((Boolean) msg.obj);
+                    break;
             }
 
             super.handleMessage(msg);
@@ -979,6 +1008,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         @Override
+        public void setForceDozeEnabled(boolean enabled) {
+            if (mForeDozeEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.APM_FORCE_DOZE_ENABLE_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
         public void updateDozeEndState() {
             boolean isIdleMode = DozeStateRetriever.isDeviceIdleMode(getContext());
             XposedLog.verbose(XposedLog.TAG_DOZE + "updateDozeEndState, isDeviceIdleMode: " + isIdleMode);
@@ -991,6 +1027,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         }
                     }
                 }
+            }
+        }
+
+        @Override
+        public void onScreenOn() {
+            // Exit doze force state.
+            if (mDeviceIdleController != null) {
+                mDeviceIdleController.exitForceIdleLocked();
             }
         }
 
@@ -2360,6 +2404,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private void registerReceiver() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        intentFilter.addAction(Intent.ACTION_SCREEN_ON);
         intentFilter.addAction(Intent.ACTION_USER_PRESENT);
         getContext().registerReceiver(mScreenReceiver, intentFilter);
 
@@ -3327,6 +3372,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @BinderCall
     public boolean isDozeEnabled() {
         return mDozeEnabled.get();
+    }
+
+    @Override
+    public void setForceDozeEnabled(boolean enable) throws RemoteException {
+        enforceCallingPermissions();
+        if (dozeH != null) {
+            dozeH.obtainMessage(DozeHandlerMessages.MSG_SETFORCEDOZEENABLED, enable).sendToTarget();
+        }
+    }
+
+    @Override
+    public boolean isForceDozeEnabled() {
+        return mForeDozeEnabled.get();
     }
 
     private boolean hasDozeFeature() {

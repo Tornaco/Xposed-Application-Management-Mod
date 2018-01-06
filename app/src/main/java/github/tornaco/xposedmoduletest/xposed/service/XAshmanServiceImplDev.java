@@ -9,6 +9,8 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
+import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
+import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -48,6 +50,26 @@ public class XAshmanServiceImplDev extends XAshmanServiceImpl {
             @Override
             public void onCall() throws Throwable {
                 XAshmanServiceImplDev.super.systemReady();
+            }
+        });
+    }
+
+    @Override
+    public void attachDeviceIdleController(final DeviceIdleControllerProxy proxy) {
+        makeSafeCall(new Call() {
+            @Override
+            public void onCall() throws Throwable {
+                XAshmanServiceImplDev.super.attachDeviceIdleController(proxy);
+            }
+        });
+    }
+
+    @Override
+    public void attachNotificationService(final NotificationManagerServiceProxy proxy) {
+        makeSafeCall(new Call() {
+            @Override
+            public void onCall() throws Throwable {
+                XAshmanServiceImplDev.super.attachNotificationService(proxy);
             }
         });
     }

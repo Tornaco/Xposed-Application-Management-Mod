@@ -21,5 +21,9 @@ interface DozeHandler {
 
     void setDozeEnabled(boolean enable);
 
+    void setForceDozeEnabled(boolean enable);
+
     void updateDozeEndState();
+
+    void onScreenOn();
 }

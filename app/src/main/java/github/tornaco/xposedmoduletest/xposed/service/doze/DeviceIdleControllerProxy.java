@@ -133,24 +133,49 @@ public class DeviceIdleControllerProxy {
         try {
             XposedHelpers.setObjectField(deviceIdleController, "mForceIdle", force);
         } catch (Exception e) {
-            XposedLog.wtf("deviceIdleController call fail: " + Log.getStackTraceString(e));
+            XposedLog.wtf("mForceIdle call fail: " + Log.getStackTraceString(e));
+        }
+    }
+
+    public void becomeInactiveIfAppropriateLocked() {
+        try {
+            XposedHelpers.callMethod(deviceIdleController, "becomeInactiveIfAppropriateLocked");
+        } catch (Exception e) {
+            XposedLog.wtf("becameInactiveIfAppropriateLocked call fail: " + Log.getStackTraceString(e));
+        }
+    }
+
+    public void setDeepIdle(boolean idle) {
+        try {
+            XposedHelpers.setObjectField(deviceIdleController, "mDeepEnabled", idle);
+            XposedHelpers.setObjectField(deviceIdleController, "mLightEnabled", idle);
+        } catch (Exception e) {
+            XposedLog.wtf("mDeepEnabled call fail: " + Log.getStackTraceString(e));
+        }
+    }
+
+    public void exitForceIdleLocked() {
+        try {
+            XposedHelpers.callMethod(deviceIdleController, "exitForceIdleLocked");
+        } catch (Exception e) {
+            XposedLog.wtf("exitForceIdleLocked call fail: " + Log.getStackTraceString(e));
         }
     }
 
     public void stepIdleStateLocked() {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-            XposedLog.verbose("deviceIdleController for M");
+            XposedLog.verbose("stepIdleStateLocked for M");
             try {
                 XposedHelpers.callMethod(deviceIdleController, "stepIdleStateLocked");
             } catch (Throwable e) {
-                XposedLog.wtf("deviceIdleController call fail: " + Log.getStackTraceString(e));
+                XposedLog.wtf("stepIdleStateLocked call fail: " + Log.getStackTraceString(e));
             }
         } else {
-            XposedLog.verbose("deviceIdleController for N/O");
+            XposedLog.verbose("stepIdleStateLocked for N/O");
             try {
                 XposedHelpers.callMethod(deviceIdleController, "stepIdleStateLocked", "s:shell");
             } catch (Throwable e) {
-                XposedLog.wtf("deviceIdleController call fail: " + Log.getStackTraceString(e));
+                XposedLog.wtf("stepIdleStateLocked call fail: " + Log.getStackTraceString(e));
             }
         }
     }
