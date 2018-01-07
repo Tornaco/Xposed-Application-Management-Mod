@@ -19,6 +19,7 @@ public class Doze extends QuickTile {
     public Doze(final Context context) {
         super(context);
         this.titleRes = R.string.title_doze;
+        this.summaryRes = R.string.summary_exp;
         this.iconRes = R.drawable.ic_airline_seat_individual_suite_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override

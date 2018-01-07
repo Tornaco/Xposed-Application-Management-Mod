@@ -3,7 +3,6 @@ package github.tornaco.xposedmoduletest.ui.activity.doze;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.StringRes;
-import android.support.v4.content.ContextCompat;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -72,11 +71,12 @@ public class DozeEventHistoryViewerActivity extends CommonPackageInfoListPickerA
                 if (!packageInfo.isChecked()) {
                     holder.getLineTwoTextView().setText(getString(R.string.title_doze_history_summary,
                             fail, lastState));
+                    holder.getLineTwoTextView().setVisibility(View.VISIBLE);
+                } else {
+                    holder.getLineTwoTextView().setVisibility(View.GONE);
                 }
 
-                holder.getCheckableImageView().setImageDrawable(ContextCompat.getDrawable(getContext(),
-                        packageInfo.isChecked() ? R.drawable.ic_doze_success_24dp
-                                : R.drawable.ic_doze_error_24dp));
+                holder.getCheckableImageView().setVisibility(View.INVISIBLE);
                 holder.getCheckableImageView().setChecked(false, false);
             }
         };

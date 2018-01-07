@@ -33,6 +33,39 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
+    <!-- Base application theme. -->
+    <style name="AppThemeBlack" parent="Theme.AppCompat">
+        <item name="switchBarTheme">@style/SwitchBarSettings</item>
+
+        <item name="colorPrimary">@color/semitransparent_black</item>
+        <item name="colorPrimaryDark">@color/black</item>
+        <item name="colorAccent">@color/red_dark</item>
+
+        <item name="android:windowBackground">?colorPrimaryDark</item>
+        <item name="android:navigationBarColor">?colorPrimaryDark</item>
+
+        <item name="torCardBackgroundColor">?colorPrimary</item>
+        <item name="torCardAccentBackgroundColor">?colorPrimary</item>
+        <item name="torCardTitleColor">@color/white</item>
+        <item name="torCardSummaryColor">@color/white</item>
+        <item name="torMainWindowBackgroundColor">@color/black</item>
+        <item name="torListItemTitleTextColor">@color/white</item>
+        <item name="torListItemSummaryTextColor">@color/white</item>
+        <item name="torListItemHighlightTextColor">@color/white</item>
+        <item name="torTileContainerBackgroundColor">?colorPrimary</item>
+        <item name="torAppbarDescriptionBackgroundColor">?colorPrimary</item>
+        <item name="torAppbarPopupTheme">@style/AppTheme.PopupOverlay</item>
+        <item name="torAppbarTheme">@style/AppTheme.AppBarOverlay</item>
+        <item name="torMDSearchBackground">?colorPrimary</item>
+    </style>
+
+    <!-- Base application theme. -->
+    <style name="AppThemeBlack.Drawer">
+        <item name="switchBarTheme">@style/SwitchBarSettings</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
     <style name="AppThemeLight" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="switchBarTheme">@style/SwitchBarSettings</item>
         <item name="colorPrimary">@color/primary</item>
@@ -80,6 +113,11 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="AppThemeBlack.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
     <style name="AppThemeLight.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -91,6 +129,11 @@
     </style>
 
     <style name="AppTheme.Drawer.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppThemeBlack.Drawer.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
