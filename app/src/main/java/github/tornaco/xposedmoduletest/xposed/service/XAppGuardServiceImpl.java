@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.app.IApplicationThread;
 import android.app.KeyguardManager;
 import android.app.Notification;
-import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -1243,9 +1242,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             Intent intent = buildVerifyIntent(injectHome, tid, pkg);
             try {
                 getContext().startActivity(intent, bnds);
-            } catch (ActivityNotFoundException anf) {
+            } catch (Throwable anf) {
                 XposedLog.wtf("*** FATAL ERROR *** ActivityNotFoundException!!!");
                 setResult(tid, XAppVerifyMode.MODE_ALLOWED);
+                // Disable to make sure we are safe.
+                setEnabled(false);
             }
         }
 
