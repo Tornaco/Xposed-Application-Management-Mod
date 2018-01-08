@@ -1,0 +1,26 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="github.tornaco.xposedmoduletest.ui.activity.nf.NetworkRestrictActivity">
+
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_search_white_24dp"
+        android:title="@string/title_search"
+        android:visible="true"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_allow_all"
+        android:icon="@drawable/ic_search_white_24dp"
+        android:title="@string/title_allow_all"
+        android:visible="true"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_ignore_all"
+        android:icon="@drawable/ic_search_white_24dp"
+        android:title="@string/ignore_allow_all"
+        android:visible="true"
+        app:showAsAction="never" />
+</menu>

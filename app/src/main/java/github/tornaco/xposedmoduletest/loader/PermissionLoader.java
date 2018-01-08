@@ -1,17 +1,21 @@
 package github.tornaco.xposedmoduletest.loader;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 
 import org.newstand.logger.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.model.Permission;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -25,6 +29,12 @@ public interface PermissionLoader {
 
     @NonNull
     List<Permission> load(String pkg, int category);
+
+    @NonNull
+    List<CommonPackageInfo> loadByOp(int op, int category);
+
+    @NonNull
+    List<CommonPackageInfo> loadOps(int category);
 
     class Impl implements PermissionLoader {
 
@@ -111,6 +121,56 @@ public interface PermissionLoader {
             java.util.Collections.reverse(permissions);
 
             return permissions;
+        }
+
+        @NonNull
+        @Override
+        public List<CommonPackageInfo> loadByOp(int op, int category) {
+            if (!XAshmanManager.get().isServiceAvailable()) {
+                return new ArrayList<>(0);
+            }
+            final PackageManager pm = this.context.getPackageManager();
+            // Filter all apps.
+            List<ApplicationInfo> applicationInfos =
+                    android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N ?
+                            pm.getInstalledApplications(android.content.pm.PackageManager.MATCH_UNINSTALLED_PACKAGES)
+                            : pm.getInstalledApplications(android.content.pm.PackageManager.GET_UNINSTALLED_PACKAGES);
+
+            List<CommonPackageInfo> res = new ArrayList<>();
+
+            for (ApplicationInfo info : applicationInfos) {
+                String[] decleared = PkgUtil.getAllDeclaredPermissions(context, info.packageName);
+                if (decleared == null || decleared.length == 0) {
+                    continue;
+                }
+                String permission = AppOpsManagerCompat.opToPermission(op);
+                if (permission == null || (Arrays.binarySearch(decleared, permission) >= 0)) {
+                    CommonPackageInfo c = new CommonPackageInfo();
+                    c.setPkgName(info.packageName);
+                    c.setVersion(XAshmanManager.get().getPermissionControlBlockModeForPkg(op, c.getPkgName()));
+                    c.setSystemApp(PkgUtil.isSystemApp(context, info.packageName));
+                    c.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(context, info.packageName)));
+
+                    res.add(c);
+                }
+            }
+            return res;
+        }
+
+        @NonNull
+        @Override
+        public List<CommonPackageInfo> loadOps(int category) {
+            int opCount = AppOpsManagerCompat._NUM_OP;
+            List<CommonPackageInfo> res = new ArrayList<>(opCount);
+            for (int i = 0; i < opCount; i++) {
+                CommonPackageInfo c = new CommonPackageInfo();
+                c.setAppName(AppOpsManagerCompat.getOpSummary(context, i));
+                c.setPkgName(null);
+                c.setChecked(false);
+                c.setVersion(i);
+                res.add(c);
+            }
+            return res;
         }
     }
 

@@ -23,7 +23,7 @@ import github.tornaco.xposedmoduletest.loader.PermissionLoader;
 import github.tornaco.xposedmoduletest.model.Permission;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.WithRecyclerView;
-import github.tornaco.xposedmoduletest.ui.adapter.PermissionAdapter;
+import github.tornaco.xposedmoduletest.ui.adapter.PermissionOpsAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
@@ -32,17 +32,17 @@ import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
  * Email: Tornaco@163.com
  */
 
-public class PermissionsListActivity extends WithRecyclerView {
+public class Apps2OpListActivity extends WithRecyclerView {
 
     private static final String EXTRA_PKG = "extra.pkg";
 
     private SwipeRefreshLayout swipeRefreshLayout;
-    private PermissionAdapter permissionAdapter;
+    private PermissionOpsAdapter permissionOpsAdapter;
 
     private String mPkg, mAppName;
 
     public static void start(Context context, String pkg) {
-        Intent starter = new Intent(context, PermissionsListActivity.class);
+        Intent starter = new Intent(context, Apps2OpListActivity.class);
         starter.putExtra(EXTRA_PKG, pkg);
         context.startActivity(starter);
     }
@@ -78,11 +78,11 @@ public class PermissionsListActivity extends WithRecyclerView {
         swipeRefreshLayout.setColorSchemeColors(getResources().getIntArray(R.array.polluted_waves));
 
 
-        permissionAdapter = onCreateAdapter();
+        permissionOpsAdapter = onCreateAdapter();
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(permissionAdapter);
+        recyclerView.setAdapter(permissionOpsAdapter);
 
 
         swipeRefreshLayout.setOnRefreshListener(
@@ -130,7 +130,7 @@ public class PermissionsListActivity extends WithRecyclerView {
                     @Override
                     public void run() {
                         swipeRefreshLayout.setRefreshing(false);
-                        permissionAdapter.update(res);
+                        permissionOpsAdapter.update(res);
                         setTitle(mAppName + "\t" + res.size() + "项权限");
                     }
                 });
@@ -142,8 +142,8 @@ public class PermissionsListActivity extends WithRecyclerView {
         return PermissionLoader.Impl.create(this).load(mPkg, 0);
     }
 
-    protected PermissionAdapter onCreateAdapter() {
-        return new PermissionAdapter(this);
+    protected PermissionOpsAdapter onCreateAdapter() {
+        return new PermissionOpsAdapter(this);
     }
 
     private void setSummaryView() {

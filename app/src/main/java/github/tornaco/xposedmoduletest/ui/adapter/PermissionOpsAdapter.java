@@ -31,7 +31,7 @@ import lombok.Setter;
  * Email: Tornaco@163.com
  */
 
-public class PermissionAdapter extends RecyclerView.Adapter<PermissionAdapter.PermissionHolder> {
+public class PermissionOpsAdapter extends RecyclerView.Adapter<PermissionOpsAdapter.PermissionHolder> {
 
     @Getter
     private final List<Permission> data = Lists.newArrayList();
@@ -45,7 +45,7 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionAdapter.Pe
     @Setter
     private int highlightColor, normalColor;
 
-    public PermissionAdapter(Context context) {
+    public PermissionOpsAdapter(Context context) {
         this.context = context;
         this.highlightColor = ContextCompat.getColor(context, R.color.blue_grey);
         TypedValue typedValue = new TypedValue();
@@ -69,7 +69,7 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionAdapter.Pe
     }
 
     @Override
-    public PermissionAdapter.PermissionHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public PermissionOpsAdapter.PermissionHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(getTemplateLayoutRes(), parent, false);
         return new PermissionHolder(view);
     }
@@ -80,7 +80,7 @@ public class PermissionAdapter extends RecyclerView.Adapter<PermissionAdapter.Pe
     }
 
     @Override
-    public void onBindViewHolder(PermissionAdapter.PermissionHolder holder, int position) {
+    public void onBindViewHolder(PermissionOpsAdapter.PermissionHolder holder, int position) {
         final Permission permission = getData().get(position);
 
         int iconRes = permission.getIconRes();

@@ -296,12 +296,22 @@
             android:label="@string/title_perm_control"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
+            android:name=".ui.activity.perm.PermViewerActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_perm_control"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
             android:name=".ui.activity.green2.ExtraOpsSettingActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_greening"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
-            android:name=".ui.activity.perm.PermissionsListActivity"
+            android:name=".ui.activity.perm.Apps2OpListActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/title_perm_control"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.perm.Op2AppsListActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_perm_control"
             android:theme="@style/AppThemeLight.NoActionBar" />

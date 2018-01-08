@@ -383,8 +383,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                 rest.addTile(new TRKill(getActivity()));
             }
 
-            if (AppSettings.isShowInfoEnabled(getContext(), "show_lazy_ui", false)
-                    && (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_LAZY))) {
+            if ((XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_LAZY))) {
                 rest.addTile(new Lazy(getActivity()));
             }
 

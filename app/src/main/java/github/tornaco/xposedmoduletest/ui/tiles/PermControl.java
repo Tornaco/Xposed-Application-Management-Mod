@@ -7,7 +7,7 @@ import android.view.View;
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.ui.activity.perm.PackageViewerActivity;
+import github.tornaco.xposedmoduletest.ui.activity.perm.PermViewerActivity;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -24,7 +24,7 @@ public class PermControl extends QuickTile {
             @Override
             public void onClick(View v) {
                 super.onClick(v);
-                context.startActivity(new Intent(context, PackageViewerActivity.class));
+                context.startActivity(new Intent(context, PermViewerActivity.class));
             }
         };
     }

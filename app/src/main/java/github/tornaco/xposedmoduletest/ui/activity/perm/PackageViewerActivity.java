@@ -46,7 +46,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 CommonPackageInfo info = getCommonPackageInfoAdapter().getCommonPackageInfos().get(position);
-                PermissionsListActivity.start(getActivity(), info.getPkgName());
+                Apps2OpListActivity.start(getActivity(), info.getPkgName());
             }
         });
         return adapter;
