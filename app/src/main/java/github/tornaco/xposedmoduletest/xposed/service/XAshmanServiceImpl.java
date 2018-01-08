@@ -2250,6 +2250,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.WHITE_LISTED;
         }
 
+        // Lazy but not running on top.
+        // Retrieve imd top package ensure our top pkg correct.
+        boolean isLazy = isLazyModeEnabled()
+                && isPackageLazyByUser(receiverPkgName);
+        if (isLazy && !receiverPkgName.equals(mTopPackageImd.getData())) {
+            return CheckResult.DENIED_LAZY;
+        }
+
         if (isWhiteSysAppEnabled() && isInSystemAppList(receiverPkgName)) {
             return CheckResult.SYSTEM_APP;
         }
