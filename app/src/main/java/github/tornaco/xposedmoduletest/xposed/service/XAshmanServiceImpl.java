@@ -140,7 +140,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private static final boolean DEBUG_BROADCAST = false && BuildConfig.DEBUG;
     private static final boolean DEBUG_SERVICE = false && BuildConfig.DEBUG;
-    private static final boolean DEBUG_OP = BuildConfig.DEBUG;
+    private static final boolean DEBUG_OP = false && BuildConfig.DEBUG;
     private static final boolean DEBUG_COMP = false && BuildConfig.DEBUG;
 
     private static final Set<String> WHITE_LIST = new HashSet<>();
