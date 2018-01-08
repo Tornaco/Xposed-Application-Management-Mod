@@ -33,6 +33,7 @@ public class DozeEvent implements Parcelable, Cloneable {
     public static final int FAIL_DEVICE_INTERACTIVE = 0x101;
     public static final int FAIL_POWER_CHARGING = 0x102;
     public static final int FAIL_RETRY_TIMEOUT = 0x103;
+    public static final int FAIL_GENERIC_FAILURE = 0x104;
 
     private int result;
     private int failCode;

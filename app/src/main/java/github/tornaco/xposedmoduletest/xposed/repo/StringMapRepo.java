@@ -90,7 +90,7 @@ public class StringMapRepo implements MapRepo<String, String> {
                 BufferedReader br = new BufferedReader(fr);
                 String line;
                 while ((line = br.readLine()) != null) {
-                    XposedLog.verbose("Read of line: " + line);
+                    // XposedLog.verbose("Read of line: " + line);
                     StringTokenizer t = new StringTokenizer(line, "-");
                     int c = t.countTokens();
                     if (c != 2) {

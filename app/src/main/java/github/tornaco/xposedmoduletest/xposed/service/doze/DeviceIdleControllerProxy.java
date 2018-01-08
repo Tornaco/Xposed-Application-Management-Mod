@@ -20,31 +20,31 @@ public class DeviceIdleControllerProxy {
     /**
      * Device is currently active.
      */
-    private static final int STATE_ACTIVE = 0;
+    public static final int STATE_ACTIVE = 0;
     /**
      * Device is inactive (screen off, no motion) and we are waiting to for idle.
      */
-    private static final int STATE_INACTIVE = 1;
+    public static final int STATE_INACTIVE = 1;
     /**
      * Device is past the initial inactive period, and waiting for the next idle period.
      */
-    private static final int STATE_IDLE_PENDING = 2;
+    public static final int STATE_IDLE_PENDING = 2;
     /**
      * Device is currently sensing motion.
      */
-    private static final int STATE_SENSING = 3;
+    public static final int STATE_SENSING = 3;
     /**
      * Device is currently finding location (and may still be sensing).
      */
-    private static final int STATE_LOCATING = 4;
+    public static final int STATE_LOCATING = 4;
     /**
      * Device is in the idle state, trying to stay asleep as much as possible.
      */
-    private static final int STATE_IDLE = 5;
+    public static final int STATE_IDLE = 5;
     /**
      * Device is in the idle state, but temporarily out of idle to do regular maintenance.
      */
-    private static final int STATE_IDLE_MAINTENANCE = 6;
+    public static final int STATE_IDLE_MAINTENANCE = 6;
 
     /**
      * Device is in the idle state, but temporarily out of idle to do regular maintenance.

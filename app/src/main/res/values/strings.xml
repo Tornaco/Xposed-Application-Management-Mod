@@ -347,5 +347,6 @@
     <string name="title_force_doze">强制进入</string>
     <string name="summary_doze_force">强行进入，最为致命。</string>
     <string name="theme_name_black">A屏黑</string>
+    <string name="title_doze_fail_generic_failure">状态改变失败</string>
 
 </resources>

@@ -126,7 +126,6 @@ import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_R
 import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_ON_WIFI;
 import static github.tornaco.xposedmoduletest.xposed.bean.DozeEvent.FAIL_DEVICE_INTERACTIVE;
 import static github.tornaco.xposedmoduletest.xposed.bean.DozeEvent.FAIL_RETRY_TIMEOUT;
-import static java.lang.Thread.sleep;
 
 /**
  * Created by guohao4 on 2017/11/9.
@@ -787,12 +786,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return true;
     }
 
-
     // If we fail into doze, retry in 5min.
     private static final long REPOST_DOZE_DELAY = 5 * 60 * 1000;
     private static final long END_DOZE_CHECK_DELAY = 2000;
-    private static final long SLEEP_INTERVAL_TO_DOZE_MODE = 0;
-    private static final int MAX_RETRY_TIME_TO_SIZE = 12;
+    private static final int MAX_RETRY_TIME_TO_SIZE = 99;
 
     private DeviceIdleControllerProxy mDeviceIdleController;
 
@@ -804,92 +801,98 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private final Object mDozeLock = new Object();
 
-    // This should be executed on worker thread.
-    private final ErrorCatchRunnable mDozeStepperErrorCatch
-            = new ErrorCatchRunnable(new Runnable() {
-        @Override
-        public void run() {
-
-            XposedLog.verbose(XposedLog.TAG_DOZE + "mDozeStepper execute");
-
-            if (mDeviceIdleController == null) {
-                XposedLog.wtf(XposedLog.TAG_DOZE
-                        + "Calling postEnterIdleMode with mDeviceIdleController is null");
-                return;
-            }
-
-            final AtomicInteger enterDozeTryingTimes = new AtomicInteger(0);
-
-            boolean alreadyInDoze = DozeStateRetriever.isDeviceIdleMode(getContext());
-
-            // We are not in doze mode now, will start to doze.
-            if (!alreadyInDoze) {
-                XposedLog.verbose("isForceIdle: " + mDeviceIdleController.isForceIdle());
-                mDeviceIdleController.setDeepIdle(true);
-                mDeviceIdleController.setForceIdle(isForceDozeEnabled());
-                XposedLog.verbose("isForceIdle: " + mDeviceIdleController.isForceIdle());
-                mDeviceIdleController.becomeInactiveIfAppropriateLocked();
-
-                onDozeEnterStart();
-            }
-
-            while (!alreadyInDoze) {
-
-                if (enterDozeTryingTimes.get() > MAX_RETRY_TIME_TO_SIZE) {
-                    XposedLog.wtf(XposedLog.TAG_DOZE + "Fail enter doze mode after trying max times");
-                    // Post doze message again.
-                    postEnterIdleMode(mDozeDelay);
-
-                    // Add to events.
-                    onDozeEnterFail(FAIL_RETRY_TIMEOUT);
-
-                    // Exit force.
-                    mDeviceIdleController.exitForceIdleLocked();
-                    return;
-                }
-
-                // Increase try times.
-                int time = enterDozeTryingTimes.incrementAndGet();
-
-                // Check if we are interactive.
-                PowerManager powerManager = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
-                boolean isInteractive = false;
-
-                if (powerManager != null) {
-                    isInteractive = powerManager.isInteractive();
-                }
-
-                if (isInteractive) {
-                    XposedLog.wtf("isInteractive when trying to setup idle mode");
-                    // Add to events.
-                    cancelEnterIdleModePosts();
-                    onDozeEnterFail(FAIL_DEVICE_INTERACTIVE);
-                    return;
-                }
-
-                dozeH.sendEmptyMessage(DozeHandlerMessages.MSG_STEPIDLESTATELOCKED);
-
-                try {
-                    sleep(SLEEP_INTERVAL_TO_DOZE_MODE);
-                } catch (InterruptedException ignored) {
-                    // Do not bother.
-                }
-
-                XposedLog.verbose(XposedLog.TAG_DOZE + "Step idle @" + time);
-            }
-
-            XposedLog.debug(XposedLog.TAG_DOZE + "We are in doze mode!");
-
-            // Cancel any pending post.
-            cancelEnterIdleModePosts();
-
-            // Add to events.
-            onDozeEnterSuccess();
-        }
-    }, "mDozeStepper");
-
     @SuppressLint("HandlerLeak")
     private class DozeHandlerImpl extends Handler implements DozeHandler {
+
+        // This should be executed on worker thread.
+        private final ErrorCatchRunnable mDozeStepperErrorCatch
+                = new ErrorCatchRunnable(new Runnable() {
+            @Override
+            public void run() {
+
+                XposedLog.verbose(XposedLog.TAG_DOZE + "mDozeStepper execute");
+
+                if (mDeviceIdleController == null) {
+                    XposedLog.wtf(XposedLog.TAG_DOZE
+                            + "Calling postEnterIdleMode with mDeviceIdleController is null");
+                    return;
+                }
+
+                final AtomicInteger enterDozeTryingTimes = new AtomicInteger(0);
+
+                boolean alreadyInDoze = DozeStateRetriever.isDeviceIdleMode(getContext());
+
+                // We are not in doze mode now, will start to doze.
+                if (!alreadyInDoze) {
+                    XposedLog.verbose("isForceIdle: " + mDeviceIdleController.isForceIdle());
+                    mDeviceIdleController.setDeepIdle(true);
+                    mDeviceIdleController.setForceIdle(isForceDozeEnabled());
+                    XposedLog.verbose("isForceIdle: " + mDeviceIdleController.isForceIdle());
+                    mDeviceIdleController.becomeInactiveIfAppropriateLocked();
+
+                    onDozeEnterStart();
+                }
+
+                int curState = mDeviceIdleController.getState();
+                while (curState != DeviceIdleControllerProxy.STATE_IDLE) {
+
+                    if (enterDozeTryingTimes.get() > MAX_RETRY_TIME_TO_SIZE) {
+                        XposedLog.wtf(XposedLog.TAG_DOZE + "Fail enter doze mode after trying max times");
+                        // Post doze message again.
+                        postEnterIdleMode(mDozeDelay);
+
+                        // Add to events.
+                        onDozeEnterFail(FAIL_RETRY_TIMEOUT);
+
+                        // Exit force.
+                        mDeviceIdleController.exitForceIdleLocked();
+                        return;
+                    }
+
+                    // Increase try times.
+                    int time = enterDozeTryingTimes.incrementAndGet();
+
+                    // Check if we are interactive.
+                    PowerManager powerManager = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
+                    boolean isInteractive = false;
+
+                    if (powerManager != null) {
+                        isInteractive = powerManager.isInteractive();
+                    }
+
+                    if (isInteractive) {
+                        XposedLog.wtf("isInteractive when trying to setup idle mode");
+                        // Add to events.
+                        cancelEnterIdleModePosts();
+                        onDozeEnterFail(FAIL_DEVICE_INTERACTIVE);
+                        return;
+                    }
+
+                    stepIdleStateLocked();
+
+                    if (curState == mDeviceIdleController.getState()) {
+                        XposedLog.wtf("Unable to go deep idle, stopped at "
+                                + DeviceIdleControllerProxy.stateToString(curState));
+                        mDeviceIdleController.exitForceIdleLocked();
+                        cancelEnterIdleModePosts();
+                        onDozeEnterFail(FAIL_DEVICE_INTERACTIVE);
+                        return;
+                    }
+
+                    curState = mDeviceIdleController.getState();
+
+                    XposedLog.verbose(XposedLog.TAG_DOZE + "Step idle @" + time + ", state " + curState);
+                }
+
+                XposedLog.debug(XposedLog.TAG_DOZE + "We are in doze mode!");
+
+                // Cancel any pending post.
+                cancelEnterIdleModePosts();
+
+                // Add to events.
+                onDozeEnterSuccess();
+            }
+        }, "mDozeStepper");
 
         private BatterState mBatteryState;
 
