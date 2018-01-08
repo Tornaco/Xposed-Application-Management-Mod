@@ -1,6 +1,5 @@
 package github.tornaco.xposedmoduletest.xposed.service.doze;
 
-import android.os.Build;
 import android.util.Log;
 
 import de.robv.android.xposed.XposedHelpers;
@@ -163,20 +162,33 @@ public class DeviceIdleControllerProxy {
     }
 
     public void stepIdleStateLocked() {
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-            XposedLog.verbose("stepIdleStateLocked for M");
-            try {
-                XposedHelpers.callMethod(deviceIdleController, "stepIdleStateLocked");
-            } catch (Throwable e) {
-                XposedLog.wtf("stepIdleStateLocked call fail: " + Log.getStackTraceString(e));
-            }
+        if (stepIdleStateLockedForM()
+                || stepIdleStateLockedForN()) {
+            XposedLog.debug("stepIdleStateLocked success");
         } else {
-            XposedLog.verbose("stepIdleStateLocked for N/O");
-            try {
-                XposedHelpers.callMethod(deviceIdleController, "stepIdleStateLocked", "s:shell");
-            } catch (Throwable e) {
-                XposedLog.wtf("stepIdleStateLocked call fail: " + Log.getStackTraceString(e));
-            }
+            XposedLog.debug("stepIdleStateLocked fail");
+        }
+    }
+
+    private boolean stepIdleStateLockedForM() {
+        XposedLog.verbose("stepIdleStateLocked for M");
+        try {
+            XposedHelpers.callMethod(deviceIdleController, "stepIdleStateLocked");
+            return true;
+        } catch (Throwable e) {
+            XposedLog.wtf("stepIdleStateLocked call fail: " + Log.getStackTraceString(e));
+            return false;
+        }
+    }
+
+    private boolean stepIdleStateLockedForN() {
+        XposedLog.verbose("stepIdleStateLocked for N/O");
+        try {
+            XposedHelpers.callMethod(deviceIdleController, "stepIdleStateLocked", "s:shell");
+            return true;
+        } catch (Throwable e) {
+            XposedLog.wtf("stepIdleStateLocked call fail: " + Log.getStackTraceString(e));
+            return false;
         }
     }
 
