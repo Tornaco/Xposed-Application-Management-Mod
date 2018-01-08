@@ -932,6 +932,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case DozeHandlerMessages.MSG_SETFORCEDOZEENABLED:
                     DozeHandlerImpl.this.setForceDozeEnabled((Boolean) msg.obj);
                     break;
+                case DozeHandlerMessages.MSG_ONSCREENON:
+                    DozeHandlerImpl.this.onScreenOn();
+                    break;
             }
 
             super.handleMessage(msg);
@@ -1038,6 +1041,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             // Exit doze force state.
             if (mDeviceIdleController != null) {
                 mDeviceIdleController.exitForceIdleLocked();
+                XposedLog.verbose("exitForceIdleLocked, state " + mDeviceIdleController.getState());
             }
         }
 
