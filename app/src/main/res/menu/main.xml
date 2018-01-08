@@ -19,4 +19,10 @@
         android:icon="@drawable/ic_help_white_24dp"
         android:title="@string/title_help"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_update_log"
+        android:icon="@drawable/ic_format_list_bulleted_black_24dp"
+        android:title="@string/title_app_update_log_view"
+        app:showAsAction="never" />
 </menu>

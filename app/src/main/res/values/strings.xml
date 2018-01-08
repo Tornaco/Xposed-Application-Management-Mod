@@ -352,5 +352,6 @@
     <string name="perm_ops">按权限</string>
     <string name="title_allow_all">全部允许</string>
     <string name="ignore_allow_all">全部禁用</string>
+    <string name="title_app_update_log_view">更新日志</string>
 
 </resources>

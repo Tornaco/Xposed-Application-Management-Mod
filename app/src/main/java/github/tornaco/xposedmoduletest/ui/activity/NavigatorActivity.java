@@ -212,6 +212,9 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         if (item.getItemId() == R.id.action_help) {
             navigateToWebPage(getString(R.string.app_wiki_url));
         }
+        if (item.getItemId() == R.id.action_update_log) {
+            navigateToWebPage(getString(R.string.app_rel_url));
+        }
 
         if (item.getItemId() == R.id.action_view_running_services) {
             startActivity(new Intent(this, RunningServicesActivity.class));
