@@ -3554,17 +3554,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 .sendToTarget();
 
 
-        /*
         if (!isLazyModeEnabled() || !isPackageLazyByUser(from)) {
             return;
         }
 
         // Try retrieve running services.
-        Runnable lazyKill = new LazyServiceKiller(from);
-        ErrorCatchRunnable ecr = new ErrorCatchRunnable(lazyKill, "lazyKill");
-        // Kill all service after 3s.
-        lazyH.postDelayed(ecr, 3 * 1000);
-         */
+//        Runnable lazyKill = new LazyServiceKiller(from);
+//        ErrorCatchRunnable ecr = new ErrorCatchRunnable(lazyKill, "lazyKill");
+//        // Kill all service after 3s.
+//        lazyH.postDelayed(ecr, 3 * 1000);
     }
 
 
@@ -4708,7 +4706,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             continue;
                         }
 
-                        if (hasNotificationForPackage(runningPackageName)) {
+                        if (isDoNotKillSBNEnabled()
+                                && hasNotificationForPackage(runningPackageName)) {
 
                             if (listener != null) try {
                                 listener.onIgnoredPkg(runningPackageName, "sbn-app");

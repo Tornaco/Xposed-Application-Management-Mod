@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.newstand.logger.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,6 +80,8 @@ public class RunningServicesActivity
             if (BuildConfig.APPLICATION_ID.equals(d.getPkgName())) continue;
             d.setSystemApp(PkgUtil.isSystemApp(getApplicationContext(), d.getPkgName()));
             displays.add(d);
+            Logger.w("RunningServiceInfoDisplay-LAZY:" + m.mLabel);
+            Logger.w("RunningServiceInfoDisplay-LAZY:" + m.mServices);
         }
         return displays;
     }

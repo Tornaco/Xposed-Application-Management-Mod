@@ -8,6 +8,7 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
+import java.util.Arrays;
 import java.util.Set;
 
 import de.robv.android.xposed.IXposedHookZygoteInit;
@@ -37,8 +38,8 @@ class ServiceSubModule extends IntentFirewallAndroidSubModule {
     @Override
     public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {
         super.initZygote(startupParam);
-        hookTheFuckingService();
-        hookTheFuckingServiceBind();
+        // hookTheFuckingService();
+        hookTheFuckingServiceAttach();
     }
 
     private void hookTheFuckingService() {
@@ -111,20 +112,18 @@ class ServiceSubModule extends IntentFirewallAndroidSubModule {
         }
     }
 
-    private void hookTheFuckingServiceBind() {
-        XposedLog.verbose("hookTheFuckingServiceBind...");
+    private void hookTheFuckingServiceAttach() {
+        XposedLog.verbose("hookTheFuckingServiceAttach...");
         try {
             Class clz = XposedHelpers.findClass("android.app.Service", null);
             Set unHooks = XposedBridge.hookAllMethods(clz,
-                    "onBind", new XC_MethodHook() {
+                    "attach", new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(final MethodHookParam param)
                                 throws Throwable {
                             super.afterHookedMethod(param);
+                            Log.d(XposedLog.TAG_LAZY, "attach service: " + Arrays.toString(param.args));
 
-                            // Do not hook any system service.
-                            int callingUid = Binder.getCallingUid();
-                            if (PkgUtil.isSystemOrPhoneOrShell(callingUid)) return;
 
                             final Service service = (Service) param.thisObject;
 
@@ -135,13 +134,53 @@ class ServiceSubModule extends IntentFirewallAndroidSubModule {
                             }
 
                             final String hostPackage = AndroidAppHelper.currentPackageName();
-                            Log.d(XposedLog.TAG_LAZY, "onBind service: " + hostPackage);
+
+                            if ("android".equals(hostPackage)) {
+                                // Do not block any android service.
+                                return;
+                            }
+
+                            if (XAshmanManager.get().isServiceAvailable()
+                                    && XAshmanManager.get().isLazyModeEnabledForPackage(hostPackage)) {
+
+                                Log.d(XposedLog.TAG_LAZY, "Service attached: "
+                                        + service + ", host: " + hostPackage);
+
+                                final Handler h = new Handler(service.getMainLooper()) {
+                                    @Override
+                                    public void handleMessage(Message msg) {
+                                        super.handleMessage(msg);
+                                        try {
+                                            Log.d(XposedLog.TAG_LAZY, "Service stopSelf: " + service);
+                                            service.stopSelf();
+
+                                            // UnRegister.
+                                            ITopPackageChangeListener.Stub l = (ITopPackageChangeListener.Stub) msg.obj;
+                                            XAshmanManager.get().unRegisterOnTopPackageChangeListener(l);
+                                        } catch (Exception e) {
+                                            Log.e(XposedLog.TAG_LAZY, "Error handle message:" + e);
+                                        }
+                                    }
+                                };
+
+                                ITopPackageChangeListener.Stub l = new ITopPackageChangeListener.Stub() {
+                                    @Override
+                                    public void onChange(String from, String to) throws RemoteException {
+                                        if (!hostPackage.equals(to)) {
+                                            h.obtainMessage(0, this).sendToTarget();
+                                        }
+                                    }
+                                };
+
+                                Log.d(XposedLog.TAG_LAZY, "Registering listener: " + l);
+                                XAshmanManager.get().registerOnTopPackageChangeListener(l);
+                            }
                         }
                     });
-            XposedLog.verbose("hookTheFuckingServiceBind OK:" + unHooks);
+            XposedLog.verbose("hookTheFuckingServiceAttach OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XposedLog.verbose("Fail hookTheFuckingServiceBind:" + e);
+            XposedLog.verbose("Fail hookTheFuckingServiceAttach:" + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

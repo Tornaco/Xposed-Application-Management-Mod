@@ -269,6 +269,14 @@ public class RunningState {
         public ServiceItem() {
             super(false);
         }
+
+        @Override
+        public String toString() {
+            return "ServiceItem{" +
+                    "mServiceInfo=" + mServiceInfo +
+                    ", mShownAsStarted=" + mShownAsStarted +
+                    '}';
+        }
     }
 
     static class ProcessItem extends BaseItem {
