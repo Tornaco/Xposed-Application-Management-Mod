@@ -10,6 +10,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 
 /**
@@ -35,8 +36,12 @@ class PWMSubModule extends AndroidSubModuleModule {
     private void hookInterceptKeyBeforeQueueing(final XC_LoadPackage.LoadPackageParam lpparam) {
         logOnBootStage("hookInterceptKeyBeforeQueueing...");
         try {
-            Class clz = XposedHelpers.findClass("com.android.server.policy.PhoneWindowManager",
-                    lpparam.classLoader);
+            Class clz =
+                    OSUtil.isMOrAbove() ?
+                            XposedHelpers.findClass("com.android.server.policy.PhoneWindowManager",
+                                    lpparam.classLoader)
+                            : XposedHelpers.findClass("com.android.internal.policy.impl.PhoneWindowManager",
+                            lpparam.classLoader);
             Set unHooks = XposedBridge.hookAllMethods(clz,
                     "interceptKeyBeforeQueueing", new XC_MethodHook() {
                         @Override

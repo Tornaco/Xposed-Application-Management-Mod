@@ -95,6 +95,7 @@ import github.tornaco.xposedmoduletest.ui.widget.ClickableToastManager;
 import github.tornaco.xposedmoduletest.ui.widget.FloatView;
 import github.tornaco.xposedmoduletest.util.ArrayUtil;
 import github.tornaco.xposedmoduletest.util.GsonUtil;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -248,7 +249,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 }
             });
 
-    private BroadcastReceiver mUserReceiver = new ProtectedBroadcastReceiver(new BroadcastReceiver() {
+    private BroadcastReceiver mUserReceiver
+            = new ProtectedBroadcastReceiver(new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent == null) return;
@@ -811,6 +813,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             @Override
             public void run() {
 
+                if (!isDozeSupported()) {
+                    XposedLog.verbose(XposedLog.TAG_DOZE + "mDozeStepper execute but doze not supported");
+                    return;
+                }
+
                 XposedLog.verbose(XposedLog.TAG_DOZE + "mDozeStepper execute delay: " + mDozeDelay);
 
                 if (mDeviceIdleController == null) {
@@ -1178,6 +1185,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void onDozeEnterFail(int failCode) {
+        if (!isDozeSupported()) {
+            XposedLog.wtf("onDozeEnterFail while doze not supported");
+            return;
+        }
         synchronized (mDozeLock) {
             mLastDozeEvent.setEnterTimeMills(System.currentTimeMillis());
             mLastDozeEvent.setResult(DozeEvent.RESULT_FAIL);
@@ -1189,6 +1200,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void postDozeEndCheck() {
+        if (!isDozeSupported()) {
+            XposedLog.wtf("postDozeEndCheck while doze not supported");
+            return;
+        }
         if (dozeH != null) {
             dozeH.sendEmptyMessageDelayed(DozeHandlerMessages.MSG_UPDATEDOZEENDSTATE, END_DOZE_CHECK_DELAY);
         }
@@ -1198,6 +1213,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void onDozeEnd() {
+        if (!isDozeSupported()) {
+            XposedLog.wtf("onDozeEnd while doze not supported");
+            return;
+        }
         synchronized (mDozeLock) {
             mLastDozeEvent.setEndTimeMills(System.currentTimeMillis());
         }
@@ -1207,6 +1226,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void addToDozeHistory(DozeEvent event) {
+        if (!isDozeSupported()) {
+            XposedLog.wtf("addToDozeHistory while doze not supported");
+            return;
+        }
         synchronized (mDozeHistory) {
             checkDozeHistorySize();
             mDozeHistory.addFirst(event);
@@ -1215,6 +1238,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     // If history larger than MAX, remove last one.
     private void checkDozeHistorySize() {
+        if (!isDozeSupported()) {
+            XposedLog.wtf("checkDozeHistorySize while doze not supported");
+            return;
+        }
         synchronized (mDozeHistory) {
             int size = mDozeHistory.size();
             XposedLog.verbose("checkDozeHistorySize: " + size);
@@ -1225,6 +1252,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void resetDozeEvent() {
+        if (!isDozeSupported()) {
+            XposedLog.wtf("resetDozeEvent while doze not supported");
+            return;
+        }
         XposedLog.verbose("resetDozeEvent");
         synchronized (mDozeLock) {
             mLastDozeEvent.setResult(DozeEvent.RESULT_UNKNOWN);
@@ -3391,7 +3422,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @BinderCall
     public boolean isDozeEnabled() {
-        return mDozeEnabled.get();
+        return mDozeEnabled.get() && isDozeSupported();
+    }
+
+    private boolean isDozeSupported() {
+        return BuildConfig.DEBUG || OSUtil.isMOrAbove();
     }
 
     @Override
@@ -3825,7 +3860,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         lazyH = onCreateLazyHandler();
 
         boolean hasDozeFeature = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_DOZE);
-        if (hasDozeFeature) {
+        if (hasDozeFeature && isDozeSupported()) {
             dozeH = onCreateDozeHandler();
         } else {
             XposedLog.wtf("Will not create doze handler when no doze feature");
