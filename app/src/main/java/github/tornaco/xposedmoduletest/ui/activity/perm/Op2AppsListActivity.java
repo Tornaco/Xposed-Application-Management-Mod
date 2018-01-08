@@ -175,6 +175,8 @@ public class Op2AppsListActivity extends WithSearchActivity<CommonPackageInfo> {
                         @Override
                         public void run() {
                             p.dismiss();
+
+                            startLoading();
                         }
                     });
                 }
