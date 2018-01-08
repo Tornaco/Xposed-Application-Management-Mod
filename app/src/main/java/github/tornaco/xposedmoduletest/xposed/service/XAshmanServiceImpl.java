@@ -265,9 +265,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private void onUserPresent() {
         h.sendEmptyMessage(AshManHandlerMessages.MSG_ONSCREENON);
-        cancelEnterIdleModePosts();
-        // Check if this is an end of doze.
-        postDozeEndCheck();
     }
 
     private void onScreenOff() {
@@ -280,6 +277,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private void onScreenOn() {
         if (dozeH != null) {
             dozeH.sendEmptyMessage(DozeHandlerMessages.MSG_ONSCREENON);
+
+            cancelEnterIdleModePosts("Screen is on");
+            // Check if this is an end of doze.
+            postDozeEndCheck();
         }
     }
 
@@ -810,7 +811,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             @Override
             public void run() {
 
-                XposedLog.verbose(XposedLog.TAG_DOZE + "mDozeStepper execute");
+                XposedLog.verbose(XposedLog.TAG_DOZE + "mDozeStepper execute delay: " + mDozeDelay);
 
                 if (mDeviceIdleController == null) {
                     XposedLog.wtf(XposedLog.TAG_DOZE
@@ -863,7 +864,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     if (isInteractive) {
                         XposedLog.wtf("isInteractive when trying to setup idle mode");
                         // Add to events.
-                        cancelEnterIdleModePosts();
+                        cancelEnterIdleModePosts("isInteractive");
                         onDozeEnterFail(FAIL_DEVICE_INTERACTIVE);
                         return;
                     }
@@ -874,7 +875,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         XposedLog.wtf("Unable to go deep idle, stopped at "
                                 + DeviceIdleControllerProxy.stateToString(curState));
                         mDeviceIdleController.exitForceIdleLocked();
-                        cancelEnterIdleModePosts();
+                        cancelEnterIdleModePosts("Fail doze");
                         onDozeEnterFail(FAIL_DEVICE_INTERACTIVE);
                         return;
                     }
@@ -887,7 +888,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 XposedLog.debug(XposedLog.TAG_DOZE + "We are in doze mode!");
 
                 // Cancel any pending post.
-                cancelEnterIdleModePosts();
+                cancelEnterIdleModePosts("Doze success");
 
                 // Add to events.
                 onDozeEnterSuccess();
@@ -1138,8 +1139,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
-    private void cancelEnterIdleModePosts() {
-        XposedLog.verbose(XposedLog.TAG_DOZE + "cancelEnterIdleModePosts");
+    private void cancelEnterIdleModePosts(String reason) {
+        XposedLog.verbose(XposedLog.TAG_DOZE + "cancelEnterIdleModePosts: " + reason);
         if (dozeH != null) {
             dozeH.removeMessages(DozeHandlerMessages.MSG_ENTERIDLEMODE);
         } else {
@@ -3545,6 +3546,24 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public boolean isPrivacyEnabled() throws RemoteException {
         return mPrivacyEnabled.get();
     }
+
+    // PLUGIN API START.
+    @Override
+    public String[] getPluginApps() throws RemoteException {
+        return new String[0];
+    }
+
+    @Override
+    public boolean isAppInPluginList(String pkg) throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public void addOrRemovePluginApp(String appPackageName, boolean add) throws RemoteException {
+
+    }
+
+    // PLUGIN API END.
 
     private boolean isSystemUIPackage(String pkgName) {
         return pkgName != null && pkgName.equals(SYSTEM_UI_PKG);

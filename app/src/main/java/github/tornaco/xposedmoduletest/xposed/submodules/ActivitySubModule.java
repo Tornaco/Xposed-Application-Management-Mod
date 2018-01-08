@@ -2,12 +2,15 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import android.util.Log;
 
+import com.google.common.collect.Sets;
+
 import java.util.Set;
 
 import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
+import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -16,6 +19,30 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 class ActivitySubModule extends IntentFirewallAndroidSubModule {
+
+    @Override
+    public String needBuildVar() {
+        return super.needBuildVar();
+    }
+
+    @Override
+    public int needMinSdk() {
+        return super.needMinSdk();
+    }
+
+    @Override
+    public Set<String> getInterestedPackages() {
+        return Sets.newHashSet("*");
+    }
+
+    @Override
+    public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
+        super.handleLoadingPackage(pkg, lpparam);
+
+        if ("com.coolapk.market".equals(lpparam.packageName)) {
+            XposedLog.danger("LOADING COOLAPK");
+        }
+    }
 
     @Override
     public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {
@@ -28,11 +55,11 @@ class ActivitySubModule extends IntentFirewallAndroidSubModule {
         try {
             Class clz = XposedHelpers.findClass("android.app.Activity", null);
             Set unHooks = XposedBridge.hookAllMethods(clz,
-                    "onBackPressed", new XC_MethodHook() {
+                    "onKeyUp", new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             super.afterHookedMethod(param);
-                            XposedLog.verbose("onBackPressed: " + param.thisObject);
+                            XposedLog.verbose("onKeyUp: " + param.thisObject);
                         }
                     });
             XposedLog.verbose("hookOnBackPressed OK:" + unHooks);

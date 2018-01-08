@@ -48,6 +48,6 @@
     </string-array>
 
     <string-array name="ash_white_list_packages_hooks">
-        <item>placeholder</item>
+        <item>com.tencent.pb</item>
     </string-array>
 </resources>

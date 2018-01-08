@@ -203,4 +203,8 @@ interface IAshmanService {
 
     void setPrivacyEnabled(boolean enable);
     boolean isPrivacyEnabled();
+
+    String[] getPluginApps();
+    boolean isAppInPluginList(String pkg);
+    void addOrRemovePluginApp(String appPackageName, boolean add);
 }
