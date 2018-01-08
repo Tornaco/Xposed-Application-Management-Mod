@@ -30,14 +30,12 @@ import com.google.common.collect.ImmutableList;
 import com.jaredrummler.android.shell.Shell;
 
 import java.util.List;
-import java.util.UUID;
 
 import co.mobiwise.materialintro.shape.Focus;
 import co.mobiwise.materialintro.shape.FocusGravity;
 import co.mobiwise.materialintro.view.MaterialIntroView;
 import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
-import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.os.PowerManagerCompat;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
@@ -194,7 +192,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                 .performClick(true)
                 .setInfoText(getString(R.string.app_intro_menu))
                 .setTarget(toolbar)
-                .setUsageId(BuildConfig.DEBUG ? UUID.randomUUID().toString() : " nav_menu")
+                .setUsageId(" nav_menu")
                 .show();
     }
 
@@ -420,7 +418,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             if (category.getTilesCount() > 0) categories.add(category);
             if (rest.getTilesCount() > 0) categories.add(rest);
             if (ash.getTilesCount() > 0) categories.add(ash);
-            if (ash.getTilesCount() > 0) categories.add(battery);
+            if (battery.getTilesCount() > 0) categories.add(battery);
         }
 
         @SuppressWarnings("unchecked")

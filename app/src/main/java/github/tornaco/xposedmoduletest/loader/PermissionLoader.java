@@ -164,7 +164,8 @@ public interface PermissionLoader {
             List<CommonPackageInfo> res = new ArrayList<>(opCount);
             for (int i = 0; i < opCount; i++) {
                 CommonPackageInfo c = new CommonPackageInfo();
-                c.setAppName(AppOpsManagerCompat.getOpSummary(context, i));
+                c.setAppName(AppOpsManagerCompat.getOpLabel(context, i));
+                c.setPayload(new String[]{AppOpsManagerCompat.getOpSummary(context, i)});
                 c.setPkgName(null);
                 c.setChecked(false);
                 c.setVersion(i);

@@ -140,7 +140,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private static final boolean DEBUG_BROADCAST = false && BuildConfig.DEBUG;
     private static final boolean DEBUG_SERVICE = false && BuildConfig.DEBUG;
-    private static final boolean DEBUG_OP = false && BuildConfig.DEBUG;
+    private static final boolean DEBUG_OP = BuildConfig.DEBUG;
     private static final boolean DEBUG_COMP = false && BuildConfig.DEBUG;
 
     private static final Set<String> WHITE_LIST = new HashSet<>();
@@ -2710,14 +2710,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.verbose("getPermissionControlBlockModeForPkg code %s pkg %s", code, pkg);
         }
 
-        if (isInWhiteList(pkg)) return AppOpsManagerCompat.MODE_ALLOWED;
-
-        // User want to do this.
-//        if (isWhiteSysAppEnabled() && isInSystemAppList(pkg))
-//            return AppOpsManagerCompat.MODE_ALLOWED;
+        if (isInWhiteList(pkg)) {
+            if (DEBUG_OP) {
+                XposedLog.verbose("getPermissionControlBlockModeForPkg white listed");
+            }
+            return AppOpsManagerCompat.MODE_ALLOWED;
+        }
 
         long id = Binder.clearCallingIdentity();
         String pattern = constructPatternForPermission(code, pkg);
+        if (DEBUG_OP) {
+            XposedLog.verbose("getPermissionControlBlockModeForPkg pattern %s", pattern);
+        }
         try {
             if (isInPermissionBlockList(pattern)) return AppOpsManagerCompat.MODE_IGNORED;
         } catch (Throwable e) {

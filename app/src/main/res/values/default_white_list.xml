@@ -3,10 +3,10 @@
     <string-array name="default_ash_white_list_packages">
 
         <item>android</item>
-        <item>com.android.providers.calendar</item>
-        <item>com.android.providers.media</item>
-        <item>com.android.providers.contacts</item>
-        <item>com.android.providers.downloads.ui</item>
+        <!--<item>com.android.providers.calendar</item>-->
+        <!--<item>com.android.providers.media</item>-->
+        <!--<item>com.android.providers.contacts</item>-->
+        <!--<item>com.android.providers.downloads.ui</item>-->
         <item>com.android.providers.settings</item>
         <item>com.android.smspush</item>
         <item>android.providers.telephony</item>

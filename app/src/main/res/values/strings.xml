@@ -230,7 +230,7 @@
     <string name="title_restart_rec">重启到Recovery模式</string>
     <string name="title_restart_bl">重启到Bootloader模式</string>
     <string name="title_perm_control">权限控制</string>
-    <string name="summary_perm_control">禁用应用的某些权限可能会导致该应用运行出现异常。\n禁用某些系统应用权限可能会导致设备无法正常使用，甚至无法启动。</string>
+    <string name="summary_perm_control">禁用应用的某些权限可能会导致该应用运行出现异常；禁用某些系统应用权限可能会导致设备无法正常使用，甚至无法启动。\n\n系统核心应用不允许修改任何权限。</string>
     <string name="navigation_drawer_open">open</string>
     <string name="navigation_drawer_close">close</string>
     <string name="action_tools">工具箱</string>

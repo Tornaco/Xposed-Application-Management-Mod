@@ -225,6 +225,7 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
 
                     if (index == INDEX_OPS) {
                         final CommonPackageInfo packageInfo = getCommonPackageInfos().get(position);
+                        holder.getLineTwoTextView().setText(packageInfo.getPayload()[0]);
                         if (getActivity() != null) {
                             holder.getCheckableImageView().setImageDrawable(ContextCompat
                                     .getDrawable(getActivity(), github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat
@@ -241,7 +242,7 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
                 @Override
                 protected int getTemplateLayoutRes() {
                     return index == INDEX_OPS ?
-                            R.layout.app_list_item_1_ops
+                            R.layout.app_list_item_2_ops
                             : super.getTemplateLayoutRes();
                 }
             };
