@@ -8,6 +8,7 @@ import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.lang.reflect.Method;
 import java.util.Set;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -34,9 +35,20 @@ public class ScreenshotApplicationsSubModule extends AppGuardAndroidSubModule {
      */
     private void hookScreenshotApplications(XC_LoadPackage.LoadPackageParam lpparam) {
         XposedLog.boot("hookScreenshotApplications...");
+
         try {
             Class clz = XposedHelpers.findClass("com.android.server.wm.WindowManagerService",
                     lpparam.classLoader);
+
+            // Dump all methods in WMS.
+            try {
+                for (Method m : clz.getDeclaredMethods()) {
+                    XposedLog.boot("WindowManagerService method: " + m);
+                }
+            } catch (Exception ignored) {
+
+            }
+
             Set unHooks = XposedBridge.hookAllMethods(clz,
                     "screenshotApplications", new XC_MethodHook() {
                         @Override
