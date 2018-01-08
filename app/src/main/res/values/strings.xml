@@ -353,5 +353,6 @@
     <string name="title_allow_all">全部允许</string>
     <string name="ignore_allow_all">全部禁用</string>
     <string name="title_app_update_log_view">更新日志</string>
+    <string name="app_intro_menu">此处菜单包含新手常见问题，以及更新日志，请务必先阅读在使用。</string>
 
 </resources>

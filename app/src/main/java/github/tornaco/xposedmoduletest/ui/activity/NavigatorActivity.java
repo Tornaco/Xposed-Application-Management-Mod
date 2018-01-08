@@ -30,12 +30,16 @@ import com.google.common.collect.ImmutableList;
 import com.jaredrummler.android.shell.Shell;
 
 import java.util.List;
+import java.util.UUID;
 
+import co.mobiwise.materialintro.shape.Focus;
+import co.mobiwise.materialintro.shape.FocusGravity;
+import co.mobiwise.materialintro.view.MaterialIntroView;
 import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.os.PowerManagerCompat;
-import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.FragmentController;
 import github.tornaco.xposedmoduletest.ui.Themes;
@@ -177,34 +181,21 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                     })
                     .show();
         }
-    }
 
-    private void showBatteryDrainFuckingDialog() {
-        if (AppSettings.isShowInfoEnabled(getContext(), "showBatteryDrainFuckingDialog")) {
-            new AlertDialog.Builder(NavigatorActivity.this)
-                    .setTitle("关于耗电情况")
-                    .setMessage("必须申明，软件无需后台运行。如果你开启了闯入抓拍，会造成系统耗电增加，因此造成的电池使用情况不理想请不要埋怨。")
-                    .setPositiveButton("继续使用", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    })
-                    .setNeutralButton("别再啰嗦", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            AppSettings.setShowInfo(getContext(), "showBatteryDrainFuckingDialog", false);
-                        }
-                    })
-                    .setNegativeButton("我要卸载", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                            PackageManagerCompat.unInstallUserAppWithIntent(getContext(), getPackageName());
-                        }
-                    })
-                    .setCancelable(false)
-                    .show();
-        }
+        Toolbar toolbar = findViewById(R.id.toolbar);
+
+        new MaterialIntroView.Builder(this)
+                .enableDotAnimation(true)
+                .enableIcon(false)
+                .setFocusGravity(FocusGravity.RIGHT)
+                .setFocusType(Focus.MINIMUM)
+                .setDelayMillis(500)
+                .enableFadeAnimation(true)
+                .performClick(true)
+                .setInfoText(getString(R.string.app_intro_menu))
+                .setTarget(toolbar)
+                .setUsageId(BuildConfig.DEBUG ? UUID.randomUUID().toString() : " nav_menu")
+                .show();
     }
 
     @Override

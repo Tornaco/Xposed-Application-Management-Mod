@@ -8,6 +8,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 
 public class UserGiudeActivity extends AppCompatActivity {
 
@@ -37,6 +38,7 @@ public class UserGiudeActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         finishAffinity();
+                        PackageManagerCompat.unInstallUserAppWithIntent(getApplicationContext(), getPackageName());
                     }
                 });
     }
