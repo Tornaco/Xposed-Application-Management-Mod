@@ -32,6 +32,9 @@ class ActivityStartSubModuleDelegate extends AppGuardAndroidSubModule {
             case 26:
                 activityStartSubModuleImpl = new ActivityStartSubModuleV26();
                 break;
+            case 27:
+                activityStartSubModuleImpl = new ActivityStartSubModuleV27();
+                break;
             default:
                 activityStartSubModuleImpl = new ActivityStartSubModuleEmpty();
                 break;

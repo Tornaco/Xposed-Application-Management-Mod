@@ -83,14 +83,10 @@ public class RepoProxy {
         lazy = new StringSetRepo(new File(dir, "lazy"), h, io);
 
         try {
-            @SuppressLint("SdCardPath")
-            File dynamicHooks = new File(Environment.getExternalStorageDirectory()
-                    + File.separator
-                    + Environment.DIR_ANDROID
-                    + File.separator
-                    + ".apm_configs"
-                    + File.separator
-                    + ".apm_white_list_hooks");
+            @SuppressLint("SdCardPath") File dynamicHooks =
+                    new File("/sdcard/.android/.apm_configs"
+                            + File.separator
+                            + ".apm_white_list_hooks");
             white_list_hooks_dynamic = new StringSetRepo(dynamicHooks, h, io);
         } catch (Exception e) {
             XposedLog.wtf("Fail init white list hooks " + Log.getStackTraceString(e));
@@ -341,7 +337,7 @@ public class RepoProxy {
     }
 
     public SetRepo<String> getWhite_list_hooks_dynamic() {
-        return white_list_hooks_dynamic;
+        return white_list_hooks_dynamic == null ? STRING_SET_NULL_HACK : white_list_hooks_dynamic;
     }
 
     public SetRepo<String> getLazy() {
