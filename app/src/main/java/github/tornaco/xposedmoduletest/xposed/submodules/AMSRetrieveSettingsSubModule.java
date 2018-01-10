@@ -16,7 +16,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // Hook retrieve settings.
-class AMSSubModule4 extends AndroidSubModuleModule {
+class AMSRetrieveSettingsSubModule extends AndroidSubModuleModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {

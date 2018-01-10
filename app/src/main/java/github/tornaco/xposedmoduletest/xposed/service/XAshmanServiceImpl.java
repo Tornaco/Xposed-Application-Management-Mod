@@ -139,8 +139,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private static final String TAG_LK = "LOCK-KILL-";
 
-    private static final boolean DEBUG_BROADCAST = false && BuildConfig.DEBUG;
-    private static final boolean DEBUG_SERVICE = false && BuildConfig.DEBUG;
+    private static final boolean DEBUG_BROADCAST = BuildConfig.DEBUG;
+    private static final boolean DEBUG_SERVICE = BuildConfig.DEBUG;
     private static final boolean DEBUG_OP = false && BuildConfig.DEBUG;
     private static final boolean DEBUG_COMP = false && BuildConfig.DEBUG;
 
@@ -2479,7 +2479,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
         getContext().registerReceiver(mBatteryStateReceiver, intentFilter);
 
-        if (BuildConfig.DEBUG) {
+        // This is a test.
+        if (BuildConfig.DEBUG && false) {
             intentFilter = new IntentFilter();
             intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
             getContext().registerReceiver(mTestProtectedBroadcastReceiver, intentFilter);

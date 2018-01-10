@@ -44,11 +44,14 @@ public class AppGuardSubModuleManager {
         addToSubsChecked(new ActivityStartSubModuleDelegate());
 
         addToSubsChecked(new AMSSubModule12());
-        addToSubsChecked(new AMSSubModule5());
-        addToSubsChecked(new AMSSubModule4());
-        addToSubsChecked(new AMSSubModule3());
-        addToSubsChecked(new AMSSubModule2());
-        addToSubsChecked(new AMSSubModule());
+
+        addToSubsChecked(new AMSSetFocusedActivitySubModule());
+        addToSubsChecked(new ActivityStackSupervisorSetFocusedStackSubModule());
+
+        addToSubsChecked(new AMSRetrieveSettingsSubModule());
+        addToSubsChecked(new AMSShutdownSubModule());
+        addToSubsChecked(new AMSSystemReadySubModule());
+        addToSubsChecked(new AMSStartSubModule());
     }
 
     @Synchronized

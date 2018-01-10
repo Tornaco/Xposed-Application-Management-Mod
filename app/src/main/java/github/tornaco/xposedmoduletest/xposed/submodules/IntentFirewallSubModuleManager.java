@@ -72,11 +72,14 @@ public class IntentFirewallSubModuleManager {
         addToSubsChecked(new AMSSubModule9());
         addToSubsChecked(new AMSSubModule8());
         addToSubsChecked(new AMSSubModule6());
-        addToSubsChecked(new AMSSubModule5());
-        addToSubsChecked(new AMSSubModule4());
-        addToSubsChecked(new AMSSubModule3());
-        addToSubsChecked(new AMSSubModule2());
-        addToSubsChecked(new AMSSubModule());
+
+        addToSubsChecked(new AMSSetFocusedActivitySubModule());
+        addToSubsChecked(new ActivityStackSupervisorSetFocusedStackSubModule());
+
+        addToSubsChecked(new AMSRetrieveSettingsSubModule());
+        addToSubsChecked(new AMSShutdownSubModule());
+        addToSubsChecked(new AMSSystemReadySubModule());
+        addToSubsChecked(new AMSStartSubModule());
 
         addToSubsChecked(new ActivityRecordSubModule());
 

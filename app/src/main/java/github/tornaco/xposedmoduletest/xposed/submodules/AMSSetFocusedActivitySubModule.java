@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
+import android.content.Intent;
 import android.util.Log;
 
 import java.util.Set;
@@ -15,29 +16,34 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
-class AMSSubModule3 extends AndroidSubModuleModule {
+// Hook hookSetFocusedActivityLocked settings.
+class AMSSetFocusedActivitySubModule extends AndroidSubModuleModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        hookAMSShutdown(lpparam);
+        hookSetFocusedActivityLocked(lpparam);
     }
 
-    private void hookAMSShutdown(XC_LoadPackage.LoadPackageParam lpparam) {
-        XposedLog.verbose("hookAMSShutdown...");
+    private void hookSetFocusedActivityLocked(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedLog.verbose("hookSetFocusedActivityLocked...");
         try {
             Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService",
                     lpparam.classLoader);
-            Set unHooks = XposedBridge.hookAllMethods(ams, "shutdown", new XC_MethodHook() {
+            Set unHooks = XposedBridge.hookAllMethods(ams, "setFocusedActivityLocked", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
-                    getBridge().shutdown();
+                    Object ar = param.args[0];
+                    if (ar == null) return;
+                    Intent intent = (Intent) XposedHelpers.getObjectField(ar, "intent");
+                    if (intent == null) return;
+                    getBridge().onPackageMoveToFront(intent);
                 }
             });
-            XposedLog.verbose("hookAMSShutdown OK:" + unHooks);
+            logOnBootStage("hookSetFocusedActivityLocked OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XposedLog.verbose("Fail hookAMSShutdown");
+            logOnBootStage("Fail hookSetFocusedActivityLocked: " + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

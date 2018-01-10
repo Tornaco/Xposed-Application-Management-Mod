@@ -1,6 +1,5 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
-import android.content.Context;
 import android.util.Log;
 
 import java.util.Set;
@@ -16,31 +15,28 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
-class AMSSubModule extends AndroidSubModuleModule {
-
+class AMSSystemReadySubModule extends AndroidSubModuleModule {
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        hookAMSStart(lpparam);
+        hookAMSSystemReady(lpparam);
     }
 
-    private void hookAMSStart(XC_LoadPackage.LoadPackageParam lpparam) {
-        XposedLog.verbose("hookAMSStart...");
+    private void hookAMSSystemReady(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedLog.verbose("hookAMSSystemReady...");
         try {
             Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService",
                     lpparam.classLoader);
-            Set unHooks = XposedBridge.hookAllMethods(ams, "start", new XC_MethodHook() {
+            Set unHooks = XposedBridge.hookAllMethods(ams, "systemReady", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
-                    Context context = (Context) XposedHelpers.getObjectField(param.thisObject, "mContext");
-                    getBridge().attachContext(context);
-                    getBridge().publish();
+                    getBridge().systemReady();
                 }
             });
-            XposedLog.verbose("hookAMSStart OK:" + unHooks);
+            XposedLog.verbose("hookAMSSystemReady OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XposedLog.verbose("Fail hook hookAMSStart");
+            XposedLog.verbose("Fail hookAMSSystemReady");
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }
