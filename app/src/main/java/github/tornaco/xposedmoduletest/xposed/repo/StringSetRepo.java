@@ -41,12 +41,12 @@ public class StringSetRepo implements SetRepo<String> {
         this.mExe = service;
         this.mHandler = handler;
 
-        if (!this.mFile.getBaseFile().exists()) {
-            try {
+        try {
+            if (!this.mFile.getBaseFile().exists()) {
                 Files.createParentDirs(file);
-            } catch (IOException e) {
-                XposedLog.wtf("Fail createParentDirs for: " + file + "\n" + Log.getStackTraceString(e));
             }
+        } catch (IOException e) {
+            XposedLog.wtf("Fail createParentDirs for: " + file + "\n" + Log.getStackTraceString(e));
         }
 
         XposedLog.debug("StringSetRepo: " + name() + ", comes up");

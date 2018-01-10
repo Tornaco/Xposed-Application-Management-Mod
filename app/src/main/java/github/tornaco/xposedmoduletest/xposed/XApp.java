@@ -36,5 +36,6 @@ public class XApp extends Application {
                 .logLevel(XSettings.isDevMode(this)
                         ? Logger.LogLevel.DEBUG : Logger.LogLevel.WARN)
                 .build());
+
     }
 }

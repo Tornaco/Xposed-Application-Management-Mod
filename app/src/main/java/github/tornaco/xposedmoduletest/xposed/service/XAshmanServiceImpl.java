@@ -555,6 +555,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 XposedLog.verbose("Not add to white list because it is hooked: " + pkg);
             return;
         }
+
+        // Check dynamic white list hook.
+        if (RepoProxy.getProxy().getWhite_list_hooks_dynamic().has(pkg)) {
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("Not add to white list because it is dynamic hooked: " + pkg);
+            return;
+        }
+
         if (!WHITE_LIST.contains(pkg)) {
             WHITE_LIST.add(pkg);
         }
@@ -4155,6 +4163,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             fout.println("======================");
             fout.println();
 
+            // Dump while list.
+            fout.println("White list hook: ");
+            Collections.consumeRemaining(RepoProxy.getProxy()
+                    .getWhite_list_hooks_dynamic()
+                    .getAll(), new Consumer<String>() {
+                @Override
+                public void accept(String o) {
+                    fout.println(o);
+                }
+            });
+
+            fout.println();
+            fout.println("======================");
+            fout.println();
+
             // Dump System list.
             fout.println("System list: ");
             Object[] systemListObjects = SYSTEM_APPS.toArray();
@@ -4484,6 +4507,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         mRepoProxy.getGreens().remove(BuildConfig.APPLICATION_ID);
                         mRepoProxy.getLks().remove(BuildConfig.APPLICATION_ID);
                         mRepoProxy.getPrivacy().remove(BuildConfig.APPLICATION_ID);
+
+                        mRepoProxy.getWhite_list_hooks_dynamic().reloadAsync();
                     } catch (Throwable e) {
                         XposedLog.wtf("Fail remove owner package targetServicePkg repo: " + Log.getStackTraceString(e));
                     }

@@ -1,9 +1,11 @@
 package github.tornaco.xposedmoduletest.xposed.repo;
 
+import android.annotation.SuppressLint;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -42,7 +44,7 @@ public class RepoProxy {
             perms, privacy, greens,
             blurs, locks, uninstall,
             data_restrict, wifi_restrict,
-            lazy, comps;
+            lazy, comps, white_list_hooks_dynamic;
 
     private MapRepo<String, String> componentReplacement, appFocused, appUnFocused;
 
@@ -79,6 +81,20 @@ public class RepoProxy {
         locks = new StringSetRepo(new File(dir, "locks"), h, io);
         uninstall = new StringSetRepo(new File(dir, "uninstall"), h, io);
         lazy = new StringSetRepo(new File(dir, "lazy"), h, io);
+
+        try {
+            @SuppressLint("SdCardPath")
+            File dynamicHooks = new File(Environment.getExternalStorageDirectory()
+                    + File.separator
+                    + Environment.DIR_ANDROID
+                    + File.separator
+                    + ".apm_configs"
+                    + File.separator
+                    + ".apm_white_list_hooks");
+            white_list_hooks_dynamic = new StringSetRepo(dynamicHooks, h, io);
+        } catch (Exception e) {
+            XposedLog.wtf("Fail init white list hooks " + Log.getStackTraceString(e));
+        }
 
         // FIXME java.io.FileNotFoundException:
         // /data/system/tor/wifi_restrict: open failed: EISDIR (Is a directory)
@@ -322,6 +338,10 @@ public class RepoProxy {
 
     public SetRepo<String> getWifi_restrict() {
         return wifi_restrict == null ? STRING_SET_NULL_HACK : wifi_restrict;
+    }
+
+    public SetRepo<String> getWhite_list_hooks_dynamic() {
+        return white_list_hooks_dynamic;
     }
 
     public SetRepo<String> getLazy() {

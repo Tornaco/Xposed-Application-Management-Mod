@@ -218,9 +218,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         registerReceiver();
         updateDebugMode();
 
-        UserHandle userHandle = UserHandle.CURRENT;
-        XposedLog.boot("userHandle, is system: " + userHandle.isSystem());
-
     }
 
     @Override
