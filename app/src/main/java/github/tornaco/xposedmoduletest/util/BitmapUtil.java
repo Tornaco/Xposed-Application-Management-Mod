@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
@@ -12,8 +13,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.content.ContextCompat;
-
-import org.newstand.logger.Logger;
 
 /**
  * Created by guohao4 on 2017/10/24.
@@ -41,6 +40,15 @@ public abstract class BitmapUtil {
         return bitmap;
     }
 
+    public static Bitmap getBitmap(AdaptiveIconDrawable adaptiveIconDrawable) {
+        Bitmap bitmap = Bitmap.createBitmap(adaptiveIconDrawable.getIntrinsicWidth(),
+                adaptiveIconDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        adaptiveIconDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        adaptiveIconDrawable.draw(canvas);
+        return bitmap;
+    }
+
     @Nullable
     public static Bitmap getBitmap(Context context, @DrawableRes int drawableResId) {
         Drawable drawable = ContextCompat.getDrawable(context, drawableResId);
@@ -58,10 +66,9 @@ public abstract class BitmapUtil {
                 return getBitmap((VectorDrawable) drawable);
             }
             return null;
-        } else if ("android.graphics.drawable.AdaptiveIconDrawable"
-                .equals(drawable.getClass().getName())) {
-            Logger.w("AdaptiveIconDrawable on O is not supported for now.");
-            return null;
+        } else if (drawable instanceof AdaptiveIconDrawable) {
+            AdaptiveIconDrawable ad = (AdaptiveIconDrawable) drawable;
+            return getBitmap(ad);
 
         } else {
             throw new IllegalArgumentException("Unsupported drawable type:" + drawable);
