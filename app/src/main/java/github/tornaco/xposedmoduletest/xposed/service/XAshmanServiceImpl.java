@@ -399,9 +399,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 //                    if (PkgUtil.isHomeApp(getContext(), pkg)) {
 //                        addToWhiteList(pkg);
 //                    }
-                    if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
-                        addToWhiteList(pkg);
-                    }
+//                    if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
+//                        addToWhiteList(pkg);
+//                    }
                 } catch (Exception ignored) {
 
                 }
@@ -462,8 +462,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 // Check if persist.
                                 boolean isPersist = (applicationInfo.flags & ApplicationInfo.FLAG_PERSISTENT) != 0;
                                 if (isPersist) {
-                                    addToWhiteList(pkg);
-                                    XposedLog.wtf("Adding persist pkg: " + pkg);
+                                    // addToWhiteList(pkg);
+                                    XposedLog.wtf("Will not add white list for persist pkg: " + pkg);
                                     return;
                                 }
 
@@ -475,9 +475,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                     if (
                                         // Someone want for fuck the system apps anyway
                                         // Let it go~
-                                            "android.uid.system".equals(sharedUserId) ||
-                                                    "android.uid.phone".equals(sharedUserId)
-                                                    || "android.media".equals(sharedUserId)
+//                                            "android.uid.system".equals(sharedUserId) ||
+                                            "android.uid.phone".equals(sharedUserId)
+//                                                    || "android.media".equals(sharedUserId)
                                             ) {
                                         if (XposedLog.isVerboseLoggable())
                                             XposedLog.debug("Add to white list package: "
@@ -490,9 +490,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                     XposedLog.wtf("NameNotFoundException: " + e + ", for: " + pkg);
                                 }
                                 addToSystemApps(pkg);
-                            }
-                            if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
-                                addToWhiteList(pkg);
                             }
                         }
                     });
@@ -4782,21 +4779,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             continue;
                         }
 
-                        if (PkgUtil.isDefaultSmsApp(getContext(), runningPackageName)) {
-
-                            addToWhiteList(runningPackageName);
-
-                            if (listener != null) try {
-                                listener.onIgnoredPkg(runningPackageName, "sms-app");
-                            } catch (RemoteException ignored) {
-
-                            }
-
-                            if (XposedLog.isVerboseLoggable()) {
-                                XposedLog.verbose(TAG_LK + "App is in isDefaultSmsApp, wont kill: " + runningPackageName);
-                            }
-                            continue;
-                        }
+//                        if (PkgUtil.isDefaultSmsApp(getContext(), runningPackageName)) {
+//
+//                            addToWhiteList(runningPackageName);
+//
+//                            if (listener != null) try {
+//                                listener.onIgnoredPkg(runningPackageName, "sms-app");
+//                            } catch (RemoteException ignored) {
+//
+//                            }
+//
+//                            if (XposedLog.isVerboseLoggable()) {
+//                                XposedLog.verbose(TAG_LK + "App is in isDefaultSmsApp, wont kill: " + runningPackageName);
+//                            }
+//                            continue;
+//                        }
 
                         if (isDoNotKillSBNEnabled()
                                 && hasNotificationForPackage(runningPackageName)) {
