@@ -15,6 +15,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.util.XBitmapUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -41,12 +42,14 @@ public class ScreenshotApplicationsSubModule extends AppGuardAndroidSubModule {
                     lpparam.classLoader);
 
             // Dump all methods in WMS.
-            try {
-                for (Method m : clz.getDeclaredMethods()) {
-                    XposedLog.boot("WindowManagerService method: " + m);
-                }
-            } catch (Exception ignored) {
+            if (OSUtil.isMIUI()) {
+                try {
+                    for (Method m : clz.getDeclaredMethods()) {
+                        XposedLog.boot("WindowManagerService method: " + m);
+                    }
+                } catch (Exception ignored) {
 
+                }
             }
 
             Set unHooks = XposedBridge.hookAllMethods(clz,

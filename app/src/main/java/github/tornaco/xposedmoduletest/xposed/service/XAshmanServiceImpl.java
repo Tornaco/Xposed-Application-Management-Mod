@@ -31,6 +31,7 @@ import android.os.BatteryManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
@@ -139,8 +140,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private static final String TAG_LK = "LOCK-KILL-";
 
-    private static final boolean DEBUG_BROADCAST = BuildConfig.DEBUG;
-    private static final boolean DEBUG_SERVICE = BuildConfig.DEBUG;
+    private static final boolean DEBUG_BROADCAST = false && BuildConfig.DEBUG;
+    private static final boolean DEBUG_SERVICE = false && BuildConfig.DEBUG;
     private static final boolean DEBUG_OP = false && BuildConfig.DEBUG;
     private static final boolean DEBUG_COMP = false && BuildConfig.DEBUG;
 
@@ -200,9 +201,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private AtomicInteger mControlMode = new AtomicInteger(XAshmanManager.ControlMode.BLACK_LIST);
 
     private long mLockKillDelay, mDozeDelay;
-
-    // NEW DATA STRU.
-    private RepoProxy mRepoProxy;
 
     // FIXME Change to remote callbacks.
     private final Set<AshManHandler.WatcherClient> mWatcherClients = new HashSet<>();
@@ -1574,7 +1572,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return true;
         }
 
-        if (mRepoProxy.getComps().has(componentName.flattenToString())) {
+        if (RepoProxy.getProxy().getComps().has(componentName.flattenToString())) {
             if (DEBUG_COMP && XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("Block component setting.");
             }
@@ -1884,7 +1882,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Object[] objArr = outList.toArray();
             return convertObjectArrayToStringArray(objArr);
         } else {
-            Set<String> packages = mRepoProxy.getBoots().getAll();
+            Set<String> packages = RepoProxy.getProxy().getBoots().getAll();
             if (packages.size() == 0) {
                 return new String[0];
             }
@@ -1910,7 +1908,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.verbose("addOrRemoveBootBlockApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
-        addOrRemoveFromRepo(packages, mRepoProxy.getBoots(), op == XAshmanManager.Op.ADD);
+        addOrRemoveFromRepo(packages, RepoProxy.getProxy().getBoots(), op == XAshmanManager.Op.ADD);
     }
 
     @Override
@@ -1944,7 +1942,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Object[] objArr = outList.toArray();
             return convertObjectArrayToStringArray(objArr);
         } else {
-            Set<String> packages = mRepoProxy.getStarts().getAll();
+            Set<String> packages = RepoProxy.getProxy().getStarts().getAll();
             if (packages.size() == 0) {
                 return new String[0];
             }
@@ -1970,7 +1968,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.verbose("addOrRemoveStartBlockApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
-        addOrRemoveFromRepo(packages, mRepoProxy.getStarts(), op == XAshmanManager.Op.ADD);
+        addOrRemoveFromRepo(packages, RepoProxy.getProxy().getStarts(), op == XAshmanManager.Op.ADD);
     }
 
     @Override
@@ -2004,7 +2002,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Object[] objArr = outList.toArray();
             return convertObjectArrayToStringArray(objArr);
         } else {
-            Set<String> packages = mRepoProxy.getLks().getAll();
+            Set<String> packages = RepoProxy.getProxy().getLks().getAll();
             if (packages.size() == 0) {
                 return new String[0];
             }
@@ -2030,7 +2028,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.verbose("addOrRemoveLKApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
-        addOrRemoveFromRepo(packages, mRepoProxy.getLks(), op == XAshmanManager.Op.ADD);
+        addOrRemoveFromRepo(packages, RepoProxy.getProxy().getLks(), op == XAshmanManager.Op.ADD);
     }
 
     @Override
@@ -2064,7 +2062,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Object[] objArr = outList.toArray();
             return convertObjectArrayToStringArray(objArr);
         } else {
-            Set<String> packages = mRepoProxy.getRfks().getAll();
+            Set<String> packages = RepoProxy.getProxy().getRfks().getAll();
             if (packages.size() == 0) {
                 return new String[0];
             }
@@ -2090,7 +2088,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.verbose("addOrRemoveRFKApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
-        addOrRemoveFromRepo(packages, mRepoProxy.getRfks(), op == XAshmanManager.Op.ADD);
+        addOrRemoveFromRepo(packages, RepoProxy.getProxy().getRfks(), op == XAshmanManager.Op.ADD);
     }
 
     @Override
@@ -2124,7 +2122,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Object[] objArr = outList.toArray();
             return convertObjectArrayToStringArray(objArr);
         } else {
-            Set<String> packages = mRepoProxy.getGreens().getAll();
+            Set<String> packages = RepoProxy.getProxy().getGreens().getAll();
             if (packages.size() == 0) {
                 return new String[0];
             }
@@ -2150,7 +2148,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.verbose("addOrRemoveGreeningApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
-        addOrRemoveFromRepo(packages, mRepoProxy.getGreens(), op == XAshmanManager.Op.ADD);
+        addOrRemoveFromRepo(packages, RepoProxy.getProxy().getGreens(), op == XAshmanManager.Op.ADD);
     }
 
     @Override
@@ -2163,7 +2161,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             if (isInSystemAppList(packageName)) return false;
             if (isWhiteSysAppEnabled() && isInSystemAppList(packageName)) return false;
-            return mRepoProxy.getGreens().has(packageName);
+            return RepoProxy.getProxy().getGreens().has(packageName);
         } finally {
             Binder.restoreCallingIdentity(id);
         }
@@ -2185,7 +2183,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (isInSystemAppList(packageName)) return false;
             if (isWhiteSysAppEnabled() && isInSystemAppList(packageName)) return false;
 
-            return mRepoProxy.getGreens().has(packageName);
+            return RepoProxy.getProxy().getGreens().has(packageName);
         } finally {
             Binder.restoreCallingIdentity(id);
         }
@@ -2327,35 +2325,35 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private boolean isPackageBootBlockByUser(String pkg) {
-        return isInStringRepo(mRepoProxy.getBoots(), pkg);
+        return isInStringRepo(RepoProxy.getProxy().getBoots(), pkg);
     }
 
     private boolean isPackageStartBlockByUser(String pkg) {
-        return isInStringRepo(mRepoProxy.getStarts(), pkg);
+        return isInStringRepo(RepoProxy.getProxy().getStarts(), pkg);
     }
 
     private boolean isPackageprivacyByUser(String pkg) {
-        return isInStringRepo(mRepoProxy.getPrivacy(), pkg);
+        return isInStringRepo(RepoProxy.getProxy().getPrivacy(), pkg);
     }
 
     private boolean isPackageLKByUser(String pkg) {
-        return isInStringRepo(mRepoProxy.getLks(), pkg);
+        return isInStringRepo(RepoProxy.getProxy().getLks(), pkg);
     }
 
     private boolean isPackageRFKByUser(String pkg) {
-        return isInStringRepo(mRepoProxy.getRfks(), pkg);
+        return isInStringRepo(RepoProxy.getProxy().getRfks(), pkg);
     }
 
     private boolean isPackageTRKByUser(String pkg) {
-        return isInStringRepo(mRepoProxy.getTrks(), pkg);
+        return isInStringRepo(RepoProxy.getProxy().getTrks(), pkg);
     }
 
     private boolean isPackageLazyByUser(String pkg) {
-        return isInStringRepo(mRepoProxy.getLazy(), pkg);
+        return isInStringRepo(RepoProxy.getProxy().getLazy(), pkg);
     }
 
     private boolean isPackageGreeningByUser(String pkg) {
-        return isInStringRepo(mRepoProxy.getGreens(), pkg);
+        return isInStringRepo(RepoProxy.getProxy().getGreens(), pkg);
     }
 
     private CheckResult checkBootCompleteBroadcast(int receiverUid, int callerUid) {
@@ -2565,8 +2563,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public void publish() {
-        ServiceManager.addService(XAshmanManager.ASH_MAN_SERVICE_NAME, asBinder());
+        XposedLog.boot("publishing ash...");
+        try {
+            ServiceManager.addService(XAshmanManager.ASH_MAN_SERVICE_NAME, asBinder());
+        } catch (Throwable e) {
+            XposedLog.debug("*** FATAL*** Fail publish our svc:" + e);
+        }
         construct();
+    }
+
+    @Override
+    public IBinder onRetrieveBinderService(String name) {
+        if (XAshmanManager.ASH_MAN_SERVICE_NAME.equals(name)) {
+            return asBinder();
+        }
+        return null;
     }
 
     @Override
@@ -2806,9 +2817,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         long id = Binder.clearCallingIdentity();
         try {
             if (mode != AppOpsManagerCompat.MODE_ALLOWED)
-                mRepoProxy.getPerms().add(constructPatternForPermission(code, pkg));
+                RepoProxy.getProxy().getPerms().add(constructPatternForPermission(code, pkg));
             else
-                mRepoProxy.getPerms().remove(constructPatternForPermission(code, pkg));
+                RepoProxy.getProxy().getPerms().remove(constructPatternForPermission(code, pkg));
         } catch (Exception e) {
             XposedLog.wtf("Error setPermissionControlBlockModeForPkg: " + Log.getStackTraceString(e));
         } finally {
@@ -2958,7 +2969,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Object[] objArr = outList.toArray();
             return convertObjectArrayToStringArray(objArr);
         } else {
-            Set<String> packages = mRepoProxy.getPrivacy().getAll();
+            Set<String> packages = RepoProxy.getProxy().getPrivacy().getAll();
             if (packages.size() == 0) {
                 return new String[0];
             }
@@ -2986,7 +2997,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         try {
             if (isInWhiteList(pkg)) return false;
             if (isWhiteSysAppEnabled() && isInSystemAppList(pkg)) return false;
-            return mRepoProxy.getPrivacy().has(pkg);
+            return RepoProxy.getProxy().getPrivacy().has(pkg);
         } finally {
             Binder.restoreCallingIdentity(id);
         }
@@ -3003,7 +3014,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @BinderCall
     public int getPrivacyAppsCount() throws RemoteException {
-        return mRepoProxy.getPrivacy().size();
+        return RepoProxy.getProxy().getPrivacy().size();
     }
 
     @Override
@@ -3014,9 +3025,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         long id = Binder.clearCallingIdentity();
         try {
             if (op == XAshmanManager.Op.ADD) {
-                mRepoProxy.getPrivacy().add(pkg);
+                RepoProxy.getProxy().getPrivacy().add(pkg);
             } else {
-                mRepoProxy.getPrivacy().remove(pkg);
+                RepoProxy.getProxy().getPrivacy().remove(pkg);
             }
         } finally {
             Binder.restoreCallingIdentity(id);
@@ -3202,7 +3213,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Object[] objArr = outList.toArray();
             return convertObjectArrayToStringArray(objArr);
         } else {
-            Set<String> packages = mRepoProxy.getLazy().getAll();
+            Set<String> packages = RepoProxy.getProxy().getLazy().getAll();
             if (packages.size() == 0) {
                 return new String[0];
             }
@@ -3228,7 +3239,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.verbose("addOrRemoveLazyApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
-        addOrRemoveFromRepo(packages, mRepoProxy.getLazy(), op == XAshmanManager.Op.ADD);
+        addOrRemoveFromRepo(packages, RepoProxy.getProxy().getLazy(), op == XAshmanManager.Op.ADD);
     }
 
     @Override
@@ -3545,7 +3556,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Object[] objArr = outList.toArray();
             return convertObjectArrayToStringArray(objArr);
         } else {
-            Set<String> packages = mRepoProxy.getTrks().getAll();
+            Set<String> packages = RepoProxy.getProxy().getTrks().getAll();
             if (packages.size() == 0) {
                 return new String[0];
             }
@@ -3571,7 +3582,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.verbose("addOrRemoveTRKApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
-        addOrRemoveFromRepo(packages, mRepoProxy.getTrks(), op == XAshmanManager.Op.ADD);
+        addOrRemoveFromRepo(packages, RepoProxy.getProxy().getTrks(), op == XAshmanManager.Op.ADD);
     }
 
     @Override
@@ -3757,7 +3768,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private boolean isInPermissionBlockList(String pattern) {
-        return mRepoProxy.getPerms().has(pattern);
+        return RepoProxy.getProxy().getPerms().has(pattern);
     }
 
     private static String constructPatternForPermission(int code, String pkg) {
@@ -3861,6 +3872,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void construct() {
+        RepoProxy.getProxy();
+
         h = onCreateServiceHandler();
 
         lazyH = onCreateLazyHandler();
@@ -3878,12 +3891,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             + ", lazyH: " + lazyH
                             + ", dozeH: " + dozeH
                             + ", @serial: " + serial());
-        }
-
-        mRepoProxy = RepoProxy.getProxy();
-        XposedLog.verbose("Repo proxy: " + mRepoProxy);
-        if (mRepoProxy == null) {
-            XposedLog.wtf("Can not construct RepoProxy, WTF???????????");
         }
 
         mTopPackageListenerCallbacks = new RemoteCallbackList<>();
@@ -4192,7 +4199,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             // Dump boot list.
             fout.println("Boot list: ");
-            Collections.consumeRemaining(mRepoProxy.getBoots().getAll(), new Consumer<String>() {
+            Collections.consumeRemaining(RepoProxy.getProxy().getBoots().getAll(), new Consumer<String>() {
                 @Override
                 public void accept(String o) {
                     fout.println(o);
@@ -4205,7 +4212,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             // Dump start list.
             fout.println("Start list: ");
-            Collections.consumeRemaining(mRepoProxy.getStarts().getAll(), new Consumer<String>() {
+            Collections.consumeRemaining(RepoProxy.getProxy().getStarts().getAll(), new Consumer<String>() {
 
                 @Override
                 public void accept(String s) {
@@ -4219,7 +4226,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             // Dump lk list.
             fout.println("LK list: ");
-            Collections.consumeRemaining(mRepoProxy.getLks().getAll(), new Consumer<String>() {
+            Collections.consumeRemaining(RepoProxy.getProxy().getLks().getAll(), new Consumer<String>() {
 
                 @Override
                 public void accept(String s) {
@@ -4233,7 +4240,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             // Dump rf list.
             fout.println("RF list: ");
-            Collections.consumeRemaining(mRepoProxy.getRfks().getAll(), new Consumer<String>() {
+            Collections.consumeRemaining(RepoProxy.getProxy().getRfks().getAll(), new Consumer<String>() {
 
                 @Override
                 public void accept(String s) {
@@ -4499,14 +4506,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     cachePackages();
                     // Remove onwer package to fix previous bugs.
                     try {
-                        mRepoProxy.getBoots().remove(BuildConfig.APPLICATION_ID);
-                        mRepoProxy.getStarts().remove(BuildConfig.APPLICATION_ID);
-                        mRepoProxy.getRfks().remove(BuildConfig.APPLICATION_ID);
-                        mRepoProxy.getGreens().remove(BuildConfig.APPLICATION_ID);
-                        mRepoProxy.getLks().remove(BuildConfig.APPLICATION_ID);
-                        mRepoProxy.getPrivacy().remove(BuildConfig.APPLICATION_ID);
+                        RepoProxy.getProxy().getBoots().remove(BuildConfig.APPLICATION_ID);
+                        RepoProxy.getProxy().getStarts().remove(BuildConfig.APPLICATION_ID);
+                        RepoProxy.getProxy().getRfks().remove(BuildConfig.APPLICATION_ID);
+                        RepoProxy.getProxy().getGreens().remove(BuildConfig.APPLICATION_ID);
+                        RepoProxy.getProxy().getLks().remove(BuildConfig.APPLICATION_ID);
+                        RepoProxy.getProxy().getPrivacy().remove(BuildConfig.APPLICATION_ID);
 
-                        mRepoProxy.getWhite_list_hooks_dynamic().reloadAsync();
+                        RepoProxy.getProxy().getWhite_list_hooks_dynamic().reloadAsync();
                     } catch (Throwable e) {
                         XposedLog.wtf("Fail remove owner package targetServicePkg repo: " + Log.getStackTraceString(e));
                     }
@@ -4969,9 +4976,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             // Add to repo.
             if (newState == PackageManager.COMPONENT_ENABLED_STATE_DISABLED) {
-                mRepoProxy.getComps().add(componentName.flattenToString());
+                RepoProxy.getProxy().getComps().add(componentName.flattenToString());
             } else {
-                mRepoProxy.getComps().remove(componentName.flattenToString());
+                RepoProxy.getProxy().getComps().remove(componentName.flattenToString());
             }
         }
 

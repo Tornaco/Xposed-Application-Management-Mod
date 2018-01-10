@@ -17,7 +17,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 @Deprecated
-public class ActivityModule extends AndroidSubModuleModule {
+public class ActivityModule extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {

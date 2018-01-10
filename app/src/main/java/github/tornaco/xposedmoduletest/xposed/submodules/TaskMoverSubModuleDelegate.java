@@ -34,6 +34,9 @@ class TaskMoverSubModuleDelegate extends AppGuardAndroidSubModule {
             case 26:
                 taskMoverSubModule = new TaskMoverSubModuleV26();
                 break;
+            case 27:
+                taskMoverSubModule = new TaskMoverSubModuleV27();
+                break;
             default:
                 taskMoverSubModule = new TaskMoverSubModuleEmpty();
                 break;

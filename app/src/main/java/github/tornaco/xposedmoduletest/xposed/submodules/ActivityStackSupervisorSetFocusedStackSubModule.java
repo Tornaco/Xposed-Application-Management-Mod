@@ -21,7 +21,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 // Hook hookSetFocusStackUnchecked settings.
 // Only for Oreo.
 //  void setFocusStackUnchecked(String reason, ActivityStack focusCandidate)
-class ActivityStackSupervisorSetFocusedStackSubModule extends AndroidSubModuleModule {
+class ActivityStackSupervisorSetFocusedStackSubModule extends AndroidSubModule {
 
     @Override
     public int needMinSdk() {

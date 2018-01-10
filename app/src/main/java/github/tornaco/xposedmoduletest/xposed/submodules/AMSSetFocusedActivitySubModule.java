@@ -17,7 +17,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // Hook hookSetFocusedActivityLocked settings.
-class AMSSetFocusedActivitySubModule extends AndroidSubModuleModule {
+class AMSSetFocusedActivitySubModule extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {

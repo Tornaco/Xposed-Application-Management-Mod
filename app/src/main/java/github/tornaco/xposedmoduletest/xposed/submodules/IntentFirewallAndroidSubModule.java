@@ -9,7 +9,7 @@ import lombok.Getter;
  * Email: Tornaco@163.com
  */
 
-abstract class IntentFirewallAndroidSubModule extends AndroidSubModuleModule {
+abstract class IntentFirewallAndroidSubModule extends AndroidSubModule {
 
     @Getter
     private IIntentFirewallBridge intentFirewallBridge;

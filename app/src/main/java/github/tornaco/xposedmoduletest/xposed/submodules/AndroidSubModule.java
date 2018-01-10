@@ -9,7 +9,7 @@ import java.util.Set;
  * Email: Tornaco@163.com
  */
 
-abstract class AndroidSubModuleModule extends AbsSubModule {
+abstract class AndroidSubModule extends AbsSubModule {
     @Override
     public Set<String> getInterestedPackages() {
         return Sets.newHashSet("android");

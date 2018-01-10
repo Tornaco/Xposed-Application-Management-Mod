@@ -16,7 +16,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
-class AMSStartSubModule extends AndroidSubModuleModule {
+class AMSStartSubModule extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {

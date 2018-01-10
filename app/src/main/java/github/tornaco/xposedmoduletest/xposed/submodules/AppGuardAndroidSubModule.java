@@ -9,7 +9,7 @@ import lombok.Getter;
  * Email: Tornaco@163.com
  */
 
-abstract class AppGuardAndroidSubModule extends AndroidSubModuleModule {
+abstract class AppGuardAndroidSubModule extends AndroidSubModule {
 
     @Getter
     private IAppGuardBridge appGuardBridge;

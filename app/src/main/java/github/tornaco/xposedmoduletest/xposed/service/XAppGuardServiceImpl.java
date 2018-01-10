@@ -17,11 +17,11 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.ServiceManager;
-import android.os.UserHandle;
 import android.provider.Settings;
 import android.support.v4.app.NotificationManagerCompat;
 import android.text.TextUtils;
@@ -189,6 +189,14 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         } catch (Exception e) {
             XposedLog.debug("*** FATAL*** Fail publish our svc:" + e);
         }
+    }
+
+    @Override
+    public IBinder onRetrieveBinderService(String name) {
+        if (XAppGuardManager.APP_GUARD_SERVICE.equals(name)) {
+            return asBinder();
+        }
+        return null;
     }
 
     private void checkSafeMode() {

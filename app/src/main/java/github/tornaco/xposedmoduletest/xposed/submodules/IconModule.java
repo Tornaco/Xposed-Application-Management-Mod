@@ -7,7 +7,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
  * Email: Tornaco@163.com
  */
 
-public class IconModule extends AndroidSubModuleModule {
+public class IconModule extends AndroidSubModule {
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
     }

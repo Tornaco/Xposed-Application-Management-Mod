@@ -20,7 +20,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // Hook hookBroadcastIntent.
-class AMSSubModule12 extends AndroidSubModuleModule {
+class AMSSubModule12 extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {

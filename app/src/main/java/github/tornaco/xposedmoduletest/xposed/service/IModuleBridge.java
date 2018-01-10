@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.xposed.service;
 import android.app.IApplicationThread;
 import android.content.Context;
 import android.content.Intent;
+import android.os.IBinder;
 import android.view.KeyEvent;
 
 /**
@@ -15,6 +16,8 @@ public interface IModuleBridge {
     void attachContext(Context context);
 
     void publish();
+
+    IBinder onRetrieveBinderService(String name);
 
     void systemReady();
 

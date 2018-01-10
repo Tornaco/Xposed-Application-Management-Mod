@@ -16,7 +16,7 @@ import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
  * Created by guohao4 on 2017/10/31.
  * Email: Tornaco@163.com
  */
-public class InputManagerSubModule extends AndroidSubModuleModule {
+public class InputManagerSubModule extends AndroidSubModule {
 
     public static final String EVENT_SOURCE = "InputManagerSubModule";
     public static final String EVENT_SOURCE_NATIVE = "InputManagerSubModuleNative";
