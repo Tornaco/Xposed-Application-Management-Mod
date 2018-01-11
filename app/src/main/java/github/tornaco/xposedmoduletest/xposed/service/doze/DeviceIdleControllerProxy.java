@@ -15,7 +15,6 @@ import lombok.ToString;
 @ToString
 public class DeviceIdleControllerProxy {
 
-
     /**
      * Device is currently active.
      */
@@ -176,7 +175,7 @@ public class DeviceIdleControllerProxy {
             XposedHelpers.callMethod(deviceIdleController, "stepIdleStateLocked");
             return true;
         } catch (Throwable e) {
-            XposedLog.wtf("stepIdleStateLocked call fail: " + Log.getStackTraceString(e));
+            XposedLog.wtf("stepIdleStateLocked call fail: " + e);
             return false;
         }
     }
@@ -187,7 +186,7 @@ public class DeviceIdleControllerProxy {
             XposedHelpers.callMethod(deviceIdleController, "stepIdleStateLocked", "s:shell");
             return true;
         } catch (Throwable e) {
-            XposedLog.wtf("stepIdleStateLocked call fail: " + Log.getStackTraceString(e));
+            XposedLog.wtf("stepIdleStateLocked call fail: " + e);
             return false;
         }
     }

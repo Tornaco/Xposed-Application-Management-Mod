@@ -36,7 +36,10 @@ class RuntimeInitSubModule extends AndroidSubModule {
     private void hookUnCaughtErr() {
         XposedLog.verbose("hookUnCaughtErr...");
         try {
-            final Class c = XposedHelpers.findClass("com.android.internal.os.RuntimeInit$UncaughtHandler",
+            final Class c = XposedHelpers.findClass(
+                    OSUtil.isOOrAbove() ?
+                            "com.android.internal.os.RuntimeInit$KillApplicationHandler"
+                            : "com.android.internal.os.RuntimeInit$UncaughtHandler",
                     null);
             Set unHooks = XposedBridge.hookAllMethods(c, "uncaughtException",
                     new XC_MethodHook() {
