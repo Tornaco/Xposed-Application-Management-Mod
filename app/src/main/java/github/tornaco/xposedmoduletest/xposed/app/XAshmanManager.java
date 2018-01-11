@@ -61,7 +61,7 @@ public class XAshmanManager {
         int UNKNOWN = -1;
     }
 
-    public static final String ASH_MAN_SERVICE_NAME =
+    public static final String SERVICE_NAME =
             OSUtil.isOOrAbove() ? Context.TV_INPUT_SERVICE : "user.tor_ash";
 
     private final IAshmanService mService;
@@ -75,7 +75,7 @@ public class XAshmanManager {
     };
 
     private XAshmanManager() {
-        mService = IAshmanService.Stub.asInterface(ServiceManager.getService(ASH_MAN_SERVICE_NAME));
+        mService = IAshmanService.Stub.asInterface(ServiceManager.getService(SERVICE_NAME));
     }
 
     public static XAshmanManager get() {

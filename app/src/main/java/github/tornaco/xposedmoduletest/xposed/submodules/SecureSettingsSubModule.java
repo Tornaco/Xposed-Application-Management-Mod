@@ -21,7 +21,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // Hook hookGetStringForUser settings.
-class SecureSettingsSubModule extends IntentFirewallAndroidSubModule {
+class SecureSettingsSubModule extends AndroidSubModule {
     @Override
     public String needBuildVar() {
         return XAppBuildVar.APP_PRIVACY;

@@ -18,7 +18,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // Hook hookNMSSystemReady settings.
-class NetworkManagementModule extends IntentFirewallAndroidSubModule {
+class NetworkManagementModule extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
@@ -36,7 +36,7 @@ class NetworkManagementModule extends IntentFirewallAndroidSubModule {
                     super.afterHookedMethod(param);
                     Object connectorObj = XposedHelpers.getObjectField(param.thisObject, "mConnector");
                     NativeDaemonConnector connector = new NativeDaemonConnector(connectorObj);
-                    getIntentFirewallBridge().onNetWorkManagementServiceReady(connector);
+                    getBridge().onNetWorkManagementServiceReady(connector);
                 }
             });
             XposedLog.verbose("hookNMSSystemReady OK:" + unHooks);

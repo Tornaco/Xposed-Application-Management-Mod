@@ -18,7 +18,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
-class ActivitySubModule extends IntentFirewallAndroidSubModule {
+class ActivitySubModule extends AndroidSubModule {
 
     @Override
     public String needBuildVar() {

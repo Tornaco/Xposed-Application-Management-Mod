@@ -20,7 +20,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 // Hook hookDeliverToRegisteredReceiverLocked settings.
 
 @Deprecated
-class BroadcastQueueSubModule extends IntentFirewallAndroidSubModule {
+class BroadcastQueueSubModule extends AndroidSubModule {
 
 //    12.0 12.1 13.0
 //    private final void deliverToRegisteredReceiverLocked(BroadcastRecord r,
@@ -53,7 +53,7 @@ class BroadcastQueueSubModule extends IntentFirewallAndroidSubModule {
                             // who sent this
                             String callerPackage = (String) XposedHelpers.getObjectField(broadcastRecord, "callerPackage");
                             if (callerPackage == null) return;
-                            boolean allow = getIntentFirewallBridge().checkBroadcast(intent, callerPackage, -1, -1);
+                            boolean allow = getBridge().checkBroadcast(intent, callerPackage, -1, -1);
                             if (!allow) {
                                 param.setResult(null);
                             }

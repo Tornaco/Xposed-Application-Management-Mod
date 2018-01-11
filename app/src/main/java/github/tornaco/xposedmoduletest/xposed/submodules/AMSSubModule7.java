@@ -19,7 +19,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 // Hook hookCheckPermission settings.
 @Deprecated
-class AMSSubModule7 extends AppGuardAndroidSubModule {
+class AMSSubModule7 extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {

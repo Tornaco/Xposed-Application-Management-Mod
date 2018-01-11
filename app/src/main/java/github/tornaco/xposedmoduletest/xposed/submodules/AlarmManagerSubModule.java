@@ -22,7 +22,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // FIXME Check method def for L M N O!!!!!!!!!!!!!!!!!!!!
-class AlarmManagerSubModule extends IntentFirewallAndroidSubModule {
+class AlarmManagerSubModule extends AndroidSubModule {
     @Override
     public String needBuildVar() {
         return XAppBuildVar.APP_OPS;

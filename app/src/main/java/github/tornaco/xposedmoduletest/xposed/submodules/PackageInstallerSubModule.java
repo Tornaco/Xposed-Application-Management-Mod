@@ -22,7 +22,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
-class PackageInstallerSubModule extends AppGuardAndroidSubModule {
+class PackageInstallerSubModule extends AndroidSubModule {
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         hookPackageInstaller(lpparam);
@@ -47,7 +47,7 @@ class PackageInstallerSubModule extends AppGuardAndroidSubModule {
                                     // FIXME Test fail by adb.
                                     final Context context = (Context) XposedHelpers.getObjectField(param.thisObject, "mContext");
                                     String callingPkgName = (String) param.args[1];
-                                    XposedLog.verbose("uninstall called by: "+callingPkgName);
+                                    XposedLog.verbose("uninstall called by: " + callingPkgName);
                                     int userID = (int) param.args[4];
 //                                    DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
 //                                    boolean isDeviceOwner = dpm != null && dpm.isDeviceOwnerAppOnCallingUser(callingPkgName);
@@ -66,7 +66,6 @@ class PackageInstallerSubModule extends AppGuardAndroidSubModule {
                     });
             XposedLog.verbose("hookPackageInstaller OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
-            getBridge().publishFeature(XAppGuardManager.Feature.HOME);
         } catch (Exception e) {
             XposedLog.verbose("Fail hookPackageInstaller:" + e);
             setStatus(SubModuleStatus.ERROR);
@@ -76,7 +75,7 @@ class PackageInstallerSubModule extends AppGuardAndroidSubModule {
 
 
     private boolean interruptPackageRemoval(String pkgName) {
-        return getAppGuardBridge().interruptPackageRemoval(pkgName);
+        return getBridge().interruptPackageRemoval(pkgName);
     }
 
     static class PackageDeleteObserverAdapter extends PackageDeleteObserver {

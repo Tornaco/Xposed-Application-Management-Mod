@@ -61,16 +61,6 @@ class XAppGuardServiceImplDev extends XAppGuardServiceImpl {
     }
 
     @Override
-    public void publishFeature(final String f) {
-        makeSafeCall(new XAppGuardServiceImplDev.Call() {
-            @Override
-            public void onCall() throws Throwable {
-                XAppGuardServiceImplDev.super.publishFeature(f);
-            }
-        });
-    }
-
-    @Override
     public void shutdown() {
         makeSafeCall(new XAppGuardServiceImplDev.Call() {
             @Override

@@ -19,7 +19,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
-class PMSSubModule extends AppGuardAndroidSubModule {
+class PMSSubModule extends AndroidSubModule {
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         hookPackageManagerService(lpparam);
@@ -58,7 +58,6 @@ class PMSSubModule extends AppGuardAndroidSubModule {
                         }
                     });
             XposedLog.verbose("hookPackageManagerService OK:" + unHooks);
-            getBridge().publishFeature(XAppGuardManager.Feature.HOME);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
             XposedLog.verbose("Fail hookPackageManagerService:" + e);
@@ -69,6 +68,6 @@ class PMSSubModule extends AppGuardAndroidSubModule {
 
 
     private boolean interruptPackageRemoval(String pkgName) {
-        return getAppGuardBridge().interruptPackageRemoval(pkgName);
+        return getBridge().interruptPackageRemoval(pkgName);
     }
 }

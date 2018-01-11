@@ -9,7 +9,7 @@ import lombok.experimental.Delegate;
  * Email: Tornaco@163.com
  */
 
-class ActivityStartSubModuleDelegate extends AppGuardAndroidSubModule {
+class ActivityStartSubModuleDelegate extends AndroidSubModule {
 
     ActivityStartSubModuleDelegate() {
         int sdkVersion = Build.VERSION.SDK_INT;

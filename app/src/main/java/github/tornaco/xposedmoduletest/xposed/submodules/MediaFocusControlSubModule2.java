@@ -18,7 +18,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
-class MediaFocusControlSubModule2 extends IntentFirewallAndroidSubModule {
+class MediaFocusControlSubModule2 extends AndroidSubModule {
 
     @Override
     public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {
@@ -42,7 +42,7 @@ class MediaFocusControlSubModule2 extends IntentFirewallAndroidSubModule {
                     super.afterHookedMethod(param);
                     int res = (int) param.getResult();
                     int callingUid = Binder.getCallingUid();
-                    getIntentFirewallBridge().onAbandonAudioFocus(res, callingUid, null);
+                    getBridge().onAbandonAudioFocus(res, callingUid, null);
                 }
             });
             XposedLog.verbose("hookMediaFocusCtrlForMOrAbove @ABANDON OK:" + unHooks);
@@ -64,7 +64,7 @@ class MediaFocusControlSubModule2 extends IntentFirewallAndroidSubModule {
                     super.afterHookedMethod(param);
                     int res = (int) param.getResult();
                     int callingUid = Binder.getCallingUid();
-                    getIntentFirewallBridge().onAbandonAudioFocus(res, callingUid, null);
+                    getBridge().onAbandonAudioFocus(res, callingUid, null);
                 }
             });
             XposedLog.verbose("hookMediaFocusCtrlForL @ABANDON OK:" + unHooks);

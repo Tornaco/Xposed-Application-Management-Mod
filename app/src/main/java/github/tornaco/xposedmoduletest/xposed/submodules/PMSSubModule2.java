@@ -17,7 +17,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
-class PMSSubModule2 extends IntentFirewallAndroidSubModule {
+class PMSSubModule2 extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
@@ -38,7 +38,7 @@ class PMSSubModule2 extends IntentFirewallAndroidSubModule {
                             int callerUid = Binder.getCallingUid();
                             int state = (int) param.args[1];
                             // FIXME Retrieve params.
-                            if (!getIntentFirewallBridge().checkComponentSetting(componentName,
+                            if (!getBridge().checkComponentSetting(componentName,
                                     state, 0, callerUid)) {
                                 param.setResult(null);
                             }

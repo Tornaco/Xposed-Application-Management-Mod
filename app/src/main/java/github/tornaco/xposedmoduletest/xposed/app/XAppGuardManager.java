@@ -1,7 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.app;
 
 import android.content.ComponentName;
-import android.content.Context;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 
@@ -10,9 +9,7 @@ import com.google.common.base.Preconditions;
 import java.util.HashMap;
 import java.util.Map;
 
-import github.tornaco.xposedmoduletest.IAppGuardService;
-import github.tornaco.xposedmoduletest.IAppGuardWatcher;
-import github.tornaco.xposedmoduletest.util.OSUtil;
+import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
@@ -30,26 +27,12 @@ public class XAppGuardManager {
     public static final String ACTION_APP_GUARD_VERIFY_DISPLAYER
             = "github.tornaco.xpose.app.interruptPackageRemoval.action.verify.displayer";
 
-    public static final String APP_GUARD_SERVICE =
-//            OSUtil.isOOrAbove() ? Context.TV_INPUT_SERVICE :
-                    "user.tor_ag";
+    public static final String SERVICE_NAME = XAshmanManager.SERVICE_NAME;
 
     public static final String EXTRA_PKG_NAME = "extra.pkg";
 
     public static final String EXTRA_TRANS_ID = "extra.tid";
     public static final String EXTRA_INJECT_HOME_WHEN_FAIL_ID = "extra.inject_home_on_fail";
-
-    @SuppressWarnings("WeakerAccess")
-    public interface Feature {
-        String BASE = "feature.base";
-        String START = "feature.start";
-        String RECENT = "feature.recent";
-        String FP = "feature.fp";
-        String BLUR = "feature.blur";
-        String HOME = "feature.home";
-        String RESUME = "feature.resume";
-        int FEATURE_COUNT = 7;
-    }
 
     @SuppressWarnings("WeakerAccess")
     public interface BlurPolicy {
@@ -77,10 +60,10 @@ public class XAppGuardManager {
                 }
             };
 
-    private final IAppGuardService mService;
+    private final IAshmanService mService;
 
     private XAppGuardManager() {
-        mService = IAppGuardService.Stub.asInterface(ServiceManager.getService(APP_GUARD_SERVICE));
+        mService = IAshmanService.Stub.asInterface(ServiceManager.getService(SERVICE_NAME));
     }
 
     public static XAppGuardManager get() {
@@ -98,7 +81,7 @@ public class XAppGuardManager {
     public boolean isEnabled() {
         ensureService();
         try {
-            return mService.isEnabled();
+            return mService.isAppLockEnabled();
         } catch (RemoteException e) {
 
         }
@@ -108,7 +91,7 @@ public class XAppGuardManager {
     public void setEnabled(boolean enabled) {
         ensureService();
         try {
-            mService.setEnabled(enabled);
+            mService.setAppLockEnabled(enabled);
         } catch (RemoteException e) {
 
         }
@@ -134,24 +117,6 @@ public class XAppGuardManager {
         }
     }
 
-    public void watch(IAppGuardWatcher w) {
-        ensureService();
-        try {
-            mService.watch(w);
-        } catch (RemoteException e) {
-
-        }
-    }
-
-    public void unWatch(IAppGuardWatcher w) throws RemoteException {
-        ensureService();
-        try {
-            mService.unWatch(w);
-        } catch (RemoteException e) {
-
-        }
-    }
-
     public void setResult(int transactionID, int res) {
         ensureService();
         try {
@@ -168,24 +133,6 @@ public class XAppGuardManager {
         } catch (RemoteException e) {
 
             return false;
-        }
-    }
-
-    public void watch(XWatcherAdapter w) {
-        ensureService();
-        try {
-            mService.watch(w);
-        } catch (RemoteException e) {
-
-        }
-    }
-
-    public void unWatch(XWatcherAdapter w) {
-        ensureService();
-        try {
-            mService.unWatch(w);
-        } catch (Exception e) {
-
         }
     }
 
@@ -413,15 +360,6 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.setBlurRadius(r);
-        } catch (RemoteException e) {
-
-        }
-    }
-
-    public void onTaskRemoving(String pkg) {
-        ensureService();
-        try {
-            mService.onTaskRemoving(pkg);
         } catch (RemoteException e) {
 
         }

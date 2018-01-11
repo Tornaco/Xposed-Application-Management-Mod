@@ -5,6 +5,7 @@ import android.os.Build;
 import java.util.HashSet;
 import java.util.Set;
 
+import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Synchronized;
@@ -14,9 +15,14 @@ import lombok.Synchronized;
  * Email: Tornaco@163.com
  */
 
-public class IntentFirewallSubModuleManager {
+public class SubModuleManager {
 
-    private static IntentFirewallSubModuleManager sMe;
+    private static Singleton<SubModuleManager> sMe = new Singleton<SubModuleManager>() {
+        @Override
+        protected SubModuleManager create() {
+            return new SubModuleManager();
+        }
+    };
 
     private final Set<SubModule> SUBS = new HashSet<>();
 
@@ -35,7 +41,7 @@ public class IntentFirewallSubModuleManager {
         }
     }
 
-    private IntentFirewallSubModuleManager() {
+    private SubModuleManager() {
         addToSubsChecked(new ServiceSubModule());
 
         addToSubsChecked(new AlarmManagerSubModule());
@@ -90,13 +96,32 @@ public class IntentFirewallSubModuleManager {
 
         addToSubsChecked(new ServiceManagerSubModule());
         addToSubsChecked(new AppOpsInitSubModule());
+
+
+        // APPGUARD MODULES.
+        addToSubsChecked(new FPSubModule());
+        addToSubsChecked(new ScreenshotApplicationsSubModule());
+        addToSubsChecked(new PackageInstallerSubModule());
+        addToSubsChecked(new PMSSubModule());
+        addToSubsChecked(new TaskMoverSubModuleDelegate());
+        addToSubsChecked(new ActivityStartSubModuleDelegate());
+
+        addToSubsChecked(new AMSSubModule12());
+
+        addToSubsChecked(new AMSSetFocusedActivitySubModule());
+        addToSubsChecked(new ActivityStackSupervisorSetFocusedStackSubModule());
+
+        addToSubsChecked(new AMSRetrieveSettingsSubModule());
+        addToSubsChecked(new AMSShutdownSubModule());
+        addToSubsChecked(new AMSSystemReadySubModule());
+        addToSubsChecked(new AMSStartSubModule());
+        // APPGUARD MODULES END.
     }
 
     @Synchronized
     public
-    static IntentFirewallSubModuleManager getInstance() {
-        if (sMe == null) sMe = new IntentFirewallSubModuleManager();
-        return sMe;
+    static SubModuleManager getInstance() {
+        return sMe.get();
     }
 
     public Set<SubModule> getAllSubModules() {

@@ -1,6 +1,5 @@
 package github.tornaco.xposedmoduletest;
 
-import github.tornaco.xposedmoduletest.IAppGuardWatcher;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.PackageSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
@@ -12,8 +11,8 @@ import java.util.Map;
 
 interface IAppGuardService {
 
-    boolean isEnabled();
-    void setEnabled(boolean enabled);
+    boolean isAppLockEnabled();
+    void setAppLockEnabled(boolean enabled);
 
     boolean isBlurEnabled();
     void setBlurEnabled(boolean enabled);
@@ -31,9 +30,6 @@ interface IAppGuardService {
     void setResult(int transactionID, int res);
 
     boolean isTransactionValid(int transactionID);
-
-    void watch(in IAppGuardWatcher w);
-    void unWatch(in IAppGuardWatcher w);
 
     // For test only.
     void mockCrash();

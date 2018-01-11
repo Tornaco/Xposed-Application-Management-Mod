@@ -21,7 +21,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // Hook hookUnCaughtErr settings.
-class RuntimeInitSubModule extends IntentFirewallAndroidSubModule {
+class RuntimeInitSubModule extends AndroidSubModule {
 
     @Override
     public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {

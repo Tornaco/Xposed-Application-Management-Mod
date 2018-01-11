@@ -10,7 +10,6 @@ import java.util.Set;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -18,7 +17,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
-public class ActivityThreadModule extends AppGuardAndroidSubModule {
+public class ActivityThreadModule extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
@@ -37,7 +36,6 @@ public class ActivityThreadModule extends AppGuardAndroidSubModule {
                             XposedLog.verbose("handleResumeActivity: " + param.args[0]);
                         }
                     });
-            getBridge().publishFeature(XAppGuardManager.Feature.RESUME);
             setStatus(unhooksToStatus(unHooks));
             XposedLog.verbose("hookActivityThreadForApp OK:" + unHooks);
         } catch (Throwable e) {

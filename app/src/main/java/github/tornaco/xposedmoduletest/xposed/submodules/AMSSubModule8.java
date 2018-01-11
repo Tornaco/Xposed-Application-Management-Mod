@@ -18,7 +18,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // Hook hookCheckPermission settings.
-class AMSSubModule8 extends IntentFirewallAndroidSubModule {
+class AMSSubModule8 extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {

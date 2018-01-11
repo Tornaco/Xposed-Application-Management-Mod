@@ -16,7 +16,7 @@ import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationM
  */
 
 // FIXME Have not check M L O yet.
-class NotificationManagerServiceSubModule extends IntentFirewallAndroidSubModule {
+class NotificationManagerServiceSubModule extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
@@ -36,7 +36,7 @@ class NotificationManagerServiceSubModule extends IntentFirewallAndroidSubModule
                             Object service = param.thisObject;
                             if (service != null) {
                                 NotificationManagerServiceProxy proxy = new NotificationManagerServiceProxy(service);
-                                getIntentFirewallBridge().attachNotificationService(proxy);
+                                getBridge().attachNotificationService(proxy);
                             }
                         }
                     });

@@ -19,7 +19,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
-public class IFWSubModule extends IntentFirewallAndroidSubModule {
+public class IFWSubModule extends AndroidSubModule {
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         hookIntentFireWall(lpparam);
@@ -45,7 +45,7 @@ public class IFWSubModule extends IntentFirewallAndroidSubModule {
                     }
                     ComponentName componentName = (ComponentName) param.args[0];
                     int callerID = (int) param.args[2];
-                    param.setResult(getIntentFirewallBridge().checkService(componentName, callerID));
+                    param.setResult(getBridge().checkService(componentName, callerID));
                 }
             });
 
@@ -67,7 +67,7 @@ public class IFWSubModule extends IntentFirewallAndroidSubModule {
                     }
 
                     String action = intent == null ? null : intent.getAction();
-                    param.setResult(getIntentFirewallBridge().checkBroadcast(action, recUid, callerUid));
+                    param.setResult(getBridge().checkBroadcast(action, recUid, callerUid));
                 }
             });
             XposedLog.verbose("hookIntentFireWall OK:" + unHooks);

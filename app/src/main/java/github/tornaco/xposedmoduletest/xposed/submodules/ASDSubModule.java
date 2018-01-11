@@ -15,7 +15,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * ActivityStack move to back.
  */
 
-class ASDSubModule extends IntentFirewallAndroidSubModule {
+class ASDSubModule extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
@@ -31,15 +31,15 @@ class ASDSubModule extends IntentFirewallAndroidSubModule {
             @SuppressWarnings("unchecked")
             Set unHooks = XposedBridge.hookAllMethods(stackClass,
                     "destroyActivityLocked", new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    super.afterHookedMethod(param);
-                    Object ar = param.args[0];
-                    Intent intent = (Intent) XposedHelpers.getObjectField(ar, "intent");
-                    if (intent == null) return;
-                    getIntentFirewallBridge().onActivityDestroy(intent, "destroyActivityLocked");
-                }
-            });
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            super.afterHookedMethod(param);
+                            Object ar = param.args[0];
+                            Intent intent = (Intent) XposedHelpers.getObjectField(ar, "intent");
+                            if (intent == null) return;
+                            getBridge().onActivityDestroy(intent, "destroyActivityLocked");
+                        }
+                    });
             XposedLog.verbose("ASDSubModule hookActivityStack OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {

@@ -20,7 +20,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // Hook hookMoveActivityTaskToBack settings.
-class AMSSubModule6 extends IntentFirewallAndroidSubModule {
+class AMSSubModule6 extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
@@ -41,7 +41,7 @@ class AMSSubModule6 extends IntentFirewallAndroidSubModule {
                     if (comp == null) return;
                     Intent intent = new Intent();
                     intent.setComponent(comp);
-                    getIntentFirewallBridge().onActivityDestroy(intent, "moveActivityTaskToBack");
+                    getBridge().onActivityDestroy(intent, "moveActivityTaskToBack");
                 }
             });
             XposedLog.verbose("hookMoveActivityTaskToBack OK:" + unHooks);

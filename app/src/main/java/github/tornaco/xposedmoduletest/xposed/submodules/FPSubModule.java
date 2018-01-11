@@ -18,7 +18,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
-class FPSubModule extends AppGuardAndroidSubModule {
+class FPSubModule extends AndroidSubModule {
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         if (OSUtil.isMOrAbove()) hookFPUtil(lpparam);
@@ -47,7 +47,6 @@ class FPSubModule extends AppGuardAndroidSubModule {
                         }
                     });
             XposedLog.verbose("hookFPService OK:" + unHooks);
-            getBridge().publishFeature(XAppGuardManager.Feature.FP);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
             XposedLog.verbose("Fail hookFPService" + e);
@@ -67,14 +66,13 @@ class FPSubModule extends AppGuardAndroidSubModule {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
-                            if (getAppGuardBridge().interruptFPSuccessVibrate()) {
+                            if (getBridge().interruptFPSuccessVibrate()) {
                                 param.setResult(null);
                                 XposedLog.verbose("vibrateFingerprintSuccess blocked.");
                             }
                         }
                     });
             XposedLog.verbose("hookFPUtil @SUCCESS OK:" + unHooks);
-            getBridge().publishFeature(XAppGuardManager.Feature.FP);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
             XposedLog.verbose("Fail hookFPUtil @SUCCESS: " + e);
@@ -90,14 +88,13 @@ class FPSubModule extends AppGuardAndroidSubModule {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
-                            if (getAppGuardBridge().interruptFPErrorVibrate()) {
+                            if (getBridge().interruptFPErrorVibrate()) {
                                 param.setResult(null);
                                 XposedLog.verbose("vibrateFingerprintError blocked.");
                             }
                         }
                     });
             XposedLog.verbose("hookFPUtil @ERROR OK:" + unHooks);
-            getBridge().publishFeature(XAppGuardManager.Feature.FP);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
             XposedLog.verbose("Fail hookFPUtil @ERROR: " + e);

@@ -1,7 +1,5 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
-import android.content.ComponentName;
-
 import github.tornaco.apigen.CreateMessageIdWithMethods;
 
 /**
@@ -26,10 +24,6 @@ interface AppGuardServiceHandler {
     void setResult(int transactionID, int res);
 
     void verify(VerifyArgs verifyArgs);
-
-    void watch(github.tornaco.xposedmoduletest.IAppGuardWatcher w);
-
-    void unWatch(github.tornaco.xposedmoduletest.IAppGuardWatcher w);
 
     void mockCrash();
 

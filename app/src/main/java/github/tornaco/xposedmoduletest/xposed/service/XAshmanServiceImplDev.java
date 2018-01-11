@@ -9,6 +9,7 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
+import github.tornaco.xposedmoduletest.IAppGuardService;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -94,15 +95,6 @@ public class XAshmanServiceImplDev extends XAshmanServiceImpl {
         });
     }
 
-    @Override
-    public void publishFeature(final String f) {
-        makeSafeCall(new Call() {
-            @Override
-            public void onCall() throws Throwable {
-                XAshmanServiceImplDev.super.publishFeature(f);
-            }
-        });
-    }
 
     @Override
     public void shutdown() {

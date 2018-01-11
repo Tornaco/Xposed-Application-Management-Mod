@@ -17,7 +17,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // Hook hookRestartService settings.
-class ActiveServiceSubModule extends IntentFirewallAndroidSubModule {
+class ActiveServiceSubModule extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
@@ -39,7 +39,7 @@ class ActiveServiceSubModule extends IntentFirewallAndroidSubModule {
                             if (pkgNameObj == null) return;
                             String pkgName = (String) pkgNameObj;
                             ComponentName componentName = (ComponentName) XposedHelpers.getObjectField(sr, "name");
-                            if (!getIntentFirewallBridge().checkRestartService(pkgName, componentName)) {
+                            if (!getBridge().checkRestartService(pkgName, componentName)) {
                                 param.setResult(true);
                             }
                         }

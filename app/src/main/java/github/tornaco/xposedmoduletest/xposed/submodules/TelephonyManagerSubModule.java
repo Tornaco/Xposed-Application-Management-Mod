@@ -21,7 +21,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // Hook hookGetDeviceID settings.
-class TelephonyManagerSubModule extends IntentFirewallAndroidSubModule {
+class TelephonyManagerSubModule extends AndroidSubModule {
     @Override
     public String needBuildVar() {
         return XAppBuildVar.APP_OPS;

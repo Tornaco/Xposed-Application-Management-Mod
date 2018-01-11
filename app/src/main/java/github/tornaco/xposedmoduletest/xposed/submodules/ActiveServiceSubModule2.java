@@ -20,7 +20,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 // Hook hookRetrieveService settings.
 
 @Deprecated
-class ActiveServiceSubModule2 extends IntentFirewallAndroidSubModule {
+class ActiveServiceSubModule2 extends AndroidSubModule {
 
 //    14.1
 //    private ServiceLookupResult retrieveServiceLocked(Intent service,
@@ -54,7 +54,7 @@ class ActiveServiceSubModule2 extends IntentFirewallAndroidSubModule {
                             int callingPid = (int) param.args[3];
                             int callingUid = (int) param.args[4];
                             boolean callingFromFg = (boolean) param.args[7];
-                            boolean allow = getIntentFirewallBridge()
+                            boolean allow = getBridge()
                                     .checkService(service, callingPackage, callingPid, callingUid, callingFromFg);
                             if (!allow) {
                                 param.setResult(null);

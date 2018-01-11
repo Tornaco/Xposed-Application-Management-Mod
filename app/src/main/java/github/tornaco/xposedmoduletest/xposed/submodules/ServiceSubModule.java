@@ -18,7 +18,6 @@ import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
-import github.tornaco.xposedmoduletest.xposed.service.DeprecatedSince;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -26,9 +25,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Created by guohao4 on 2017/10/31.
  * Email: Tornaco@163.com
  */
-@Deprecated
-@DeprecatedSince("3.0.2")
-class ServiceSubModule extends IntentFirewallAndroidSubModule {
+class ServiceSubModule extends AndroidSubModule {
 
     @Override
     public String needBuildVar() {

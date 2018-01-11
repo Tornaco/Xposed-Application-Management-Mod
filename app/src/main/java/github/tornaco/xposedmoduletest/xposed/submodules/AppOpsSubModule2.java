@@ -18,7 +18,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // Hook hookCheckOp settings.
-class AppOpsSubModule2 extends IntentFirewallAndroidSubModule {
+class AppOpsSubModule2 extends AndroidSubModule {
     @Override
     public String needBuildVar() {
         return XAppBuildVar.APP_OPS;
@@ -41,7 +41,7 @@ class AppOpsSubModule2 extends IntentFirewallAndroidSubModule {
                     int code = (int) param.args[1];
                     int uid = (int) param.args[2];
                     String pkgName = (String) param.args[3];
-                    int mode = getIntentFirewallBridge().checkOperation(code, uid, pkgName, null);
+                    int mode = getBridge().checkOperation(code, uid, pkgName, null);
                     if (mode == AppOpsManager.MODE_IGNORED) {
                         param.setResult(AppOpsManager.MODE_IGNORED);
                     }

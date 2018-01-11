@@ -19,7 +19,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // Hook hookConstructor settings.
-class DeviceIdleControllerSubModule extends IntentFirewallAndroidSubModule {
+class DeviceIdleControllerSubModule extends AndroidSubModule {
     @Override
     public String needBuildVar() {
         return XAppBuildVar.APP_DOZE;
@@ -47,7 +47,7 @@ class DeviceIdleControllerSubModule extends IntentFirewallAndroidSubModule {
                     Object idleController = param.thisObject;
                     if (idleController != null) {
                         DeviceIdleControllerProxy proxy = new DeviceIdleControllerProxy(idleController);
-                        getIntentFirewallBridge().attachDeviceIdleController(proxy);
+                        getBridge().attachDeviceIdleController(proxy);
                     }
                 }
             });

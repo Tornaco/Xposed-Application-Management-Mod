@@ -17,7 +17,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // Hook hookInit settings.
-class AppOpsInitSubModule extends IntentFirewallAndroidSubModule {
+class AppOpsInitSubModule extends AndroidSubModule {
     @Override
     public String needBuildVar() {
         return XAppBuildVar.APP_OPS;

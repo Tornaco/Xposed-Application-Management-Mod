@@ -25,7 +25,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
-public class ScreenshotApplicationsSubModule extends AppGuardAndroidSubModule {
+public class ScreenshotApplicationsSubModule extends AndroidSubModule {
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         hookScreenshotApplications(lpparam);
@@ -65,7 +65,6 @@ public class ScreenshotApplicationsSubModule extends AppGuardAndroidSubModule {
                         }
                     });
             XposedLog.boot("hookScreenshotApplications OK: " + unHooks);
-            getBridge().publishFeature(XAppGuardManager.Feature.BLUR);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
             XposedLog.boot("Fail hookScreenshotApplications: " + e);
@@ -82,11 +81,11 @@ public class ScreenshotApplicationsSubModule extends AppGuardAndroidSubModule {
             return;
         }
         XposedLog.verbose("onScreenshotApplications: " + pkgName);
-        if (getAppGuardBridge().isBlurForPkg(pkgName)
+        if (getBridge().isBlurForPkg(pkgName)
                 && param.getResult() != null) {
             Bitmap res = (Bitmap) param.getResult();
-            int radius = getAppGuardBridge().getBlurRadius();
-            float scale = getAppGuardBridge().getBlurScale();
+            int radius = getBridge().getBlurRadius();
+            float scale = getBridge().getBlurScale();
             XposedLog.verbose("onScreenshotApplications, bluring, r and s: " + radius + "-" + scale);
             Bitmap blured = (XBitmapUtil.createBlurredBitmap(res, radius, scale));
             if (blured != null)

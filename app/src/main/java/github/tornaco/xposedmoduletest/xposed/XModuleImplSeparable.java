@@ -4,11 +4,9 @@ import android.util.Log;
 
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.xposed.service.IModuleBridge;
-import github.tornaco.xposedmoduletest.xposed.service.XAppGuardServiceDelegate;
-import github.tornaco.xposedmoduletest.xposed.service.XIntentFirewallServiceDelegate;
-import github.tornaco.xposedmoduletest.xposed.submodules.AppGuardSubModuleManager;
-import github.tornaco.xposedmoduletest.xposed.submodules.IntentFirewallSubModuleManager;
+import github.tornaco.xposedmoduletest.xposed.service.XModuleServiceDelegate;
 import github.tornaco.xposedmoduletest.xposed.submodules.SubModule;
+import github.tornaco.xposedmoduletest.xposed.submodules.SubModuleManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -19,12 +17,8 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 class XModuleImplSeparable extends XModuleAbs {
 
     XModuleImplSeparable() {
-        IModuleBridge appguard = new XAppGuardServiceDelegate();
-        for (SubModule s : AppGuardSubModuleManager.getInstance().getAllSubModules()) {
-            s.onBridgeCreate(appguard);
-        }
-        IModuleBridge firewall = new XIntentFirewallServiceDelegate();
-        for (SubModule s : IntentFirewallSubModuleManager.getInstance().getAllSubModules()) {
+        IModuleBridge firewall = new XModuleServiceDelegate();
+        for (SubModule s : SubModuleManager.getInstance().getAllSubModules()) {
             s.onBridgeCreate(firewall);
         }
     }
@@ -33,24 +27,10 @@ class XModuleImplSeparable extends XModuleAbs {
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
         XposedLog.verbose("handleLoadPackage: " + lpparam.packageName);
 
-        for (SubModule s : AppGuardSubModuleManager.getInstance().getAllSubModules()) {
+        for (SubModule s : SubModuleManager.getInstance().getAllSubModules()) {
             if (s.getInterestedPackages().contains(lpparam.packageName)
                     || s.getInterestedPackages().contains("*")) {
                 try {
-                    // XposedLog.wtf("Invoking submodule@handleLoadPackage: " + s.name());
-                    s.handleLoadingPackage(lpparam.packageName, lpparam);
-                } catch (Throwable e) {
-                    XposedLog.wtf("Error call handleLoadingPackage submodule:" + s
-                            + " , trace: " + Log.getStackTraceString(e));
-                }
-            }
-        }
-
-        for (SubModule s : IntentFirewallSubModuleManager.getInstance().getAllSubModules()) {
-            if (s.getInterestedPackages().contains(lpparam.packageName)
-                    || s.getInterestedPackages().contains("*")) {
-                try {
-                    // XposedLog.wtf("Invoking submodule@handleLoadPackage: " + s.name());
                     s.handleLoadingPackage(lpparam.packageName, lpparam);
                 } catch (Throwable e) {
                     XposedLog.wtf("Error call handleLoadingPackage submodule:" + s
@@ -62,16 +42,7 @@ class XModuleImplSeparable extends XModuleAbs {
 
     @Override
     public void initZygote(StartupParam startupParam) throws Throwable {
-        for (SubModule s : AppGuardSubModuleManager.getInstance().getAllSubModules()) {
-            try {
-                s.initZygote(startupParam);
-            } catch (Throwable e) {
-                XposedLog.wtf("Error call initZygote submodule:" + s
-                        + " , trace: " + Log.getStackTraceString(e));
-            }
-        }
-
-        for (SubModule s : IntentFirewallSubModuleManager.getInstance().getAllSubModules()) {
+        for (SubModule s : SubModuleManager.getInstance().getAllSubModules()) {
             try {
                 s.initZygote(startupParam);
             } catch (Throwable e) {

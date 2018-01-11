@@ -30,8 +30,8 @@ import android.net.NetworkPolicyManager;
 import android.os.BatteryManager;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
@@ -52,8 +52,6 @@ import android.util.Pair;
 import android.util.SparseBooleanArray;
 import android.view.KeyEvent;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodInfo;
-import android.view.inputmethod.InputMethodManager;
 
 import com.android.internal.os.Zygote;
 import com.google.common.base.Preconditions;
@@ -98,11 +96,11 @@ import github.tornaco.xposedmoduletest.util.ArrayUtil;
 import github.tornaco.xposedmoduletest.util.GsonUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
+import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.repo.SetRepo;
 import github.tornaco.xposedmoduletest.xposed.service.bandwidth.BandwidthCommandCompat;
@@ -121,7 +119,6 @@ import lombok.Setter;
 import lombok.ToString;
 
 import static android.content.Context.CONTEXT_IGNORE_SECURITY;
-import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.content.Context.KEYGUARD_SERVICE;
 import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_NONE;
 import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_ON_DATA;
@@ -163,7 +160,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private final Map<String, BlockRecord2> mBlockRecords = new HashMap<>();
 
-    private Handler h, lazyH, dozeH;
+    private Handler mainHandler, mLazyHandler, mDozeHandler;
 
     private final Holder<String> mAudioFocusedPackage = new Holder<>();
 
@@ -218,11 +215,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     String action = intent.getAction();
-                    if (dozeH != null && action != null && action.equals(Intent.ACTION_BATTERY_CHANGED)) {
+                    if (mDozeHandler != null && action != null && action.equals(Intent.ACTION_BATTERY_CHANGED)) {
                         int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_UNKNOWN);
                         int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
                         BatterState bs = new BatterState(status, level);
-                        dozeH.obtainMessage(DozeHandlerMessages.MSG_ONBATTERYSTATECHANGE, bs)
+                        mDozeHandler.obtainMessage(DozeHandlerMessages.MSG_ONBATTERYSTATECHANGE, bs)
                                 .sendToTarget();
                     }
                 }
@@ -263,20 +260,27 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     });
 
+
+    private XAppGuardServiceImpl mAppGuardService;
+
+    public XAshmanServiceImpl() {
+        mAppGuardService = new XAppGuardServiceImplDev();
+    }
+
     private void onUserPresent() {
-        h.sendEmptyMessage(AshManHandlerMessages.MSG_ONSCREENON);
+        mainHandler.sendEmptyMessage(AshManHandlerMessages.MSG_ONSCREENON);
     }
 
     private void onScreenOff() {
-        h.sendEmptyMessage(AshManHandlerMessages.MSG_ONSCREENOFF);
-        if (dozeH != null) {
-            dozeH.sendEmptyMessage(DozeHandlerMessages.MSG_ONSCREENOFF);
+        mainHandler.sendEmptyMessage(AshManHandlerMessages.MSG_ONSCREENOFF);
+        if (mDozeHandler != null) {
+            mDozeHandler.sendEmptyMessage(DozeHandlerMessages.MSG_ONSCREENOFF);
         }
     }
 
     private void onScreenOn() {
-        if (dozeH != null) {
-            dozeH.sendEmptyMessage(DozeHandlerMessages.MSG_ONSCREENON);
+        if (mDozeHandler != null) {
+            mDozeHandler.sendEmptyMessage(DozeHandlerMessages.MSG_ONSCREENON);
 
             cancelEnterIdleModePosts("Screen is on");
             // Check if this is an end of doze.
@@ -294,7 +298,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         // They send us bad action~
                         return;
                     }
-                    lazyH.obtainMessage(AshManLZHandlerMessages.MSG_ONBROADCASTACTION, intent).sendToTarget();
+                    mLazyHandler.obtainMessage(AshManLZHandlerMessages.MSG_ONBROADCASTACTION, intent).sendToTarget();
                 }
             });
 
@@ -391,15 +395,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     mPackagesCache.put(pkg, uid);
                     PkgUtil.cachePkgUid(pkg, uid);
 
-//                    if (isIME(pkg)) {
-//                        addToWhiteList(pkg);
-//                    }
-//                    if (PkgUtil.isHomeApp(getContext(), pkg)) {
-//                        addToWhiteList(pkg);
-//                    }
-//                    if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
-//                        addToWhiteList(pkg);
-//                    }
                 } catch (Exception ignored) {
 
                 }
@@ -494,29 +489,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         } catch (Exception ignored) {
             XposedLog.debug("Can not getSingleton UID for our client:" + ignored);
         }
-    }
-
-    @Deprecated
-    private void whiteIMEPackages() {
-        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(INPUT_METHOD_SERVICE);
-        List<InputMethodInfo> methodInfos = imm != null ? imm.getInputMethodList() : null;
-        if (methodInfos == null) return;
-        for (InputMethodInfo inputMethodInfo : methodInfos) {
-            String pkg = inputMethodInfo.getPackageName();
-            addToWhiteList(pkg);
-            if (XposedLog.isVerboseLoggable()) XposedLog.verbose("whiteIMEPackages: " + pkg);
-        }
-    }
-
-    private boolean isIME(String pkg) {
-        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(INPUT_METHOD_SERVICE);
-        List<InputMethodInfo> methodInfos = imm != null ? imm.getInputMethodList() : null;
-        if (methodInfos == null) return false;
-        for (InputMethodInfo inputMethodInfo : methodInfos) {
-            String pkgIME = inputMethodInfo.getPackageName();
-            if (pkg.equals(pkgIME)) return true;
-        }
-        return false;
     }
 
     private static boolean isInWhiteList(String pkg) {
@@ -787,6 +759,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @Deprecated
     public boolean checkService(Intent service, String callingPackage, int callingPid, int callingUid,
                                 boolean callingFromFg) throws RemoteException {
         return true;
@@ -1078,12 +1051,65 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @CommonBringUpApi
     public boolean checkBroadcastIntent(IApplicationThread caller, Intent intent) {
+        mAppGuardService.checkBroadcastIntent(caller, intent);
+
         if (BuildConfig.DEBUG) {
             int callingUid = Binder.getCallingUid();
             XposedLog.verbose("checkBroadcastIntent: %s, callingUid %s", intent, callingUid);
         }
         return true;
+    }
+
+    @Override
+    public boolean interruptPackageRemoval(String pkg) {
+        return mAppGuardService.interruptPackageRemoval(pkg);
+    }
+
+    @Override
+    public boolean onEarlyVerifyConfirm(String pkg, String reason) {
+        return mAppGuardService.onEarlyVerifyConfirm(pkg, reason);
+    }
+
+    @Override
+    public void verify(Bundle options, String pkg, int uid, int pid, VerifyListener listener) {
+        mAppGuardService.verify(options, pkg, uid, pid, listener);
+    }
+
+    @Override
+    public Intent checkIntent(Intent from) {
+        return mAppGuardService.checkIntent(from);
+    }
+
+    @Override
+    public long wrapCallingUidForIntent(long from, Intent intent) {
+        return mAppGuardService.wrapCallingUidForIntent(from, intent);
+    }
+
+    @Override
+    public boolean isBlurForPkg(String pkg) {
+        return mAppGuardService.isBlurForPkg(pkg);
+    }
+
+    @Override
+    public float getBlurScale() {
+        return mAppGuardService.getBlurScale();
+    }
+
+    @Override
+    public boolean interruptFPSuccessVibrate() {
+        return mAppGuardService.interruptFPSuccessVibrate();
+    }
+
+    @Override
+    public boolean interruptFPErrorVibrate() {
+        return mAppGuardService.interruptFPErrorVibrate();
+    }
+
+    @Override
+    public boolean isActivityStartShouldBeInterrupted(ComponentName componentName) {
+        return mAppGuardService.isActivityStartShouldBeInterrupted(componentName);
     }
 
     @Override
@@ -1142,8 +1168,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return;
         }
 
-        if (dozeH != null) {
-            dozeH.sendEmptyMessageDelayed(DozeHandlerMessages.MSG_ENTERIDLEMODE, delay);
+        if (mDozeHandler != null) {
+            mDozeHandler.sendEmptyMessageDelayed(DozeHandlerMessages.MSG_ENTERIDLEMODE, delay);
         } else {
             XposedLog.wtf(XposedLog.TAG_DOZE + "postEnterIdleMode while handler is null");
         }
@@ -1151,8 +1177,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private void cancelEnterIdleModePosts(String reason) {
         XposedLog.verbose(XposedLog.TAG_DOZE + "cancelEnterIdleModePosts: " + reason);
-        if (dozeH != null) {
-            dozeH.removeMessages(DozeHandlerMessages.MSG_ENTERIDLEMODE);
+        if (mDozeHandler != null) {
+            mDozeHandler.removeMessages(DozeHandlerMessages.MSG_ENTERIDLEMODE);
         } else {
             XposedLog.wtf(XposedLog.TAG_DOZE + "cancelEnterIdleModePosts while handler is null");
         }
@@ -1207,8 +1233,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.wtf("postDozeEndCheck while doze not supported");
             return;
         }
-        if (dozeH != null) {
-            dozeH.sendEmptyMessageDelayed(DozeHandlerMessages.MSG_UPDATEDOZEENDSTATE, END_DOZE_CHECK_DELAY);
+        if (mDozeHandler != null) {
+            mDozeHandler.sendEmptyMessageDelayed(DozeHandlerMessages.MSG_UPDATEDOZEENDSTATE, END_DOZE_CHECK_DELAY);
         }
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("postDozeEndCheck: " + mLastDozeEvent);
@@ -1597,7 +1623,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @InternalCall
+    @CommonBringUpApi
     public boolean onKeyEvent(KeyEvent keyEvent, String source) {
+        mAppGuardService.onKeyEvent(keyEvent, source);
+
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("source: " + source + ", onKeyEvent: " + keyEvent);
         }
@@ -1612,7 +1641,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 XposedLog.verbose("Ignore key event in keyguard");
                 return false;
             }
-            lazyH.obtainMessage(AshManLZHandlerMessages.MSG_ONKEYEVENT, keyEvent).sendToTarget();
+            mLazyHandler.obtainMessage(AshManLZHandlerMessages.MSG_ONKEYEVENT, keyEvent).sendToTarget();
         }
         return false;
     }
@@ -1688,15 +1717,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @BinderCall
     public void clearBlockRecords() throws RemoteException {
         enforceCallingPermissions();
-        h.removeMessages(AshManHandlerMessages.MSG_CLEARBLOCKRECORDS);
-        h.obtainMessage(AshManHandlerMessages.MSG_CLEARBLOCKRECORDS).sendToTarget();
+        mainHandler.removeMessages(AshManHandlerMessages.MSG_CLEARBLOCKRECORDS);
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_CLEARBLOCKRECORDS).sendToTarget();
     }
 
     @Override
     @BinderCall
     public void setComponentEnabledSetting(ComponentName componentName, int newState, int flags) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETCOMPONENTENABLEDSETTING, newState, flags, componentName).sendToTarget();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETCOMPONENTENABLEDSETTING, newState, flags, componentName).sendToTarget();
     }
 
     @Override
@@ -1728,7 +1757,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void setApplicationEnabledSetting(String packageName, int newState, int flags) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETAPPLICATIONENABLEDSETTING, newState, flags, packageName).sendToTarget();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETAPPLICATIONENABLEDSETTING, newState, flags, packageName).sendToTarget();
     }
 
     @Override
@@ -1736,7 +1765,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         enforceCallingPermissions();
         Preconditions.checkNotNull(w, "IAshmanWatcher is null");
         AshManHandler.WatcherClient watcherClient = new AshManHandler.WatcherClient(w);
-        h.obtainMessage(AshManHandlerMessages.MSG_WATCH, watcherClient).sendToTarget();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_WATCH, watcherClient).sendToTarget();
     }
 
     @Override
@@ -1745,20 +1774,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         enforceCallingPermissions();
         Preconditions.checkNotNull(w, "IAshmanWatcher is null");
         AshManHandler.WatcherClient watcherClient = new AshManHandler.WatcherClient(w);
-        h.obtainMessage(AshManHandlerMessages.MSG_UNWATCH, watcherClient).sendToTarget();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_UNWATCH, watcherClient).sendToTarget();
     }
 
     @Override
     @BinderCall
     public void setNetworkPolicyUidPolicy(int uid, int policy) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETNETWORKPOLICYUIDPOLICY, uid, policy).sendToTarget();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETNETWORKPOLICYUIDPOLICY, uid, policy).sendToTarget();
     }
 
     @Override
     public void restart() throws RemoteException {
         enforceCallingPermissions();
-        lazyH.post(new Runnable() {
+        mLazyHandler.post(new Runnable() {
             @Override
             public void run() {
                 Zygote.execShell("reboot"); //FIXME Change to soft reboot?
@@ -1770,7 +1799,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @BinderCall
     public void setCompSettingBlockEnabled(boolean enabled) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETCOMPSETTINGBLOCKENABLED, enabled)
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETCOMPSETTINGBLOCKENABLED, enabled)
                 .sendToTarget();
     }
 
@@ -2206,7 +2235,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void setLockKillDoNotKillAudioEnabled(boolean enabled) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETLOCKKILLDONOTKILLAUDIOENABLED, enabled)
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETLOCKKILLDONOTKILLAUDIOENABLED, enabled)
                 .sendToTarget();
     }
 
@@ -2227,7 +2256,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
         enforceCallingPermissions();
 
-        h.obtainMessage(AshManHandlerMessages.MSG_SETCONTROLMODE, mode).sendToTarget();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETCONTROLMODE, mode).sendToTarget();
     }
 
     @Override
@@ -2244,14 +2273,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void setAutoAddBlackEnable(boolean enable) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETAUTOADDBLACKENABLE, enable)
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETAUTOADDBLACKENABLE, enable)
                 .sendToTarget();
     }
 
     @Override
     public void forceReloadPackages() {
-        h.removeMessages(AshManHandlerMessages.MSG_FORCERELOADPACKAGES);
-        h.sendEmptyMessage(AshManHandlerMessages.MSG_FORCERELOADPACKAGES);
+        mainHandler.removeMessages(AshManHandlerMessages.MSG_FORCERELOADPACKAGES);
+        mainHandler.sendEmptyMessage(AshManHandlerMessages.MSG_FORCERELOADPACKAGES);
     }
 
     private CheckResult checkBroadcastDetailed(String action, int receiverUid, int callerUid) {
@@ -2416,7 +2445,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         mLoggingService.execute(r);
 
-        h.obtainMessage(AshManHandlerMessages.MSG_NOTIFYSTARTBLOCK, serviceEvent.getPkg()).sendToTarget();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_NOTIFYSTARTBLOCK, serviceEvent.getPkg()).sendToTarget();
     }
 
     private void logBroadcastEventToMemory(final BroadcastEvent broadcastEvent) {
@@ -2431,7 +2460,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     if (receiverPkgName == null) return;
                 }
 
-                h.obtainMessage(AshManHandlerMessages.MSG_NOTIFYSTARTBLOCK, receiverPkgName).sendToTarget();
+                mainHandler.obtainMessage(AshManHandlerMessages.MSG_NOTIFYSTARTBLOCK, receiverPkgName).sendToTarget();
 
                 BlockRecord2 old = getBlockRecord(receiverPkgName);
                 long oldTimes = old == null ? 0 : old.getHowManyTimes();
@@ -2562,27 +2591,34 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @CommonBringUpApi
+    public void attachContext(Context context) {
+        super.attachContext(context);
+        mAppGuardService.attachContext(context);
+    }
+
+    @Override
+    @CommonBringUpApi
     public void publish() {
-        XposedLog.boot("publishing ash...");
         try {
-            ServiceManager.addService(XAshmanManager.ASH_MAN_SERVICE_NAME, asBinder());
+            String serviceName = XAshmanManager.SERVICE_NAME;
+            XposedLog.boot("publishing ash to: " + serviceName);
+            ServiceManager.addService(serviceName, asBinder());
         } catch (Throwable e) {
             XposedLog.debug("*** FATAL*** Fail publish our svc:" + e);
         }
         construct();
+
+        mAppGuardService.publish();
     }
 
     @Override
-    public IBinder onRetrieveBinderService(String name) {
-        if (XAshmanManager.ASH_MAN_SERVICE_NAME.equals(name)) {
-            return asBinder();
-        }
-        return null;
-    }
-
-    @Override
+    @CommonBringUpApi
     public void systemReady() {
         XposedLog.wtf("systemReady@" + getClass().getSimpleName());
+
+        mAppGuardService.systemReady();
+
         inflateWhiteList();
         inflateWhiteListHook();
         // Update system ready, since we can call providers now.
@@ -2600,7 +2636,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         // Try to setup the list after 15s if network control is enabled.
         if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_FIREWALL)) {
-            lazyH.postDelayed(new Runnable() {
+            mLazyHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -2612,7 +2648,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         // Reload packages after 15s, for those apps installed on sd.
-        lazyH.postDelayed(new ErrorCatchRunnable(new Runnable() {
+        mLazyHandler.postDelayed(new ErrorCatchRunnable(new Runnable() {
             @Override
             public void run() {
                 forceReloadPackages();
@@ -2728,7 +2764,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return;
         }
 
-        h.obtainMessage(AshManHandlerMessages.MSG_ONAUDIOFOCUSEDPACKAGECHANGED, pkgName).sendToTarget();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_ONAUDIOFOCUSEDPACKAGECHANGED, pkgName).sendToTarget();
     }
 
     @Override
@@ -2743,13 +2779,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.verbose("onAbandonAudioFocus: " + callingPkg + "--" + callingUid);
         }
         if (pkgName == null) return;
-        h.obtainMessage(AshManHandlerMessages.MSG_ONAUDIOFOCUSEDPACKAGEABANDONED, pkgName).sendToTarget();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_ONAUDIOFOCUSEDPACKAGEABANDONED, pkgName).sendToTarget();
     }
 
     @Override
     public void setPermissionControlEnabled(boolean enabled) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETPERMISSIONCONTROLENABLED, enabled).sendToTarget();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETPERMISSIONCONTROLENABLED, enabled).sendToTarget();
     }
 
     @Override
@@ -2835,7 +2871,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (id == null) {
             id = Long.toHexString(new SecureRandom().nextLong());
         }
-        h.obtainMessage(AshManHandlerMessages.MSG_SETUSERDEFINEDANDROIDID, id).sendToTarget();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETUSERDEFINEDANDROIDID, id).sendToTarget();
     }
 
     @Override
@@ -2846,7 +2882,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (id == null) {
             id = Long.toHexString(new SecureRandom().nextLong());
         }
-        h.obtainMessage(AshManHandlerMessages.MSG_SETUSERDEFINEDDEVICEID, id).sendToTarget();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETUSERDEFINEDDEVICEID, id).sendToTarget();
     }
 
     @Override
@@ -2857,7 +2893,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (id == null) {
             id = String.valueOf(new SecureRandom().nextLong());
         }
-        h.obtainMessage(AshManHandlerMessages.MSG_SETUSERDEFINEDLINE1NUMBER, id).sendToTarget();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETUSERDEFINEDLINE1NUMBER, id).sendToTarget();
     }
 
     @SuppressLint("HardwareIds")
@@ -3042,13 +3078,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void setShowFocusedActivityInfoEnabled(boolean enabled) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETSHOWFOCUSEDACTIVITYINFOENABLED, enabled).sendToTarget();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETSHOWFOCUSEDACTIVITYINFOENABLED, enabled).sendToTarget();
     }
 
     @Override
     public void restoreDefaultSettings() throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_RESTOREDEFAULTSETTINGS).sendToTarget();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_RESTOREDEFAULTSETTINGS).sendToTarget();
     }
 
     @Override
@@ -3123,8 +3159,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         XposedLog.verbose("uncaughtException on currentPackage@%s, thread@%s, throwable@%s", packageName, thread, exception);
         XposedLog.verbose("***** FATAL EXCEPTION TRACE DUMP APM-S*****\n%s", trace);
 
-        h.removeMessages(AshManHandlerMessages.MSG_ONAPPLICATIONUNCAUGHTEXCEPTION);
-        h.obtainMessage(AshManHandlerMessages.MSG_ONAPPLICATIONUNCAUGHTEXCEPTION,
+        mainHandler.removeMessages(AshManHandlerMessages.MSG_ONAPPLICATIONUNCAUGHTEXCEPTION);
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_ONAPPLICATIONUNCAUGHTEXCEPTION,
                 UncaughtException.builder()
                         .exception(exception)
                         .packageName(packageName)
@@ -3145,7 +3181,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void setAppCrashDumpEnabled(boolean enabled) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETAPPCRASHDUMPENABLED, enabled).sendToTarget();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETAPPCRASHDUMPENABLED, enabled).sendToTarget();
     }
 
     private RemoteCallbackList<ITopPackageChangeListener> mTopPackageListenerCallbacks;
@@ -3177,7 +3213,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void setLazyModeEnabled(boolean enabled) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETLAZYMODEENABLED, enabled)
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETLAZYMODEENABLED, enabled)
                 .sendToTarget();
     }
 
@@ -3246,7 +3282,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @BinderCall
     public void setLPBKEnabled(boolean enabled) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETLPBKENABLED, enabled)
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETLPBKENABLED, enabled)
                 .sendToTarget();
     }
 
@@ -3262,13 +3298,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         String callingPkg = PkgUtil.pkgForUid(getContext(), callingUid);
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("removeTask: uid %s pkg %s task %s", callingUid, callingPkg, taskId);
-        }
-
-        if (!isTaskRemoveKillEnabled()) {
-            if (XposedLog.isVerboseLoggable()) {
-                XposedLog.verbose("removeTask: trk is not enabled");
-            }
-            return;
         }
 
         if (isSystemUIPackage(callingPkg)) {
@@ -3294,8 +3323,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     if (pkgOfThisTask != null) {
 
                         // Tell app guard service to clean up verify res.
-                        if (XAppGuardManager.get().isServiceAvailable()) {
-                            XAppGuardManager.get().onTaskRemoving(pkgOfThisTask);
+                        mAppGuardService.onTaskRemoving(pkgOfThisTask);
+
+                        if (!isTaskRemoveKillEnabled()) {
+                            if (XposedLog.isVerboseLoggable()) {
+                                XposedLog.verbose("removeTask: trk is not enabled");
+                            }
+                            return;
                         }
 
                         if (!shouldTRKPackage(pkgOfThisTask)) {
@@ -3312,7 +3346,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
                         // Now we kill this pkg delay to let am handle first.
                         final String finalPkgOfThisTask = pkgOfThisTask;
-                        lazyH.postDelayed(new ErrorCatchRunnable(new Runnable() {
+                        mLazyHandler.postDelayed(new ErrorCatchRunnable(new Runnable() {
                             @Override
                             public void run() {
                                 XposedLog.verbose("removeTask, killing: " + finalPkgOfThisTask);
@@ -3397,8 +3431,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public void setDozeEnabled(boolean enable) throws RemoteException {
         enforceCallingPermissions();
 
-        if (dozeH != null) {
-            dozeH.obtainMessage(DozeHandlerMessages.MSG_SETDOZEENABLED, enable)
+        if (mDozeHandler != null) {
+            mDozeHandler.obtainMessage(DozeHandlerMessages.MSG_SETDOZEENABLED, enable)
                     .sendToTarget();
         }
 
@@ -3416,7 +3450,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 XposedLog.wtf("e: " + Log.getStackTraceString(e));
 
                 // Try using handler.
-                lazyH.post(new ErrorCatchRunnable(new Runnable() {
+                mLazyHandler.post(new ErrorCatchRunnable(new Runnable() {
                     @Override
                     public void run() {
                         try {
@@ -3449,8 +3483,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void setForceDozeEnabled(boolean enable) throws RemoteException {
         enforceCallingPermissions();
-        if (dozeH != null) {
-            dozeH.obtainMessage(DozeHandlerMessages.MSG_SETFORCEDOZEENABLED, enable).sendToTarget();
+        if (mDozeHandler != null) {
+            mDozeHandler.obtainMessage(DozeHandlerMessages.MSG_SETFORCEDOZEENABLED, enable).sendToTarget();
         }
     }
 
@@ -3491,8 +3525,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             throw new IllegalArgumentException("Doze delayMills should be positive");
         }
         enforceCallingPermissions();
-        if (dozeH != null) {
-            dozeH.obtainMessage(DozeHandlerMessages.MSG_SETDOZEDELAYMILLS, delayMills)
+        if (mDozeHandler != null) {
+            mDozeHandler.obtainMessage(DozeHandlerMessages.MSG_SETDOZEDELAYMILLS, delayMills)
                     .sendToTarget();
         }
     }
@@ -3501,7 +3535,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @BinderCall
     public void setDoNotKillSBNEnabled(boolean enable) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETDONOTKILLSBNENABLED, enable)
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETDONOTKILLSBNENABLED, enable)
                 .sendToTarget();
     }
 
@@ -3515,7 +3549,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @BinderCall
     public void setTaskRemoveKillEnabled(boolean enable) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETTASKREMOVEKILLENABLED, enable)
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETTASKREMOVEKILLENABLED, enable)
                 .sendToTarget();
     }
 
@@ -3599,7 +3633,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void setPrivacyEnabled(boolean enable) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETPRIVACYENABLED, enable).sendToTarget();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETPRIVACYENABLED, enable).sendToTarget();
     }
 
     @Override
@@ -3623,6 +3657,146 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     }
 
+    @Override
+    public boolean isAppLockEnabled() throws RemoteException {
+        return mAppGuardService.isAppLockEnabled();
+    }
+
+    @Override
+    public void setAppLockEnabled(boolean enabled) throws RemoteException {
+        mAppGuardService.setAppLockEnabled(enabled);
+    }
+
+    @Override
+    public boolean isBlurEnabled() throws RemoteException {
+        return mAppGuardService.isBlurEnabled();
+    }
+
+    @Override
+    public void setBlurEnabled(boolean enabled) throws RemoteException {
+        mAppGuardService.setBlurEnabled(enabled);
+    }
+
+    @Override
+    public int getBlurRadius() throws RemoteException {
+        return mAppGuardService.getBlurRadius();
+    }
+
+    @Override
+    public void setBlurRadius(int r) throws RemoteException {
+        mAppGuardService.setBlurRadius(r);
+    }
+
+    @Override
+    public boolean isUninstallInterruptEnabled() throws RemoteException {
+        return mAppGuardService.isUninstallInterruptEnabled();
+    }
+
+    @Override
+    public void setUninstallInterruptEnabled(boolean enabled) throws RemoteException {
+        mAppGuardService.setUninstallInterruptEnabled(enabled);
+    }
+
+    @Override
+    public void setVerifySettings(VerifySettings settings) throws RemoteException {
+        mAppGuardService.setVerifySettings(settings);
+    }
+
+    @Override
+    public VerifySettings getVerifySettings() throws RemoteException {
+        return mAppGuardService.getVerifySettings();
+    }
+
+    @Override
+    public void setResult(int transactionID, int res) throws RemoteException {
+        mAppGuardService.setResult(transactionID, res);
+    }
+
+    @Override
+    public boolean isTransactionValid(int transactionID) throws RemoteException {
+        return mAppGuardService.isTransactionValid(transactionID);
+    }
+
+    @Override
+    public void mockCrash() throws RemoteException {
+        mAppGuardService.mockCrash();
+    }
+
+    @Override
+    public void setVerifierPackage(String pkg) throws RemoteException {
+        mAppGuardService.setVerifierPackage(pkg);
+    }
+
+    @Override
+    public void injectHomeEvent() throws RemoteException {
+        mAppGuardService.injectHomeEvent();
+    }
+
+    @Override
+    public void setDebug(boolean debug) throws RemoteException {
+        mAppGuardService.setDebug(debug);
+    }
+
+    @Override
+    public boolean isDebug() throws RemoteException {
+        return mAppGuardService.isDebug();
+    }
+
+    @Override
+    public void onActivityPackageResume(String pkg) throws RemoteException {
+        mAppGuardService.onActivityPackageResume(pkg);
+    }
+
+    @Override
+    public boolean isInterruptFPEventVBEnabled(int event) throws RemoteException {
+        return mAppGuardService.isInterruptFPEventVBEnabled(event);
+    }
+
+    @Override
+    public void setInterruptFPEventVBEnabled(int event, boolean enabled) throws RemoteException {
+        mAppGuardService.setInterruptFPEventVBEnabled(event, enabled);
+    }
+
+    @Override
+    public void addOrRemoveComponentReplacement(ComponentName from, ComponentName to, boolean add) throws RemoteException {
+        mAppGuardService.addOrRemoveComponentReplacement(from, to, add);
+    }
+
+    @Override
+    public Map getComponentReplacements() throws RemoteException {
+        return mAppGuardService.getComponentReplacements();
+    }
+
+    @Override
+    public String[] getLockApps(boolean lock) throws RemoteException {
+        return mAppGuardService.getLockApps(lock);
+    }
+
+    @Override
+    public void addOrRemoveLockApps(String[] packages, boolean add) throws RemoteException {
+        mAppGuardService.addOrRemoveLockApps(packages, add);
+    }
+
+    @Override
+    public String[] getBlurApps(boolean lock) throws RemoteException {
+        return mAppGuardService.getBlurApps(lock);
+    }
+
+    @Override
+    public void addOrRemoveBlurApps(String[] packages, boolean blur) throws RemoteException {
+        mAppGuardService.addOrRemoveBlurApps(packages, blur);
+    }
+
+    @Override
+    public String[] getUPApps(boolean lock) throws RemoteException {
+        return mAppGuardService.getUPApps(lock);
+    }
+
+    @Override
+    public void addOrRemoveUPApps(String[] packages, boolean add) throws RemoteException {
+        mAppGuardService.addOrRemoveUPApps(packages, add);
+    }
+
     // PLUGIN API END.
 
     private boolean isSystemUIPackage(String pkgName) {
@@ -3631,8 +3805,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private void postNotifyTopPackageChanged(final String from, final String to) {
         if (from == null || to == null) return;
-        lazyH.removeMessages(AshManLZHandlerMessages.MSG_NOTIFYTOPPACKAGECHANGED);
-        lazyH.obtainMessage(AshManLZHandlerMessages.MSG_NOTIFYTOPPACKAGECHANGED,
+        mLazyHandler.removeMessages(AshManLZHandlerMessages.MSG_NOTIFYTOPPACKAGECHANGED);
+        mLazyHandler.obtainMessage(AshManLZHandlerMessages.MSG_NOTIFYTOPPACKAGECHANGED,
                 new Pair<>(from, to))
                 .sendToTarget();
 
@@ -3645,7 +3819,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 //        Runnable lazyKill = new LazyServiceKiller(from);
 //        ErrorCatchRunnable ecr = new ErrorCatchRunnable(lazyKill, "lazyKill");
 //        // Kill all service after 3s.
-//        lazyH.postDelayed(ecr, 3 * 1000);
+//        mLazyHandler.postDelayed(ecr, 3 * 1000);
     }
 
 
@@ -3818,13 +3992,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONDATA, uid, -1, restrict)
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONDATA, uid, -1, restrict)
                 .sendToTarget();
     }
 
     private void restrictAppOnDataForce(int uid, boolean restrict) {
         XposedLog.debug("NMS restrictAppOnDataForce: " + uid + ", restrict: " + restrict);
-        h.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONDATA, uid, 1, restrict)
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONDATA, uid, 1, restrict)
                 .sendToTarget();
     }
 
@@ -3838,13 +4012,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         XposedLog.debug("NMS restrictAppOnWifi: " + uid + ", restrict: " + restrict);
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONWIFI, uid, -1, restrict)
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONWIFI, uid, -1, restrict)
                 .sendToTarget();
     }
 
     private void restrictAppOnWifiForce(int uid, boolean restrict) {
         XposedLog.debug("NMS restrictAppOnWifiForce: " + uid + ", restrict: " + restrict);
-        h.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONWIFI, uid, 1, restrict)
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_RESTRICTAPPONWIFI, uid, 1, restrict)
                 .sendToTarget();
     }
 
@@ -3865,31 +4039,34 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     // NMS API END.
 
     @Override
+    @CommonBringUpApi
     public void retrieveSettings() {
         XposedLog.wtf("retrieveSettings@" + getClass().getSimpleName());
         loadConfigFromSettings();
         cachePackages();
+
+        mAppGuardService.retrieveSettings();
     }
 
     private void construct() {
         RepoProxy.getProxy();
 
-        h = onCreateServiceHandler();
+        mainHandler = onCreateServiceHandler();
 
-        lazyH = onCreateLazyHandler();
+        mLazyHandler = onCreateLazyHandler();
 
         boolean hasDozeFeature = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_DOZE);
         if (hasDozeFeature && isDozeSupported()) {
-            dozeH = onCreateDozeHandler();
+            mDozeHandler = onCreateDozeHandler();
         } else {
             XposedLog.wtf("Will not create doze handler when no doze feature");
         }
 
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.debug(
-                    "construct, h: " + h
-                            + ", lazyH: " + lazyH
-                            + ", dozeH: " + dozeH
+                    "construct, mainHandler: " + mainHandler
+                            + ", mLazyHandler: " + mLazyHandler
+                            + ", mDozeHandler: " + mDozeHandler
                             + ", @serial: " + serial());
         }
 
@@ -3909,12 +4086,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void publishFeature(String f) {
-
-    }
-
-    @Override
+    @CommonBringUpApi
     public void shutdown() {
+        mAppGuardService.shutdown();
     }
 
     private IActivityManager getActivityManager() {
@@ -3990,14 +4164,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @InternalCall
+    @CommonBringUpApi
     public void onPackageMoveToFront(final Intent who) {
+        mAppGuardService.onPackageMoveToFront(who);
+
         onPackageMoveToFront(PkgUtil.packageNameOf(who));
 
         if (showFocusedActivityInfoEnabled()) {
-            lazyH.removeCallbacks(toastRunnable);
+            mLazyHandler.removeCallbacks(toastRunnable);
             if (who != null) {
                 mFocusedCompName = who.getComponent();
-                lazyH.post(toastRunnable);
+                mLazyHandler.post(toastRunnable);
             }
         }
     }
@@ -4010,8 +4187,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         // Update top imd right now.
         mTopPackageImd.setData(who);
 
-        lazyH.removeMessages(AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONT);
-        lazyH.sendMessageDelayed(lazyH.obtainMessage(
+        mLazyHandler.removeMessages(AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONT);
+        mLazyHandler.sendMessageDelayed(mLazyHandler.obtainMessage(
                 AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONT, who)
                 , PKG_MOVE_TO_FRONT_EVENT_DELAY);
     }
@@ -4025,7 +4202,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @BinderCall
     public void clearProcess(IProcessClearListener listener) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_CLEARPROCESS, listener)
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_CLEARPROCESS, listener)
                 .sendToTarget();
     }
 
@@ -4033,7 +4210,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @BinderCall
     public void setLockKillDelay(long delay) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETLOCKKILLDELAY, delay).sendToTarget();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETLOCKKILLDELAY, delay).sendToTarget();
     }
 
     @Override
@@ -4046,7 +4223,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void setWhiteSysAppEnabled(boolean enabled) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETWHITESYSAPPENABLED, enabled)
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETWHITESYSAPPENABLED, enabled)
                 .sendToTarget();
     }
 
@@ -4060,7 +4237,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @BinderCall
     public void setBootBlockEnabled(boolean enabled) {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETBOOTBLOCKENABLED, enabled)
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETBOOTBLOCKENABLED, enabled)
                 .sendToTarget();
     }
 
@@ -4075,7 +4252,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @BinderCall
     public void setStartBlockEnabled(boolean enabled) {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETSTARTBLOCKENABLED, enabled)
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETSTARTBLOCKENABLED, enabled)
                 .sendToTarget();
     }
 
@@ -4090,7 +4267,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @BinderCall
     public void setLockKillEnabled(boolean enabled) {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETLOCKKILLENABLED, enabled)
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETLOCKKILLENABLED, enabled)
                 .sendToTarget();
     }
 
@@ -4105,7 +4282,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @BinderCall
     public void setRFKillEnabled(boolean enabled) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETRFKILLENABLED, enabled)
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETRFKILLENABLED, enabled)
                 .sendToTarget();
     }
 
@@ -4119,7 +4296,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void setGreeningEnabled(boolean enabled) throws RemoteException {
         enforceCallingPermissions();
-        h.obtainMessage(AshManHandlerMessages.MSG_SETGREENINGENABLED, enabled)
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETGREENINGENABLED, enabled)
                 .sendToTarget();
     }
 
@@ -4557,7 +4734,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             // Hide float view in lazy handler.
             if (!enabled) {
-                lazyH.post(new ErrorCatchRunnable(new Runnable() {
+                mLazyHandler.post(new ErrorCatchRunnable(new Runnable() {
                     @Override
                     public void run() {
                         if (mFloatView != null) {
@@ -5216,7 +5393,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         x.addOrRemoveStartBlockApps(new String[]{packageName}, XAshmanManager.Op.REMOVE);
 
                         if (BuildConfig.APPLICATION_ID.equals(packageName)) {
-                            lazyH.postDelayed(new Runnable() {
+                            mLazyHandler.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
                                     onAppGuardClientUninstalled();

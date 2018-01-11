@@ -16,7 +16,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 @Deprecated
-class PMSSubModule3 extends IntentFirewallAndroidSubModule {
+class PMSSubModule3 extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {

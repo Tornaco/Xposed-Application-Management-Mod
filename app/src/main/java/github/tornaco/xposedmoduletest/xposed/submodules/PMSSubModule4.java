@@ -1,6 +1,5 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
-import android.app.AndroidAppHelper;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.ParceledListSlice;
@@ -14,7 +13,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -26,7 +24,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
-class PMSSubModule4 extends IntentFirewallAndroidSubModule {
+class PMSSubModule4 extends AndroidSubModule {
 
     @Override
     public String needBuildVar() {

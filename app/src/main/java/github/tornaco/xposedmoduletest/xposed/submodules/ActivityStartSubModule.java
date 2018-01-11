@@ -23,7 +23,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
-class ActivityStartSubModule extends AppGuardAndroidSubModule {
+class ActivityStartSubModule extends AndroidSubModule {
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         hookStartActivityMayWait(lpparam);
@@ -104,11 +104,11 @@ class ActivityStartSubModule extends AppGuardAndroidSubModule {
                         if (intent == null) return;
 
                         // Use checked Intent instead of previous one.
-                        Intent checkedIntent = getAppGuardBridge().checkIntent(intent);
+                        Intent checkedIntent = getBridge().checkIntent(intent);
                         if (checkedIntent != null) {
                             intent = checkedIntent;
                             param.args[finalIntentIndex] = intent;
-                            Binder.restoreCallingIdentity(getAppGuardBridge()
+                            Binder.restoreCallingIdentity(getBridge()
                                     .wrapCallingUidForIntent(Binder.clearCallingIdentity(), intent));
                         } else {
                             param.setResult(ActivityManager.START_SUCCESS);
@@ -119,7 +119,7 @@ class ActivityStartSubModule extends AppGuardAndroidSubModule {
                         if (componentName == null) return;
 
                         // Incas the component is disabled.
-                        boolean itrp = getAppGuardBridge()
+                        boolean itrp = getBridge()
                                 .isActivityStartShouldBeInterrupted(componentName);
                         if (itrp) {
                             param.setResult(ActivityManager.START_SUCCESS);
@@ -134,7 +134,7 @@ class ActivityStartSubModule extends AppGuardAndroidSubModule {
                         }
 
                         // Package has been passed.
-                        if (!getAppGuardBridge().onEarlyVerifyConfirm(pkgName, "startActivityMayWait")) {
+                        if (!getBridge().onEarlyVerifyConfirm(pkgName, "startActivityMayWait")) {
                             return;
                         }
 
@@ -143,7 +143,7 @@ class ActivityStartSubModule extends AppGuardAndroidSubModule {
                                         (Bundle) param.args[finalActivityOptsIndex]
                                         : null;
 
-                        getAppGuardBridge().verify(options, pkgName, 0, 0,
+                        getBridge().verify(options, pkgName, 0, 0,
                                 new VerifyListener() {
                                     @Override
                                     public void onVerifyRes(String pkg, int uid, int pid, int res) {
@@ -164,7 +164,6 @@ class ActivityStartSubModule extends AppGuardAndroidSubModule {
                 }
             });
             XposedLog.wtf("hookStartActivityMayWait OK: " + unhook);
-            getBridge().publishFeature(XAppGuardManager.Feature.START);
             setStatus(unhookToStatus(unhook));
         } catch (Exception e) {
             XposedLog.wtf("Fail hookStartActivityMayWait:" + e);

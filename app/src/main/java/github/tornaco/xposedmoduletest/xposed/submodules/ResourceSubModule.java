@@ -14,7 +14,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 @Deprecated
-class ResourceSubModule extends AppGuardAndroidSubModule {
+class ResourceSubModule extends AndroidSubModule {
 
     @Override
     public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {

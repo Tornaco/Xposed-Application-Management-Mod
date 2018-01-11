@@ -20,7 +20,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // Hook hookConstructor settings.
-class ActivityRecordSubModule extends IntentFirewallAndroidSubModule {
+class ActivityRecordSubModule extends AndroidSubModule {
 
     @Override
     public String needBuildVar() {
