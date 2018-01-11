@@ -354,5 +354,7 @@
     <string name="ignore_allow_all">全部禁用</string>
     <string name="title_app_update_log_view">更新日志</string>
     <string name="app_intro_menu">此处菜单包含新手常见问题，以及更新日志，请务必先阅读在使用。</string>
+    <string name="title_app_oreo_update">Android Oreo 升级</string>
+    <string name="message_oreo_update">在进行Oreo适配的过程中，由于Oreo上对SeLinux的策略的更改，导致之前的Binder通信方案不适用于Oreo版本，因此我们投机取巧，将应用管理的Binder服务作为TV服务注入，如果你不清楚上面在说什么也没关系，只要清除以下一点：本应用在8.0以及以上版本，不适用于TV（电视）设备。</string>
 
 </resources>

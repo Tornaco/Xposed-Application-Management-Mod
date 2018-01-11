@@ -1,5 +1,7 @@
 package github.tornaco.xposedmoduletest.util;
 
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.SystemProperties;
 import android.text.TextUtils;
@@ -39,5 +41,10 @@ public abstract class OSUtil {
 
     public static boolean isOOrAbove() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
+    }
+
+    public static boolean hasTvFeature(Context context) {
+        PackageManager pm = context.getPackageManager();
+        return pm.hasSystemFeature(PackageManager.FEATURE_LIVE_TV);
     }
 }

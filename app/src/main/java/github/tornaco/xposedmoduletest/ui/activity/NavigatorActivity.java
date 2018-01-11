@@ -29,6 +29,8 @@ import android.widget.Toast;
 import com.google.common.collect.ImmutableList;
 import com.jaredrummler.android.shell.Shell;
 
+import org.newstand.logger.Logger;
+
 import java.util.List;
 
 import co.mobiwise.materialintro.shape.Focus;
@@ -36,8 +38,10 @@ import co.mobiwise.materialintro.shape.FocusGravity;
 import co.mobiwise.materialintro.view.MaterialIntroView;
 import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.os.PowerManagerCompat;
+import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.FragmentController;
 import github.tornaco.xposedmoduletest.ui.Themes;
@@ -100,9 +104,45 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             XAshmanManager.get().forceReloadPackages();
         }
 
-        initFirstRun();
+        initTVStateForOreo();
+    }
 
-        // showBatteryDrainFuckingDialog();
+    private void initTVStateForOreo() {
+        boolean hasTv = OSUtil.hasTvFeature(this);
+        Logger.w("initTVStateForOreo, hasTvFeature: " + hasTv);
+
+        if (hasTv || BuildConfig.DEBUG) {
+            showTvDialog();
+        } else {
+            initFirstRun();
+        }
+    }
+
+    private void showTvDialog() {
+        Logger.w("showTvDialog");
+        if (AppSettings.isShowInfoEnabled(this, "TV_FEATURE_WARN", true)) {
+            new AlertDialog.Builder(NavigatorActivity.this)
+                    .setTitle(R.string.title_app_oreo_update)
+                    .setMessage(getString(R.string.message_oreo_update))
+                    .setCancelable(false)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            initFirstRun();
+                            AppSettings.setShowInfo(getContext(), "TV_FEATURE_WARN", false);
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                            PackageManagerCompat.unInstallUserAppWithIntent(getContext(), getPackageName());
+                        }
+                    })
+                    .show();
+        } else {
+            initFirstRun();
+        }
     }
 
     private void setupView() {
