@@ -45,6 +45,7 @@ class ActivityStackSupervisorSetFocusedStackSubModule extends AndroidSubModule {
                     String reason = (String) param.args[0];
                     Object activityStack = param.args[1];
                     Object taskRecord = XposedHelpers.callMethod(activityStack, "topTask");
+                    if (taskRecord == null) return;
                     Object realActivityObj = XposedHelpers.getObjectField(taskRecord, "realActivity");
                     if (realActivityObj != null) {
                         ComponentName componentName = (ComponentName) realActivityObj;

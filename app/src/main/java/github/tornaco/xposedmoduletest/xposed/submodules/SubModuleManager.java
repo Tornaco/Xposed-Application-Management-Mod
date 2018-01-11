@@ -52,15 +52,15 @@ public class SubModuleManager {
 
         addToSubsChecked(new NetworkManagementModule());
 
-        addToSubsChecked(new MediaFocusControlSubModule2());
-        addToSubsChecked(new MediaFocusControlSubModule());
+        addToSubsChecked(new MediaFocusControlAbandonFocusSubModule());
+        addToSubsChecked(new MediaFocusControlRequestFocusSubModule());
 
         // RFK.
-        addToSubsChecked(new PWMSubModule());
-        addToSubsChecked(new InputManagerSubModule());
+        addToSubsChecked(new PWMInterceptKeySubModule());
+        addToSubsChecked(new InputManagerInjectInputSubModule());
 
-        addToSubsChecked(new PMSSubModule4());
-        addToSubsChecked(new PMSSubModule2());
+        addToSubsChecked(new PMSGetInstalledPackagesSubModule());
+        addToSubsChecked(new PMSSetComponentEnabledSettingSubModule());
 
         addToSubsChecked(new ASDSubModule());
         addToSubsChecked(new IFWSubModule());
@@ -73,7 +73,7 @@ public class SubModuleManager {
         addToSubsChecked(new ActiveServiceSubModule());
         addToSubsChecked(new RuntimeInitSubModule());
 
-        addToSubsChecked(new AMSSubModule12());
+        addToSubsChecked(new AMSBroadcastIntentSubModule());
         addToSubsChecked(new AMSSubModule10());
         addToSubsChecked(new AMSSubModule9());
         addToSubsChecked(new AMSSubModule8());
@@ -106,15 +106,9 @@ public class SubModuleManager {
         addToSubsChecked(new TaskMoverSubModuleDelegate());
         addToSubsChecked(new ActivityStartSubModuleDelegate());
 
-        addToSubsChecked(new AMSSubModule12());
-
         addToSubsChecked(new AMSSetFocusedActivitySubModule());
         addToSubsChecked(new ActivityStackSupervisorSetFocusedStackSubModule());
 
-        addToSubsChecked(new AMSRetrieveSettingsSubModule());
-        addToSubsChecked(new AMSShutdownSubModule());
-        addToSubsChecked(new AMSSystemReadySubModule());
-        addToSubsChecked(new AMSStartSubModule());
         // APPGUARD MODULES END.
     }
 

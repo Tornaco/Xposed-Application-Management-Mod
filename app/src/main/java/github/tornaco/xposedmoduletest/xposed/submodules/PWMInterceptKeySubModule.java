@@ -17,9 +17,9 @@ import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
  * Created by guohao4 on 2017/10/31.
  * Email: Tornaco@163.com
  */
-class PWMSubModule extends AndroidSubModule {
+class PWMInterceptKeySubModule extends AndroidSubModule {
 
-    private static final String EVENT_SOURCE = "PWMSubModule";
+    private static final String EVENT_SOURCE = "PWMInterceptKeySubModule";
 
     @Override
     public String needBuildVar() {

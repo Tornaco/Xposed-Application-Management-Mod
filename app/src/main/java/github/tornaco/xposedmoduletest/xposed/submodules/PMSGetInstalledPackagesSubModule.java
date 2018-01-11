@@ -24,7 +24,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
-class PMSSubModule4 extends AndroidSubModule {
+class PMSGetInstalledPackagesSubModule extends AndroidSubModule {
 
     @Override
     public String needBuildVar() {

@@ -5989,7 +5989,7 @@
 01-07 18:52:12.299   247   247 I Xposed  :   Loading class github.tornaco.xposedmoduletest.xposed.XModuleDelegate
 01-07 18:52:12.341   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@31859286-b18a-49da-a66f-9ab589d43e08, assign to: github.tornaco.xposedmoduletest.xposed.submodules.AMSSetFocusedActivitySubModule
 01-07 18:52:12.341   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@31859286-b18a-49da-a66f-9ab589d43e08, assign to: github.tornaco.xposedmoduletest.xposed.submodules.FPSubModule
-01-07 18:52:12.341   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@31859286-b18a-49da-a66f-9ab589d43e08, assign to: github.tornaco.xposedmoduletest.xposed.submodules.AMSSubModule12
+01-07 18:52:12.341   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@31859286-b18a-49da-a66f-9ab589d43e08, assign to: github.tornaco.xposedmoduletest.xposed.submodules.AMSBroadcastIntentSubModule
 01-07 18:52:12.341   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@31859286-b18a-49da-a66f-9ab589d43e08, assign to: github.tornaco.xposedmoduletest.xposed.submodules.ScreenshotApplicationsSubModule
 01-07 18:52:12.341   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@31859286-b18a-49da-a66f-9ab589d43e08, assign to: github.tornaco.xposedmoduletest.xposed.submodules.PMSSubModule
 01-07 18:52:12.341   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@31859286-b18a-49da-a66f-9ab589d43e08, assign to: github.tornaco.xposedmoduletest.xposed.submodules.ActivityStackSupervisorSetFocusedStackSubModule
@@ -6007,7 +6007,7 @@
 01-07 18:52:12.368   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.AMSSubModule9
 01-07 18:52:12.368   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.AMSSubModule8
 01-07 18:52:12.368   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.ServiceManagerSubModule
-01-07 18:52:12.368   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.PMSSubModule4
+01-07 18:52:12.368   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.PMSGetInstalledPackagesSubModule
 01-07 18:52:12.368   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.AMSShutdownSubModule
 01-07 18:52:12.368   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.AlarmManagerSubModule
 01-07 18:52:12.368   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.AppOpsSubModule4
@@ -6015,26 +6015,26 @@
 01-07 18:52:12.368   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.DeviceIdleControllerSubModule
 01-07 18:52:12.369   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.WakelockSubModule
 01-07 18:52:12.369   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.AMSSubModule10
-01-07 18:52:12.369   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.PWMSubModule
+01-07 18:52:12.369   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.PWMInterceptKeySubModule
 01-07 18:52:12.369   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.NotificationManagerServiceSubModule
-01-07 18:52:12.369   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.InputManagerSubModule
-01-07 18:52:12.369   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.MediaFocusControlSubModule2
+01-07 18:52:12.369   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.InputManagerInjectInputSubModule
+01-07 18:52:12.369   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.MediaFocusControlAbandonFocusSubModule
 01-07 18:52:12.369   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.ActiveServiceSubModule
 01-07 18:52:12.369   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.ActivitySubModule
 01-07 18:52:12.369   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.SecureSettingsSubModule
 01-07 18:52:12.369   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.TelephonyManagerSubModule
-01-07 18:52:12.369   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.MediaFocusControlSubModule
+01-07 18:52:12.369   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.MediaFocusControlRequestFocusSubModule
 01-07 18:52:12.370   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.RuntimeInitSubModule
 01-07 18:52:12.370   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.AMSSetFocusedActivitySubModule
 01-07 18:52:12.370   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.AppOpsSubModule2
 01-07 18:52:12.370   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.IFWSubModule
-01-07 18:52:12.370   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.PMSSubModule2
+01-07 18:52:12.370   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.PMSSetComponentEnabledSettingSubModule
 01-07 18:52:12.370   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.ServiceSubModule
 01-07 18:52:12.370   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.AMSRetrieveSettingsSubModule
 01-07 18:52:12.370   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.AMSSystemReadySubModule
 01-07 18:52:12.370   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.AppOpsSubModule
 01-07 18:52:12.370   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.AMSSubModule6
-01-07 18:52:12.371   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.AMSSubModule12
+01-07 18:52:12.371   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.AMSBroadcastIntentSubModule
 01-07 18:52:12.371   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.ActivityStackSupervisorSetFocusedStackSubModule
 01-07 18:52:12.371   247   247 I Xposed  : X-APM-S-4.1.5-VERBOSE-onBridgeCreate@0e4b83da-89c3-4460-9abb-ff4803d8c987, assign to: github.tornaco.xposedmoduletest.xposed.submodules.AppOpsSubModule3
 01-07 18:52:12.421   247   247 I Xposed  : Init XModuleDelegate with impl github.tornaco.xposedmoduletest.xposed.XModuleImplSeparable@2d1d1d8: 

@@ -109,7 +109,7 @@ import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerP
 import github.tornaco.xposedmoduletest.xposed.service.doze.DozeStateRetriever;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
-import github.tornaco.xposedmoduletest.xposed.submodules.InputManagerSubModule;
+import github.tornaco.xposedmoduletest.xposed.submodules.InputManagerInjectInputSubModule;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.AllArgsConstructor;
@@ -1631,7 +1631,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.verbose("source: " + source + ", onKeyEvent: " + keyEvent);
         }
 
-        if (source.equals(InputManagerSubModule.EVENT_SOURCE)) {
+        if (source.equals(InputManagerInjectInputSubModule.EVENT_SOURCE)) {
             return false;
         }
 
