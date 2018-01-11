@@ -31,7 +31,7 @@
 
         <activity
             android:name=".ui.activity.ag.VerifyDisplayerActivity"
-            android:excludeFromRecents="true"
+
             android:exported="true"
             android:label="@string/title_default_verifyer"
             android:screenOrientation="portrait"
@@ -44,12 +44,12 @@
         </activity>
         <activity
             android:name=".ui.activity.ag.PatternSetupActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_setup_code_new"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.NavigatorActivity"
-            android:excludeFromRecents="true"
+
             android:theme="@style/AppThemeLight.Drawer.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -66,253 +66,253 @@
             android:label="@string/title_get_play" />
         <activity
             android:name=".ui.activity.ag.GuardAppNavActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_app_guard"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.ag.GuardAppPickerActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.blur.BlurAppNavActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_app_recent_blur"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.blur.BlurAppPickerActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.lazy.LazyAppNavActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_app_lazy"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.lazy.LazyAppPickerActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.uninstall.UnstallProAppNavActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_app_uninstall_pro"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.uninstall.UnstallProAppPickerActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.boot.BootAppNavActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_app_boot"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.boot.BootAppPickerActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.start.StartAppNavActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_app_auto_start"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.start.StartAppPickerActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.lk.LockKillAppNavActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_app_lock_kill"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.lk.LockKillAppPickerActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.rf.RFKillAppNavActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_app_rf_kill"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.rf.RFKillAppPickerActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.trk.TRKillAppNavActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_app_tr_kill"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.trk.TRKillAppPickerActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.app.PrivacyAppListNavActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_privacy_apps"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.app.PrivacyAppListPickerActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.doze.DozeNavActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_doze"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.doze.DozeEventHistoryViewerActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_last_doze"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.helper.RunningServicesActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_running_services"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.ag.SecureGuardSettings"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_secure"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.ag.ExperimentGuardSettings"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_exp"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.ag.AdvancedGuardSettings"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_advance"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.ag.VerifierGuardSettings"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_verifier"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.ag.GuardSettingsDashboardActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.smartsense.SmartSenseDashboardActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_smart_sense"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.blur.BlurSettingsDashboardActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.lk.LKSettingsDashboardActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.comp.CompSettingsDashboardActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.app.AppDashboardActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.app.PrivacyNavActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_privacy"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.app.ToolsDashboardActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.app.AboutDashboardActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_about"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.lk.GeneralLKSettings"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_general_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.blur.GeneralBlurSettings"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_general_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.comp.GeneralCompSettings"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_general_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.PhotoViewerActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_view_photos" />
         <activity
             android:name=".ui.activity.BlockRecordViewerActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_block_viewer" />
         <activity
             android:name=".ui.activity.ClearProcessActivity"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.comp.ComponentEditorActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_component_editor"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.comp.ComponentReplacementActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_comp_replacement"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.comp.PackageViewerActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_component_manager"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.smartsense.FocusedAppActionActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_app_focus_acions"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.perm.PackageViewerActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_perm_control"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.perm.PermViewerActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_perm_control"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.green2.ExtraOpsSettingActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_greening"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.perm.Apps2OpListActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_perm_control"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.perm.Op2AppsListActivity"
-            android:excludeFromRecents="true"
+
             android:label="@string/title_perm_control"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity

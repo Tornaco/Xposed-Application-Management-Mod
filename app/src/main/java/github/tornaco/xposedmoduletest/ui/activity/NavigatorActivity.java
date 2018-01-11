@@ -108,22 +108,24 @@ public class NavigatorActivity extends WithWithCustomTabActivity
     }
 
     private void initTVStateForOreo() {
-        boolean hasTv = OSUtil.hasTvFeature(this);
-        Logger.w("initTVStateForOreo, hasTvFeature: " + hasTv);
-
-        if (hasTv || BuildConfig.DEBUG) {
-            showTvDialog();
-        } else {
-            initFirstRun();
-        }
+        showTvDialog();
     }
 
     private void showTvDialog() {
         Logger.w("showTvDialog");
-        if (AppSettings.isShowInfoEnabled(this, "TV_FEATURE_WARN", true)) {
+
+        if (AppSettings.isShowInfoEnabled(this, "TV_FEATURE_WARN", true)
+                || BuildConfig.DEBUG) {
+
+            boolean hasTv = OSUtil.hasTvFeature(this);
+            Logger.w("initTVStateForOreo, hasTvFeature: " + hasTv);
+
             new AlertDialog.Builder(NavigatorActivity.this)
                     .setTitle(R.string.title_app_oreo_update)
-                    .setMessage(getString(R.string.message_oreo_update))
+                    .setMessage(getString(
+                            hasTv ?
+                                    R.string.message_oreo_update
+                                    : R.string.message_oreo_update_not_tv))
                     .setCancelable(false)
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
