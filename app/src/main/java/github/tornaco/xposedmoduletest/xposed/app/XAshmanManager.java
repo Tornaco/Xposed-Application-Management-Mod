@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.xposed.app;
 
 import android.app.ActivityManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.RemoteException;
 import android.os.ServiceManager;
@@ -18,6 +19,7 @@ import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
@@ -59,7 +61,8 @@ public class XAshmanManager {
         int UNKNOWN = -1;
     }
 
-    public static final String ASH_MAN_SERVICE_NAME = "user.tor_ash";
+    public static final String ASH_MAN_SERVICE_NAME =
+            OSUtil.isOOrAbove() ? Context.TV_INPUT_SERVICE : "user.tor_ash";
 
     private final IAshmanService mService;
 

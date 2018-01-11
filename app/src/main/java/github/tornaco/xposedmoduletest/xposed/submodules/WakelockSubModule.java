@@ -9,7 +9,6 @@ import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
-import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -43,6 +42,14 @@ class WakelockSubModule extends IntentFirewallAndroidSubModule {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
+
+                            boolean ashServiceAvailable = XAshmanManager.get()
+                                    .isServiceAvailable();
+                            if (!ashServiceAvailable) {
+                                Log.e(XposedLog.TAG_PREFIX, "Service not available.");
+                                return;
+                            }
+
                             String pkgName = AndroidAppHelper.currentPackageName();
 
 //                            if (BuildConfig.DEBUG) {
@@ -63,11 +70,13 @@ class WakelockSubModule extends IntentFirewallAndroidSubModule {
                             }
 
                             // Check OP.
-                            int mode = XAshmanManager.get().getPermissionControlBlockModeForPkg(
-                                    AppOpsManagerCompat.OP_WAKE_LOCK, pkgName);
-                            if (mode == AppOpsManagerCompat.MODE_IGNORED) {
+                            if (XAshmanManager.get().isServiceAvailable()) {
+                                int mode = XAshmanManager.get().getPermissionControlBlockModeForPkg(
+                                        AppOpsManagerCompat.OP_WAKE_LOCK, pkgName);
+                                if (mode == AppOpsManagerCompat.MODE_IGNORED) {
 //                                XposedLog.verbose("acquire wake lock, MODE_IGNORED returning...");
-                                param.setResult(null);
+                                    param.setResult(null);
+                                }
                             }
                         }
                     });

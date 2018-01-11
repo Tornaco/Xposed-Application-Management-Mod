@@ -36,4 +36,8 @@ public abstract class OSUtil {
     public static boolean isNOrAbove() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
     }
+
+    public static boolean isOOrAbove() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
+    }
 }

@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed.app;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 
@@ -11,6 +12,7 @@ import java.util.Map;
 
 import github.tornaco.xposedmoduletest.IAppGuardService;
 import github.tornaco.xposedmoduletest.IAppGuardWatcher;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
@@ -28,7 +30,9 @@ public class XAppGuardManager {
     public static final String ACTION_APP_GUARD_VERIFY_DISPLAYER
             = "github.tornaco.xpose.app.interruptPackageRemoval.action.verify.displayer";
 
-    public static final String APP_GUARD_SERVICE = "user.tor_ag";
+    public static final String APP_GUARD_SERVICE =
+//            OSUtil.isOOrAbove() ? Context.TV_INPUT_SERVICE :
+                    "user.tor_ag";
 
     public static final String EXTRA_PKG_NAME = "extra.pkg";
 
