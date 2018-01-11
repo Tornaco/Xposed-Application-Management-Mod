@@ -440,48 +440,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 return;
                             }
 
-                            // Add to package cache.
-                            if (BuildConfig.DEBUG && pkg.contains("google")) {
-                                XposedLog.wtf("Add google pkg: " + pkg);
-                            }
-
                             mPackagesCache.put(pkg, uid);
                             PkgUtil.cachePkgUid(pkg, uid);
 
                             // Add system apps to system list.
                             boolean isSystemApp = (applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
                             if (isSystemApp) {
-
-                                // Check if persist.
-                                boolean isPersist = (applicationInfo.flags & ApplicationInfo.FLAG_PERSISTENT) != 0;
-                                if (isPersist) {
-                                    // addToWhiteList(pkg);
-                                    XposedLog.wtf("Will not add white list for persist pkg: " + pkg);
-                                    return;
-                                }
-
-                                android.content.pm.PackageInfo packageInfo = null;
-                                // Check if android system uid or media, phone.
-                                try {
-                                    packageInfo = pm.getPackageInfo(pkg, 0);
-                                    String sharedUserId = packageInfo.sharedUserId;
-                                    if (
-                                        // Someone want for fuck the system apps anyway
-                                        // Let it go~
-//                                            "android.uid.system".equals(sharedUserId) ||
-                                            "android.uid.phone".equals(sharedUserId)
-//                                                    || "android.media".equals(sharedUserId)
-                                            ) {
-                                        if (XposedLog.isVerboseLoggable())
-                                            XposedLog.debug("Add to white list package: "
-                                                    + pkg + ", sharedUid: " + sharedUserId);
-                                        addToWhiteList(pkg);
-                                        return;
-                                    }
-
-                                } catch (PackageManager.NameNotFoundException e) {
-                                    XposedLog.wtf("NameNotFoundException: " + e + ", for: " + pkg);
-                                }
                                 addToSystemApps(pkg);
                             }
                         }
