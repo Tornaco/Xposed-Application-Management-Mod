@@ -12,14 +12,8 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
  * Email: Tornaco@163.com
  */
 
-class TaskMoverSubModuleV26 extends TaskMoverSubModule {
-    @SuppressLint("PrivateApi")
-    @Override
-    Method methodForTaskMover(XC_LoadPackage.LoadPackageParam lpparam) throws ClassNotFoundException, NoSuchMethodException {
-        @SuppressLint("PrivateApi") Class taskRecordClass = Class.forName("com.android.server.am.TaskRecord", false, lpparam.classLoader);
-        return Class.forName("com.android.server.am.ActivityStackSupervisor",
-                false, lpparam.classLoader)
-                .getDeclaredMethod("findTaskToMoveToFrontLocked",
-                        taskRecordClass, int.class, Bundle.class);
-    }
+// oid findTaskToMoveToFrontLocked(TaskRecord task, int flags, ActivityOptions options,
+//            String reason, boolean forceNonResizeable) {
+class TaskMoverSubModuleV26 extends TaskMoverSubModuleV25 {
+
 }

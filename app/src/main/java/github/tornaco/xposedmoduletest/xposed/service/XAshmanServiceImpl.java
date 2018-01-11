@@ -363,8 +363,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         NotificationManagerCompat.from(context)
                 .notify(NOTIFICATION_ID.getAndIncrement(),
                         new Notification.Builder(context)
-                                .setContentTitle("新增阻止应用")
-                                .setContentText("已经阻止 " + name + " 的自启动，关联启动等。")
+                                .setContentTitle("新增限制应用")
+                                .setContentText("已按照模板将 " + name + " 加入限制列表")
                                 .setSmallIcon(android.R.drawable.stat_sys_warning)
                                 .build());
     }
@@ -4279,6 +4279,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     + ", uid= " + Binder.getCallingUid());
             return;
         }
+
+        mAppGuardService.dump(fd, fout, args);
 
         synchronized (this) {
             // Dump switch.
