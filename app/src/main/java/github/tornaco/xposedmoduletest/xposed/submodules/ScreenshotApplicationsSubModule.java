@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 import android.app.ActivityManagerNative;
 import android.content.ComponentName;
 import android.graphics.Bitmap;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
@@ -16,7 +17,6 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.util.OSUtil;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.util.XBitmapUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -28,14 +28,18 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 public class ScreenshotApplicationsSubModule extends AndroidSubModule {
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        hookScreenshotApplications(lpparam);
+        if (OSUtil.isOOrAbove()) {
+            hookScreenshotApplicationsForOAndAbove(lpparam);
+        } else {
+            hookScreenshotApplicationsForNAndBelow(lpparam);
+        }
     }
 
     /**
-     * @see #onScreenshotApplications(XC_MethodHook.MethodHookParam)
+     * @see #onScreenshotApplicationsNAndBelow(XC_MethodHook.MethodHookParam)
      */
-    private void hookScreenshotApplications(XC_LoadPackage.LoadPackageParam lpparam) {
-        XposedLog.boot("hookScreenshotApplications...");
+    private void hookScreenshotApplicationsForNAndBelow(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedLog.boot("hookScreenshotApplicationsForNAndBelow...");
 
         try {
             Class clz = XposedHelpers.findClass("com.android.server.wm.WindowManagerService",
@@ -58,40 +62,103 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             super.afterHookedMethod(param);
                             try {
-                                onScreenshotApplications(param);
+                                onScreenshotApplicationsNAndBelow(param);
                             } catch (Exception e) {
-                                XposedLog.boot("Fail onScreenshotApplications: " + e);
+                                XposedLog.boot("Fail onScreenshotApplicationsNAndBelow: " + e);
                             }
                         }
                     });
-            XposedLog.boot("hookScreenshotApplications OK: " + unHooks);
+            XposedLog.boot("hookScreenshotApplicationsForNAndBelow OK: " + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XposedLog.boot("Fail hookScreenshotApplications: " + e);
+            XposedLog.boot("Fail hookScreenshotApplicationsForNAndBelow: " + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }
     }
 
-    private void onScreenshotApplications(XC_MethodHook.MethodHookParam param) throws RemoteException {
+    /**
+     * @see #onScreenshotApplicationsNAndBelow(XC_MethodHook.MethodHookParam)
+     */
+    private void hookScreenshotApplicationsForOAndAbove(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedLog.boot("hookScreenshotApplicationsForOAndAbove...");
+
+        try {
+            Class clz = XposedHelpers.findClass("com.android.server.am.ActivityRecord",
+                    lpparam.classLoader);
+
+            Set unHooks = XposedBridge.hookAllMethods(clz,
+                    "screenshotActivityLocked",
+                    new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            super.afterHookedMethod(param);
+                            Object activityRecordObj = param.thisObject;
+                            String pkgName = (String) XposedHelpers
+                                    .getObjectField(activityRecordObj, "packageName");
+                            onScreenshotApplicationsOAndAbove(param, pkgName);
+                        }
+                    });
+            XposedLog.boot("hookScreenshotApplicationsForOAndAbove OK: " + unHooks);
+            setStatus(unhooksToStatus(unHooks));
+        } catch (Exception e) {
+            XposedLog.boot("Fail hookScreenshotApplicationsForOAndAbove: " + e);
+            setStatus(SubModuleStatus.ERROR);
+            setErrorMessage(Log.getStackTraceString(e));
+        }
+
+    }
+
+    private void onScreenshotApplicationsNAndBelow(XC_MethodHook.MethodHookParam param) throws RemoteException {
+
         IBinder token = (IBinder) param.args[0];
         ComponentName activityClassForToken = ActivityManagerNative.getDefault().getActivityClassForToken(token);
         String pkgName = activityClassForToken == null ? null : activityClassForToken.getPackageName();
+
         if (TextUtils.isEmpty(pkgName)) {
             return;
         }
-        XposedLog.verbose("onScreenshotApplications: " + pkgName);
+
+        XposedLog.verbose("onScreenshotApplicationsNAndBelow: " + pkgName);
         if (getBridge().isBlurForPkg(pkgName)
                 && param.getResult() != null) {
             Bitmap res = (Bitmap) param.getResult();
+            XposedLog.verbose("onScreenshotApplicationsNAndBelow. res: " + res);
             int radius = getBridge().getBlurRadius();
             float scale = getBridge().getBlurScale();
-            XposedLog.verbose("onScreenshotApplications, bluring, r and s: " + radius + "-" + scale);
+            XposedLog.verbose("onScreenshotApplicationsNAndBelow, bluring, r and s: " + radius + "-" + scale);
             Bitmap blured = (XBitmapUtil.createBlurredBitmap(res, radius, scale));
             if (blured != null)
                 param.setResult(blured);
         } else {
-            XposedLog.verbose("onScreenshotApplications, blur is disabled...");
+            XposedLog.verbose("onScreenshotApplicationsNAndBelow, blur is disabled...");
+        }
+    }
+
+    private void onScreenshotApplicationsOAndAbove(XC_MethodHook.MethodHookParam param, String pkgName) throws RemoteException {
+
+        if (TextUtils.isEmpty(pkgName)) {
+            return;
+        }
+
+        if (param.getResult() == null) {
+            XposedLog.verbose("onScreenshotApplicationsOAndAbove. getResult null:");
+            return;
+        }
+
+        XposedLog.verbose("onScreenshotApplicationsOAndAbove: " + pkgName + ", caller " + Binder.getCallingUid());
+
+        if (getBridge().isBlurForPkg(pkgName)) {
+            Bitmap res = (Bitmap) param.getResult();
+            XposedLog.verbose("onScreenshotApplicationsOAndAbove. res: " + res);
+            int radius = getBridge().getBlurRadius();
+            float scale = getBridge().getBlurScale();
+            XposedLog.verbose("onScreenshotApplicationsOAndAbove, bluring, r and s: " + radius + "-" + scale);
+            Bitmap blured = (XBitmapUtil.createBlurredBitmap(res, radius, scale));
+            if (blured != null)
+                param.setResult(blured);
+        } else {
+            XposedLog.verbose("onScreenshotApplicationsOAndAbove, blur is disabled...");
         }
     }
 }
