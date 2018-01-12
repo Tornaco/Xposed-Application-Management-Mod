@@ -260,6 +260,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     });
 
+    private final Map<Integer, ComponentName> mTaskIdMap = new HashMap<>();
 
     private XAppGuardServiceImpl mAppGuardService;
 
@@ -1024,6 +1025,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.verbose("checkBroadcastIntent: %s, callingUid %s", intent, callingUid);
         }
         return true;
+    }
+
+    @Override
+    @CommonBringUpApi
+    public void notifyTaskCreated(int taskId, ComponentName componentName) {
+        mTaskIdMap.put(taskId, componentName);
+    }
+
+    @Override
+    @CommonBringUpApi
+    public ComponentName componentNameForTaskId(int taskId) {
+        return mTaskIdMap.get(taskId);
     }
 
     @Override
