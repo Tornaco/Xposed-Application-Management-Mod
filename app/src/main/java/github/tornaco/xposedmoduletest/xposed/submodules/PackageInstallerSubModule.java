@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageInstaller;
 import android.content.pm.PackageManager;
+import android.content.pm.VersionedPackage;
 import android.util.Log;
 
 import java.util.Set;
@@ -14,7 +15,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -22,6 +23,10 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
+
+// Oreo
+// public void uninstall(VersionedPackage versionedPackage, String callerPackageName, int flags,
+//              IntentSender statusReceiver, int userId) throws RemoteException {
 class PackageInstallerSubModule extends AndroidSubModule {
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
@@ -39,7 +44,14 @@ class PackageInstallerSubModule extends AndroidSubModule {
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
                             try {
-                                String pkgName = (String) param.args[0];
+
+                                String pkgName;
+                                if (OSUtil.isOOrAbove()) {
+                                    VersionedPackage vp = (VersionedPackage) param.args[0];
+                                    pkgName = vp.getPackageName();
+                                } else {
+                                    pkgName = (String) param.args[0];
+                                }
                                 XposedLog.verbose("PackageInstallerService uninstall pkg:" + pkgName);
                                 boolean interrupt = interruptPackageRemoval(pkgName);
                                 if (interrupt) {

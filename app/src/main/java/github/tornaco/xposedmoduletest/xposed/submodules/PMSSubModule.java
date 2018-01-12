@@ -11,7 +11,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -40,7 +40,7 @@ class PMSSubModule extends AndroidSubModule {
                                 XposedLog.verbose("PackageManagerService deletePackageAsUser pkg:" + pkgName);
                                 boolean interrupt = interruptPackageRemoval(pkgName);
                                 if (interrupt) {
-                                    Object oo = param.args[1];
+                                    Object oo = param.args[OSUtil.isOOrAbove() ? 2 : 1];
                                     XposedLog.verbose("deletePackageAsUser ob:" + oo);
                                     if (oo instanceof IPackageDeleteObserver2) {
                                         IPackageDeleteObserver2 observer2 = (IPackageDeleteObserver2) oo;

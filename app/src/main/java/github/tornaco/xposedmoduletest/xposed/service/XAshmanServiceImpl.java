@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.xposed.service;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
 import android.app.AlertDialog;
@@ -398,7 +399,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         createNotificationChannelForO();
 
-        Notification n = OSUtil.isNOrAbove() ?
+        Notification n = OSUtil.isOOrAbove() ?
                 new Notification.Builder(context, NOTIFICATION_CHANNEL_ID)
                         .setContentTitle("新增限制应用")
                         .setContentText("已按照模板将 " + name + " 加入限制列表")
