@@ -105,10 +105,8 @@ public class SubModuleManager {
         // APPGUARD MODULES.
         addToSubsChecked(new FPSubModule());
 
-        // Blur N
+        // Blur
         addToSubsChecked(new ScreenshotApplicationsSubModule());
-        // Blur O
-        addToSubsChecked(new BitmapCreateFromHWBufferSubModule());
 
         addToSubsChecked(new PackageInstallerSubModule());
         addToSubsChecked(new PMSSubModule());
