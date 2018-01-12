@@ -1,7 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import android.app.AndroidAppHelper;
-import android.graphics.GraphicBuffer;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -12,6 +11,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.util.OSUtil;
+import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -71,10 +71,10 @@ public class BitmapCreateFromHWBufferSubModule extends AndroidSubModule {
             return;
         }
 
-        GraphicBuffer buffer = (GraphicBuffer) param.args[0];
-        if (buffer == null) {
+        if (XAppGuardManager.get().isServiceAvailable() && XAppGuardManager.get()
+                .isBlurEnabled()) {
             param.setResult(null);
-            XposedLog.verbose("onCreateHWBitmap, hack to null while buffer is null");
+            XposedLog.verbose("onCreateHWBitmap, hack to null for blur package");
         }
     }
 }

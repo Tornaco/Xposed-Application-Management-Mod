@@ -53,6 +53,11 @@ public interface IModuleBridge {
 //                                 String requiredPermission, int appOp, boolean serialized, boolean sticky, int userId
     );
 
+    @CommonBringUpApi
+    void notifyTaskCreated(int taskId, ComponentName componentName);
+
+    @CommonBringUpApi
+    ComponentName componentNameForTaskId(int taskId);
 
     // API for AppGuard.
     boolean interruptPackageRemoval(String pkg);

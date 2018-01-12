@@ -2618,6 +2618,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 forceReloadPackages();
             }
         }, "reload installed apps"), 15 * 1000);
+
+        ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
     }
 
     // NMS API START.

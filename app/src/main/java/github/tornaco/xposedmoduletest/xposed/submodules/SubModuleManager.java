@@ -97,16 +97,16 @@ public class SubModuleManager {
         addToSubsChecked(new ServiceManagerSubModule());
         addToSubsChecked(new AppOpsInitSubModule());
 
+        // Task id manage.
+        addToSubsChecked(new TaskChangeNotificationControllerSubModule());
 
         // APPGUARD MODULES.
         addToSubsChecked(new FPSubModule());
 
         // Blur N
         addToSubsChecked(new ScreenshotApplicationsSubModule());
-        // Blur Oreo
-        addToSubsChecked(new TaskChangeNotificationControllerSubModule());
+        // Blur O
         addToSubsChecked(new BitmapCreateFromHWBufferSubModule());
-
 
         addToSubsChecked(new PackageInstallerSubModule());
         addToSubsChecked(new PMSSubModule());
