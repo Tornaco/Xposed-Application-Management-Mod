@@ -46,18 +46,8 @@ public interface StartPackageLoader {
             String[] packages = xAshmanManager.getStartBlockApps(block);
 
             for (String pkg : packages) {
-                if (!PkgUtil.isPkgInstalled(context, pkg)) continue;
-                String name = String.valueOf(PkgUtil.loadNameByPkgName(context, pkg));
-                if (!TextUtils.isEmpty(name)) {
-                    name = name.replace(" ", "");
-                }
-
-                CommonPackageInfo p = new CommonPackageInfo();
-                p.setAppName(name);
-                p.setPkgName(pkg);
-                p.setSystemApp(PkgUtil.isSystemApp(context, pkg));
-
-                out.add(p);
+                CommonPackageInfo p = LoaderUtil.constructCommonPackageInfo(context, pkg);
+                if (p != null) out.add(p);
             }
 
             java.util.Collections.sort(out, new PinyinComparator());

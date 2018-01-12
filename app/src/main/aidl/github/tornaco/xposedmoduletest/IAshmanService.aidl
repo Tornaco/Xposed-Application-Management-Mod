@@ -218,6 +218,8 @@ interface IAshmanService {
 
     boolean hasNotificationForPackage(String pkg);
 
+    int getAppLevel(String pkg);
+
     // APP GUARD SERVICE API.
 
      boolean isAppLockEnabled();

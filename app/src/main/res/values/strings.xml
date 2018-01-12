@@ -358,5 +358,9 @@
     <string name="title_app_oreo_update">Android Oreo 升级</string>
     <string name="message_oreo_update">在进行Oreo适配的过程中，由于Oreo上对SeLinux的策略的更改，导致之前的Binder通信方案不适用于Oreo版本，因此我们将应用管理的Binder服务作为TV服务注入，如果你不清楚上面在说什么也没关系，只要清除以下两点：\n1. 本应用在8.0以及以上版本，不适用于Android TV（电视）设备（当前设备是TV设备）。\n2. 如果其他模块作者也采用这种TV注入方式（可能性不大，或许有更好的注入方式，通常作者会告知），那么这两个模块将只能其中一个正常工作。</string>
     <string name="message_oreo_update_not_tv">在进行Oreo适配的过程中，由于Oreo上对SeLinux的策略的更改，导致之前的Binder通信方案不适用于Oreo版本，因此我们将应用管理的Binder服务作为TV服务注入，如果你不清楚上面在说什么也没关系，只要清除以下两点：\n1. 本应用在8.0以及以上版本，不适用于Android TV（电视）设备（当前设备不是TV设备）。\n2. 如果其他模块作者也采用这种TV注入方式（可能性不大，或许有更好的注入方式，通常作者会告知），那么这两个模块将只能其中一个正常工作。</string>
+    <string name="app_level_system">系统应用</string>
+    <string name="app_level_media">媒体应用</string>
+    <string name="app_level_phone">电话应用</string>
+    <string name="app_level_core">核心应用</string>
 
 </resources>

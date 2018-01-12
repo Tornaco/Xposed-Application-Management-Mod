@@ -61,6 +61,14 @@ public class XAshmanManager {
         int UNKNOWN = -1;
     }
 
+    public interface AppLevel {
+        int THIRD_PARTY = 0;
+        int SYSTEM = 1;
+        int SYSTEM_UID = 2;
+        int PHONE_UID = 3;
+        int MEDIA_UID = 4;
+    }
+
     public static final String SERVICE_NAME =
             OSUtil.isOOrAbove() ? Context.TV_INPUT_SERVICE : "user.tor_ash";
 
@@ -88,6 +96,14 @@ public class XAshmanManager {
 
     private void ensureService() {
         Preconditions.checkNotNull(mService, "Service not available");
+    }
+
+    public int getAppLevel(String pkg) {
+        try {
+            return mService.getAppLevel(pkg);
+        } catch (RemoteException e) {
+            return AppLevel.THIRD_PARTY;
+        }
     }
 
     public void clearProcess(IProcessClearListenerAdapter adapter) {

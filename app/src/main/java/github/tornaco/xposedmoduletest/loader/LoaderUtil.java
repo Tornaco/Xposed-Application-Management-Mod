@@ -8,6 +8,7 @@ import java.util.List;
 
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.util.PinyinComparator;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
@@ -23,6 +24,7 @@ class LoaderUtil {
         CommonPackageInfo p = new CommonPackageInfo();
         p.setAppName(name);
         p.setPkgName(pkg);
+        p.setAppLevel(XAshmanManager.get().getAppLevel(pkg));
         p.setSystemApp(PkgUtil.isSystemApp(context, pkg));
         return p;
     }

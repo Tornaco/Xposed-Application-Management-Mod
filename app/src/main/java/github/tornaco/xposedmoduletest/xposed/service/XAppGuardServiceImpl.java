@@ -14,7 +14,6 @@ import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -22,7 +21,6 @@ import android.os.PowerManager;
 import android.os.RemoteException;
 import android.provider.Settings;
 import android.support.v4.app.NotificationManagerCompat;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
@@ -97,9 +95,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     private static int sClientUID = 0;
 
-    @SuppressLint("UseSparseArrays")
-    private final Map<Integer, String> mPackagesCache = new HashMap<>();
-
     private final Holder<String> mTopActivityPkg = new Holder<>();
 
     private XAshmanServiceImpl mService;
@@ -157,17 +152,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 case Intent.ACTION_PACKAGE_ADDED:
                 case Intent.ACTION_PACKAGE_REPLACED:
                     cacheUIDForUs();
-                    parsePackageAsync(packageName);
                     break;
                 case Intent.ACTION_PACKAGE_REMOVED:
-                    boolean replacing = intent.getBooleanExtra(Intent.EXTRA_REPLACING, false);
-                    if (!replacing) {
-                        int uid = intent.getIntExtra(Intent.EXTRA_UID, -1);
-                        if (uid > 0) {
-                            String removed = mPackagesCache.remove(uid);
-                            XposedLog.debug("Package uninstalled, remove from cache: " + removed);
-                        }
-                    }
+                    break;
             }
         }
     });
@@ -206,12 +193,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         XposedLog.wtf("systemReady@" + getClass().getSimpleName());
         checkSafeMode();
         cacheUIDForUs();
-        cachePackages();
-
         registerReceiver();
         updateDebugMode();
     }
-
 
     public void retrieveSettings() {
         XposedLog.wtf("retrieveSettings@" + getClass().getSimpleName());
@@ -296,76 +280,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             XposedLog.debug("Can not getSingleton UID for our client:" + ignored);
         }
     }
-
-    private void parsePackageAsync(final String... pkg) {
-        mWorkingService.execute(new Runnable() {
-
-            public void run() {
-                cachePackages(pkg);
-            }
-        });
-    }
-
-    private void cachePackages(final String... pkg) {
-
-        final PackageManager pm = getContext().getPackageManager();
-
-        Collections.consumeRemaining(pkg, new Consumer<String>() {
-
-            public void accept(String s) {
-                ApplicationInfo applicationInfo;
-                try {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        applicationInfo = pm.getApplicationInfo(s, PackageManager.MATCH_UNINSTALLED_PACKAGES);
-                    } else {
-                        applicationInfo = pm.getApplicationInfo(s, PackageManager.GET_UNINSTALLED_PACKAGES);
-                    }
-                    int uid = applicationInfo.uid;
-                    String pkg = applicationInfo.packageName;
-                    if (TextUtils.isEmpty(pkg)) return;
-
-                    if (XposedLog.isVerboseLoggable())
-                        XposedLog.verbose("Cached pkg:" + pkg + "-" + uid);
-                    mPackagesCache.put(uid, pkg);
-                } catch (Exception ignored) {
-
-                }
-            }
-        });
-    }
-
-    private void cachePackages() {
-        final PackageManager pm = this.getContext().getPackageManager();
-
-        try {
-            // Filter all apps.
-            List<ApplicationInfo> applicationInfos =
-                    android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N ?
-                            pm.getInstalledApplications(android.content.pm.PackageManager.MATCH_UNINSTALLED_PACKAGES)
-                            : pm.getInstalledApplications(android.content.pm.PackageManager.GET_UNINSTALLED_PACKAGES);
-
-            Collections.consumeRemaining(applicationInfos,
-                    new Consumer<ApplicationInfo>() {
-
-                        public void accept(ApplicationInfo applicationInfo) {
-                            String pkg = applicationInfo.packageName;
-                            int uid = applicationInfo.uid;
-                            if (TextUtils.isEmpty(pkg)) return;
-
-                            // Add to package cache.
-                            mPackagesCache.put(uid, pkg);
-
-                            boolean isSystemApp = (applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
-                            if (isSystemApp) {
-                                addToSystemApps(pkg);
-                            }
-                        }
-                    });
-        } catch (Exception ignored) {
-            XposedLog.debug("Can not cachePackages:" + ignored);
-        }
-    }
-
 
     public void shutdown() {
         XposedLog.debug("shutdown...");
@@ -698,7 +612,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         mWorkingService.execute(new Runnable() {
 
             public void run() {
-                cachePackages();
                 // Remove onwer package to fix previous bugs.
                 try {
                     mRepoProxy.getLocks().remove(BuildConfig.APPLICATION_ID);
@@ -754,7 +667,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             });
             return convertObjectArrayToStringArray(noSys.toArray());
         } else {
-            Collection<String> packages = mPackagesCache.values();
+            Collection<String> packages = mService.getPackagesCache().keySet();
             if (packages.size() == 0) {
                 return new String[0];
             }
@@ -809,7 +722,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             });
             return convertObjectArrayToStringArray(noSys.toArray());
         } else {
-            Collection<String> packages = mPackagesCache.values();
+            Collection<String> packages = mService.getPackagesCache().keySet();
             if (packages.size() == 0) {
                 return new String[0];
             }
@@ -864,7 +777,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             });
             return convertObjectArrayToStringArray(noSys.toArray());
         } else {
-            Collection<String> packages = mPackagesCache.values();
+            Collection<String> packages = mService.getPackagesCache().keySet();
             if (packages.size() == 0) {
                 return new String[0];
             }
@@ -1159,19 +1072,16 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             }
         }
 
-
         public void setBlurEnabled(boolean enabled) {
             if (mBlurEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.BLUR_ENABLED_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 
-
         public void setBlurRadius(int r) {
             mBlurRadius.set(r);
             SystemSettings.BLUR_RADIUS_I.writeToSystemSettings(getContext(), r);
         }
-
 
         public void setVerifySettings(final VerifySettings settings) {
             mVerifySettings = Preconditions.checkNotNull(settings);
@@ -1189,7 +1099,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             });
         }
 
-
         public void setResult(int transactionID, int res) {
             Transaction transaction = mTransactionMap.remove(transactionID);
             if (transaction == null) {
@@ -1205,7 +1114,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             transaction.listener.onVerifyRes(transaction.pkg, transaction.uid, transaction.pid, res);
             mServiceHandler.removeMessages(MSG_TRANSACTION_EXPIRE_BASE + transactionID);
         }
-
 
         public void verify(VerifyArgs args) {
             XposedLog.debug("onVerify:" + args);
@@ -1273,7 +1181,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             verifyInternal(null, pkg, 0, 0, true, VerifyListenerAdapter.getDefault());
         }
 
-
         public void setInterruptFPEventVBEnabled(int event, boolean enabled) {
             switch (event) {
                 case XAppGuardManager.FPEvent.SUCCESS:
@@ -1291,13 +1198,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             }
         }
 
-
         public void restoreDefaultSettings() {
             SystemSettings.restoreDefault(getContext());
             RepoProxy.getProxy().deleteAll();
             loadConfigFromSettings();
         }
-
 
         public void warnIfDebug() {
             mService.createNotificationChannelForO();

@@ -2,7 +2,6 @@ package github.tornaco.xposedmoduletest.loader;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -10,7 +9,6 @@ import java.util.List;
 
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
-import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
  * Created by guohao4 on 2017/10/18.
@@ -46,18 +44,8 @@ public interface GreeningPackageLoader {
             String[] packages = xAshmanManager.getGreeningApps(green);
 
             for (String pkg : packages) {
-                if (!PkgUtil.isPkgInstalled(context, pkg)) continue;
-                String name = String.valueOf(PkgUtil.loadNameByPkgName(context, pkg));
-                if (!TextUtils.isEmpty(name)) {
-                    name = name.replace(" ", "");
-                }
-
-                CommonPackageInfo p = new CommonPackageInfo();
-                p.setAppName(name);
-                p.setPkgName(pkg);
-                p.setSystemApp(PkgUtil.isSystemApp(context, pkg));
-
-                out.add(p);
+                CommonPackageInfo p = LoaderUtil.constructCommonPackageInfo(context, pkg);
+                if (p != null) out.add(p);
             }
 
             java.util.Collections.sort(out, new PinyinComparator());

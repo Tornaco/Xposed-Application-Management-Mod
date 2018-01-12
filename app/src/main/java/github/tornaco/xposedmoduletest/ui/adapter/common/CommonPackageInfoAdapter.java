@@ -23,6 +23,7 @@ import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import lombok.Getter;
 import lombok.Setter;
 import tornaco.lib.widget.CheckableImageView;
@@ -101,12 +102,51 @@ public class CommonPackageInfoAdapter
         return R.layout.app_list_item_1;
     }
 
+    protected String getSystemAppIndicatorLabel(int appLevel) {
+
+        switch (appLevel) {
+            case XAshmanManager.AppLevel.THIRD_PARTY:
+                return null;
+            case XAshmanManager.AppLevel.SYSTEM:
+                return context.getString(R.string.app_level_system);
+            case XAshmanManager.AppLevel.SYSTEM_UID:
+                return context.getString(R.string.app_level_core);
+            case XAshmanManager.AppLevel.PHONE_UID:
+                return context.getString(R.string.app_level_phone);
+            case XAshmanManager.AppLevel.MEDIA_UID:
+                return context.getString(R.string.app_level_media);
+        }
+        return null;
+    }
+
+    protected int getSystemAppIndicatorColor(int appLevel) {
+
+        switch (appLevel) {
+            case XAshmanManager.AppLevel.THIRD_PARTY:
+                return 0;
+            case XAshmanManager.AppLevel.SYSTEM:
+                return ContextCompat.getColor(context, R.color.amber_dark);
+            case XAshmanManager.AppLevel.SYSTEM_UID:
+                return ContextCompat.getColor(context, R.color.red_dark);
+            case XAshmanManager.AppLevel.PHONE_UID:
+                return ContextCompat.getColor(context, R.color.green_dark);
+            case XAshmanManager.AppLevel.MEDIA_UID:
+                return ContextCompat.getColor(context, R.color.blue_dark);
+        }
+        return 0;
+    }
+
     @Override
     public void onBindViewHolder(final CommonViewHolder holder, final int position) {
         final CommonPackageInfo packageInfo = commonPackageInfos.get(position);
 
-        holder.getSystemAppIndicator().setVisibility(packageInfo.isSystemApp()
-                ? View.VISIBLE : View.GONE);
+        int appLevel = packageInfo.getAppLevel();
+
+        holder.getSystemAppIndicator().setVisibility(appLevel != XAshmanManager.AppLevel.THIRD_PARTY ? View.VISIBLE : View.GONE);
+        holder.getSystemAppIndicator().setText(getSystemAppIndicatorLabel(appLevel));
+        int levelColor = getSystemAppIndicatorColor(appLevel);
+        holder.getSystemAppIndicator().setTextColor(levelColor);
+
         holder.getExtraIndicator().setVisibility(View.INVISIBLE);
 
         holder.getLineOneTextView().setText(packageInfo.getAppName());

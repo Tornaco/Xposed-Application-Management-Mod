@@ -13,7 +13,6 @@ import java.util.List;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.util.PinyinComparator;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
-import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
  * Created by guohao4 on 2017/10/18.
@@ -50,17 +49,11 @@ public interface BootPackageLoader {
             int length = packages.length;
 
             for (String pkg : packages) {
-                if (!PkgUtil.isPkgInstalled(context, pkg)) {
-                    Logger.d("Package not installed: " + pkg);
-                    continue;
+                CommonPackageInfo p = LoaderUtil.constructCommonPackageInfo(context, pkg);
+                if (p != null) {
+                    Logger.d("Adding: " + pkg);
+                    out.add(p);
                 }
-                String name = String.valueOf(PkgUtil.loadNameByPkgName(context, pkg));
-                CommonPackageInfo p = new CommonPackageInfo();
-                p.setAppName(name);
-                p.setPkgName(pkg);
-                p.setSystemApp(PkgUtil.isSystemApp(context, pkg));
-                Logger.d("Adding: " + pkg);
-                out.add(p);
             }
 
             int size = out.size();

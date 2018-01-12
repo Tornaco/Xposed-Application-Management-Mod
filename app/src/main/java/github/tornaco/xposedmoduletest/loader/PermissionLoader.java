@@ -150,6 +150,7 @@ public interface PermissionLoader {
                     c.setVersion(XAshmanManager.get().getPermissionControlBlockModeForPkg(op, c.getPkgName()));
                     c.setSystemApp(PkgUtil.isSystemApp(context, info.packageName));
                     c.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(context, info.packageName)));
+                    c.setAppLevel(XAshmanManager.get().getAppLevel(info.packageName));
 
                     res.add(c);
                 }

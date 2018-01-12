@@ -54,6 +54,7 @@ public interface UnFocusedAppLoader {
                 p.setAppName(name);
                 p.setPkgName(pkg);
                 p.setPayload(xAshmanManager.getAppUnFocusActions(pkg));
+                p.setAppLevel(XAshmanManager.get().getAppLevel(pkg));
                 out.add(p);
             }
 

@@ -2,7 +2,6 @@ package github.tornaco.xposedmoduletest.xposed.service;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
 import android.app.AlertDialog;
@@ -153,6 +152,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     // Installed in system/, not contains system-packages and persist packages.
     private static final Set<String> SYSTEM_APPS = new HashSet<>();
 
+    private static final Set<String> SYSTEM_UID_APPS = new HashSet<>();
+    private static final Set<String> MEDIA_UID_APPS = new HashSet<>();
+    private static final Set<String> PHONE_UID_APPS = new HashSet<>();
+
     private UUID mSerialUUID = UUID.randomUUID();
 
     private static int sClientUID = 0;
@@ -273,6 +276,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     public XAshmanServiceImpl() {
         mAppGuardService = new XAppGuardServiceImplDev(this);
+    }
+
+    public Map<String, Integer> getPackagesCache() {
+        return mPackagesCache;
     }
 
     private void onUserPresent() {
@@ -493,6 +500,25 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             if (isSystemApp) {
                                 addToSystemApps(pkg);
                             }
+
+                            android.content.pm.PackageInfo packageInfo;
+                            // Check if android system uid or media, phone.
+                            try {
+                                packageInfo = pm.getPackageInfo(pkg, 0);
+                                String sharedUserId = packageInfo.sharedUserId;
+                                if ("android.uid.phone".equals(sharedUserId)) {
+                                    addToPhoneApps(pkg);
+                                }
+                                if ("android.media".equals(sharedUserId)) {
+                                    addToMediaApps(pkg);
+                                }
+                                if ("android.uid.system".equals(sharedUserId)) {
+                                    addToCoreApps(pkg);
+                                }
+
+                            } catch (Exception e) {
+                                XposedLog.wtf("NameNotFoundException: " + e + ", for: " + pkg);
+                            }
                         }
                     });
         } catch (Exception ignored) {
@@ -557,6 +583,24 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private synchronized static void addToSystemApps(String pkg) {
         if (!SYSTEM_APPS.contains(pkg)) {
             SYSTEM_APPS.add(pkg);
+        }
+    }
+
+    private synchronized static void addToMediaApps(String pkg) {
+        if (!MEDIA_UID_APPS.contains(pkg)) {
+            MEDIA_UID_APPS.add(pkg);
+        }
+    }
+
+    private synchronized static void addToPhoneApps(String pkg) {
+        if (!PHONE_UID_APPS.contains(pkg)) {
+            PHONE_UID_APPS.add(pkg);
+        }
+    }
+
+    private synchronized static void addToCoreApps(String pkg) {
+        if (!SYSTEM_UID_APPS.contains(pkg)) {
+            SYSTEM_UID_APPS.add(pkg);
         }
     }
 
@@ -1165,6 +1209,25 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         } finally {
             Binder.restoreCallingIdentity(iden);
         }
+    }
+
+    @Override
+    @BinderCall
+    public int getAppLevel(String pkg) throws RemoteException {
+
+        if (MEDIA_UID_APPS.contains(pkg)) {
+            return XAshmanManager.AppLevel.MEDIA_UID;
+        }
+        if (SYSTEM_UID_APPS.contains(pkg)) {
+            return XAshmanManager.AppLevel.SYSTEM_UID;
+        }
+        if (PHONE_UID_APPS.contains(pkg)) {
+            return XAshmanManager.AppLevel.PHONE_UID;
+        }
+        if (SYSTEM_APPS.contains(pkg)) {
+            return XAshmanManager.AppLevel.SYSTEM;
+        }
+        return XAshmanManager.AppLevel.THIRD_PARTY;
     }
 
     private boolean hasNotificationForPackageInternal(String pkg) {
