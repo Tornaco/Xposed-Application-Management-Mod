@@ -3,7 +3,6 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 import android.app.ActivityManagerNative;
 import android.content.ComponentName;
 import android.graphics.Bitmap;
-import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
@@ -28,9 +27,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 public class ScreenshotApplicationsSubModule extends AndroidSubModule {
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        if (OSUtil.isOOrAbove()) {
-            hookScreenshotApplicationsForOAndAbove(lpparam);
-        } else {
+        if (!OSUtil.isOOrAbove()) {
             hookScreenshotApplicationsForNAndBelow(lpparam);
         }
     }
@@ -77,38 +74,6 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
         }
     }
 
-    /**
-     * @see #onScreenshotApplicationsNAndBelow(XC_MethodHook.MethodHookParam)
-     */
-    private void hookScreenshotApplicationsForOAndAbove(XC_LoadPackage.LoadPackageParam lpparam) {
-        XposedLog.boot("hookScreenshotApplicationsForOAndAbove...");
-
-        try {
-            Class clz = XposedHelpers.findClass("com.android.server.am.ActivityRecord",
-                    lpparam.classLoader);
-
-            Set unHooks = XposedBridge.hookAllMethods(clz,
-                    "screenshotActivityLocked",
-                    new XC_MethodHook() {
-                        @Override
-                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                            super.afterHookedMethod(param);
-                            Object activityRecordObj = param.thisObject;
-                            String pkgName = (String) XposedHelpers
-                                    .getObjectField(activityRecordObj, "packageName");
-                            onScreenshotApplicationsOAndAbove(param, pkgName);
-                        }
-                    });
-            XposedLog.boot("hookScreenshotApplicationsForOAndAbove OK: " + unHooks);
-            setStatus(unhooksToStatus(unHooks));
-        } catch (Exception e) {
-            XposedLog.boot("Fail hookScreenshotApplicationsForOAndAbove: " + e);
-            setStatus(SubModuleStatus.ERROR);
-            setErrorMessage(Log.getStackTraceString(e));
-        }
-
-    }
-
     private void onScreenshotApplicationsNAndBelow(XC_MethodHook.MethodHookParam param) throws RemoteException {
 
         IBinder token = (IBinder) param.args[0];
@@ -127,38 +92,11 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
             int radius = getBridge().getBlurRadius();
             float scale = getBridge().getBlurScale();
             XposedLog.verbose("onScreenshotApplicationsNAndBelow, bluring, r and s: " + radius + "-" + scale);
-            Bitmap blured = (XBitmapUtil.createBlurredBitmap(res, radius, scale));
+            Bitmap blured = (XBitmapUtil.createBlurredBitmap(res));
             if (blured != null)
                 param.setResult(blured);
         } else {
             XposedLog.verbose("onScreenshotApplicationsNAndBelow, blur is disabled...");
-        }
-    }
-
-    private void onScreenshotApplicationsOAndAbove(XC_MethodHook.MethodHookParam param, String pkgName) throws RemoteException {
-
-        if (TextUtils.isEmpty(pkgName)) {
-            return;
-        }
-
-        if (param.getResult() == null) {
-            XposedLog.verbose("onScreenshotApplicationsOAndAbove. getResult null:");
-            return;
-        }
-
-        XposedLog.verbose("onScreenshotApplicationsOAndAbove: " + pkgName + ", caller " + Binder.getCallingUid());
-
-        if (getBridge().isBlurForPkg(pkgName)) {
-            Bitmap res = (Bitmap) param.getResult();
-            XposedLog.verbose("onScreenshotApplicationsOAndAbove. res: " + res);
-            int radius = getBridge().getBlurRadius();
-            float scale = getBridge().getBlurScale();
-            XposedLog.verbose("onScreenshotApplicationsOAndAbove, bluring, r and s: " + radius + "-" + scale);
-            Bitmap blured = (XBitmapUtil.createBlurredBitmap(res, radius, scale));
-            if (blured != null)
-                param.setResult(blured);
-        } else {
-            XposedLog.verbose("onScreenshotApplicationsOAndAbove, blur is disabled...");
         }
     }
 }

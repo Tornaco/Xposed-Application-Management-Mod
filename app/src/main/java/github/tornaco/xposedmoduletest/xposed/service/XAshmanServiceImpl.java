@@ -1053,7 +1053,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public boolean isBlurForPkg(String pkg) {
-        return mAppGuardService.isBlurForPkg(pkg);
+        return pkg != null && mAppGuardService.isBlurForPkg(pkg);
     }
 
     @Override
