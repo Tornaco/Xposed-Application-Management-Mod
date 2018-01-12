@@ -7,6 +7,7 @@ import android.os.Message;
 import android.util.Log;
 
 import de.robv.android.xposed.XposedBridge;
+import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -15,6 +16,10 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 class XAppGuardServiceImplDev extends XAppGuardServiceImpl {
+
+    public XAppGuardServiceImplDev(XAshmanServiceImpl mService) {
+        super(mService);
+    }
 
     private interface Call {
         void onCall() throws Throwable;

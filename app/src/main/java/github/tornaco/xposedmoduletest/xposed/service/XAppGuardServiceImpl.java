@@ -101,6 +101,12 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     private final Holder<String> mTopActivityPkg = new Holder<>();
 
+    private XAshmanServiceImpl mService;
+
+    public XAppGuardServiceImpl(XAshmanServiceImpl mService) {
+        this.mService = mService;
+    }
+
     static {
         PREBUILT_WHITE_LIST.add("com.android.systemui");
         PREBUILT_WHITE_LIST.add("android");
@@ -735,7 +741,17 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             if (packages.size() == 0) {
                 return new String[0];
             }
-            return convertObjectArrayToStringArray(packages.toArray());
+            final List<String> noSys = Lists.newArrayList();
+            Collections.consumeRemaining(packages, new Consumer<String>() {
+                @Override
+                public void accept(String p) {
+                    if (mService.isWhiteSysAppEnabled() && isInSystemAppList(p)) {
+                        return;
+                    }
+                    noSys.add(p);
+                }
+            });
+            return convertObjectArrayToStringArray(noSys.toArray());
         } else {
             Collection<String> packages = mPackagesCache.values();
             if (packages.size() == 0) {
@@ -747,11 +763,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             // Remove those not in blocked list.
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
             Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
-
                 public void accept(String s) {
                     if (outList.contains(s)) return;// Kik dup package.
                     if (isPackageInLockList(s)) return;
                     if (PREBUILT_WHITE_LIST.contains(s)) return; // Do not set lock for these.
+                    if (mService.isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
                     outList.add(s);
                 }
             });

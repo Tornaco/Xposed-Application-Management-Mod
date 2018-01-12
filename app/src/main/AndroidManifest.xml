@@ -31,7 +31,7 @@
 
         <activity
             android:name=".ui.activity.ag.VerifyDisplayerActivity"
-
+            android:excludeFromRecents="true"
             android:exported="true"
             android:label="@string/title_default_verifyer"
             android:screenOrientation="portrait"

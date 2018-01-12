@@ -265,7 +265,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private XAppGuardServiceImpl mAppGuardService;
 
     public XAshmanServiceImpl() {
-        mAppGuardService = new XAppGuardServiceImplDev();
+        mAppGuardService = new XAppGuardServiceImplDev(this);
     }
 
     private void onUserPresent() {
@@ -3604,6 +3604,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         enforceCallingPermissions();
         synchronized (mDozeHistory) {
             List<DozeEvent> events = new ArrayList<>(mDozeHistory.size());
+            events.add(mLastDozeEvent);
             events.addAll(mDozeHistory);
             return events;
         }
