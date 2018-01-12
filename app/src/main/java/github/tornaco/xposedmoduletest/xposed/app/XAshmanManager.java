@@ -99,10 +99,20 @@ public class XAshmanManager {
     }
 
     public int getAppLevel(String pkg) {
+        ensureService();
         try {
             return mService.getAppLevel(pkg);
         } catch (RemoteException e) {
             return AppLevel.THIRD_PARTY;
+        }
+    }
+
+    public String packageForTaskId(int taskId) {
+        ensureService();
+        try {
+            return mService.packageForTaskId(taskId);
+        } catch (RemoteException e) {
+            return null;
         }
     }
 

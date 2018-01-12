@@ -1263,6 +1263,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return XAshmanManager.AppLevel.THIRD_PARTY;
     }
 
+    @Override
+    @BinderCall
+    public String packageForTaskId(int taskId) throws RemoteException {
+        ComponentName c = mTaskIdMap.get(taskId);
+        return c == null ? null : c.getPackageName();
+    }
+
     private boolean hasNotificationForPackageInternal(String pkg) {
         if (mNotificationService == null) {
             XposedLog.wtf("hasNotificationForPackageInternal called when nms is null");
@@ -3815,6 +3822,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public boolean isBlurEnabled() throws RemoteException {
         return mAppGuardService.isBlurEnabled();
+    }
+
+    @Override
+    @BinderCall
+    public boolean isBlurEnabledForPackage(String packageName) throws RemoteException {
+        return mAppGuardService.isBlurForPkg(packageName);
     }
 
     @Override

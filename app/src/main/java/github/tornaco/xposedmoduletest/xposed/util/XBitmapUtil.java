@@ -23,9 +23,9 @@ import android.graphics.Paint;
  */
 public final class XBitmapUtil {
 
-    public static final float BITMAP_SCALE = 0.2f;
+    public static final float BITMAP_SCALE = 0.05f;
     /* Initial blur radius. */
-    public static final int BLUR_RADIUS = 15;
+    public static final int BLUR_RADIUS = 8;
     public static final int BLUR_RADIUS_MAX = 25;
 
     /**

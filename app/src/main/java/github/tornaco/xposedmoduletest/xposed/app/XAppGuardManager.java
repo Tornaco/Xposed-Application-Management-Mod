@@ -328,6 +328,16 @@ public class XAppGuardManager {
         }
     }
 
+    public boolean isBlurEnabledForPackage(String who) {
+        ensureService();
+        try {
+            return mService.isBlurEnabledForPackage(who);
+        } catch (RemoteException e) {
+
+            return false;
+        }
+    }
+
     public void setBlurEnabled(boolean enabled) {
         ensureService();
         try {

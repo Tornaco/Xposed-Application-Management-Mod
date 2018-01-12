@@ -220,12 +220,15 @@ interface IAshmanService {
 
     int getAppLevel(String pkg);
 
+    String packageForTaskId(int taskId);
+
     // APP GUARD SERVICE API.
 
      boolean isAppLockEnabled();
      void setAppLockEnabled(boolean enabled);
 
      boolean isBlurEnabled();
+     boolean isBlurEnabledForPackage(String packageName);
      void setBlurEnabled(boolean enabled);
 
      int getBlurRadius();
