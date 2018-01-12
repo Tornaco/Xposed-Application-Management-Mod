@@ -49,6 +49,7 @@ import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.android.common.Holder;
 import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
@@ -1299,21 +1300,32 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
 
         public void warnIfDebug() {
+            mService.createNotificationChannelForO();
+
             boolean isDevMode = mDebugEnabled.get();
             try {
                 if (isDevMode) {
+                    Notification n;
+                    if (OSUtil.isOOrAbove()) {
+                        n = new Notification.Builder(getContext(), XAshmanServiceImpl.NOTIFICATION_CHANNEL_ID)
+                                .setOngoing(true)
+                                .setContentTitle("应用管理")
+                                .setContentText("调试模式已经打开。")
+                                .setSmallIcon(android.R.drawable.stat_sys_warning)
+                                .build();
+                    } else {
+                        n = new Notification.Builder(getContext())
+                                .setOngoing(true)
+                                .setContentTitle("应用管理")
+                                .setContentText("调试模式已经打开。")
+                                .setSmallIcon(android.R.drawable.stat_sys_warning)
+                                .build();
+                    }
                     NotificationManagerCompat.from(getContext()).cancel(NOTIFICATION_ID);
                     NotificationManagerCompat.from(getContext())
-                            .notify(NOTIFICATION_ID,
-                                    new Notification.Builder(getContext())
-                                            .setOngoing(true)
-                                            .setContentTitle("应用管理")
-                                            .setContentText("调试模式已经打开。")
-                                            .setSmallIcon(android.R.drawable.stat_sys_warning)
-                                            .build());
+                            .notify(NOTIFICATION_ID, n);
                 } else {
                     NotificationManagerCompat.from(getContext()).cancel(NOTIFICATION_ID);
-
                 }
             } catch (Throwable e) {
                 Toast.makeText(getContext(),

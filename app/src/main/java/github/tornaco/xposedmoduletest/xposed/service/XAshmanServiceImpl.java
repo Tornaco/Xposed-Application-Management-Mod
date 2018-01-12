@@ -10,6 +10,8 @@ import android.app.IAppTask;
 import android.app.IApplicationThread;
 import android.app.KeyguardManager;
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -21,6 +23,7 @@ import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -362,15 +365,52 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private static final AtomicInteger NOTIFICATION_ID = new AtomicInteger(0);
 
+    static final String NOTIFICATION_CHANNEL_ID = "dev.tornaco.notification.channel.id.X-APM";
+
+    void createNotificationChannelForO() {
+        if (OSUtil.isOOrAbove()) {
+            NotificationManager notificationManager = (NotificationManager)
+                    getContext().getSystemService(
+                            Context.NOTIFICATION_SERVICE);
+            NotificationChannel nc = null;
+            if (notificationManager != null) {
+                nc = notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID);
+            }
+            if (nc != null) {
+                return;
+            }
+            NotificationChannel notificationChannel;
+            notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
+                    "apm",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(Color.RED);
+            notificationChannel.enableVibration(true);
+            notificationChannel.setVibrationPattern(new long[]{100, 200, 300, 400});
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
+        }
+    }
+
     private void showNewAppRestrictedNotification(Context context, String name) {
         XposedLog.verbose("Add to black list showNewAppRestrictedNotification: " + name);
+
+        createNotificationChannelForO();
+
+        Notification n = OSUtil.isNOrAbove() ?
+                new Notification.Builder(context, NOTIFICATION_CHANNEL_ID)
+                        .setContentTitle("新增限制应用")
+                        .setContentText("已按照模板将 " + name + " 加入限制列表")
+                        .setSmallIcon(android.R.drawable.stat_sys_warning)
+                        .build()
+                : new Notification.Builder(context)
+                .setContentTitle("新增限制应用")
+                .setContentText("已按照模板将 " + name + " 加入限制列表")
+                .setSmallIcon(android.R.drawable.stat_sys_warning)
+                .build();
         NotificationManagerCompat.from(context)
-                .notify(NOTIFICATION_ID.getAndIncrement(),
-                        new Notification.Builder(context)
-                                .setContentTitle("新增限制应用")
-                                .setContentText("已按照模板将 " + name + " 加入限制列表")
-                                .setSmallIcon(android.R.drawable.stat_sys_warning)
-                                .build());
+                .notify(NOTIFICATION_ID.getAndIncrement(), n);
     }
 
     private void cachePackages(final String... pkg) {
