@@ -796,7 +796,17 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             if (packages.size() == 0) {
                 return new String[0];
             }
-            return convertObjectArrayToStringArray(packages.toArray());
+            final List<String> noSys = Lists.newArrayList();
+            Collections.consumeRemaining(packages, new Consumer<String>() {
+                @Override
+                public void accept(String p) {
+                    if (mService.isWhiteSysAppEnabled() && isInSystemAppList(p)) {
+                        return;
+                    }
+                    noSys.add(p);
+                }
+            });
+            return convertObjectArrayToStringArray(noSys.toArray());
         } else {
             Collection<String> packages = mPackagesCache.values();
             if (packages.size() == 0) {
@@ -813,6 +823,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                     if (outList.contains(s)) return;// Kik dup package.
                     if (isPackageInBlurList(s)) return;
                     if (PREBUILT_WHITE_LIST.contains(s)) return; // Do not set lock for these.
+                    if (mService.isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
                     outList.add(s);
                 }
             });
@@ -834,14 +845,23 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         addOrRemoveFromRepo(packages, mRepoProxy.getBlurs(), blur);
     }
 
-
     public String[] getUPApps(boolean lock) throws RemoteException {
         if (lock) {
             Set<String> packages = mRepoProxy.getUninstall().getAll();
             if (packages.size() == 0) {
                 return new String[0];
             }
-            return convertObjectArrayToStringArray(packages.toArray());
+            final List<String> noSys = Lists.newArrayList();
+            Collections.consumeRemaining(packages, new Consumer<String>() {
+                @Override
+                public void accept(String p) {
+                    if (isInSystemAppList(p)) {
+                        return;
+                    }
+                    noSys.add(p);
+                }
+            });
+            return convertObjectArrayToStringArray(noSys.toArray());
         } else {
             Collection<String> packages = mPackagesCache.values();
             if (packages.size() == 0) {
