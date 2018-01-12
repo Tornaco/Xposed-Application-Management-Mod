@@ -1068,6 +1068,12 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         public void setBlurEnabled(boolean enabled) {
             if (mBlurEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.BLUR_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+
+                if (enabled) {
+                    RepoProxy.createFileIndicator("blur_indicator");
+                } else {
+                    RepoProxy.deleteFileIndicator("blur_indicator");
+                }
             }
         }
 

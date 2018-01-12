@@ -5,16 +5,17 @@ import android.app.ActivityManagerNative;
 import android.app.AndroidAppHelper;
 import android.content.ComponentName;
 import android.graphics.Bitmap;
+import android.os.Environment;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Set;
 
 import de.robv.android.xposed.IXposedHookZygoteInit;
-import de.robv.android.xposed.SELinuxHelper;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
@@ -67,6 +68,18 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
 
                     try {
                         if ("persist.enable_task_snapshots".equals(param.args[0])) {
+
+                            File systemFile = new File(Environment.getDataDirectory(), "system");
+                            File dir = new File(systemFile, "tor_apm");
+                            if (!dir.exists()) {
+                                dir = new File(systemFile, "tor");
+                            }
+                            File indicatorFile = new File(dir, "blur_indicator");
+                            boolean blurEnabledOreo = indicatorFile.exists();
+
+                            XposedLog.boot("blur_indicator " + blurEnabledOreo);
+                            if (!blurEnabledOreo) return;
+
                             XposedLog.boot("hookSystemProp_ENABLE_TASK_SNAPSHOTS caller:"
                                     + AndroidAppHelper.currentPackageName());
                             if (true) {

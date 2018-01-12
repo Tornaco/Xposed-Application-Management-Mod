@@ -7,7 +7,10 @@ import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.common.io.Files;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -59,6 +62,36 @@ public class RepoProxy {
 
         bringBases(h, io);
         bringUpMaps(h, io);
+    }
+
+    public static void createFileIndicator(String name) {
+
+        File systemFile = new File(Environment.getDataDirectory(), "system");
+        File dir = new File(systemFile, "tor_apm");
+        if (!dir.exists()) {
+            dir = new File(systemFile, "tor");
+        }
+        File f = new File(dir, name);
+        try {
+            Files.touch(f);
+        } catch (IOException e) {
+            XposedLog.wtf("Fail createFileIndicator " + Log.getStackTraceString(e));
+        }
+    }
+
+    public static void deleteFileIndicator(String name) {
+
+        File systemFile = new File(Environment.getDataDirectory(), "system");
+        File dir = new File(systemFile, "tor_apm");
+        if (!dir.exists()) {
+            dir = new File(systemFile, "tor");
+        }
+        File f = new File(dir, name);
+        try {
+            f.delete();
+        } catch (Exception e) {
+            XposedLog.wtf("Fail deleteFileIndicator " + Log.getStackTraceString(e));
+        }
     }
 
     private void bringBases(Handler h, ExecutorService io) {
