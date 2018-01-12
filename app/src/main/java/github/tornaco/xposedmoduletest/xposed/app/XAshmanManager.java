@@ -876,6 +876,15 @@ public class XAshmanManager {
         }
     }
 
+    public boolean hasNotificationForPackage(String pkg) {
+        ensureService();
+        try {
+            return mService.hasNotificationForPackage(pkg);
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
     public void setLazyModeEnabled(boolean enabled) {
         ensureService();
         try {
@@ -1037,19 +1046,19 @@ public class XAshmanManager {
         }
     }
 
-    public void setDoNotKillSBNEnabled(boolean enable) {
+    public void setDoNotKillSBNEnabled(boolean enable, String module) {
         ensureService();
         try {
-            mService.setDoNotKillSBNEnabled(enable);
+            mService.setDoNotKillSBNEnabled(enable, module);
         } catch (RemoteException e) {
 
         }
     }
 
-    public boolean isDoNotKillSBNEnabled() {
+    public boolean isDoNotKillSBNEnabled(String module) {
         ensureService();
         try {
-            return mService.isDoNotKillSBNEnabled();
+            return mService.isDoNotKillSBNEnabled(module);
         } catch (RemoteException e) {
             return false;
         }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/title_general_settings">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="do_not_kill_sbn"
+            android:persistent="false"
+            android:summary="@string/summary_do_not_kill_sbn_app_lazy"
+            android:title="@string/title_do_not_kill_sbn_app" />
+    </PreferenceCategory>
+</PreferenceScreen>

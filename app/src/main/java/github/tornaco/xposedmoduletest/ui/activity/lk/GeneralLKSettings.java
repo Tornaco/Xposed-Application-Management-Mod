@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.ag.GuardSettingsActivity;
+import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
@@ -55,6 +56,17 @@ public class GeneralLKSettings extends GuardSettingsActivity {
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean enabled = (boolean) newValue;
                         XAshmanManager.get().setLockKillDoNotKillAudioEnabled(enabled);
+                        return true;
+                    }
+                });
+
+                SwitchPreference doNotKillSBNPref = (SwitchPreference) findPreference("do_not_kill_sbn");
+                doNotKillSBNPref.setChecked(XAshmanManager.get().isDoNotKillSBNEnabled(XAppBuildVar.APP_LK));
+                doNotKillSBNPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        boolean enabled = (boolean) newValue;
+                        XAshmanManager.get().setDoNotKillSBNEnabled(enabled, XAppBuildVar.APP_LK);
                         return true;
                     }
                 });

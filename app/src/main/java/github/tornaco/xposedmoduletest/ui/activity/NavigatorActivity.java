@@ -104,7 +104,11 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             XAshmanManager.get().forceReloadPackages();
         }
 
-        initTVStateForOreo();
+        if (OSUtil.isOOrAbove()) {
+            initTVStateForOreo();
+        } else {
+            initFirstRun();
+        }
     }
 
     private void initTVStateForOreo() {

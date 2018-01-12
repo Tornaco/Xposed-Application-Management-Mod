@@ -184,7 +184,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final AtomicBoolean mShowFocusedActivityInfoEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mLockKillDoNotKillAudioEnabled = new AtomicBoolean(true);
+
     private final AtomicBoolean mDoNotKillSBNEnabled = new AtomicBoolean(true);
+    private final AtomicBoolean mDoNotKillSBNGreenEnabled = new AtomicBoolean(true);
+
     private final AtomicBoolean mRootActivityFinishKillEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mTaskRemovedKillEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mLongPressBackKillEnabled = new AtomicBoolean(false);
@@ -657,6 +660,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         try {
+            boolean doNotKillSBNGreenEnabled = (boolean) SystemSettings.ASH_WONT_KILL_SBN_APP_GREEN_B
+                    .readFromSystemSettings(getContext());
+            mDoNotKillSBNGreenEnabled.set(doNotKillSBNGreenEnabled);
+            XposedLog.boot("doNotKillSBNGreenEnabled: " + String.valueOf(doNotKillSBNGreenEnabled));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
             boolean rootKillEnabled = (boolean) SystemSettings.ROOT_ACTIVITY_KILL_ENABLED_B
                     .readFromSystemSettings(getContext());
             mRootActivityFinishKillEnabled.set(rootKillEnabled);
@@ -1101,9 +1113,22 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         XposedLog.boot("mNotificationService: " + proxy);
     }
 
-    private boolean hasNotificationForPackage(String pkg) {
+    @Override
+    @BinderCall
+    public boolean hasNotificationForPackage(String pkg) throws RemoteException {
+        long iden = Binder.clearCallingIdentity();
+        try {
+            return hasNotificationForPackageInternal(pkg);
+        } catch (Throwable e) {
+            return false;
+        } finally {
+            Binder.restoreCallingIdentity(iden);
+        }
+    }
+
+    private boolean hasNotificationForPackageInternal(String pkg) {
         if (mNotificationService == null) {
-            XposedLog.wtf("hasNotificationForPackage called when nms is null");
+            XposedLog.wtf("hasNotificationForPackageInternal called when nms is null");
             return false;
         }
         ArrayList<StatusBarNotification> sbns = mNotificationService.getStatusBarNotifications();
@@ -3318,7 +3343,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
 //                        boolean doNotKillAppWithSBNEnabled = isDoNotKillSBNEnabled();
 //                        XposedLog.verbose("removeTask, doNotKillAppWithSBNEnabled: " + doNotKillAppWithSBNEnabled);
-//                        if (doNotKillAppWithSBNEnabled && hasNotificationForPackage(pkgOfThisTask)) {
+//                        if (doNotKillAppWithSBNEnabled && hasNotificationForPackageInternal(pkgOfThisTask)) {
 //                            XposedLog.verbose("removeTask has SBN for this package");
 //                            return;
 //                        }
@@ -3512,16 +3537,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void setDoNotKillSBNEnabled(boolean enable) throws RemoteException {
+    public void setDoNotKillSBNEnabled(boolean enable, String module) throws RemoteException {
         enforceCallingPermissions();
-        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETDONOTKILLSBNENABLED, enable)
+        Pair<Boolean, String> data = new Pair<>(enable, module);
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETDONOTKILLSBNENABLED, data)
                 .sendToTarget();
     }
 
     @Override
     @BinderCall
-    public boolean isDoNotKillSBNEnabled() {
-        return mDoNotKillSBNEnabled.get();
+    public boolean isDoNotKillSBNEnabled(String module) {
+        return module.equals(XAppBuildVar.APP_LK)
+                ? mDoNotKillSBNEnabled.get()
+                : mDoNotKillSBNGreenEnabled.get();
     }
 
     @Override
@@ -4590,7 +4618,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     HandlerImpl.this.setLPBKEnabled((Boolean) msg.obj);
                     break;
                 case AshManHandlerMessages.MSG_SETDONOTKILLSBNENABLED:
-                    HandlerImpl.this.setDoNotKillSBNEnabled((Boolean) msg.obj);
+                    @SuppressWarnings("unchecked") Pair<Boolean, String> data = (Pair<Boolean, String>) msg.obj;
+                    HandlerImpl.this.setDoNotKillSBNEnabled(data.first, data.second);
                     break;
                 case AshManHandlerMessages.MSG_SETTASKREMOVEKILLENABLED:
                     HandlerImpl.this.setTaskRemoveKillEnabled((Boolean) msg.obj);
@@ -4616,9 +4645,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         @Override
-        public void setDoNotKillSBNEnabled(boolean enabled) {
-            if (mDoNotKillSBNEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.ASH_WONT_KILL_SBN_APP_B.writeToSystemSettings(getContext(), enabled);
+        public void setDoNotKillSBNEnabled(boolean enabled, String module) {
+            XposedLog.verbose("setDoNotKillSBNEnabled %s %s", enabled, module);
+            if (module.equals(XAppBuildVar.APP_LK)) {
+                if (mDoNotKillSBNEnabled.compareAndSet(!enabled, enabled)) {
+                    SystemSettings.ASH_WONT_KILL_SBN_APP_B.writeToSystemSettings(getContext(), enabled);
+                }
+            } else {
+                if (mDoNotKillSBNGreenEnabled.compareAndSet(!enabled, enabled)) {
+                    SystemSettings.ASH_WONT_KILL_SBN_APP_GREEN_B.writeToSystemSettings(getContext(), enabled);
+                }
             }
         }
 
@@ -4847,7 +4883,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         @Override
         public void clearProcess(final IProcessClearListener listener) {
-            boolean doNotKillAppWithSBNEnabled = isDoNotKillSBNEnabled();
+            boolean doNotKillAppWithSBNEnabled = isDoNotKillSBNEnabled(XAppBuildVar.APP_LK);
             XposedLog.verbose("clearProcess, doNotKillAppWithSBNEnabled: " + doNotKillAppWithSBNEnabled);
 
             if (XposedLog.isVerboseLoggable()) {
@@ -4961,8 +4997,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 //                            continue;
 //                        }
 
-                        if (isDoNotKillSBNEnabled()
-                                && hasNotificationForPackage(runningPackageName)) {
+                        if (isDoNotKillSBNEnabled(XAppBuildVar.APP_LK)
+                                && hasNotificationForPackageInternal(runningPackageName)) {
 
                             if (listener != null) try {
                                 listener.onIgnoredPkg(runningPackageName, "sbn-app");
@@ -5467,7 +5503,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
 //            boolean doNotKillAppWithSBNEnabled = isDoNotKillSBNEnabled();
 //            XposedLog.verbose("maybeBackLongPressed, doNotKillAppWithSBNEnabled: " + doNotKillAppWithSBNEnabled);
-//            if (doNotKillAppWithSBNEnabled && hasNotificationForPackage(targetPackage)) {
+//            if (doNotKillAppWithSBNEnabled && hasNotificationForPackageInternal(targetPackage)) {
 //                XposedLog.verbose("maybeBackLongPressed has SBN for this package");
 //                return;
 //            }
@@ -5520,7 +5556,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 //                            boolean doNotKillAppWithSBNEnabled = isDoNotKillSBNEnabled();
 //                            XposedLog.verbose("killPackageWhenBackPressed, doNotKillAppWithSBNEnabled: "
 //                                    + doNotKillAppWithSBNEnabled);
-//                            if (doNotKillAppWithSBNEnabled && hasNotificationForPackage(packageName)) {
+//                            if (doNotKillAppWithSBNEnabled && hasNotificationForPackageInternal(packageName)) {
 //                                XposedLog.verbose("killPackageWhenBackPressed has SBN for this package");
 //                                return;
 //                            }

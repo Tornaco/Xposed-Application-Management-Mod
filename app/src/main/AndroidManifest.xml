@@ -211,17 +211,18 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.blur.BlurSettingsDashboardActivity"
-
             android:label="@string/title_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.lk.LKSettingsDashboardActivity"
-
+            android:label="@string/title_settings"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.green2.LazySettingsDashboardActivity"
             android:label="@string/title_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.comp.CompSettingsDashboardActivity"
-
             android:label="@string/title_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
@@ -246,7 +247,10 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.lk.GeneralLKSettings"
-
+            android:label="@string/title_general_settings"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.green2.LazyGreenSettings"
             android:label="@string/title_general_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity

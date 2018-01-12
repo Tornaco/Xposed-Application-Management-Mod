@@ -21,7 +21,7 @@ interface AshManHandler {
 
     void setWhiteSysAppEnabled(boolean enabled);
 
-    void setDoNotKillSBNEnabled(boolean enable);
+    void setDoNotKillSBNEnabled(boolean enable, String module);
 
     void setTaskRemoveKillEnabled(boolean enable);
 

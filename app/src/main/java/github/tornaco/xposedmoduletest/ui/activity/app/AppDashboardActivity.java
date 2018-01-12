@@ -218,8 +218,6 @@ public class AppDashboardActivity extends WithWithCustomTabActivity
             Category systemProtect = new Category();
             systemProtect.titleRes = R.string.title_app_settings;
             systemProtect.addTile(new WhiteSystemApp(getActivity()));
-            systemProtect.addTile(new DoNotKillSBNApp(getActivity()));
-
             systemProtect.addTile(new AutoBlack(getActivity()));
 
             Category data = new Category();

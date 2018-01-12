@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.ui.activity.lazy;
 
+import android.content.Intent;
 import android.support.v7.widget.SwitchCompat;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,6 +13,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.LazyPackageLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
+import github.tornaco.xposedmoduletest.ui.activity.green2.LazySettingsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -71,6 +73,9 @@ public class LazyAppNavActivity extends CommonPackageInfoListActivity implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_settings) {
+            startActivity(new Intent(this, LazySettingsDashboardActivity.class));
+        }
         return super.onOptionsItemSelected(item);
     }
 }

@@ -263,6 +263,12 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity {
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.show_system_app).setChecked(mShowSystemApp);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.green_viewer, menu);
         return true;

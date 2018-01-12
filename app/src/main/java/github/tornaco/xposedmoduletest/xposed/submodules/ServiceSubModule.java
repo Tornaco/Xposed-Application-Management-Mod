@@ -93,6 +93,11 @@ class ServiceSubModule extends AndroidSubModule {
                                             h.obtainMessage(0, this).sendToTarget();
                                         }
                                     }
+
+                                    @Override
+                                    public String hostPackageName() throws RemoteException {
+                                        return null;
+                                    }
                                 };
 
                                 Log.d(XposedLog.TAG_LAZY, "Registering listener: " + l);
@@ -164,8 +169,21 @@ class ServiceSubModule extends AndroidSubModule {
                                     @Override
                                     public void onChange(String from, String to) throws RemoteException {
                                         if (!hostPackage.equals(to)) {
-                                            h.obtainMessage(0, this).sendToTarget();
+                                            boolean skip =
+                                                    XAshmanManager.get().isDoNotKillSBNEnabled(XAppBuildVar.APP_GREEN)
+                                                            && !XAshmanManager.get()
+                                                            .hasNotificationForPackage(hostPackage);
+                                            if (!skip) {
+                                                h.obtainMessage(0, this).sendToTarget();
+                                            }else {
+                                                Log.d(XposedLog.TAG_LAZY, "Lazy skipped for SBN");
+                                            }
                                         }
+                                    }
+
+                                    @Override
+                                    public String hostPackageName() throws RemoteException {
+                                        return null;
                                     }
                                 };
 

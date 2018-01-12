@@ -5,4 +5,5 @@ package github.tornaco.xposedmoduletest;
 
 interface ITopPackageChangeListener {
     void onChange(String from, String to);
+    String hostPackageName();
 }

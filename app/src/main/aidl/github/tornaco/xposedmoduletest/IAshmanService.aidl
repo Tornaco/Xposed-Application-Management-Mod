@@ -197,8 +197,8 @@ interface IAshmanService {
     long getDozeDelayMills();
     void setDozeDelayMills(long delayMills);
 
-    void setDoNotKillSBNEnabled(boolean enable);
-    boolean isDoNotKillSBNEnabled();
+    void setDoNotKillSBNEnabled(boolean enable, String module);// Flag distint which module
+    boolean isDoNotKillSBNEnabled(String module);
 
     void setTaskRemoveKillEnabled(boolean enable);
     boolean isTaskRemoveKillEnabled();
@@ -216,7 +216,7 @@ interface IAshmanService {
     boolean isAppInPluginList(String pkg);
     void addOrRemovePluginApp(String appPackageName, boolean add);
 
-
+    boolean hasNotificationForPackage(String pkg);
 
     // APP GUARD SERVICE API.
 
