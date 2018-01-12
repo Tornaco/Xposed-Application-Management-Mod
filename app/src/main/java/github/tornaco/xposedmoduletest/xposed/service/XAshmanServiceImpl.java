@@ -1146,6 +1146,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @InternalCall
     public boolean interruptPackageDataClear(String pkg) {
+        if (BuildConfig.APPLICATION_ID.equals(pkg)) {
+            // Always allow clear data for our app???
+        }
         return interruptPackageRemoval(pkg);
     }
 
