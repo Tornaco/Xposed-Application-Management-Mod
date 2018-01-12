@@ -42,6 +42,8 @@ public class SubModuleManager {
     }
 
     private SubModuleManager() {
+        addToSubsChecked(new PMSClearDataSubModule());
+
         addToSubsChecked(new ServiceSubModule());
 
         addToSubsChecked(new AlarmManagerSubModule());

@@ -1,6 +1,7 @@
 app_lock
 app_blur
 app_uninstall
+app_data_clear
 app_ops
 app_boot
 app_start

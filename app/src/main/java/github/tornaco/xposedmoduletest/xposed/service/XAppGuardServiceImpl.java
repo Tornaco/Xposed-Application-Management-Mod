@@ -87,7 +87,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     private final Map<Integer, Transaction> mTransactionMap = new HashMap<>();
 
     private static final Set<String> PREBUILT_WHITE_LIST = new HashSet<>();
-    private static final Set<String> SYSTEM_APPS = new HashSet<>();
 
     private RepoProxy mRepoProxy;
 
@@ -109,14 +108,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         PREBUILT_WHITE_LIST.add(BuildConfig.APPLICATION_ID);
     }
 
-    private static boolean isInSystemAppList(String pkg) {
-        return SYSTEM_APPS.contains(pkg);
-    }
-
-    private synchronized static void addToSystemApps(String pkg) {
-        if (!SYSTEM_APPS.contains(pkg)) {
-            SYSTEM_APPS.add(pkg);
-        }
+    private boolean isInSystemAppList(String pkg) {
+        return mService.isInSystemAppList(pkg);
     }
 
     private final ExecutorService mWorkingService = Executors.newCachedThreadPool();

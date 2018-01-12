@@ -55,6 +55,7 @@ import android.util.Pair;
 import android.util.SparseBooleanArray;
 import android.view.KeyEvent;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.android.internal.os.Zygote;
 import com.google.common.base.Preconditions;
@@ -576,7 +577,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
-    private static boolean isInSystemAppList(String pkg) {
+    boolean isInSystemAppList(String pkg) {
         return SYSTEM_APPS.contains(pkg);
     }
 
@@ -1137,8 +1138,37 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @InternalCall
     public boolean interruptPackageRemoval(String pkg) {
         return mAppGuardService.interruptPackageRemoval(pkg);
+    }
+
+    @Override
+    @InternalCall
+    public boolean interruptPackageDataClear(String pkg) {
+        return interruptPackageRemoval(pkg);
+    }
+
+    @Override
+    @InternalCall
+    public void notifyPackageDataClearInterrupt(String pkg) {
+        mLazyHandler.post(new ErrorCatchRunnable(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getContext(), "受保护应用清除数据请求已经被应用管理拦截", Toast.LENGTH_SHORT).show();
+            }
+        }, "notifyPackageDataClearInterrupt"));
+    }
+
+    @Override
+    @InternalCall
+    public void notifyPackageRemovalInterrupt(String pkg) {
+        mLazyHandler.post(new ErrorCatchRunnable(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getContext(), "受保护应用卸载请求已经被应用管理拦截", Toast.LENGTH_SHORT).show();
+            }
+        }, "notifyPackageDataClearInterrupt"));
     }
 
     @Override

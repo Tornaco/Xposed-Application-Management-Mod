@@ -55,7 +55,6 @@ class PackageInstallerSubModule extends AndroidSubModule {
                                 XposedLog.verbose("PackageInstallerService uninstall pkg:" + pkgName);
                                 boolean interrupt = interruptPackageRemoval(pkgName);
                                 if (interrupt) {
-
                                     // FIXME Test fail by adb.
                                     final Context context = (Context) XposedHelpers.getObjectField(param.thisObject, "mContext");
                                     String callingPkgName = (String) param.args[1];
@@ -70,6 +69,7 @@ class PackageInstallerSubModule extends AndroidSubModule {
 
                                     param.setResult(null);
                                     XposedLog.verbose("PackageInstallerService interruptPackageRemoval");
+                                    getBridge().notifyPackageRemovalInterrupt(pkgName);
                                 }
                             } catch (Exception e) {
                                 XposedLog.verbose("Fail uninstall:" + e);

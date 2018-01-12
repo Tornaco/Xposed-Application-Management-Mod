@@ -51,6 +51,8 @@ class PMSSubModule extends AndroidSubModule {
                                     }
                                     param.setResult(null);
                                     XposedLog.verbose("PackageManagerService interruptPackageRemoval");
+
+                                    getBridge().notifyPackageRemovalInterrupt(pkgName);
                                 }
                             } catch (Exception e) {
                                 XposedLog.verbose("Fail deletePackageAsUser:" + e);

@@ -62,6 +62,12 @@ public interface IModuleBridge {
     // API for AppGuard.
     boolean interruptPackageRemoval(String pkg);
 
+    boolean interruptPackageDataClear(String pkg);
+
+    void notifyPackageRemovalInterrupt(String pkg);
+
+    void notifyPackageDataClearInterrupt(String pkg);
+
     boolean onEarlyVerifyConfirm(String pkg, String reason);
 
     void verify(Bundle options, String pkg, int uid, int pid, VerifyListener listener);
