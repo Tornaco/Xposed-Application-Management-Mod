@@ -41,9 +41,7 @@ import android.os.PowerManager;
 import android.os.Process;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.os.ResultReceiver;
 import android.os.ServiceManager;
-import android.os.ShellCallback;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.provider.Settings;
@@ -117,6 +115,7 @@ import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerP
 import github.tornaco.xposedmoduletest.xposed.service.doze.DozeStateRetriever;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
+import github.tornaco.xposedmoduletest.xposed.service.shell.AshShellCommand;
 import github.tornaco.xposedmoduletest.xposed.submodules.InputManagerInjectInputSubModule;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -4505,12 +4504,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void onShellCommand(FileDescriptor in, FileDescriptor out, FileDescriptor err, String[] args,
-                               ShellCallback callback, ResultReceiver resultReceiver) throws RemoteException {
-        super.onShellCommand(in, out, err, args, callback, resultReceiver);
-    }
-
-    @Override
     @BinderCall
     protected void dump(FileDescriptor fd, final PrintWriter fout, String[] args) {
         super.dump(fd, fout, args);
@@ -4521,141 +4514,148 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return;
         }
 
-        mAppGuardService.dump(fd, fout, args);
+        if (args == null || args.length == 0) {
 
-        synchronized (this) {
-            // Dump switch.
-            fout.println("White system app enabled: " + mWhiteSysAppEnabled.get());
-            fout.println("Start block enabled: " + mStartBlockEnabled.get());
-            fout.println("Boot block enabled: " + mBootBlockEnabled.get());
-            fout.println("LK enabled: " + mLockKillEnabled.get());
-            fout.println("RF kill enabled: " + mRootActivityFinishKillEnabled.get());
-            fout.println("CompSettingBlockEnabled enabled: " + mCompSettingBlockEnabled.get());
-            fout.println("LK delay: " + mLockKillDelay);
-            fout.println("Control mode: " + mControlMode.get());
+            mAppGuardService.dump(fd, fout, args);
 
-            fout.println();
-            fout.println("======================");
-            fout.println();
+            synchronized (this) {
+                // Dump switch.
+                fout.println("White system app enabled: " + mWhiteSysAppEnabled.get());
+                fout.println("Start block enabled: " + mStartBlockEnabled.get());
+                fout.println("Boot block enabled: " + mBootBlockEnabled.get());
+                fout.println("LK enabled: " + mLockKillEnabled.get());
+                fout.println("RF kill enabled: " + mRootActivityFinishKillEnabled.get());
+                fout.println("CompSettingBlockEnabled enabled: " + mCompSettingBlockEnabled.get());
+                fout.println("LK delay: " + mLockKillDelay);
+                fout.println("Control mode: " + mControlMode.get());
 
-            // Dump while list.
-            fout.println("White list: ");
-            Object[] whileListObjects = WHITE_LIST.toArray();
-            Collections.consumeRemaining(whileListObjects, new Consumer<Object>() {
-                @Override
-                public void accept(Object o) {
-                    fout.println(o);
-                }
-            });
+                fout.println();
+                fout.println("======================");
+                fout.println();
 
-            fout.println();
-            fout.println("======================");
-            fout.println();
+                // Dump while list.
+                fout.println("White list: ");
+                Object[] whileListObjects = WHITE_LIST.toArray();
+                Collections.consumeRemaining(whileListObjects, new Consumer<Object>() {
+                    @Override
+                    public void accept(Object o) {
+                        fout.println(o);
+                    }
+                });
 
-            // Dump while list.
-            fout.println("White list hook: ");
-            Collections.consumeRemaining(RepoProxy.getProxy()
-                    .getWhite_list_hooks_dynamic()
-                    .getAll(), new Consumer<String>() {
-                @Override
-                public void accept(String o) {
-                    fout.println(o);
-                }
-            });
+                fout.println();
+                fout.println("======================");
+                fout.println();
 
-            fout.println();
-            fout.println("======================");
-            fout.println();
+                // Dump while list.
+                fout.println("White list hook: ");
+                Collections.consumeRemaining(RepoProxy.getProxy()
+                        .getWhite_list_hooks_dynamic()
+                        .getAll(), new Consumer<String>() {
+                    @Override
+                    public void accept(String o) {
+                        fout.println(o);
+                    }
+                });
 
-            // Dump System list.
-            fout.println("System list: ");
-            Object[] systemListObjects = SYSTEM_APPS.toArray();
-            Collections.consumeRemaining(systemListObjects, new Consumer<Object>() {
-                @Override
-                public void accept(Object o) {
-                    fout.println(o);
-                }
-            });
+                fout.println();
+                fout.println("======================");
+                fout.println();
 
-            fout.println();
-            fout.println("======================");
-            fout.println();
+                // Dump System list.
+                fout.println("System list: ");
+                Object[] systemListObjects = SYSTEM_APPS.toArray();
+                Collections.consumeRemaining(systemListObjects, new Consumer<Object>() {
+                    @Override
+                    public void accept(Object o) {
+                        fout.println(o);
+                    }
+                });
 
-            // Dump boot list.
-            fout.println("Boot list: ");
-            Collections.consumeRemaining(RepoProxy.getProxy().getBoots().getAll(), new Consumer<String>() {
-                @Override
-                public void accept(String o) {
-                    fout.println(o);
-                }
-            });
+                fout.println();
+                fout.println("======================");
+                fout.println();
 
-            fout.println();
-            fout.println("======================");
-            fout.println();
+                // Dump boot list.
+                fout.println("Boot list: ");
+                Collections.consumeRemaining(RepoProxy.getProxy().getBoots().getAll(), new Consumer<String>() {
+                    @Override
+                    public void accept(String o) {
+                        fout.println(o);
+                    }
+                });
 
-            // Dump start list.
-            fout.println("Start list: ");
-            Collections.consumeRemaining(RepoProxy.getProxy().getStarts().getAll(), new Consumer<String>() {
+                fout.println();
+                fout.println("======================");
+                fout.println();
 
-                @Override
-                public void accept(String s) {
-                    fout.println(s);
-                }
-            });
+                // Dump start list.
+                fout.println("Start list: ");
+                Collections.consumeRemaining(RepoProxy.getProxy().getStarts().getAll(), new Consumer<String>() {
 
-            fout.println();
-            fout.println("======================");
-            fout.println();
+                    @Override
+                    public void accept(String s) {
+                        fout.println(s);
+                    }
+                });
 
-            // Dump lk list.
-            fout.println("LK list: ");
-            Collections.consumeRemaining(RepoProxy.getProxy().getLks().getAll(), new Consumer<String>() {
+                fout.println();
+                fout.println("======================");
+                fout.println();
 
-                @Override
-                public void accept(String s) {
-                    fout.println(s);
-                }
-            });
+                // Dump lk list.
+                fout.println("LK list: ");
+                Collections.consumeRemaining(RepoProxy.getProxy().getLks().getAll(), new Consumer<String>() {
 
-            fout.println();
-            fout.println("======================");
-            fout.println();
+                    @Override
+                    public void accept(String s) {
+                        fout.println(s);
+                    }
+                });
 
-            // Dump rf list.
-            fout.println("RF list: ");
-            Collections.consumeRemaining(RepoProxy.getProxy().getRfks().getAll(), new Consumer<String>() {
+                fout.println();
+                fout.println("======================");
+                fout.println();
 
-                @Override
-                public void accept(String s) {
-                    fout.println(s);
-                }
-            });
+                // Dump rf list.
+                fout.println("RF list: ");
+                Collections.consumeRemaining(RepoProxy.getProxy().getRfks().getAll(), new Consumer<String>() {
 
-            fout.println();
-            fout.println("======================");
-            fout.println();
+                    @Override
+                    public void accept(String s) {
+                        fout.println(s);
+                    }
+                });
 
-            // Dump watcher.
-            fout.println("Watcher list: ");
-            Object[] watcherListObjects = mWatcherClients.toArray();
-            Collections.consumeRemaining(watcherListObjects, new Consumer<Object>() {
-                @Override
-                public void accept(Object o) {
-                    fout.println(o);
-                }
-            });
+                fout.println();
+                fout.println("======================");
+                fout.println();
 
-            // Dump webview.
-            fout.println("Webview provider list: ");
-            Object[] wwListObjects = mWebviewProviders.toArray();
-            Collections.consumeRemaining(wwListObjects, new Consumer<Object>() {
-                @Override
-                public void accept(Object o) {
-                    fout.println(o);
-                }
-            });
+                // Dump watcher.
+                fout.println("Watcher list: ");
+                Object[] watcherListObjects = mWatcherClients.toArray();
+                Collections.consumeRemaining(watcherListObjects, new Consumer<Object>() {
+                    @Override
+                    public void accept(Object o) {
+                        fout.println(o);
+                    }
+                });
+
+                // Dump webview.
+                fout.println("Webview provider list: ");
+                Object[] wwListObjects = mWebviewProviders.toArray();
+                Collections.consumeRemaining(wwListObjects, new Consumer<Object>() {
+                    @Override
+                    public void accept(Object o) {
+                        fout.println(o);
+                    }
+                });
+            }
+        } else {
+            // Exe command.
+            new AshShellCommand(this).exec(this, null, fd, null, args);
         }
+
     }
 
     @Override

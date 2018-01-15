@@ -55,7 +55,7 @@ public class XApp extends Application {
                     public void e(String tag, String message) {
                         super.e(tag, message);
                         // Report to bugly.
-                        BuglyLog.e(tag, message);
+                        CrashReport.postCatchedException(new Throwable(message));
                     }
                 })
                 .build());
