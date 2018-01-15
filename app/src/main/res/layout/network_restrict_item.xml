@@ -39,24 +39,38 @@
             android:layout_toStartOf="@+id/action_area">
 
             <TextView
-                android:id="@+id/title"
+                android:id="@android:id/title"
+                style="@style/ListItemMainText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:layout_toStartOf="@android:id/text1"
+                android:ellipsize="marquee"
                 android:fadingEdge="horizontal"
-                android:padding="3dp"
-                android:text="@string/app_name"
-                android:textAppearance="@style/TextAppearance.TileTitle" />
+                android:text="@string/app_name" />
 
             <TextView
-                android:id="@+id/status"
+                android:id="@android:id/text1"
                 style="@style/ListItemSecondaryTextHighlight"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignStart="@android:id/title"
-                android:layout_below="@id/title"
-                android:padding="3dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin_large"
+                android:fadingEdge="horizontal"
                 android:text="@string/title_system_app" />
 
+            <TextView
+                android:id="@android:id/text2"
+                style="@style/ListItemSecondaryText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@android:id/title"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin_large"
+                android:layout_marginTop="5dp"
+                android:fadingEdge="horizontal"
+                android:text="@string/title_system_app" />
         </RelativeLayout>
 
         <RelativeLayout

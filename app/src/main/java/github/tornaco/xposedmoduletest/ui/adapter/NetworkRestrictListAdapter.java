@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.ui.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.ColorInt;
 import android.support.annotation.LayoutRes;
@@ -86,10 +87,12 @@ public class NetworkRestrictListAdapter
         return R.layout.network_restrict_item;
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(RestrictItemHolder holder, int position) {
         final NetworkRestrictionItem item = getNetworkRestrictionItems().get(position);
         holder.getTitleView().setText(item.getAppName());
+        holder.getSummaryView().setText("UID: " + item.getUid());
 
         if (isRestrictWifi()) {
             holder.getRestrictSwitch().setChecked(!item.isRestrictedWifi());
@@ -97,7 +100,7 @@ public class NetworkRestrictListAdapter
             holder.getRestrictSwitch().setChecked(!item.isRestrictedData());
         }
 
-        holder.getSummaryView().setVisibility(item.isSystemApp() ? View.VISIBLE : View.GONE);
+        holder.getSystemAppIndicator().setVisibility(item.isSystemApp() ? View.VISIBLE : View.GONE);
 
         if (XAshmanManager.get().isServiceAvailable()) {
 
@@ -155,14 +158,16 @@ public class NetworkRestrictListAdapter
         private ImageView iconView;
         private TextView titleView;
         private TextView summaryView;
+        private TextView systemAppIndicator;
         private Switch restrictSwitch;
 
         RestrictItemHolder(View itemView) {
             super(itemView);
 
             this.iconView = itemView.findViewById(R.id.icon);
-            this.titleView = itemView.findViewById(R.id.title);
-            this.summaryView = itemView.findViewById(R.id.status);
+            this.titleView = itemView.findViewById(android.R.id.title);
+            this.summaryView = itemView.findViewById(android.R.id.text2);
+            this.systemAppIndicator = itemView.findViewById(android.R.id.text1);
             this.restrictSwitch = itemView.findViewById(R.id.restrict_switch);
 
             itemView.setOnClickListener(new View.OnClickListener() {

@@ -62,11 +62,8 @@ public interface NetworkRestrictLoader {
 
             for (android.content.pm.PackageInfo packageInfo : packages) {
                 String name = packageInfo.applicationInfo.loadLabel(pm).toString();
-                if (!TextUtils.isEmpty(name)) {
-                    name = name.replace(" ", "");
-                } else {
-                    Logger.w("Ignored app with empty name:%s", packageInfo);
-                    continue;
+                if (TextUtils.isEmpty(name)) {
+                    name = packageInfo.packageName;
                 }
 
                 if ("android.uid.system".equals(packageInfo.sharedUserId)) {
