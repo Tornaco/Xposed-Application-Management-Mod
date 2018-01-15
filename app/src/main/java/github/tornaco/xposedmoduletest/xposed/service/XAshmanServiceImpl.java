@@ -128,6 +128,7 @@ import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_R
 import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_ON_DATA;
 import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_ON_WIFI;
 import static github.tornaco.xposedmoduletest.xposed.bean.DozeEvent.FAIL_DEVICE_INTERACTIVE;
+import static github.tornaco.xposedmoduletest.xposed.bean.DozeEvent.FAIL_GENERIC_FAILURE;
 import static github.tornaco.xposedmoduletest.xposed.bean.DozeEvent.FAIL_RETRY_TIMEOUT;
 
 /**
@@ -829,7 +830,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     // If we fail into doze, retry in 5min.
-    private static final long REPOST_DOZE_DELAY = 5 * 60 * 1000;
+    private static final long REPOST_DOZE_DELAY = 2 * 1000;
     private static final long END_DOZE_CHECK_DELAY = 2000;
     private static final int MAX_RETRY_TIME_TO_SIZE = 99;
 
@@ -912,6 +913,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         // Add to events.
                         cancelEnterIdleModePosts("isInteractive");
                         onDozeEnterFail(FAIL_DEVICE_INTERACTIVE);
+
                         return;
                     }
 
@@ -922,7 +924,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 + DeviceIdleControllerProxy.stateToString(curState));
                         mDeviceIdleController.exitForceIdleLocked();
                         cancelEnterIdleModePosts("Fail doze");
-                        onDozeEnterFail(FAIL_DEVICE_INTERACTIVE);
+
+                        onDozeEnterFail(FAIL_GENERIC_FAILURE);
+
                         return;
                     }
 
@@ -1100,9 +1104,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (state == BatteryManager.BATTERY_STATUS_CHARGING
                     || state == BatteryManager.BATTERY_STATUS_UNKNOWN) {
                 // Do not block when in debug
-                if (!BuildConfig.DEBUG) {
-                    return DozeEvent.FAIL_POWER_CHARGING;
-                }
+//                if (!BuildConfig.DEBUG) {
+//                    return DozeEvent.FAIL_POWER_CHARGING;
+//                }
+                // Ingore battery status.
             }
 
             PowerManager powerManager = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);

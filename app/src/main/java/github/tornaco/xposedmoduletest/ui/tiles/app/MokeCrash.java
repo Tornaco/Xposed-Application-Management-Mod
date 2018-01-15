@@ -23,7 +23,7 @@ public class MokeCrash extends QuickTile {
             @Override
             public void onClick(View v) {
                 super.onClick(v);
-                throw new IllegalStateException("FUCK it");
+                throw new IllegalStateException("=== Crash test by user ===");
             }
         };
     }

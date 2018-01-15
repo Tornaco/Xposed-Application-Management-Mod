@@ -8,6 +8,7 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.support.annotation.Nullable;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
@@ -92,6 +93,10 @@ public class XAshmanManager {
 
     public boolean isServiceAvailable() {
         return mService != null;
+    }
+
+    public Optional<XAshmanManager> optional() {
+        return Optional.fromNullable(get());
     }
 
     private void ensureService() {

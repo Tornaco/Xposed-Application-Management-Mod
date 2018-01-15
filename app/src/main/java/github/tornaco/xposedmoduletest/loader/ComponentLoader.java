@@ -160,8 +160,16 @@ public interface ComponentLoader {
             final PackageManager pm = context.getPackageManager();
             final XAshmanManager xAshmanManager = XAshmanManager.get();
 
-            if (xAshmanManager == null)
+            if (!xAshmanManager.isServiceAvailable()) {
                 return Lists.newArrayListWithCapacity(0);
+            }
+
+            try {
+                Thread.sleep(2000);
+                Logger.w("Sleep to give om a little rest");
+            } catch (InterruptedException ignored) {
+
+            }
 
             List<ActivityInfo> activityInfos = ComponentUtil.getActivities(context, pkg);
             if (Collections.isNullOrEmpty(activityInfos)) return Lists.newArrayListWithCapacity(0);

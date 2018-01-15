@@ -32,7 +32,8 @@ import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 @SuppressLint("Registered")
 public class PackageViewerActivity extends CommonPackageInfoListActivity {
 
-    private boolean mShowSystemApp = true;
+    private boolean mShowSystemApp = XAshmanManager.get().isServiceAvailable()
+            && !XAshmanManager.get().isWhiteSysAppEnabled();
 
     private int colorGreen, colorDefault, colorSet;
 

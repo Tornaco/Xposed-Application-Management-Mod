@@ -56,7 +56,7 @@ public class ComponentUtil {
             if (serviceInfoArray == null || serviceInfoArray.length == 0)
                 return Lists.newArrayListWithCapacity(0);
             return Lists.newArrayList(serviceInfoArray);
-        } catch (PackageManager.NameNotFoundException e) {
+        } catch (Exception e) {
             Logger.e("getServices: " + Logger.getStackTraceString(e));
             return Lists.newArrayListWithCapacity(0);
         }
@@ -76,7 +76,7 @@ public class ComponentUtil {
             if (activityInfos == null || activityInfos.length == 0)
                 return Lists.newArrayListWithCapacity(0);
             return Lists.newArrayList(activityInfos);
-        } catch (PackageManager.NameNotFoundException e) {
+        } catch (Exception e) {
             Logger.e("getActivities: " + Logger.getStackTraceString(e));
             return Lists.newArrayListWithCapacity(0);
         }
@@ -96,7 +96,7 @@ public class ComponentUtil {
             if (activityInfos == null || activityInfos.length == 0)
                 return Lists.newArrayListWithCapacity(0);
             return Lists.newArrayList(activityInfos);
-        } catch (PackageManager.NameNotFoundException e) {
+        } catch (Exception e) {
             Logger.e("getBroadcasts: " + Logger.getStackTraceString(e));
             return Lists.newArrayListWithCapacity(0);
         }

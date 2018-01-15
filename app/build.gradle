@@ -105,6 +105,9 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.4.0'
 
     implementation 'com.github.iammert:MaterialIntroView:1.6.0'
+
+    // Crash report.
+    implementation 'com.tencent.bugly:crashreport:2.3.1'
 }
 
 
