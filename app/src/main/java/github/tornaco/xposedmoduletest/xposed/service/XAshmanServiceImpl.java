@@ -1196,7 +1196,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public boolean onEarlyVerifyConfirm(String pkg, String reason) {
-        return mAppGuardService.onEarlyVerifyConfirm(pkg, reason);
+        boolean confirm = mAppGuardService.onEarlyVerifyConfirm(pkg, reason);
+        if (!confirm) {
+            PkgUtil.onAppLaunched(pkg, "onEarlyVerifyConfirm");
+        }
+        return confirm;
     }
 
     @Override
@@ -5680,7 +5684,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             String from = mTopPackage.getData();
             if (who != null && !who.equals(from)) {
                 mTopPackage.setData(who);
-                PkgUtil.onAppLaunched(who);
+                PkgUtil.onAppLaunched(who, "onPackageMoveToFront");
                 postNotifyTopPackageChanged(from, who);
             }
         }

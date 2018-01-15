@@ -259,8 +259,8 @@ public class PkgUtil {
 
     private static final Set<String> sRunningApps = new HashSet<>();
 
-    public static void onAppLaunched(String who) {
-        XposedLog.verbose("onAppLaunched: " + who);
+    public static void onAppLaunched(String who, String reason) {
+        XposedLog.verbose("onAppLaunched: " + who + ", reason: " + reason);
         sRunningApps.add(who);
     }
 
