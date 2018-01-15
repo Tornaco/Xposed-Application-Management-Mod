@@ -1623,19 +1623,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.DENIED_GREEN_APP;
         }
 
-        Integer serviceUidInt = mPackagesCache.get(servicePkgName);
-        int serviceUid = serviceUidInt == null ? -1 : serviceUidInt;
-        // Service targetServicePkg/to same app is allowed.
-        if (serviceUid == callerUid) {
-            return CheckResult.SAME_CALLER;
-        }
+//        Integer serviceUidInt = mPackagesCache.get(servicePkgName);
+//        int serviceUid = serviceUidInt == null ? -1 : serviceUidInt;
+//        // Service targetServicePkg/to same app is allowed.
+//        if (serviceUid == callerUid) {
+//            return CheckResult.SAME_CALLER;
+//        }
 
-        if (PkgUtil.isHomeApp(getContext(), servicePkgName)) {
-            return CheckResult.HOME_APP;
-        }
-
-        if (PkgUtil.isDefaultSmsApp(getContext(), servicePkgName)) {
-            return CheckResult.SMS_APP;
+        boolean isOnTop = isPackageRunningOnTop(servicePkgName);
+        if (isOnTop) {
+            return CheckResult.APP_RUNNING_TOP;
         }
 
         if (PkgUtil.isAppRunning(getContext(), servicePkgName)) {
@@ -2462,9 +2459,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (!isStartBlockEnabled()) return CheckResult.BROADCAST_CHECK_DISABLED;
 
         // Broadcast targetServicePkg/to same app is allowed.
-        if (callerUid == receiverUid) {
-            return CheckResult.SAME_CALLER;
-        }
+//        if (callerUid == receiverUid) {
+//            return CheckResult.SAME_CALLER;
+//        }
 
         // FIXME Too slow.
         String receiverPkgName = PkgUtil.pkgForUid(getContext(), receiverUid);
@@ -2479,6 +2476,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.WHITE_LISTED;
         }
 
+        boolean isOnTop = isPackageRunningOnTop(receiverPkgName);
+        if (isOnTop) {
+            return CheckResult.APP_RUNNING_TOP;
+        }
+
         // Lazy but not running on top.
         // Retrieve imd top package ensure our top pkg correct.
         boolean isLazy = isLazyModeEnabled()
@@ -2489,10 +2491,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (isWhiteSysAppEnabled() && isInSystemAppList(receiverPkgName)) {
             return CheckResult.SYSTEM_APP;
-        }
-
-        if (PkgUtil.isHomeApp(getContext(), receiverPkgName)) {
-            return CheckResult.HOME_APP;
         }
 
         if (PkgUtil.isDefaultSmsApp(getContext(), receiverPkgName)) {
@@ -6020,6 +6018,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public static final CheckResult SMS_APP = new CheckResult(true, "SMS_APP", true);
 
         public static final CheckResult APP_RUNNING = new CheckResult(true, "APP_RUNNING", true);
+        public static final CheckResult APP_RUNNING_TOP = new CheckResult(true, "APP_RUNNING_TOP", true);
         public static final CheckResult SAME_CALLER = new CheckResult(true, "SAME_CALLER", true);
 
         public static final CheckResult BAD_ARGS = new CheckResult(true, "BAD_ARGS", true);
