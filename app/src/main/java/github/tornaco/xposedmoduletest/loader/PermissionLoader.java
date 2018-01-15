@@ -5,15 +5,16 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 
+import com.google.common.collect.Sets;
+
 import org.newstand.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
-import github.tornaco.android.common.Collections;
-import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.model.Permission;
@@ -56,48 +57,51 @@ public interface PermissionLoader {
             }
 
             String[] decleared = PkgUtil.getAllDeclaredPermissions(context, pkg);
-            if (decleared == null || decleared.length == 0) return new ArrayList<>(0);
+            Set<String> permSet = Sets.newHashSet(decleared);
+
+            int OP_SIZE = AppOpsManagerCompat._NUM_OP;
 
             final List<Permission> permissions = new ArrayList<>();
 
-            Collections.consumeRemaining(decleared, new Consumer<String>() {
-                @Override
-                public void accept(String s) {
+            for (int code = 0; code < OP_SIZE; code++) {
 
-                    Permission p = new Permission();
-                    p.setPkgName(pkg);
-                    p.setPermission(s);
+                String s = AppOpsManagerCompat.opToPermission(code);
 
-                    int code = AppOpsManagerCompat.permissionToOpCode(s);
-
-                    if (code == AppOpsManagerCompat.OP_NONE) {
-                        Logger.w("Un-support per control: " + s);
-                        return;
-                    }
-
-
-                    if (code == AppOpsManagerCompat.OP_WAKE_LOCK) {
-                        Logger.w("Tem skip per control: " + s);
-                        return;
-                    }
-
-                    p.setCode(code);
-
-                    String name = AppOpsManagerCompat.getOpLabel(context, code);
-                    p.setName(name);
-
-                    String summary = AppOpsManagerCompat.getOpSummary(context, code);
-                    p.setSummary(summary);
-
-                    p.setIconRes(AppOpsManagerCompat.opToIconRes(code));
-
-                    p.setMode(XAshmanManager.get().getPermissionControlBlockModeForPkg(code, pkg));
-
-                    Logger.d("Add perm: " + p);
-
-                    permissions.add(p);
+                if (s != null && !permSet.contains(s)) {
+                    continue;
                 }
-            });
+
+                Permission p = new Permission();
+                p.setPkgName(pkg);
+                p.setPermission(s);
+
+                if (code == AppOpsManagerCompat.OP_NONE) {
+                    Logger.w("Un-support per control: " + s);
+                    continue;
+                }
+
+
+                if (code == AppOpsManagerCompat.OP_WAKE_LOCK) {
+                    Logger.w("Tem skip per control: " + s);
+                    continue;
+                }
+
+                p.setCode(code);
+
+                String name = AppOpsManagerCompat.getOpLabel(context, code);
+                p.setName(name);
+
+                String summary = AppOpsManagerCompat.getOpSummary(context, code);
+                p.setSummary(summary);
+
+                p.setIconRes(AppOpsManagerCompat.opToIconRes(code));
+
+                p.setMode(XAshmanManager.get().getPermissionControlBlockModeForPkg(code, pkg));
+
+                Logger.d("Add perm: " + p);
+
+                permissions.add(p);
+            }
 
             java.util.Collections.sort(permissions, new PermComparator());
 
