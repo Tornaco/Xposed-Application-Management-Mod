@@ -41,7 +41,9 @@ import android.os.PowerManager;
 import android.os.Process;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+import android.os.ResultReceiver;
 import android.os.ServiceManager;
+import android.os.ShellCallback;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.provider.Settings;
@@ -55,6 +57,8 @@ import android.util.Pair;
 import android.util.SparseBooleanArray;
 import android.view.KeyEvent;
 import android.view.WindowManager;
+import android.webkit.IWebViewUpdateService;
+import android.webkit.WebViewProviderInfo;
 import android.widget.Toast;
 
 import com.android.internal.os.Zygote;
@@ -528,12 +532,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
-    private static boolean isInWhiteList(String pkg) {
+    private boolean isInWhiteList(String pkg) {
         if (pkg == null) return false;
         // Owner package is always white listed.
         if (pkg.equals(BuildConfig.APPLICATION_ID)) return true;
+
         boolean inWhite = WHITE_LIST.contains(pkg);
         if (inWhite) return true;
+
+        // Check if webview provider.
+        if (isWebviewProvider(pkg)) return true;
+
         if (WHITE_LIST_PATTERNS.size() == 0) return false;
 
         for (Pattern p : WHITE_LIST_PATTERNS) {
@@ -2806,7 +2815,34 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
         }, "reload installed apps"), 15 * 1000);
 
-        ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
+        cacheWebviewPackacgaes();
+    }
+
+    private final Set<String> mWebviewProviders = new HashSet<>();
+
+    private boolean isWebviewProvider(String pkg) {
+        return mWebviewProviders.contains(pkg);
+    }
+
+    private void cacheWebviewPackacgaes() {
+        try {
+            IWebViewUpdateService w = IWebViewUpdateService.Stub.asInterface(ServiceManager
+                    .getService("webviewupdate"));
+            WebViewProviderInfo[] providerInfos = w.getValidWebViewPackages();
+            if (providerInfos == null || providerInfos.length == 0) {
+                XposedLog.wtf("No webview providers found.");
+                return;
+            }
+
+            for (WebViewProviderInfo info : providerInfos) {
+                String pkgName = info.packageName;
+                XposedLog.boot("Add webview provider: " + pkgName + ", description: " + info.description);
+
+                mWebviewProviders.add(pkgName);
+            }
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail cacheWebviewPackacgaes: " + Log.getStackTraceString(e));
+        }
     }
 
     // NMS API START.
@@ -4469,6 +4505,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    public void onShellCommand(FileDescriptor in, FileDescriptor out, FileDescriptor err, String[] args,
+                               ShellCallback callback, ResultReceiver resultReceiver) throws RemoteException {
+        super.onShellCommand(in, out, err, args, callback, resultReceiver);
+    }
+
+    @Override
     @BinderCall
     protected void dump(FileDescriptor fd, final PrintWriter fout, String[] args) {
         super.dump(fd, fout, args);
@@ -4598,6 +4640,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             fout.println("Watcher list: ");
             Object[] watcherListObjects = mWatcherClients.toArray();
             Collections.consumeRemaining(watcherListObjects, new Consumer<Object>() {
+                @Override
+                public void accept(Object o) {
+                    fout.println(o);
+                }
+            });
+
+            // Dump webview.
+            fout.println("Webview provider list: ");
+            Object[] wwListObjects = mWebviewProviders.toArray();
+            Collections.consumeRemaining(wwListObjects, new Consumer<Object>() {
                 @Override
                 public void accept(Object o) {
                     fout.println(o);
