@@ -28,6 +28,7 @@ public class AppPrivacySetting extends AppSettingsSwitchTile {
     @Override
     void applySwitchState(boolean checked) {
         super.applySwitchState(checked);
+        getAppSettings().setPrivacy(checked);
         XAshmanManager.get()
                 .addOrRemoveFromPrivacyList(getAppSettings().getPkgName(),
                         checked ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);

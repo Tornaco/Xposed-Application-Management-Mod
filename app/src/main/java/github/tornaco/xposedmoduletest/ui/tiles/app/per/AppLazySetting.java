@@ -29,6 +29,7 @@ public class AppLazySetting extends AppSettingsSwitchTile {
     @Override
     void applySwitchState(boolean checked) {
         super.applySwitchState(checked);
+        getAppSettings().setLazy(checked);
         XAshmanManager.get()
                 .addOrRemoveLazyApps(new String[]{getAppSettings().getPkgName()},
                         checked ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);

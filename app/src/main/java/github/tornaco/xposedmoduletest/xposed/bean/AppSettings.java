@@ -2,10 +2,14 @@ package github.tornaco.xposedmoduletest.xposed.bean;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
+import github.tornaco.xposedmoduletest.util.GsonUtil;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 /**
@@ -16,6 +20,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @AllArgsConstructor
+@Setter
 public class AppSettings implements Parcelable {
 
     private String pkgName;
@@ -29,6 +34,9 @@ public class AppSettings implements Parcelable {
     private boolean boot, start, lk, rfk, trk, lazy;
     private boolean applock, blur, uninstall, privacy;
     private boolean green;
+
+    private boolean wakeLock, service, alarm;
+
 
     protected AppSettings(Parcel in) {
         pkgName = in.readString();
@@ -47,23 +55,9 @@ public class AppSettings implements Parcelable {
         uninstall = in.readByte() != 0;
         privacy = in.readByte() != 0;
         green = in.readByte() != 0;
-    }
-
-    public static final Creator<AppSettings> CREATOR = new Creator<AppSettings>() {
-        @Override
-        public AppSettings createFromParcel(Parcel in) {
-            return new AppSettings(in);
-        }
-
-        @Override
-        public AppSettings[] newArray(int size) {
-            return new AppSettings[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
+        wakeLock = in.readByte() != 0;
+        service = in.readByte() != 0;
+        alarm = in.readByte() != 0;
     }
 
     @Override
@@ -84,5 +78,46 @@ public class AppSettings implements Parcelable {
         dest.writeByte((byte) (uninstall ? 1 : 0));
         dest.writeByte((byte) (privacy ? 1 : 0));
         dest.writeByte((byte) (green ? 1 : 0));
+        dest.writeByte((byte) (wakeLock ? 1 : 0));
+        dest.writeByte((byte) (service ? 1 : 0));
+        dest.writeByte((byte) (alarm ? 1 : 0));
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<AppSettings> CREATOR = new Creator<AppSettings>() {
+        @Override
+        public AppSettings createFromParcel(Parcel in) {
+            return new AppSettings(in);
+        }
+
+        @Override
+        public AppSettings[] newArray(int size) {
+            return new AppSettings[size];
+        }
+    };
+
+    public String toJson() {
+        return GsonUtil.getGson().toJson(this);
+    }
+
+    public static AppSettings fromJson(String js) {
+        AppSettings def = AppSettings.builder()
+                .boot(true)
+                .start(true)
+                .trk(true)
+                .rfk(true)
+                .lk(true)
+                .build();
+        if (js == null) return def;
+        try {
+            return GsonUtil.getGson().fromJson(js, AppSettings.class);
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail from json: " + Log.getStackTraceString(e));
+            return def;
+        }
     }
 }

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class PerAppSettingsDashboardActivity extends WithWithCustomTabActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.container_with_appbar_template);
+        setContentView(R.layout.container_with_appbar_fab_template);
         setupToolbar();
         showHomeAsUp();
 
@@ -71,6 +72,17 @@ public class PerAppSettingsDashboardActivity extends WithWithCustomTabActivity {
                 applyColor(color);
             }
         }, pkgName, color);
+
+        findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onFabClick();
+            }
+        });
+    }
+
+    void onFabClick() {
+        finish();
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -84,6 +96,11 @@ public class PerAppSettingsDashboardActivity extends WithWithCustomTabActivity {
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+    }
+
+    AppSettings onRetrieveAppSettings(String pkg) {
+        return XAshmanManager.get()
+                .retrieveAppSettingsForPackage(pkg);
     }
 
     public static class Dashboards extends DashboardFragment {
@@ -110,8 +127,7 @@ public class PerAppSettingsDashboardActivity extends WithWithCustomTabActivity {
 
             if (mPkg == null) return;
 
-            AppSettings appSettings = XAshmanManager.get()
-                    .retrieveAppSettingsForPackage(mPkg);
+            AppSettings appSettings = ((PerAppSettingsDashboardActivity) getActivity()).onRetrieveAppSettings(mPkg);
 
             Category sec = new Category();
             sec.titleRes = R.string.title_secure;

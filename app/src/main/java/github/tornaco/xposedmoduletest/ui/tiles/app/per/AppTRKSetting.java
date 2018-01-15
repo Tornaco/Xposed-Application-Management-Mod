@@ -28,6 +28,7 @@ public class AppTRKSetting extends AppSettingsSwitchTile {
     @Override
     void applySwitchState(boolean checked) {
         super.applySwitchState(checked);
+        getAppSettings().setTrk(checked);
         XAshmanManager.get()
                 .addOrRemoveTRKApps(new String[]{getAppSettings().getPkgName()},
                         checked ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);

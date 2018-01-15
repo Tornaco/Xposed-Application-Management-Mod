@@ -23,15 +23,13 @@ public class AppServiceSetting extends AppSettingsSwitchTile {
 
     @Override
     boolean getSwitchState() {
-        int mode = XAshmanManager.get().getPermissionControlBlockModeForPkg(
-                AppOpsManagerCompat.OP_START_SERVICE, getAppSettings().getPkgName()
-        );
-        return mode != AppOpsManagerCompat.MODE_IGNORED;
+        return !getAppSettings().isService();
     }
 
     @Override
     void applySwitchState(boolean checked) {
         super.applySwitchState(checked);
+        getAppSettings().setService(!checked);
         XAshmanManager.get().setPermissionControlBlockModeForPkg(AppOpsManagerCompat.OP_START_SERVICE,
                 getAppSettings().getPkgName(),
                 checked ? AppOpsManagerCompat.MODE_ALLOWED : AppOpsManagerCompat.MODE_IGNORED);

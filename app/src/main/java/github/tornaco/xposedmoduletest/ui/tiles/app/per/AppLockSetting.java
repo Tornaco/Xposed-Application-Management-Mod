@@ -28,6 +28,7 @@ public class AppLockSetting extends AppSettingsSwitchTile {
     @Override
     void applySwitchState(boolean checked) {
         super.applySwitchState(checked);
+        getAppSettings().setApplock(checked);
         XAppGuardManager.get()
                 .addOrRemoveLockApps(new String[]{getAppSettings().getPkgName()},
                         checked);

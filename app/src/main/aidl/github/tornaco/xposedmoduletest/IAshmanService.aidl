@@ -289,4 +289,7 @@ interface IAshmanService {
      void restoreFrom(String dir);
 
      String[] getRawPermSettings(int page, int countInPage);
+
+     void setAppInstalledAutoApplyTemplate(in AppSettings settings);
+     AppSettings getAppInstalledAutoApplyTemplate();
 }

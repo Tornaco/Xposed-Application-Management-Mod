@@ -1191,4 +1191,20 @@ public class XAshmanManager {
             return new String[0];
         }
     }
+
+    public void setAppInstalledAutoApplyTemplate(AppSettings settings) {
+        try {
+            mService.setAppInstalledAutoApplyTemplate(settings);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public AppSettings getAppInstalledAutoApplyTemplate() {
+        try {
+            return mService.getAppInstalledAutoApplyTemplate();
+        } catch (RemoteException e) {
+            return AppSettings.fromJson("XXX");
+        }
+    }
 }

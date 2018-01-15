@@ -28,6 +28,7 @@ public class AppRFKSetting extends AppSettingsSwitchTile {
     @Override
     void applySwitchState(boolean checked) {
         super.applySwitchState(checked);
+        getAppSettings().setRfk(checked);
         XAshmanManager.get()
                 .addOrRemoveRFKApps(new String[]{getAppSettings().getPkgName()},
                         checked ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);

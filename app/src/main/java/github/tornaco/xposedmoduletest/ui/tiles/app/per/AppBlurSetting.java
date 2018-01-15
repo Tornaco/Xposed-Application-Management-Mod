@@ -28,6 +28,7 @@ public class AppBlurSetting extends AppSettingsSwitchTile {
     @Override
     void applySwitchState(boolean checked) {
         super.applySwitchState(checked);
+        getAppSettings().setBlur(checked);
         XAppGuardManager.get()
                 .addOrRemoveBlurApps(new String[]{getAppSettings().getPkgName()},
                         checked);

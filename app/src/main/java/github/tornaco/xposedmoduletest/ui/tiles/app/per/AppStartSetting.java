@@ -28,6 +28,7 @@ public class AppStartSetting extends AppSettingsSwitchTile {
     @Override
     void applySwitchState(boolean checked) {
         super.applySwitchState(checked);
+        getAppSettings().setStart(checked);
         XAshmanManager.get()
                 .addOrRemoveStartBlockApps(new String[]{getAppSettings().getPkgName()},
                         checked ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);

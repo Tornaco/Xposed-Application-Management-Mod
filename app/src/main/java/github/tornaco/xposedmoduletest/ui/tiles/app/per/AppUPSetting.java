@@ -28,6 +28,7 @@ public class AppUPSetting extends AppSettingsSwitchTile {
     @Override
     void applySwitchState(boolean checked) {
         super.applySwitchState(checked);
+        getAppSettings().setUninstall(checked);
         XAppGuardManager.get()
                 .addOrRemoveUPApps(new String[]{getAppSettings().getPkgName()},
                         checked);

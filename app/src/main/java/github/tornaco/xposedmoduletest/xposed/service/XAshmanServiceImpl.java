@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
 import android.app.AlertDialog;
+import android.app.AppOpsManager;
 import android.app.IActivityManager;
 import android.app.IAppTask;
 import android.app.IApplicationThread;
@@ -110,6 +111,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.repo.SetRepo;
+import github.tornaco.xposedmoduletest.xposed.repo.SettingsProvider;
 import github.tornaco.xposedmoduletest.xposed.service.bandwidth.BandwidthCommandCompat;
 import github.tornaco.xposedmoduletest.xposed.service.doze.BatterState;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
@@ -414,13 +416,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         Notification n = OSUtil.isOOrAbove() ?
                 new Notification.Builder(context, NOTIFICATION_CHANNEL_ID)
-                        .setContentTitle("新增限制应用")
-                        .setContentText("已按照模板将 " + name + " 加入限制列表")
+                        .setContentTitle("模板已应用")
+                        .setContentText("已按照模板将 " + name + " 完成设置")
                         .setSmallIcon(android.R.drawable.stat_sys_warning)
                         .build()
                 : new Notification.Builder(context)
-                .setContentTitle("新增限制应用")
-                .setContentText("已按照模板将 " + name + " 加入限制列表")
+                .setContentTitle("模板已应用")
+                .setContentText("已按照模板将 " + name + " 完成设置")
                 .setSmallIcon(android.R.drawable.stat_sys_warning)
                 .build();
         NotificationManagerCompat.from(context)
@@ -3041,6 +3043,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         long id = Binder.clearCallingIdentity();
         try {
+            // Apply to appops first.
+            AppOpsManager a = (AppOpsManager) getContext().getSystemService(Context.APP_OPS_SERVICE);
+            if (a != null) {
+                try {
+                    a.setMode(code, mPackagesCache.get(pkg), pkg, mode);
+                } catch (Throwable e) {
+                    XposedLog.wtf("Fail apply appops settings:" + Log.getStackTraceString(e));
+                }
+            }
+
             if (mode != AppOpsManagerCompat.MODE_ALLOWED)
                 RepoProxy.getProxy().getPerms().add(constructPatternForPermission(code, pkg));
             else
@@ -3999,6 +4011,22 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @BinderCall
     public AppSettings retrieveAppSettingsForPackage(String pkg) throws RemoteException {
+
+        int mode = getPermissionControlBlockModeForPkg(
+                AppOpsManagerCompat.OP_WAKE_LOCK, pkg
+        );
+        boolean wakelock = mode == AppOpsManagerCompat.MODE_IGNORED;
+
+        mode = getPermissionControlBlockModeForPkg(
+                AppOpsManagerCompat.OP_START_SERVICE, pkg
+        );
+        boolean service = mode == AppOpsManagerCompat.MODE_IGNORED;
+
+        mode = getPermissionControlBlockModeForPkg(
+                AppOpsManagerCompat.OP_SET_ALARM, pkg
+        );
+        boolean alarm = mode == AppOpsManagerCompat.MODE_IGNORED;
+
         return AppSettings.builder()
                 .appLevel(getAppLevel(pkg))
                 .applock(isInStringRepo(RepoProxy.getProxy().getLocks(), pkg))
@@ -4013,6 +4041,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 .trk(isInStringRepo(RepoProxy.getProxy().getTrks(), pkg))
                 .lazy(isInStringRepo(RepoProxy.getProxy().getLazy(), pkg))
 
+                .wakeLock(wakelock)
+                .alarm(alarm)
+                .service(service)
+
                 .pkgName(pkg)
                 .appName(String.valueOf(PkgUtil.loadNameByPkgName(getContext(), pkg)))
                 .build();
@@ -4021,6 +4053,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @BinderCall
     public void applyAppSettingsForPackage(String pkg, AppSettings settings) throws RemoteException {
+        XposedLog.verbose("applyAppSettingsForPackage %s %s", pkg, settings);
         enforceCallingPermissions();
 
         String[] data = new String[]{pkg};
@@ -4036,9 +4069,22 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         addOrRemoveRFKApps(data, settings.isRfk() ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);
         addOrRemoveTRKApps(data, settings.isTrk() ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);
         addOrRemoveLazyApps(data, settings.isLazy() ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);
+
+        setPermissionControlBlockModeForPkg(AppOpsManagerCompat.OP_WAKE_LOCK,
+                settings.getPkgName(),
+                settings.isWakeLock() ? AppOpsManagerCompat.MODE_ALLOWED : AppOpsManagerCompat.MODE_IGNORED);
+
+        setPermissionControlBlockModeForPkg(AppOpsManagerCompat.OP_SET_ALARM,
+                settings.getPkgName(),
+                settings.isAlarm() ? AppOpsManagerCompat.MODE_ALLOWED : AppOpsManagerCompat.MODE_IGNORED);
+
+        setPermissionControlBlockModeForPkg(AppOpsManagerCompat.OP_START_SERVICE,
+                settings.getPkgName(),
+                settings.isService() ? AppOpsManagerCompat.MODE_ALLOWED : AppOpsManagerCompat.MODE_IGNORED);
     }
 
     @Override
+    @BinderCall
     public void backupTo(String dir) throws RemoteException {
         long ident = Binder.clearCallingIdentity();
         try {
@@ -4051,13 +4097,31 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    @BinderCall
     public void restoreFrom(String dir) throws RemoteException {
-
+        // No impl yet.
     }
 
     @Override
+    @BinderCall
     public String[] getRawPermSettings(int page, int countInPage) throws RemoteException {
         return convertObjectArrayToStringArray(RepoProxy.getProxy().getPerms().getAll().toArray());
+    }
+
+    @Override
+    @BinderCall
+    public void setAppInstalledAutoApplyTemplate(AppSettings settings) throws RemoteException {
+        SettingsProvider.get().putString("AppInstalledAutoApplyTemplate", settings.toJson());
+        if (BuildConfig.DEBUG) {
+            AppSettings test = AppSettings.fromJson(SettingsProvider.get().getString("AppInstalledAutoApplyTemplate", null));
+            XposedLog.verbose("setAppInstalledAutoApplyTemplate test: " + test);
+        }
+    }
+
+    @Override
+    @BinderCall
+    public AppSettings getAppInstalledAutoApplyTemplate() throws RemoteException {
+        return AppSettings.fromJson(SettingsProvider.get().getString("AppInstalledAutoApplyTemplate", null));
     }
 
     // PLUGIN API END.
@@ -5635,12 +5699,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         XposedLog.verbose("ACTION_PACKAGE_ADDED autoAdd:%s", autoAdd);
 
                         if (autoAdd) {
-                            if (!isInSystemAppList(packageName) && !isInWhiteList(packageName)) {
+                            if (!isInWhiteList(packageName)) {
 
-                                x.addOrRemoveBootBlockApps(new String[]{packageName}, XAshmanManager.Op.ADD);
-                                x.addOrRemoveRFKApps(new String[]{packageName}, XAshmanManager.Op.ADD);
-                                x.addOrRemoveLKApps(new String[]{packageName}, XAshmanManager.Op.ADD);
-                                x.addOrRemoveStartBlockApps(new String[]{packageName}, XAshmanManager.Op.ADD);
+                                // Apply template.
+                                AppSettings template = getAppInstalledAutoApplyTemplate();
+                                XposedLog.verbose("ACTION_PACKAGE_ADDED: " + template);
+
+                                applyAppSettingsForPackage(packageName, template);
 
                                 XposedLog.verbose("Add to black list for new app!!!!!!!!!!!");
 

@@ -225,8 +225,8 @@
     <string name="title_disable_all">禁用当前页全部</string>
     <string name="title_enable_all">启用当前页全部</string>
     <string name="clear_data">帮我清除以上设置</string>
-    <string name="title_auto_black">自动添加阻止应用</string>
-    <string name="summary_auto_black">将新安装应用自动加到限制列表</string>
+    <string name="title_auto_black">自动应用配置模板</string>
+    <string name="summary_auto_black">为新安装应用自动配置，点击设置模板</string>
     <string name="title_restart_rec">重启到Recovery模式</string>
     <string name="title_restart_bl">重启到Bootloader模式</string>
     <string name="title_perm_control">权限控制</string>
@@ -367,5 +367,6 @@
     <string name="app_ops_wakelock">允许获取唤醒锁</string>
     <string name="app_ops_alarm">允许设置定时器</string>
     <string name="app_ops_service">允许启动服务</string>
+    <string name="title_per_app_template">模板设置</string>
 
 </resources>

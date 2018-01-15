@@ -23,15 +23,13 @@ public class AppWakeLockSetting extends AppSettingsSwitchTile {
 
     @Override
     boolean getSwitchState() {
-        int mode = XAshmanManager.get().getPermissionControlBlockModeForPkg(
-                AppOpsManagerCompat.OP_WAKE_LOCK, getAppSettings().getPkgName()
-        );
-        return mode != AppOpsManagerCompat.MODE_IGNORED;
+        return !getAppSettings().isWakeLock();
     }
 
     @Override
     void applySwitchState(boolean checked) {
         super.applySwitchState(checked);
+        getAppSettings().setWakeLock(!checked);
         XAshmanManager.get().setPermissionControlBlockModeForPkg(AppOpsManagerCompat.OP_WAKE_LOCK,
                 getAppSettings().getPkgName(),
                 checked ? AppOpsManagerCompat.MODE_ALLOWED : AppOpsManagerCompat.MODE_IGNORED);

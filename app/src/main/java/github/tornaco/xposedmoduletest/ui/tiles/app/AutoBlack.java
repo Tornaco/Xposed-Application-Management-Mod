@@ -1,11 +1,14 @@
 package github.tornaco.xposedmoduletest.ui.tiles.app;
 
 import android.content.Context;
+import android.view.View;
 import android.widget.RelativeLayout;
 
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.SwitchTileView;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.ui.activity.app.InstalledAppTemplateSettingsDashboardActivity;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
@@ -22,6 +25,12 @@ public class AutoBlack extends QuickTile {
         this.summaryRes = R.string.summary_auto_black;
         this.iconRes = R.drawable.ic_brightness_auto_black_24dp;
         this.tileView = new SwitchTileView(context) {
+
+            @Override
+            public void onClick(View v) {
+                InstalledAppTemplateSettingsDashboardActivity.start(context, BuildConfig.APPLICATION_ID);
+            }
+
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);
