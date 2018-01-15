@@ -4038,6 +4038,28 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         addOrRemoveLazyApps(data, settings.isLazy() ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);
     }
 
+    @Override
+    public void backupTo(String dir) throws RemoteException {
+        long ident = Binder.clearCallingIdentity();
+        try {
+            RepoProxy.getProxy().backupTo(dir);
+        } catch (Throwable e) {
+            XposedLog.wtf("backupTo fail " + Log.getStackTraceString(e));
+        } finally {
+            Binder.restoreCallingIdentity(ident);
+        }
+    }
+
+    @Override
+    public void restoreFrom(String dir) throws RemoteException {
+
+    }
+
+    @Override
+    public String[] getRawPermSettings(int page, int countInPage) throws RemoteException {
+        return convertObjectArrayToStringArray(RepoProxy.getProxy().getPerms().getAll().toArray());
+    }
+
     // PLUGIN API END.
 
     private boolean isSystemUIPackage(String pkgName) {

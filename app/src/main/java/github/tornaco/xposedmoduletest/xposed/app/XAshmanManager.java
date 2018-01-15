@@ -1167,4 +1167,28 @@ public class XAshmanManager {
 
         }
     }
+
+    public void backupTo(String dir) {
+        try {
+            mService.backupTo(dir);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public void restoreFrom(String dir) {
+        try {
+            mService.restoreFrom(dir);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public String[] getRawPermSettings(int page, int countInPage) {
+        try {
+            return mService.getRawPermSettings(page, countInPage);
+        } catch (RemoteException e) {
+            return new String[0];
+        }
+    }
 }

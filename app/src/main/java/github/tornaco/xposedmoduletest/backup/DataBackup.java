@@ -4,14 +4,18 @@ import android.content.Context;
 
 import com.google.common.io.Files;
 
+import org.newstand.logger.Logger;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.StringTokenizer;
 import java.util.UUID;
 
+import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.util.DateUtils;
 import github.tornaco.xposedmoduletest.util.ZipUtils;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
@@ -65,6 +69,8 @@ public abstract class DataBackup {
         appendStringArray(new File(tmpDir, "lock"), ag.getLockApps(true), listener);
         appendStringArray(new File(tmpDir, "blur"), ag.getBlurApps(true), listener);
         appendStringArray(new File(tmpDir, "uninstall"), ag.getUPApps(true), listener);
+
+        appendStringArray(new File(tmpDir, "perms"), ash.getRawPermSettings(0, 0), listener);
 
         try {
             long startTimeMills = System.currentTimeMillis();
@@ -236,6 +242,21 @@ public abstract class DataBackup {
                 br = new BufferedReader(fr);
                 while ((line = br.readLine()) != null) {
                     ag.addOrRemoveUPApps(new String[]{line}, true);
+                }
+                Closer.closeQuietly(fr);
+                Closer.closeQuietly(br);
+            }
+
+            // Perms.
+            if (new File(tmpDir, "perms").exists()) {
+                fr = new InputStreamReader(Files.asByteSource(new File(tmpDir, "perms")).openStream());
+                br = new BufferedReader(fr);
+                while ((line = br.readLine()) != null) {
+                    StringTokenizer t = new StringTokenizer(line, "@");
+                    Logger.d("perms: " + line);
+                    String pkg = t.nextToken();
+                    int code = Integer.parseInt(t.nextToken());
+                    ash.setPermissionControlBlockModeForPkg(code, pkg, AppOpsManagerCompat.MODE_IGNORED);
                 }
                 Closer.closeQuietly(fr);
                 Closer.closeQuietly(br);

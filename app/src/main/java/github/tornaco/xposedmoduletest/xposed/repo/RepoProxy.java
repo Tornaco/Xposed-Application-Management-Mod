@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -20,6 +21,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -51,12 +53,14 @@ public class RepoProxy {
 
     private MapRepo<String, String> componentReplacement, appFocused, appUnFocused;
 
+    private Handler h;
+
     private RepoProxy() {
 
         // Sync in a new handler thread.
         HandlerThread hr = new HandlerThread("Repo proxy");
         hr.start();
-        Handler h = new Handler(hr.getLooper());
+        h = new Handler(hr.getLooper());
 
         ExecutorService io = Executors.newSingleThreadExecutor();
 
@@ -391,6 +395,51 @@ public class RepoProxy {
 
     public MapRepo<String, String> getComponentReplacement() {
         return componentReplacement == null ? MAP_SET_NULL_HACK : componentReplacement;
+    }
+
+    public void backupTo(final String dir) throws RemoteException {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                XposedLog.verbose("backupTo: " + dir);
+                final File dirFile = new File(dir);
+
+                try {
+                    Files.createParentDirs(new File(dirFile, "dummy"));
+                } catch (IOException e) {
+                    XposedLog.wtf("backupTo fail: create dir fail");
+                    return;
+                }
+
+                if (!dirFile.exists()) {
+                    XposedLog.wtf("backupTo fail: target dir not exists");
+                    return;
+                }
+
+                File systemFile = new File(Environment.getDataDirectory(), "system");
+                File sourceDir = new File(systemFile, "tor_apm");
+                if (!sourceDir.exists()) {
+                    sourceDir = new File(systemFile, "tor");
+                }
+
+                github.tornaco.android.common.Collections.consumeRemaining(Files.fileTreeTraverser()
+                        .postOrderTraversal(sourceDir), new Consumer<File>() {
+                    @Override
+                    public void accept(File file) {
+                        try {
+                            Files.copy(file, new File(dirFile, file.getName()));
+                        } catch (IOException e) {
+                            XposedLog.wtf("Fail copy file: " + Log.getStackTraceString(e));
+                        }
+                    }
+                });
+            }
+        };
+        h.post(r);
+    }
+
+    public void restoreFrom(String dir) throws RemoteException {
+
     }
 
     public void deleteAll() {

@@ -284,4 +284,9 @@ interface IAshmanService {
 
      AppSettings retrieveAppSettingsForPackage(String pkg);
      void applyAppSettingsForPackage(String pkg, in AppSettings settings);
+
+     void backupTo(String dir);
+     void restoreFrom(String dir);
+
+     String[] getRawPermSettings(int page, int countInPage);
 }
