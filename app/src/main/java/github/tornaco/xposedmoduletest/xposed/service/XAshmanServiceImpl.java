@@ -1623,12 +1623,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.DENIED_GREEN_APP;
         }
 
-//        Integer serviceUidInt = mPackagesCache.get(servicePkgName);
-//        int serviceUid = serviceUidInt == null ? -1 : serviceUidInt;
-//        // Service targetServicePkg/to same app is allowed.
-//        if (serviceUid == callerUid) {
-//            return CheckResult.SAME_CALLER;
-//        }
+        Integer serviceUidInt = mPackagesCache.get(servicePkgName);
+        int serviceUid = serviceUidInt == null ? -1 : serviceUidInt;
+        // Service targetServicePkg/to same app is allowed.
+        if (serviceUid == callerUid && PkgUtil.isSystemOrPhoneOrShell(serviceUid)) {
+            return CheckResult.SAME_CALLER;
+        }
 
         boolean isOnTop = isPackageRunningOnTop(servicePkgName);
         if (isOnTop) {
@@ -2459,9 +2459,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (!isStartBlockEnabled()) return CheckResult.BROADCAST_CHECK_DISABLED;
 
         // Broadcast targetServicePkg/to same app is allowed.
-//        if (callerUid == receiverUid) {
-//            return CheckResult.SAME_CALLER;
-//        }
+        if (callerUid == receiverUid && PkgUtil.isSystemOrPhoneOrShell(callerUid)) {
+            return CheckResult.SAME_CALLER;
+        }
 
         // FIXME Too slow.
         String receiverPkgName = PkgUtil.pkgForUid(getContext(), receiverUid);
@@ -3529,6 +3529,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     XposedLog.verbose("removeTask, pkgOfThisTask: " + pkgOfThisTask);
 
                     if (pkgOfThisTask != null) {
+
+                        PkgUtil.onAppBringDown(pkgOfThisTask);
 
                         // Tell app guard service to clean up verify res.
                         mAppGuardService.onTaskRemoving(pkgOfThisTask);
@@ -5678,6 +5680,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             String from = mTopPackage.getData();
             if (who != null && !who.equals(from)) {
                 mTopPackage.setData(who);
+                PkgUtil.onAppLaunched(who);
                 postNotifyTopPackageChanged(from, who);
             }
         }

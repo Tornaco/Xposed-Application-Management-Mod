@@ -257,21 +257,35 @@ public class PkgUtil {
         return h;
     }
 
+    private static final Set<String> sRunningApps = new HashSet<>();
+
+    public static void onAppLaunched(String who) {
+        XposedLog.verbose("onAppLaunched: " + who);
+        sRunningApps.add(who);
+    }
+
+    public static void onAppBringDown(String who) {
+        XposedLog.verbose("onAppBringDown: " + who);
+        sRunningApps.remove(who);
+    }
 
     @SuppressWarnings("ConstantConditions")
     public static boolean isAppRunning(Context context, String pkg) {
-        List<ActivityManager.RunningAppProcessInfo> processes =
-                ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE))
-                        .getRunningAppProcesses();
-        int count = processes == null ? 0 : processes.size();
-        for (int i = 0; i < count; i++) {
-            for (String runningPackageName : processes.get(i).pkgList) {
-                if (runningPackageName != null && runningPackageName.equals(pkg)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return sRunningApps.contains(pkg);
+
+//
+//        List<ActivityManager.RunningAppProcessInfo> processes =
+//                ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE))
+//                        .getRunningAppProcesses();
+//        int count = processes == null ? 0 : processes.size();
+//        for (int i = 0; i < count; i++) {
+//            for (String runningPackageName : processes.get(i).pkgList) {
+//                if (runningPackageName != null && runningPackageName.equals(pkg)) {
+//                    return true;
+//                }
+//            }
+//        }
+//        return false;
     }
 
     private static String getFirstTask(Context context) {
@@ -354,6 +368,7 @@ public class PkgUtil {
     private static void onBringDown(String who) {
         BRING_DOWN_PACKAGES.add(who);
         XposedLog.verbose("onBringDown: " + who);
+        onAppBringDown(who);
         synchronized (sLock) {
             if (sPkgBringDownHandler == null) {
                 initBringDownHandler();
