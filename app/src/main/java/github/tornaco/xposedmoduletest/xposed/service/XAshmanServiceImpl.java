@@ -147,10 +147,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private static final String TAG_LK = "LOCK-KILL-";
 
-    private static final boolean DEBUG_BROADCAST = false && BuildConfig.DEBUG;
-    private static final boolean DEBUG_SERVICE = false && BuildConfig.DEBUG;
+    private static final boolean DEBUG_BROADCAST;
+    private static final boolean DEBUG_SERVICE;
     private static final boolean DEBUG_OP = false && BuildConfig.DEBUG;
     private static final boolean DEBUG_COMP = false && BuildConfig.DEBUG;
+
+    static {
+        DEBUG_BROADCAST = DEBUG_SERVICE = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.DEBUG);
+        XposedLog.boot("DEBUG_BROADCAST & DEBUG_SERVICE: " + DEBUG_BROADCAST);
+    }
 
     private static final Set<String> WHITE_LIST = new HashSet<>();
     private static final Set<Pattern> WHITE_LIST_PATTERNS = new HashSet<>();
