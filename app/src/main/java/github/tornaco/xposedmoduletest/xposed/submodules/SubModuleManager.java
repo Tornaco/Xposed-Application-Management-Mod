@@ -112,6 +112,7 @@ public class SubModuleManager {
         addToSubsChecked(new PMSSubModule());
         addToSubsChecked(new TaskMoverSubModuleDelegate());
         addToSubsChecked(new ActivityStartSubModuleDelegate());
+        addToSubsChecked(new LauncherAppServiceSubModule());
 
         addToSubsChecked(new AMSSetFocusedActivitySubModule());
         addToSubsChecked(new ActivityStackSupervisorSetFocusedStackSubModule());
