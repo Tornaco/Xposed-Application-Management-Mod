@@ -23,7 +23,7 @@ public class AppLazySetting extends AppSettingsSwitchTile {
 
     @Override
     boolean getSwitchState() {
-        return getAppSettings().isStart();
+        return getAppSettings().isLazy();
     }
 
     @Override

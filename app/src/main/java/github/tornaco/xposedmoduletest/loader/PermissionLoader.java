@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.model.Permission;
@@ -85,6 +86,11 @@ public interface PermissionLoader {
                     Logger.w("Tem skip per control: " + s);
                     continue;
                 }
+
+//                if (!BuildConfig.DEBUG && code == AppOpsManagerCompat.OP_POST_NOTIFICATION) {
+//                    Logger.w("Tem skip per control: " + s);
+//                    continue;
+//                }
 
                 p.setCode(code);
 

@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
 import android.app.AlertDialog;
-import android.app.AppOpsManager;
 import android.app.IActivityManager;
 import android.app.IAppTask;
 import android.app.IApplicationThread;
@@ -3044,19 +3043,24 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         long id = Binder.clearCallingIdentity();
         try {
             // Apply to appops first.
-            AppOpsManager a = (AppOpsManager) getContext().getSystemService(Context.APP_OPS_SERVICE);
-            if (a != null) {
-                try {
-                    a.setMode(code, mPackagesCache.get(pkg), pkg, mode);
-                } catch (Throwable e) {
-                    XposedLog.wtf("Fail apply appops settings:" + Log.getStackTraceString(e));
+            Integer uid = mPackagesCache.get(pkg);
+            int uidInt = uid == null ? -1 : uid;
+            if (uidInt < 0) {
+                XposedLog.wtf("Fail query uid: " + pkg);
+            } else {
+                // Apply ranker.
+                if (code == AppOpsManagerCompat.OP_POST_NOTIFICATION && mode != AppOpsManagerCompat.MODE_IGNORED) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        mNotificationService.setImportance(pkg, uidInt, NotificationManager.IMPORTANCE_DEFAULT);
+                    }
                 }
             }
 
-            if (mode != AppOpsManagerCompat.MODE_ALLOWED)
+            if (mode != AppOpsManagerCompat.MODE_ALLOWED) {
                 RepoProxy.getProxy().getPerms().add(constructPatternForPermission(code, pkg));
-            else
+            } else {
                 RepoProxy.getProxy().getPerms().remove(constructPatternForPermission(code, pkg));
+            }
         } catch (Exception e) {
             XposedLog.wtf("Error setPermissionControlBlockModeForPkg: " + Log.getStackTraceString(e));
         } finally {
@@ -4071,15 +4075,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         addOrRemoveLazyApps(data, settings.isLazy() ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);
 
         setPermissionControlBlockModeForPkg(AppOpsManagerCompat.OP_WAKE_LOCK,
-                settings.getPkgName(),
+                pkg,
                 settings.isWakeLock() ? AppOpsManagerCompat.MODE_ALLOWED : AppOpsManagerCompat.MODE_IGNORED);
 
         setPermissionControlBlockModeForPkg(AppOpsManagerCompat.OP_SET_ALARM,
-                settings.getPkgName(),
+                pkg,
                 settings.isAlarm() ? AppOpsManagerCompat.MODE_ALLOWED : AppOpsManagerCompat.MODE_IGNORED);
 
         setPermissionControlBlockModeForPkg(AppOpsManagerCompat.OP_START_SERVICE,
-                settings.getPkgName(),
+                pkg,
                 settings.isService() ? AppOpsManagerCompat.MODE_ALLOWED : AppOpsManagerCompat.MODE_IGNORED);
     }
 
@@ -4121,7 +4125,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @BinderCall
     public AppSettings getAppInstalledAutoApplyTemplate() throws RemoteException {
-        return AppSettings.fromJson(SettingsProvider.get().getString("AppInstalledAutoApplyTemplate", null));
+        AppSettings as = AppSettings.fromJson(SettingsProvider.get().getString("AppInstalledAutoApplyTemplate", null));
+        if (as == null) as = AppSettings.builder()
+                .boot(true)
+                .start(true)
+                .trk(true)
+                .rfk(true)
+                .lk(true)
+                .build();
+        return as;
     }
 
     // PLUGIN API END.
@@ -5116,6 +5128,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             SystemSettings.restoreDefault(getContext());
             RepoProxy.getProxy().deleteAll();
             loadConfigFromSettings();
+            SettingsProvider.get().putString("AppInstalledAutoApplyTemplate", "NULL");
         }
 
         // Only show one dialog at one time.

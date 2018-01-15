@@ -34,6 +34,13 @@ public class InstalledAppTemplateSettingsDashboardActivity
     @Override
     AppSettings onRetrieveAppSettings(String pkg) {
         mAppSettings = XAshmanManager.get().getAppInstalledAutoApplyTemplate();
+        if (mAppSettings == null) mAppSettings = AppSettings.builder()
+                .boot(true)
+                .start(true)
+                .trk(true)
+                .rfk(true)
+                .lk(true)
+                .build();
         return mAppSettings;
     }
 

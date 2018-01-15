@@ -19,6 +19,10 @@ script:
 - "./gradlew clean"
 - "./gradlew assembleRelease"
 - cp app/build/outputs/apk/release/app-release.apk app/app-release-stable.apk
+- cp -f ./build_var_controls/build_var_config_debug ./build_var_config
+- "./gradlew clean"
+- "./gradlew assembleRelease"
+- cp app/build/outputs/apk/release/app-release.apk app/app-release-debug.apk
 - cp -f ./build_var_controls/build_var_config_stable_play ./build_var_config
 - "./gradlew clean"
 - "./gradlew assembleRelease"
@@ -55,6 +59,7 @@ deploy:
   - app/app-release-stable.apk
   - app/app-release-stable-play.apk
   - app/app-release-aio.apk
+  - app/app-release-debug.apk
   skip_cleanup: true
   on:
     repo: Tornaco/X-APM

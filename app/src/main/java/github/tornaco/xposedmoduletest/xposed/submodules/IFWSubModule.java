@@ -48,6 +48,7 @@ public class IFWSubModule extends AndroidSubModule {
                     param.setResult(getBridge().checkService(componentName, callerID));
                 }
             });
+            XposedLog.boot("hookIntentFireWall OK:" + unHooks);
 
             Set unHooks2 = XposedBridge.hookAllMethods(ams, "checkBroadcast", new XC_MethodHook() {
                 @Override
@@ -70,7 +71,7 @@ public class IFWSubModule extends AndroidSubModule {
                     param.setResult(getBridge().checkBroadcast(action, recUid, callerUid));
                 }
             });
-            XposedLog.verbose("hookIntentFireWall OK:" + unHooks);
+            XposedLog.boot("hookIntentFireWall2 OK:" + unHooks2);
             setStatus(unhooksToStatus(unHooks));
             setStatus(unhooksToStatus(unHooks2));
         } catch (Exception e) {
