@@ -22,6 +22,7 @@ import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.Singleton;
+import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 
@@ -1148,6 +1149,22 @@ public class XAshmanManager {
             return mService.isForceDozeEnabled();
         } catch (RemoteException e) {
             return false;
+        }
+    }
+
+    public AppSettings retrieveAppSettingsForPackage(String pkg) {
+        try {
+            return mService.retrieveAppSettingsForPackage(pkg);
+        } catch (RemoteException e) {
+            return AppSettings.builder().pkgName(pkg).appName("NULL").build();
+        }
+    }
+
+    public void applyAppSettingsForPackage(String pkg, AppSettings settings) {
+        try {
+            mService.applyAppSettingsForPackage(pkg, settings);
+        } catch (RemoteException e) {
+
         }
     }
 }

@@ -85,8 +85,8 @@
     <string name="title_service">服务</string>
     <string name="title_app">应用</string>
     <string name="title_app_guard">应用锁</string>
-    <string name="title_app_boot">自启</string>
-    <string name="title_app_auto_start">关联启动</string>
+    <string name="title_app_boot">自启限制</string>
+    <string name="title_app_auto_start">关联启动限制</string>
     <string name="title_clearn">加速</string>
     <string name="title_app_lock_kill">锁屏清理</string>
     <string name="title_app_rf_kill">返回强退</string>
@@ -362,5 +362,10 @@
     <string name="app_level_media">媒体应用</string>
     <string name="app_level_phone">电话应用</string>
     <string name="app_level_core">核心应用</string>
+    <string name="title_per_app_settings">单项配置</string>
+
+    <string name="app_ops_wakelock">允许获取唤醒锁</string>
+    <string name="app_ops_alarm">允许设置定时器</string>
+    <string name="app_ops_service">允许启动服务</string>
 
 </resources>

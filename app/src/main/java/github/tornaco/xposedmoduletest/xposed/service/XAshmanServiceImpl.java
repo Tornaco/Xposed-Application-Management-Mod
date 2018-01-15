@@ -103,6 +103,7 @@ import github.tornaco.xposedmoduletest.util.GsonUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
@@ -3993,6 +3994,48 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void addOrRemoveUPApps(String[] packages, boolean add) throws RemoteException {
         mAppGuardService.addOrRemoveUPApps(packages, add);
+    }
+
+    @Override
+    @BinderCall
+    public AppSettings retrieveAppSettingsForPackage(String pkg) throws RemoteException {
+        return AppSettings.builder()
+                .appLevel(getAppLevel(pkg))
+                .applock(isInStringRepo(RepoProxy.getProxy().getLocks(), pkg))
+                .blur(isInStringRepo(RepoProxy.getProxy().getBlurs(), pkg))
+                .uninstall(isInStringRepo(RepoProxy.getProxy().getUninstall(), pkg))
+                .privacy(isInStringRepo(RepoProxy.getProxy().getPrivacy(), pkg))
+
+                .boot(isInStringRepo(RepoProxy.getProxy().getBoots(), pkg))
+                .start(isInStringRepo(RepoProxy.getProxy().getStarts(), pkg))
+                .lk(isInStringRepo(RepoProxy.getProxy().getLks(), pkg))
+                .rfk(isInStringRepo(RepoProxy.getProxy().getRfks(), pkg))
+                .trk(isInStringRepo(RepoProxy.getProxy().getTrks(), pkg))
+                .lazy(isInStringRepo(RepoProxy.getProxy().getLazy(), pkg))
+
+                .pkgName(pkg)
+                .appName(String.valueOf(PkgUtil.loadNameByPkgName(getContext(), pkg)))
+                .build();
+    }
+
+    @Override
+    @BinderCall
+    public void applyAppSettingsForPackage(String pkg, AppSettings settings) throws RemoteException {
+        enforceCallingPermissions();
+
+        String[] data = new String[]{pkg};
+
+        addOrRemoveLockApps(data, settings.isApplock());
+        addOrRemoveBlurApps(data, settings.isBlur());
+        addOrRemoveUPApps(data, settings.isUninstall());
+        addOrRemoveFromPrivacyList(pkg, settings.isPrivacy() ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);
+
+        addOrRemoveBootBlockApps(data, settings.isBoot() ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);
+        addOrRemoveStartBlockApps(data, settings.isStart() ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);
+        addOrRemoveLKApps(data, settings.isLk() ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);
+        addOrRemoveRFKApps(data, settings.isRfk() ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);
+        addOrRemoveTRKApps(data, settings.isTrk() ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);
+        addOrRemoveLazyApps(data, settings.isLazy() ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);
     }
 
     // PLUGIN API END.

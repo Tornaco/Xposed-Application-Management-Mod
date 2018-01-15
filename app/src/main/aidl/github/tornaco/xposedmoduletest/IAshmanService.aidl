@@ -7,6 +7,7 @@ import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 
+import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.PackageSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
@@ -280,4 +281,7 @@ interface IAshmanService {
      // void onTaskRemoving(String pkg);
 
         // APPGUARD API END.
+
+     AppSettings retrieveAppSettingsForPackage(String pkg);
+     void applyAppSettingsForPackage(String pkg, in AppSettings settings);
 }

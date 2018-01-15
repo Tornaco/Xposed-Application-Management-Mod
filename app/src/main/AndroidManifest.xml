@@ -244,6 +244,11 @@
             android:label="@string/title_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
+            android:name=".ui.activity.app.PerAppSettingsDashboardActivity"
+
+            android:label="@string/title_per_app_settings"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
             android:name=".ui.activity.app.AboutDashboardActivity"
 
             android:label="@string/title_about"

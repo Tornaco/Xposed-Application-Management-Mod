@@ -47,6 +47,11 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_app_settings"
+        android:title="@string/title_per_app_settings"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_comp_details"
         android:title="@string/title_comp_details"
         app:showAsAction="never" />
