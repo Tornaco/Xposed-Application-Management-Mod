@@ -155,11 +155,35 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        final DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
+
+        drawer.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
+
+            }
+
+            @Override
+            public void onDrawerOpened(@NonNull View drawerView) {
+                boolean guideRead = AppSettings.isGuideRead(getContext());
+                TextView userLevel = drawer.findViewById(R.id.user_name);
+                userLevel.setText(guideRead ? R.string.user_level_middle : R.string.user_level_low);
+            }
+
+            @Override
+            public void onDrawerClosed(@NonNull View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -246,6 +270,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_help) {
             navigateToWebPage(getString(R.string.app_wiki_url));
+            AppSettings.setGuideRead(getContext(), true);
         }
         if (item.getItemId() == R.id.action_update_log) {
             navigateToWebPage(getString(R.string.app_rel_url));

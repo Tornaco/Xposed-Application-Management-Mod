@@ -48,6 +48,19 @@ public class AppSettings extends Observable {
         return first;
     }
 
+    public static boolean isGuideRead(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(AppKey.GUIDE_READ, false);
+    }
+
+    public static void setGuideRead(Context context, boolean read) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(AppKey.GUIDE_READ, read)
+                .apply();
+
+    }
+
     public static void setFirstSee(Context context, String tag) {
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit()

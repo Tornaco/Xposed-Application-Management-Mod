@@ -32,7 +32,7 @@
     <string name="title_setup_code_new">输入新的密码</string>
     <string name="title_setup_code_invalid">密码不符合规范</string>
     <string name="title_setup_code_mismatch">两次输入不一致</string>
-    <string name="title_help">常见问题</string>
+    <string name="title_help">新手必读（非常重要）</string>
     <string name="title_donate">捐赠</string>
     <string name="title_show_system_app">显示系统应用</string>
     <string name="first_run_title">XXXXX？!</string>
@@ -368,5 +368,7 @@
     <string name="app_ops_alarm">允许设置定时器</string>
     <string name="app_ops_service">允许启动服务</string>
     <string name="title_per_app_template">模板设置</string>
+    <string name="user_level_low">小菜鸟</string>
+    <string name="user_level_middle">初探</string>
 
 </resources>
