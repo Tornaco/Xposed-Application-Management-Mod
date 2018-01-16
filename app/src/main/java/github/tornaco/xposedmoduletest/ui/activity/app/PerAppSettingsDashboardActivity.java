@@ -116,6 +116,11 @@ public class PerAppSettingsDashboardActivity extends WithWithCustomTabActivity {
         }
 
         @Override
+        protected int getLayoutId() {
+            return R.layout.dashboard_fab_workaround;
+        }
+
+        @Override
         public void onAttach(Context context) {
             super.onAttach(context);
             mPkg = getArguments().getString("pkg_name", null);
