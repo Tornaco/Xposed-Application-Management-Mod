@@ -15,7 +15,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.model.Permission;
@@ -58,6 +57,9 @@ public interface PermissionLoader {
             }
 
             String[] decleared = PkgUtil.getAllDeclaredPermissions(context, pkg);
+            if (decleared == null || decleared.length == 0) {
+                return new ArrayList<>(0);
+            }
             Set<String> permSet = Sets.newHashSet(decleared);
 
             int OP_SIZE = AppOpsManagerCompat._NUM_OP_DEF;

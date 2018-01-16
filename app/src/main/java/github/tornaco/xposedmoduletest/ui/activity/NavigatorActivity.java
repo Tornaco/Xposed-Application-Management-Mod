@@ -222,47 +222,50 @@ public class NavigatorActivity extends WithWithCustomTabActivity
     }
 
     private void initFirstRun() {
+        try {
+            if (AppSettings.isFirstRun(getApplicationContext())) {
+                UserGiudeActivity.start(getActivity());
 
-        if (AppSettings.isFirstRun(getApplicationContext())) {
-            UserGiudeActivity.start(getActivity());
 
+                new AlertDialog.Builder(NavigatorActivity.this)
+                        .setTitle(R.string.title_app_update_log)
+                        .setMessage(getString(R.string.message_first_run))
+                        .setCancelable(false)
+                        .setNeutralButton(R.string.no_remind, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                AppSettings.setFirstRun(getApplicationContext());
+                            }
+                        })
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toolbar toolbar = findViewById(R.id.toolbar);
 
-            new AlertDialog.Builder(NavigatorActivity.this)
-                    .setTitle(R.string.title_app_update_log)
-                    .setMessage(getString(R.string.message_first_run))
-                    .setCancelable(false)
-                    .setNeutralButton(R.string.no_remind, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            AppSettings.setFirstRun(getApplicationContext());
-                        }
-                    })
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Toolbar toolbar = findViewById(R.id.toolbar);
-
-                            new MaterialIntroView.Builder(getActivity())
-                                    .enableDotAnimation(true)
-                                    .enableIcon(false)
-                                    .setFocusGravity(FocusGravity.RIGHT)
-                                    .setFocusType(Focus.MINIMUM)
-                                    .setDelayMillis(500)
-                                    .enableFadeAnimation(true)
-                                    .performClick(true)
-                                    .setInfoText(getString(R.string.app_intro_menu))
-                                    .setTarget(toolbar)
-                                    .setUsageId("nav_menu")
-                                    .show();
-                        }
-                    })
-                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                        }
-                    })
-                    .show();
+                                new MaterialIntroView.Builder(getActivity())
+                                        .enableDotAnimation(true)
+                                        .enableIcon(false)
+                                        .setFocusGravity(FocusGravity.RIGHT)
+                                        .setFocusType(Focus.MINIMUM)
+                                        .setDelayMillis(500)
+                                        .enableFadeAnimation(true)
+                                        .performClick(true)
+                                        .setInfoText(getString(R.string.app_intro_menu))
+                                        .setTarget(toolbar)
+                                        .setUsageId("nav_menu")
+                                        .show();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                            }
+                        })
+                        .show();
+            }
+        } catch (Throwable e) {
+            Toast.makeText(getActivity(), R.string.init_first_run_fail, Toast.LENGTH_SHORT).show();
         }
     }
 

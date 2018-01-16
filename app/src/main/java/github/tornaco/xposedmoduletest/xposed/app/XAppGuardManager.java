@@ -75,7 +75,7 @@ public class XAppGuardManager {
     }
 
     private void ensureService() {
-        Preconditions.checkNotNull(mService, "Service not available");
+        Preconditions.checkNotNull(mService, "Service not available(未激活)");
     }
 
     public boolean isEnabled() {

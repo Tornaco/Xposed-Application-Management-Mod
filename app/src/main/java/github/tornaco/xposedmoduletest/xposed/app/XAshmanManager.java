@@ -101,7 +101,7 @@ public class XAshmanManager {
     }
 
     private void ensureService() {
-        Preconditions.checkNotNull(mService, "Service not available");
+        Preconditions.checkNotNull(mService, "Service not available(未激活)");
     }
 
     public int getAppLevel(String pkg) {
@@ -673,6 +673,7 @@ public class XAshmanManager {
     }
 
     public void setPrivacyEnabled(boolean enable) {
+        ensureService();
         try {
             mService.setPrivacyEnabled(enable);
         } catch (RemoteException e) {
@@ -681,6 +682,7 @@ public class XAshmanManager {
     }
 
     public boolean isPrivacyEnabled() {
+        ensureService();
         try {
             return mService.isPrivacyEnabled();
         } catch (RemoteException e) {
