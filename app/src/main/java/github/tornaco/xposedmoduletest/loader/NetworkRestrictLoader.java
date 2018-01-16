@@ -4,13 +4,11 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
 import com.google.common.collect.Lists;
 
 import org.newstand.logger.Logger;
 
-import java.io.File;
 import java.util.Comparator;
 import java.util.List;
 
@@ -61,27 +59,13 @@ public interface NetworkRestrictLoader {
             }
 
             for (android.content.pm.PackageInfo packageInfo : packages) {
-                String name = packageInfo.applicationInfo.loadLabel(pm).toString();
-                if (TextUtils.isEmpty(name)) {
-                    name = packageInfo.packageName;
-                }
 
-                if ("android.uid.system".equals(packageInfo.sharedUserId)) {
-                    continue;
-                }
-
-                // Check if app file exists.
-                String appPath = PkgUtil.pathOf(context, packageInfo.packageName);
-                if (appPath == null) continue;
-                File f = new File(appPath);
-                if (!f.exists()) continue;
+                String name = String.valueOf(PkgUtil.loadNameByPkgName(context, packageInfo.packageName));
 
                 boolean isSystemApp = (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
                 if (isSystemApp && !showSystemApp) continue;
 
                 int uid = PkgUtil.uidForPkg(context, packageInfo.packageName);
-
-                if (uid == 1000) continue;// This is core system uid, ignore.
 
                 NetworkRestrictionItem item = new NetworkRestrictionItem();
                 item.setSystemApp(isSystemApp);
