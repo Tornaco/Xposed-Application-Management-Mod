@@ -144,7 +144,10 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
 
     @Override
     public void onItemCheckChanged(int total, int checked) {
-
+        swipeRefreshLayout.setEnabled(checked == 0);
+        if (checked == 0) {
+            commonPackageInfoAdapter.onBackPressed();
+        }
     }
 
     private void onRequestClearItems() {
@@ -271,6 +274,8 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
                 fab.show();
             }
         });
+
+        swipeRefreshLayout.setEnabled(false);
     }
 
     @Override
@@ -285,6 +290,8 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
                 startLoading();
             }
         });
+
+        swipeRefreshLayout.setEnabled(true);
     }
 
     @Override

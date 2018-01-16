@@ -264,8 +264,8 @@ public class PkgUtil {
         sRunningApps.add(who);
     }
 
-    public static void onAppBringDown(String who) {
-        XposedLog.verbose("onAppBringDown: " + who);
+    public static void onAppBringDown(String who, String why) {
+        XposedLog.verbose("onAppBringDown: " + who + ", reason: " + why);
         sRunningApps.remove(who);
     }
 
@@ -368,7 +368,7 @@ public class PkgUtil {
     private static void onBringDown(String who) {
         BRING_DOWN_PACKAGES.add(who);
         XposedLog.verbose("onBringDown: " + who);
-        onAppBringDown(who);
+        onAppBringDown(who, "onBringDown");
         synchronized (sLock) {
             if (sPkgBringDownHandler == null) {
                 initBringDownHandler();

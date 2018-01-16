@@ -53,8 +53,7 @@ class RuntimeInitSubModule extends AndroidSubModule {
 
                             // Now report to ash man.
                             XAshmanManager xAshmanManager = XAshmanManager.get();
-                            if (xAshmanManager.isServiceAvailable()
-                                    && xAshmanManager.isAppCrashDumpEnabled()) {
+                            if (xAshmanManager.isServiceAvailable()) {
                                 // Wrap err log to xp log.
                                 Thread t = (Thread) param.args[0];
                                 Throwable e = (Throwable) param.args[1];

@@ -60,7 +60,7 @@ public interface PermissionLoader {
             String[] decleared = PkgUtil.getAllDeclaredPermissions(context, pkg);
             Set<String> permSet = Sets.newHashSet(decleared);
 
-            int OP_SIZE = AppOpsManagerCompat._NUM_OP;
+            int OP_SIZE = AppOpsManagerCompat._NUM_OP_DEF;
 
             final List<Permission> permissions = new ArrayList<>();
 

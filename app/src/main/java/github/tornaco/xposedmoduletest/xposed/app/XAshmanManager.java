@@ -66,9 +66,9 @@ public class XAshmanManager {
     public interface AppLevel {
         int THIRD_PARTY = 0;
         int SYSTEM = 1;
-        int SYSTEM_UID = 2;
+        int MEDIA_UID = 2;
         int PHONE_UID = 3;
-        int MEDIA_UID = 4;
+        int SYSTEM_UID = 4;
     }
 
     public static final String SERVICE_NAME =

@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.ui.activity.perm;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,13 +12,18 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import java.util.List;
 
+import github.tornaco.android.common.Collections;
+import github.tornaco.android.common.Consumer;
 import github.tornaco.android.common.util.ColorUtil;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.loader.PermissionLoader;
 import github.tornaco.xposedmoduletest.model.Permission;
@@ -25,6 +31,7 @@ import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.WithRecyclerView;
 import github.tornaco.xposedmoduletest.ui.adapter.PermissionOpsAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
@@ -151,4 +158,59 @@ public class Apps2OpListActivity extends WithRecyclerView {
         textView.setVisibility(View.GONE);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_apps2ops, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_allow_all) {
+            applyBatch(true);
+        }
+        if (item.getItemId() == R.id.action_ignore_all) {
+            applyBatch(false);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void applyBatch(final boolean b) {
+        final ProgressDialog p = new ProgressDialog(getActivity());
+        p.setTitle(R.string.message_saving_changes);
+        p.setIndeterminate(true);
+        p.setCancelable(false);
+        p.show();
+        XExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Collections.consumeRemaining(permissionOpsAdapter.getData(),
+                            new Consumer<Permission>() {
+                                @Override
+                                public void accept(final Permission permission) {
+                                    int mode = b ? AppOpsManagerCompat.MODE_ALLOWED
+                                            : AppOpsManagerCompat.MODE_IGNORED;
+                                    XAshmanManager.get().setPermissionControlBlockModeForPkg(permission.getCode(), mPkg, mode);
+                                    runOnUiThreadChecked(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            p.setMessage(permission.getName());
+                                        }
+                                    });
+                                }
+                            });
+                } finally {
+                    runOnUiThreadChecked(new Runnable() {
+                        @Override
+                        public void run() {
+                            p.dismiss();
+
+                            startLoading();
+                        }
+                    });
+                }
+            }
+        });
+    }
 }

@@ -358,6 +358,7 @@ public final class AppOpsManagerCompat {
      * @hide
      */
     public static final int _NUM_OP = 77;
+    public static final int _NUM_OP_DEF = 70;
 
     /**
      * Access to coarse location information.

@@ -1270,17 +1270,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public int getAppLevel(String pkg) throws RemoteException {
-
-        if (MEDIA_UID_APPS.contains(pkg)) {
-            return XAshmanManager.AppLevel.MEDIA_UID;
-        }
+    public int getAppLevel(String pkg) {
         if (SYSTEM_UID_APPS.contains(pkg)) {
             return XAshmanManager.AppLevel.SYSTEM_UID;
+        }
+        if (MEDIA_UID_APPS.contains(pkg)) {
+            return XAshmanManager.AppLevel.MEDIA_UID;
         }
         if (PHONE_UID_APPS.contains(pkg)) {
             return XAshmanManager.AppLevel.PHONE_UID;
         }
+
+        // Do not change this order.
         if (SYSTEM_APPS.contains(pkg)) {
             return XAshmanManager.AppLevel.SYSTEM;
         }
@@ -1629,9 +1630,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         Integer serviceUidInt = mPackagesCache.get(servicePkgName);
         int serviceUid = serviceUidInt == null ? -1 : serviceUidInt;
-        // Service targetServicePkg/to same app is allowed.
+
+        // Early check.
         if (serviceUid == callerUid && PkgUtil.isSystemOrPhoneOrShell(serviceUid)) {
             return CheckResult.SAME_CALLER;
+        }
+
+        // Same app for system-core/media/phone is allowed.
+        if (serviceUid == callerUid) {
+            int appLevel = getAppLevel(servicePkgName);
+            if (appLevel > XAshmanManager.AppLevel.SYSTEM) {
+                return CheckResult.SAME_CALLER_CORE;
+            }
         }
 
         boolean isOnTop = isPackageRunningOnTop(servicePkgName);
@@ -3534,7 +3544,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
                     if (pkgOfThisTask != null) {
 
-                        PkgUtil.onAppBringDown(pkgOfThisTask);
+                        PkgUtil.onAppBringDown(pkgOfThisTask, "removeTask");
 
                         // Tell app guard service to clean up verify res.
                         mAppGuardService.onTaskRemoving(pkgOfThisTask);
@@ -5146,6 +5156,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         @SuppressWarnings("ConstantConditions")
         @Override
         public void onApplicationUncaughtException(String packageName, String thread, String exception, final String trace) {
+
+            // This package is going to die.
+            PkgUtil.onAppBringDown(packageName, "onApplicationUncaughtException");
+
             if (mCrashDialogShowing) return;
 
             if (!mShowAppCrashDumpEnabled.get()) {
@@ -6027,6 +6041,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public static final CheckResult APP_RUNNING = new CheckResult(true, "APP_RUNNING", true);
         public static final CheckResult APP_RUNNING_TOP = new CheckResult(true, "APP_RUNNING_TOP", true);
         public static final CheckResult SAME_CALLER = new CheckResult(true, "SAME_CALLER", true);
+        public static final CheckResult SAME_CALLER_CORE = new CheckResult(true, "SAME_CALLER_CORE", true);
 
         public static final CheckResult BAD_ARGS = new CheckResult(true, "BAD_ARGS", true);
         public static final CheckResult USER_ALLOWED = new CheckResult(true, "USER_ALLOWED", true);
