@@ -48,7 +48,7 @@ public class RestoreDefault extends QuickTile {
                                     XExecutor.execute(new Runnable() {
                                         @Override
                                         public void run() {
-                                            Logger.e("Mount: " + Shell.SU.run("mount -o remount,rw /data").isSuccessful());
+                                            // Logger.e("Mount: " + Shell.SU.run("mount -o remount,rw /data").isSuccessful());
                                             final boolean res = Shell.SU.run("rm -rf data/system/tor")
                                                     .isSuccessful();
                                             Shell.SU.run("rm -rf data/system/tor_apm");
