@@ -1084,7 +1084,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
         public void setVerifySettings(final VerifySettings settings) {
             mVerifySettings = Preconditions.checkNotNull(settings);
-            mWorkingService.execute(new Runnable() {
+            mWorkingService.execute(new ErrorCatchRunnable(new Runnable() {
 
                 public void run() {
                     // Saving to db.
@@ -1095,7 +1095,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                         XposedLog.verbose("setVerifySettings, putting: " + js);
                     }
                 }
-            });
+            }, "setVerifySettings"));
         }
 
         public void setResult(int transactionID, int res) {

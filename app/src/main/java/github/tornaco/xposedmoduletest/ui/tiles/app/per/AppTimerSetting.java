@@ -23,15 +23,15 @@ public class AppTimerSetting extends AppSettingsSwitchTile {
 
     @Override
     boolean getSwitchState() {
-        return !getAppSettings().isAlarm();
+        return getAppSettings().isAlarm();
     }
 
     @Override
     void applySwitchState(boolean checked) {
         super.applySwitchState(checked);
-        getAppSettings().setAlarm(!checked);
+        getAppSettings().setAlarm(checked);
         XAshmanManager.get().setPermissionControlBlockModeForPkg(AppOpsManagerCompat.OP_SET_ALARM,
                 getAppSettings().getPkgName(),
-                checked ? AppOpsManagerCompat.MODE_ALLOWED : AppOpsManagerCompat.MODE_IGNORED);
+                checked ? AppOpsManagerCompat.MODE_IGNORED : AppOpsManagerCompat.MODE_ALLOWED);
     }
 }

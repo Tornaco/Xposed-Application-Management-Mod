@@ -270,22 +270,27 @@ public class PkgUtil {
     }
 
     @SuppressWarnings("ConstantConditions")
-    public static boolean isAppRunning(Context context, String pkg) {
-        return sRunningApps.contains(pkg);
+    public static boolean isAppRunning(Context context, String pkg, boolean systemApp) {
 
-//
-//        List<ActivityManager.RunningAppProcessInfo> processes =
-//                ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE))
-//                        .getRunningAppProcesses();
-//        int count = processes == null ? 0 : processes.size();
-//        for (int i = 0; i < count; i++) {
-//            for (String runningPackageName : processes.get(i).pkgList) {
-//                if (runningPackageName != null && runningPackageName.equals(pkg)) {
-//                    return true;
-//                }
-//            }
-//        }
-//        return false;
+        // Use our running apps cal only for 3-rd app.
+        if (!systemApp) {
+            return sRunningApps.contains(pkg);
+        }
+
+
+        // This is system app.
+        List<ActivityManager.RunningAppProcessInfo> processes =
+                ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE))
+                        .getRunningAppProcesses();
+        int count = processes == null ? 0 : processes.size();
+        for (int i = 0; i < count; i++) {
+            for (String runningPackageName : processes.get(i).pkgList) {
+                if (runningPackageName != null && runningPackageName.equals(pkg)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static String getFirstTask(Context context) {

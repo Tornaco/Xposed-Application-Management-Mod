@@ -7,6 +7,7 @@ import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 
+import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.PackageSettings;
@@ -292,4 +293,7 @@ interface IAshmanService {
 
      void setAppInstalledAutoApplyTemplate(in AppSettings settings);
      AppSettings getAppInstalledAutoApplyTemplate();
+
+     String[] getOpLogPackages();
+     List<OpLog> getOpLogForPackage(String packageName);
 }

@@ -52,6 +52,7 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
+import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.view.KeyEvent;
 import android.view.WindowManager;
@@ -107,6 +108,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
+import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.repo.SetRepo;
@@ -178,6 +180,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final Map<String, Integer> mPackagesCache = new HashMap<>();
 
     private final Map<String, BlockRecord2> mBlockRecords = new HashMap<>();
+
+    private final Map<String, SparseArray<OpLog>> mOpLogs = new HashMap<>();
 
     private Handler mainHandler, mLazyHandler, mDozeHandler;
 
@@ -1512,7 +1516,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return true;
         }
 
-        if (isWhiteSysAppEnabled() && isInSystemAppList(packageName)) {
+        boolean isSystemApp = isInSystemAppList(packageName);
+        if (isWhiteSysAppEnabled() && isSystemApp) {
             XposedLog.verbose("checkRestartService: allow system");
             return true;
         }
@@ -1551,7 +1556,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return true;
         }
 
-        if (PkgUtil.isAppRunning(getContext(), packageName)) {
+        if (PkgUtil.isAppRunning(getContext(), packageName, isSystemApp)) {
             XposedLog.verbose("checkRestartService: allow is running");
             return true;
         }
@@ -1576,7 +1581,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.WHITE_LISTED;
         }
 
-        if (isWhiteSysAppEnabled() && isInSystemAppList(servicePkgName)) {
+        boolean isSystemApp = isInSystemAppList(servicePkgName);
+        if (isWhiteSysAppEnabled() && isSystemApp) {
             return CheckResult.SYSTEM_APP;
         }
 
@@ -1649,7 +1655,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.APP_RUNNING_TOP;
         }
 
-        if (PkgUtil.isAppRunning(getContext(), servicePkgName)) {
+        if (PkgUtil.isAppRunning(getContext(), servicePkgName, isSystemApp)) {
             return CheckResult.APP_RUNNING;
         }
 
@@ -2503,7 +2509,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.DENIED_LAZY;
         }
 
-        if (isWhiteSysAppEnabled() && isInSystemAppList(receiverPkgName)) {
+        boolean isSystemApp = isInSystemAppList(receiverPkgName);
+        if (isWhiteSysAppEnabled() && isSystemApp) {
             return CheckResult.SYSTEM_APP;
         }
 
@@ -2515,7 +2522,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.JUST_BRING_DOWN;
         }
 
-        if (PkgUtil.isAppRunning(getContext(), receiverPkgName)) {
+        if (PkgUtil.isAppRunning(getContext(), receiverPkgName, isSystemApp)) {
             return CheckResult.APP_RUNNING;
         }
 
@@ -2621,7 +2628,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
         };
 
-        mLoggingService.execute(r);
+        mLoggingService.execute(new ErrorCatchRunnable(r, "logServiceEventToMemory"));
 
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_NOTIFYSTARTBLOCK, serviceEvent.getPkg()).sendToTarget();
     }
@@ -2655,7 +2662,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 addBlockRecord(blockRecord2);
             }
         };
-        mLoggingService.execute(r);
+        mLoggingService.execute(new ErrorCatchRunnable(r, "logBroadcastEventToMemory"));
+    }
+
+    private void logOpEventToMemory(final String pkg, final int op, final int mode) {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                onAppOp(pkg, op, mode);
+            }
+        };
+        mLoggingService.execute(new ErrorCatchRunnable(r, "logOpEventToMemory"));
     }
 
     private void registerReceiver() {
@@ -4095,15 +4112,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         setPermissionControlBlockModeForPkg(AppOpsManagerCompat.OP_WAKE_LOCK,
                 pkg,
-                settings.isWakeLock() ? AppOpsManagerCompat.MODE_ALLOWED : AppOpsManagerCompat.MODE_IGNORED);
+                settings.isWakeLock() ? AppOpsManagerCompat.MODE_IGNORED : AppOpsManagerCompat.MODE_ALLOWED);
 
         setPermissionControlBlockModeForPkg(AppOpsManagerCompat.OP_SET_ALARM,
                 pkg,
-                settings.isAlarm() ? AppOpsManagerCompat.MODE_ALLOWED : AppOpsManagerCompat.MODE_IGNORED);
+                settings.isAlarm() ? AppOpsManagerCompat.MODE_IGNORED : AppOpsManagerCompat.MODE_ALLOWED);
 
         setPermissionControlBlockModeForPkg(AppOpsManagerCompat.OP_START_SERVICE,
                 pkg,
-                settings.isService() ? AppOpsManagerCompat.MODE_ALLOWED : AppOpsManagerCompat.MODE_IGNORED);
+                settings.isService() ? AppOpsManagerCompat.MODE_IGNORED : AppOpsManagerCompat.MODE_ALLOWED);
     }
 
     @Override
@@ -4265,6 +4282,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public int checkOperation(int code, int uid, String packageName, String reason) {
+        int mode = checkOperationInternal(code, uid, packageName, reason);
+        // FIXME This api is not ready.
+        if (BuildConfig.DEBUG && AppOpsManagerCompat.isPrivacyOp(code)) {
+            logOpEventToMemory(packageName, code, mode);
+        }
+        return mode;
+    }
+
+    private int checkOperationInternal(int code, int uid, String packageName, String reason) {
         if (packageName == null) return AppOpsManagerCompat.MODE_ALLOWED;
 
         if (BuildConfig.APPLICATION_ID.equals(packageName)) return AppOpsManagerCompat.MODE_ALLOWED;
@@ -4844,6 +4870,64 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private BlockRecord2 getBlockRecord(String pkg) {
         synchronized (mBlockRecords) {
             return mBlockRecords.get(pkg);
+        }
+    }
+
+    private void onAppOp(String pkg, int op, int mode) {
+        synchronized (mOpLogs) {
+            SparseArray<OpLog> opLogSparseArray = mOpLogs.get(pkg);
+            if (opLogSparseArray != null) {
+                OpLog log = opLogSparseArray.get(op);
+                if (log != null) {
+                    log.setTimes(log.getTimes() + 1);
+                    log.setWhen(System.currentTimeMillis());
+                } else {
+                    log = OpLog.builder()
+                            .code(op)
+                            .mode(mode)
+                            .packageName(pkg)
+                            .times(0)
+                            .when(System.currentTimeMillis())
+                            .build();
+                    opLogSparseArray.put(op, log);
+                }
+            } else {
+                opLogSparseArray = new SparseArray<>();
+                OpLog log = OpLog.builder()
+                        .code(op)
+                        .mode(mode)
+                        .packageName(pkg)
+                        .times(0)
+                        .when(System.currentTimeMillis())
+                        .build();
+                opLogSparseArray.put(op, log);
+                mOpLogs.put(pkg, opLogSparseArray);
+            }
+        }
+    }
+
+    @BinderCall
+    @Override
+    public String[] getOpLogPackages() {
+        synchronized (mOpLogs) {
+            return convertObjectArrayToStringArray(mOpLogs.keySet().toArray());
+        }
+    }
+
+    @BinderCall
+    @Override
+    public List<OpLog> getOpLogForPackage(String packageName) {
+        synchronized (mOpLogs) {
+            SparseArray<OpLog> s = mOpLogs.get(packageName);
+            if (s == null || s.size() == 0) {
+                return new ArrayList<>(0);
+            }
+            List<OpLog> opLogs = new ArrayList<>(s.size());
+            for (int i = 0; i < s.size(); i++) {
+                OpLog v = s.valueAt(i);
+                opLogs.add(v);
+            }
+            return opLogs;
         }
     }
 

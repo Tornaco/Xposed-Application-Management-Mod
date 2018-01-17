@@ -20,11 +20,13 @@ import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.util.ArrayUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
+import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 
 /**
  * Created by guohao4 on 2017/11/9.
@@ -1207,6 +1209,22 @@ public class XAshmanManager {
             return mService.getAppInstalledAutoApplyTemplate();
         } catch (RemoteException e) {
             return AppSettings.fromJson("XXX");
+        }
+    }
+
+    public String[] getOpLogPackages() {
+        try {
+            return mService.getOpLogPackages();
+        } catch (RemoteException e) {
+            return ArrayUtil.emptyStringArray();
+        }
+    }
+
+    public List<OpLog> getOpLogForPackage(String packageName) {
+        try {
+            return mService.getOpLogForPackage(packageName);
+        } catch (RemoteException e) {
+            return new ArrayList<>(0);
         }
     }
 }

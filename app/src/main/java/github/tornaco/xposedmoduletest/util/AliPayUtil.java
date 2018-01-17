@@ -34,6 +34,7 @@ public class AliPayUtil {
     private static boolean startPayByIntent(Context context, String url) {
         try {
             Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
             return true;
         } catch (URISyntaxException | ActivityNotFoundException e) {

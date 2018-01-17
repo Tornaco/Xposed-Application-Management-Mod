@@ -3,7 +3,7 @@
 
     <!-- Main colors -->
     <color name="black">#000</color>
-    <color name="semitransparent_black">#bb000000</color>
+    <color name="semitransparent_black">#000000</color>
     <color name="white">#fafafa</color>
     <color name="grey">#9e9e9e</color>
     <color name="grey_dark">#616161</color>

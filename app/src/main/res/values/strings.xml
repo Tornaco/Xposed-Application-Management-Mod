@@ -364,9 +364,9 @@
     <string name="app_level_core">核心应用</string>
     <string name="title_per_app_settings">单项配置</string>
 
-    <string name="app_ops_wakelock">允许获取唤醒锁</string>
-    <string name="app_ops_alarm">允许设置定时器</string>
-    <string name="app_ops_service">允许启动服务</string>
+    <string name="app_ops_wakelock">禁止获取唤醒锁</string>
+    <string name="app_ops_alarm">禁止设置定时器</string>
+    <string name="app_ops_service">禁止启动服务</string>
     <string name="title_per_app_template">模板设置</string>
     <string name="user_level_low">小菜鸟</string>
     <string name="user_level_middle">初探</string>

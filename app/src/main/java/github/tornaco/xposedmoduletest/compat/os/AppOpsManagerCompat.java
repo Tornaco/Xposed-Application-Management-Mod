@@ -877,4 +877,8 @@ public final class AppOpsManagerCompat {
         if (code == OP_NONE) return "UNKNOWN";
         return String.valueOf(from(context).mOpSummaries[code]);
     }
+
+    public static boolean isPrivacyOp(int op) {
+        return true;
+    }
 }
