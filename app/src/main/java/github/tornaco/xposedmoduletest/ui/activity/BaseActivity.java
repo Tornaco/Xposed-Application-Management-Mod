@@ -20,6 +20,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
+import org.newstand.logger.Logger;
+
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.Themes;
@@ -278,8 +280,17 @@ public class BaseActivity extends AppCompatActivity implements View {
         return true;
     }
 
-    public void runOnUiThreadChecked(Runnable runnable) {
+    public void runOnUiThreadChecked(final Runnable runnable) {
         if (isDestroyed()) return;
-        runOnUiThread(runnable);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    runnable.run();
+                } catch (Throwable e) {
+                    Logger.e("runOnUiThreadChecked: " + e);
+                }
+            }
+        });
     }
 }
