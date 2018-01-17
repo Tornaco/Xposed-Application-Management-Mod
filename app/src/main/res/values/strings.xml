@@ -262,8 +262,9 @@
     <string name="title_new_photo">有人闯入</string>
     <string name="title_data">数据</string>
     <string name="title_restore_def">恢复默认设置</string>
-    <string name="summary_restore_def">清除应用管理的所有设置数据，包括所有名单与开关。</string>
+    <string name="summary_restore_def">清除应用管理的所有设置数据，包括所有名单与开关。\n注意：如果无法恢复，请手动删除data/system/tor目录。</string>
     <string name="summary_restore_done">已经为你恢复了默认设置</string>
+    <string name="summary_restore_fail">无法删除数据，请手动删除！！！</string>
     <string name="message_running_services_fail">无法启动设置，请检查模块激活状态。</string>
     <string name="title_running_services">正在运行的服务</string>
     <string name="title_activity_user_giude">用户向导</string>

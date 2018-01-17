@@ -6,9 +6,14 @@ import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Toast;
 
+import com.jaredrummler.android.shell.Shell;
+
+import org.newstand.logger.Logger;
+
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
@@ -35,12 +40,31 @@ public class RestoreDefault extends QuickTile {
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                if (XAppGuardManager.get().isServiceAvailable())
-                                    XAppGuardManager.get().restoreDefaultSettings();
-                                if (XAshmanManager.get().isServiceAvailable())
+                                if (XAshmanManager.get().isServiceAvailable()) {
                                     XAshmanManager.get().restoreDefaultSettings();
-
-                                Toast.makeText(context, R.string.summary_restore_done, Toast.LENGTH_SHORT).show();
+                                    XAppGuardManager.get().restoreDefaultSettings();
+                                    Toast.makeText(context, R.string.summary_restore_done, Toast.LENGTH_SHORT).show();
+                                } else {
+                                    XExecutor.execute(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Logger.e("Mount: " + Shell.SU.run("mount -o remount,rw /data").isSuccessful());
+                                            final boolean res = Shell.SU.run("rm -rf data/system/tor")
+                                                    .isSuccessful();
+                                            Shell.SU.run("rm -rf data/system/tor_apm");
+                                            XExecutor.runOnUIThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    if (res) {
+                                                        Toast.makeText(context, R.string.summary_restore_done, Toast.LENGTH_SHORT).show();
+                                                    } else {
+                                                        Toast.makeText(context, R.string.summary_restore_fail, Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
 
                             }
                         })
