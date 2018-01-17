@@ -32,7 +32,7 @@ public interface PermissionLoader {
     List<Permission> load(String pkg, int category);
 
     @NonNull
-    List<CommonPackageInfo> loadByOp(int op, int category);
+    List<CommonPackageInfo> loadByOp(int op, int category, boolean showSystem);
 
     @NonNull
     List<CommonPackageInfo> loadOps(int category);
@@ -137,7 +137,7 @@ public interface PermissionLoader {
 
         @NonNull
         @Override
-        public List<CommonPackageInfo> loadByOp(int op, int category) {
+        public List<CommonPackageInfo> loadByOp(int op, int category, boolean showSystem) {
             if (!XAshmanManager.get().isServiceAvailable()) {
                 return new ArrayList<>(0);
             }
@@ -161,9 +161,13 @@ public interface PermissionLoader {
                     c.setPkgName(info.packageName);
                     c.setVersion(XAshmanManager.get().getPermissionControlBlockModeForPkg(op, c.getPkgName()));
                     c.setSystemApp(PkgUtil.isSystemApp(context, info.packageName));
+
+                    if (c.isSystemApp() && !showSystem) {
+                        continue;
+                    }
+
                     c.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(context, info.packageName)));
                     c.setAppLevel(XAshmanManager.get().getAppLevel(info.packageName));
-
                     res.add(c);
                 }
             }

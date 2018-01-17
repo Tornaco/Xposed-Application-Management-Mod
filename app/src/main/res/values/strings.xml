@@ -176,7 +176,7 @@
     <string name="title_common_settings">通用设置</string>
     <string name="title_app_settings">限制设置</string>
     <string name="title_white_system_app">排除系统应用</string>
-    <string name="summary_white_system_app">不对任何的系统应用做任何处理。</string>
+    <string name="summary_white_system_app">不对任何的系统应用做任何处理。各个列表不显示任何系统应用。</string>
     <string name="title_app_update_log">内功心法</string>
     <string name="title_app_black_list">很重要的通知</string>
     <string name="message_app_black_list">新用户请绕过。\n\n由于各个亲爱的用户的反馈中，有很多是因为应用被误杀，造成一些使用问题，因此，从这个版本起，我们的 [限制] 部分由之前的白名单模式改为了黑名单模式，你可能需要前往下面的各项设置重新进行配置。</string>

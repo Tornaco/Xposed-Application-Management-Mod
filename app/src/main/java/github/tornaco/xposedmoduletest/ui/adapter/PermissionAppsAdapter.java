@@ -91,7 +91,12 @@ public class PermissionAppsAdapter extends RecyclerView.Adapter<PermissionAppsAd
         final CommonPackageInfo commonPackageInfo = getData().get(position);
 
         holder.getTitleView().setText(commonPackageInfo.getAppName());
-        holder.getSummaryView().setVisibility(View.GONE);
+
+        if (commonPackageInfo.isSystemApp()) {
+            holder.getSummaryView().setVisibility(View.VISIBLE);
+        } else {
+            holder.getSummaryView().setVisibility(View.GONE);
+        }
 
         GlideApp.with(context)
                 .load(commonPackageInfo)

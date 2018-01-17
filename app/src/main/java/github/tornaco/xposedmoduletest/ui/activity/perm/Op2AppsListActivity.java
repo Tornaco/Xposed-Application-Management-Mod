@@ -38,6 +38,7 @@ import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 public class Op2AppsListActivity extends WithSearchActivity<CommonPackageInfo> {
 
     private static final String EXTRA_OP = "extra.op";
+    private static final String EXTRA_SHOW_SYSTEM = "extra.show_system";
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private PermissionAppsAdapter permissionAppsAdapter;
@@ -47,9 +48,12 @@ public class Op2AppsListActivity extends WithSearchActivity<CommonPackageInfo> {
 
     private RecyclerView recyclerView;
 
-    public static void start(Context context, int op) {
+    private boolean mShowSystem;
+
+    public static void start(Context context, int op, boolean showSystem) {
         Intent starter = new Intent(context, Op2AppsListActivity.class);
         starter.putExtra(EXTRA_OP, op);
+        starter.putExtra(EXTRA_SHOW_SYSTEM, showSystem);
         context.startActivity(starter);
     }
 
@@ -61,11 +65,12 @@ public class Op2AppsListActivity extends WithSearchActivity<CommonPackageInfo> {
         showHomeAsUp();
 
         op = getIntent().getIntExtra(EXTRA_OP, -1);
+        mShowSystem = getIntent().getBooleanExtra(EXTRA_SHOW_SYSTEM, false);
 
         if (op < 0) return;
 
 
-        Logger.w("Op2AppsListActivity, op " + op);
+        Logger.w("Op2AppsListActivity, op " + op + ", mShowSystem" + mShowSystem);
 
         initView();
 
@@ -185,7 +190,7 @@ public class Op2AppsListActivity extends WithSearchActivity<CommonPackageInfo> {
     }
 
     protected List<CommonPackageInfo> performLoading() {
-        return PermissionLoader.Impl.create(this).loadByOp(op, 0);
+        return PermissionLoader.Impl.create(this).loadByOp(op, 0, mShowSystem);
     }
 
     protected PermissionAppsAdapter onCreateAdapter() {

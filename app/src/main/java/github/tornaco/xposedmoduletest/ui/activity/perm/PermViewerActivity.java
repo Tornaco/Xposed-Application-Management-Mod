@@ -181,7 +181,7 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
 
         private int index;
 
-        protected boolean mShowSystemApp = true;
+        protected boolean mShowSystemApp = false;
 
         protected void startLoading() {
             swipeRefreshLayout.setRefreshing(true);
@@ -254,7 +254,7 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
                     if (index == INDEX_APPS) {
                         Apps2OpListActivity.start(getActivity(), info.getPkgName());
                     } else if (index == INDEX_OPS) {
-                        Op2AppsListActivity.start(getActivity(), info.getVersion());
+                        Op2AppsListActivity.start(getActivity(), info.getVersion(), mShowSystemApp);
                     }
                 }
             });

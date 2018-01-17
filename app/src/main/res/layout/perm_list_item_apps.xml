@@ -51,7 +51,8 @@
                 android:layout_alignStart="@android:id/title"
                 android:layout_below="@id/title"
                 android:padding="3dp"
-                android:text="@string/app_wiki_url"
+                android:textColor="@color/amber_dark"
+                android:text="@string/title_system_app"
                 android:textAppearance="@style/TextAppearance.TileSubTitle" />
 
         </RelativeLayout>
