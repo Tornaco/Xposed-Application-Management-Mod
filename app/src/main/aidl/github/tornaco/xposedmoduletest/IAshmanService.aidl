@@ -296,4 +296,7 @@ interface IAshmanService {
 
      String[] getOpLogPackages();
      List<OpLog> getOpLogForPackage(String packageName);
+
+     String getUserName();
+     Bitmap getUserIcon();
 }

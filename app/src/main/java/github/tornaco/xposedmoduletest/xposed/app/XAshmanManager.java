@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.support.annotation.Nullable;
@@ -1225,6 +1226,22 @@ public class XAshmanManager {
             return mService.getOpLogForPackage(packageName);
         } catch (RemoteException e) {
             return new ArrayList<>(0);
+        }
+    }
+
+    public String getUserName() {
+        try {
+            return mService.getUserName();
+        } catch (RemoteException e) {
+            return null;
+        }
+    }
+
+    public Bitmap getUserIcon() {
+        try {
+            return mService.getUserIcon();
+        } catch (RemoteException e) {
+            return null;
         }
     }
 }

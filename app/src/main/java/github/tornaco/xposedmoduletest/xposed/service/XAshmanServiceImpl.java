@@ -23,6 +23,7 @@ import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.media.AudioAttributes;
@@ -44,6 +45,7 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.provider.Settings;
 import android.service.notification.StatusBarNotification;
 import android.support.annotation.NonNull;
@@ -4931,6 +4933,40 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 opLogs.add(v);
             }
             return opLogs;
+        }
+    }
+
+    @Override
+    public String getUserName() throws RemoteException {
+        long ident = Binder.clearCallingIdentity();
+        try {
+            UserManager um = (UserManager) getContext().getSystemService(Context.USER_SERVICE);
+            if (um != null) {
+                return um.getUserName();
+            }
+            return null;
+        } catch (Throwable e) {
+            XposedLog.wtf("getUserName: " + e);
+            return null;
+        } finally {
+            Binder.restoreCallingIdentity(ident);
+        }
+    }
+
+    @Override
+    public Bitmap getUserIcon() throws RemoteException {
+        long ident = Binder.clearCallingIdentity();
+        try {
+            UserManager um = (UserManager) getContext().getSystemService(Context.USER_SERVICE);
+            if (um != null) {
+                return um.getUserIcon(UserHandle.USER_CURRENT);
+            }
+            return null;
+        } catch (Throwable e) {
+            XposedLog.wtf("getUserIcon: " + e);
+            return null;
+        } finally {
+            Binder.restoreCallingIdentity(ident);
         }
     }
 
