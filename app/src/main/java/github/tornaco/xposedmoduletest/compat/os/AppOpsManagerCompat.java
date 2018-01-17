@@ -741,7 +741,8 @@ public final class AppOpsManagerCompat {
             android.Manifest.permission.SEND_SMS,
             android.Manifest.permission.READ_SMS,
             null, // no permission required for writing icc sms
-            android.Manifest.permission.WRITE_SETTINGS,
+//            android.Manifest.permission.WRITE_SETTINGS,
+            null,
             android.Manifest.permission.SYSTEM_ALERT_WINDOW,
             android.Manifest.permission.ACCESS_NOTIFICATIONS,
             android.Manifest.permission.CAMERA,
