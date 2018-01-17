@@ -5808,7 +5808,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     XposedLog.verbose("ACTION_PACKAGE_ADDED replacing:%s pkg:%s uid:",
                             replacing, packageName, uid);
 
-                    parsePackageAsync(packageName);
+                    // Cache this package sync.
+                    cachePackages(packageName);
 
                     // We only add to black list when this is a new installed app.
                     if (!replacing) try {
