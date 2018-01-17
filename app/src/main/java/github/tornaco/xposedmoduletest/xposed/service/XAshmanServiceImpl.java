@@ -438,6 +438,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void cachePackages(final String... pkg) {
+        if (pkg == null) return;
 
         final PackageManager pm = getContext().getPackageManager();
 
@@ -446,11 +447,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             public void accept(String s) {
                 ApplicationInfo applicationInfo;
                 try {
+
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         applicationInfo = pm.getApplicationInfo(s, PackageManager.MATCH_UNINSTALLED_PACKAGES);
                     } else {
                         applicationInfo = pm.getApplicationInfo(s, PackageManager.GET_UNINSTALLED_PACKAGES);
                     }
+
                     int uid = applicationInfo.uid;
                     String pkg = applicationInfo.packageName;
                     if (TextUtils.isEmpty(pkg)) return;
@@ -464,7 +467,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     PkgUtil.cachePkgUid(pkg, uid);
 
                 } catch (Exception ignored) {
-
+                    XposedLog.wtf("Fail cachePackages: " + ignored);
                 }
             }
         });
