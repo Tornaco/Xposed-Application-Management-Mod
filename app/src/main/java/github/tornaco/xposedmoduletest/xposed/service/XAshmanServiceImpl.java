@@ -5582,13 +5582,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
 
             try {
+                if (RepoProxy.getProxy().getPending_disable_apps().size() == 0) return;
                 // Disable pending apps.
                 for (String p : RepoProxy.getProxy().getPending_disable_apps().getAll()) {
-                    setApplicationEnabledSetting(p, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
-                    XposedLog.verbose("Disable pending apps: " + p);
+                    if (!isPackageRunningOnTop(p)) {
+                        setApplicationEnabledSetting(p, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
+                        XposedLog.verbose("Disable pending apps: " + p);
+                        RepoProxy.getProxy().getPending_disable_apps().remove(p);
+                    }
                 }
-
-                RepoProxy.getProxy().getPending_disable_apps().removeAll();
             } catch (Throwable e) {
                 XposedLog.wtf("Fail handle disable_app: " + e);
             }
