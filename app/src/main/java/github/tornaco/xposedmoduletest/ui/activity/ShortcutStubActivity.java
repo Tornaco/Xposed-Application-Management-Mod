@@ -71,6 +71,7 @@ public class ShortcutStubActivity extends BaseActivity {
 
             Intent launcherIntent = getPackageManager().getLaunchIntentForPackage(target);
             if (launcherIntent == null) {
+                Toast.makeText(getActivity(), R.string.short_stub_invalid_target, Toast.LENGTH_SHORT).show();
                 return;
             }
             launcherIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

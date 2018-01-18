@@ -3,7 +3,6 @@ package github.tornaco.xposedmoduletest.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.BitmapDrawable;
@@ -83,14 +82,15 @@ public abstract class BitmapUtil {
         Bitmap res = Bitmap.createBitmap(original.getWidth(), original.getHeight(), original.getConfig());
         Canvas canvas = new Canvas(res);
         canvas.drawBitmap(original, new Matrix(), null);
-        Bitmap our = getBitmap(context, R.drawable.ic_ac_unit_black_24dp);
+        Bitmap our = getBitmap(context, R.mipmap.ic_launcher_round);
         if (our == null) return original;
         Matrix matrix = new Matrix();
-        matrix.postScale(0.5f, 0.5f);
+        matrix.postScale(0.2f, 0.2f);
         float padding = 3;
         Bitmap scaled = Bitmap.createBitmap(our, 0, 0, our.getWidth(), our.getHeight(),
                 matrix, true);
-        canvas.drawBitmap(scaled, original.getWidth() - scaled.getWidth() - padding, original.getHeight() - scaled.getHeight() - padding, null);
+        canvas.drawBitmap(scaled, original.getWidth() - scaled.getWidth()
+                - padding, original.getHeight() - scaled.getHeight() - padding, null);
         return res;
     }
 }
