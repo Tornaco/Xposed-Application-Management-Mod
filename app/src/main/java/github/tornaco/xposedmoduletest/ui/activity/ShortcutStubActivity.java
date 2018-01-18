@@ -31,6 +31,15 @@ public class ShortcutStubActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        try {
+            internalResolveIntent();
+        } finally {
+            finish();
+        }
+    }
+
+    private void internalResolveIntent() {
         Intent intent = getIntent();
         if (intent == null) {
             return;
