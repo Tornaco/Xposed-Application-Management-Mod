@@ -106,11 +106,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.action_disable_app:
-                        XAshmanManager.get().setApplicationEnabledSetting(
-                                packageInfo.getPkgName(), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
-
-                        ShortcutUtil.addShortcut(getActivity(), packageInfo.getPkgName());
-                        startLoading();
+                        onRequestDisableApp(packageInfo.getPkgName());
                         break;
                     case R.id.action_enable_app:
                         XAshmanManager.get().setApplicationEnabledSetting(
@@ -190,6 +186,47 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity {
 
     private void onRequestAppSettings(String pkgName) {
         PerAppSettingsDashboardActivity.start(getActivity(), pkgName);
+    }
+
+    private void onRequestDisableApp(final String pkgName) {
+        // FIXME Move to res.
+        final String[] items = {"创建桌面快捷方式用于快速启动该应用",
+                "由快捷方式解冻并进入时，屏幕关闭后且该应用不在前台时重新冻结"};
+
+        final boolean[] createShortcut = {true};
+        final boolean[] redisable = {true};
+
+        new AlertDialog.Builder(getActivity()).setCancelable(false)
+                .setTitle(getString(R.string.title_disable_app) + "\t" + PkgUtil.loadNameByPkgName(getContext(), pkgName))
+                .setMultiChoiceItems(items, new boolean[]{true, true},
+                        new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                if (which == 0) {
+                                    createShortcut[0] = isChecked;
+                                }
+                                if (which == 1) {
+                                    redisable[0] = isChecked;
+                                }
+                            }
+                        })
+                .setPositiveButton(android.R.string.ok,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialoginterface, int i) {
+                                dialoginterface.dismiss();
+
+                                XAshmanManager.get().setApplicationEnabledSetting(
+                                        pkgName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
+
+                                if (createShortcut[0]) {
+                                    ShortcutUtil.addShortcut(getActivity(), pkgName, redisable[0]);
+                                }
+
+                                startLoading();
+                            }
+                        })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     private static final int REQUEST_CODE_PICK_APK_EXPORT_PATH = 0x111;
