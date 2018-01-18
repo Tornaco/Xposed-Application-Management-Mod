@@ -269,6 +269,7 @@ public class XAshmanManager {
     }
 
     public int getApplicationEnabledSetting(String packageName) {
+        ensureService();
         try {
             return mService.getApplicationEnabledSetting(packageName);
         } catch (RemoteException e) {
@@ -277,9 +278,19 @@ public class XAshmanManager {
     }
 
     public void setApplicationEnabledSetting(String packageName, int newState, int flags) {
+        ensureService();
         try {
             mService.setApplicationEnabledSetting(packageName, newState, flags);
         } catch (RemoteException e) {
+        }
+    }
+
+    public void addPendingDisableApps(String pkg) {
+        ensureService();
+        try {
+            mService.addPendingDisableApps(pkg);
+        } catch (RemoteException e) {
+
         }
     }
 

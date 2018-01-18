@@ -299,4 +299,6 @@ interface IAshmanService {
 
      String getUserName();
      Bitmap getUserIcon();
+
+     void addPendingDisableApps(String pkg);
 }

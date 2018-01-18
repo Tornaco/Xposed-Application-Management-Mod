@@ -49,7 +49,7 @@ public class RepoProxy {
             perms, privacy, greens,
             blurs, locks, uninstall,
             data_restrict, wifi_restrict,
-            lazy, comps, white_list_hooks_dynamic;
+            lazy, comps, white_list_hooks_dynamic, pending_disable_apps;
 
     private MapRepo<String, String> componentReplacement, appFocused, appUnFocused;
 
@@ -118,6 +118,7 @@ public class RepoProxy {
         locks = new StringSetRepo(new File(dir, "locks"), h, io);
         uninstall = new StringSetRepo(new File(dir, "uninstall"), h, io);
         lazy = new StringSetRepo(new File(dir, "lazy"), h, io);
+        pending_disable_apps = new StringSetRepo(new File(dir, "pending_disable_apps"), h, io);
 
         try {
             @SuppressLint("SdCardPath") File dynamicHooks =
@@ -377,6 +378,10 @@ public class RepoProxy {
         return white_list_hooks_dynamic == null ? STRING_SET_NULL_HACK : white_list_hooks_dynamic;
     }
 
+    public SetRepo<String> getPending_disable_apps() {
+        return pending_disable_apps == null ? STRING_SET_NULL_HACK : pending_disable_apps;
+    }
+
     public SetRepo<String> getLazy() {
         return lazy == null ? STRING_SET_NULL_HACK : lazy;
     }
@@ -459,6 +464,7 @@ public class RepoProxy {
         getData_restrict().removeAll();
         getWifi_restrict().removeAll();
         getLazy().removeAll();
+        getPending_disable_apps().removeAll();
 
         getAppFocused().clear();
         getAppUnFocused().clear();

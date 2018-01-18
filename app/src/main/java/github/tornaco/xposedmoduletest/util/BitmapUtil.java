@@ -3,6 +3,8 @@ package github.tornaco.xposedmoduletest.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -13,6 +15,8 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.content.ContextCompat;
+
+import github.tornaco.xposedmoduletest.R;
 
 /**
  * Created by guohao4 on 2017/10/24.
@@ -73,5 +77,20 @@ public abstract class BitmapUtil {
         } else {
             throw new IllegalArgumentException("Unsupported drawable type:" + drawable);
         }
+    }
+
+    public static Bitmap createDisabledAppLauncherIcon(Context context, Bitmap original) {
+        Bitmap res = Bitmap.createBitmap(original.getWidth(), original.getHeight(), original.getConfig());
+        Canvas canvas = new Canvas(res);
+        canvas.drawBitmap(original, new Matrix(), null);
+        Bitmap our = getBitmap(context, R.drawable.ic_ac_unit_black_24dp);
+        if (our == null) return original;
+        Matrix matrix = new Matrix();
+        matrix.postScale(0.5f, 0.5f);
+        float padding = 3;
+        Bitmap scaled = Bitmap.createBitmap(our, 0, 0, our.getWidth(), our.getHeight(),
+                matrix, true);
+        canvas.drawBitmap(scaled, original.getWidth() - scaled.getWidth() - padding, original.getHeight() - scaled.getHeight() - padding, null);
+        return res;
     }
 }

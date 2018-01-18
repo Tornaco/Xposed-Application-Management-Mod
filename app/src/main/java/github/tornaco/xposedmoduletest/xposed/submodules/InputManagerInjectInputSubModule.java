@@ -11,6 +11,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -85,9 +86,13 @@ public class InputManagerInjectInputSubModule extends AndroidSubModule {
                                 // This event will not be handle.
                                 return;
                             }
+                            try {
 
-                            KeyEvent keyEvent = (KeyEvent) param.args[0];
-                            getBridge().onKeyEvent(keyEvent, EVENT_SOURCE_NATIVE);
+                                KeyEvent keyEvent = (KeyEvent) param.args[1];
+                                getBridge().onKeyEvent(keyEvent, EVENT_SOURCE_NATIVE);
+                            } catch (Throwable err) {
+                                XposedLog.verbose("nativeInjectInputEvent: " + e);
+                            }
                         }
                     });
             logOnBootStage("hookNativeInjectInputEvent OK:" + unHooks);

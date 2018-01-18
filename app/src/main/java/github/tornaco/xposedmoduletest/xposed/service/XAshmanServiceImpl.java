@@ -1913,7 +1913,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @BinderCall
     public void setComponentEnabledSetting(ComponentName componentName, int newState, int flags) throws RemoteException {
         enforceCallingPermissions();
-        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETCOMPONENTENABLEDSETTING, newState, flags, componentName).sendToTarget();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETCOMPONENTENABLEDSETTING,
+                newState, flags, componentName).sendToTarget();
     }
 
     @Override
@@ -4970,6 +4971,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
+    @Override
+    @BinderCall
+    public void addPendingDisableApps(String pkg) throws RemoteException {
+        XposedLog.verbose("addPendingDisableApps: " + pkg);
+        RepoProxy.getProxy().getPending_disable_apps().add(pkg);
+    }
+
     @SuppressLint("HandlerLeak")
     private class HandlerImpl extends Handler implements AshManHandler {
 
@@ -5571,6 +5579,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (isLockKillEnabled()) {
                 removeCallbacks(clearProcessRunnable);
                 postDelayed(clearProcessRunnable, mLockKillDelay);
+            }
+
+            try {
+                // Disable pending apps.
+                for (String p : RepoProxy.getProxy().getPending_disable_apps().getAll()) {
+                    setApplicationEnabledSetting(p, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
+                    XposedLog.verbose("Disable pending apps: " + p);
+                }
+
+                RepoProxy.getProxy().getPending_disable_apps().removeAll();
+            } catch (Throwable e) {
+                XposedLog.wtf("Fail handle disable_app: " + e);
             }
         }
 

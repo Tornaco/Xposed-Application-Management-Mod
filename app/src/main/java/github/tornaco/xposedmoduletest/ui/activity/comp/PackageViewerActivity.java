@@ -44,6 +44,7 @@ import github.tornaco.xposedmoduletest.util.ArrayUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
+import github.tornaco.xposedmoduletest.xposed.util.ShortcutUtil;
 
 /**
  * Created by guohao4 on 2017/11/18.
@@ -107,6 +108,8 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity {
                     case R.id.action_disable_app:
                         XAshmanManager.get().setApplicationEnabledSetting(
                                 packageInfo.getPkgName(), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
+
+                        ShortcutUtil.addShortcut(getActivity(), packageInfo.getPkgName());
                         startLoading();
                         break;
                     case R.id.action_enable_app:
