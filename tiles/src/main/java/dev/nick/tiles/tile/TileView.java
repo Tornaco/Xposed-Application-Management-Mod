@@ -17,10 +17,8 @@
 package dev.nick.tiles.tile;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +29,7 @@ import android.widget.TextView;
 
 import dev.nick.tiles.R;
 
-public class TileView extends FrameLayout implements View.OnClickListener {
+public class TileView extends FrameLayout implements View.OnClickListener, View.OnLongClickListener {
 
     private static final int DEFAULT_COL_SPAN = 1;
 
@@ -61,16 +59,17 @@ public class TileView extends FrameLayout implements View.OnClickListener {
     }
 
     protected void onViewInflated(View view) {
-        mImageView = (ImageView) view.findViewById(R.id.icon);
+        mImageView = view.findViewById(R.id.icon);
         if (useStaticTintColor())
             mImageView.setColorFilter(ContextCompat.getColor(getContext(), R.color.tile_icon_tint));
-        mTitleTextView = (TextView) view.findViewById(R.id.title);
-        mStatusTextView = (TextView) view.findViewById(R.id.status);
+        mTitleTextView = view.findViewById(R.id.title);
+        mStatusTextView = view.findViewById(R.id.status);
         mDivider = view.findViewById(R.id.tile_divider);
 
         onBindActionView((RelativeLayout) view.findViewById(R.id.action_area));
 
         setOnClickListener(this);
+        setOnLongClickListener(this);
 
         setBackgroundResource(R.drawable.dashboard_tile_background);
         setFocusable(true);
@@ -123,5 +122,10 @@ public class TileView extends FrameLayout implements View.OnClickListener {
         params.addRule(RelativeLayout.CENTER_HORIZONTAL);
         params.addRule(RelativeLayout.CENTER_VERTICAL);
         return params;
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        return false;
     }
 }

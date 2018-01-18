@@ -388,7 +388,7 @@
         </receiver>
 
         <activity
-            android:name=".ui.activity.whyyouhere.UserGiudeActivity"
+            android:name=".ui.activity.whyyouhere.UserGuideActivity"
             android:label="@string/title_activity_user_giude"
             android:theme="@style/AppThemeLight.NoActionBar" />
     </application>

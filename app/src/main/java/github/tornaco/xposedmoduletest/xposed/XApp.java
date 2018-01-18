@@ -41,11 +41,14 @@ public class XApp extends Application {
     }
 
     private void initLogger() {
-        CrashReport.initCrashReport(getApplicationContext(), "db5e3b88a3", BuildConfig.DEBUG);
-        CrashReport.setIsDevelopmentDevice(getApplicationContext(), BuildConfig.DEBUG);
 
-        // Set cache size.
-        BuglyLog.setCache(12 * 1024);
+        // No need for play version, google has done this.
+        if (!isPlayVersion()) {
+            CrashReport.initCrashReport(getApplicationContext(), "db5e3b88a3", BuildConfig.DEBUG);
+            CrashReport.setIsDevelopmentDevice(getApplicationContext(), BuildConfig.DEBUG);
+            // Set cache size.
+            BuglyLog.setCache(12 * 1024);
+        }
 
         Logger.config(Settings.builder().tag("X-APM-C")
                 .logLevel(XSettings.isDevMode(this)
@@ -54,8 +57,10 @@ public class XApp extends Application {
                     @Override
                     public void e(String tag, String message) {
                         super.e(tag, message);
-                        // Report to bugly.
-                        CrashReport.postCatchedException(new Throwable(message));
+                        if (!isPlayVersion()) {
+                            // Report to bugly.
+                            CrashReport.postCatchedException(new Throwable(message));
+                        }
                     }
                 })
                 .build());
@@ -64,5 +69,9 @@ public class XApp extends Application {
             // Test error.
             Logger.e("This is a test...");
         }
+    }
+
+    public static boolean isPlayVersion() {
+        return XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.PLAY);
     }
 }

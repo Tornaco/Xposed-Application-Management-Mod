@@ -51,7 +51,7 @@ import github.tornaco.xposedmoduletest.ui.activity.app.AppDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.GetPlayVersionActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.ToolsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.helper.RunningServicesActivity;
-import github.tornaco.xposedmoduletest.ui.activity.whyyouhere.UserGiudeActivity;
+import github.tornaco.xposedmoduletest.ui.activity.whyyouhere.UserGuideActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
 import github.tornaco.xposedmoduletest.ui.tiles.AppStart;
@@ -71,6 +71,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.TRKill;
 import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import github.tornaco.xposedmoduletest.xposed.XApp;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -180,7 +181,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                         boolean guideRead = AppSettings.isGuideRead(getContext());
                         TextView userLevel = drawer.findViewById(R.id.user_name);
 
-                        if ((XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.PLAY) || BuildConfig.DEBUG)
+                        if ((XApp.isPlayVersion() || BuildConfig.DEBUG)
                                 && XAshmanManager.get().isServiceAvailable()) {
                             String userName = XAshmanManager.get().getUserName();
                             if (userName != null) {
@@ -252,8 +253,10 @@ public class NavigatorActivity extends WithWithCustomTabActivity
     private void initFirstRun() {
         try {
             if (AppSettings.isFirstRun(getApplicationContext())) {
-                UserGiudeActivity.start(getActivity());
 
+                if (!XApp.isPlayVersion()) {
+                    UserGuideActivity.start(getActivity());
+                }
 
                 new AlertDialog.Builder(NavigatorActivity.this)
                         .setTitle(R.string.title_app_update_log)

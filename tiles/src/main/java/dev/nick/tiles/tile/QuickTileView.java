@@ -25,4 +25,13 @@ public class QuickTileView extends TileView {
             mTile.getListener().onTileClick(mTile);
         }
     }
+
+    @Override
+    public boolean onLongClick(View v) {
+        if (mTile.getListener() != null) {
+            mTile.getListener().onTileLongClick(mTile);
+            return true;
+        }
+        return super.onLongClick(v);
+    }
 }

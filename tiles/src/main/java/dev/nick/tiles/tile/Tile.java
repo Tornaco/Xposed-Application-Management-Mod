@@ -178,4 +178,8 @@ public class Tile {
         }
         extras = in.readBundle();
     }
+
+    protected boolean isEnabled(){
+        return true;
+    }
 }

@@ -372,5 +372,7 @@
     <string name="user_level_low">小菜鸟</string>
     <string name="user_level_middle">初探</string>
     <string name="init_first_run_fail">无法显示首次使用对话框，你可以继续使用，你的系统可能不兼容最新的Android Support库，请反馈给作者或者设备发布者，这种问题很恶心。</string>
+    <string name="title_hide_tile">隐藏该卡片</string>
+    <string name="message_hide_tile">暂时隐藏该卡片，隐藏后可以到 通用设置 主页卡片隐藏中恢复显示</string>
 
 </resources>

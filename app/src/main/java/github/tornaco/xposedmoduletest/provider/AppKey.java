@@ -14,4 +14,5 @@ public interface AppKey {
     String MAIN_DASH_COLUMN_COUNT = "main_col_count_";
     String DRAW_VIBRATE = "draw_vibrate_enabled";
     String GUIDE_READ = "guide_read";
+    String HIDE_TILE = "hide_tile_";
 }

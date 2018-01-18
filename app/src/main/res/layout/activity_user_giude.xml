@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/primary"
     android:fitsSystemWindows="true"
-    tools:context="github.tornaco.xposedmoduletest.ui.activity.whyyouhere.UserGiudeActivity">
+    tools:context="github.tornaco.xposedmoduletest.ui.activity.whyyouhere.UserGuideActivity">
 
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"

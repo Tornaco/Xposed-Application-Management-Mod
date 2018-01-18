@@ -10,10 +10,10 @@ import android.view.View;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 
-public class UserGiudeActivity extends AppCompatActivity {
+public class UserGuideActivity extends AppCompatActivity {
 
     public static void start(Context context) {
-        Intent starter = new Intent(context, UserGiudeActivity.class);
+        Intent starter = new Intent(context, UserGuideActivity.class);
         context.startActivity(starter);
     }
 

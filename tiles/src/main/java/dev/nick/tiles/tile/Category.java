@@ -62,7 +62,9 @@ public class Category {
     }
 
     public void addTile(Tile tile) {
-        tiles.add(tile);
+        if (tile.isEnabled()) {
+            tiles.add(tile);
+        }
     }
 
     public void addTile(int n, Tile tile) {

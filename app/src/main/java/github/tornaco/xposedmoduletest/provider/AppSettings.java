@@ -6,6 +6,7 @@ import android.text.TextUtils;
 
 import java.util.Observable;
 
+import github.tornaco.xposedmoduletest.xposed.XApp;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.service.BuildFingerprintBuildHostInfo;
 
@@ -25,6 +26,18 @@ public class AppSettings extends Observable {
 
     public static AppSettings get() {
         return sMe;
+    }
+
+    public static boolean isHideTileInDashboard(Context context, String which) {
+        return XApp.isPlayVersion()
+                && PreferenceManager.getDefaultSharedPreferences(context).getBoolean(AppKey.HIDE_TILE + which, false);
+    }
+
+    public static void hideDashboardTile(Context context, String which, boolean hide) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(AppKey.HIDE_TILE + which, hide)
+                .apply();
     }
 
     public static boolean isDrawVibrateEnabled(Context context) {
