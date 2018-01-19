@@ -1255,4 +1255,44 @@ public class XAshmanManager {
             return null;
         }
     }
+
+    public void addPowerSaveWhitelistApp(String pkg) {
+        try {
+            mService.addPowerSaveWhitelistApp(pkg);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public void removePowerSaveWhitelistApp(String pkg) {
+        try {
+            mService.removePowerSaveWhitelistApp(pkg);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public String[] getFullPowerWhitelist() {
+        try {
+            return mService.getFullPowerWhitelist();
+        } catch (RemoteException e) {
+            return ArrayUtil.newEmptyStringArray();
+        }
+    }
+
+    public String[] getSystemPowerWhitelist() {
+        try {
+            return mService.getSystemPowerWhitelist();
+        } catch (RemoteException e) {
+            return ArrayUtil.newEmptyStringArray();
+        }
+    }
+
+    public String[] getUserPowerWhitelist() {
+        try {
+            return mService.getUserPowerWhitelist();
+        } catch (RemoteException e) {
+            return ArrayUtil.newEmptyStringArray();
+        }
+    }
 }

@@ -15,11 +15,12 @@
  */
 package github.tornaco.xposedmoduletest.xposed.service.doze;
 
-import android.util.Log;
-
+import java.util.Arrays;
 import java.util.HashSet;
 
+import github.tornaco.xposedmoduletest.util.ArrayUtil;
 import github.tornaco.xposedmoduletest.util.Singleton1;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 
 /**
@@ -43,7 +44,11 @@ public class PowerWhitelistBackend {
 
     public PowerWhitelistBackend(DeviceIdleControllerProxy proxy) {
         mDeviceIdleService = proxy;
-        refreshList();
+        if (mDeviceIdleService != null) {
+            refreshList();
+        } else {
+            XposedLog.wtf("PowerWhitelistBackend construct, null proxy");
+        }
     }
 
     public int getWhitelistSize() {
@@ -63,7 +68,7 @@ public class PowerWhitelistBackend {
             mDeviceIdleService.addPowerSaveWhitelistAppInternal(pkg);
             mWhitelistedApps.add(pkg);
         } catch (Exception e) {
-            Log.w(TAG, "Unable to reach IDeviceIdleController", e);
+            XposedLog.boot("Unable to reach IDeviceIdleController:" + e);
         }
     }
 
@@ -72,7 +77,7 @@ public class PowerWhitelistBackend {
             mDeviceIdleService.removePowerSaveWhitelistAppInternal(pkg);
             mWhitelistedApps.remove(pkg);
         } catch (Exception e) {
-            Log.w(TAG, "Unable to reach IDeviceIdleController", e);
+            XposedLog.boot("Unable to reach IDeviceIdleController:" + e);
         }
     }
 
@@ -81,16 +86,20 @@ public class PowerWhitelistBackend {
         mWhitelistedApps.clear();
         try {
             String[] whitelistedApps = mDeviceIdleService.getFullPowerWhitelistInternal();
-            for (String app : whitelistedApps) {
-                mWhitelistedApps.add(app);
-            }
+            mWhitelistedApps.addAll(Arrays.asList(whitelistedApps));
             String[] sysWhitelistedApps = mDeviceIdleService.getSystemPowerWhitelistInternal();
-            for (String app : sysWhitelistedApps) {
-                mSysWhitelistedApps.add(app);
-            }
+            mSysWhitelistedApps.addAll(Arrays.asList(sysWhitelistedApps));
         } catch (Exception e) {
-            Log.w(TAG, "Unable to reach IDeviceIdleController", e);
+            XposedLog.boot("Unable to reach IDeviceIdleController:" + e);
         }
+    }
+
+    public String[] getSysWhitelistedApps() {
+        return ArrayUtil.convertObjectArrayToStringArray(mSysWhitelistedApps.toArray());
+    }
+
+    public String[] getWhitelistedApps() {
+        return ArrayUtil.convertObjectArrayToStringArray(mWhitelistedApps.toArray());
     }
 
     public static PowerWhitelistBackend getInstance(DeviceIdleControllerProxy proxy) {

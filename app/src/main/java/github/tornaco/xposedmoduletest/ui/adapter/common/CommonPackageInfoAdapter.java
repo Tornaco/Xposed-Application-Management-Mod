@@ -172,12 +172,15 @@ public class CommonPackageInfoAdapter
         if (isChoiceMode()) {
             final CommonPackageInfo commonPackageInfo = getCommonPackageInfos().get(position);
             holder.getCheckableImageView().setChecked(commonPackageInfo.isChecked(), false);
+
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    commonPackageInfo.setChecked(!commonPackageInfo.isChecked());
-                    holder.getCheckableImageView().setChecked(commonPackageInfo.isChecked());
-                    onItemCheckChanged();
+                    if (isChoiceMode()) {
+                        commonPackageInfo.setChecked(!commonPackageInfo.isChecked());
+                        holder.getCheckableImageView().setChecked(commonPackageInfo.isChecked());
+                        onItemCheckChanged();
+                    }
                 }
             });
         }

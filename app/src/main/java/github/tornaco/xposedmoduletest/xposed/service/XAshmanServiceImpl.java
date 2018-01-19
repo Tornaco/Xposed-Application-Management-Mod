@@ -4982,6 +4982,36 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         RepoProxy.getProxy().getPending_disable_apps().add(pkg);
     }
 
+    @BinderCall
+    @Override
+    public void addPowerSaveWhitelistApp(String pkg) throws RemoteException {
+        mDeviceIdleController.addPowerSaveWhitelistAppInternal(pkg);
+    }
+
+    @BinderCall
+    @Override
+    public void removePowerSaveWhitelistApp(String pkg) throws RemoteException {
+        mDeviceIdleController.removePowerSaveWhitelistAppInternal(pkg);
+    }
+
+    @BinderCall
+    @Override
+    public String[] getFullPowerWhitelist() throws RemoteException {
+        return mDeviceIdleController.getFullPowerWhitelistInternal();
+    }
+
+    @BinderCall
+    @Override
+    public String[] getUserPowerWhitelist() throws RemoteException {
+        return mDeviceIdleController.getUserPowerWhitelistInternal();
+    }
+
+    @BinderCall
+    @Override
+    public String[] getSystemPowerWhitelist() throws RemoteException {
+        return mDeviceIdleController.getSystemPowerWhitelistInternal();
+    }
+
     @SuppressLint("HandlerLeak")
     private class HandlerImpl extends Handler implements AshManHandler {
 

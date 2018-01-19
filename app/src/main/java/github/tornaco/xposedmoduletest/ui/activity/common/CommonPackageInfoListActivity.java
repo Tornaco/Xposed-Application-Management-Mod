@@ -135,6 +135,7 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
     }
 
     protected void onFabClick() {
+        Logger.e("onFabClick");
         if (commonPackageInfoAdapter.isChoiceMode()) {
             onRequestClearItems();
         } else {

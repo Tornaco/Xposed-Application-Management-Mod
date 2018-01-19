@@ -301,4 +301,11 @@ interface IAshmanService {
      Bitmap getUserIcon();
 
      void addPendingDisableApps(String pkg);
+
+     // Doze list api.
+     void addPowerSaveWhitelistApp(String pkg);
+     void removePowerSaveWhitelistApp(String pkg);
+     String[] getFullPowerWhitelist();
+     String[] getSystemPowerWhitelist();
+     String[] getUserPowerWhitelist();
 }

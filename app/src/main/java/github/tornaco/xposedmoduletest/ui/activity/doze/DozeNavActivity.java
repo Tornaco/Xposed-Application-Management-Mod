@@ -15,12 +15,15 @@ import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListA
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.tiles.doze.DozeDelayTile;
 import github.tornaco.xposedmoduletest.ui.tiles.doze.DozeEnterTile;
+import github.tornaco.xposedmoduletest.ui.tiles.doze.DozeWhitelistTile;
 import github.tornaco.xposedmoduletest.ui.tiles.doze.ForceDozeTile;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 public class DozeNavActivity extends CommonPackageInfoListActivity
         implements SwitchBar.OnSwitchChangeListener {
+
+    private Dashboards mDash;
 
     @Override
     protected int getLayoutRes() {
@@ -45,7 +48,14 @@ public class DozeNavActivity extends CommonPackageInfoListActivity
         fab = findViewById(R.id.fab);
         fab.hide();
 
-        replaceV4(R.id.container, new Dashboards(), null, false);
+        mDash = new Dashboards();
+        replaceV4(R.id.container, mDash, null, false);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mDash.onResume();
     }
 
     @Override
@@ -89,6 +99,11 @@ public class DozeNavActivity extends CommonPackageInfoListActivity
     }
 
     public static class Dashboards extends DashboardFragment {
+
+        public void reload() {
+            buildUI(getActivity());
+        }
+
         @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
@@ -101,6 +116,7 @@ public class DozeNavActivity extends CommonPackageInfoListActivity
             config.titleRes = R.string.title_config;
             config.addTile(new DozeDelayTile(getActivity()));
             config.addTile(new ForceDozeTile(getActivity()));
+            config.addTile(new DozeWhitelistTile(getActivity()));
 
             categories.add(state);
             categories.add(config);

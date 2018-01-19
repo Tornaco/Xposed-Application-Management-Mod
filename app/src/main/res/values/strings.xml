@@ -376,5 +376,8 @@
     <string name="message_hide_tile">暂时隐藏该卡片，隐藏后可以到 通用设置 主页卡片隐藏中恢复显示</string>
     <string name="short_stub_invalid_target">目标应用不合法</string>
     <string name="title_short_cut">快捷方式-桩</string>
+    <string name="title_doze_white_list">电池忽略名单</string>
+    <string name="summary_doze_white_list">%1$s个应用被忽略</string>
+    <string name="title_doze_system_app">不可配置</string>
 
 </resources>

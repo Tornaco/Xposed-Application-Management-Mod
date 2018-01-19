@@ -234,6 +234,18 @@ public class DeviceIdleControllerProxy {
         }
     }
 
+    public String[] getUserPowerWhitelistInternal() {
+        XposedLog.verbose("getUserPowerWhitelistInternal");
+        try {
+            Object res =
+                    XposedHelpers.callMethod(deviceIdleController, "getUserPowerWhitelistInternal");
+            return (String[]) res;
+        } catch (Throwable e) {
+            XposedLog.wtf("getUserPowerWhitelistInternal call fail: " + e);
+            return ArrayUtil.newEmptyStringArray();
+        }
+    }
+
     public String[] getFullPowerWhitelistInternal() {
         XposedLog.verbose("getFullPowerWhitelistInternal");
         try {
