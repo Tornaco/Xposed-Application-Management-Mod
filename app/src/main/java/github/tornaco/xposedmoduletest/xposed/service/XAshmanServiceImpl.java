@@ -119,6 +119,7 @@ import github.tornaco.xposedmoduletest.xposed.service.bandwidth.BandwidthCommand
 import github.tornaco.xposedmoduletest.xposed.service.doze.BatterState;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DozeStateRetriever;
+import github.tornaco.xposedmoduletest.xposed.service.doze.PowerWhitelistBackend;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.service.shell.AshShellCommand;
@@ -859,6 +860,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private static final int MAX_RETRY_TIME_TO_SIZE = 99;
 
     private DeviceIdleControllerProxy mDeviceIdleController;
+    private PowerWhitelistBackend mPowerWhitelistBackend;
 
     private final DozeEvent mLastDozeEvent = new DozeEvent();
 
@@ -1255,7 +1257,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void attachDeviceIdleController(DeviceIdleControllerProxy proxy) {
         mDeviceIdleController = proxy;
+        mPowerWhitelistBackend = PowerWhitelistBackend.getInstance(mDeviceIdleController);
         XposedLog.boot("mDeviceIdleController: " + proxy);
+        XposedLog.boot("mPowerWhitelistBackend: " + mPowerWhitelistBackend);
     }
 
     @Override

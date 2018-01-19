@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.xposed.service.doze;
 import android.util.Log;
 
 import de.robv.android.xposed.XposedHelpers;
+import github.tornaco.xposedmoduletest.util.ArrayUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
@@ -206,6 +207,54 @@ public class DeviceIdleControllerProxy {
         } catch (Throwable e) {
             XposedLog.wtf("isForceIdle call fail: " + Log.getStackTraceString(e));
             return false;
+        }
+    }
+
+    public boolean addPowerSaveWhitelistAppInternal(String name) {
+        XposedLog.verbose("addPowerSaveWhitelistAppInternal: " + name);
+        try {
+            Object res =
+                    XposedHelpers.callMethod(deviceIdleController, "addPowerSaveWhitelistAppInternal", name);
+            return (boolean) res;
+        } catch (Throwable e) {
+            XposedLog.wtf("addPowerSaveWhitelistAppInternal call fail: " + e);
+            return false;
+        }
+    }
+
+    public boolean removePowerSaveWhitelistAppInternal(String name) {
+        XposedLog.verbose("removePowerSaveWhitelistAppInternal: " + name);
+        try {
+            Object res =
+                    XposedHelpers.callMethod(deviceIdleController, "removePowerSaveWhitelistAppInternal", name);
+            return (boolean) res;
+        } catch (Throwable e) {
+            XposedLog.wtf("removePowerSaveWhitelistAppInternal call fail: " + e);
+            return false;
+        }
+    }
+
+    public String[] getFullPowerWhitelistInternal() {
+        XposedLog.verbose("getFullPowerWhitelistInternal");
+        try {
+            Object res =
+                    XposedHelpers.callMethod(deviceIdleController, "getFullPowerWhitelistInternal");
+            return (String[]) res;
+        } catch (Throwable e) {
+            XposedLog.wtf("getFullPowerWhitelistInternal call fail: " + e);
+            return ArrayUtil.newEmptyStringArray();
+        }
+    }
+
+    public String[] getSystemPowerWhitelistInternal() {
+        XposedLog.verbose("getSystemPowerWhitelistInternal");
+        try {
+            Object res =
+                    XposedHelpers.callMethod(deviceIdleController, "getSystemPowerWhitelistInternal");
+            return (String[]) res;
+        } catch (Throwable e) {
+            XposedLog.wtf("getSystemPowerWhitelistInternal call fail: " + e);
+            return ArrayUtil.newEmptyStringArray();
         }
     }
 }

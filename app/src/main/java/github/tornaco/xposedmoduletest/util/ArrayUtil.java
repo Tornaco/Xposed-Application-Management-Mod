@@ -1,7 +1,5 @@
 package github.tornaco.xposedmoduletest.util;
 
-import java.util.ArrayList;
-
 /**
  * Created by guohao4 on 2017/12/28.
  * Email: Tornaco@163.com
@@ -13,6 +11,10 @@ public abstract class ArrayUtil {
 
     public static String[] emptyStringArray() {
         return EMPTY_STRING_ARRAY;
+    }
+
+    public static String[] newEmptyStringArray() {
+        return new String[0];
     }
 
     public static String[] convertObjectArrayToStringArray(Object[] objArr) {
