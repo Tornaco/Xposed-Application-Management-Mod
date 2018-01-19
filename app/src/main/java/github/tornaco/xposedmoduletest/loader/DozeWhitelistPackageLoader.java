@@ -5,11 +5,15 @@ import android.support.annotation.NonNull;
 
 import com.google.common.collect.Sets;
 
+import org.newstand.logger.Logger;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.util.ArrayUtil;
 import github.tornaco.xposedmoduletest.util.PinyinComparator;
@@ -44,6 +48,10 @@ public interface DozeWhitelistPackageLoader {
 
             XAshmanManager xAshmanManager = XAshmanManager.get();
             if (!xAshmanManager.isServiceAvailable()) return out;
+
+            if (BuildConfig.DEBUG) {
+                Logger.e(Arrays.toString(xAshmanManager.getFullPowerWhitelist()));
+            }
 
             String[] system = xAshmanManager.getSystemPowerWhitelist();
             Set<String> systemSet = Sets.newHashSet(system);
