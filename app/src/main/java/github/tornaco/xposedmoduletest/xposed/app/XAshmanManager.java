@@ -1295,4 +1295,12 @@ public class XAshmanManager {
             return ArrayUtil.newEmptyStringArray();
         }
     }
+
+    public ActivityManager.MemoryInfo getMemoryInfo() {
+        try {
+            return mService.getMemoryInfo();
+        } catch (RemoteException e) {
+            return new ActivityManager.MemoryInfo();
+        }
+    }
 }

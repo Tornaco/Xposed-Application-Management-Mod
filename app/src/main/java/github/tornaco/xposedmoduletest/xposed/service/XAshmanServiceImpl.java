@@ -5006,6 +5006,22 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return mDeviceIdleController.getUserPowerWhitelistInternal();
     }
 
+    @Override
+    @BinderCall
+    public ActivityManager.MemoryInfo getMemoryInfo() throws RemoteException {
+        long ident = Binder.clearCallingIdentity();
+        try {
+            ActivityManager.MemoryInfo m = new ActivityManager.MemoryInfo();
+            ActivityManagerNative.getDefault().getMemoryInfo(m);
+            return m;
+        } catch (Throwable e) {
+            XposedLog.wtf("getMemoryInfo: " + Log.getStackTraceString(e));
+        } finally {
+            Binder.restoreCallingIdentity(ident);
+        }
+        return new ActivityManager.MemoryInfo();
+    }
+
     @BinderCall
     @Override
     public String[] getSystemPowerWhitelist() throws RemoteException {

@@ -308,4 +308,7 @@ interface IAshmanService {
      String[] getFullPowerWhitelist();
      String[] getSystemPowerWhitelist();
      String[] getUserPowerWhitelist();
+
+     // Memory api.
+     MemoryInfo getMemoryInfo();
 }

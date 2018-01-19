@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.ui.activity;
 
+import android.app.ActivityManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -24,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -75,6 +77,7 @@ import github.tornaco.xposedmoduletest.xposed.XApp;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import lombok.Getter;
 
 /**
@@ -387,7 +390,10 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                     .setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            showPopMenu(v);
+                            if (BuildConfig.DEBUG) {
+                                // Only show power for debug mode.
+                                showPowerPopMenu(v);
+                            }
                         }
                     });
 
@@ -434,6 +440,43 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                 imageView.setImageResource(isServiceAvailable()
                         ? R.drawable.ic_check_circle_black_24dp
                         : R.drawable.ic_error_black_24dp);
+            }
+
+            setupMemInfo();
+        }
+
+        private void setupMemInfo() {
+            if (XAshmanManager.get().isServiceAvailable()) {
+                findView(rootView, R.id.mem).setVisibility(View.VISIBLE);
+                final TextView memInfoText = rootView.findViewById(R.id.mem_info);
+                final ProgressBar memPercentView = rootView.findViewById(R.id.mem_percent);
+                XExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            ActivityManager.MemoryInfo m = XAshmanManager.get().getMemoryInfo();
+                            Logger.e("setupMemInfo: " + m);
+                            if (m != null) {
+                                final String infoStr = FileUtil.formatSize(m.availMem) + "/" + FileUtil.formatSize(m.totalMem);
+                                final int percent = (int) (100 * (((float) m.availMem / (float) m.totalMem)));
+                                BaseActivity baseActivity = (BaseActivity) getActivity();
+                                if (baseActivity != null) {
+                                    baseActivity.runOnUiThreadChecked(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            memInfoText.setText(infoStr);
+                                            memPercentView.setProgress(percent);
+                                        }
+                                    });
+                                }
+                            }
+                        } catch (Throwable ignored) {
+                            Logger.e("setupMemInfo: " + ignored);
+                        }
+                    }
+                });
+            } else {
+                findView(rootView, R.id.mem).setVisibility(View.GONE);
             }
         }
 
@@ -536,7 +579,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             return (T) root.findViewById(idRes);
         }
 
-        protected void showPopMenu(View anchor) {
+        protected void showPowerPopMenu(View anchor) {
             PopupMenu popupMenu = new PopupMenu(getContext(), anchor);
             popupMenu.inflate(getPopupMenuRes());
             popupMenu.setOnMenuItemClickListener(onCreateOnMenuItemClickListener());
