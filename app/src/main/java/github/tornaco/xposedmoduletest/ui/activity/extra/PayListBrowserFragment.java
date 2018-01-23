@@ -91,6 +91,7 @@ public class PayListBrowserFragment extends Fragment {
                             public void run() {
                                 adapter.update(extras);
                                 swipeRefreshLayout.setRefreshing(false);
+                                getActivity().setTitle(getString(R.string.title_pay_list) + "\t" + extras.size());
                             }
                         });
                     }

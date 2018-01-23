@@ -401,7 +401,8 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             if (isNewBuild) {
                 statusTitle.setText(R.string.title_service_need_action);
             } else {
-                if (isServiceAvailable()) {
+                boolean isDonatedOrPlay = XApp.isPlayVersion() || AppSettings.isDonated(getContext());
+                if (isServiceAvailable() && isDonatedOrPlay) {
                     statusTitle.setText(R.string.title_device_status);
                 } else {
                     statusTitle.setText(R.string.title_service_not_connected);
