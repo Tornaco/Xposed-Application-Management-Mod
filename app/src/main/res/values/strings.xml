@@ -385,5 +385,6 @@
     <string name="title_device_status">健康状况</string>
     <string name="title_device_status_good">设备运行状况良好。</string>
     <string name="donated">我已经捐赠</string>
+    <string name="donated_available">捐赠版可用</string>
 
 </resources>

@@ -38,6 +38,7 @@ import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoViewer
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.SpannableUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import github.tornaco.xposedmoduletest.xposed.XApp;
 
 public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
 
@@ -95,6 +96,11 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
                 switchBar.hide();
             }
         });
+
+        boolean donateOrPlay = XApp.isPlayVersion() || AppSettings.isDonated(getContext());
+        if (!donateOrPlay) {
+            tabLayout.getTabAt(INDEX_OPS).setText(R.string.donated_available);
+        }
 
     }
 
@@ -211,6 +217,8 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
                     return ComponentLoader.Impl.create(getActivity()).loadInstalledApps(mShowSystemApp,
                             ComponentLoader.Sort.byName());
                 case INDEX_OPS:
+                    boolean donateOrPlay = XApp.isPlayVersion() || AppSettings.isDonated(getContext());
+                    if (!donateOrPlay) return new ArrayList(0);
                     return PermissionLoader.Impl.create(getActivity())
                             .loadOps(0);
             }
