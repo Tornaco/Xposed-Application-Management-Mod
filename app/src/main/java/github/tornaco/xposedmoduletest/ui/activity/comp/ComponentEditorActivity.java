@@ -760,9 +760,12 @@ public class ComponentEditorActivity extends WithSearchActivity<Searchable>
             d.show();
 
             XExecutor.execute(new Runnable() {
+                @SuppressWarnings("unchecked")
                 @Override
                 public void run() {
-                    Collections.consumeRemaining(getComponentListAdapter().getData(),
+                    // Use copy data, avoid current modify err.
+                    List dataCopy = new ArrayList(getComponentListAdapter().getData());
+                    Collections.consumeRemaining(dataCopy,
                             new Consumer() {
                                 @Override
                                 public void accept(Object o) {

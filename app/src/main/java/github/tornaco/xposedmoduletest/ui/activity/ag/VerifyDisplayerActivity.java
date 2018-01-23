@@ -334,7 +334,11 @@ public class VerifyDisplayerActivity extends BaseActivity {
             }
             XAppGuardManager.get().setResult(tid, XAppVerifyMode.MODE_ALLOWED);
         } finally {
-            finish();
+            try{
+                finish();
+            }catch (Throwable ignored){
+                // Go dead.
+            }
         }
     }
 
