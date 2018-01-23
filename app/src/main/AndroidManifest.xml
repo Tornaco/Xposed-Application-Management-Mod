@@ -37,6 +37,8 @@
             android:name="xposedminversion"
             android:value="53" />
 
+        <activity android:name=".ui.activity.test.TestAIOActivity" />
+
         <activity
             android:name=".ui.activity.ag.VerifyDisplayerActivity"
             android:excludeFromRecents="true"

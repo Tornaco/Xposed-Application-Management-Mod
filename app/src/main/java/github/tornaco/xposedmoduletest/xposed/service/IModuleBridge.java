@@ -10,6 +10,7 @@ import android.view.KeyEvent;
 
 import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
+import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
 
 /**
  * Created by guohao4 on 2017/11/1.
@@ -95,6 +96,8 @@ public interface IModuleBridge {
     void attachDeviceIdleController(DeviceIdleControllerProxy proxy);
 
     void attachNotificationService(NotificationManagerServiceProxy proxy);
+
+    void attachPhoneWindowManager(PhoneWindowManagerProxy proxy);
 
     boolean checkService(ComponentName service, int callerUid) throws RemoteException;
 

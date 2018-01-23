@@ -43,7 +43,6 @@ import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.compat.os.PowerManagerCompat;
 import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.FragmentController;
@@ -53,6 +52,7 @@ import github.tornaco.xposedmoduletest.ui.activity.app.AppDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.GetPlayVersionActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.ToolsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.helper.RunningServicesActivity;
+import github.tornaco.xposedmoduletest.ui.activity.test.TestAIOActivity;
 import github.tornaco.xposedmoduletest.ui.activity.whyyouhere.UserGuideActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
@@ -313,10 +313,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             navigateToWebPage(getString(R.string.app_rel_url));
         }
 
-        if (item.getItemId() == R.id.action_view_running_services) {
-            startActivity(new Intent(this, RunningServicesActivity.class));
-        }
-
         if (item.getItemId() == R.id.action_change_column_count) {
             boolean two = AppSettings.show2ColumnsIn(getActivity(), NavigatorActivity.class.getSimpleName());
             AppSettings.setShow2ColumnsIn(getContext(), NavigatorActivity.class.getSimpleName(), !two);
@@ -397,57 +393,80 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                         }
                     });
 
+            // Setup title.
             TextView statusTitle = findView(rootView, android.R.id.title);
-            ImageView imageView = findView(rootView, R.id.icon1);
-
-            ViewGroup btnContainer = findView(rootView, R.id.button_container);
-            Button button = findView(rootView, R.id.button);
 
             boolean isNewBuild = AppSettings.isNewBuild(getActivity());
-            btnContainer.setVisibility(View.GONE);
 
-            statusTitle.setText(isServiceAvailable() ?
-                    R.string.title_service_connected : R.string.title_service_not_connected);
+            if (isNewBuild) {
+                statusTitle.setText(R.string.title_service_need_action);
+            } else {
+                if (isServiceAvailable()) {
+                    statusTitle.setText(R.string.title_device_status);
+                } else {
+                    statusTitle.setText(R.string.title_service_not_connected);
+                }
+            }
 
             TextView summaryView = findView(rootView, android.R.id.text1);
+
+
+            // Setup Icon.
+            ImageView imageView = findView(rootView, R.id.icon1);
 
             if (isNewBuild) {
                 summaryView.setText(R.string.app_intro_need_restart);
                 ViewGroup header = findView(rootView, R.id.header1);
                 header.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.amber));
                 imageView.setImageResource(R.drawable.ic_error_black_24dp);
-
-                button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        PowerManagerCompat.restartAndroid();
-                    }
-                });
             } else {
-
                 TypedValue typedValue = new TypedValue();
                 getActivity().getTheme().resolveAttribute(R.attr.torCardAccentBackgroundColor, typedValue, true);
                 int resId = typedValue.resourceId;
 
                 int cardAccentColor = ContextCompat.getColor(getActivity(), resId);
 
-                summaryView.setText(R.string.app_intro);
                 ViewGroup header = findView(rootView, R.id.header1);
                 header.setBackgroundColor(
                         XAppGuardManager.get().isServiceAvailable() ?
                                 cardAccentColor
                                 : ContextCompat.getColor(getActivity(), R.color.red));
                 imageView.setImageResource(isServiceAvailable()
-                        ? R.drawable.ic_check_circle_black_24dp
+                        ? R.drawable.ic_multiline_chart_black_24dp
                         : R.drawable.ic_error_black_24dp);
             }
 
-            setupMemInfo();
+            setupDeviceStatus();
         }
 
-        private void setupMemInfo() {
-            if (XAshmanManager.get().isServiceAvailable()) {
-                findView(rootView, R.id.mem).setVisibility(View.VISIBLE);
+        private void setupDeviceStatus() {
+
+            boolean isNewBuild = AppSettings.isNewBuild(getActivity());
+            boolean isDonatedOrPlay = XApp.isPlayVersion() || AppSettings.isDonated(getContext());
+            boolean serviceAvailable = isServiceAvailable();
+
+            ViewGroup btnContainer = findView(rootView, R.id.button_container);
+            btnContainer.setVisibility(!isNewBuild && serviceAvailable && isDonatedOrPlay ? View.VISIBLE : View.GONE);
+            findView(rootView, R.id.mem).setVisibility((!isNewBuild && isDonatedOrPlay && serviceAvailable) ? View.VISIBLE : View.GONE);
+            // Do not setup for new build.
+            if (isNewBuild) return;
+
+            final TextView summaryView = findView(rootView, android.R.id.text1);
+
+            if (!serviceAvailable) {
+                summaryView.setText(R.string.app_intro);
+            }
+
+            if (serviceAvailable && isDonatedOrPlay) {
+
+                Button button = findView(rootView, R.id.button);
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startActivity(new Intent(getActivity(), RunningServicesActivity.class));
+                    }
+                });
+
                 final TextView memInfoText = rootView.findViewById(R.id.mem_info);
                 final ProgressBar memPercentView = rootView.findViewById(R.id.mem_percent);
                 XExecutor.execute(new Runnable() {
@@ -455,7 +474,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                     public void run() {
                         try {
                             ActivityManager.MemoryInfo m = XAshmanManager.get().getMemoryInfo();
-                            Logger.e("setupMemInfo: " + m);
+                            Logger.e("setupDeviceStatus: " + m);
                             if (m != null) {
                                 final String infoStr = FileUtil.formatSize(m.availMem) + "/" + FileUtil.formatSize(m.totalMem);
                                 final int percent = (int) (100 * (((float) m.availMem / (float) m.totalMem)));
@@ -466,12 +485,13 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                                         public void run() {
                                             memInfoText.setText(infoStr);
                                             memPercentView.setProgress(percent);
+                                            summaryView.setText(R.string.title_device_status_good);
                                         }
                                     });
                                 }
                             }
                         } catch (Throwable ignored) {
-                            Logger.e("setupMemInfo: " + ignored);
+                            Logger.e("setupDeviceStatus: " + ignored);
                         }
                     }
                 });
@@ -598,6 +618,9 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                     }
                     if (item.getItemId() == R.id.action_restart_bl) {
                         executeCommandAsync("reboot bootloader");
+                    }
+                    if (item.getItemId() == R.id.action_start_test) {
+                        TestAIOActivity.start(getContext());
                     }
                     return false;
                 }

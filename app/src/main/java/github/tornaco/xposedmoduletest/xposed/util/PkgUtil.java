@@ -274,7 +274,9 @@ public class PkgUtil {
 
         // Use our running apps cal only for 3-rd app.
         if (!systemApp) {
-            return sRunningApps.contains(pkg);
+            boolean running =  sRunningApps.contains(pkg);
+            if (!running) return false;
+            // Do not rely on the true res for 3-rd apps, also check by system.
         }
 
 

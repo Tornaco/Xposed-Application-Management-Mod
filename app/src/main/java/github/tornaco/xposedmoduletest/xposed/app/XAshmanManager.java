@@ -18,6 +18,7 @@ import java.util.List;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
+import github.tornaco.xposedmoduletest.IBooleanCallback1;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
@@ -1301,6 +1302,38 @@ public class XAshmanManager {
             return mService.getMemoryInfo();
         } catch (RemoteException e) {
             return new ActivityManager.MemoryInfo();
+        }
+    }
+
+    public void enableKeyguard(boolean enabled) {
+        try {
+            mService.enableKeyguard(enabled);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public void exitKeyguardSecurely(IBooleanCallback1 result) {
+        try {
+            mService.exitKeyguardSecurely(result);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public void dismissKeyguardLw() {
+        try {
+            mService.dismissKeyguardLw();
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public boolean isKeyguardLocked() {
+        try {
+            return mService.isKeyguardLocked();
+        } catch (RemoteException e) {
+            return false;
         }
     }
 }

@@ -36,6 +36,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import github.tornaco.xposedmoduletest.R;
+import lombok.Getter;
+import lombok.Setter;
 
 public class SwitchBar extends LinearLayout implements CompoundButton.OnCheckedChangeListener,
         View.OnClickListener {
@@ -63,6 +65,10 @@ public class SwitchBar extends LinearLayout implements CompoundButton.OnCheckedC
     public SwitchBar(Context context, AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
+
+    @Setter
+    @Getter
+    private int onRes, offRes;
 
     @SuppressWarnings("ResourceType")
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -104,7 +110,9 @@ public class SwitchBar extends LinearLayout implements CompoundButton.OnCheckedC
 
     public void setTextViewLabel(boolean isChecked) {
         mLabel = getResources()
-                .getString(isChecked ? R.string.switch_on_text : R.string.switch_off_text);
+                .getString(isChecked
+                        ? (onRes > 0 ? onRes : R.string.switch_on_text)
+                        : (offRes > 0 ? offRes : R.string.switch_off_text));
         updateText();
     }
 

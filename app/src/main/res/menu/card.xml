@@ -17,4 +17,9 @@
         android:id="@+id/action_restart_bl"
         android:title="@string/title_restart_bl"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_start_test"
+        android:title="@string/title_start_test"
+        app:showAsAction="never" />
 </menu>

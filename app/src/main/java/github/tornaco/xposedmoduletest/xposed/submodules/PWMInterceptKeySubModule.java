@@ -12,6 +12,7 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
+import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -30,7 +31,35 @@ class PWMInterceptKeySubModule extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
+        hookPhoneWindowManagerConstruct(lpparam);
         hookInterceptKeyBeforeQueueing(lpparam);
+    }
+
+    private void hookPhoneWindowManagerConstruct(final XC_LoadPackage.LoadPackageParam lpparam) {
+        logOnBootStage("hookPhoneWindowManagerConstruct...");
+        try {
+            Class clz =
+                    OSUtil.isMOrAbove() ?
+                            XposedHelpers.findClass("com.android.server.policy.PhoneWindowManager",
+                                    lpparam.classLoader)
+                            : XposedHelpers.findClass("com.android.internal.policy.impl.PhoneWindowManager",
+                            lpparam.classLoader);
+            Set unHooks = XposedBridge.hookAllConstructors(clz, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    super.afterHookedMethod(param);
+                    logOnBootStage("PhoneWindowManager constructing...");
+                    PhoneWindowManagerProxy phoneWindowManagerProxy = new PhoneWindowManagerProxy(param.thisObject);
+                    getBridge().attachPhoneWindowManager(phoneWindowManagerProxy);
+                }
+            });
+            logOnBootStage("hookPhoneWindowManagerConstruct OK:" + unHooks);
+            setStatus(unhooksToStatus(unHooks));
+        } catch (Exception e) {
+            logOnBootStage("Fail hookPhoneWindowManagerConstruct:" + e);
+            setStatus(SubModuleStatus.ERROR);
+            setErrorMessage(Log.getStackTraceString(e));
+        }
     }
 
     private void hookInterceptKeyBeforeQueueing(final XC_LoadPackage.LoadPackageParam lpparam) {

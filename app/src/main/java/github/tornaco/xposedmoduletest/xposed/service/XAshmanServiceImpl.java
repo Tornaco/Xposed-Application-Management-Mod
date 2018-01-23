@@ -58,6 +58,7 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.view.KeyEvent;
 import android.view.WindowManager;
+import android.view.WindowManagerPolicy;
 import android.webkit.IWebViewUpdateService;
 import android.webkit.WebViewProviderInfo;
 import android.widget.Toast;
@@ -95,6 +96,7 @@ import github.tornaco.android.common.Consumer;
 import github.tornaco.android.common.Holder;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
+import github.tornaco.xposedmoduletest.IBooleanCallback1;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
@@ -121,6 +123,7 @@ import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerP
 import github.tornaco.xposedmoduletest.xposed.service.doze.DozeStateRetriever;
 import github.tornaco.xposedmoduletest.xposed.service.doze.PowerWhitelistBackend;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
+import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.service.shell.AshShellCommand;
 import github.tornaco.xposedmoduletest.xposed.submodules.InputManagerInjectInputSubModule;
@@ -1266,6 +1269,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public void attachNotificationService(NotificationManagerServiceProxy proxy) {
         mNotificationService = proxy;
         XposedLog.boot("mNotificationService: " + proxy);
+    }
+
+    private PhoneWindowManagerProxy mPhoneWindowManagerProxy;
+
+    @Override
+    public void attachPhoneWindowManager(PhoneWindowManagerProxy proxy) {
+        mPhoneWindowManagerProxy = proxy;
+        XposedLog.boot("attachPhoneWindowManager: " + proxy);
     }
 
     @Override
@@ -5020,6 +5031,76 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             Binder.restoreCallingIdentity(ident);
         }
         return new ActivityManager.MemoryInfo();
+    }
+
+    private void wrapCallingIdetUnCaught(Runnable r) {
+        long idet = Binder.clearCallingIdentity();
+        try {
+            r.run();
+        } finally {
+            Binder.restoreCallingIdentity(idet);
+        }
+    }
+
+    @Override
+    @BinderCall
+    public void enableKeyguard(final boolean enabled) throws RemoteException {
+        if (mPhoneWindowManagerProxy != null) {
+            wrapCallingIdetUnCaught(new ErrorCatchRunnable(new Runnable() {
+                @Override
+                public void run() {
+                    mPhoneWindowManagerProxy.enableKeyguard(enabled);
+                }
+            }, "enableKeyguard"));
+        }
+    }
+
+    @BinderCall
+    @Override
+    public void exitKeyguardSecurely(final IBooleanCallback1 result) throws RemoteException {
+        XposedLog.verbose("exitKeyguardSecurely: " + mPhoneWindowManagerProxy);
+        if (mPhoneWindowManagerProxy != null) {
+            wrapCallingIdetUnCaught(new ErrorCatchRunnable(new Runnable() {
+                @Override
+                public void run() {
+                    mPhoneWindowManagerProxy.exitKeyguardSecurely(new WindowManagerPolicy
+                            .OnKeyguardExitResult() {
+                        @Override
+                        public void onKeyguardExitResult(boolean success) {
+                            if (result != null) {
+                                try {
+                                    result.onResult(success);
+                                } catch (RemoteException e) {
+                                    XposedLog.wtf("exitKeyguardSecurely,  result.onResult: " + e);
+                                }
+                            }
+                        }
+                    });
+                }
+            }, "exitKeyguardSecurely"));
+        }
+    }
+
+    @BinderCall
+    @Override
+    public void dismissKeyguardLw() throws RemoteException {
+        if (mPhoneWindowManagerProxy != null) {
+            wrapCallingIdetUnCaught(new ErrorCatchRunnable(new Runnable() {
+                @Override
+                public void run() {
+                    mPhoneWindowManagerProxy.dismissKeyguardLw();
+                }
+            }, "dismissKeyguardLw"));
+        }
+    }
+
+    @BinderCall
+    @Override
+    public boolean isKeyguardLocked() throws RemoteException {
+        if (mPhoneWindowManagerProxy != null) {
+            return mPhoneWindowManagerProxy.isKeyguardLocked();
+        }
+        return false;
     }
 
     @BinderCall

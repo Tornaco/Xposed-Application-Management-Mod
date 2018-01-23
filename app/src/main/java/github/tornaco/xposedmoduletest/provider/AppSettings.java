@@ -6,6 +6,7 @@ import android.text.TextUtils;
 
 import java.util.Observable;
 
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.XApp;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.service.BuildFingerprintBuildHostInfo;
@@ -43,6 +44,18 @@ public class AppSettings extends Observable {
     public static boolean isDrawVibrateEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(AppKey.DRAW_VIBRATE, false);
+    }
+
+    // Always return true for ZUK or Lenovo device.
+    public static boolean isDonated(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(AppKey.DONATED, OSUtil.isLenovoDevice()
+                        || OSUtil.isNTDDevice());
+    }
+
+    public static void setDonated(Context context, boolean donated) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit().putBoolean(AppKey.DONATED, donated).apply();
     }
 
     public static boolean isFirstRun(Context context) {
@@ -87,17 +100,6 @@ public class AppSettings extends Observable {
     }
 
     public static boolean isNewBuild(Context context) {
-//        try {
-//            String buildDateOld = PreferenceManager.getDefaultSharedPreferences(context)
-//                    .getString(AppKey.BUILD_DATE, null);
-//            return buildDateOld != null
-//                    && !buildDateOld.equals(XAppBuildHostInfo.BUILD_DATE);
-//        } finally {
-//            PreferenceManager.getDefaultSharedPreferences(context)
-//                    .edit()
-//                    .putString(AppKey.BUILD_DATE, XAppBuildHostInfo.BUILD_DATE)
-//                    .apply();
-//        }
         String serverSerial = XAshmanManager.get().isServiceAvailable() ? XAshmanManager.get().getBuildSerial() : null;
         if (serverSerial == null) return false;
         String appBuildSerial = BuildFingerprintBuildHostInfo.BUILD_FINGER_PRINT;

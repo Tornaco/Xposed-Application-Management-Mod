@@ -47,4 +47,12 @@ public abstract class OSUtil {
         PackageManager pm = context.getPackageManager();
         return pm.hasSystemFeature(PackageManager.FEATURE_LIVE_TV);
     }
+
+    public static boolean isLenovoDevice() {
+        return Build.MANUFACTURER.contains("ZUK") || Build.MANUFACTURER.contains("Lenovo");
+    }
+
+    public static boolean isNTDDevice() {
+        return Build.MANUFACTURER.contains("NTD");
+    }
 }

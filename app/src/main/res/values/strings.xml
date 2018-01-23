@@ -46,6 +46,7 @@
     <string name="title_theme">主题</string>
     <string name="title_service_connected">已激活</string>
     <string name="title_service_not_connected">未激活</string>
+    <string name="title_service_need_action">需要采取行动</string>
     <string name="theme_def">DEFAULT</string>
     <string name="title_open_source">源代码</string>
     <string name="title_app_recent_blur">卡片模糊</string>
@@ -143,7 +144,7 @@
     <string name="title_activity_donate">捐赠</string>
 
     <string name="action_settings">设置</string>
-    <string name="donate_intro">开发个应用很辛苦。请我吃一包辣条吧。。。。。。。。请我的话记得留下昵称~</string>
+    <string name="donate_intro">开发者很辛苦。请他喝杯咖啡休息下吧~ 记得留下昵称~</string>
     <string name="title_developer">开发者</string>
     <string name="title_support">支持我</string>
     <string name="title_export">导出</string>
@@ -379,5 +380,10 @@
     <string name="title_doze_white_list">电池忽略名单</string>
     <string name="summary_doze_white_list">%1$s个应用被忽略</string>
     <string name="title_doze_system_app">不可配置</string>
+    <string name="title_start_test">Test</string>
+    <string name="title_app_ana">应用排查</string>
+    <string name="title_device_status">健康状况</string>
+    <string name="title_device_status_good">设备运行状况良好。</string>
+    <string name="donated">我已经捐赠</string>
 
 </resources>

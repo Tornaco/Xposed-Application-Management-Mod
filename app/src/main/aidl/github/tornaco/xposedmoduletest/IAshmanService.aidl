@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest;
 
+import github.tornaco.xposedmoduletest.IBooleanCallback1;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
@@ -311,4 +312,13 @@ interface IAshmanService {
 
      // Memory api.
      MemoryInfo getMemoryInfo();
+
+     // Keyguard api.
+     void enableKeyguard(boolean enabled);
+
+     void exitKeyguardSecurely(in IBooleanCallback1 result);
+
+     void dismissKeyguardLw();
+
+     boolean isKeyguardLocked();
 }
