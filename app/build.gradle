@@ -10,8 +10,8 @@ android {
         applicationId "github.tornaco.xposedmoduletest"
         minSdkVersion rootProject.ext.minSdkVersion as int
         targetSdkVersion rootProject.ext.compileSdkVersion as int
-        versionCode 4032
-        versionName "4.3.2"
+        versionCode 4033
+        versionName "4.3.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
