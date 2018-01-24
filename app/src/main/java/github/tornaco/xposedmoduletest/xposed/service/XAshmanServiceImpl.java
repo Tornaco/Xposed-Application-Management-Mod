@@ -5103,6 +5103,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return false;
     }
 
+    @Override
+    @BinderCall
+    public int getRunningProcessCount() throws RemoteException {
+        return PkgUtil.getRunningAppsCount(getContext());
+    }
+
     @BinderCall
     @Override
     public String[] getSystemPowerWhitelist() throws RemoteException {

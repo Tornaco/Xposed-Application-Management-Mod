@@ -31,6 +31,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.common.collect.Lists;
 import com.nononsenseapps.filepicker.FilePickerActivity;
@@ -67,6 +68,7 @@ import github.tornaco.xposedmoduletest.ui.adapter.ReceiverSettingsAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.ServiceSettingsAdapter;
 import github.tornaco.xposedmoduletest.util.ComponentUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import github.tornaco.xposedmoduletest.xposed.XApp;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -752,6 +754,11 @@ public class ComponentEditorActivity extends WithSearchActivity<Searchable>
         }
 
         void onRequestEnabledDisableAll(final boolean enable) {
+            if (getActivity() == null) {
+                Toast.makeText(XApp.getApp(), R.string.err_context_null, Toast.LENGTH_LONG).show();
+                return;
+            }
+
             final ProgressDialog d = new ProgressDialog(getActivity());
             d.setIndeterminate(true);
             d.setTitle("不要离开");

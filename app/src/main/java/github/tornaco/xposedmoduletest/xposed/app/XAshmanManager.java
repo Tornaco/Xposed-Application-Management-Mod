@@ -1336,4 +1336,12 @@ public class XAshmanManager {
             return false;
         }
     }
+
+    public int getRunningProcessCount() {
+        try {
+            return mService.getRunningProcessCount();
+        } catch (RemoteException e) {
+            return 0;
+        }
+    }
 }

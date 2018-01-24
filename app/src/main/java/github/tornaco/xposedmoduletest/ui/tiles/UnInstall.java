@@ -8,6 +8,7 @@ import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.uninstall.UnstallProAppNavActivity;
+import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -19,6 +20,10 @@ public class UnInstall extends QuickTile {
     public UnInstall(final Context context) {
         super(context);
         this.titleRes = R.string.title_app_uninstall_pro;
+        if (XAppGuardManager.get().isServiceAvailable()) {
+            this.summaryRes = XAppGuardManager.get().isUninstallInterruptEnabled() ?
+                    R.string.summary_func_enabled : 0;
+        }
         this.iconRes = R.drawable.ic_do_not_disturb_on_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override

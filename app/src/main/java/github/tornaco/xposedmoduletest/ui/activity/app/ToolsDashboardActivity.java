@@ -6,8 +6,8 @@ import android.support.annotation.Nullable;
 import java.util.List;
 
 import dev.nick.tiles.tile.Category;
-import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.ui.ActivityLifeCycleDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppDevMode;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CrashDump;
@@ -29,7 +29,7 @@ public class ToolsDashboardActivity extends WithWithCustomTabActivity {
         replaceV4(R.id.container, new Dashboards(), null, false);
     }
 
-    public static class Dashboards extends DashboardFragment {
+    public static class Dashboards extends ActivityLifeCycleDashboardFragment {
         @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);

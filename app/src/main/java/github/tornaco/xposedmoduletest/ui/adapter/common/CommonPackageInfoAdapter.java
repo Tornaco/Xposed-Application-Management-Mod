@@ -38,7 +38,7 @@ import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOption
 public class CommonPackageInfoAdapter
         extends RecyclerView.Adapter<CommonPackageInfoAdapter.CommonViewHolder>
         implements FastScrollRecyclerView.SectionedAdapter {
-
+    @Getter
     private Context context;
 
     @Getter

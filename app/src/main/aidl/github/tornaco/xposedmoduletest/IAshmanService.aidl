@@ -321,4 +321,6 @@ interface IAshmanService {
      void dismissKeyguardLw();
 
      boolean isKeyguardLocked();
+
+     int getRunningProcessCount();
 }

@@ -10,7 +10,7 @@
     <string name="title_view_photos">查看闯入者</string>
     <string name="title_take_photo">闯入抓拍</string>
     <string name="title_dev_mode">调试模式</string>
-    <string name="title_exp">实验</string>
+    <string name="title_exp">实验功能</string>
     <string name="title_advance">高级</string>
     <string name="summary_dev_mode">激活日志输出，启用某些实验性能，耗电会增加，非开发者无需启用此项设置。</string>
     <string name="summary_take_photo">当密码输入错误时，尝试保存一张前置摄像头的照片，注意，能否保存成功一定程度上取决于你设备的相机预览开启速度以及输入者手速。</string>
@@ -36,7 +36,7 @@
     <string name="title_donate">捐赠</string>
     <string name="title_show_system_app">显示系统应用</string>
     <string name="first_run_title">XXXXX？!</string>
-    <string name="message_first_run">常用软件不要禁，流氓应用关牢笼；\n\n遇到问题不要急，看看说明或可以；\n\n实在不行抓log，发给开发谢谢你！</string>
+    <string name="message_first_run">本应用开发目的是为了尽可能的阻止不常用的APP对系统资源的消耗，常用的APP不要进行任何干涉，否则可能造成使用上的困扰，浪费许多时间和精力，甚至影响自己的生活，造成蝴蝶效应（爱折腾，愿意主动动手解决问题的朋友例外），因此你并不需要用到所有功能。\n\n新版本对Play版本以及捐赠过的朋友提供了一些额外的小功能，如果你已经捐赠过，请前往 捐赠 勾选我己经捐赠即可。Play版本无需进行此项设定即可使用所有功能。</string>
     <string name="title_use_fp">使用指纹</string>
     <string name="title_ver_on_home">应用切换时重新验证</string>
     <string name="summary_always_need_verify">默认机制是当屏幕熄灭重新点亮时，之前验证过的应用才会需要重新验证，如果启用了此选项，将会每次都需要验证</string>
@@ -140,11 +140,11 @@
     <string name="title_import_service_settings">导入服务配置</string>
     <string name="title_import_broadcast_settings">导入广播配置</string>
     <string name="title_import_activity_settings">导入活动配置</string>
-    <string name="title_control">控制</string>
+    <string name="title_control">控制 · 高级功能</string>
     <string name="title_activity_donate">捐赠</string>
 
     <string name="action_settings">设置</string>
-    <string name="donate_intro">开发者很辛苦。请他喝杯咖啡休息下吧~ 记得留下昵称~</string>
+    <string name="donate_intro">开发很辛苦，占用了很多个人休息时间，请他喝杯咖啡休息下吧~ 记得留下昵称~\n已经捐赠过的朋友请不要重复捐赠，作者没有服务器为你们存储凭据:( 请大家直接勾选上面的已经捐赠按钮，非常感谢你们的支持，因为你们的支持，作者才有了坚持的动力:)</string>
     <string name="title_developer">开发者</string>
     <string name="title_support">支持我</string>
     <string name="title_export">导出</string>
@@ -386,5 +386,8 @@
     <string name="title_device_status_good">设备运行状况良好。</string>
     <string name="donated">我已经捐赠</string>
     <string name="donated_available">捐赠版可用</string>
+    <string name="err_context_null">糟糕，无法获取所在的活动，无法显示对话框，蛋疼！</string>
+    <string name="summary_func_enabled">已启用</string>
+    <string name="summary_func_disabled">未启用</string>
 
 </resources>

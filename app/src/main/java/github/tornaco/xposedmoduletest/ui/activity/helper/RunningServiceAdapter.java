@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.View;
 
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.ui.activity.app.PerAppSettingsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 
 /**
@@ -26,10 +27,16 @@ public class RunningServiceAdapter extends CommonPackageInfoAdapter {
     @Override
     public void onBindViewHolder(CommonViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
-        RunningServiceInfoDisplay display = (RunningServiceInfoDisplay) getCommonPackageInfos().get(position);
+        final RunningServiceInfoDisplay display = (RunningServiceInfoDisplay) getCommonPackageInfos().get(position);
         holder.getLineTwoTextView().setText(display.getMergedItem().mDescription);
         holder.getSystemAppIndicator().setVisibility(View.VISIBLE);
         holder.getSystemAppIndicator().setText(display.getMergedItem().mSizeStr);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PerAppSettingsDashboardActivity.start(getContext(), display.getPkgName());
+            }
+        });
     }
 
     @Override

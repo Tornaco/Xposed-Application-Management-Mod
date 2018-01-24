@@ -7,8 +7,8 @@ import android.view.View;
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.ui.activity.blur.BlurAppNavActivity;
 import github.tornaco.xposedmoduletest.ui.activity.lazy.LazyAppNavActivity;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -20,7 +20,10 @@ public class Lazy extends QuickTile {
     public Lazy(final Context context) {
         super(context);
         this.titleRes = R.string.title_app_lazy;
-        this.summaryRes = R.string.summary_exp;
+        if (XAshmanManager.get().isServiceAvailable()) {
+            this.summaryRes = XAshmanManager.get().isLazyModeEnabled() ?
+                    R.string.summary_func_enabled : 0;
+        }
         this.iconRes = R.drawable.ic_child_care_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override

@@ -9,7 +9,6 @@ import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -40,11 +39,11 @@ import co.mobiwise.materialintro.shape.Focus;
 import co.mobiwise.materialintro.shape.FocusGravity;
 import co.mobiwise.materialintro.view.MaterialIntroView;
 import dev.nick.tiles.tile.Category;
-import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
+import github.tornaco.xposedmoduletest.ui.ActivityLifeCycleDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.FragmentController;
 import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.activity.app.AboutDashboardActivity;
@@ -89,7 +88,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     @Getter
-    private FragmentController cardController;
+    private FragmentController<ActivityLifeCycleDashboardFragment> cardController;
 
     protected int getUserSetThemeResId(Themes themes) {
         return themes.getThemeStyleResNoActionBarDrawer();
@@ -184,7 +183,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                         boolean guideRead = AppSettings.isGuideRead(getContext());
                         TextView userLevel = drawer.findViewById(R.id.user_name);
 
-                        if ((XApp.isPlayVersion() || BuildConfig.DEBUG)
+                        if ((XApp.isPlayVersion() || AppSettings.isDonated(getContext()) || BuildConfig.DEBUG)
                                 && XAshmanManager.get().isServiceAvailable()) {
                             String userName = XAshmanManager.get().getUserName();
                             if (userName != null) {
@@ -230,11 +229,17 @@ public class NavigatorActivity extends WithWithCustomTabActivity
     }
 
     protected void setupFragment() {
-        final List<? extends Fragment> cards =
+        final List<ActivityLifeCycleDashboardFragment> cards =
                 ImmutableList.of(onCreateFragment(), new ToolsDashboardActivity.Dashboards());
-        cardController = new FragmentController(getSupportFragmentManager(), cards, R.id.container);
+        cardController = new FragmentController<>(getSupportFragmentManager(), cards, R.id.container);
         cardController.setDefaultIndex(0);
         cardController.setCurrent(0);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        cardController.getCurrent().onActivityResume();
     }
 
     @Override
@@ -322,7 +327,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         return super.onOptionsItemSelected(item);
     }
 
-    protected Fragment onCreateFragment() {
+    protected ActivityLifeCycleDashboardFragment onCreateFragment() {
         return new NavigatorFragment();
     }
 
@@ -358,7 +363,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         return true;
     }
 
-    public static class NavigatorFragment extends DashboardFragment {
+    public static class NavigatorFragment extends ActivityLifeCycleDashboardFragment {
         @Getter
         private View rootView;
 
@@ -376,8 +381,14 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             rootView = super.onCreateView(inflater, container, savedInstanceState);
-            setupView();
             return rootView;
+        }
+
+        @Override
+        public void onActivityResume() {
+            super.onActivityResume();
+            setupView();
+            buildUI(getActivity());
         }
 
         private void setupView() {
@@ -405,7 +416,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                 if (isServiceAvailable() && isDonatedOrPlay) {
                     statusTitle.setText(R.string.title_device_status);
                 } else {
-                    statusTitle.setText(R.string.title_service_not_connected);
+                    statusTitle.setText(isServiceAvailable() ? R.string.title_service_connected : R.string.title_service_not_connected);
                 }
             }
 
@@ -432,8 +443,9 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                         XAppGuardManager.get().isServiceAvailable() ?
                                 cardAccentColor
                                 : ContextCompat.getColor(getActivity(), R.color.red));
+                boolean isDonatedOrPlay = XApp.isPlayVersion() || AppSettings.isDonated(getContext());
                 imageView.setImageResource(isServiceAvailable()
-                        ? R.drawable.ic_multiline_chart_black_24dp
+                        ? isDonatedOrPlay ? R.drawable.ic_multiline_chart_black_24dp : R.drawable.ic_check_circle_black_24dp
                         : R.drawable.ic_error_black_24dp);
             }
 
@@ -544,10 +556,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                 rest.addTile(new TRKill(getActivity()));
             }
 
-            if ((XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_LAZY))) {
-                rest.addTile(new Lazy(getActivity()));
-            }
-
             Category ash = new Category();
             ash.titleRes = R.string.title_control;
 
@@ -576,18 +584,23 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                 ash.addTile(new NFManager(getActivity()));
             }
 
-            Category battery = new Category();
-            battery.titleRes = R.string.title_battery;
+            Category exp = new Category();
+            exp.titleRes = R.string.title_exp;
 
             // L do not support doze.
             if (OSUtil.isMOrAbove() && XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_DOZE)) {
-                battery.addTile(new Doze(getActivity()));
+                exp.addTile(new Doze(getActivity()));
+            }
+
+
+            if ((XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_LAZY))) {
+                exp.addTile(new Lazy(getActivity()));
             }
 
             if (category.getTilesCount() > 0) categories.add(category);
             if (rest.getTilesCount() > 0) categories.add(rest);
             if (ash.getTilesCount() > 0) categories.add(ash);
-            if (battery.getTilesCount() > 0) categories.add(battery);
+            if (exp.getTilesCount() > 0) categories.add(exp);
         }
 
         @SuppressWarnings("unchecked")

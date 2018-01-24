@@ -27,18 +27,18 @@ import java.util.List;
 import github.tornaco.android.common.Collections;
 import github.tornaco.xposedmoduletest.R;
 
-public class FragmentController {
+public class FragmentController<T extends Fragment> {
 
-    private List<? extends Fragment> mPages;
+    private List<T> mPages;
     private FragmentManager mFragmentManager;
 
-    private Fragment mCurrent;
+    private T mCurrent;
 
     private int mDefIndex = 0;
 
     private int containerId = R.id.container;
 
-    public FragmentController(FragmentManager manager, List<? extends Fragment> safeFragments, int id) {
+    public FragmentController(FragmentManager manager, List<T> safeFragments, int id) {
         this.mFragmentManager = manager;
         this.mPages = safeFragments;
         this.containerId = id;
@@ -70,7 +70,7 @@ public class FragmentController {
         mDefIndex = index;
     }
 
-    public Fragment getCurrent() {
+    public T getCurrent() {
         return mCurrent == null ? mPages.get(mDefIndex) : mCurrent;
     }
 
@@ -78,7 +78,7 @@ public class FragmentController {
         FragmentManager fragmentManager = mFragmentManager;
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.hide(getCurrent());
-        Fragment current = mPages.get(index);
+        T current = mPages.get(index);
         transaction.show(current);
         transaction.commitAllowingStateLoss();
         mCurrent = current;

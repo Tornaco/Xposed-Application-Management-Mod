@@ -259,6 +259,13 @@ public class PkgUtil {
 
     private static final Set<String> sRunningApps = new HashSet<>();
 
+    public static int getRunningAppsCount(Context context) {
+        List<ActivityManager.RunningAppProcessInfo> processes =
+                ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE))
+                        .getRunningAppProcesses();
+        return processes == null ? 0 : processes.size();
+    }
+
     public static void onAppLaunched(String who, String reason) {
         XposedLog.verbose("onAppLaunched: " + who + ", reason: " + reason);
         sRunningApps.add(who);
@@ -274,7 +281,7 @@ public class PkgUtil {
 
         // Use our running apps cal only for 3-rd app.
         if (!systemApp) {
-            boolean running =  sRunningApps.contains(pkg);
+            boolean running = sRunningApps.contains(pkg);
             if (!running) return false;
             // Do not rely on the true res for 3-rd apps, also check by system.
         }

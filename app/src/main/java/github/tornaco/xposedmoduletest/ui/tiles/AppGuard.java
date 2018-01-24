@@ -8,6 +8,8 @@ import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.ag.GuardAppNavActivity;
+import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -19,6 +21,10 @@ public class AppGuard extends QuickTile {
     public AppGuard(final Context context) {
         super(context);
         this.titleRes = R.string.title_app_guard;
+        if (XAppGuardManager.get().isServiceAvailable()) {
+            this.summaryRes = XAppGuardManager.get().isEnabled() ?
+                    R.string.summary_func_enabled : 0;
+        }
         this.iconRes = R.drawable.ic_lock_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override
