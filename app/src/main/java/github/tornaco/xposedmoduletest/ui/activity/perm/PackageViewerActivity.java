@@ -54,7 +54,8 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity {
 
     @Override
     protected List<CommonPackageInfo> performLoading() {
-        return ComponentLoader.Impl.create(this).loadInstalledApps(mShowSystemApp, ComponentLoader.Sort.byName());
+        return ComponentLoader.Impl.create(this).loadInstalledApps(mShowSystemApp,
+                ComponentLoader.Sort.byName(), FilterOption.OPTION_ALL_APPS);
     }
 
     @Override

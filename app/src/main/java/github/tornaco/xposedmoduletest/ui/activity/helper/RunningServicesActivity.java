@@ -39,11 +39,6 @@ public class RunningServicesActivity
     public void onResume() {
         super.onResume();
         // mState.resume();
-
-        if (BuildConfig.DEBUG) {
-            ActivityManager.MemoryInfo m = XAshmanManager.get().getMemoryInfo();
-            Logger.e("Mem: " + m.availMem + "/" + m.totalMem);
-        }
     }
 
     @Override
@@ -68,8 +63,8 @@ public class RunningServicesActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_change_cached) {
             mShowCache = !mShowCache;
+            startLoading();
         }
-        startLoading();
         return super.onOptionsItemSelected(item);
     }
 

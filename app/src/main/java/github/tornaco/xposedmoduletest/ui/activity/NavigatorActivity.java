@@ -636,6 +636,9 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                     if (item.getItemId() == R.id.action_start_test) {
                         TestAIOActivity.start(getContext());
                     }
+                    if (item.getItemId() == R.id.action_running_services) {
+                        startActivity(new Intent(getActivity(), RunningServicesActivity.class));
+                    }
                     return false;
                 }
             };

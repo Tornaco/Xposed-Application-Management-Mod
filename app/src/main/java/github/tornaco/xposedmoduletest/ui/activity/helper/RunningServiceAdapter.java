@@ -1,8 +1,12 @@
 package github.tornaco.xposedmoduletest.ui.activity.helper;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 
+import org.newstand.logger.Logger;
+
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.app.PerAppSettingsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
@@ -23,13 +27,15 @@ public class RunningServiceAdapter extends CommonPackageInfoAdapter {
         return R.layout.app_list_item_2;
     }
 
-
     @Override
     public void onBindViewHolder(CommonViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         final RunningServiceInfoDisplay display = (RunningServiceInfoDisplay) getCommonPackageInfos().get(position);
         holder.getLineTwoTextView().setText(display.getMergedItem().mDescription);
         holder.getSystemAppIndicator().setVisibility(View.VISIBLE);
+        if (BuildConfig.DEBUG) {
+            Logger.e("mem for this app: " + display.getMergedItem().mSizeStr);
+        }
         holder.getSystemAppIndicator().setText(display.getMergedItem().mSizeStr);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -37,6 +43,11 @@ public class RunningServiceAdapter extends CommonPackageInfoAdapter {
                 PerAppSettingsDashboardActivity.start(getContext(), display.getPkgName());
             }
         });
+    }
+
+    @Override
+    protected int getSystemAppIndicatorColor(int appLevel) {
+        return ContextCompat.getColor(getContext(), R.color.amber_dark);
     }
 
     @Override

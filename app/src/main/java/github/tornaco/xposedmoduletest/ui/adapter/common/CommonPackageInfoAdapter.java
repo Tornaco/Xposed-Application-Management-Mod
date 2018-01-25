@@ -120,7 +120,6 @@ public class CommonPackageInfoAdapter
     }
 
     protected int getSystemAppIndicatorColor(int appLevel) {
-
         switch (appLevel) {
             case XAshmanManager.AppLevel.THIRD_PARTY:
                 return 0;

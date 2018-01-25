@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.ui.activity.common;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
@@ -10,6 +11,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import org.newstand.logger.Logger;
@@ -26,7 +32,9 @@ import github.tornaco.xposedmoduletest.ui.activity.NeedLockActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * Created by guohao4 on 2017/12/18.
@@ -128,10 +136,51 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
                 SwitchBar switchBar = findViewById(R.id.switchbar);
                 if (switchBar == null) return;
                 onInitSwitchBar(switchBar);
+
+                ViewGroup filterContainer = findViewById(R.id.apps_filter_spinner_container);
+                onInitFilterSpinner(filterContainer);
             }
         });
 
         setupSummaryView();
+    }
+
+    protected void onInitFilterSpinner(ViewGroup filterContainer) {
+        if (filterContainer == null) return;
+        Spinner spinner = filterContainer.findViewById(R.id.filter_spinner);
+        SpinnerAdapter adapter = onCreateSpinnerAdapter(spinner);
+        if (adapter == null) {
+            filterContainer.setVisibility(View.GONE);
+        } else {
+            filterContainer.setVisibility(View.VISIBLE);
+            spinner.setAdapter(adapter);
+            spinner.setOnItemSelectedListener(onCreateSpinnerItemSelectListener());
+            if (getDefaultFilterSpinnerSelection() > 0) {
+                spinner.setSelection(getDefaultFilterSpinnerSelection());
+            }
+        }
+    }
+
+    protected int getDefaultFilterSpinnerSelection() {
+        return -1;
+    }
+
+    protected AdapterView.OnItemSelectedListener onCreateSpinnerItemSelectListener() {
+        return new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // Nothing.
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Nothing.
+            }
+        };
+    }
+
+    protected SpinnerAdapter onCreateSpinnerAdapter(Spinner spinner) {
+        return null;
     }
 
     protected void onFabClick() {
@@ -316,5 +365,51 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
                     }
                 });
         return res;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @ToString
+    public static class FilterOption {
+        public static final int OPTION_ALL_APPS = 0x1;
+        public static final int OPTION_ENABLED_APPS = 0x2;
+        public static final int OPTION_DISABLED_APPS = 0x3;
+
+        public static final int OPTION_SYSTEM_APPS = 0x4;
+        public static final int OPTION_SYSTEM_CORE_APPS = 0x5;
+        public static final int OPTION_3RD_APPS = 0x6;
+
+
+        private int titleRes;
+        private int option;
+    }
+
+    @Getter
+    public static class FilterSpinnerAdapter extends ArrayAdapter<CharSequence> {
+
+        private List<FilterOption> filterOptions;
+        private Context context;
+
+        public FilterSpinnerAdapter(@NonNull Context context,
+                                    @NonNull List<FilterOption> filterOptions) {
+            super(context, R.layout.filter_spinner_item);
+            this.context = context;
+            this.filterOptions = filterOptions;
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        }
+
+        @Override
+        public int getCount() {
+            return filterOptions.size();
+        }
+
+        @Override
+        public CharSequence getItem(int position) {
+            return getFilterString(filterOptions.get(position));
+        }
+
+        private CharSequence getFilterString(FilterOption filter) {
+            return getContext().getString(filter.getTitleRes());
+        }
     }
 }

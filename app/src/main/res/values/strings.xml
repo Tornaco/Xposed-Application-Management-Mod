@@ -383,11 +383,16 @@
     <string name="title_start_test">Test</string>
     <string name="title_app_ana">应用排查</string>
     <string name="title_device_status">健康状况</string>
-    <string name="title_device_status_good">设备运行状况良好。</string>
+    <string name="title_device_status_good">模块已激活，设备运行状况良好。</string>
     <string name="donated">我已经捐赠</string>
     <string name="donated_available">捐赠版可用</string>
     <string name="err_context_null">糟糕，无法获取所在的活动，无法显示对话框，蛋疼！</string>
     <string name="summary_func_enabled">已启用</string>
     <string name="summary_func_disabled">未启用</string>
+    <string name="title_all_items">全部</string>
+    <string name="configure">配置</string>
+    <string name="filter_installed_apps">已安装</string>
+    <string name="filter_enabled_apps">已启用</string>
+    <string name="filter_disabled_apps">已冻结</string>
 
 </resources>

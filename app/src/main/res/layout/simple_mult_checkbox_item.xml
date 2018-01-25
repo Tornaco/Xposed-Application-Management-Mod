@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_view"
+    style="@style/CardCommon"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:layout_margin="2dp"
+    card_view:cardCornerRadius="1dp"
+    card_view:cardElevation="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:minHeight="@dimen/common_item_min_height">
+
+        <ImageView
+            android:id="@+id/checkable_img_view"
+            android:layout_width="@dimen/thumbnail_size_small"
+            android:layout_height="@dimen/thumbnail_size_small"
+            android:layout_gravity="center"
+            android:layout_marginEnd="8dip"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:src="@mipmap/ic_launcher_round" />
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@android:id/title"
+                style="@style/ListItemMainText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:layout_toStartOf="@android:id/text1"
+                android:ellipsize="marquee"
+                android:fadingEdge="horizontal"
+                android:maxLines="30"
+                android:text="@string/app_name" />
+
+            <github.tornaco.xposedmoduletest.ui.widget.MultipleCheckableView
+                android:id="@+id/checkable_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@android:id/title" />
+
+        </RelativeLayout>
+    </LinearLayout>
+</android.support.v7.widget.CardView>

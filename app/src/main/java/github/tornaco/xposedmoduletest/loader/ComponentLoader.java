@@ -23,6 +23,7 @@ import github.tornaco.xposedmoduletest.model.ActivityInfoSettingsList;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettings;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettingsList;
+import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.util.ComponentUtil;
 import github.tornaco.xposedmoduletest.util.PinyinComparator;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -68,7 +69,7 @@ public interface ComponentLoader {
         }
     }
 
-    List<CommonPackageInfo> loadInstalledApps(boolean showSystem, Sort sort);
+    List<CommonPackageInfo> loadInstalledApps(boolean showSystem, Sort sort, int filterOption);
 
     List<CommonPackageInfo> loadInstalledAppsWithOp(boolean showSystem, Sort sort);
 
@@ -100,7 +101,7 @@ public interface ComponentLoader {
         }
 
         @Override
-        public List<CommonPackageInfo> loadInstalledApps(boolean showSystem, Sort sort) {
+        public List<CommonPackageInfo> loadInstalledApps(boolean showSystem, Sort sort, int filterOption) {
             String[] packages = XAshmanManager.get().getInstalledApps(
                     showSystem ? XAshmanManager.FLAG_SHOW_SYSTEM_APP : XAshmanManager.FLAG_NONE);
             List<CommonPackageInfo> res = new ArrayList<>();
@@ -113,7 +114,12 @@ public interface ComponentLoader {
                         && state != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
                 packageInfo.setDisabled(disabled);
 
-                res.add(packageInfo);
+                boolean match = (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_DISABLED_APPS && packageInfo.isDisabled())
+                        || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ENABLED_APPS && !packageInfo.isDisabled())
+                        || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ALL_APPS);
+                if (match) {
+                    res.add(packageInfo);
+                }
             }
             sort.performSort(res);
             return res;
