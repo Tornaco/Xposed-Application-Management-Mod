@@ -652,9 +652,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             Collections.consumeRemaining(packages, new Consumer<String>() {
                 @Override
                 public void accept(String p) {
-                    if (mService.isWhiteSysAppEnabled() && isInSystemAppList(p)) {
-                        return;
-                    }
                     noSys.add(p);
                 }
             });
@@ -674,7 +671,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                     if (outList.contains(s)) return;// Kik dup package.
                     if (isPackageInLockList(s)) return;
                     if (PREBUILT_WHITE_LIST.contains(s)) return; // Do not set lock for these.
-                    if (mService.isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
                     outList.add(s);
                 }
             });
@@ -707,9 +703,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             Collections.consumeRemaining(packages, new Consumer<String>() {
                 @Override
                 public void accept(String p) {
-                    if (mService.isWhiteSysAppEnabled() && isInSystemAppList(p)) {
-                        return;
-                    }
                     noSys.add(p);
                 }
             });
@@ -730,7 +723,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                     if (outList.contains(s)) return;// Kik dup package.
                     if (isPackageInBlurList(s)) return;
                     if (PREBUILT_WHITE_LIST.contains(s)) return; // Do not set lock for these.
-                    if (mService.isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
                     outList.add(s);
                 }
             });
