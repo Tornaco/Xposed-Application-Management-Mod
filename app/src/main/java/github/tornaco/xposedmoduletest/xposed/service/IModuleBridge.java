@@ -11,6 +11,7 @@ import android.view.KeyEvent;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
+import github.tornaco.xposedmoduletest.xposed.submodules.SubModule;
 
 /**
  * Created by guohao4 on 2017/11/1.
@@ -18,6 +19,8 @@ import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerP
  */
 
 public interface IModuleBridge {
+
+    void onModuleInitError(SubModule module);
 
     @CommonBringUpApi
     void attachContext(Context context);

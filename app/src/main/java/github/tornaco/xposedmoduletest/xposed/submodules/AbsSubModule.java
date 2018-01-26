@@ -22,7 +22,6 @@ abstract class AbsSubModule implements SubModule {
     private IModuleBridge bridge;
 
     @Getter
-    @Setter
     private SubModuleStatus status = SubModuleStatus.UNKNOWN;
 
     @Getter
@@ -53,6 +52,13 @@ abstract class AbsSubModule implements SubModule {
     public void onBridgeCreate(IModuleBridge bridge) {
         this.bridge = bridge;
         XposedLog.verbose("onBridgeCreate@" + bridge.serial() + ", assign to: " + getClass().getName());
+    }
+
+    public void setStatus(SubModuleStatus status) {
+        this.status = status;
+        if (this.status == SubModuleStatus.ERROR) {
+            getBridge().onModuleInitError(this);
+        }
     }
 
     @Override

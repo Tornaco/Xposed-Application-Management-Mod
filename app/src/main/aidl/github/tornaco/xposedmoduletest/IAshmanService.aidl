@@ -323,4 +323,6 @@ interface IAshmanService {
      boolean isKeyguardLocked();
 
      int getRunningProcessCount();
+
+     boolean hasModuleError();
 }

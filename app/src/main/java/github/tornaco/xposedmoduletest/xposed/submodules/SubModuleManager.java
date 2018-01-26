@@ -5,6 +5,7 @@ import android.os.Build;
 import java.util.HashSet;
 import java.util.Set;
 
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -118,6 +119,10 @@ public class SubModuleManager {
         addToSubsChecked(new ActivityStackSupervisorSetFocusedStackSubModule());
 
         // APPGUARD MODULES END.
+
+        if (BuildConfig.DEBUG) {
+            addToSubsChecked(new DebugOnlyTestModuleErrorSubModule());
+        }
     }
 
     @Synchronized

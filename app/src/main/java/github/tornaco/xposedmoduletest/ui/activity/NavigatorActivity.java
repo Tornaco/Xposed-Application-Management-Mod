@@ -498,7 +498,11 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                                         public void run() {
                                             memInfoText.setText(infoStr);
                                             memPercentView.setProgress(percent);
-                                            summaryView.setText(R.string.title_device_status_good);
+                                            boolean hasModuleError = XAshmanManager.get().hasModuleError();
+                                            summaryView.setText(
+                                                    hasModuleError
+                                                            ? R.string.title_device_status_module_err
+                                                            : R.string.title_device_status_good);
                                         }
                                     });
                                 }

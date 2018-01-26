@@ -165,18 +165,18 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
 
     protected void showSwitchBarIntro(SwitchBar switchBar) {
         if (isLocking()) return;
-        new MaterialIntroView.Builder(getActivity())
-                .enableDotAnimation(true)
-                .enableIcon(false)
-                .setFocusGravity(FocusGravity.RIGHT)
-                .setFocusType(Focus.MINIMUM)
-                .setDelayMillis(500)
-                .enableFadeAnimation(true)
-                .performClick(false)
-                .setInfoText(getString(R.string.app_intro_switchbar))
-                .setTarget(switchBar)
-                .setUsageId(getClass().getSimpleName() + "switchBar")
-                .show();
+//        new MaterialIntroView.Builder(getActivity())
+//                .enableDotAnimation(true)
+//                .enableIcon(false)
+//                .setFocusGravity(FocusGravity.RIGHT)
+//                .setFocusType(Focus.MINIMUM)
+//                .setDelayMillis(500)
+//                .enableFadeAnimation(true)
+//                .performClick(false)
+//                .setInfoText(getString(R.string.app_intro_switchbar))
+//                .setTarget(switchBar)
+//                .setUsageId("switchBar")
+//                .show();
     }
 
     protected void showFilterSpinnerIntro(Spinner spinner) {
@@ -191,7 +191,7 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
                 .performClick(false)
                 .setInfoText(getString(R.string.app_intro_filter_spinner))
                 .setTarget(spinner)
-                .setUsageId(getClass().getSimpleName() + "filter_spinner")
+                .setUsageId("filter_spinner")
                 .show();
     }
 
