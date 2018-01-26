@@ -3,14 +3,12 @@ package github.tornaco.xposedmoduletest.loader;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import org.newstand.logger.Logger;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
+import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.util.PinyinComparator;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
@@ -22,7 +20,7 @@ import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 public interface BootPackageLoader {
 
     @NonNull
-    List<CommonPackageInfo> loadInstalled(boolean blocked);
+    List<CommonPackageInfo> loadInstalled(int filterOption, boolean blocked);
 
     class Impl implements BootPackageLoader {
 
@@ -38,26 +36,23 @@ public interface BootPackageLoader {
 
         @NonNull
         @Override
-        public List<CommonPackageInfo> loadInstalled(boolean blocked) {
+        public List<CommonPackageInfo> loadInstalled(int filterOption, boolean blocked) {
             List<CommonPackageInfo> out = new ArrayList<>();
 
             XAshmanManager xAshmanManager = XAshmanManager.get();
             if (!xAshmanManager.isServiceAvailable()) return out;
 
             String[] packages = xAshmanManager.getBootBlockApps(blocked);
-            Logger.d(Arrays.toString(packages));
-            int length = packages.length;
 
             for (String pkg : packages) {
                 CommonPackageInfo p = LoaderUtil.constructCommonPackageInfo(context, pkg);
-                if (p != null) {
-                    Logger.d("Adding: " + pkg);
-                    out.add(p);
-                }
-            }
+                if (p == null) continue;
+                boolean match = filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ALL_APPS
+                        || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_3RD_APPS && !p.isSystemApp())
+                        || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_SYSTEM_APPS && p.isSystemApp());
 
-            int size = out.size();
-            Logger.d("Adding: " + size + ", expected: " + length);
+                if (match) out.add(p);
+            }
 
             java.util.Collections.sort(out, new BootComparator());
 

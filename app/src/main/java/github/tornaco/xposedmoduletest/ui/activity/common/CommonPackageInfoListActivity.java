@@ -23,6 +23,9 @@ import org.newstand.logger.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
+import co.mobiwise.materialintro.shape.Focus;
+import co.mobiwise.materialintro.shape.FocusGravity;
+import co.mobiwise.materialintro.view.MaterialIntroView;
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
@@ -128,14 +131,29 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
                             startLoading();
                         }
                     });
+
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    } else {
+                    }
+                }
+            });
         }
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 SwitchBar switchBar = findViewById(R.id.switchbar);
-                if (switchBar == null) return;
-                onInitSwitchBar(switchBar);
+                if (switchBar != null) {
+                    onInitSwitchBar(switchBar);
+
+                    if (switchBar.isShowing()) {
+                        showSwitchBarIntro(switchBar);
+                    }
+                }
 
                 ViewGroup filterContainer = findViewById(R.id.apps_filter_spinner_container);
                 onInitFilterSpinner(filterContainer);
@@ -143,6 +161,50 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
         });
 
         setupSummaryView();
+    }
+
+    protected void showSwitchBarIntro(SwitchBar switchBar) {
+        if (isLocking()) return;
+        new MaterialIntroView.Builder(getActivity())
+                .enableDotAnimation(true)
+                .enableIcon(false)
+                .setFocusGravity(FocusGravity.RIGHT)
+                .setFocusType(Focus.MINIMUM)
+                .setDelayMillis(500)
+                .enableFadeAnimation(true)
+                .performClick(false)
+                .setInfoText(getString(R.string.app_intro_switchbar))
+                .setTarget(switchBar)
+                .setUsageId(getClass().getSimpleName() + "switchBar")
+                .show();
+    }
+
+    protected void showFilterSpinnerIntro(Spinner spinner) {
+        if (isLocking()) return;
+        new MaterialIntroView.Builder(getActivity())
+                .enableDotAnimation(true)
+                .enableIcon(false)
+                .setFocusGravity(FocusGravity.RIGHT)
+                .setFocusType(Focus.MINIMUM)
+                .setDelayMillis(500)
+                .enableFadeAnimation(true)
+                .performClick(false)
+                .setInfoText(getString(R.string.app_intro_filter_spinner))
+                .setTarget(spinner)
+                .setUsageId(getClass().getSimpleName() + "filter_spinner")
+                .show();
+    }
+
+    protected void hideSwitchBar() {
+        SwitchBar switchBar = findViewById(R.id.switchbar);
+        if (switchBar == null) return;
+        switchBar.hide();
+    }
+
+    protected void showSwitchBar() {
+        SwitchBar switchBar = findViewById(R.id.switchbar);
+        if (switchBar == null) return;
+        switchBar.show();
     }
 
     protected void onInitFilterSpinner(ViewGroup filterContainer) {
@@ -158,6 +220,7 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
             if (getDefaultFilterSpinnerSelection() > 0) {
                 spinner.setSelection(getDefaultFilterSpinnerSelection());
             }
+            showFilterSpinnerIntro(spinner);
         }
     }
 
@@ -389,6 +452,7 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
 
         private List<FilterOption> filterOptions;
         private Context context;
+
 
         public FilterSpinnerAdapter(@NonNull Context context,
                                     @NonNull List<FilterOption> filterOptions) {

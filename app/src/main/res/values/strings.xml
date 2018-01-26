@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">应用管理</string>
     <string name="manage_overlay">管理叠加层</string>
-    <string name="switch_on_text">功能已打开</string>
-    <string name="switch_off_text">功能已关闭</string>
+    <string name="switch_on_text">已启用</string>
+    <string name="switch_off_text">未启用</string>
     <string name="test_noter">密码测试</string>
     <string name="input_password">%1$s 已锁定</string>
     <string name="dump_module">模块运行状态</string>
@@ -357,6 +357,8 @@
     <string name="ignore_allow_all">全部禁用</string>
     <string name="title_app_update_log_view">更新日志</string>
     <string name="app_intro_menu">此处菜单包含新手常见问题，以及更新日志，请务必先阅读在使用。</string>
+    <string name="app_intro_switchbar">点击此处开启/关闭本功能</string>
+    <string name="app_intro_filter_spinner">点击此处，过滤下方列表内容</string>
     <string name="title_app_oreo_update">Android Oreo 升级</string>
     <string name="message_oreo_update">在进行Oreo适配的过程中，由于Oreo上对SeLinux的策略的更改，导致之前的Binder通信方案不适用于Oreo版本，因此我们将应用管理的Binder服务作为TV服务注入，如果你不清楚上面在说什么也没关系，只要明确以下两点：\n1. 本应用在8.0以及以上版本，不适用于Android TV（电视）设备（当前设备是TV设备）。\n2. 如果其他模块作者也采用这种TV注入方式（可能性不大，或许有更好的注入方式，通常作者会告知），那么这两个模块将只能其中一个正常工作。</string>
     <string name="message_oreo_update_not_tv">在进行Oreo适配的过程中，由于Oreo上对SeLinux的策略的更改，导致之前的Binder通信方案不适用于Oreo版本，因此我们将应用管理的Binder服务作为TV服务注入，如果你不清楚上面在说什么也没关系，只要明确以下两点：\n1. 本应用在8.0以及以上版本，不适用于Android TV（电视）设备（当前设备不是TV设备）。\n2. 如果其他模块作者也采用这种TV注入方式（可能性不大，或许有更好的注入方式，通常作者会告知），那么这两个模块将只能其中一个正常工作。</string>
@@ -391,8 +393,10 @@
     <string name="summary_func_disabled">未启用</string>
     <string name="title_all_items">全部</string>
     <string name="configure">配置</string>
-    <string name="filter_installed_apps">已安装</string>
+    <string name="filter_installed_apps">全部</string>
     <string name="filter_enabled_apps">已启用</string>
     <string name="filter_disabled_apps">已冻结</string>
+    <string name="filter_system_apps">系统应用</string>
+    <string name="filter_third_party_apps">用户安装</string>
 
 </resources>

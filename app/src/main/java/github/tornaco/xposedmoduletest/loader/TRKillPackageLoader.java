@@ -2,16 +2,15 @@ package github.tornaco.xposedmoduletest.loader;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
+import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.util.PinyinComparator;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
-import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
  * Created by guohao4 on 2017/10/18.
@@ -21,7 +20,7 @@ import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 public interface TRKillPackageLoader {
 
     @NonNull
-    List<CommonPackageInfo> loadInstalled(boolean kill);
+    List<CommonPackageInfo> loadInstalled(int filterOption, boolean kill);
 
     class Impl implements TRKillPackageLoader {
 
@@ -37,7 +36,7 @@ public interface TRKillPackageLoader {
 
         @NonNull
         @Override
-        public List<CommonPackageInfo> loadInstalled(boolean kill) {
+        public List<CommonPackageInfo> loadInstalled(int filterOption, boolean kill) {
 
             List<CommonPackageInfo> out = new ArrayList<>();
 
@@ -48,7 +47,12 @@ public interface TRKillPackageLoader {
 
             for (String pkg : packages) {
                 CommonPackageInfo p = LoaderUtil.constructCommonPackageInfo(context, pkg);
-                if (p != null) out.add(p);
+                if (p == null) continue;
+                boolean match = filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ALL_APPS
+                        || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_3RD_APPS && !p.isSystemApp())
+                        || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_SYSTEM_APPS && p.isSystemApp());
+
+                if (match) out.add(p);
             }
             java.util.Collections.sort(out, new RFComparator());
 

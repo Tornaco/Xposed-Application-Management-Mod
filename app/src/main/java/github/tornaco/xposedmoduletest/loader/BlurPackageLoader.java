@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
+import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 
 /**
@@ -17,7 +18,7 @@ import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 public interface BlurPackageLoader {
 
     @NonNull
-    List<CommonPackageInfo> loadInstalled(boolean blur);
+    List<CommonPackageInfo> loadInstalled(int filterOption, boolean blur);
 
     class Impl implements BlurPackageLoader {
 
@@ -33,7 +34,7 @@ public interface BlurPackageLoader {
 
         @NonNull
         @Override
-        public List<CommonPackageInfo> loadInstalled(boolean blur) {
+        public List<CommonPackageInfo> loadInstalled(int filterOption, boolean blur) {
 
             List<CommonPackageInfo> out = new ArrayList<>();
 
@@ -44,7 +45,12 @@ public interface BlurPackageLoader {
 
             for (String pkg : packages) {
                 CommonPackageInfo p = LoaderUtil.constructCommonPackageInfo(context, pkg);
-                if (p != null) out.add(p);
+                if (p == null) continue;
+                boolean match = filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ALL_APPS
+                        || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_3RD_APPS && !p.isSystemApp())
+                        || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_SYSTEM_APPS && p.isSystemApp());
+
+                if (match) out.add(p);
             }
 
             LoaderUtil.commonSort(out);

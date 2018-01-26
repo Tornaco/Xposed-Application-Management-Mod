@@ -325,7 +325,6 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.perm.PackageViewerActivity"
-
             android:label="@string/title_perm_control"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity

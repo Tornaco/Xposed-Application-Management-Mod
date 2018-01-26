@@ -402,7 +402,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                 new FilterOption(R.string.filter_disabled_apps, FilterOption.OPTION_DISABLED_APPS)
         );
         mFilterOptions = options;
-        return new FilterSpinnerAdapter(getContext(), options);
+        return new FilterSpinnerAdapter(getActivity(), options);
     }
 
     @Override

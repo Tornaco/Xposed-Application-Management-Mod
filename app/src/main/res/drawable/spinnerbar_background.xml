@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-     Copyright (C) 2015 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2014 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,12 +13,8 @@
      limitations under the License.
 -->
 
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@android:id/text1"
-    style="?android:attr/spinnerItemStyle"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:ellipsize="marquee"
-    android:singleLine="true"
-    android:textAlignment="inherit"
-    android:textAppearance="@style/TextAppearance.Switch" />
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?android:attr/colorControlHighlight">
+    <item android:drawable="?torCardBackgroundColor" />
+</ripple>
+

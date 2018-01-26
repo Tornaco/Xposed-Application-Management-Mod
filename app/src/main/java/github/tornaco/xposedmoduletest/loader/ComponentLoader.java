@@ -71,7 +71,7 @@ public interface ComponentLoader {
 
     List<CommonPackageInfo> loadInstalledApps(boolean showSystem, Sort sort, int filterOption);
 
-    List<CommonPackageInfo> loadInstalledAppsWithOp(boolean showSystem, Sort sort);
+    List<CommonPackageInfo> loadInstalledAppsWithOp(boolean showSystem, Sort sort, int filterOption);
 
     @NonNull
     List<ActivityInfoSettings> loadActivitySettings(String pkg);
@@ -126,13 +126,18 @@ public interface ComponentLoader {
         }
 
         @Override
-        public List<CommonPackageInfo> loadInstalledAppsWithOp(boolean showSystem, Sort sort) {
+        public List<CommonPackageInfo> loadInstalledAppsWithOp(boolean showSystem, Sort sort, int filterOption) {
             String[] packages = XAshmanManager.get().getInstalledApps(
                     showSystem ? XAshmanManager.FLAG_SHOW_SYSTEM_APP_WITHOUT_CORE_APP : XAshmanManager.FLAG_NONE);
             List<CommonPackageInfo> res = new ArrayList<>();
             for (String p : packages) {
                 CommonPackageInfo packageInfo = LoaderUtil.constructCommonPackageInfo(context, p);
                 if (packageInfo == null) continue;
+
+                boolean match = filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ALL_APPS
+                        || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_3RD_APPS && !packageInfo.isSystemApp())
+                        || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_SYSTEM_APPS && packageInfo.isSystemApp());
+                if (!match) continue;
 
                 int state = XAshmanManager.get().getApplicationEnabledSetting(p);
                 boolean disabled = state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED

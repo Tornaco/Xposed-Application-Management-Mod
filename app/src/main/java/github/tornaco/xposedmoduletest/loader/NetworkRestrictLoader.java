@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.model.NetworkRestrictionItem;
+import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
@@ -24,7 +25,7 @@ import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 public interface NetworkRestrictLoader {
 
     @NonNull
-    List<NetworkRestrictionItem> loadAll(boolean showSystemApp);
+    List<NetworkRestrictionItem> loadAll(int filterOption, boolean showSystemApp);
 
 
     class Impl implements NetworkRestrictLoader {
@@ -42,7 +43,7 @@ public interface NetworkRestrictLoader {
 
         @NonNull
         @Override
-        public List<NetworkRestrictionItem> loadAll(boolean showSystemApp) {
+        public List<NetworkRestrictionItem> loadAll(int filterOption, boolean showSystemApp) {
 
             List<NetworkRestrictionItem> restrictionItems = Lists.newArrayList();
 
@@ -69,6 +70,13 @@ public interface NetworkRestrictLoader {
 
                 NetworkRestrictionItem item = new NetworkRestrictionItem();
                 item.setSystemApp(isSystemApp);
+
+
+                boolean match = filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ALL_APPS
+                        || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_3RD_APPS && !item.isSystemApp())
+                        || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_SYSTEM_APPS && item.isSystemApp());
+                if (!match) continue;
+
                 item.setAppName(name);
                 item.setPackageName(packageInfo.packageName);
                 item.setRestrictedData(ash.isRestrictOnData(uid));

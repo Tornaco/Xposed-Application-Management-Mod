@@ -39,6 +39,8 @@ import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.ag.PatternSetupActivity;
 import github.tornaco.xposedmoduletest.util.PatternLockViewListenerAdapter;
 import github.tornaco.xposedmoduletest.util.ViewAnimatorUtil;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Created by guohao4 on 2017/11/15.
@@ -49,6 +51,10 @@ import github.tornaco.xposedmoduletest.util.ViewAnimatorUtil;
 public class NeedLockActivity<T> extends WithSearchActivity<T> {
 
     private LockView mLockView;
+
+    @Setter
+    @Getter
+    private boolean isLocking;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -100,6 +106,11 @@ public class NeedLockActivity<T> extends WithSearchActivity<T> {
         return LockStorage.iaPatternSet(this);
     }
 
+
+    protected void onUnLock() {
+        setLocking(false);
+    }
+
     private class LockView {
 
         private Activity activity;
@@ -123,6 +134,8 @@ public class NeedLockActivity<T> extends WithSearchActivity<T> {
         @SuppressLint("InflateParams")
         public void attach(Activity activity) {
             this.activity = activity;
+
+            setLocking(true);
 
             readSettings();
 
@@ -314,6 +327,7 @@ public class NeedLockActivity<T> extends WithSearchActivity<T> {
         private void onPass() {
             cancelFP();
             detach(true);
+            onUnLock();
         }
 
         private void cancelFP() {

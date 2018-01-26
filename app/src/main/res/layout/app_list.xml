@@ -19,15 +19,13 @@
             app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="?torAppbarPopupTheme" />
 
+
         <github.tornaco.xposedmoduletest.ui.widget.SwitchBar
             android:id="@+id/switchbar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
-            android:layout_below="@+id/app_bar"
             android:background="@drawable/switchbar_background"
             android:theme="?attr/switchBarTheme" />
-
-        <include layout="@layout/apps_filter_spinner" />
 
         <LinearLayout
             android:id="@+id/summary_container"
@@ -51,6 +49,7 @@
                 android:visibility="visible" />
         </LinearLayout>
 
+        <include layout="@layout/apps_filter_spinner" />
 
     </android.support.design.widget.AppBarLayout>
 

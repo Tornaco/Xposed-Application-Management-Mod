@@ -128,8 +128,8 @@ public class DozeEventHistoryViewerActivity extends CommonPackageInfoListPickerA
                 return R.string.title_doze_fail_device_charging;
             case DozeEvent.FAIL_RETRY_TIMEOUT:
                 return R.string.title_doze_fail_device_max;
-                case DozeEvent.FAIL_GENERIC_FAILURE:
-                    return R.string.title_doze_fail_generic_failure;
+            case DozeEvent.FAIL_GENERIC_FAILURE:
+                return R.string.title_doze_fail_generic_failure;
             case DozeEvent.FAIL_UNKNOWN:
                 return R.string.title_doze_res_unknown;
         }

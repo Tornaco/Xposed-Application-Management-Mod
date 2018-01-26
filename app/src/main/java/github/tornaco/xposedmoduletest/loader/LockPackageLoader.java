@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
+import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 
 /**
@@ -17,7 +18,7 @@ import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 public interface LockPackageLoader {
 
     @NonNull
-    List<CommonPackageInfo> loadInstalled(boolean showSystem, boolean locked);
+    List<CommonPackageInfo> loadInstalled(int filterOption, boolean locked);
 
     class Impl implements LockPackageLoader {
 
@@ -33,14 +34,19 @@ public interface LockPackageLoader {
 
         @NonNull
         @Override
-        public List<CommonPackageInfo> loadInstalled(boolean showSystem, boolean locked) {
+        public List<CommonPackageInfo> loadInstalled(int filterOption, boolean locked) {
             XAppGuardManager appGuardManager = XAppGuardManager.get();
             List<CommonPackageInfo> res = new ArrayList<>();
             String[] lockedPkgArr = appGuardManager.getLockApps(locked);
             for (String p : lockedPkgArr) {
                 CommonPackageInfo packageInfo = LoaderUtil.constructCommonPackageInfo(context, p);
                 if (packageInfo == null) continue;
-                res.add(packageInfo);
+                boolean match = filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ALL_APPS
+                        || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_3RD_APPS && !packageInfo.isSystemApp())
+                        || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_SYSTEM_APPS && packageInfo.isSystemApp());
+                if (match) {
+                    res.add(packageInfo);
+                }
             }
             LoaderUtil.commonSort(res);
             return res;

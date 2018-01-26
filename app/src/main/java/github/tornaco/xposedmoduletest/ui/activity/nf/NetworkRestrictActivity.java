@@ -21,25 +21,34 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
+import com.google.common.collect.Lists;
 import com.shahroz.svlibrary.interfaces.onSimpleSearchActionsListener;
 import com.shahroz.svlibrary.widgets.SearchViewResults;
+
+import org.newstand.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import github.tornaco.android.common.Collections;
+import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.NetworkRestrictLoader;
 import github.tornaco.xposedmoduletest.model.NetworkRestrictionItem;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.WithSearchActivity;
+import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.NetworkRestrictListAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.SpannableUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 
-public class NetworkRestrictActivity extends WithSearchActivity<NetworkRestrictionItem> {
+public class NetworkRestrictActivity extends WithSearchActivity<NetworkRestrictionItem> implements AdapterView.OnItemSelectedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +112,9 @@ public class NetworkRestrictActivity extends WithSearchActivity<NetworkRestricti
         });
 
         // showAlertDialog();
+
+        ViewGroup filterContainer = findViewById(R.id.apps_filter_spinner_container);
+        onInitFilterSpinner(filterContainer);
     }
 
     private void showAlertDialog() {
@@ -136,6 +148,61 @@ public class NetworkRestrictActivity extends WithSearchActivity<NetworkRestricti
             textView.setText(SpannableUtil.buildHighLightString(getActivity(), normalColor, highlightColor, strId));
             textView.setVisibility(View.VISIBLE);
         }
+    }
+
+    private List<CommonPackageInfoListActivity.FilterOption> mFilterOptions;
+
+    protected int mFilterOption = CommonPackageInfoListActivity.FilterOption.OPTION_ALL_APPS;
+
+    protected void onInitFilterSpinner(ViewGroup filterContainer) {
+        if (filterContainer == null) return;
+        Spinner spinner = filterContainer.findViewById(R.id.filter_spinner);
+        SpinnerAdapter adapter = onCreateSpinnerAdapter(spinner);
+        if (adapter == null) {
+            filterContainer.setVisibility(View.GONE);
+        } else {
+            filterContainer.setVisibility(View.VISIBLE);
+            spinner.setAdapter(adapter);
+            spinner.setOnItemSelectedListener(onCreateSpinnerItemSelectListener());
+            if (getDefaultFilterSpinnerSelection() > 0) {
+                spinner.setSelection(getDefaultFilterSpinnerSelection());
+            }
+        }
+    }
+
+    protected int getDefaultFilterSpinnerSelection() {
+        return -1;
+    }
+
+    protected SpinnerAdapter onCreateSpinnerAdapter(Spinner spinner) {
+        List<CommonPackageInfoListActivity.FilterOption> options = Lists.newArrayList(
+                new CommonPackageInfoListActivity.FilterOption(R.string.filter_installed_apps, CommonPackageInfoListActivity.FilterOption.OPTION_ALL_APPS),
+                new CommonPackageInfoListActivity.FilterOption(R.string.filter_third_party_apps, CommonPackageInfoListActivity.FilterOption.OPTION_3RD_APPS),
+                new CommonPackageInfoListActivity.FilterOption(R.string.filter_system_apps, CommonPackageInfoListActivity.FilterOption.OPTION_SYSTEM_APPS)
+        );
+        mFilterOptions = options;
+        return new CommonPackageInfoListActivity.FilterSpinnerAdapter(getActivity(), options);
+    }
+
+    protected AdapterView.OnItemSelectedListener onCreateSpinnerItemSelectListener() {
+        return this;
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        Logger.d("onItemSelected: " + mFilterOptions.get(position));
+        mFilterOption = mFilterOptions.get(position).getOption();
+        Collections.consumeRemaining(mFragments, new Consumer<RestrictAppListFragment>() {
+            @Override
+            public void accept(RestrictAppListFragment restrictAppListFragment) {
+                restrictAppListFragment.startLoading();
+            }
+        });
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 
     @Override
@@ -231,7 +298,9 @@ public class NetworkRestrictActivity extends WithSearchActivity<NetworkRestricti
         }
 
         protected List performLoading() {
-            return NetworkRestrictLoader.Impl.create(getActivity()).loadAll(mShowSystemApp);
+            NetworkRestrictActivity activity = (NetworkRestrictActivity) getActivity();
+            if (activity == null) return new ArrayList(0);
+            return NetworkRestrictLoader.Impl.create(getActivity()).loadAll(activity.mFilterOption, mShowSystemApp);
         }
 
         protected NetworkRestrictListAdapter onCreateAdapter() {

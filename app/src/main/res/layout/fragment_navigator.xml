@@ -75,7 +75,7 @@
 
                 <TextView
                     android:id="@android:id/text1"
-                    style="@style/BottomSummaryText"
+                    style="@style/CardIntroText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/divider"
@@ -94,7 +94,6 @@
                     android:layout_below="@android:id/text1"
                     android:layout_marginLeft="@dimen/activity_horizontal_margin"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_marginTop="@dimen/header_padding_tiny"
                     android:background="@color/grey"
                     android:visibility="gone" />
 

@@ -35,7 +35,7 @@ public interface PermissionLoader {
     List<CommonPackageInfo> loadByOp(int op, int category, boolean showSystem);
 
     @NonNull
-    List<CommonPackageInfo> loadOps(int category);
+    List<CommonPackageInfo> loadOps(int filterOption);
 
     class Impl implements PermissionLoader {
 
@@ -176,7 +176,7 @@ public interface PermissionLoader {
 
         @NonNull
         @Override
-        public List<CommonPackageInfo> loadOps(int category) {
+        public List<CommonPackageInfo> loadOps(int filterOption) {
             int opCount = AppOpsManagerCompat._NUM_OP;
             List<CommonPackageInfo> res = new ArrayList<>(opCount);
             for (int i = 0; i < opCount; i++) {
