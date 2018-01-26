@@ -458,7 +458,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             boolean isDonatedOrPlay = XApp.isPlayVersion() || AppSettings.isDonated(getContext());
             boolean serviceAvailable = isServiceAvailable();
 
-            findView(rootView, R.id.mem).setVisibility((!isNewBuild && isDonatedOrPlay && serviceAvailable) ? View.VISIBLE : View.GONE);
             // Do not setup for new build.
             if (isNewBuild) return;
 
