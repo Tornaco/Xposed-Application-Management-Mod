@@ -226,7 +226,7 @@
         <item name="android:paddingRight">@dimen/activity_horizontal_margin_middle</item>
         <item name="android:paddingTop">@dimen/activity_horizontal_margin_middle</item>
         <item name="android:paddingLeft">@dimen/activity_horizontal_margin_middle</item>
-        <item name="android:paddingBottom">@dimen/activity_horizontal_margin_middle</item>
+        <item name="android:paddingBottom">0dp</item>
     </style>
 
     <style name="PrivacyBottomSummaryText" parent="@style/TextAppearance.AppCompat.Small">
