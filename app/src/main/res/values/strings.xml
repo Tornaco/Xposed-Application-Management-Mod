@@ -421,5 +421,7 @@
     <string name="user_notice_title_c">关于内存占用，应用管理本身无需后台运行，你随时可以杀死。</string>
     <string name="user_notice_title_d">ROM众多，可能你的设备并不兼容部分功能，或许会导致一些使用上的问题。</string>
     <string name="user_notice_title_e">本程序提供的高级功能，例如组件编辑，绿化等，使用不当可能会导致应用闪退。</string>
+    <string name="theme_name_pink">少女</string>
+    <string name="theme_name_newyear">新年</string>
 
 </resources>

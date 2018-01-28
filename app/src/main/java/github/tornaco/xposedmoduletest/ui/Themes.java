@@ -28,6 +28,18 @@ public enum Themes {
             R.style.AppThemeBlack_NoActionBar,
             R.style.AppThemeBlack_Drawer_NoActionBar),
 
+    PINK(R.string.theme_name_pink,
+            R.color.pink,
+            R.style.AppThemePink,
+            R.style.AppThemePink_NoActionBar,
+            R.style.AppThemePink_Drawer_NoActionBar),
+
+    NEWYEAR(R.string.theme_name_newyear,
+            R.color.red,
+            R.style.AppThemeNEWYEAR,
+            R.style.AppThemeNEWYEAR_NoActionBar,
+            R.style.AppThemeNEWYEAR_Drawer_NoActionBar),
+
     DEFAULT(R.string.theme_name_def,
             R.color.primary,
             R.style.AppThemeLight,

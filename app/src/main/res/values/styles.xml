@@ -108,6 +108,91 @@
         <item name="android:windowBackground">@color/window_background</item>
     </style>
 
+
+    <style name="AppThemePink" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="switchBarTheme">@style/SwitchBarSettings</item>
+        <item name="colorPrimary">@color/pink</item>
+        <item name="colorPrimaryDark">@color/pink_dark</item>
+        <item name="colorAccent">@color/green</item>
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:navigationBarColor">@color/pink</item>
+
+        <item name="torCardBackgroundColor">@color/card_background</item>
+        <item name="torCardAccentBackgroundColor">@color/green</item>
+        <item name="torCardTitleColor">@color/white</item>
+        <item name="torCardSummaryColor">@color/third_text</item>
+        <item name="torMainWindowBackgroundColor">@color/window_background</item>
+        <item name="torListItemTitleTextColor">@color/black</item>
+        <item name="torListItemSummaryTextColor">@color/black</item>
+        <item name="torListItemHighlightTextColor">@color/black</item>
+        <item name="torTileContainerBackgroundColor">@color/white</item>
+        <item name="torAppbarDescriptionBackgroundColor">@color/white</item>
+        <item name="torAppbarPopupTheme">@style/AppThemeLight.PopupOverlay</item>
+        <item name="torAppbarTheme">@style/AppThemeLight.AppBarOverlay</item>
+        <item name="torMDSearchBackground">@color/white</item>
+    </style>
+
+    <style name="AppThemePink.Drawer">
+        <item name="switchBarTheme">@style/SwitchBarSettings</item>
+        <item name="colorPrimary">@color/pink</item>
+        <item name="colorPrimaryDark">@color/pink_dark</item>
+        <item name="colorAccent">@color/green</item>
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/pink</item>
+    </style>
+
+    <style name="AppThemePinkDialog" parent="Theme.AppCompat.Light.Dialog">
+        <item name="switchBarTheme">@style/SwitchBarSettings</item>
+        <item name="colorPrimary">@color/pink</item>
+        <item name="colorPrimaryDark">@color/pink_dark</item>
+        <item name="colorAccent">@color/green</item>
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
+
+    <style name="AppThemeNEWYEAR" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="switchBarTheme">@style/SwitchBarSettings</item>
+        <item name="colorPrimary">@color/red</item>
+        <item name="colorPrimaryDark">@color/red_dark</item>
+        <item name="colorAccent">@color/primary</item>
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:navigationBarColor">@color/pink</item>
+
+        <item name="torCardBackgroundColor">@color/card_background</item>
+        <item name="torCardAccentBackgroundColor">@color/green</item>
+        <item name="torCardTitleColor">@color/white</item>
+        <item name="torCardSummaryColor">@color/third_text</item>
+        <item name="torMainWindowBackgroundColor">@color/window_background</item>
+        <item name="torListItemTitleTextColor">@color/black</item>
+        <item name="torListItemSummaryTextColor">@color/black</item>
+        <item name="torListItemHighlightTextColor">@color/black</item>
+        <item name="torTileContainerBackgroundColor">@color/white</item>
+        <item name="torAppbarDescriptionBackgroundColor">@color/white</item>
+        <item name="torAppbarPopupTheme">@style/AppThemeLight.PopupOverlay</item>
+        <item name="torAppbarTheme">@style/AppThemeLight.AppBarOverlay</item>
+        <item name="torMDSearchBackground">@color/white</item>
+    </style>
+
+    <style name="AppThemeNEWYEAR.Drawer">
+        <item name="switchBarTheme">@style/SwitchBarSettings</item>
+        <item name="colorPrimary">@color/red</item>
+        <item name="colorPrimaryDark">@color/red_dark</item>
+        <item name="colorAccent">@color/primary</item>
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/pink</item>
+    </style>
+
+    <style name="AppThemeNEWYEARDialog" parent="Theme.AppCompat.Light.Dialog">
+        <item name="switchBarTheme">@style/SwitchBarSettings</item>
+        <item name="colorPrimary">@color/red</item>
+        <item name="colorPrimaryDark">@color/red_dark</item>
+        <item name="colorAccent">@color/primary</item>
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
+
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -124,6 +209,26 @@
     </style>
 
     <style name="AppThemeLight.Drawer.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppThemePink.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppThemePink.Drawer.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppThemeNEWYEAR.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppThemeNEWYEAR.Drawer.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
