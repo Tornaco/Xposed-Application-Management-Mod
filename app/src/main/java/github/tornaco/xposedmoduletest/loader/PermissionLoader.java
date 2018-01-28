@@ -18,6 +18,7 @@ import java.util.Set;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.model.Permission;
+import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
@@ -186,7 +187,14 @@ public interface PermissionLoader {
                 c.setPkgName(null);
                 c.setChecked(false);
                 c.setVersion(i);
-                res.add(c);
+
+                boolean match = (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_DEFAULT_OP && i < 70)
+                        || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_EXT_OP && i >= 70)
+                        || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ALL_OP);
+
+                if (match) {
+                    res.add(c);
+                }
             }
             return res;
         }

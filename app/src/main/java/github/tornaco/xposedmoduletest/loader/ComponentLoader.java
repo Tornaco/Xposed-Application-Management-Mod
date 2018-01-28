@@ -116,6 +116,8 @@ public interface ComponentLoader {
 
                 boolean match = (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_DISABLED_APPS && packageInfo.isDisabled())
                         || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ENABLED_APPS && !packageInfo.isDisabled())
+                        || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_3RD_APPS && !packageInfo.isSystemApp())
+                        || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_SYSTEM_APPS && packageInfo.isSystemApp())
                         || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ALL_APPS);
                 if (match) {
                     res.add(packageInfo);

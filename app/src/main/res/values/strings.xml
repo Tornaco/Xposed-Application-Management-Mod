@@ -408,5 +408,8 @@
     <string name="message_app_ops_tip">为了尽可能降低本应用对系统的影响，权限管理设定值将不会与系统自带APPOPS服务设定值一致，当某个权限被申请时，如果在应用管理这里被拒绝，那么此次权限申请会被拒绝，如果在应用管理这里被允许，系统会继续检查OPS服务设定（4.4以上自带的默认权限管理）。当你清除本应用数据时，权限管理设定不会有遗留问题。</string>
     <string name="title_uninstall_apm">卸载应用管理</string>
     <string name="message_uninstall_apm">卸载本应用，同时帮你清除所有残留数据。</string>
+    <string name="filter_all_op">全部</string>
+    <string name="filter_ext_op">拓展</string>
+    <string name="filter_default_op">默认</string>
 
 </resources>
