@@ -51,6 +51,7 @@ public class Apps2OpListActivity extends WithRecyclerView {
     public static void start(Context context, String pkg) {
         Intent starter = new Intent(context, Apps2OpListActivity.class);
         starter.putExtra(EXTRA_PKG, pkg);
+        starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(starter);
     }
 
