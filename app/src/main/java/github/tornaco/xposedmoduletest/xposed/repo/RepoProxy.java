@@ -49,7 +49,9 @@ public class RepoProxy {
             perms, privacy, greens,
             blurs, locks, uninstall,
             data_restrict, wifi_restrict,
-            lazy, comps, white_list_hooks_dynamic, pending_disable_apps;
+            lazy, comps, white_list_hooks_dynamic,
+            pending_disable_apps,
+            pending_disable_apps_tr;
 
     private MapRepo<String, String> componentReplacement, appFocused, appUnFocused;
 
@@ -119,6 +121,7 @@ public class RepoProxy {
         uninstall = new StringSetRepo(new File(dir, "uninstall"), h, io);
         lazy = new StringSetRepo(new File(dir, "lazy"), h, io);
         pending_disable_apps = new StringSetRepo(new File(dir, "pending_disable_apps"), h, io);
+        pending_disable_apps_tr = new StringSetRepo(new File(dir, "pending_disable_apps_tr"), h, io);
 
         try {
             @SuppressLint("SdCardPath") File dynamicHooks =
@@ -127,7 +130,7 @@ public class RepoProxy {
                             + ".apm_white_list_hooks");
             white_list_hooks_dynamic = new StringSetRepo(dynamicHooks, h, io);
         } catch (Exception e) {
-            XposedLog.wtf("Fail init white list hooks " + Log.getStackTraceString(e));
+            XposedLog.wtf("Fail init white list hooks " + e);
         }
 
         // FIXME java.io.FileNotFoundException:
@@ -382,6 +385,10 @@ public class RepoProxy {
         return pending_disable_apps == null ? STRING_SET_NULL_HACK : pending_disable_apps;
     }
 
+    public SetRepo<String> getPending_disable_apps_tr() {
+        return pending_disable_apps_tr == null ? STRING_SET_NULL_HACK : pending_disable_apps_tr;
+    }
+
     public SetRepo<String> getLazy() {
         return lazy == null ? STRING_SET_NULL_HACK : lazy;
     }
@@ -465,6 +472,7 @@ public class RepoProxy {
         getWifi_restrict().removeAll();
         getLazy().removeAll();
         getPending_disable_apps().removeAll();
+        getPending_disable_apps_tr().removeAll();
 
         getAppFocused().clear();
         getAppUnFocused().clear();

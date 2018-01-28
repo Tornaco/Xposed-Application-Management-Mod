@@ -26,7 +26,10 @@ import github.tornaco.xposedmoduletest.util.BitmapUtil;
 public class ShortcutUtil {
 
     @SuppressLint("CheckResult")
-    public static void addShortcut(final Context context, final String pkgName, final boolean redisable) {
+    public static void addShortcut(final Context context, final String pkgName, final boolean redisable, final boolean redisabletr) {
+
+        Logger.d("addShortcut: " + pkgName + "-" + redisable + "-" + redisabletr);
+
         CommonPackageInfo c = new CommonPackageInfo();
         c.setPkgName(pkgName);
 
@@ -43,7 +46,7 @@ public class ShortcutUtil {
                         Intent shortcut = new Intent(
                                 "com.android.launcher.action.INSTALL_SHORTCUT");
 
-                        Intent shortcutIntent = ShortcutStubActivity.createIntent(context, pkgName, redisable);
+                        Intent shortcutIntent = ShortcutStubActivity.createIntent(context, pkgName, redisable, redisabletr);
 
                         shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
 

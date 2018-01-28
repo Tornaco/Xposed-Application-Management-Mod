@@ -298,6 +298,15 @@ public class XAshmanManager {
         }
     }
 
+    public void addPendingDisableAppsTR(String pkg) {
+        ensureService();
+        try {
+            mService.addPendingDisableAppsTR(pkg);
+        } catch (RemoteException e) {
+
+        }
+    }
+
     public void watch(IAshmanWatcher w) {
         ensureService();
         try {

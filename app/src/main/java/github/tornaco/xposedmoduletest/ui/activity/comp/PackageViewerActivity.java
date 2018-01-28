@@ -98,7 +98,8 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                         public void onClick(View v) {
                             try {
                                 if (packageInfo.isDisabled()) {
-                                    getContext().startActivity(ShortcutStubActivity.createIntent(getContext(), packageInfo.getPkgName(), true));
+                                    getContext().startActivity(ShortcutStubActivity
+                                            .createIntent(getContext(), packageInfo.getPkgName(), true, true));
                                 }
                             } catch (Exception e) {
                                 Toast.makeText(getContext(), R.string.fail_launch_app, Toast.LENGTH_LONG).show();
@@ -244,14 +245,18 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
     private void onRequestDisableApp(final String pkgName) {
         // FIXME Move to res.
         final String[] items = {getString(R.string.message_disabled_apps_create_shortcut),
-                getString(R.string.message_disabled_apps_re_disable)};
+                getString(R.string.message_disabled_apps_re_disable),
+                getString(R.string.message_disabled_apps_re_disable_tr)};
 
         final boolean[] createShortcut = {true};
         final boolean[] redisable = {true};
+        final boolean[] redisable_tr = {true};
 
         new AlertDialog.Builder(getActivity()).setCancelable(false)
-                .setTitle(getString(R.string.title_disable_app) + "\t" + PkgUtil.loadNameByPkgName(getContext(), pkgName))
-                .setMultiChoiceItems(items, new boolean[]{true, true},
+                .setTitle(getString(R.string.title_disable_app) + "\t"
+                        + PkgUtil.loadNameByPkgName(getContext(), pkgName))
+
+                .setMultiChoiceItems(items, new boolean[]{true, true, true},
                         new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
@@ -260,6 +265,9 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                                 }
                                 if (which == 1) {
                                     redisable[0] = isChecked;
+                                }
+                                if (which == 2) {
+                                    redisable_tr[0] = isChecked;
                                 }
                             }
                         })
@@ -272,7 +280,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                                         pkgName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
 
                                 if (createShortcut[0]) {
-                                    ShortcutUtil.addShortcut(getActivity(), pkgName, redisable[0]);
+                                    ShortcutUtil.addShortcut(getActivity(), pkgName, redisable[0], redisable_tr[0]);
                                 }
 
                                 startLoading();

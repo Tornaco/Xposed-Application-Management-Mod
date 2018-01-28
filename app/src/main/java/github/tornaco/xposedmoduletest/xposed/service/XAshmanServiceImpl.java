@@ -3585,6 +3585,22 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
                         PkgUtil.onAppBringDown(pkgOfThisTask, "removeTask");
 
+                        // Re-disable apps.
+                        try {
+                            if (RepoProxy.getProxy().getPending_disable_apps_tr().size() != 0) {
+                                // Disable pending apps.
+                                for (String p : RepoProxy.getProxy().getPending_disable_apps_tr().getAll()) {
+                                    if (!isPackageRunningOnTop(p)) {
+                                        setApplicationEnabledSetting(p, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
+                                        XposedLog.verbose("removeTask, Disable pending apps: " + p);
+                                        RepoProxy.getProxy().getPending_disable_apps_tr().remove(p);
+                                    }
+                                }
+                            }
+                        } catch (Throwable e) {
+                            XposedLog.wtf("removeTask, Fail handle disable_app: " + e);
+                        }
+
                         // Tell app guard service to clean up verify res.
                         mAppGuardService.onTaskRemoving(pkgOfThisTask);
 
@@ -4226,6 +4242,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         OpsSettings os = OpsSettings.fromJson(SettingsProvider.get().getString("AppOpsTemplate", null));
         if (os == null) os = new OpsSettings(AppOpsManagerCompat.getDefaultModes());
         return os;
+    }
+
+    @Override
+    public void addPendingDisableAppsTR(String pkg) throws RemoteException {
+        XposedLog.verbose("addPendingDisableAppsTR: " + pkg);
+        RepoProxy.getProxy().getPending_disable_apps_tr().add(pkg);
     }
 
     // PLUGIN API END.
@@ -5753,6 +5775,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 postDelayed(clearProcessRunnable, mLockKillDelay);
             }
 
+            // Re-disable apps.
             try {
                 if (RepoProxy.getProxy().getPending_disable_apps().size() == 0) return;
                 // Disable pending apps.
@@ -5876,6 +5899,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setApplicationEnabledSetting(String packageName, int newState, int flags) {
             PackageManager pm = getContext().getPackageManager();
             pm.setApplicationEnabledSetting(packageName, newState, flags);
+
+            // Remove this pkg from pending disable apps.
+            RepoProxy.getProxy().getPending_disable_apps_tr().remove(packageName);
+            RepoProxy.getProxy().getPending_disable_apps().remove(packageName);
         }
 
         @Override

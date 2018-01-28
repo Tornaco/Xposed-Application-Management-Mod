@@ -329,4 +329,7 @@ interface IAshmanService {
 
      void setAppOpsTemplate(in OpsSettings opsSettings);
      OpsSettings getAppOpsTemplate(in OpsSettings opsSettings);
+
+     // New API since 4.4.6
+     void addPendingDisableAppsTR(String pkg);
 }

@@ -19,11 +19,13 @@ public class ShortcutStubActivity extends BaseActivity {
 
     private static final String EXTRA_TARGET_PKG = "stub.extra.pkg";
     private static final String EXTRA_RE_DISABLE = "stub.extra.re.disable";
+    private static final String EXTRA_RE_DISABLE_TR = "stub.extra.re.disable_tr";
 
-    public static Intent createIntent(Context context, String targetPackage, boolean redisable) {
+    public static Intent createIntent(Context context, String targetPackage, boolean redisable, boolean redisabletr) {
         Intent intent = new Intent(context, ShortcutStubActivity.class);
         intent.putExtra(EXTRA_TARGET_PKG, targetPackage);
         intent.putExtra(EXTRA_RE_DISABLE, redisable);
+        intent.putExtra(EXTRA_RE_DISABLE_TR, redisabletr);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         return intent;
     }
@@ -51,7 +53,8 @@ public class ShortcutStubActivity extends BaseActivity {
             return;
         }
 
-        boolean redisale = intent.getBooleanExtra(EXTRA_RE_DISABLE, false);
+        boolean redisale = intent.getBooleanExtra(EXTRA_RE_DISABLE, true);
+        boolean redisaletr = intent.getBooleanExtra(EXTRA_RE_DISABLE_TR, true);
 
         // Enable this app first.
         if (XAshmanManager.get().isServiceAvailable()) {
@@ -66,6 +69,10 @@ public class ShortcutStubActivity extends BaseActivity {
 
                 if (redisale) {
                     XAshmanManager.get().addPendingDisableApps(target);
+                }
+
+                if (redisaletr) {
+                    XAshmanManager.get().addPendingDisableAppsTR(target);
                 }
             }
 
