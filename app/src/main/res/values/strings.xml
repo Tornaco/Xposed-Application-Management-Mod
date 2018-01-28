@@ -411,5 +411,6 @@
     <string name="filter_all_op">全部</string>
     <string name="filter_ext_op">拓展</string>
     <string name="filter_default_op">默认</string>
+    <string name="title_perm_control_template">权限配置</string>
 
 </resources>

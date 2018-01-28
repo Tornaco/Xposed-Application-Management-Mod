@@ -113,6 +113,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
 import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
+import github.tornaco.xposedmoduletest.xposed.bean.OpsSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.repo.SetRepo;
@@ -4144,6 +4145,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 settings.isService() ? AppOpsManagerCompat.MODE_IGNORED : AppOpsManagerCompat.MODE_ALLOWED);
     }
 
+    @SuppressWarnings("UnnecessaryLocalVariable")
+    private void applyOpsSettingsForPackage(String pkg) throws RemoteException {
+        XposedLog.verbose("applyOpsSettingsForPackage: " + pkg);
+        try {
+            for (int i = 0; i < AppOpsManagerCompat._NUM_OP; i++) {
+                int code = i;
+                int mode = getPermissionControlBlockModeForPkg(code, XAshmanManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME);
+                XposedLog.verbose("Template code and mode: %s %s", code, mode);
+                setPermissionControlBlockModeForPkg(code, pkg, mode);
+            }
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail applyOpsSettingsForPackage for " + pkg + ", err " + Log.getStackTraceString(e));
+        }
+    }
+
     @Override
     @BinderCall
     public void backupTo(String dir) throws RemoteException {
@@ -4182,7 +4198,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @BinderCall
     public AppSettings getAppInstalledAutoApplyTemplate() throws RemoteException {
-        AppSettings as = AppSettings.fromJson(SettingsProvider.get().getString("AppInstalledAutoApplyTemplate", null));
+        AppSettings as = AppSettings.fromJson(SettingsProvider.get()
+                .getString("AppInstalledAutoApplyTemplate", null));
         if (as == null) as = AppSettings.builder()
                 .boot(true)
                 .start(true)
@@ -4191,6 +4208,24 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 .lk(true)
                 .build();
         return as;
+    }
+
+    @Override
+    @BinderCall
+    public void setAppOpsTemplate(OpsSettings opsSettings) throws RemoteException {
+        SettingsProvider.get().putString("AppOpsTemplate", opsSettings.toJson());
+        if (BuildConfig.DEBUG) {
+            OpsSettings test = OpsSettings.fromJson(SettingsProvider.get().getString("AppOpsTemplate", null));
+            XposedLog.verbose("setAppOpsTemplate test: " + test);
+        }
+    }
+
+    @Override
+    @BinderCall
+    public OpsSettings getAppOpsTemplate(OpsSettings opsSettings) throws RemoteException {
+        OpsSettings os = OpsSettings.fromJson(SettingsProvider.get().getString("AppOpsTemplate", null));
+        if (os == null) os = new OpsSettings(AppOpsManagerCompat.getDefaultModes());
+        return os;
     }
 
     // PLUGIN API END.
@@ -6027,7 +6062,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
                                 applyAppSettingsForPackage(packageName, template);
 
-                                XposedLog.verbose("Add to black list for new app!!!!!!!!!!!");
+                                XposedLog.verbose("Apply app settings template for new app!!!!!!!!!!!");
+
+                                // Ops.
+                                applyOpsSettingsForPackage(packageName);
 
                                 showNewAppRestrictedNotification(getContext(),
                                         String.valueOf(PkgUtil.loadNameByPkgName(getContext(), packageName)));

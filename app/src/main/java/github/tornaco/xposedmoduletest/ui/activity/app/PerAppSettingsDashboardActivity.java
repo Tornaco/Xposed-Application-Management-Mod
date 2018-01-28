@@ -17,6 +17,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
+import github.tornaco.xposedmoduletest.ui.tiles.PermControlTemplate;
 import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppBlurSetting;
 import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppBootSetting;
 import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppLKSetting;
@@ -30,6 +31,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppTRKSetting;
 import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppTimerSetting;
 import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppUPSetting;
 import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppWakeLockSetting;
+import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -157,9 +159,17 @@ public class PerAppSettingsDashboardActivity extends WithWithCustomTabActivity {
             green.addTile(new AppTimerSetting(getActivity(), appSettings));
             green.addTile(new AppServiceSetting(getActivity(), appSettings));
 
+            Category perm = new Category();
+            perm.titleRes = R.string.title_perm_control;
+
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_OPS)) {
+                perm.addTile(new PermControlTemplate(getActivity(), mPkg));
+            }
+
             categories.add(sec);
             categories.add(rest);
             categories.add(green);
+            categories.add(perm);
         }
     }
 

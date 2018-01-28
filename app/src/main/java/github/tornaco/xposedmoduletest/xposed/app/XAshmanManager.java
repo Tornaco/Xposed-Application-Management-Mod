@@ -29,6 +29,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
+import github.tornaco.xposedmoduletest.xposed.bean.OpsSettings;
 
 /**
  * Created by guohao4 on 2017/11/9.
@@ -37,6 +38,8 @@ import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 
 @SuppressWarnings("EmptyCatchBlock")
 public class XAshmanManager {
+
+    public static final String APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME = "tornaco.github.apm.ops.dummy.template";
 
     public static final int FLAG_SHOW_SYSTEM_APP = 0X100;
     public static final int FLAG_SHOW_SYSTEM_APP_WITHOUT_CORE_APP = 0X200;
@@ -1380,6 +1383,23 @@ public class XAshmanManager {
             return mService.hasModuleError();
         } catch (RemoteException e) {
             return false;
+        }
+    }
+
+    public void setAppOpsTemplate(OpsSettings opsSettings) {
+        ensureService();
+        try {
+            mService.setAppOpsTemplate(opsSettings);
+        } catch (RemoteException e) {
+        }
+    }
+
+    public OpsSettings getAppOpsTemplate(OpsSettings opsSettings) {
+        ensureService();
+        try {
+            return mService.getAppOpsTemplate(opsSettings);
+        } catch (RemoteException e) {
+            return new OpsSettings(AppOpsManagerCompat.getDefaultModes());
         }
     }
 }

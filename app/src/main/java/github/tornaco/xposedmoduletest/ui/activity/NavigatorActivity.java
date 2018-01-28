@@ -35,9 +35,6 @@ import org.newstand.logger.Logger;
 
 import java.util.List;
 
-import co.mobiwise.materialintro.shape.Focus;
-import co.mobiwise.materialintro.shape.FocusGravity;
-import co.mobiwise.materialintro.view.MaterialIntroView;
 import dev.nick.tiles.tile.Category;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
@@ -276,25 +273,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                                 AppSettings.setFirstRun(getApplicationContext());
                             }
                         })
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Toolbar toolbar = findViewById(R.id.toolbar);
-
-                                new MaterialIntroView.Builder(getActivity())
-                                        .enableDotAnimation(true)
-                                        .enableIcon(false)
-                                        .setFocusGravity(FocusGravity.RIGHT)
-                                        .setFocusType(Focus.MINIMUM)
-                                        .setDelayMillis(500)
-                                        .enableFadeAnimation(true)
-                                        .performClick(true)
-                                        .setInfoText(getString(R.string.app_intro_menu))
-                                        .setTarget(toolbar)
-                                        .setUsageId("nav_menu")
-                                        .show();
-                            }
-                        })
+                        .setPositiveButton(android.R.string.ok, null)
                         .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {

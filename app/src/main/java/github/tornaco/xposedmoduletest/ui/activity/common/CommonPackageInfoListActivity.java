@@ -24,9 +24,6 @@ import org.newstand.logger.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.mobiwise.materialintro.shape.Focus;
-import co.mobiwise.materialintro.shape.FocusGravity;
-import co.mobiwise.materialintro.view.MaterialIntroView;
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
@@ -181,19 +178,7 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
     }
 
     protected void showFilterSpinnerIntro(Spinner spinner) {
-        if (isLocking()) return;
-        new MaterialIntroView.Builder(getActivity())
-                .enableDotAnimation(true)
-                .enableIcon(false)
-                .setFocusGravity(FocusGravity.RIGHT)
-                .setFocusType(Focus.MINIMUM)
-                .setDelayMillis(500)
-                .enableFadeAnimation(true)
-                .performClick(false)
-                .setInfoText(getString(R.string.app_intro_filter_spinner))
-                .setTarget(spinner)
-                .setUsageId("filter_spinner")
-                .show();
+
     }
 
     protected void hideSwitchBar() {

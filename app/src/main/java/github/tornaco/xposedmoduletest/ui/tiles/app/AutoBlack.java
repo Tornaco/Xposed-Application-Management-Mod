@@ -6,7 +6,6 @@ import android.widget.RelativeLayout;
 
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.SwitchTileView;
-import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.app.InstalledAppTemplateSettingsDashboardActivity;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -28,7 +27,7 @@ public class AutoBlack extends QuickTile {
 
             @Override
             public void onClick(View v) {
-                InstalledAppTemplateSettingsDashboardActivity.start(context, BuildConfig.APPLICATION_ID);
+                InstalledAppTemplateSettingsDashboardActivity.start(context, XAshmanManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME);
             }
 
             @Override

@@ -27,6 +27,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+
 /**
  * Created by guohao4 on 2017/11/9.
  * Email: Tornaco@163.com
@@ -92,6 +95,12 @@ public class PkgUtil {
     }
 
     public static CharSequence loadNameByPkgName(Context context, String pkg) {
+        // Here we check if this is dummy one.
+        boolean isDummy = XAshmanManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME.equals(pkg);
+        if (isDummy) {
+            return context.getString(R.string.title_perm_control_template);
+        }
+
         PackageManager pm = context.getPackageManager();
 
         try {

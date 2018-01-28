@@ -801,6 +801,90 @@ public final class AppOpsManagerCompat {
     };
 
     /**
+     * This specifies the default mode for each operation.
+     */
+    private static int[] sOpDefaultMode = new int[]{
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED, // OP_WRITE_SMS
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED, // OP_WRITE_SETTINGS
+            AppOpsManager.MODE_ALLOWED, // OP_SYSTEM_ALERT_WINDOW
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED, // OP_GET_USAGE_STATS
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED, // OP_PROJECT_MEDIA
+            AppOpsManager.MODE_ALLOWED, // OP_ACTIVATE_VPN
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,  // OP_MOCK_LOCATION
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,  // OP_TURN_ON_SCREEN
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,  // OP_RUN_IN_BACKGROUND
+            AppOpsManager.MODE_ALLOWED,  // OP_AUDIO_ACCESSIBILITY_VOLUME
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,  // OP_REQUEST_INSTALL_PACKAGES
+            AppOpsManager.MODE_ALLOWED,  // OP_PICTURE_IN_PICTURE
+            AppOpsManager.MODE_ALLOWED,  // OP_INSTANT_APP_START_FOREGROUND
+            AppOpsManager.MODE_ALLOWED, // ANSWER_PHONE_CALLS 69
+
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
+    };
+
+    /**
      * Mapping from a permission to the corresponding app op.
      */
     private static HashMap<String, Integer> sPermToOp = new HashMap<>();
@@ -819,11 +903,19 @@ public final class AppOpsManagerCompat {
                     + " should be " + _NUM_OP);
         }
 
+        if (sOpDefaultMode.length != _NUM_OP) {
+            throw new IllegalStateException("sOpDefaultMode length " + sOpDefaultMode.length
+                    + " should be " + _NUM_OP);
+        }
         for (int i = 0; i < _NUM_OP; i++) {
             if (sOpPerms[i] != null) {
                 sPermToOp.put(sOpPerms[i], i);
             }
         }
+    }
+
+    public static int[] getDefaultModes() {
+        return sOpDefaultMode;
     }
 
     /**

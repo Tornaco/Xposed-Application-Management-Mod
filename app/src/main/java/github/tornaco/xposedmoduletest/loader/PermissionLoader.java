@@ -53,14 +53,13 @@ public interface PermissionLoader {
         @NonNull
         @Override
         public List<Permission> load(final String pkg, final int category) {
+
             if (!XAshmanManager.get().isServiceAvailable()) {
                 return new ArrayList<>(0);
             }
 
             String[] decleared = PkgUtil.getAllDeclaredPermissions(context, pkg);
-            if (decleared == null || decleared.length == 0) {
-                return new ArrayList<>(0);
-            }
+
             Set<String> permSet = Sets.newHashSet(decleared);
 
             int OP_SIZE = AppOpsManagerCompat._NUM_OP_DEF;
@@ -71,7 +70,10 @@ public interface PermissionLoader {
 
                 String s = AppOpsManagerCompat.opToPermission(code);
 
-                if (s != null && !permSet.contains(s)) {
+                // Here we check if this is dummy one.
+                boolean isDummy = XAshmanManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME.equals(pkg);
+
+                if (!isDummy && (s != null && !permSet.contains(s))) {
                     continue;
                 }
 

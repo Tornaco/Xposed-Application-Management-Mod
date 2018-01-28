@@ -10,6 +10,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 
 import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
+import github.tornaco.xposedmoduletest.xposed.bean.OpsSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.PackageSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
@@ -325,4 +326,7 @@ interface IAshmanService {
      int getRunningProcessCount();
 
      boolean hasModuleError();
+
+     void setAppOpsTemplate(in OpsSettings opsSettings);
+     OpsSettings getAppOpsTemplate(in OpsSettings opsSettings);
 }
