@@ -402,5 +402,6 @@
     <string name="message_disabled_apps_create_shortcut">创建桌面快捷方式用于快速启动该应用。某些桌面可能因为兼容性问题，无法生成快捷方式，作者会尽可能的适配，如果无法生成，你可以点击列表右侧的运行按钮，从这里运行。</string>
     <string name="message_disabled_apps_re_disable">由快捷方式解冻并进入时，屏幕关闭后且该应用不在前台时重新冻结</string>
     <string name="fail_launch_app">无法启动该应用，可能是因为该应用无用户界面</string>
+    <string name="random_generate_code">随机生成</string>
 
 </resources>
