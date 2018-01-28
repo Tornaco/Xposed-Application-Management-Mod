@@ -6,10 +6,14 @@
     android:layout_height="match_parent"
     tools:context="github.tornaco.xposedmoduletest.ui.activity.perm.PermViewerActivity">
 
+    <include layout="@layout/apps_filter_spinner" />
+
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@+id/apps_filter_spinner_container"
+        tools:ignore="UnknownIdInLayout">
 
         <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
             android:id="@+id/recycler_view"

@@ -264,7 +264,7 @@
     <string name="title_data">数据</string>
     <string name="title_restore_def">恢复默认设置</string>
     <string name="summary_restore_def">清除应用管理的所有设置数据，包括所有名单与开关。\n注意：如果无法恢复，请手动删除data/system/tor目录。</string>
-    <string name="summary_restore_done">已经为你恢复了默认设置</string>
+    <string name="summary_restore_done">已经为你恢复了 应用管理 的默认设置</string>
     <string name="summary_restore_fail">无法删除数据，请手动删除！！！</string>
     <string name="message_running_services_fail">无法启动设置，请检查模块激活状态。</string>
     <string name="title_running_services">正在运行的服务</string>
@@ -404,5 +404,9 @@
     <string name="fail_launch_app">无法启动该应用，可能是因为该应用无用户界面</string>
     <string name="random_generate_code">随机生成</string>
     <string name="loading_res_empty">空空如也，如果是系统应用无法读取，请确保 通用设置-排除系统应用 开关已经关闭</string>
+    <string name="title_app_ops_tip">使用须知</string>
+    <string name="message_app_ops_tip">为了尽可能降低本应用对系统的影响，权限管理设定值将不会与系统自带APPOPS服务设定值一致，当某个权限被申请时，如果在应用管理这里被拒绝，那么此次权限申请会被拒绝，如果在应用管理这里被允许，系统会继续检查OPS服务设定（4.4以上自带的默认权限管理）。当你清除本应用数据时，权限管理设定不会有遗留问题。</string>
+    <string name="title_uninstall_apm">卸载应用管理</string>
+    <string name="message_uninstall_apm">卸载本应用，同时帮你清除所有残留数据。</string>
 
 </resources>

@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.ui.activity.perm;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,6 +12,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -29,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.loader.ComponentLoader;
 import github.tornaco.xposedmoduletest.loader.PermissionLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
@@ -51,9 +54,36 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
         setupToolbar();
         showHomeAsUp();
 
+        initOpsSettingsDialog();
+
         setupViews();
 
         initPages();
+    }
+
+    private void initOpsSettingsDialog() {
+        if (AppSettings.isShowInfoEnabled(getContext(), "ops_settings", true)) {
+            new AlertDialog.Builder(PermViewerActivity.this)
+                    .setTitle(R.string.title_app_ops_tip)
+                    .setMessage(getString(R.string.message_app_ops_tip))
+                    .setCancelable(false)
+                    .setNeutralButton(R.string.no_remind, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            AppSettings.setShowInfo(getApplicationContext(), "ops_settings", false);
+                        }
+                    })
+                    .setPositiveButton(android.R.string.ok, null)
+                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finishAffinity();
+                            PackageManagerCompat.unInstallUserAppWithIntent(getContext(), getPackageName());
+                        }
+                    })
+                    .show();
+
+        }
     }
 
 
@@ -322,7 +352,7 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+        public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_perm_viewer, container, false);
             setupView(rootView);

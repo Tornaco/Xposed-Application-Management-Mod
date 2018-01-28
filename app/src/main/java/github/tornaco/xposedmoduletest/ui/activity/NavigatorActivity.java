@@ -318,6 +318,10 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             navigateToWebPage(getString(R.string.app_rel_url));
         }
 
+        if (item.getItemId() == R.id.action_uninstall) {
+            onRequestUninstalledAPM();
+        }
+
         if (item.getItemId() == R.id.action_change_column_count) {
             boolean two = AppSettings.show2ColumnsIn(getActivity(), NavigatorActivity.class.getSimpleName());
             AppSettings.setShow2ColumnsIn(getContext(), NavigatorActivity.class.getSimpleName(), !two);
@@ -325,6 +329,22 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void onRequestUninstalledAPM() {
+        new AlertDialog.Builder(NavigatorActivity.this)
+                .setTitle(R.string.title_uninstall_apm)
+                .setMessage(getString(R.string.message_uninstall_apm))
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        XAshmanManager.get().restoreDefaultSettings();
+                        Toast.makeText(getContext(), R.string.summary_restore_done, Toast.LENGTH_SHORT).show();
+                        PackageManagerCompat.unInstallUserAppWithIntent(getContext(), getPackageName());
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     protected ActivityLifeCycleDashboardFragment onCreateFragment() {
