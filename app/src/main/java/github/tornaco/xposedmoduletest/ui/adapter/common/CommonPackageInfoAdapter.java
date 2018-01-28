@@ -94,7 +94,11 @@ public class CommonPackageInfoAdapter
     @Override
     public CommonViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(getTemplateLayoutRes(), parent, false);
-        return new CommonViewHolder(view);
+        return onCreateViewHolder(view);
+    }
+
+    protected CommonViewHolder onCreateViewHolder(View root) {
+        return new CommonViewHolder(root);
     }
 
     @LayoutRes
@@ -285,7 +289,7 @@ public class CommonPackageInfoAdapter
         private View extraIndicator;
         private CheckableImageView checkableImageView;
 
-        CommonViewHolder(View itemView) {
+        public CommonViewHolder(View itemView) {
             super(itemView);
             lineOneTextView = itemView.findViewById(android.R.id.title);
             lineTwoTextView = itemView.findViewById(android.R.id.text2);

@@ -38,6 +38,7 @@ import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.loader.ComponentLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.model.SenseAction;
+import github.tornaco.xposedmoduletest.ui.activity.ShortcutStubActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.PerAppSettingsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
@@ -48,6 +49,7 @@ import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.ShortcutUtil;
+import lombok.Getter;
 
 /**
  * Created by guohao4 on 2017/11/18.
@@ -80,7 +82,44 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
 
     @Override
     protected CommonPackageInfoAdapter onCreateAdapter() {
-        CommonPackageInfoViewerAdapter adapter = new CommonPackageInfoViewerAdapter(this);
+        CommonPackageInfoViewerAdapter adapter = new CommonPackageInfoViewerAdapter(this) {
+            @Override
+            protected int getTemplateLayoutRes() {
+                return R.layout.app_list_item_comps;
+            }
+
+            @Override
+            public void onBindViewHolder(CommonViewHolder holder, int position) {
+                super.onBindViewHolder(holder, position);
+                final CommonPackageInfo packageInfo = getCommonPackageInfos().get(position);
+                if (packageInfo.isDisabled()) {
+                    View.OnClickListener listener = new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            try {
+                                if (packageInfo.isDisabled()) {
+                                    getContext().startActivity(ShortcutStubActivity.createIntent(getContext(), packageInfo.getPkgName(), true));
+                                }
+                            } catch (Exception e) {
+                                Toast.makeText(getContext(), R.string.fail_launch_app, Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    };
+                    CompsViewHolder compsViewHolder = (CompsViewHolder) holder;
+                    compsViewHolder.getRunView().setVisibility(View.VISIBLE);
+                    compsViewHolder.getRunView().setOnClickListener(listener);
+                } else {
+                    CompsViewHolder compsViewHolder = (CompsViewHolder) holder;
+                    compsViewHolder.getRunView().setVisibility(View.INVISIBLE);
+                    compsViewHolder.getRunView().setOnClickListener(null);
+                }
+            }
+
+            @Override
+            protected CommonViewHolder onCreateViewHolder(View root) {
+                return new CompsViewHolder(root);
+            }
+        };
         adapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -89,6 +128,16 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
             }
         });
         return adapter;
+    }
+
+    @Getter
+    class CompsViewHolder extends CommonPackageInfoAdapter.CommonViewHolder {
+        private View runView;
+
+        CompsViewHolder(View itemView) {
+            super(itemView);
+            runView = itemView.findViewById(R.id.btn_run);
+        }
     }
 
     @Override
@@ -194,8 +243,8 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
 
     private void onRequestDisableApp(final String pkgName) {
         // FIXME Move to res.
-        final String[] items = {"创建桌面快捷方式用于快速启动该应用",
-                "由快捷方式解冻并进入时，屏幕关闭后且该应用不在前台时重新冻结"};
+        final String[] items = {getString(R.string.message_disabled_apps_create_shortcut),
+                getString(R.string.message_disabled_apps_re_disable)};
 
         final boolean[] createShortcut = {true};
         final boolean[] redisable = {true};
@@ -229,7 +278,6 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                                 startLoading();
                             }
                         })
-                .setMessage(R.string.message_disabled_apps_can_be_launched_here)
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
