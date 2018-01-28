@@ -317,8 +317,10 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        XAshmanManager.get().restoreDefaultSettings();
-                        Toast.makeText(getContext(), R.string.summary_restore_done, Toast.LENGTH_SHORT).show();
+                        if (XAshmanManager.get().isServiceAvailable()) {
+                            XAshmanManager.get().restoreDefaultSettings();
+                            Toast.makeText(getContext(), R.string.summary_restore_done, Toast.LENGTH_SHORT).show();
+                        }
                         PackageManagerCompat.unInstallUserAppWithIntent(getContext(), getPackageName());
                     }
                 })
