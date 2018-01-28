@@ -49,7 +49,7 @@ import github.tornaco.xposedmoduletest.ui.activity.app.GetPlayVersionActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.ToolsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.helper.RunningServicesActivity;
 import github.tornaco.xposedmoduletest.ui.activity.test.TestAIOActivity;
-import github.tornaco.xposedmoduletest.ui.activity.whyyouhere.UserGuideActivity;
+import github.tornaco.xposedmoduletest.ui.activity.whyyouhere.UserGuideActivityA;
 import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
 import github.tornaco.xposedmoduletest.ui.tiles.AppStart;
@@ -260,7 +260,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             if (AppSettings.isFirstRun(getApplicationContext())) {
 
                 if (!XApp.isPlayVersion()) {
-                    UserGuideActivity.start(getActivity());
+                    UserGuideActivityA.start(getActivity());
                 }
 
                 new AlertDialog.Builder(NavigatorActivity.this)

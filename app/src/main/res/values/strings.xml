@@ -270,8 +270,8 @@
     <string name="title_running_services">正在运行的服务</string>
     <string name="title_activity_user_giude">用户向导</string>
     <string name="message_user_giude1">这是一份不得不写的声明，请仔细阅读。\n\n1. 关于应用管理数据，为了实现开机自启动限制，我们必须把某些数据存放到系统某个目录下，我们提供了删除数据的功能，如果你介意请退出！\n\n2. 关于内存占用，应用管理本身无需后台运行，你随时可以杀死。前台运行占用部分运行内存，如果你介意请退出！\n\n3. 关于稳定性，ROM众多，可能你的设备并不兼容，会导致一些使用上的问题，如果你介意，请退出！\n\n4. 关于bug，非常感谢所有朋友的bug反馈，本人会利用闲暇时间进行维护。\n\n本程序提供的高级功能，例如组件编辑，绿化等，使用不当可能会导致应用闪退等，请使用前仔细看好说明。\n\n最后感谢支持与理解！！！</string>
-    <string name="user_notice_no">我不接受上述情况</string>
-    <string name="user_notice_yes">我愿意尝试</string>
+    <string name="user_notice_no">与我期望的不同</string>
+    <string name="user_notice_yes">我觉得还行</string>
     <string name="title_crash_dump">错误报告</string>
     <string name="summary_crash_dump">当某个应用发生异常闪退时，显示一个详细的错误堆栈并转储到Xposed日志，通常可以反馈给该应用开发者以帮助解决该问题。</string>
     <string name="title_crash_moke">模拟崩溃</string>
@@ -415,5 +415,11 @@
     <string name="title_menu_ops_template">新装应用自动使用模板</string>
     <string name="title_app_lk_tip">锁屏清理说明</string>
     <string name="message_app_lk_tip">介于有部分用户反馈锁屏清理无效，特增加此说明，请看完，可避免不必要的使用错误。\n为了尽可能的减少杀死应用对用户带来的不必要的影响，默认不清理有通知的应用，可设置。另外，锁屏后，如果立刻开屏，而清理过程未完成，为了降低清理造成系统服务卡顿，以及你可能想继续使用刚才要被清理的应用，我们会终止清理过程。因此，当你锁屏且未在使用设备时，我们才会做清理操作。请知悉，感谢阅读，感谢阅读，感谢阅读，感谢阅读，感谢阅读x10000000000000000000。</string>
+    <string name="user_notice_title">老用户可快速跳过</string>
+    <string name="user_notice_title_a">新手使用之前需要花几分钟阅读主页右上角新手教程。有问题也要先去查教程。</string>
+    <string name="user_notice_title_b">为了实现某些功能，我们会把某些数据存放到系统某个目录下（data/system/tor），不要担心，我们提供了删除数据的功能。</string>
+    <string name="user_notice_title_c">关于内存占用，应用管理本身无需后台运行，你随时可以杀死。</string>
+    <string name="user_notice_title_d">ROM众多，可能你的设备并不兼容部分功能，或许会导致一些使用上的问题。</string>
+    <string name="user_notice_title_e">本程序提供的高级功能，例如组件编辑，绿化等，使用不当可能会导致应用闪退。</string>
 
 </resources>

@@ -421,7 +421,23 @@
         </receiver>
 
         <activity
-            android:name=".ui.activity.whyyouhere.UserGuideActivity"
+            android:name=".ui.activity.whyyouhere.UserGuideActivityA"
+            android:label="@string/title_activity_user_giude"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.whyyouhere.UserGuideActivityB"
+            android:label="@string/title_activity_user_giude"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.whyyouhere.UserGuideActivityC"
+            android:label="@string/title_activity_user_giude"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.whyyouhere.UserGuideActivityD"
+            android:label="@string/title_activity_user_giude"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.whyyouhere.UserGuideActivityE"
             android:label="@string/title_activity_user_giude"
             android:theme="@style/AppThemeLight.NoActionBar" />
     </application>
