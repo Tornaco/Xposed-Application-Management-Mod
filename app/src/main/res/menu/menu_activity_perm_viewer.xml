@@ -17,4 +17,10 @@
         android:visible="true"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/action_ops_template"
+        android:icon="@drawable/ic_search_white_24dp"
+        android:title="@string/title_menu_ops_template"
+        app:showAsAction="never" />
+
 </menu>

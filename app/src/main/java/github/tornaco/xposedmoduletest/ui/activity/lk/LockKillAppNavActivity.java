@@ -1,6 +1,9 @@
 package github.tornaco.xposedmoduletest.ui.activity.lk;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SwitchCompat;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,8 +21,10 @@ import java.util.List;
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.loader.LockKillPackageLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
@@ -78,6 +83,38 @@ public class LockKillAppNavActivity extends CommonPackageInfoListActivity implem
         switchBar.show();
         switchBar.setChecked(XAshmanManager.get().isLockKillEnabled());
         switchBar.addOnSwitchChangeListener(this);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        initLKUEDialog();
+    }
+
+    private void initLKUEDialog() {
+        if (AppSettings.isShowInfoEnabled(getContext(), "lk_ue_tip", true)) {
+            new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.title_app_lk_tip)
+                    .setMessage(getString(R.string.message_app_lk_tip))
+                    .setCancelable(false)
+                    .setNeutralButton(R.string.no_remind, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            AppSettings.setShowInfo(getApplicationContext(), "lk_ue_tip", false);
+                        }
+                    })
+                    .setPositiveButton(android.R.string.ok, null)
+                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finishAffinity();
+                            PackageManagerCompat.unInstallUserAppWithIntent(getContext(), getPackageName());
+                        }
+                    })
+                    .show();
+
+        }
     }
 
     @Override

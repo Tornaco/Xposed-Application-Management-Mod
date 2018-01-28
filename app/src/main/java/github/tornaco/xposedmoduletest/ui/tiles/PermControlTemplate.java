@@ -7,6 +7,7 @@ import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.perm.Apps2OpListActivity;
+import github.tornaco.xposedmoduletest.xposed.XApp;
 import lombok.Getter;
 
 /**
@@ -22,12 +23,21 @@ public class PermControlTemplate extends QuickTile {
         super(context);
         this.pkgName = pkgName;
         this.titleRes = R.string.title_perm_control_template;
+
+        final boolean isDonateOrPlay = github.tornaco.xposedmoduletest.provider.AppSettings.isDonated(getContext())
+                || XApp.isPlayVersion();
+        if (!isDonateOrPlay) {
+            this.summaryRes = R.string.donated_available;
+        }
+
         this.iconRes = R.drawable.ic_beenhere_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override
             public void onClick(View v) {
                 super.onClick(v);
-                Apps2OpListActivity.start(context, pkgName);
+                if (isDonateOrPlay) {
+                    Apps2OpListActivity.start(context, pkgName);
+                }
             }
         };
     }

@@ -25,6 +25,7 @@ import android.widget.AdapterView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.common.collect.Lists;
 import com.shahroz.svlibrary.interfaces.onSimpleSearchActionsListener;
@@ -48,6 +49,7 @@ import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.SpannableUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.XApp;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
 
@@ -171,6 +173,14 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
         if (item.getItemId() == R.id.action_search) {
             mSearchView.display();
             openKeyboard();
+        }
+        if (item.getItemId() == R.id.action_ops_template) {
+            if (AppSettings.isDonated(getContext())
+                    || XApp.isPlayVersion()) {
+                Apps2OpListActivity.start(getContext(), XAshmanManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME);
+            } else {
+                Toast.makeText(getContext(), R.string.donated_available, Toast.LENGTH_SHORT).show();
+            }
         }
         return super.onOptionsItemSelected(item);
     }

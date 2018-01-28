@@ -412,5 +412,8 @@
     <string name="filter_ext_op">拓展</string>
     <string name="filter_default_op">默认</string>
     <string name="title_perm_control_template">权限配置</string>
+    <string name="title_menu_ops_template">新装应用自动使用模板</string>
+    <string name="title_app_lk_tip">锁屏清理说明</string>
+    <string name="message_app_lk_tip">介于有部分用户反馈锁屏清理无效，特增加此说明，请看完，可避免不必要的使用错误。\n为了尽可能的减少杀死应用对用户带来的不必要的影响，默认不清理有通知的应用，可设置。另外，锁屏后，如果立刻开屏，而清理过程未完成，为了降低清理造成系统服务卡顿，以及你可能想继续使用刚才要被清理的应用，我们会终止清理过程。因此，当你锁屏且未在使用设备时，我们才会做清理操作。请知悉，感谢阅读，感谢阅读，感谢阅读，感谢阅读，感谢阅读x10000000000000000000。</string>
 
 </resources>
