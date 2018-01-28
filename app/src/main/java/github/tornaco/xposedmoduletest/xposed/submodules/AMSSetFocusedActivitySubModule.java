@@ -9,6 +9,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -21,7 +22,10 @@ class AMSSetFocusedActivitySubModule extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        hookSetFocusedActivityLocked(lpparam);
+        // This only works on N and below.
+        if (!OSUtil.isOOrAbove()) {
+            hookSetFocusedActivityLocked(lpparam);
+        }
     }
 
     private void hookSetFocusedActivityLocked(XC_LoadPackage.LoadPackageParam lpparam) {

@@ -67,7 +67,7 @@ abstract class AbsSubModule implements SubModule {
     }
 
     public void logOnBootStage(Object log) {
-        XposedLog.boot(log);
+        XposedLog.boot(getClass().getName() + "- " + log);
     }
 
     public void logOnBootStage(String format, Object... args) {

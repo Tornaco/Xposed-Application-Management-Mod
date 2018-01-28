@@ -18,8 +18,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // Hook hookCheckPermission settings.
-@Deprecated
-class AMSSubModule7 extends AndroidSubModule {
+class AMSCheckPermissionSubModule extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
@@ -36,7 +35,6 @@ class AMSSubModule7 extends AndroidSubModule {
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     super.beforeHookedMethod(param);
 
-                    // FIXME, Ensure this is default launcher.
                     String permission = (String) param.args[0];
                     if (permission.equals(Manifest.permission.START_ANY_ACTIVITY)) {
                         param.setResult(PackageManager.PERMISSION_GRANTED);

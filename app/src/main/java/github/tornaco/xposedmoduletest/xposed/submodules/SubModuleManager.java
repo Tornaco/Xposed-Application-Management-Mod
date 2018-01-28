@@ -77,10 +77,10 @@ public class SubModuleManager {
         addToSubsChecked(new RuntimeInitSubModule());
 
         addToSubsChecked(new AMSBroadcastIntentSubModule());
-        addToSubsChecked(new AMSSubModule10());
-        addToSubsChecked(new AMSSubModule9());
-        addToSubsChecked(new AMSSubModule8());
-        addToSubsChecked(new AMSSubModule6());
+        addToSubsChecked(new AMSRemoveTaskSubModule());
+        addToSubsChecked(new AMSGetRunningAppsSubModule());
+        addToSubsChecked(new AMSCheckPermissionSubModule());
+        addToSubsChecked(new AMSMoveTaskToBackSubModule());
 
         addToSubsChecked(new AMSSetFocusedActivitySubModule());
         addToSubsChecked(new ActivityStackSupervisorSetFocusedStackSubModule());
@@ -121,7 +121,7 @@ public class SubModuleManager {
         // APPGUARD MODULES END.
 
         if (BuildConfig.DEBUG) {
-            addToSubsChecked(new DebugOnlyTestModuleErrorSubModule());
+            // addToSubsChecked(new DebugOnlyTestModuleErrorSubModule());
         }
     }
 

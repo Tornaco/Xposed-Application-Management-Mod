@@ -229,6 +229,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                                 startLoading();
                             }
                         })
+                .setMessage(R.string.message_disabled_apps_can_be_launched_here)
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }

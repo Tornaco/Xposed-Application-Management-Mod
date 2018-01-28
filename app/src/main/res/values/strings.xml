@@ -386,7 +386,7 @@
     <string name="title_app_ana">应用排查</string>
     <string name="title_device_status">健康状况</string>
     <string name="title_device_status_good">模块已激活，模块初始化与兼容性均良好，设备运行状况良好。</string>
-    <string name="title_device_status_module_err">模块已激活，但是模块初始化遇到了兼容性问题，请按照新手教程，截取Xposed日志，汇报给开发者，已解决该问题。设备运行状况良好。</string>
+    <string name="title_device_status_module_err">模块已激活，但是模块初始化遇到了兼容性问题，请按照新手教程，截取Xposed日志，汇报给开发者，以解决该问题。设备运行状况良好。</string>
     <string name="donated">我已经捐赠</string>
     <string name="donated_available">捐赠版可用</string>
     <string name="err_context_null">糟糕，无法获取所在的活动，无法显示对话框，蛋疼！</string>
@@ -399,5 +399,6 @@
     <string name="filter_disabled_apps">已冻结</string>
     <string name="filter_system_apps">系统应用</string>
     <string name="filter_third_party_apps">用户安装</string>
+    <string name="message_disabled_apps_can_be_launched_here">某些桌面可能因为兼容性问题，无法生成快捷方式，作者会尽可能的适配，如果无法生成，你可以点击列表右侧的运行按钮，从这里运行。</string>
 
 </resources>

@@ -20,7 +20,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 // Hook hookStartService.
 @Deprecated
-class AMSSubModule11 extends AndroidSubModule {
+class AMSStartServiceSubModule extends AndroidSubModule {
 
     @Override
     public String needBuildVar() {

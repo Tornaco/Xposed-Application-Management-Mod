@@ -24,7 +24,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // Hook hookGetRunningAppProcess settings.
-class AMSSubModule9 extends AndroidSubModule {
+class AMSGetRunningAppsSubModule extends AndroidSubModule {
 
     @Override
     public String needBuildVar() {

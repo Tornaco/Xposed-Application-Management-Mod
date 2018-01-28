@@ -19,7 +19,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // Hook hookRemoveTask settings.
-class AMSSubModule10 extends AndroidSubModule {
+class AMSRemoveTaskSubModule extends AndroidSubModule {
 
     @Override
     public String needBuildVar() {
