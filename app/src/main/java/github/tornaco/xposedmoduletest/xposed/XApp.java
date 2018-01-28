@@ -51,8 +51,8 @@ public class XApp extends Application {
         }
 
         Logger.config(Settings.builder().tag("X-APM-C")
-                .logLevel(XSettings.isDevMode(this)
-                        ? Logger.LogLevel.DEBUG : Logger.LogLevel.WARN)
+                .logLevel(BuildConfig.DEBUG || XSettings.isDevMode(this)
+                        ? Logger.LogLevel.VERBOSE : Logger.LogLevel.WARN)
                 .logAdapter(new AndroidLogAdapter() {
                     @Override
                     public void e(String tag, String message) {
