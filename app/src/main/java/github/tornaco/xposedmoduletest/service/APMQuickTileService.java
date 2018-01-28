@@ -29,7 +29,7 @@ public class APMQuickTileService extends TileService {
             XAshmanManager.get().setShowFocusedActivityInfoEnabled(newEnabled);
             getQsTile().setState(newEnabled ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
         } else {
-            getQsTile().setState(Tile.STATE_UNAVAILABLE);
+            getQsTile().setState(Tile.STATE_INACTIVE);
         }
 
     }
@@ -42,7 +42,7 @@ public class APMQuickTileService extends TileService {
             getQsTile().setState(XAshmanManager.get().isServiceAvailable() && XAshmanManager.get().showFocusedActivityInfoEnabled() ?
                     Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
         } else {
-            getQsTile().setState(Tile.STATE_UNAVAILABLE);
+            getQsTile().setState(Tile.STATE_INACTIVE);
         }
     }
 }

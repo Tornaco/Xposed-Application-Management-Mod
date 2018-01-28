@@ -17,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.newstand.logger.Logger;
 
@@ -341,6 +342,10 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        if (Collections.isNullOrEmpty(res)) {
+                            Toast.makeText(getContext(), R.string.loading_res_empty, Toast.LENGTH_SHORT).show();
+                        }
+
                         swipeRefreshLayout.setRefreshing(false);
                         commonPackageInfoAdapter.update(res);
                     }

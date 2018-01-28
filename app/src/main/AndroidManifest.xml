@@ -379,6 +379,7 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
         <provider
             android:name=".provider.ComponentsReplacementProvider"
             android:authorities="github.tornaco.xposedmoduletest.components_replacement_provider"

@@ -110,7 +110,7 @@
 
     <string name="app_intro_need_restart">应用更新后需要重新启动设备，否则系统可能无法正常工作。</string>
     <string name="title_restart_android">软重启</string>
-    <string name="title_block_viewer">启动记录</string>
+    <string name="title_block_viewer">阻止记录</string>
     <string name="title_restrict">限制</string>
     <string name="done">完成</string>
     <string name="clearing_process">正在杀掉%1$s…</string>
@@ -403,5 +403,6 @@
     <string name="message_disabled_apps_re_disable">由快捷方式解冻并进入时，屏幕关闭后且该应用不在前台时重新冻结</string>
     <string name="fail_launch_app">无法启动该应用，可能是因为该应用无用户界面</string>
     <string name="random_generate_code">随机生成</string>
+    <string name="loading_res_empty">空空如也，如果是系统应用无法读取，请确保 通用设置-排除系统应用 开关已经关闭</string>
 
 </resources>

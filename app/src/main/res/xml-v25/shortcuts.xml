@@ -1,15 +1,28 @@
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+    <!--<shortcut-->
+    <!--android:enabled="true"-->
+    <!--android:icon="@drawable/ic_directions_run_black_16_sc_dp"-->
+    <!--android:shortcutId="clear"-->
+    <!--android:shortcutLongLabel="@string/clear_process"-->
+    <!--android:shortcutShortLabel="@string/clear_process"-->
+    <!--tools:targetApi="n_mr1">-->
+    <!--<intent-->
+    <!--android:action="android.intent.action.VIEW"-->
+    <!--android:targetClass="github.tornaco.xposedmoduletest.ui.activity.ClearProcessActivity"-->
+    <!--android:targetPackage="github.tornaco.xposedmoduletest" />-->
+    <!--<categories android:name="android.shortcut.apm" />-->
+    <!--</shortcut>-->
     <shortcut
         android:enabled="true"
-        android:icon="@drawable/ic_directions_run_black_16_sc_dp"
-        android:shortcutId="clear"
-        android:shortcutLongLabel="@string/clear_process"
-        android:shortcutShortLabel="@string/clear_process"
+        android:icon="@drawable/ic_bubble_chart_black_24dp"
+        android:shortcutId="boot"
+        android:shortcutLongLabel="@string/title_component_manager"
+        android:shortcutShortLabel="@string/title_component_manager"
         tools:targetApi="n_mr1">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetClass="github.tornaco.xposedmoduletest.ui.activity.ClearProcessActivity"
+            android:targetClass="github.tornaco.xposedmoduletest.ui.activity.comp.PackageViewerActivity"
             android:targetPackage="github.tornaco.xposedmoduletest" />
         <categories android:name="android.shortcut.apm" />
     </shortcut>
