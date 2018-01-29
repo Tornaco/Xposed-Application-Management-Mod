@@ -10,7 +10,6 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.util.OSUtil;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -18,10 +17,15 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
+// FIXME Need a porting for Oreo.
 class FPSubModule extends AndroidSubModule {
+
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        if (OSUtil.isMOrAbove()) hookFPUtil(lpparam);
+        if (OSUtil.isMOrAbove() && !OSUtil.isOOrAbove()) {
+            // N.
+            hookFPUtil(lpparam);
+        }
     }
 
     /**

@@ -392,10 +392,10 @@ public class PkgUtil {
         return BRING_DOWN_PACKAGES.contains(pkg);
     }
 
-    private static void onBringDown(String who) {
+    public static void addOnBringDown(String who) {
         BRING_DOWN_PACKAGES.add(who);
-        XposedLog.verbose("onBringDown: " + who);
-        onAppBringDown(who, "onBringDown");
+        XposedLog.verbose("addOnBringDown: " + who);
+        onAppBringDown(who, "addOnBringDown");
         synchronized (sLock) {
             if (sPkgBringDownHandler == null) {
                 initBringDownHandler();
@@ -414,8 +414,8 @@ public class PkgUtil {
         try {
             ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
             if (am != null) {
+                addOnBringDown(pkg);
                 am.forceStopPackage(pkg);
-                onBringDown(pkg);
             }
         } catch (Exception ignored) {
         }

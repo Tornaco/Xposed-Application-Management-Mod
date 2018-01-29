@@ -443,6 +443,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         .setContentTitle("模板已应用")
                         .setContentText("已按照模板将 " + name + " 完成设置")
                         .setSmallIcon(android.R.drawable.stat_sys_warning)
+                        .setContentIntent(PendingIntent.getActivity(getContext(), 0x1, viewer, PendingIntent.FLAG_CANCEL_CURRENT))
                         .build()
                 : new Notification.Builder(context)
                 .setContentIntent(PendingIntent.getActivity(getContext(), 0x1, viewer, PendingIntent.FLAG_CANCEL_CURRENT))
@@ -1172,8 +1173,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @CommonBringUpApi
+    @SinceSDK(Build.VERSION_CODES.O)
     public void notifyTaskCreated(int taskId, ComponentName componentName) {
-        mTaskIdMap.put(taskId, componentName);
+        if (componentName == null) return;
+        // Use a dup package.
+        ComponentName dup = new ComponentName(componentName.getPackageName(), componentName.getClassName());
+        mTaskIdMap.put(taskId, dup);
     }
 
     @Override
@@ -3579,80 +3584,80 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         if (isSystemUIPackage(callingPkg)) {
-            // We will kill removed pkg.
-            ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
-            // Assume systemui has this permission.
-            if (am != null) {
-                List<ActivityManager.RecentTaskInfo> tasks = am.getRecentTasks(99,
-                        ActivityManager.RECENT_WITH_EXCLUDED);
-                if (tasks != null) {
+            String pkgOfThisTask = null;
 
-                    String pkgOfThisTask = null;
+            boolean isOreo = OSUtil.isOOrAbove();
+            if (isOreo) {
+                ComponentName targetComp = mTaskIdMap.get(taskId);
+                if (targetComp != null) {
+                    pkgOfThisTask = targetComp.getPackageName();
+                    XposedLog.verbose("removeTask, pkgOfThisTask-IDMAP: " + pkgOfThisTask);
+                }
+            }
 
-                    for (ActivityManager.RecentTaskInfo rc : tasks) {
-                        if (rc != null && rc.persistentId == taskId) {
-                            pkgOfThisTask = PkgUtil.packageNameOf(rc.baseIntent);
-                            break;
-                        }
-                    }
-
-                    XposedLog.verbose("removeTask, pkgOfThisTask: " + pkgOfThisTask);
-
-                    if (pkgOfThisTask != null) {
-
-                        PkgUtil.onAppBringDown(pkgOfThisTask, "removeTask");
-
-                        // Re-disable apps.
-                        try {
-                            if (RepoProxy.getProxy().getPending_disable_apps_tr().size() != 0) {
-                                // Disable pending apps.
-                                for (String p : RepoProxy.getProxy().getPending_disable_apps_tr().getAll()) {
-                                    if (!isPackageRunningOnTop(p)) {
-                                        setApplicationEnabledSetting(p, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
-                                        XposedLog.verbose("removeTask, Disable pending apps: " + p);
-                                        RepoProxy.getProxy().getPending_disable_apps_tr().remove(p);
-                                    }
-                                }
+            // Retrieve package name for N and if no task comp got from cache.
+            if (pkgOfThisTask == null) {
+                // We will kill removed pkg.
+                ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
+                // Assume systemui has this permission.
+                if (am != null) {
+                    List<ActivityManager.RecentTaskInfo> tasks = am.getRecentTasks(99,
+                            ActivityManager.RECENT_WITH_EXCLUDED);
+                    if (tasks != null) {
+                        for (ActivityManager.RecentTaskInfo rc : tasks) {
+                            if (rc != null && rc.persistentId == taskId) {
+                                pkgOfThisTask = PkgUtil.packageNameOf(rc.baseIntent);
+                                break;
                             }
-                        } catch (Throwable e) {
-                            XposedLog.wtf("removeTask, Fail handle disable_app: " + e);
                         }
-
-                        // Tell app guard service to clean up verify res.
-                        mAppGuardService.onTaskRemoving(pkgOfThisTask);
-
-                        if (!isTaskRemoveKillEnabled()) {
-                            if (XposedLog.isVerboseLoggable()) {
-                                XposedLog.verbose("removeTask: trk is not enabled");
-                            }
-                            return;
-                        }
-
-                        if (!shouldTRKPackage(pkgOfThisTask)) {
-                            XposedLog.verbose("removeTask TRKPackage not enabled for this package");
-                            return;
-                        }
-
-//                        boolean doNotKillAppWithSBNEnabled = isDoNotKillSBNEnabled();
-//                        XposedLog.verbose("removeTask, doNotKillAppWithSBNEnabled: " + doNotKillAppWithSBNEnabled);
-//                        if (doNotKillAppWithSBNEnabled && hasNotificationForPackageInternal(pkgOfThisTask)) {
-//                            XposedLog.verbose("removeTask has SBN for this package");
-//                            return;
-//                        }
-
-                        // Now we kill this pkg delay to let am handle first.
-                        final String finalPkgOfThisTask = pkgOfThisTask;
-                        mLazyHandler.postDelayed(new ErrorCatchRunnable(new Runnable() {
-                            @Override
-                            public void run() {
-                                XposedLog.verbose("removeTask, killing: " + finalPkgOfThisTask);
-                                PkgUtil.kill(getContext(), finalPkgOfThisTask);
-                            }
-                        }, "removeTask-kill"), 888); // FIXME why 888?
+                        XposedLog.verbose("removeTask, pkgOfThisTask-AM: " + pkgOfThisTask);
                     }
                 }
             }
 
+            if (pkgOfThisTask != null) {
+                PkgUtil.onAppBringDown(pkgOfThisTask, "removeTask");
+
+                // Re-disable apps.
+                try {
+                    if (RepoProxy.getProxy().getPending_disable_apps_tr().size() != 0) {
+                        // Disable pending apps.
+                        for (String p : RepoProxy.getProxy().getPending_disable_apps_tr().getAll()) {
+                            if (!isPackageRunningOnTop(p)) {
+                                setApplicationEnabledSetting(p, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
+                                XposedLog.verbose("removeTask, Disable pending apps: " + p);
+                                RepoProxy.getProxy().getPending_disable_apps_tr().remove(p);
+                            }
+                        }
+                    }
+                } catch (Throwable e) {
+                    XposedLog.wtf("removeTask, Fail handle disable_app: " + e);
+                }
+
+                // Tell app guard service to clean up verify res.
+                mAppGuardService.onTaskRemoving(pkgOfThisTask);
+
+                if (!isTaskRemoveKillEnabled()) {
+                    if (XposedLog.isVerboseLoggable()) {
+                        XposedLog.verbose("removeTask: trk is not enabled");
+                    }
+                    return;
+                }
+
+                if (!shouldTRKPackage(pkgOfThisTask)) {
+                    XposedLog.verbose("removeTask TRKPackage not enabled for this package");
+                    return;
+                }
+                // Now we kill this pkg delay to let am handle first.
+                final String finalPkgOfThisTask = pkgOfThisTask;
+                mLazyHandler.postDelayed(new ErrorCatchRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        XposedLog.verbose("removeTask, killing: " + finalPkgOfThisTask);
+                        PkgUtil.kill(getContext(), finalPkgOfThisTask);
+                    }
+                }, "removeTask-kill"), 888); // FIXME why 888?
+            }
         }
     }
 
@@ -4270,9 +4275,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     // PLUGIN API END.
 
     private boolean isSystemUIPackage(String pkgName) {
-        return pkgName != null && (pkgName.equals(SYSTEM_UI_PKG)
-                // Htc has doing a nice job!!!!!
-                || " com.htc.quicklauncher".equals(pkgName));
+        return pkgName != null && (pkgName.equals(SYSTEM_UI_PKG));
     }
 
     private void postNotifyTopPackageChanged(final String from, final String to) {
