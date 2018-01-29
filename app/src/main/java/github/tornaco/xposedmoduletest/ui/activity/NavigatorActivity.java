@@ -264,12 +264,17 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             }
 
             @Override
-            public void onSuccess(List<DeveloperMessage> messages) {
+            public void onSuccess(final List<DeveloperMessage> messages) {
                 if (!isDestroyed() && messages != null && messages.size() > 0) {
-                    try {
-                        showDeveloperMessage(messages.get(0));
-                    } catch (Throwable ignored) {
-                    }
+                    runOnUiThreadChecked(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                showDeveloperMessage(messages.get(0));
+                            } catch (Throwable ignored) {
+                            }
+                        }
+                    });
                 }
             }
         });
@@ -277,9 +282,11 @@ public class NavigatorActivity extends WithWithCustomTabActivity
 
     private void showDeveloperMessage(DeveloperMessage message) {
         final String messageId = message.getMessageId();
-        boolean isTest = message.isTest();
-        if (isTest && !BuildConfig.DEBUG) return;
-        if (AppSettings.isShowInfoEnabled(getContext(), messageId, true)) {
+        boolean show = AppSettings.isShowInfoEnabled(getContext(), messageId);
+        boolean debug = message.isTest();
+        if (debug &&!BuildConfig.DEBUG) return;
+        Logger.d("showDeveloperMessage: " + message + ", " + show);
+        if (show) {
             new AlertDialog.Builder(getActivity())
                     .setTitle(message.getTitle())
                     .setMessage(message.getMessage())
