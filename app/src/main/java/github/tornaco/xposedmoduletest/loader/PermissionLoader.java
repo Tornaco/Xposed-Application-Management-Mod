@@ -66,12 +66,12 @@ public interface PermissionLoader {
 
             final List<Permission> permissions = new ArrayList<>();
 
-            // Here we check if this is dummy one.
-            boolean isDummy = XAshmanManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME.equals(pkg);
-
             for (int code = 0; code < OP_SIZE; code++) {
 
                 String s = AppOpsManagerCompat.opToPermission(code);
+
+                // Here we check if this is dummy one.
+                boolean isDummy = XAshmanManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME.equals(pkg);
 
                 if (!isDummy && (s != null && !permSet.contains(s))) {
                     continue;
@@ -118,9 +118,6 @@ public interface PermissionLoader {
 
             // Add our extra permissions.
             for (int ecode : AppOpsManagerCompat.EXTRA_OPS) {
-                if (isDummy && AppOpsManagerCompat.isLazyOp(ecode)) {
-                    continue;
-                }
                 Permission p = new Permission();
                 p.setPkgName(pkg);
                 p.setPermission(null);

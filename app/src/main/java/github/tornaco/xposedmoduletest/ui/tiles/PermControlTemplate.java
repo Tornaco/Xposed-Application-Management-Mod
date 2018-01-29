@@ -21,7 +21,6 @@ public class PermControlTemplate extends QuickTile {
 
     public PermControlTemplate(final Context context, final String pkgName) {
         super(context);
-
         this.pkgName = pkgName;
         this.titleRes = R.string.title_perm_control_template;
 
