@@ -21,6 +21,7 @@ import android.app.AppOpsManager;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import github.tornaco.xposedmoduletest.R;
@@ -350,6 +351,16 @@ public final class AppOpsManagerCompat {
             OP_START_SERVICE,
             OP_WAKE_LOCK,
     };
+
+    public static final int[] LAZY_OPS = new int[]{
+            OP_SET_ALARM,
+            OP_START_SERVICE,
+            OP_WAKE_LOCK,
+    };
+
+    public static boolean isLazyOp(int op) {
+        return Arrays.binarySearch(LAZY_OPS, op) >= 0;
+    }
 
     public static final int CATEGORY_EXTRA = 0x1;
     public static final int CATEGORY_DEFAULT = 0x2;
