@@ -126,6 +126,8 @@ interface AshManHandler {
 
     void setControlMode(int mode);
 
+    void setResidentEnabled(boolean enabled);
+
     void setAutoAddBlackEnable(boolean enable);
 
     void forceReloadPackages();

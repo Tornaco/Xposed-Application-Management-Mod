@@ -332,4 +332,11 @@ interface IAshmanService {
 
      // New API since 4.4.6
      void addPendingDisableAppsTR(String pkg);
+
+     // New API since 4.4.8
+     void setResidentEnabled(boolean enable);
+     boolean isResidentEnabled();
+     boolean isResidentEnabledForPackage(String who);
+     void addOrRemoveResidentApps(String app, boolean add);
+     String[] getResidentApps(boolean resident);
 }

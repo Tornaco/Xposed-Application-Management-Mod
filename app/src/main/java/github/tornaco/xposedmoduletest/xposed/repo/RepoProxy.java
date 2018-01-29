@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import github.tornaco.android.common.Consumer;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -51,7 +52,8 @@ public class RepoProxy {
             data_restrict, wifi_restrict,
             lazy, comps, white_list_hooks_dynamic,
             pending_disable_apps,
-            pending_disable_apps_tr;
+            pending_disable_apps_tr,
+            resident;
 
     private MapRepo<String, String> componentReplacement, appFocused, appUnFocused;
 
@@ -122,8 +124,9 @@ public class RepoProxy {
         lazy = new StringSetRepo(new File(dir, "lazy"), h, io);
         pending_disable_apps = new StringSetRepo(new File(dir, "pending_disable_apps"), h, io);
         pending_disable_apps_tr = new StringSetRepo(new File(dir, "pending_disable_apps_tr"), h, io);
+        resident = new StringSetRepo(new File(dir, "resident"), h, io);
 
-        try {
+        if (BuildConfig.DEBUG) try {
             @SuppressLint("SdCardPath") File dynamicHooks =
                     new File("/sdcard/.android/.apm_configs"
                             + File.separator
@@ -389,6 +392,10 @@ public class RepoProxy {
         return pending_disable_apps_tr == null ? STRING_SET_NULL_HACK : pending_disable_apps_tr;
     }
 
+    public SetRepo<String> getResident() {
+        return resident == null ? STRING_SET_NULL_HACK : resident;
+    }
+
     public SetRepo<String> getLazy() {
         return lazy == null ? STRING_SET_NULL_HACK : lazy;
     }
@@ -473,6 +480,7 @@ public class RepoProxy {
         getLazy().removeAll();
         getPending_disable_apps().removeAll();
         getPending_disable_apps_tr().removeAll();
+        getResident().removeAll();
 
         getAppFocused().clear();
         getAppUnFocused().clear();

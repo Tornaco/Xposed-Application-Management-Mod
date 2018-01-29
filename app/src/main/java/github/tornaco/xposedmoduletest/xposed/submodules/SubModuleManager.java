@@ -123,6 +123,8 @@ public class SubModuleManager {
         if (BuildConfig.DEBUG) {
             // addToSubsChecked(new DebugOnlyTestModuleErrorSubModule());
         }
+
+        addToSubsChecked(new ActivityStackRealStartActivitySubModule());
     }
 
     @Synchronized

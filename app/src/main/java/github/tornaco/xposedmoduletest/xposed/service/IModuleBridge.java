@@ -134,5 +134,7 @@ public interface IModuleBridge {
 
     int checkOperation(int code, int uid, String packageName, String reason);
 
+    boolean resident(String pkgName);
+    boolean residentEnableInternal();
     // API For ASH END.
 }

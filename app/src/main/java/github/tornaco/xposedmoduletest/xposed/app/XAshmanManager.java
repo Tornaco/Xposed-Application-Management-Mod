@@ -1411,4 +1411,48 @@ public class XAshmanManager {
             return new OpsSettings(AppOpsManagerCompat.getDefaultModes());
         }
     }
+
+    public void setResidentEnabled(boolean enable) {
+        ensureService();
+        try {
+            mService.setResidentEnabled(enable);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public boolean isResidentEnabled() {
+        ensureService();
+        try {
+            return mService.isResidentEnabled();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public boolean isResidentEnabledForPackage(String who) {
+        try {
+            return mService.isResidentEnabledForPackage(who);
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public void addOrRemoveResidentApps(String app, boolean add) {
+        ensureService();
+        try {
+            mService.addOrRemoveResidentApps(app, add);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public String[] getResidentApps(boolean resident) {
+        ensureService();
+        try {
+            return mService.getResidentApps(resident);
+        } catch (RemoteException e) {
+            return ArrayUtil.emptyStringArray();
+        }
+    }
 }

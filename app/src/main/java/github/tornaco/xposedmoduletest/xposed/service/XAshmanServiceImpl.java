@@ -200,6 +200,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final AtomicBoolean mStartBlockEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mLockKillEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mGreeningEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mResidentEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mPermissionControlEnabled = new AtomicBoolean(true);
 
@@ -683,6 +684,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             boolean lockKillEnabled = (boolean) SystemSettings.LOCK_KILL_ENABLED_B.readFromSystemSettings(getContext());
             mLockKillEnabled.set(lockKillEnabled);
             XposedLog.boot("lockKillEnabled: " + String.valueOf(lockKillEnabled));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            boolean residentEnabled = (boolean) SystemSettings.APM_RESIDENT_B.readFromSystemSettings(getContext());
+            mResidentEnabled.set(residentEnabled);
+            XposedLog.boot("residentEnabled: " + String.valueOf(residentEnabled));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -2584,6 +2593,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return isInStringRepo(RepoProxy.getProxy().getStarts(), pkg);
     }
 
+    private boolean isPackageResidentByUser(String pkg) {
+        return isInStringRepo(RepoProxy.getProxy().getResident(), pkg);
+    }
+
     private boolean isPackageprivacyByUser(String pkg) {
         return isInStringRepo(RepoProxy.getProxy().getPrivacy(), pkg);
     }
@@ -4390,6 +4403,100 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return mode;
     }
 
+    @Override
+    @InternalCall
+    public boolean resident(String pkgName) {
+        return !isInSystemAppList(pkgName)
+                && RepoProxy.getProxy().getResident().has(pkgName);
+    }
+
+    @Override
+    @InternalCall
+    public boolean residentEnableInternal() {
+        return !mIsSafeMode && mResidentEnabled.get();
+    }
+
+    @Override
+    @BinderCall
+    public boolean isResidentEnabled() throws RemoteException {
+        return mResidentEnabled.get();
+    }
+
+    @Override
+    @BinderCall
+    public boolean isResidentEnabledForPackage(String who) throws RemoteException {
+        return resident(who);
+    }
+
+    @Override
+    @BinderCall
+    public void setResidentEnabled(boolean enable) throws RemoteException {
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETRESIDENTENABLED, enable).sendToTarget();
+    }
+
+    @Override
+    @BinderCall
+    public void addOrRemoveResidentApps(String app, boolean add) throws RemoteException {
+        if (XposedLog.isVerboseLoggable())
+            XposedLog.verbose("addOrRemoveResidentApps: " + app);
+        enforceCallingPermissions();
+        if (app == null) return;
+        if (isInSystemAppList(app)) return; // Not allowed for system app.
+        addOrRemoveFromRepo(new String[]{app}, RepoProxy.getProxy().getResident(), add);
+    }
+
+    @Override
+    @BinderCall
+    public String[] getResidentApps(boolean resident) throws RemoteException {
+        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getResidentApps: " + resident);
+        enforceCallingPermissions();
+        if (!resident) {
+            Collection<String> packages = mPackagesCache.keySet();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+
+            final List<String> outList = Lists.newArrayList();
+
+            // Remove those not in blocked list.
+            String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
+            Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
+                @Override
+                public void accept(String s) {
+                    if (isInSystemAppList(s)) return; // No system app.
+                    if (outList.contains(s)) return;// Kik dup package.
+                    if (isPackageResidentByUser(s)) return;
+                    if (isInWhiteList(s)) return;
+                    outList.add(s);
+                }
+            });
+
+            if (outList.size() == 0) {
+                return new String[0];
+            }
+            Object[] objArr = outList.toArray();
+            return convertObjectArrayToStringArray(objArr);
+        } else {
+            Set<String> packages = RepoProxy.getProxy().getResident().getAll();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+
+            final List<String> noSys = Lists.newArrayList();
+
+            Collections.consumeRemaining(packages, new Consumer<String>() {
+                @Override
+                public void accept(String p) {
+                    if (isInSystemAppList(p)) {
+                        return;
+                    }
+                    noSys.add(p);
+                }
+            });
+            return convertObjectArrayToStringArray(noSys.toArray());
+        }
+    }
+
     private int checkOperationInternal(int code, int uid, String packageName, String reason) {
         if (packageName == null) return AppOpsManagerCompat.MODE_ALLOWED;
 
@@ -5351,6 +5458,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETPRIVACYENABLED:
                     HandlerImpl.this.setPrivacyEnabled((Boolean) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_SETRESIDENTENABLED:
+                    HandlerImpl.this.setResidentEnabled((Boolean) msg.obj);
+                    break;
             }
         }
 
@@ -5407,6 +5517,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setLockKillEnabled(boolean enabled) {
             if (mLockKillEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.LOCK_KILL_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setResidentEnabled(boolean enabled) {
+            if (mResidentEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.APM_RESIDENT_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 

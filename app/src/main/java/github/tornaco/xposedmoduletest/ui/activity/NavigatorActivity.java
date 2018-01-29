@@ -67,6 +67,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.NFManager;
 import github.tornaco.xposedmoduletest.ui.tiles.PermControl;
 import github.tornaco.xposedmoduletest.ui.tiles.Privacy;
 import github.tornaco.xposedmoduletest.ui.tiles.RFKill;
+import github.tornaco.xposedmoduletest.ui.tiles.Resident;
 import github.tornaco.xposedmoduletest.ui.tiles.SmartSense;
 import github.tornaco.xposedmoduletest.ui.tiles.TRKill;
 import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
@@ -284,7 +285,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         final String messageId = message.getMessageId();
         boolean show = AppSettings.isShowInfoEnabled(getContext(), messageId);
         boolean debug = message.isTest();
-        if (debug &&!BuildConfig.DEBUG) return;
+        if (debug && !BuildConfig.DEBUG) return;
         Logger.d("showDeveloperMessage: " + message + ", " + show);
         if (show) {
             new AlertDialog.Builder(getActivity())
@@ -623,6 +624,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
 
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_UNINSTALL)) {
                 category.addTile(new UnInstall(getActivity()));
+                category.addTile(new Resident(getActivity()));
             }
 
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_PRIVACY)) {
