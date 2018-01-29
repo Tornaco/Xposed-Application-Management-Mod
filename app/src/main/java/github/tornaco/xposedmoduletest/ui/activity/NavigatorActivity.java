@@ -627,7 +627,9 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             }
 
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_RESIDENT)) {
-                category.addTile(new Resident(getActivity()));
+                if (AppSettings.isShowInfoEnabled(getContext(), "show_hidden_features", false)) {
+                    category.addTile(new Resident(getActivity()));
+                }
             }
 
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_PRIVACY)) {

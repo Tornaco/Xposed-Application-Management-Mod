@@ -17,6 +17,7 @@ import github.tornaco.xposedmoduletest.xposed.XAppBuildHostInfo;
  */
 
 public class AppVersion extends QuickTile {
+
     private int clickedTimes = 0;
 
     public AppVersion(final Context context) {
@@ -37,8 +38,8 @@ public class AppVersion extends QuickTile {
                 clickedTimes++;
 
                 if (clickedTimes >= 8) {
-                    if (!AppSettings.isShowInfoEnabled(context, "show_lazy_ui", false)) {
-                        AppSettings.setShowInfo(context, "show_lazy_ui", true);
+                    if (!AppSettings.isShowInfoEnabled(context, "show_hidden_features", false)) {
+                        AppSettings.setShowInfo(context, "show_hidden_features", true);
                         Toast.makeText(context, "@$#%@&#%@^#%^#", Toast.LENGTH_SHORT).show();
                     }
                     clickedTimes = 0;
