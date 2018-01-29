@@ -426,5 +426,7 @@
     <string name="theme_name_newyear">新年</string>
     <string name="summary_ops_template">绿化/常规权限均可在此配置。</string>
     <string name="app_name_android">系统核心</string>
+    <string name="app_ext">拓展</string>
+    <string name="coming_soon">X</string>
 
 </resources>

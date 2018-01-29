@@ -6,6 +6,13 @@
             android:id="@+id/action_home"
             android:icon="@drawable/ic_home_black_24dp"
             android:title="@string/app_name" />
+
+        <item
+            android:id="@+id/action_ext"
+            android:icon="@drawable/ic_extension_black_24dp"
+            android:visible="false"
+            android:title="@string/app_ext" />
+
         <item
             android:id="@+id/action_tools"
             android:icon="@drawable/ic_pan_tool_black_24dp"

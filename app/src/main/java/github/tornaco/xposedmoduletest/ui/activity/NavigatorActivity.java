@@ -231,7 +231,10 @@ public class NavigatorActivity extends WithWithCustomTabActivity
 
     protected void setupFragment() {
         final List<ActivityLifeCycleDashboardFragment> cards =
-                ImmutableList.of(onCreateFragment(), new ToolsDashboardActivity.Dashboards());
+                ImmutableList.of(
+                        onCreateMainFragment(),
+                        new ToolsDashboardActivity.Dashboards(),
+                        onCreateEXTFragment());
         cardController = new FragmentController<>(getSupportFragmentManager(), cards, R.id.container);
         cardController.setDefaultIndex(0);
         cardController.setCurrent(0);
@@ -382,8 +385,12 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                 .show();
     }
 
-    protected ActivityLifeCycleDashboardFragment onCreateFragment() {
+    protected ActivityLifeCycleDashboardFragment onCreateMainFragment() {
         return new NavigatorFragment();
+    }
+
+    protected ActivityLifeCycleDashboardFragment onCreateEXTFragment() {
+        return new EXTFragment();
     }
 
     @Override
@@ -409,6 +416,11 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             setTitle(R.string.app_name);
         }
 
+        if (item.getItemId() == R.id.action_ext) {
+            getCardController().setCurrent(2);
+            setTitle(R.string.app_ext);
+        }
+
         if (item.getItemId() == R.id.action_donate) {
             startActivity(new Intent(getContext(), DonateActivity.class));
         }
@@ -416,6 +428,22 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public static class EXTFragment extends ActivityLifeCycleDashboardFragment {
+        @Getter
+        private View rootView;
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            rootView = super.onCreateView(inflater, container, savedInstanceState);
+            return rootView;
+        }
+
+        @Override
+        protected int getLayoutId() {
+            return R.layout.fragment_ext;
+        }
     }
 
     public static class NavigatorFragment extends ActivityLifeCycleDashboardFragment {

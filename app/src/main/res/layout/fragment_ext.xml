@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/dashboard"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_below="@+id/toolbar"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@android:id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="@dimen/activity_horizontal_margin_small"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin_small"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin_small"
+            android:layout_marginRight="@dimen/activity_horizontal_margin_small"
+            android:layout_marginStart="@dimen/activity_horizontal_margin_small"
+            android:layout_marginTop="@dimen/activity_horizontal_margin_tiny"
+            android:padding="@dimen/header_padding_tiny"
+            android:text="@string/coming_soon"
+            android:textAllCaps="true"
+            android:textStyle="normal" />
+
+        <LinearLayout
+            android:id="@+id/dashboard_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="@dimen/activity_horizontal_margin_small"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin_small"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin_small"
+            android:layout_marginRight="@dimen/activity_horizontal_margin_small"
+            android:layout_marginStart="@dimen/activity_horizontal_margin_small"
+            android:layout_marginTop="@dimen/activity_horizontal_margin_tiny"
+            android:orientation="vertical" />
+
+    </RelativeLayout>
+
+</android.support.v4.widget.NestedScrollView>
