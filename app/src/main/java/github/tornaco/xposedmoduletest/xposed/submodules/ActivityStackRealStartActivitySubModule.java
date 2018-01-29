@@ -9,6 +9,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -21,6 +22,16 @@ import static de.robv.android.xposed.XposedHelpers.setIntField;
  */
 
 class ActivityStackRealStartActivitySubModule extends AndroidSubModule {
+
+    @Override
+    public int needMinSdk() {
+        return super.needMinSdk();
+    }
+
+    @Override
+    public String needBuildVar() {
+        return XAppBuildVar.APP_RESIDENT;
+    }
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {

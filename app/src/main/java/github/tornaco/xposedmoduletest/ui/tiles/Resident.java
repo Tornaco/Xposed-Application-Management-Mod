@@ -7,7 +7,9 @@ import android.view.View;
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.resdient.ResdientAppNavActivity;
+import github.tornaco.xposedmoduletest.xposed.XApp;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
@@ -20,7 +22,12 @@ public class Resident extends QuickTile {
     public Resident(final Context context) {
         super(context);
         this.titleRes = R.string.title_app_resident;
-        if (XAshmanManager.get().isServiceAvailable()) {
+
+        final boolean donateOrPlay = (AppSettings.isDonated(getContext())
+                || XApp.isPlayVersion());
+        if (!donateOrPlay) {
+            this.summaryRes = R.string.donated_available;
+        } else if (XAshmanManager.get().isServiceAvailable()) {
             this.summaryRes = XAshmanManager.get().isResidentEnabled() ?
                     R.string.summary_func_enabled : 0;
         }
@@ -29,7 +36,9 @@ public class Resident extends QuickTile {
             @Override
             public void onClick(View v) {
                 super.onClick(v);
-                context.startActivity(new Intent(context, ResdientAppNavActivity.class));
+                if (donateOrPlay) {
+                    context.startActivity(new Intent(context, ResdientAppNavActivity.class));
+                }
             }
         };
     }

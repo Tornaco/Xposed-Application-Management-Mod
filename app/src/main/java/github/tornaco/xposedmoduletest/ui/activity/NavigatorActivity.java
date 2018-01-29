@@ -624,6 +624,9 @@ public class NavigatorActivity extends WithWithCustomTabActivity
 
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_UNINSTALL)) {
                 category.addTile(new UnInstall(getActivity()));
+            }
+
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_RESIDENT)) {
                 category.addTile(new Resident(getActivity()));
             }
 
