@@ -28,6 +28,8 @@ public class PermControlTemplate extends QuickTile {
                 || XApp.isPlayVersion();
         if (!isDonateOrPlay) {
             this.summaryRes = R.string.donated_available;
+        } else {
+            this.summaryRes = R.string.summary_ops_template;
         }
 
         this.iconRes = R.drawable.ic_beenhere_black_24dp;

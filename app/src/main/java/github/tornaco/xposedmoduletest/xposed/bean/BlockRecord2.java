@@ -17,12 +17,15 @@ import lombok.ToString;
 public class BlockRecord2 implements Parcelable {
 
     private String pkgName;
+    private String callerPkgName;
+    @Deprecated
     private String appName;
     private long timeWhen;
     private long howManyTimes;
 
     protected BlockRecord2(Parcel in) {
         pkgName = in.readString();
+        callerPkgName = in.readString();
         appName = in.readString();
         timeWhen = in.readLong();
         howManyTimes = in.readLong();
@@ -48,6 +51,7 @@ public class BlockRecord2 implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(pkgName);
+        dest.writeString(callerPkgName);
         dest.writeString(appName);
         dest.writeLong(timeWhen);
         dest.writeLong(howManyTimes);

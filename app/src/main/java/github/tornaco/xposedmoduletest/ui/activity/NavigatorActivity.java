@@ -468,7 +468,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                 summaryView.setText(R.string.app_intro);
             }
 
-            if (serviceAvailable && isDonatedOrPlay) {
+            if (serviceAvailable) {
 
                 Button button = findView(rootView, R.id.button);
                 button.setOnClickListener(new View.OnClickListener() {

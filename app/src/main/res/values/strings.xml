@@ -122,7 +122,7 @@
     <string name="app_lock_need_unlock">需要验证密码以继续</string>
     <string name="title_general_settings">基本设置</string>
     <string name="lk_delay">清理延时</string>
-    <string name="block_record_summary">已经阻止%1$s次，最近阻止%2$s</string>
+    <string name="block_record_summary">已经阻止%1$s次，最近阻止%2$s，妄图启动者 %3$s。</string>
     <string name="title_component_editor">组件控制- %1$s</string>
     <string name="tab_text_1">服务</string>
     <string name="tab_text_2">广播</string>
@@ -424,5 +424,7 @@
     <string name="user_notice_title_e">本程序提供的高级功能，例如组件编辑，绿化等，使用不当可能会导致应用闪退。</string>
     <string name="theme_name_pink">少女</string>
     <string name="theme_name_newyear">新年</string>
+    <string name="summary_ops_template">绿化/常规权限均可在此配置。</string>
+    <string name="app_name_android">系统核心</string>
 
 </resources>

@@ -20,6 +20,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
+import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import si.virag.fuzzydateformatter.FuzzyDateTimeFormatter;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
@@ -67,11 +68,13 @@ public class BlockRecord2ListAdapter extends RecyclerView.Adapter<BlockRecord2Li
     @Override
     public void onBindViewHolder(final AppViewHolder holder, int position) {
         final BlockRecord2 blockRecord = blockRecords.get(position);
-        holder.getLineOneTextView().setText(blockRecord.getAppName());
+        holder.getLineOneTextView().setText(PkgUtil.loadNameByPkgName(context, blockRecord.getPkgName()));
+
         holder.getLineTwoTextView().setText(
                 context.getString(R.string.block_record_summary,
                         String.valueOf(blockRecord.getHowManyTimes()),
-                        FuzzyDateTimeFormatter.getTimeAgo(context, new Date(blockRecord.getTimeWhen()))));
+                        FuzzyDateTimeFormatter.getTimeAgo(context, new Date(blockRecord.getTimeWhen())),
+                        PkgUtil.loadNameByPkgName(context, blockRecord.getCallerPkgName())));
 
         CommonPackageInfo c = new CommonPackageInfo();
         c.setPkgName(blockRecord.getPkgName());

@@ -12,6 +12,7 @@ import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -424,10 +425,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
-    private void showNewAppRestrictedNotification(Context context, String name) {
+    private void showNewAppRestrictedNotification(Context context, String pkg, String name) {
         XposedLog.verbose("Add to black list showNewAppRestrictedNotification: " + name);
 
         createNotificationChannelForO();
+
+        // FIXME Extract an intent.
+        Intent viewer = new Intent();
+        viewer.setPackage(BuildConfig.APPLICATION_ID);
+        viewer.setClassName(BuildConfig.APPLICATION_ID,
+                "github.tornaco.xposedmoduletest.ui.activity.app.PerAppSettingsDashboardActivity");
+        viewer.putExtra("pkg_name", pkg);
+        viewer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         Notification n = OSUtil.isOOrAbove() ?
                 new Notification.Builder(context, NOTIFICATION_CHANNEL_ID)
@@ -436,6 +445,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         .setSmallIcon(android.R.drawable.stat_sys_warning)
                         .build()
                 : new Notification.Builder(context)
+                .setContentIntent(PendingIntent.getActivity(getContext(), 0x1, viewer, PendingIntent.FLAG_CANCEL_CURRENT))
                 .setContentTitle("模板已应用")
                 .setContentText("已按照模板将 " + name + " 完成设置")
                 .setSmallIcon(android.R.drawable.stat_sys_warning)
@@ -1509,6 +1519,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             .allowed(res.res)
                             .appName(null)
                             .pkg(appPkg)
+                            .callerUid(callerUid)
                             .when(System.currentTimeMillis())
                             .build());
         }
@@ -2634,13 +2645,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         Runnable r = new Runnable() {
             @Override
             public void run() {
+                String callerPkg =
+                        PkgUtil.isSystemOrPhoneOrShell(serviceEvent.callerUid)
+                                ? "android"
+                                : PkgUtil.pkgForUid(getContext(), serviceEvent.callerUid);
                 BlockRecord2 old = getBlockRecord(serviceEvent.pkg);
                 long oldTimes = old == null ? 0 : old.getHowManyTimes();
                 BlockRecord2 blockRecord2 = BlockRecord2.builder()
                         .pkgName(serviceEvent.pkg)
-                        .appName(String.valueOf(
-                                PkgUtil.loadNameByPkgName(getContext(),
-                                        serviceEvent.pkg)))
+                        .callerPkgName(callerPkg)
+                        .appName(null)
                         .howManyTimes(oldTimes + 1)
                         .timeWhen(System.currentTimeMillis())
                         .build();
@@ -2659,7 +2673,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         Runnable r = new Runnable() {
             @Override
             public void run() {
-
                 String receiverPkgName =
                         PkgUtil.pkgForUid(getContext(), broadcastEvent.receiver);
                 if (receiverPkgName == null) {
@@ -2667,15 +2680,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     if (receiverPkgName == null) return;
                 }
 
+                String callerPkg =
+                        PkgUtil.isSystemOrPhoneOrShell(broadcastEvent.caller)
+                                ? "android"
+                                : PkgUtil.pkgForUid(getContext(), broadcastEvent.caller);
+
                 mainHandler.obtainMessage(AshManHandlerMessages.MSG_NOTIFYSTARTBLOCK, receiverPkgName).sendToTarget();
 
                 BlockRecord2 old = getBlockRecord(receiverPkgName);
                 long oldTimes = old == null ? 0 : old.getHowManyTimes();
                 BlockRecord2 blockRecord2 = BlockRecord2.builder()
                         .pkgName(receiverPkgName)
-                        .appName(String.valueOf(
-                                PkgUtil.loadNameByPkgName(getContext(),
-                                        receiverPkgName)))
+                        .appName(null)
+                        .callerPkgName(callerPkg)
                         .howManyTimes(oldTimes + 1)
                         .timeWhen(System.currentTimeMillis())
                         .build();
@@ -4253,7 +4270,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     // PLUGIN API END.
 
     private boolean isSystemUIPackage(String pkgName) {
-        return pkgName != null && pkgName.equals(SYSTEM_UI_PKG);
+        return pkgName != null && (pkgName.equals(SYSTEM_UI_PKG)
+                // Htc has doing a nice job!!!!!
+                || " com.htc.quicklauncher".equals(pkgName));
     }
 
     private void postNotifyTopPackageChanged(final String from, final String to) {
@@ -4909,6 +4928,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 fout.println("Webview provider list: ");
                 Object[] wwListObjects = mWebviewProviders.toArray();
                 Collections.consumeRemaining(wwListObjects, new Consumer<Object>() {
+                    @Override
+                    public void accept(Object o) {
+                        fout.println(o);
+                    }
+                });
+
+                // Dump block list.
+                fout.println("Block record list: ");
+                Object[] blockRecordObjects = mBlockRecords.values().toArray();
+                Collections.consumeRemaining(blockRecordObjects, new Consumer<Object>() {
                     @Override
                     public void accept(Object o) {
                         fout.println(o);
@@ -6095,6 +6124,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 applyOpsSettingsForPackage(packageName);
 
                                 showNewAppRestrictedNotification(getContext(),
+                                        packageName,
                                         String.valueOf(PkgUtil.loadNameByPkgName(getContext(), packageName)));
                             }
                         }
@@ -6337,6 +6367,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @ToString
     private static class ServiceEvent {
         private String pkg;
+        private int callerUid;
         private String service;
         private String why;
         private String appName;

@@ -25,12 +25,9 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppLazySetting;
 import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppLockSetting;
 import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppPrivacySetting;
 import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppRFKSetting;
-import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppServiceSetting;
 import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppStartSetting;
 import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppTRKSetting;
-import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppTimerSetting;
 import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppUPSetting;
-import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppWakeLockSetting;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
@@ -46,6 +43,7 @@ public class PerAppSettingsDashboardActivity extends WithWithCustomTabActivity {
     public static void start(Context context, String pkg) {
         Intent starter = new Intent(context, PerAppSettingsDashboardActivity.class);
         starter.putExtra("pkg_name", pkg);
+        starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(starter);
     }
 
@@ -153,11 +151,11 @@ public class PerAppSettingsDashboardActivity extends WithWithCustomTabActivity {
             rest.addTile(new AppTRKSetting(getActivity(), appSettings));
             rest.addTile(new AppLazySetting(getActivity(), appSettings));
 
-            Category green = new Category();
-            green.titleRes = R.string.title_greening;
-            green.addTile(new AppWakeLockSetting(getActivity(), appSettings));
-            green.addTile(new AppTimerSetting(getActivity(), appSettings));
-            green.addTile(new AppServiceSetting(getActivity(), appSettings));
+//            Category green = new Category();
+//            green.titleRes = R.string.title_greening;
+//            green.addTile(new AppWakeLockSetting(getActivity(), appSettings));
+//            green.addTile(new AppTimerSetting(getActivity(), appSettings));
+//            green.addTile(new AppServiceSetting(getActivity(), appSettings));
 
             Category perm = new Category();
             perm.titleRes = R.string.title_perm_control;
@@ -168,7 +166,7 @@ public class PerAppSettingsDashboardActivity extends WithWithCustomTabActivity {
 
             categories.add(sec);
             categories.add(rest);
-            categories.add(green);
+//            categories.add(green);
             categories.add(perm);
         }
     }

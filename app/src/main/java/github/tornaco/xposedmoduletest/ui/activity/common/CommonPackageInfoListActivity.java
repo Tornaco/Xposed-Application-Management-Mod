@@ -327,9 +327,9 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (Collections.isNullOrEmpty(res)) {
-                            Toast.makeText(getContext(), R.string.loading_res_empty, Toast.LENGTH_SHORT).show();
-                        }
+//                        if (Collections.isNullOrEmpty(res)) {
+//                            Toast.makeText(getContext(), R.string.loading_res_empty, Toast.LENGTH_SHORT).show();
+//                        }
 
                         swipeRefreshLayout.setRefreshing(false);
                         commonPackageInfoAdapter.update(res);

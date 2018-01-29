@@ -95,6 +95,10 @@ public class PkgUtil {
     }
 
     public static CharSequence loadNameByPkgName(Context context, String pkg) {
+        if (pkg == null) return "NULL";
+        if ("android".equals(pkg)) {
+            return context.getString(R.string.app_name_android);
+        }
         // Here we check if this is dummy one.
         boolean isDummy = XAshmanManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME.equals(pkg);
         if (isDummy) {
