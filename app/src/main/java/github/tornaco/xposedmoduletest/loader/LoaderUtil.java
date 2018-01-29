@@ -24,6 +24,7 @@ class LoaderUtil {
         CommonPackageInfo p = new CommonPackageInfo();
         p.setAppName(name);
         p.setPkgName(pkg);
+        p.setInstalledTime(PkgUtil.loadInstalledTimeByPkgName(context, pkg));
         p.setAppLevel(XAshmanManager.get().getAppLevel(pkg));
         p.setSystemApp(PkgUtil.isSystemApp(context, pkg));
         return p;

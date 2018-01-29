@@ -94,6 +94,24 @@ public class PkgUtil {
         }
     }
 
+    public static long loadInstalledTimeByPkgName(Context context, String pkg) {
+        PackageManager pm = context.getPackageManager();
+        try {
+            PackageInfo info = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                info = pm.getPackageInfo(pkg, PackageManager.MATCH_UNINSTALLED_PACKAGES);
+            } else {
+                info = pm.getPackageInfo(pkg, PackageManager.GET_UNINSTALLED_PACKAGES);
+            }
+            if (info == null) return 0;
+            long lastUpdateTime = info.lastUpdateTime;
+            if (lastUpdateTime > 0) return lastUpdateTime;
+            return info.firstInstallTime;
+        } catch (PackageManager.NameNotFoundException var4) {
+            return 0;
+        }
+    }
+
     public static CharSequence loadNameByPkgName(Context context, String pkg) {
         if (pkg == null) return "NULL";
         if ("android".equals(pkg)) {

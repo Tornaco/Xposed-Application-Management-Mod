@@ -2,11 +2,13 @@ package github.tornaco.xposedmoduletest.ui.activity.common;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
@@ -17,7 +19,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.google.common.collect.Lists;
 
 import org.newstand.logger.Logger;
 
@@ -35,6 +38,7 @@ import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 /**
@@ -55,6 +59,10 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
 
     @Getter
     protected RecyclerView recyclerView;
+
+    @Getter
+    @Setter
+    private int sortBy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -207,6 +215,15 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
                 spinner.setSelection(getDefaultFilterSpinnerSelection());
             }
             showFilterSpinnerIntro(spinner);
+
+            // Setup sort.
+            View sortView = filterContainer.findViewById(R.id.filter_se);
+            sortView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    selectSortOption();
+                }
+            });
         }
     }
 
@@ -418,6 +435,61 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
                     }
                 });
         return res;
+    }
+
+    protected List<SortOption> onCreateSortOptions() {
+        return Lists.newArrayList(
+                new SortOption(R.string.sort_name, SortOption.SORT_BY_NAME),
+                new SortOption(R.string.sort_installed_time, SortOption.SORT_BY_INSTALL_TIME),
+                new SortOption(R.string.sort_usage_times, SortOption.SORT_BY_USAGE_TIMES)
+        );
+    }
+
+    protected void selectSortOption() {
+        final List<SortOption> all = onCreateSortOptions();
+        String[] names = new String[all.size()];
+        int currentIndex = 0;
+        int sortBy = getSortBy();
+        for (int i = 0; i < names.length; i++) {
+            names[i] = getString(all.get(i).getTitleRes());
+            if (all.get(i).getOption() == sortBy) {
+                currentIndex = i;
+            }
+        }
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.select_sort)
+                .setSingleChoiceItems(names, currentIndex,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                SortOption op = all.get(which);
+                                setSortBy(op.getOption());
+                            }
+                        })
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        onSortByChanged();
+                    }
+                })
+                .create().show();
+    }
+
+    protected void onSortByChanged() {
+        startLoading();
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @ToString
+    public static class SortOption {
+
+        public static final int SORT_BY_NAME = 0x1;
+        public static final int SORT_BY_INSTALL_TIME = 0x2;
+        public static final int SORT_BY_USAGE_TIMES = 0x3;
+
+        private int titleRes;
+        private int option;
     }
 
     @Getter
