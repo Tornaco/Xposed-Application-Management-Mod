@@ -15,4 +15,5 @@ public class DeveloperMessage {
     private String[] payload;
     private boolean cancelable;
     private int importance;
+    private boolean isTest;
 }

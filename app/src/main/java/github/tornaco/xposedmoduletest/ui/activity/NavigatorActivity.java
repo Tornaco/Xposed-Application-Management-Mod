@@ -274,6 +274,8 @@ public class NavigatorActivity extends WithWithCustomTabActivity
 
     private void showDeveloperMessage(DeveloperMessage message) {
         final String messageId = message.getMessageId();
+        boolean isTest = message.isTest();
+        if (isTest && !BuildConfig.DEBUG) return;
         if (AppSettings.isShowInfoEnabled(getContext(), messageId, true)) {
             new AlertDialog.Builder(getActivity())
                     .setTitle(message.getTitle())
