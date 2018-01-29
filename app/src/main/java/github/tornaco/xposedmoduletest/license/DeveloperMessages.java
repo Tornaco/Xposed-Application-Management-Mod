@@ -31,11 +31,13 @@ public class DeveloperMessages {
     }
 
     public static void load(Callback callback) {
+        Logger.d("DeveloperMessages loading...");
         DeveloperMessageService developerMessageService = DeveloperMessageService.Factory.create();
         try {
             List<DeveloperMessage> developerMessages = developerMessageService.all().execute().body();
             if (developerMessages == null)
                 developerMessages = Lists.newArrayListWithCapacity(0);// Avoid npe.
+            Logger.d("DeveloperMessages loading complete " + developerMessages);
             callback.onSuccess(developerMessages);
         } catch (Exception e) {
             Logger.e("DeveloperMessageService reload error: " + e);

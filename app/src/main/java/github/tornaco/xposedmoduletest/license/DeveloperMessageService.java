@@ -14,7 +14,7 @@ import retrofit2.http.GET;
 
 public interface DeveloperMessageService {
 
-    String API_URL = "https://raw.githubusercontent.com/Tornaco/XAppGuard/master/remote/";
+    String API_URL = "https://raw.githubusercontent.com/Tornaco/X-APM/master/remote/";
 
     @GET("developer_messages")
     Call<List<DeveloperMessage>> all();
