@@ -10,7 +10,6 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
-import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -30,7 +29,7 @@ class AppOpsSubModule extends AndroidSubModule {
     }
 
     private void hookCheckOp(XC_LoadPackage.LoadPackageParam lpparam) {
-        XposedLog.verbose("AppOpsSubModule hookCheckOp...");
+        logOnBootStage("AppOpsSubModule hookCheckOp...");
         try {
             Class ams = XposedHelpers.findClass("com.android.server.AppOpsService",
                     lpparam.classLoader);
@@ -47,10 +46,10 @@ class AppOpsSubModule extends AndroidSubModule {
                     }
                 }
             });
-            XposedLog.verbose("AppOpsSubModule hookCheckOp OK:" + unHooks);
+            logOnBootStage("AppOpsSubModule hookCheckOp OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XposedLog.verbose("AppOpsSubModule Fail hookCheckOp: " + Log.getStackTraceString(e));
+            logOnBootStage("AppOpsSubModule Fail hookCheckOp: " + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

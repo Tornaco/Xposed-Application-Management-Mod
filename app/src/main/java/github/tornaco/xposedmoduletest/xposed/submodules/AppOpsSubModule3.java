@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import android.app.AppOpsManager;
+import android.os.Build;
 import android.util.Log;
 
 import java.util.Set;
@@ -10,7 +11,6 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
-import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -24,13 +24,20 @@ class AppOpsSubModule3 extends AndroidSubModule {
         return XAppBuildVar.APP_OPS;
     }
 
+    // Fix for L.
+    // http://androidxref.com/5.1.0_r1/xref/frameworks/base/services/core/java/com/android/server/AppOpsService.java
+    @Override
+    public int needMinSdk() {
+        return Build.VERSION_CODES.M;
+    }
+
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         hookCheckOp(lpparam);
     }
 
     private void hookCheckOp(XC_LoadPackage.LoadPackageParam lpparam) {
-        XposedLog.verbose("AppOpsSubModule3 hookCheckOp...");
+        logOnBootStage("AppOpsSubModule3 noteProxyOperation...");
         try {
             Class ams = XposedHelpers.findClass("com.android.server.AppOpsService",
                     lpparam.classLoader);
@@ -47,10 +54,10 @@ class AppOpsSubModule3 extends AndroidSubModule {
                     }
                 }
             });
-            XposedLog.verbose("AppOpsSubModule3 hookCheckOp OK:" + unHooks);
+            logOnBootStage("AppOpsSubModule3 noteProxyOperation OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XposedLog.verbose("AppOpsSubModule3 Fail hookCheckOp: " + Log.getStackTraceString(e));
+            logOnBootStage("AppOpsSubModule3 Fail noteProxyOperation: " + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

@@ -30,7 +30,7 @@ class AppOpsSubModule2 extends AndroidSubModule {
     }
 
     private void hookCheckOp(XC_LoadPackage.LoadPackageParam lpparam) {
-        XposedLog.verbose("AppOpsSubModule2 hookCheckOp...");
+        logOnBootStage("AppOpsSubModule2 hookCheckOp...");
         try {
             Class ams = XposedHelpers.findClass("com.android.server.AppOpsService",
                     lpparam.classLoader);
@@ -47,10 +47,10 @@ class AppOpsSubModule2 extends AndroidSubModule {
                     }
                 }
             });
-            XposedLog.verbose("AppOpsSubModule2 hookCheckOp OK:" + unHooks);
+            logOnBootStage("AppOpsSubModule2 hookCheckOp OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XposedLog.verbose("AppOpsSubModule2 Fail hookCheckOp: " + Log.getStackTraceString(e));
+            logOnBootStage("AppOpsSubModule2 Fail hookCheckOp: " + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }
