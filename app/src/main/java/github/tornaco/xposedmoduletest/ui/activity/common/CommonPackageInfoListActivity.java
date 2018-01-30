@@ -21,6 +21,7 @@ import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.google.common.collect.Lists;
+import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 
 import org.newstand.logger.Logger;
 
@@ -128,6 +129,9 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
             recyclerView.setLayoutManager(new LinearLayoutManager(this,
                     LinearLayoutManager.VERTICAL, false));
             recyclerView.setAdapter(commonPackageInfoAdapter);
+            if (recyclerView instanceof FastScrollRecyclerView) {
+                ((FastScrollRecyclerView) recyclerView).setAutoHideEnabled(true);
+            }
 
 
             swipeRefreshLayout.setOnRefreshListener(
@@ -143,7 +147,8 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                     super.onScrollStateChanged(recyclerView, newState);
                     if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    } else {
+                        if (recyclerView instanceof FastScrollRecyclerView) {
+                        }
                     }
                 }
             });
@@ -218,12 +223,17 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
 
             // Setup sort.
             View sortView = filterContainer.findViewById(R.id.filter_se);
-            sortView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    selectSortOption();
-                }
-            });
+            if (enableSortSelection()) {
+                sortView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        selectSortOption();
+                    }
+                });
+            } else {
+                sortView.setVisibility(View.GONE);
+            }
+
         }
     }
 
@@ -435,6 +445,10 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
                     }
                 });
         return res;
+    }
+
+    protected boolean enableSortSelection() {
+        return false;
     }
 
     protected List<SortOption> onCreateSortOptions() {
