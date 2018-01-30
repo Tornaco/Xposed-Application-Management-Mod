@@ -437,5 +437,6 @@
     <string name="title_panic_lock">紧急锁定</string>
     <string name="summary_panic_lock">短时间内连续几次按下电源按钮时，一键锁屏，且解锁时要求输入密码（或者绘制解锁图案，取决于你的设定），而不得使用指纹解锁。一般用于紧急情况。\n某些定制ROM可能不支持（ZUI2.5暂不支持），或者使用体验很糟糕（某些ROM可能定制了双击电源按钮事件，例如启动相机）。</string>
     <string name="theme_name_o">O</string>
+    <string name="title_panic">PANIC</string>
 
 </resources>

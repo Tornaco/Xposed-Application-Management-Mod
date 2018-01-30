@@ -45,13 +45,17 @@ public class SmartSenseDashboardActivity extends BaseActivity {
             Category keys = new Category();
             keys.titleRes = R.string.title_keys;
             keys.addTile(new LongPressBackKey(getActivity()));
-            keys.addTile(new PanicLock(getActivity()));
+
+            Category panic = new Category();
+            panic.titleRes = R.string.title_panic;
+            panic.addTile(new PanicLock(getActivity()));
 
             Category app = new Category();
             app.titleRes = R.string.title_app;
             app.addTile(new AppFocusAction(getActivity()));
 
             categories.add(keys);
+            categories.add(panic);
 
             if (XSettings.isDevMode(getActivity())) {
                 categories.add(app);
