@@ -128,6 +128,10 @@ interface AshManHandler {
 
     void setResidentEnabled(boolean enabled);
 
+    void setPanicHomeEnabled(boolean enabled);
+
+    void setPanicLockEnabled(boolean enabled);
+
     void setAutoAddBlackEnable(boolean enable);
 
     void forceReloadPackages();

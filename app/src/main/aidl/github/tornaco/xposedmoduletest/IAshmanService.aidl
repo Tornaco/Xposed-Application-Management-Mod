@@ -339,4 +339,12 @@ interface IAshmanService {
      boolean isResidentEnabledForPackage(String who);
      void addOrRemoveResidentApps(String app, boolean add);
      String[] getResidentApps(boolean resident);
+
+     boolean isPanicHomeEnabled();
+     void setPanicHomeEnabled(boolean enable);
+     boolean isPanicLockEnabled();
+     void setPanicLockEnabled(boolean enable);
+
+     // DPM API
+     void lockNow();
 }

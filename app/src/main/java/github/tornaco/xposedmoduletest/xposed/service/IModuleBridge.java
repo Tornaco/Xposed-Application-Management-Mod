@@ -9,6 +9,7 @@ import android.os.RemoteException;
 import android.view.KeyEvent;
 
 import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
+import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
 import github.tornaco.xposedmoduletest.xposed.submodules.SubModule;
@@ -100,6 +101,8 @@ public interface IModuleBridge {
 
     void attachNotificationService(NotificationManagerServiceProxy proxy);
 
+    void attachDevicePolicyManagerService(DevicePolicyManagerServiceProxy proxy);
+
     void attachPhoneWindowManager(PhoneWindowManagerProxy proxy);
 
     boolean checkService(ComponentName service, int callerUid) throws RemoteException;
@@ -135,6 +138,9 @@ public interface IModuleBridge {
     int checkOperation(int code, int uid, String packageName, String reason);
 
     boolean resident(String pkgName);
+
     boolean residentEnableInternal();
+
+    boolean isPanicLockEnabled() throws RemoteException;
     // API For ASH END.
 }

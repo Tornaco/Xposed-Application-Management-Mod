@@ -1455,4 +1455,43 @@ public class XAshmanManager {
             return ArrayUtil.emptyStringArray();
         }
     }
+
+    public boolean isPanicHomeEnabled() {
+        try {
+            return mService.isPanicHomeEnabled();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public void setPanicHomeEnabled(boolean enable) {
+        try {
+            mService.setPanicHomeEnabled(enable);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public boolean isPanicLockEnabled() {
+        try {
+            return mService.isPanicLockEnabled();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public void setPanicLockEnabled(boolean enable) {
+        try {
+            mService.setPanicLockEnabled(enable);
+        } catch (RemoteException e) {
+        }
+    }
+
+    public void lockNow() {
+        try {
+            mService.lockNow();
+        } catch (RemoteException e) {
+
+        }
+    }
 }

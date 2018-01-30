@@ -13,6 +13,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.admin.DevicePolicyManager;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -47,6 +48,7 @@ import android.os.ServiceManager;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.os.Vibrator;
 import android.provider.Settings;
 import android.service.notification.StatusBarNotification;
 import android.support.annotation.NonNull;
@@ -124,6 +126,7 @@ import github.tornaco.xposedmoduletest.xposed.service.doze.BatterState;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DozeStateRetriever;
 import github.tornaco.xposedmoduletest.xposed.service.doze.PowerWhitelistBackend;
+import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
@@ -205,6 +208,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final AtomicBoolean mPermissionControlEnabled = new AtomicBoolean(true);
 
     private final AtomicBoolean mPrivacyEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mPanicHomeEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mPanicLockEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mDataHasBeenMigrated = new AtomicBoolean(false);
     private final AtomicBoolean mShowAppCrashDumpEnabled = new AtomicBoolean(false);
@@ -692,6 +697,22 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             boolean residentEnabled = (boolean) SystemSettings.APM_RESIDENT_B.readFromSystemSettings(getContext());
             mResidentEnabled.set(residentEnabled);
             XposedLog.boot("residentEnabled: " + String.valueOf(residentEnabled));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            boolean panicHome = (boolean) SystemSettings.APM_PANIC_HOME_B.readFromSystemSettings(getContext());
+            mPanicHomeEnabled.set(panicHome);
+            XposedLog.boot("panicHome: " + String.valueOf(panicHome));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            boolean panicLock = (boolean) SystemSettings.APM_PANIC_LOCK_B.readFromSystemSettings(getContext());
+            mPanicLockEnabled.set(panicLock);
+            XposedLog.boot("panicLock: " + String.valueOf(panicLock));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -1304,6 +1325,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         XposedLog.boot("attachPhoneWindowManager: " + proxy);
     }
 
+    private DevicePolicyManagerServiceProxy mDevicePolicyManagerService;
+
+    @Override
+    public void attachDevicePolicyManagerService(DevicePolicyManagerServiceProxy proxy) {
+        mDevicePolicyManagerService = proxy;
+        XposedLog.boot("attachDevicePolicyManagerService: " + proxy);
+    }
+
     @Override
     @BinderCall
     public boolean hasNotificationForPackage(String pkg) throws RemoteException {
@@ -1865,11 +1894,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         if (keyEvent != null) {
-            boolean inKeyguard = isKeyguard();
-            if (inKeyguard) {
-                XposedLog.verbose("Ignore key event in keyguard");
-                return false;
-            }
             mLazyHandler.obtainMessage(AshManLZHandlerMessages.MSG_ONKEYEVENT, keyEvent).sendToTarget();
         }
         return false;
@@ -4497,6 +4521,47 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
+    @Override
+    @BinderCall
+    public boolean isPanicHomeEnabled() {
+        return mPanicHomeEnabled.get();
+    }
+
+    @Override
+    @BinderCall
+    public void setPanicHomeEnabled(boolean enable) {
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETPANICHOMEENABLED, enable).sendToTarget();
+    }
+
+    @Override
+    @BinderCall
+    public boolean isPanicLockEnabled() {
+        return mPanicLockEnabled.get();
+    }
+
+    @Override
+    @BinderCall
+    public void setPanicLockEnabled(boolean enable) {
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETPANICLOCKENABLED, enable).sendToTarget();
+    }
+
+    @Override
+    @BinderCall
+    public void lockNow() throws RemoteException {
+        if (mDevicePolicyManagerService != null) {
+            wrapCallingIdetUnCaught(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        mDevicePolicyManagerService.lockNow(getContext());
+                    } catch (RemoteException e) {
+                        XposedLog.wtf("lockNow: " + e);
+                    }
+                }
+            });
+        }
+    }
+
     private int checkOperationInternal(int code, int uid, String packageName, String reason) {
         if (packageName == null) return AppOpsManagerCompat.MODE_ALLOWED;
 
@@ -5461,6 +5526,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETRESIDENTENABLED:
                     HandlerImpl.this.setResidentEnabled((Boolean) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_SETPANICHOMEENABLED:
+                    HandlerImpl.this.setPanicHomeEnabled((Boolean) msg.obj);
+                    break;
+                case AshManHandlerMessages.MSG_SETPANICLOCKENABLED:
+                    HandlerImpl.this.setPanicLockEnabled((Boolean) msg.obj);
+                    break;
             }
         }
 
@@ -5524,6 +5595,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setResidentEnabled(boolean enabled) {
             if (mResidentEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.APM_RESIDENT_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setPanicHomeEnabled(boolean enabled) {
+            if (mPanicHomeEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.APM_PANIC_HOME_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setPanicLockEnabled(boolean enabled) {
+            if (mPanicLockEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.APM_PANIC_LOCK_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 
@@ -6322,6 +6407,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         currentPkg);
             }
 
+            // Check for panic.
+            boolean panicHandled = checkPanicEvent(keyCode, action, currentPkg);
+            // This is a painc event, will not check more if it handle ok.
+            if (panicHandled) return;
+
+            boolean inKeyguard = isKeyguard();
+            if (inKeyguard) {
+                XposedLog.verbose("Ignore key event in keyguard for back key");
+                return;
+            }
+
             if (currentPkg == null) return;
 
             switch (keyCode) {
@@ -6355,6 +6451,76 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     }
 
                     break;
+            }
+        }
+
+        private static final int POWER_KEY_TIMES_PANIC = 3;
+        private static final int POWER_KEY_PANIC_INTERVAL = 1000;
+
+        private AtomicInteger mPowerKeyPressTimes = new AtomicInteger(0);
+
+        private Runnable mClearPowerkeyRunnable = new Runnable() {
+            @Override
+            public void run() {
+                resetPowerKeyTimes();
+            }
+        };
+
+        private void resetPowerKeyTimes() {
+            XposedLog.verbose("resetPowerKeyTimes");
+            mPowerKeyPressTimes.set(0);
+        }
+
+        private int increasePowerKeyTimes() {
+            try {
+                return mPowerKeyPressTimes.incrementAndGet();
+            } finally {
+                removeCallbacks(mClearPowerkeyRunnable);
+                postDelayed(mClearPowerkeyRunnable, POWER_KEY_PANIC_INTERVAL);
+            }
+        }
+
+        private boolean checkPanicEvent(int keyCode, int action, String currentPkg) {
+            XposedLog.verbose("checkPanicEvent");
+            if (action != KeyEvent.ACTION_UP) {
+                return false;
+            }
+            if (keyCode != KeyEvent.KEYCODE_BACK && keyCode != KeyEvent.KEYCODE_POWER) {
+                return false;
+            }
+            if (!isPanicHomeEnabled() && !isPanicLockEnabled()) {
+                return false;
+            }
+            if (isPanicLockEnabled() && keyCode == KeyEvent.KEYCODE_POWER) {
+                int powerTimes = mPowerKeyPressTimes.incrementAndGet();
+                XposedLog.verbose("checkPanicEvent, powerTimes: " + powerTimes);
+                if (powerTimes >= POWER_KEY_TIMES_PANIC) {
+                    onPanicLock();
+                    resetPowerKeyTimes();
+                    removeCallbacks(mClearPowerkeyRunnable);
+                    return true;
+                } else {
+                    int times = increasePowerKeyTimes();
+                    XposedLog.verbose("checkPanicEvent, increase to: " + times);
+                }
+            }
+            return false;
+        }
+
+        private void onPanicLock() {
+            XposedLog.verbose("onPanicLock");
+            DevicePolicyManager dpm = (DevicePolicyManager) getContext().getSystemService(Context.DEVICE_POLICY_SERVICE);
+            if (dpm != null) {
+                dpm.lockNow();
+                vibrate();
+            }
+        }
+
+        @SuppressLint("MissingPermission")
+        private void vibrate() {
+            Vibrator vibrator = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
+            if (vibrator != null) {
+                vibrator.vibrate(new long[]{10, 20, 20}, -1);
             }
         }
 

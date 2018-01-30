@@ -739,6 +739,52 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
         }
     },
 
+    APM_PANIC_LOCK_B(0) {
+        @Override
+        public boolean writeToSystemSettings(Context context, Object value) {
+            ContentResolver resolver = context.getContentResolver();
+            boolean enabled = (boolean) value;
+            return resolver != null && Settings.System.putInt(resolver, name(), enabled ? 1 : 0);
+        }
+
+        @Override
+        public Object readFromSystemSettings(Context context) {
+            ContentResolver resolver = context.getContentResolver();
+            if (resolver == null) return getDefValue();
+            int def = getDefValue();
+            return Settings.System.getInt(resolver, name(), def) == 1;
+        }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
+        }
+    },
+
+    APM_PANIC_HOME_B(0) {
+        @Override
+        public boolean writeToSystemSettings(Context context, Object value) {
+            ContentResolver resolver = context.getContentResolver();
+            boolean enabled = (boolean) value;
+            return resolver != null && Settings.System.putInt(resolver, name(), enabled ? 1 : 0);
+        }
+
+        @Override
+        public Object readFromSystemSettings(Context context) {
+            ContentResolver resolver = context.getContentResolver();
+            if (resolver == null) return getDefValue();
+            int def = getDefValue();
+            return Settings.System.getInt(resolver, name(), def) == 1;
+        }
+
+        @Override
+        public void restoreDef(Context context) {
+            int def = getDefValue();
+            writeToSystemSettings(context, def == 1);
+        }
+    },
+
     USER_DEFINED_LINE1_NUM_T_S("18888888888") {
         @Override
         public boolean writeToSystemSettings(Context context, Object value) {

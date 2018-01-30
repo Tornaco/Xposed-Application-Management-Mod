@@ -3,13 +3,9 @@ package github.tornaco.xposedmoduletest.ui.activity.test;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.view.View;
 
-import org.newstand.logger.Logger;
-
-import github.tornaco.xposedmoduletest.IBooleanCallback1;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
@@ -41,17 +37,7 @@ public class TestAIOActivity extends BaseActivity {
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        getUIThreadHandler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                XAshmanManager.get().exitKeyguardSecurely(new IBooleanCallback1.Stub() {
-                                    @Override
-                                    public void onResult(boolean res) throws RemoteException {
-                                        Logger.e("exitKeyguardSecurely: " + res);
-                                    }
-                                });
-                            }
-                        }, 3000);
+                        XAshmanManager.get().lockNow();
                     }
                 });
     }

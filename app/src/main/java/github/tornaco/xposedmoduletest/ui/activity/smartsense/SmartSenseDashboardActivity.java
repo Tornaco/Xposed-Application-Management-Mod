@@ -14,6 +14,7 @@ import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.smartsense.AppFocusAction;
 import github.tornaco.xposedmoduletest.ui.tiles.smartsense.LongPressBackKey;
+import github.tornaco.xposedmoduletest.ui.tiles.smartsense.PanicLock;
 
 /**
  * Created by guohao4 on 2017/11/2.
@@ -44,6 +45,7 @@ public class SmartSenseDashboardActivity extends BaseActivity {
             Category keys = new Category();
             keys.titleRes = R.string.title_keys;
             keys.addTile(new LongPressBackKey(getActivity()));
+            keys.addTile(new PanicLock(getActivity()));
 
             Category app = new Category();
             app.titleRes = R.string.title_app;
