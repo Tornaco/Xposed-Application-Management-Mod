@@ -12,25 +12,21 @@
 
     <item
         android:id="@+id/action_pull_from_server"
-        android:icon="@drawable/ic_sync_white_24dp"
         android:title="@string/title_pull_from_server"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/action_export"
-        android:icon="@drawable/ic_sync_white_24dp"
         android:title="@string/title_export_comp_replacements"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/action_import"
-        android:icon="@drawable/ic_sync_white_24dp"
         android:title="@string/title_import_comp_replacements"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/action_import_old"
-        android:icon="@drawable/ic_sync_white_24dp"
         android:title="@string/title_import_old_comp_replacements"
         app:showAsAction="never" />
 

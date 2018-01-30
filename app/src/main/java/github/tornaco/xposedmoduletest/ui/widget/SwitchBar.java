@@ -19,6 +19,7 @@ package github.tornaco.xposedmoduletest.ui.widget;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -43,7 +44,8 @@ public class SwitchBar extends LinearLayout implements CompoundButton.OnCheckedC
         View.OnClickListener {
 
     private static int[] MARGIN_ATTRIBUTES = {
-            R.attr.switchBarMarginStart, R.attr.switchBarMarginEnd};
+            R.attr.switchBarMarginStart, R.attr.switchBarMarginEnd,
+            R.attr.switchBarTextColor};
     private final TextAppearanceSpan mSummarySpan;
 
     private ToggleSwitch mSwitch;
@@ -80,9 +82,11 @@ public class SwitchBar extends LinearLayout implements CompoundButton.OnCheckedC
         final TypedArray a = context.obtainStyledAttributes(attrs, MARGIN_ATTRIBUTES);
         int switchBarMarginStart = (int) a.getDimension(0, 0);
         int switchBarMarginEnd = (int) a.getDimension(1, 0);
+        int textColr = a.getColor(2, Color.WHITE);
         a.recycle();
 
         mTextView = (TextView) findViewById(R.id.switch_text);
+        mTextView.setTextColor(textColr);
         mLabel = getResources().getString(R.string.switch_off_text);
         mSummarySpan = new TextAppearanceSpan(getContext(), R.style.TextAppearance_Small_SwitchBar);
         updateText();

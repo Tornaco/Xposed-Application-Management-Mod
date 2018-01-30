@@ -124,8 +124,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
     private void showTvDialog() {
         Logger.w("showTvDialog");
 
-        if (AppSettings.isShowInfoEnabled(this, "TV_FEATURE_WARN", true)
-                || BuildConfig.DEBUG) {
+        if (AppSettings.isShowInfoEnabled(this, "TV_FEATURE_WARN", true)) {
 
             boolean hasTv = OSUtil.hasTvFeature(this);
             Logger.w("initTVStateForOreo, hasTvFeature: " + hasTv);

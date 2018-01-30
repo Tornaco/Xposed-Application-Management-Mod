@@ -200,7 +200,7 @@
     </style>
 
     <style name="AppThemeO" parent="Theme.AppCompat.Light">
-        <item name="switchBarTheme">@style/SwitchBarSettings</item>
+        <item name="switchBarTheme">@style/SwitchBarSettingsInvert</item>
         <item name="torToolbarTheme">@style/ToolbarThemeCommon</item>
 
         <item name="colorAccent">@color/primary_dark</item>
@@ -230,7 +230,6 @@
     </style>
 
     <style name="AppThemeODialog" parent="Theme.AppCompat.Light.Dialog">
-        <item name="switchBarTheme">@style/SwitchBarSettings</item>
         <item name="colorPrimary">@color/red</item>
         <item name="colorPrimaryDark">@color/red_dark</item>
         <item name="colorAccent">@color/primary</item>
@@ -321,6 +320,14 @@
         <item name="switchBarMarginStart">@dimen/activity_horizontal_margin</item>
         <item name="switchBarMarginEnd">@dimen/activity_horizontal_margin</item>
         <item name="switchBarBackgroundColor">?colorPrimaryDark</item>
+        <item name="switchBarTextColor">@color/white</item>
+    </style>
+
+    <style name="SwitchBarSettingsInvert" parent="Widget.AppCompat.ActionBar">
+        <item name="switchBarMarginStart">@dimen/activity_horizontal_margin</item>
+        <item name="switchBarMarginEnd">@dimen/activity_horizontal_margin</item>
+        <item name="switchBarBackgroundColor">@color/grey_light</item>
+        <item name="switchBarTextColor">@color/primary_dark</item>
     </style>
 
     <style name="ButtonBar" parent="Theme.AppCompat.Light.Dialog">

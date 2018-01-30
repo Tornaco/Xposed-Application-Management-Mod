@@ -132,7 +132,7 @@
     <string name="summary_service_info_process"><b>进程：</b>%1$s</string>
     <string name="summary_service_info_comp">%1$s</string>
     <string name="summary_service_info_comp_maybe_ad">疑似广告</string>
-    <string name="title_component_manager">应用与组件</string>
+    <string name="title_component_manager">我的应用</string>
     <string name="title_export_comp_settings">导出应用配置</string>
     <string name="title_export_service_settings">导出服务配置</string>
     <string name="title_export_broadcast_settings">导出广播配置</string>
