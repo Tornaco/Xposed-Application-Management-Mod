@@ -40,6 +40,12 @@ public enum Themes {
             R.style.AppThemeNEWYEAR_NoActionBar,
             R.style.AppThemeNEWYEAR_Drawer_NoActionBar),
 
+    O(R.string.theme_name_o,
+            R.color.white,
+            R.style.AppThemeO,
+            R.style.AppThemeO_NoActionBar,
+            R.style.AppThemeO_Drawer_NoActionBar),
+
     DEFAULT(R.string.theme_name_def,
             R.color.primary,
             R.style.AppThemeLight,

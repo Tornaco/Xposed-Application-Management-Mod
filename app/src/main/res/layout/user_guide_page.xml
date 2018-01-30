@@ -26,6 +26,7 @@
                 android:background="?attr/colorPrimary"
                 app:layout_scrollFlags="scroll|enterAlways"
                 app:popupTheme="@style/AppThemeLight.PopupOverlay"
+                app:theme="?torToolbarTheme"
                 app:title="@string/title_activity_user_giude">
 
             </android.support.v7.widget.Toolbar>
