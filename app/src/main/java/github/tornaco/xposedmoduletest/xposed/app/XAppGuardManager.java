@@ -1,10 +1,9 @@
 package github.tornaco.xposedmoduletest.xposed.app;
 
 import android.content.ComponentName;
-import android.os.RemoteException;
 import android.os.ServiceManager;
 
-import com.google.common.base.Preconditions;
+import org.newstand.logger.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -75,14 +74,17 @@ public class XAppGuardManager {
     }
 
     private void ensureService() {
-        Preconditions.checkNotNull(mService, "Service not available(未激活)");
+        // Only crash for user build.
+        if (mService == null) {
+            Logger.e("Service is not available");
+        }
     }
 
     public boolean isEnabled() {
         ensureService();
         try {
             return mService.isAppLockEnabled();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
         return false;
@@ -92,7 +94,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.setAppLockEnabled(enabled);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -102,7 +104,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.setVerifySettings(settings);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -111,7 +113,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             return mService.getVerifySettings();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
             return null;
         }
@@ -121,7 +123,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.setResult(transactionID, res);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -130,7 +132,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             return mService.isTransactionValid(transactionID);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
             return false;
         }
@@ -140,7 +142,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.mockCrash();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -149,7 +151,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             return mService.isUninstallInterruptEnabled();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
         return false;
@@ -159,7 +161,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.setUninstallInterruptEnabled(enabled);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -168,7 +170,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.setVerifierPackage(pkg);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -178,7 +180,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.injectHomeEvent();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -187,7 +189,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.setDebug(debug);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -196,7 +198,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             return mService.isDebug();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
         return false;
@@ -207,7 +209,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.onActivityPackageResume(pkg);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -216,7 +218,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             return mService.isInterruptFPEventVBEnabled(event);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
             return false;
         }
@@ -226,7 +228,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.setInterruptFPEventVBEnabled(event, enabled);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -236,7 +238,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.addOrRemoveComponentReplacement(from, to, add);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -246,7 +248,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             return mService.getComponentReplacements();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             return new HashMap(0);
         }
     }
@@ -255,7 +257,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.forceReloadPackages();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -264,7 +266,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             return mService.getLockApps(lock);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
             return new String[0];
         }
@@ -274,7 +276,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.addOrRemoveLockApps(packages, add);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -283,7 +285,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             return mService.getBlurApps(lock);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
             return new String[0];
         }
@@ -293,7 +295,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.addOrRemoveBlurApps(packages, blur);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -303,7 +305,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             return mService.getUPApps(lock);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
             return new String[0];
         }
@@ -313,7 +315,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.addOrRemoveUPApps(packages, add);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -322,7 +324,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             return mService.isBlurEnabled();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
             return false;
         }
@@ -332,7 +334,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             return mService.isBlurEnabledForPackage(who);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
             return false;
         }
@@ -342,7 +344,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.setBlurEnabled(enabled);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -351,7 +353,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.restoreDefaultSettings();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -360,7 +362,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             return mService.getBlurRadius();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
             return BlurSettings.BLUR_RADIUS;
         }
@@ -370,7 +372,7 @@ public class XAppGuardManager {
         ensureService();
         try {
             mService.setBlurRadius(r);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }

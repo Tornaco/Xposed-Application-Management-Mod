@@ -36,7 +36,7 @@ public class GuardAppNavActivity extends CommonPackageInfoListActivity
     @Override
     protected void onInitSwitchBar(SwitchBar switchBar) {
         switchBar.show();
-        switchBar.setChecked(XAppGuardManager.get().isEnabled());
+        switchBar.setChecked(XAppGuardManager.get().isServiceAvailable() && XAppGuardManager.get().isEnabled());
         switchBar.addOnSwitchChangeListener(this);
     }
 
@@ -118,7 +118,9 @@ public class GuardAppNavActivity extends CommonPackageInfoListActivity
 
     @Override
     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-        XAppGuardManager.get().setEnabled(isChecked);
+        if (XAppGuardManager.get().isServiceAvailable()) {
+            XAppGuardManager.get().setEnabled(isChecked);
+        }
     }
 
     @Override

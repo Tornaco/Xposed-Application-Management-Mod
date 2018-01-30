@@ -106,7 +106,7 @@
 
     <string name="summary_start_app">"禁止以下应用被其他应用（通过服务或者广播）启动（微信和支付宝建议不要加入，否则可能无法发起付款，输入法建议也不要禁止，否则无法唤起输入）。"</string>
 
-    <string name="app_intro">你需要在 Xposed installer 中激活 应用管理 模块，并且重启才可以使用下面的功能。Xposed installer 需要接收广播，以获取模块更新通知，如果无法激活请确保你没有对 Xposed installer 做任何限制处理，并且可以尝试重新勾选，重启。（已经很啰嗦了，只能帮你到这里了。）</string>
+    <string name="app_intro">你需要在 Xposed installer 中激活 应用管理 模块，并且重启才可以使用下面的功能。Xposed installer 需要接收广播，以获取模块更新通知，如果无法激活请确保你没有对 Xposed installer 做任何限制处理，并且可以尝试重新勾选，重启。</string>
 
     <string name="app_intro_need_restart">应用更新后需要重新启动设备，否则系统可能无法正常工作。</string>
     <string name="title_restart_android">软重启</string>
