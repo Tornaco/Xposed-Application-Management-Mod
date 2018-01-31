@@ -4447,6 +4447,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void logOperationIfNecessary(int code, int uid, String packageName, String reason, int mode) {
+        if (code >= AppOpsManagerCompat._NUM_OP) {
+            // Do not add invaild op.
+            return;
+        }
         if (packageName == null) return;
 
         if (BuildConfig.APPLICATION_ID.equals(packageName)) return;

@@ -9,6 +9,8 @@ import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.View;
 
+import org.newstand.logger.Logger;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -34,9 +36,10 @@ import si.virag.fuzzydateformatter.FuzzyDateTimeFormatter;
 public class OpLogViewerActivity extends CommonPackageInfoListActivity {
 
     public static void start(Context context, String pkg, int op) {
+        Logger.w("OpLogViewerActivity start: " + pkg + "-" + op);
         Intent starter = new Intent(context, OpLogViewerActivity.class);
-        starter.putExtra("pkg", pkg);
-        starter.putExtra("op", op);
+        starter.putExtra("tor_pkg", pkg);
+        starter.putExtra("tor_op", op);
         starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(starter);
     }
@@ -47,8 +50,9 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mPackageName = getIntent().getStringExtra("pkg");
-        mOp = getIntent().getIntExtra("op", -1);
+
+        mPackageName = getIntent().getStringExtra("tor_pkg");
+        mOp = getIntent().getIntExtra("tor_op", -1);
 
         if (mPackageName != null) {
             setTitle(PkgUtil.loadNameByPkgName(getContext(), mPackageName));
@@ -124,6 +128,9 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
             if (oplogs != null) {
                 List<CommonPackageInfo> ps = new ArrayList<>(oplogs.size());
                 for (OpLog l : oplogs) {
+                    if (l.getCode() >= AppOpsManagerCompat._NUM_OP) {
+                        continue;
+                    }
                     CommonPackageInfo info = new CommonPackageInfo();
                     info.setArgs(l);
                     ps.add(info);
@@ -136,6 +143,9 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
             if (oplogs != null) {
                 List<CommonPackageInfo> ps = new ArrayList<>(oplogs.size());
                 for (OpLog l : oplogs) {
+                    if (l.getCode() >= AppOpsManagerCompat._NUM_OP) {
+                        continue;
+                    }
                     CommonPackageInfo info = LoaderUtil.constructCommonPackageInfo(getContext(), l.getPackageName());
                     if (info == null) continue;
                     info.setArgs(l);
