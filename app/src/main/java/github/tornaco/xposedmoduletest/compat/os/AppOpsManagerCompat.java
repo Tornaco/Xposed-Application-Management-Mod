@@ -971,7 +971,7 @@ public final class AppOpsManagerCompat {
         return String.valueOf(from(context).mOpSummaries[code]);
     }
 
-    public static boolean isPrivacyOp(int op) {
+    public static boolean isLoggableOp(int op) {
         return true;
     }
 }

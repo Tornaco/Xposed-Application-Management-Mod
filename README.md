@@ -38,6 +38,10 @@
 
 * 禁用某应用的某些（用户选择）组件（服务/广播）。
 
+### 已经问题
+1. 8.x通知权限。
+2. 8.x指纹震动。
+
 ## 2. 功能演示
 参考README最下方demo视频。
 
@@ -46,7 +50,6 @@
 
 核心服务：
 https://github.com/Tornaco/X-APM/blob/master/app/src/main/java/github/tornaco/xposedmoduletest/xposed/service/XAshmanServiceImpl.java
-https://github.com/Tornaco/X-APM/blob/master/app/src/main/java/github/tornaco/xposedmoduletest/xposed/service/XAppGuardServiceImpl.java
 
 Xposed模块代理：
 https://github.com/Tornaco/X-APM/blob/master/app/src/main/java/github/tornaco/xposedmoduletest/xposed/XModuleDelegate.java

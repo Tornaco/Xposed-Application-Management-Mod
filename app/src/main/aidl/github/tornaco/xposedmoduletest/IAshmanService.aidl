@@ -296,8 +296,8 @@ interface IAshmanService {
      void setAppInstalledAutoApplyTemplate(in AppSettings settings);
      AppSettings getAppInstalledAutoApplyTemplate();
 
-     String[] getOpLogPackages();
      List<OpLog> getOpLogForPackage(String packageName);
+     List<OpLog> getOpLogForOp(int code);
 
      String getUserName();
      Bitmap getUserIcon();

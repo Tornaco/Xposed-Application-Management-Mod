@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
 import android.app.AlertDialog;
+import android.app.AppOpsManager;
 import android.app.IActivityManager;
 import android.app.IAppTask;
 import android.app.IApplicationThread;
@@ -57,7 +58,6 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
-import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.view.KeyEvent;
 import android.view.WindowManager;
@@ -188,11 +188,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final ExecutorService mWorkingService = Executors.newCachedThreadPool();
     private final ExecutorService mLoggingService = Executors.newSingleThreadExecutor();
 
+    private final OpsCache mOpsCache = OpsCache.singleInstance();
+
     private final Map<String, Integer> mPackagesCache = new HashMap<>();
 
     private final Map<String, BlockRecord2> mBlockRecords = new HashMap<>();
-
-    private final Map<String, SparseArray<OpLog>> mOpLogs = new HashMap<>();
 
     private Handler mainHandler, mLazyHandler, mDozeHandler;
 
@@ -2750,7 +2750,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                onAppOp(pkg, op, mode);
+                mOpsCache.logPackageOp(op, mode, pkg);
             }
         };
         mLoggingService.execute(new ErrorCatchRunnable(r, "logOpEventToMemory"));
@@ -3163,11 +3163,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (uidInt < 0) {
                 XposedLog.wtf("Fail query uid: " + pkg);
             } else {
+                // Align with appops.
                 // Apply ranker.
-                if (code == AppOpsManagerCompat.OP_POST_NOTIFICATION && mode != AppOpsManagerCompat.MODE_IGNORED) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        mNotificationService.setImportance(pkg, uidInt, NotificationManager.IMPORTANCE_DEFAULT);
+                if (code == AppOpsManagerCompat.OP_POST_NOTIFICATION) {
+                    AppOpsManager ops = (AppOpsManager) getContext().getSystemService(Context.APP_OPS_SERVICE);
+                    try {
+                        if (ops != null) {
+                            ops.setMode(code, uid, pkg, mode);
+                            XposedLog.verbose("Ops mode has been set");
+                        }
+                    } catch (Throwable e) {
+                        XposedLog.wtf("Fail set mode to ops: " + e);
                     }
+//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//                        mNotificationService.setImportance(pkg, uidInt, NotificationManager.IMPORTANCE_DEFAULT);
+//                    }
                 }
             }
 
@@ -3663,7 +3673,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             if (!isPackageRunningOnTop(p)) {
                                 setApplicationEnabledSetting(p, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
                                 XposedLog.verbose("removeTask, Disable pending apps: " + p);
-                                RepoProxy.getProxy().getPending_disable_apps_tr().remove(p);
+                                // RepoProxy.getProxy().getPending_disable_apps_tr().remove(p);
                             }
                         }
                     }
@@ -4421,7 +4431,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public int checkOperation(int code, int uid, String packageName, String reason) {
         int mode = checkOperationInternal(code, uid, packageName, reason);
         // FIXME This api is not ready.
-        if (BuildConfig.DEBUG && AppOpsManagerCompat.isPrivacyOp(code)) {
+        if (AppOpsManagerCompat.isLoggableOp(code)) {
             logOpEventToMemory(packageName, code, mode);
         }
         return mode;
@@ -5155,62 +5165,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
-    private void onAppOp(String pkg, int op, int mode) {
-        synchronized (mOpLogs) {
-            SparseArray<OpLog> opLogSparseArray = mOpLogs.get(pkg);
-            if (opLogSparseArray != null) {
-                OpLog log = opLogSparseArray.get(op);
-                if (log != null) {
-                    log.setTimes(log.getTimes() + 1);
-                    log.setWhen(System.currentTimeMillis());
-                } else {
-                    log = OpLog.builder()
-                            .code(op)
-                            .mode(mode)
-                            .packageName(pkg)
-                            .times(0)
-                            .when(System.currentTimeMillis())
-                            .build();
-                    opLogSparseArray.put(op, log);
-                }
-            } else {
-                opLogSparseArray = new SparseArray<>();
-                OpLog log = OpLog.builder()
-                        .code(op)
-                        .mode(mode)
-                        .packageName(pkg)
-                        .times(0)
-                        .when(System.currentTimeMillis())
-                        .build();
-                opLogSparseArray.put(op, log);
-                mOpLogs.put(pkg, opLogSparseArray);
-            }
-        }
-    }
-
-    @BinderCall
-    @Override
-    public String[] getOpLogPackages() {
-        synchronized (mOpLogs) {
-            return convertObjectArrayToStringArray(mOpLogs.keySet().toArray());
-        }
-    }
-
     @BinderCall
     @Override
     public List<OpLog> getOpLogForPackage(String packageName) {
-        synchronized (mOpLogs) {
-            SparseArray<OpLog> s = mOpLogs.get(packageName);
-            if (s == null || s.size() == 0) {
-                return new ArrayList<>(0);
-            }
-            List<OpLog> opLogs = new ArrayList<>(s.size());
-            for (int i = 0; i < s.size(); i++) {
-                OpLog v = s.valueAt(i);
-                opLogs.add(v);
-            }
-            return opLogs;
-        }
+        return mOpsCache.getLogForPackage(packageName);
+    }
+
+    @BinderCall
+    @Override
+    public List<OpLog> getOpLogForOp(int code) {
+        return mOpsCache.getLogForOp(code);
     }
 
     @Override
@@ -6017,7 +5981,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     if (!isPackageRunningOnTop(p)) {
                         setApplicationEnabledSetting(p, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
                         XposedLog.verbose("Disable pending apps: " + p);
-                        RepoProxy.getProxy().getPending_disable_apps().remove(p);
+                        // RepoProxy.getProxy().getPending_disable_apps().remove(p);
                     }
                 }
             } catch (Throwable e) {

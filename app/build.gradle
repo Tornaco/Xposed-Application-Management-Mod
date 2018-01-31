@@ -110,6 +110,8 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.4.0'
     // Crash report.
     implementation 'com.tencent.bugly:crashreport:2.3.1'
+
+    implementation 'com.vanniktech:emoji:0.5.1'
 }
 
 

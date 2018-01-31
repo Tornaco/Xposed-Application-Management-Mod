@@ -1253,19 +1253,19 @@ public class XAshmanManager {
         }
     }
 
-    public String[] getOpLogPackages() {
-        ensureService();
-        try {
-            return mService.getOpLogPackages();
-        } catch (Exception e) {
-            return ArrayUtil.emptyStringArray();
-        }
-    }
-
     public List<OpLog> getOpLogForPackage(String packageName) {
         ensureService();
         try {
             return mService.getOpLogForPackage(packageName);
+        } catch (Exception e) {
+            return new ArrayList<>(0);
+        }
+    }
+
+    public List<OpLog> getOpLogForOp(int code) {
+        ensureService();
+        try {
+            return mService.getOpLogForOp(code);
         } catch (Exception e) {
             return new ArrayList<>(0);
         }
