@@ -48,7 +48,7 @@
         android:scaleType="center"
         android:src="@drawable/ic_filter_list_black_24dp"
         android:tint="@color/grey"
-        android:visibility="visible" />
+        android:visibility="gone" />
 
 
 </RelativeLayout>
