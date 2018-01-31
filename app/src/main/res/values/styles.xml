@@ -362,9 +362,9 @@
         <item name="android:textColorSecondary">?torMenuIconTintColor</item>
         <item name="android:textColorPrimary">?torMenuIconTintColor</item>
         <item name="colorControlNormal">?torMenuIconTintColor</item>
-        <item name="colorControlActivated">?torMenuIconTintColor</item>
+        <!--<item name="colorControlActivated">?torMenuIconTintColor</item>-->
         <item name="android:colorControlNormal">?torMenuIconTintColor</item>
-        <item name="android:colorControlActivated">?torMenuIconTintColor</item>
+        <!--<item name="android:colorControlActivated">?torMenuIconTintColor</item>-->
     </style>
 
     <!--<style name="ToolbarThemeDark">-->

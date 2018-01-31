@@ -22,15 +22,17 @@
             android:layout_weight="1"
             android:background="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|enterAlways"
-            app:theme="?torToolbarTheme"
-            app:popupTheme="?torAppbarPopupTheme">
+            app:popupTheme="?torAppbarPopupTheme"
+            app:theme="?torToolbarTheme">
 
         </android.support.v7.widget.Toolbar>
 
         <android.support.design.widget.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            app:tabSelectedTextColor="?torMenuIconTintColor"
+            app:tabTextColor="@color/grey">
 
             <android.support.design.widget.TabItem
                 android:id="@+id/tabItem"

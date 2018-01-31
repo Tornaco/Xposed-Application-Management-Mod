@@ -63,17 +63,16 @@ public class ShortcutStubActivity extends BaseActivity {
             boolean disabled = state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED
                     && state != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
 
-
             if (disabled) {
                 XAshmanManager.get().setApplicationEnabledSetting(target, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0);
+            }
 
-                if (redisale) {
-                    XAshmanManager.get().addPendingDisableApps(target);
-                }
+            if (redisale) {
+                XAshmanManager.get().addPendingDisableApps(target);
+            }
 
-                if (redisaletr) {
-                    XAshmanManager.get().addPendingDisableAppsTR(target);
-                }
+            if (redisaletr) {
+                XAshmanManager.get().addPendingDisableAppsTR(target);
             }
 
             Intent launcherIntent = getPackageManager().getLaunchIntentForPackage(target);

@@ -3,9 +3,12 @@ package github.tornaco.xposedmoduletest.xposed.service.shell;
 import android.os.RemoteException;
 
 import java.io.PrintWriter;
+import java.util.List;
 
+import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
+import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.AllArgsConstructor;
 
@@ -54,6 +57,34 @@ public class AshShellCommand extends ShellCommandCompat {
             case "reset":
                 mService.restoreDefaultSettings();
                 break;
+
+            case "dump-op-log":
+                String code = getNextArg();
+                List<OpLog> opLogs = mService.getOpLogForOp(Integer.parseInt(code));
+                final PrintWriter pw = getOutPrintWriter();
+                pw.println("    OP LOG FOR OP: " + code);
+                github.tornaco.android.common.Collections.consumeRemaining(opLogs, new Consumer<OpLog>() {
+                    @Override
+                    public void accept(OpLog log) {
+                        pw.println("    " + log);
+                    }
+                });
+                pw.println("");
+                break;
+            case "dump-pkg-op-log":
+                String pkg = getNextArg();
+                opLogs = mService.getOpLogForPackage(pkg);
+                final PrintWriter pw2 = getOutPrintWriter();
+                pw2.println("    OP LOG FOR PKG: " + pkg);
+                github.tornaco.android.common.Collections.consumeRemaining(opLogs, new Consumer<OpLog>() {
+                    @Override
+                    public void accept(OpLog log) {
+                        pw2.println("    " + log);
+                    }
+                });
+                pw2.println("");
+                break;
+
         }
 
         return 0;
@@ -83,6 +114,14 @@ public class AshShellCommand extends ShellCommandCompat {
 
         pw.println("    reset");
         pw.println("        Rest all settings to default");
+        pw.println("");
+
+        pw.println("    dump-op-log [code]");
+        pw.println("        Print all operation log by op");
+        pw.println("");
+
+        pw.println("    dump-pkg-op-log [package]");
+        pw.println("        Print all operation log by package");
         pw.println("");
     }
 }
