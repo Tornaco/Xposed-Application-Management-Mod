@@ -45,6 +45,7 @@
                 android:layout_centerHorizontal="true"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_verified_user_black_24dp"
+                android:tint="?torMenuIconTintColor"
                 android:visibility="visible" />
 
             <TextView
@@ -59,7 +60,7 @@
                 android:text="@string/input_password"
                 android:textAllCaps="true"
                 android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                android:textColor="@color/white" />
+                android:textColor="?torMenuIconTintColor" />
 
         </RelativeLayout>
 

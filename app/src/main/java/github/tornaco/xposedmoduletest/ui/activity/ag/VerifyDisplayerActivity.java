@@ -40,6 +40,7 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.provider.LockStorage;
 import github.tornaco.xposedmoduletest.provider.XSettings;
+import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.util.PatternLockViewListenerAdapter;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
@@ -103,12 +104,15 @@ public class VerifyDisplayerActivity extends BaseActivity {
         int color = ContextCompat.getColor(this, XSettings.getThemes(this).getThemeColor());
 
         // Apply palette color.
-        PaletteColorPicker.pickPrimaryColor(this, new PaletteColorPicker.PickReceiver() {
-            @Override
-            public void onColorReady(int color) {
-                applyColor(color);
-            }
-        }, pkg, color);
+        // Workaround.
+        if (mUserTheme != Themes.O) {
+            PaletteColorPicker.pickPrimaryColor(this, new PaletteColorPicker.PickReceiver() {
+                @Override
+                public void onColorReady(int color) {
+                    applyColor(color);
+                }
+            }, pkg, color);
+        }
 
         setTitle(null);
 
@@ -334,9 +338,9 @@ public class VerifyDisplayerActivity extends BaseActivity {
             }
             XAppGuardManager.get().setResult(tid, XAppVerifyMode.MODE_ALLOWED);
         } finally {
-            try{
+            try {
                 finish();
-            }catch (Throwable ignored){
+            } catch (Throwable ignored) {
                 // Go dead.
             }
         }

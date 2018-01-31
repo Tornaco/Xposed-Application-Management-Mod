@@ -38,10 +38,13 @@ public class BaseActivity extends AppCompatActivity implements View {
 
     private Handler uiThreadHandler;
 
+    protected Themes mUserTheme;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTheme(getUserSetThemeResId(XSettings.getThemes(this.getContext())));
+        mUserTheme = XSettings.getThemes(this.getContext());
+        setTheme(getUserSetThemeResId(mUserTheme));
     }
 
     protected int getUserSetThemeResId(Themes themes) {

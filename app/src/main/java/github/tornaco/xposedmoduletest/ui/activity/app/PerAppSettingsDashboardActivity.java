@@ -16,6 +16,7 @@ import github.tornaco.android.common.util.ColorUtil;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.provider.XSettings;
+import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.PermControlTemplate;
 import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppBlurSetting;
@@ -66,12 +67,15 @@ public class PerAppSettingsDashboardActivity extends WithWithCustomTabActivity {
         int color = ContextCompat.getColor(this, XSettings.getThemes(this).getThemeColor());
 
         // Apply palette color.
-        PaletteColorPicker.pickPrimaryColor(this, new PaletteColorPicker.PickReceiver() {
-            @Override
-            public void onColorReady(int color) {
-                applyColor(color);
-            }
-        }, pkgName, color);
+        // Workaround.
+        if (mUserTheme != Themes.O) {
+            PaletteColorPicker.pickPrimaryColor(this, new PaletteColorPicker.PickReceiver() {
+                @Override
+                public void onColorReady(int color) {
+                    applyColor(color);
+                }
+            }, pkgName, color);
+        }
 
         findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
             @Override

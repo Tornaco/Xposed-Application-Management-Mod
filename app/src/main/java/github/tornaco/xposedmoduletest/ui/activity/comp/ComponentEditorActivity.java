@@ -61,6 +61,7 @@ import github.tornaco.xposedmoduletest.model.Searchable;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettings;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettingsList;
 import github.tornaco.xposedmoduletest.provider.XSettings;
+import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.activity.WithSearchActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.ActivitySettingsAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.ComponentListAdapter;
@@ -108,7 +109,10 @@ public class ComponentEditorActivity extends WithSearchActivity<Searchable>
         }
         initView();
 
-        initColor();
+        // Workaround to fix o style.
+        if (mUserTheme != Themes.O) {
+            initColor();
+        }
 
         initPages();
     }

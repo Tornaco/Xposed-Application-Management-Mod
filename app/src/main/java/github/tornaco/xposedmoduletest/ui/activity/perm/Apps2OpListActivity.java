@@ -28,6 +28,7 @@ import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.loader.PermissionLoader;
 import github.tornaco.xposedmoduletest.model.Permission;
 import github.tornaco.xposedmoduletest.provider.XSettings;
+import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.activity.WithRecyclerView;
 import github.tornaco.xposedmoduletest.ui.adapter.PermissionOpsAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
@@ -66,7 +67,10 @@ public class Apps2OpListActivity extends WithRecyclerView {
         if (TextUtils.isEmpty(mPkg)) return;
 
         initView();
-        initColor();
+
+        if (mUserTheme != Themes.O) {
+            initColor();
+        }
 
         mAppName = String.valueOf(PkgUtil.loadNameByPkgName(this, mPkg));
         setTitle(mAppName);
