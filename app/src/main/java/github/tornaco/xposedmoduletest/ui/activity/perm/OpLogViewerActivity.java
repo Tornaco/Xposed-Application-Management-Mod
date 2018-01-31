@@ -23,6 +23,7 @@ import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapte
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoViewerAdapter;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
+import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import si.virag.fuzzydateformatter.FuzzyDateTimeFormatter;
 
 /**
@@ -49,6 +50,12 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
         mPackageName = getIntent().getStringExtra("pkg");
         mOp = getIntent().getIntExtra("op", -1);
 
+        if (mPackageName != null) {
+            setTitle(PkgUtil.loadNameByPkgName(getContext(), mPackageName));
+        } else if (mOp >= 0) {
+            setTitle(AppOpsManagerCompat.getOpLabel(getContext(), mOp));
+        }
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setImageResource(R.drawable.ic_clear_all_black_24dp);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -60,6 +67,7 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
                 } else if (mOp >= 0) {
                     XAshmanManager.get().clearOpLogForOp(mOp);
                 }
+                startLoading();
             }
         });
     }
@@ -101,7 +109,10 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
 
             @Override
             protected int getTemplateLayoutRes() {
-                return R.layout.app_list_item_2;
+                if (mPackageName != null) {
+                    return R.layout.app_list_item_2_op_log;
+                }
+                return R.layout.app_list_item_2_op_log_pkg;
             }
         };
     }
