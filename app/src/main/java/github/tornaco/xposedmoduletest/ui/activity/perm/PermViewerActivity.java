@@ -14,6 +14,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -277,8 +278,9 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
                 public void onBindViewHolder(CommonViewHolder holder, int position) {
                     super.onBindViewHolder(holder, position);
 
+                    final CommonPackageInfo packageInfo = getCommonPackageInfos().get(position);
+
                     if (index == INDEX_OPS) {
-                        final CommonPackageInfo packageInfo = getCommonPackageInfos().get(position);
                         holder.getLineTwoTextView().setText(packageInfo.getPayload()[0]);
                         if (getActivity() != null) {
                             holder.getCheckableImageView().setImageDrawable(ContextCompat
@@ -286,6 +288,46 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
                                             .opToIconRes(packageInfo.getVersion())));
                         }
                     }
+
+                    //noinspection ConstantConditions
+                    holder.getMoreBtn().setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            showPopMenu(packageInfo, v);
+                        }
+                    });
+                }
+
+                void showPopMenu(final CommonPackageInfo t, View anchor) {
+                    PopupMenu popupMenu = new PopupMenu(getContext(), anchor);
+                    popupMenu.inflate(getPopupMenuRes());
+                    popupMenu.setOnMenuItemClickListener(onCreateOnMenuItemClickListener(t));
+                    popupMenu.show();
+                }
+
+                int getPopupMenuRes() {
+                    return R.menu.perm_ops_item;
+                }
+
+                PopupMenu.OnMenuItemClickListener onCreateOnMenuItemClickListener(final CommonPackageInfo t) {
+                    if (index == INDEX_OPS) {
+                        return new PopupMenu.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(MenuItem item) {
+                                OpLogViewerActivity.start(getContext(), null, t.getVersion());
+                                return true;
+                            }
+                        };
+                    } else if (index == INDEX_APPS) {
+                        return new PopupMenu.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(MenuItem item) {
+                                OpLogViewerActivity.start(getContext(), t.getPkgName(), -1);
+                                return true;
+                            }
+                        };
+                    }
+                    return null;
                 }
 
                 @Override
@@ -297,7 +339,7 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
                 protected int getTemplateLayoutRes() {
                     return index == INDEX_OPS ?
                             R.layout.app_list_item_2_ops
-                            : super.getTemplateLayoutRes();
+                            : R.layout.app_list_item_2_perm;
                 }
             };
 

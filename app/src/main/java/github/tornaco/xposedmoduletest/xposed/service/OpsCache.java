@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
+import android.os.RemoteException;
 import android.util.Singleton;
 import android.util.SparseArray;
 
@@ -10,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -19,6 +21,8 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 class OpsCache {
+
+    private static final String TAG = "OPS_CACHE-";
 
     private static final int MAX_OP_LOG_ENTRY_SIZE = 1024;
 
@@ -47,6 +51,10 @@ class OpsCache {
         synchronized (sLock) {
             logForOp(code, mode, pkg);
             logForPkg(code, mode, pkg);
+
+            if (BuildConfig.DEBUG) {
+                XposedLog.verbose(TAG + "logPackageOp %s %s %s", code, mode, pkg);
+            }
         }
     }
 
@@ -59,6 +67,18 @@ class OpsCache {
     List<OpLog> getLogForOp(int code) {
         synchronized (sLock) {
             return Lists.newArrayList(mOpCache.get(code));
+        }
+    }
+
+    void clearOpLogForPackage(String packageName) throws RemoteException {
+        synchronized (sLock) {
+            mPkgCache.remove(packageName);
+        }
+    }
+
+    void clearOpLogForOp(int cod) throws RemoteException {
+        synchronized (sLock) {
+            mOpCache.remove(cod);
         }
     }
 

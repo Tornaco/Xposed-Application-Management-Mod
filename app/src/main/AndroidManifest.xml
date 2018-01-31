@@ -336,8 +336,11 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.perm.PermViewerActivity"
-
             android:label="@string/title_perm_control"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.perm.OpLogViewerActivity"
+            android:label="@string/title_ops_log"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.green2.ExtraOpsSettingActivity"

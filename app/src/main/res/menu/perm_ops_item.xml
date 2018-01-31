@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="github.tornaco.xposedmoduletest.ui.activity.comp.ComponentEditorActivity">
+    <item
+        android:id="@+id/action_copy_name"
+        android:orderInCategory="100"
+        android:title="@string/title_ops_log"
+        app:showAsAction="never" />
+
+</menu>
+

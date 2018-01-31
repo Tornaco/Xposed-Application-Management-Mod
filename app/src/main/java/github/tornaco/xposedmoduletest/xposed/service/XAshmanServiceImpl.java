@@ -3104,6 +3104,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @BinderCall(restrict = "any")
     public int getPermissionControlBlockModeForPkg(int code, String pkg) {
+        return getPermissionControlBlockModeForPkg(code, pkg, true);
+    }
+
+    int getPermissionControlBlockModeForPkg(int code, String pkg, boolean log) {
+        int mode = getPermissionControlBlockModeForPkgInternal(code, pkg);
+        if (log) {
+            logOperationIfNecessary(code, Integer.MAX_VALUE, pkg, null, mode);
+        }
+        return mode;
+    }
+
+    int getPermissionControlBlockModeForPkgInternal(int code, String pkg) {
         if (DEBUG_OP) {
             XposedLog.verbose("getPermissionControlBlockModeForPkg code %s pkg %s", code, pkg);
         }
@@ -4160,17 +4172,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public AppSettings retrieveAppSettingsForPackage(String pkg) throws RemoteException {
 
         int mode = getPermissionControlBlockModeForPkg(
-                AppOpsManagerCompat.OP_WAKE_LOCK, pkg
+                AppOpsManagerCompat.OP_WAKE_LOCK, pkg, false
         );
         boolean wakelock = mode == AppOpsManagerCompat.MODE_IGNORED;
 
         mode = getPermissionControlBlockModeForPkg(
-                AppOpsManagerCompat.OP_START_SERVICE, pkg
+                AppOpsManagerCompat.OP_START_SERVICE, pkg, false
         );
         boolean service = mode == AppOpsManagerCompat.MODE_IGNORED;
 
         mode = getPermissionControlBlockModeForPkg(
-                AppOpsManagerCompat.OP_SET_ALARM, pkg
+                AppOpsManagerCompat.OP_SET_ALARM, pkg, false
         );
         boolean alarm = mode == AppOpsManagerCompat.MODE_IGNORED;
 
@@ -4430,11 +4442,25 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public int checkOperation(int code, int uid, String packageName, String reason) {
         int mode = checkOperationInternal(code, uid, packageName, reason);
-        // FIXME This api is not ready.
+        logOperationIfNecessary(code, uid, packageName, reason, mode);
+        return mode;
+    }
+
+    private void logOperationIfNecessary(int code, int uid, String packageName, String reason, int mode) {
+        if (packageName == null) return;
+
+        if (BuildConfig.APPLICATION_ID.equals(packageName)) return;
+
+        if (PkgUtil.isSystemOrPhoneOrShell(uid)) return;
+
+        if (isInWhiteList(packageName)) return;
+
+        if (isWhiteSysAppEnabled() && isInSystemAppList(packageName))
+            return;
+
         if (AppOpsManagerCompat.isLoggableOp(code)) {
             logOpEventToMemory(packageName, code, mode);
         }
-        return mode;
     }
 
     @Override
@@ -5175,6 +5201,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public List<OpLog> getOpLogForOp(int code) {
         return mOpsCache.getLogForOp(code);
+    }
+
+    @Override
+    public void clearOpLogForPackage(String packageName) throws RemoteException {
+        XposedLog.verbose("clearOpLogForPackage: " + packageName);
+        mOpsCache.clearOpLogForPackage(packageName);
+    }
+
+    @Override
+    public void clearOpLogForOp(int cod) throws RemoteException {
+        XposedLog.verbose("clearOpLogForOp: " + cod);
+        mOpsCache.clearOpLogForOp(cod);
     }
 
     @Override

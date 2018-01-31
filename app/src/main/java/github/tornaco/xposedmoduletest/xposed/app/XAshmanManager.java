@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.support.annotation.Nullable;
 
@@ -1268,6 +1269,24 @@ public class XAshmanManager {
             return mService.getOpLogForOp(code);
         } catch (Exception e) {
             return new ArrayList<>(0);
+        }
+    }
+
+    public void clearOpLogForPackage(String packageName) {
+        ensureService();
+        try {
+            mService.clearOpLogForPackage(packageName);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public void clearOpLogForOp(int cod) {
+        ensureService();
+        try {
+            mService.clearOpLogForOp(cod);
+        } catch (RemoteException e) {
+
         }
     }
 

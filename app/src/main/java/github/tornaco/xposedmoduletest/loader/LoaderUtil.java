@@ -16,9 +16,9 @@ import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
  * Email: Tornaco@163.com
  */
 
-class LoaderUtil {
+public class LoaderUtil {
 
-    static CommonPackageInfo constructCommonPackageInfo(Context context, String pkg) {
+    public static CommonPackageInfo constructCommonPackageInfo(Context context, String pkg) {
         if (!PkgUtil.isPkgInstalled(context, pkg)) return null;
         String name = String.valueOf(PkgUtil.loadNameByPkgName(context, pkg));
         CommonPackageInfo p = new CommonPackageInfo();
@@ -30,7 +30,7 @@ class LoaderUtil {
         return p;
     }
 
-    static void stateSort(List<CommonPackageInfo> commonPackageInfos) {
+    public static void stateSort(List<CommonPackageInfo> commonPackageInfos) {
         final PinyinComparator pinyinComparator = new PinyinComparator();
 
         Collections.sort(commonPackageInfos, new Comparator<CommonPackageInfo>() {
@@ -53,7 +53,7 @@ class LoaderUtil {
         });
     }
 
-    static void opSort(List<CommonPackageInfo> commonPackageInfos) {
+    public static void opSort(List<CommonPackageInfo> commonPackageInfos) {
         final PinyinComparator pinyinComparator = new PinyinComparator();
 
         Collections.sort(commonPackageInfos, new Comparator<CommonPackageInfo>() {
@@ -76,7 +76,7 @@ class LoaderUtil {
         });
     }
 
-    static void commonSort(List<CommonPackageInfo> commonPackageInfos) {
+    public static void commonSort(List<CommonPackageInfo> commonPackageInfos) {
         final PinyinComparator pinyinComparator = new PinyinComparator();
 
         Collections.sort(commonPackageInfos, new Comparator<CommonPackageInfo>() {

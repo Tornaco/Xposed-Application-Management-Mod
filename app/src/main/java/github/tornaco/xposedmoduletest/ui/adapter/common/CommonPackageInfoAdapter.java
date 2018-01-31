@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.ColorInt;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
@@ -273,8 +274,12 @@ public class CommonPackageInfoAdapter
     public String getSectionName(int position) {
         String appName = getCommonPackageInfos().get(position).getAppName();
         if (appName == null
-                || appName.length() < 1)
+                || appName.length() < 1) {
             appName = getCommonPackageInfos().get(position).getPkgName();
+        }
+        if (appName == null) {
+            return "*";
+        }
         return String.valueOf(appName.charAt(0));
     }
 
@@ -288,6 +293,8 @@ public class CommonPackageInfoAdapter
         private TextView lineOneTextView, lineTwoTextView, systemAppIndicator;
         private View extraIndicator;
         private CheckableImageView checkableImageView;
+        @Nullable
+        private View moreBtn;
 
         public CommonViewHolder(View itemView) {
             super(itemView);
@@ -296,6 +303,7 @@ public class CommonPackageInfoAdapter
             systemAppIndicator = itemView.findViewById(android.R.id.text1);
             checkableImageView = itemView.findViewById(R.id.checkable_img_view);
             extraIndicator = itemView.findViewById(R.id.extra_indicator);
+            moreBtn = itemView.findViewById(R.id.more);
         }
     }
 

@@ -298,6 +298,8 @@ interface IAshmanService {
 
      List<OpLog> getOpLogForPackage(String packageName);
      List<OpLog> getOpLogForOp(int code);
+     void clearOpLogForPackage(String packageName);
+     void clearOpLogForOp(int cod);
 
      String getUserName();
      Bitmap getUserIcon();

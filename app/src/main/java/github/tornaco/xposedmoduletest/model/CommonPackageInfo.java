@@ -28,6 +28,7 @@ public class CommonPackageInfo {
     private int appLevel;
     private long installedTime;
     private int usageTimes;
+    private Object args;
 
     public boolean isAllExtraPermDisabled() {
         return !isServiceOpAllowed() && !isAlarmOpAllowed() && !isWakelockOpAllowed();
