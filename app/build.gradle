@@ -90,8 +90,7 @@ dependencies {
     implementation project(':tiles')
     implementation project(':patternlockview')
     implementation project(':mdsearch')
-
-    implementation 'si.virag:fuzzydateformatter:1.1.0'
+    implementation project(':dateformatter')
 
     implementation files('libs/flyme_fingerprint.jar')
     // compile files('libs/flymeapi.jar')
