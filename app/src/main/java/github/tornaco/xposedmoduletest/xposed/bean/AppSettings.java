@@ -2,10 +2,8 @@ package github.tornaco.xposedmoduletest.xposed.bean;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import github.tornaco.xposedmoduletest.util.GsonUtil;
-import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -116,7 +114,6 @@ public class AppSettings implements Parcelable {
         try {
             return GsonUtil.getGson().fromJson(js, AppSettings.class);
         } catch (Throwable e) {
-            XposedLog.wtf("Fail from json: " + Log.getStackTraceString(e));
             return def;
         }
     }

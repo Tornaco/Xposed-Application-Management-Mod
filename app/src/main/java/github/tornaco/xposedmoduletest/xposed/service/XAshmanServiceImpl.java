@@ -6460,7 +6460,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
         }
 
-        private static final int POWER_KEY_TIMES_PANIC = 3;
+        private static final int POWER_KEY_TIMES_PANIC = 5;
         private static final int POWER_KEY_PANIC_INTERVAL = 800;
 
         private AtomicInteger mPowerKeyPressTimes = new AtomicInteger(0);
