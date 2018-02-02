@@ -17,8 +17,8 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:theme="?torToolbarTheme"
-            app:popupTheme="?torAppbarPopupTheme" />
+            app:popupTheme="?torAppbarPopupTheme"
+            app:theme="?torToolbarTheme" />
 
 
         <RelativeLayout
@@ -50,7 +50,7 @@
                 android:text="@string/title_setup_code_new"
                 android:textAllCaps="true"
                 android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                android:textColor="@color/white" />
+                android:textColor="?torMenuIconTintColor" />
 
         </RelativeLayout>
 

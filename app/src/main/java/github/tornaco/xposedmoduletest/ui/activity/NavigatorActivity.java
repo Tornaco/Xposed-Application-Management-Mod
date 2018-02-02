@@ -115,6 +115,29 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         } else {
             initFirstRun();
         }
+
+        // Load dev message.
+        DeveloperMessages.loadAsync(new DeveloperMessages.Callback() {
+            @Override
+            public void onError(Throwable e) {
+                // Noop.
+            }
+
+            @Override
+            public void onSuccess(final List<DeveloperMessage> messages) {
+                if (!isDestroyed() && messages != null && messages.size() > 0) {
+                    runOnUiThreadChecked(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                showDeveloperMessage(messages.get(0));
+                            } catch (Throwable ignored) {
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
 
     private void initTVStateForOreo() {
@@ -255,29 +278,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             developerMessage.setTimeMills(System.currentTimeMillis());
             Logger.e(GsonUtil.getGson().toJson(developerMessage));
         }
-
-        // Load dev message.
-        DeveloperMessages.loadAsync(new DeveloperMessages.Callback() {
-            @Override
-            public void onError(Throwable e) {
-                // Noop.
-            }
-
-            @Override
-            public void onSuccess(final List<DeveloperMessage> messages) {
-                if (!isDestroyed() && messages != null && messages.size() > 0) {
-                    runOnUiThreadChecked(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                showDeveloperMessage(messages.get(0));
-                            } catch (Throwable ignored) {
-                            }
-                        }
-                    });
-                }
-            }
-        });
     }
 
     private void showDeveloperMessage(DeveloperMessage message) {

@@ -16,7 +16,6 @@ import github.tornaco.android.common.util.ColorUtil;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.provider.XSettings;
-import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.PermControlTemplate;
 import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppBlurSetting;
@@ -68,7 +67,7 @@ public class PerAppSettingsDashboardActivity extends WithWithCustomTabActivity {
 
         // Apply palette color.
         // Workaround.
-        if (mUserTheme != Themes.O) {
+        if (!mUserTheme.isReverseTheme()) {
             PaletteColorPicker.pickPrimaryColor(this, new PaletteColorPicker.PickReceiver() {
                 @Override
                 public void onColorReady(int color) {
@@ -137,6 +136,15 @@ public class PerAppSettingsDashboardActivity extends WithWithCustomTabActivity {
             if (mPkg == null) return;
 
             AppSettings appSettings = ((PerAppSettingsDashboardActivity) getActivity()).onRetrieveAppSettings(mPkg);
+            if (appSettings == null) {
+                appSettings = AppSettings.builder()
+                        .boot(false)
+                        .start(false)
+                        .trk(false)
+                        .rfk(false)
+                        .lk(false)
+                        .build();
+            }
 
             Category sec = new Category();
             sec.titleRes = R.string.title_secure;

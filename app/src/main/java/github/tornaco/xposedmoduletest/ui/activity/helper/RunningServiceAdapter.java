@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.ui.activity.helper;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
+import android.widget.Toast;
 
 import org.newstand.logger.Logger;
 
@@ -40,7 +41,12 @@ public class RunningServiceAdapter extends CommonPackageInfoAdapter {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PerAppSettingsDashboardActivity.start(getContext(), display.getPkgName());
+                if (!display.isSystemApp()) {
+                    PerAppSettingsDashboardActivity.start(getContext(), display.getPkgName());
+                } else {
+                    Toast.makeText(getContext(), R.string.system_app_not_allowed_set_running_services,
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

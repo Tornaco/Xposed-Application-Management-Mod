@@ -2,6 +2,8 @@ package github.tornaco.xposedmoduletest.ui.activity.ag;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
+import android.widget.ImageView;
 
 import com.andrognito.patternlockview.PatternLockView;
 import com.andrognito.patternlockview.listener.PatternLockViewListener;
@@ -27,6 +29,11 @@ public class PatternSetupActivity extends NeedLockActivity implements PatternLoc
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pattern_setup);
         patternLockView = findViewById(R.id.pattern_lock_view);
+        if (mUserTheme.isReverseTheme()) {
+            ImageView imageView = findViewById(R.id.icon);
+            imageView.setColorFilter(ContextCompat.getColor(getContext(),
+                    mUserTheme.getThemeColor()), android.graphics.PorterDuff.Mode.MULTIPLY);
+        }
         patternLockView.addPatternLockListener(this);
         patternLockView.setEnableHapticFeedback(true);
     }

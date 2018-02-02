@@ -47,17 +47,6 @@
                 android:src="@drawable/ic_verified_user_black_24dp"
                 android:visibility="visible" />
 
-            <ImageView
-                android:id="@+id/icon_def"
-                android:layout_width="@dimen/thumbnail_size_large"
-                android:layout_height="@dimen/thumbnail_size_large"
-                android:layout_centerHorizontal="true"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_verified_user_black_24dp"
-                android:tint="?torMenuIconTintColor"
-                android:visibility="visible" />
-
-
             <TextView
                 android:id="@+id/label"
                 android:layout_width="wrap_content"

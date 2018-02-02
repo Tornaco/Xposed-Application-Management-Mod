@@ -16,7 +16,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.os.CancellationSignal;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -41,7 +40,6 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.provider.LockStorage;
 import github.tornaco.xposedmoduletest.provider.XSettings;
-import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.util.PatternLockViewListenerAdapter;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
@@ -106,7 +104,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
         // Apply palette color.
         // Workaround.
-        if (mUserTheme != Themes.O) {
+        if (!mUserTheme.isReverseTheme()) {
             PaletteColorPicker.pickPrimaryColor(this, new PaletteColorPicker.PickReceiver() {
                 @Override
                 public void onColorReady(int color) {
@@ -134,8 +132,6 @@ public class VerifyDisplayerActivity extends BaseActivity {
             boolean useRoundIcon = XSettings.cropEnabled(this);
 
             ImageView imageView = findViewById(R.id.icon);
-            imageView.setVisibility(View.VISIBLE);
-            findViewById(R.id.icon_def).setVisibility(View.GONE);
 
             CommonPackageInfo c = new CommonPackageInfo();
             c.setPkgName(pkg);
@@ -156,8 +152,12 @@ public class VerifyDisplayerActivity extends BaseActivity {
                     .transition(withCrossFade())
                     .into(imageView);
         } else {
-            findViewById(R.id.icon).setVisibility(View.GONE);
-            findViewById(R.id.icon_def).setVisibility(View.VISIBLE);
+            // Only use a image tint when it is in reverse theme.
+            if (mUserTheme.isReverseTheme()) {
+                ImageView imageView = findViewById(R.id.icon);
+                imageView.setColorFilter(ContextCompat.getColor(getContext(),
+                        mUserTheme.getThemeColor()), android.graphics.PorterDuff.Mode.MULTIPLY);
+            }
         }
     }
 

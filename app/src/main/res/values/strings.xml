@@ -441,5 +441,6 @@
     <string name="title_ops_log">权限访问日志</string>
     <string name="mode_allowed">允许</string>
     <string name="mode_ignored">拒绝</string>
+    <string name="system_app_not_allowed_set_running_services">系统应用不允许在此快捷设置，请前往相应功能区谨慎设定</string>
 
 </resources>
