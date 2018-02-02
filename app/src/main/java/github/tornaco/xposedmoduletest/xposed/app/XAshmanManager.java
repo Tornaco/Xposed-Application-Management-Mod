@@ -284,10 +284,10 @@ public class XAshmanManager {
         }
     }
 
-    public void setApplicationEnabledSetting(String packageName, int newState, int flags) {
+    public void setApplicationEnabledSetting(String packageName, int newState, int flags, boolean tmp) {
         ensureService();
         try {
-            mService.setApplicationEnabledSetting(packageName, newState, flags);
+            mService.setApplicationEnabledSetting(packageName, newState, flags, tmp);
         } catch (Exception e) {
         }
     }

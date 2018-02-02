@@ -164,7 +164,8 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                         break;
                     case R.id.action_enable_app:
                         XAshmanManager.get().setApplicationEnabledSetting(
-                                packageInfo.getPkgName(), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0);
+                                packageInfo.getPkgName(), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0,
+                                false);
                         startLoading();
                         break;
                     case R.id.action_comp_edit:
@@ -277,7 +278,8 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                                 dialoginterface.dismiss();
 
                                 XAshmanManager.get().setApplicationEnabledSetting(
-                                        pkgName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
+                                        pkgName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0,
+                                        false);
 
                                 if (createShortcut[0]) {
                                     ShortcutUtil.addShortcut(getActivity(), pkgName, redisable[0], redisable_tr[0]);

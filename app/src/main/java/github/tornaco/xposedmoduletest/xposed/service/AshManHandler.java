@@ -94,12 +94,12 @@ interface AshManHandler {
      * @param flags       Optional behavior flags.
      */
     void setApplicationEnabledSetting(String packageName,
-                                      int newState, int flags);
+                                      int newState, int flags, boolean tmp);
 
     /**
      * Return the enabled setting for an application. This returns
      * the last value set by
-     * {@link #setApplicationEnabledSetting(String, int, int)}; in most
+     * {@link PackageManager#setApplicationEnabledSetting(String, int, int)}; in most
      * cases this value will be {@link PackageManager#COMPONENT_ENABLED_STATE_DEFAULT} since
      * the value originally specified in the manifest has not been modified.
      *

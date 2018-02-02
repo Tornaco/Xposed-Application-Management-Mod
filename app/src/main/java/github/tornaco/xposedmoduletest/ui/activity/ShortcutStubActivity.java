@@ -64,7 +64,7 @@ public class ShortcutStubActivity extends BaseActivity {
                     && state != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
 
             if (disabled) {
-                XAshmanManager.get().setApplicationEnabledSetting(target, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0);
+                XAshmanManager.get().setApplicationEnabledSetting(target, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0, true);
             }
 
             if (redisale) {

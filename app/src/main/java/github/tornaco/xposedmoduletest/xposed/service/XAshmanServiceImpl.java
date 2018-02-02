@@ -2017,9 +2017,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setApplicationEnabledSetting(String packageName, int newState, int flags) throws RemoteException {
+    public void setApplicationEnabledSetting(String packageName, int newState, int flags, boolean tmp) throws RemoteException {
         enforceCallingPermissions();
-        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETAPPLICATIONENABLEDSETTING, newState, flags, packageName).sendToTarget();
+        Pair<String, Boolean> extra = new Pair<>(packageName, tmp);
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETAPPLICATIONENABLEDSETTING, newState, flags, extra).sendToTarget();
     }
 
     @Override
@@ -3696,7 +3697,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         // Disable pending apps.
                         for (String p : RepoProxy.getProxy().getPending_disable_apps_tr().getAll()) {
                             if (!isPackageRunningOnTop(p)) {
-                                setApplicationEnabledSetting(p, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
+                                // Do not remove from pending disable.
+                                setApplicationEnabledSetting(p, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0, true);
                                 XposedLog.verbose("removeTask, Disable pending apps: " + p);
                                 // RepoProxy.getProxy().getPending_disable_apps_tr().remove(p);
                             }
@@ -5460,7 +5462,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     HandlerImpl.this.setComponentEnabledSetting((ComponentName) msg.obj, msg.arg1, msg.arg2);
                     break;
                 case AshManHandlerMessages.MSG_SETAPPLICATIONENABLEDSETTING:
-                    HandlerImpl.this.setApplicationEnabledSetting((String) msg.obj, msg.arg1, msg.arg2);
+                    @SuppressWarnings("unchecked") Pair<String, Boolean> extra = (Pair<String, Boolean>) msg.obj;
+                    boolean tmp = extra.second;
+                    String pkg = extra.first;
+                    HandlerImpl.this.setApplicationEnabledSetting(pkg, msg.arg1, msg.arg2, tmp);
                     break;
                 case AshManHandlerMessages.MSG_WATCH:
                     HandlerImpl.this.watch((WatcherClient) msg.obj);
@@ -6034,7 +6039,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 // Disable pending apps.
                 for (String p : RepoProxy.getProxy().getPending_disable_apps().getAll()) {
                     if (!isPackageRunningOnTop(p)) {
-                        setApplicationEnabledSetting(p, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
+                        // Do not remove from pending disable.
+                        setApplicationEnabledSetting(p, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0, true);
                         XposedLog.verbose("Disable pending apps: " + p);
                         // RepoProxy.getProxy().getPending_disable_apps().remove(p);
                     }
@@ -6149,13 +6155,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         @Override
-        public void setApplicationEnabledSetting(String packageName, int newState, int flags) {
+        public void setApplicationEnabledSetting(String packageName, int newState, int flags, boolean tmp) {
+            XposedLog.verbose("setApplicationEnabledSetting %s %s %s %s", packageName, newState, flags, tmp);
             PackageManager pm = getContext().getPackageManager();
             pm.setApplicationEnabledSetting(packageName, newState, flags);
 
-            // Remove this pkg from pending disable apps.
-            RepoProxy.getProxy().getPending_disable_apps_tr().remove(packageName);
-            RepoProxy.getProxy().getPending_disable_apps().remove(packageName);
+            if (!tmp) {
+                // Remove this pkg from pending disable apps.
+                XposedLog.verbose("Remove pending disables for " + packageName);
+                RepoProxy.getProxy().getPending_disable_apps_tr().remove(packageName);
+                RepoProxy.getProxy().getPending_disable_apps().remove(packageName);
+            }
         }
 
         @Override
