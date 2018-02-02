@@ -102,6 +102,16 @@ public class RepoProxy {
         }
     }
 
+    public static boolean hasFileIndicator(String name) {
+        File systemFile = new File(Environment.getDataDirectory(), "system");
+        File dir = new File(systemFile, "tor_apm");
+        if (!dir.exists()) {
+            dir = new File(systemFile, "tor");
+        }
+        File f = new File(dir, name);
+        return f.exists();
+    }
+
     private void bringBases(Handler h, ExecutorService io) {
         File systemFile = new File(Environment.getDataDirectory(), "system");
         File dir = new File(systemFile, "tor_apm");

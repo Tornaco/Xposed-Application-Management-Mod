@@ -2790,10 +2790,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         // This is a test.
         // FIMXE THIS IS FUCKING DANGEROUS FOR USER. BE CAREFUL.
         if (BuildConfig.DEBUG) {
-            intentFilter = new IntentFilter();
-            intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
-            getContext().registerReceiver(mTestProtectedBroadcastReceiver, intentFilter);
-            getContext().registerReceiver(mTestSystemErrorBroadcastReceiver, intentFilter);
+            boolean hasErrorIndicator = RepoProxy.hasFileIndicator("mock_system_err");
+            if (hasErrorIndicator) {
+                intentFilter = new IntentFilter();
+                intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
+                getContext().registerReceiver(mTestProtectedBroadcastReceiver, intentFilter);
+                getContext().registerReceiver(mTestSystemErrorBroadcastReceiver, intentFilter);
+            }
         }
     }
 
