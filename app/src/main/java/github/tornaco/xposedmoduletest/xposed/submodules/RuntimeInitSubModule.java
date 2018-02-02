@@ -60,10 +60,11 @@ class RuntimeInitSubModule extends AndroidSubModule {
                                     .currentPackageName());
                             if (isAndroidDying) {
                                 XposedLog.wtf("==================FATAL================");
-                                XposedLog.wtf("Android is dying, something serious bad going.");
+                                XposedLog.wtf("Android is dying, something serious bad going");
                                 // Save the trace to storage.
                                 Throwable e = (Throwable) param.args[1];
                                 String trace = Log.getStackTraceString(e);
+                                XposedLog.wtf(trace);
                                 File systemFile = new File(Environment.getDataDirectory(), "system");
                                 File dir = new File(systemFile, "tor_apm");
                                 if (!dir.exists()) {
