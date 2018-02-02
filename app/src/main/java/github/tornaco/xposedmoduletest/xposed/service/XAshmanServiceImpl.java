@@ -355,6 +355,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 }
             });
 
+    private BroadcastReceiver mTestSystemErrorBroadcastReceiver =
+            (new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    throw new IllegalStateException("This is a system error test");
+                }
+            });
+
     private void onAppGuardClientUninstalled() {
         if (PkgUtil.isPkgInstalled(getContext(), BuildConfig.APPLICATION_ID)) return;
 
@@ -2780,10 +2788,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         getContext().registerReceiver(mBatteryStateReceiver, intentFilter);
 
         // This is a test.
-        if (BuildConfig.DEBUG && false) {
+        // FIMXE THIS IS FUCKING DANGEROUS FOR USER. BE CAREFUL.
+        if (BuildConfig.DEBUG) {
             intentFilter = new IntentFilter();
             intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
             getContext().registerReceiver(mTestProtectedBroadcastReceiver, intentFilter);
+            getContext().registerReceiver(mTestSystemErrorBroadcastReceiver, intentFilter);
         }
     }
 
@@ -4248,7 +4258,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         try {
             for (int i = 0; i < AppOpsManagerCompat._NUM_OP; i++) {
                 int code = i;
-                int mode = getPermissionControlBlockModeForPkg(code, XAshmanManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME);
+                int mode = getPermissionControlBlockModeForPkg(code, XAshmanManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME, false);
                 XposedLog.verbose("Template code and mode: %s %s", code, mode);
                 setPermissionControlBlockModeForPkg(code, pkg, mode);
             }

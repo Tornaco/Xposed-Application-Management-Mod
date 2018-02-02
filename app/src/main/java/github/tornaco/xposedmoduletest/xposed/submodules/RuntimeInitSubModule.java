@@ -2,14 +2,20 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import android.app.AndroidAppHelper;
 import android.os.Binder;
+import android.os.Environment;
 import android.util.Log;
 
+import com.google.common.io.Files;
+
+import java.io.File;
+import java.nio.charset.Charset;
 import java.util.Set;
 
 import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
+import github.tornaco.xposedmoduletest.util.DateUtils;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -46,6 +52,35 @@ class RuntimeInitSubModule extends AndroidSubModule {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
+
+                            // Check if it is an System process dying.
+                            boolean isAndroidDying = "android".equals(AndroidAppHelper
+                                    .currentPackageName());
+                            if (isAndroidDying) {
+                                XposedLog.wtf("==================FATAL================");
+                                XposedLog.wtf("Android is dying, something serious bad going.");
+                                // Save the trace to storage.
+                                Throwable e = (Throwable) param.args[1];
+                                String trace = Log.getStackTraceString(e);
+                                File systemFile = new File(Environment.getDataDirectory(), "system");
+                                File dir = new File(systemFile, "tor_apm");
+                                if (!dir.exists()) {
+                                    dir = new File(systemFile, "tor");
+                                }
+                                File traceDir = new File(dir, "trace");
+                                String fileName = "SYSTEM_ERROR_TRACE-" + DateUtils.formatForFileName(System.currentTimeMillis());
+                                File traceFile = new File(traceDir, fileName);
+                                XposedLog.wtf("Writing error trace to: " + traceFile);
+                                try {
+                                    Files.createParentDirs(traceFile);
+                                    Files.asByteSink(traceFile).asCharSink(Charset.defaultCharset())
+                                            .write(trace);
+                                    XposedLog.wtf("System error trace has been write to: " + traceFile);
+                                } catch (Throwable e2) {
+                                    XposedLog.wtf("Fail write system err trace: " + Log.getStackTraceString(e2));
+                                }
+                                XposedLog.wtf("==================FATAL HANDLE END================");
+                            }
 
                             if (PkgUtil.isSystemOrPhoneOrShell(Binder.getCallingUid())) {
                                 return;
