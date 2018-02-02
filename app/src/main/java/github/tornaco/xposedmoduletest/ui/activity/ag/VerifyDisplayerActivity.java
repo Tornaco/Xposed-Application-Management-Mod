@@ -16,6 +16,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.os.CancellationSignal;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -133,6 +134,8 @@ public class VerifyDisplayerActivity extends BaseActivity {
             boolean useRoundIcon = XSettings.cropEnabled(this);
 
             ImageView imageView = findViewById(R.id.icon);
+            imageView.setVisibility(View.VISIBLE);
+            findViewById(R.id.icon_def).setVisibility(View.GONE);
 
             CommonPackageInfo c = new CommonPackageInfo();
             c.setPkgName(pkg);
@@ -152,6 +155,9 @@ public class VerifyDisplayerActivity extends BaseActivity {
                     .fallback(R.mipmap.ic_launcher_round)
                     .transition(withCrossFade())
                     .into(imageView);
+        } else {
+            findViewById(R.id.icon).setVisibility(View.GONE);
+            findViewById(R.id.icon_def).setVisibility(View.VISIBLE);
         }
     }
 
