@@ -15,9 +15,11 @@ import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.util.DateUtils;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -78,6 +80,14 @@ class RuntimeInitSubModule extends AndroidSubModule {
                                     XposedLog.wtf("System error trace has been write to: " + traceFile);
                                 } catch (Throwable e2) {
                                     XposedLog.wtf("Fail write system err trace: " + Log.getStackTraceString(e2));
+                                }
+
+                                // Check if it we cause this err.
+                                boolean maybeUs = trace.contains(BuildConfig.APPLICATION_ID);
+                                if (true || maybeUs) {
+                                    XposedLog.wtf("Maybe our APM module cause this err, disable our module anyway.");
+                                    // Fake disable by create a file indicator.
+                                    RepoProxy.createFileIndicator(SubModuleManager.REDEMPTION);
                                 }
                                 XposedLog.wtf("==================FATAL HANDLE END================");
                             }

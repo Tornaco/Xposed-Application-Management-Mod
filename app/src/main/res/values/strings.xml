@@ -106,7 +106,10 @@
 
     <string name="summary_start_app">"禁止以下应用被其他应用（通过服务或者广播）启动（微信和支付宝建议不要加入，否则可能无法发起付款，输入法建议也不要禁止，否则无法唤起输入）。"</string>
 
-    <string name="app_intro">你需要在 Xposed installer 中激活 应用管理 模块，并且重启才可以使用下面的功能。Xposed installer 需要接收广播，以获取模块更新通知，如果无法激活请确保你没有对 Xposed installer 做任何限制处理，并且可以尝试重新勾选，重启。</string>
+    <string name="app_intro">1. 你需要在 Xposed installer 中激活 应用管理 模块，并且重启才可以使用下面的功能。
+        Xposed installer 需要接收广播，以获取模块更新通知，如果无法激活请确保你没有对 Xposed installer 做任何限制处理，并且可以尝试重新勾选，重启。
+        \n2. 应用管理现在支持“致命错误自救”，当设备（Android layer NOT kernel layer）无法正常启动时，应用管理会主动禁用自己，保证不再对系统进行任何干涉。
+    如果你发现你上次设备启动时，耗时过长，很可能是经历了上述“自救”过程，你需要查看新手教程，获取相应日志，报告给开发者，等待更新，或者卸载本应用，且不再使用。</string>
 
     <string name="app_intro_need_restart">应用更新后需要重新启动设备，否则系统可能无法正常工作。</string>
     <string name="title_restart_android">软重启</string>

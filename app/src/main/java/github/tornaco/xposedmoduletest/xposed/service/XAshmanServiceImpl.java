@@ -4617,6 +4617,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
+    @Override
+    public boolean isInRedemptionMode() throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public void leaveRedemptionMode() throws RemoteException {
+
+    }
+
+    @Override
+    public void enterRedemptionMode() throws RemoteException {
+
+    }
+
     private int checkOperationInternal(int code, int uid, String packageName, String reason) {
         if (packageName == null) return AppOpsManagerCompat.MODE_ALLOWED;
 

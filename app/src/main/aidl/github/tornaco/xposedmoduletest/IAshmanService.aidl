@@ -349,4 +349,8 @@ interface IAshmanService {
 
      // DPM API
      void lockNow();
+
+     boolean isInRedemptionMode();
+     void leaveRedemptionMode();
+     void enterRedemptionMode();
 }

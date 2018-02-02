@@ -73,13 +73,17 @@ public class RepoProxy {
     }
 
     public static void createFileIndicator(String name) {
-
         File systemFile = new File(Environment.getDataDirectory(), "system");
         File dir = new File(systemFile, "tor_apm");
         if (!dir.exists()) {
             dir = new File(systemFile, "tor");
         }
         File f = new File(dir, name);
+        try {
+            Files.createParentDirs(f);
+        } catch (Exception e) {
+            XposedLog.wtf("Fail mk dir when createFileIndicator " + Log.getStackTraceString(e));
+        }
         try {
             Files.touch(f);
         } catch (IOException e) {

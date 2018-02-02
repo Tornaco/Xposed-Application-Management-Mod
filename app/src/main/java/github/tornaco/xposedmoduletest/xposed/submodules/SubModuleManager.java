@@ -8,6 +8,7 @@ import java.util.Set;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
+import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Synchronized;
 
@@ -18,7 +19,10 @@ import lombok.Synchronized;
 
 public class SubModuleManager {
 
-    private static Singleton<SubModuleManager> sMe = new Singleton<SubModuleManager>() {
+    public static final String REDEMPTION = "redemption@" + BuildConfig.VERSION_CODE;
+
+    private static Singleton<SubModuleManager> sMe
+            = new Singleton<SubModuleManager>() {
         @Override
         protected SubModuleManager create() {
             return new SubModuleManager();
@@ -28,6 +32,12 @@ public class SubModuleManager {
     private final Set<SubModule> SUBS = new HashSet<>();
 
     private void addToSubsChecked(SubModule subModule) {
+        boolean isRedemptionMode = RepoProxy.hasFileIndicator(REDEMPTION);
+        if (isRedemptionMode) {
+            XposedLog.wtf("Won't add module because we are in redemption mode: " + subModule.name());
+            return;
+        }
+
         String var = subModule.needBuildVar();
 
         if (var == null || XAppBuildVar.BUILD_VARS.contains(var)) {
