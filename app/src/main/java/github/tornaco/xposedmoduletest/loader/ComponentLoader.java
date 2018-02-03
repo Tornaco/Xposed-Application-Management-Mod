@@ -155,13 +155,16 @@ public interface ComponentLoader {
         private static void updateOpState(CommonPackageInfo info) {
             int modeService = XAshmanManager.get()
                     .getPermissionControlBlockModeForPkg(
-                            AppOpsManagerCompat.OP_START_SERVICE, info.getPkgName());
+                            AppOpsManagerCompat.OP_START_SERVICE, info.getPkgName(),
+                            false);
             int modeWakelock = XAshmanManager.get()
                     .getPermissionControlBlockModeForPkg(
-                            AppOpsManagerCompat.OP_WAKE_LOCK, info.getPkgName());
+                            AppOpsManagerCompat.OP_WAKE_LOCK, info.getPkgName(),
+                            false);
             int modeAlarm = XAshmanManager.get()
                     .getPermissionControlBlockModeForPkg(
-                            AppOpsManagerCompat.OP_SET_ALARM, info.getPkgName());
+                            AppOpsManagerCompat.OP_SET_ALARM, info.getPkgName(),
+                            false);
             info.setServiceOpAllowed(modeService == AppOpsManagerCompat.MODE_ALLOWED);
             info.setAlarmOpAllowed(modeAlarm == AppOpsManagerCompat.MODE_ALLOWED);
             info.setWakelockOpAllowed(modeWakelock == AppOpsManagerCompat.MODE_ALLOWED);

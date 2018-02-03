@@ -450,5 +450,6 @@
     <string name="message_redemption_mode">应用管理现在处于自救模式，所有功能已经停用。由于上次设备启动时遇到致命错误，导致设备无法正常启动，因此应用管理进入该模式保证关闭所有系统级别的劫持（虽然该错误并不一定是由应用管理导致的！），请查看新手手册了解更多，或者直接点击按钮退出该模式（重启生效）。</string>
     <string name="leave_redemption_mode">退出自救模式</string>
     <string name="learn_redemption_mode">用户手册</string>
+    <string name="title_show_tile_divider">显示卡片分割线</string>
 
 </resources>

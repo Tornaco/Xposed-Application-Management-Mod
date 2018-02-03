@@ -55,7 +55,7 @@ class PMSGetInstalledPackagesSubModule extends AndroidSubModule {
                             XAshmanManager xAshmanManager = XAshmanManager.get();
                             if (xAshmanManager.isServiceAvailable()) {
                                 int mode = xAshmanManager.getPermissionControlBlockModeForUid(
-                                        AppOpsManagerCompat.OP_READ_INSTALLED_APPS, uid);
+                                        AppOpsManagerCompat.OP_READ_INSTALLED_APPS, uid, true);
                                 if (mode == AppOpsManagerCompat.MODE_IGNORED) {
                                     XposedLog.verbose("getInstalledPackages, MODE_IGNORED returning empty for :" + uid);
                                     try {
@@ -96,7 +96,8 @@ class PMSGetInstalledPackagesSubModule extends AndroidSubModule {
                             XAshmanManager xAshmanManager = XAshmanManager.get();
                             if (xAshmanManager.isServiceAvailable()) {
                                 int mode = xAshmanManager.getPermissionControlBlockModeForUid(
-                                        AppOpsManagerCompat.OP_READ_INSTALLED_APPS, uid);
+                                        AppOpsManagerCompat.OP_READ_INSTALLED_APPS, uid,
+                                        true);
                                 if (mode == AppOpsManagerCompat.MODE_IGNORED) {
                                     Log.d(XposedLog.TAG_PREFIX, "getInstalledApplications, MODE_IGNORED returning empty for :" + uid);
                                     try {

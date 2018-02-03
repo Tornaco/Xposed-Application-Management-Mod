@@ -34,6 +34,8 @@ public class ContainerView extends ViewGroup {
     private int mNumRows;
     private int mNumColumns;
 
+    private boolean showDivider;
+
     public ContainerView(Context context, AttributeSet attrs) {
         super(context, attrs);
         final Resources res = context.getResources();
@@ -44,6 +46,10 @@ public class ContainerView extends ViewGroup {
 
     public void setNumColumns(int num) {
         this.mNumColumns = num;
+    }
+
+    public void setShowDivider(boolean showDivider) {
+        this.showDivider = showDivider;
     }
 
     @Override
@@ -121,7 +127,7 @@ public class ContainerView extends ViewGroup {
                 child.setDividerVisibility(true);
             }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!showDivider) {
                 child.setDividerVisibility(false);
             }
 

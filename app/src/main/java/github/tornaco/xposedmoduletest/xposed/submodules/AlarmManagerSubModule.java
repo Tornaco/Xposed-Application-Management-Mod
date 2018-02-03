@@ -81,7 +81,7 @@ class AlarmManagerSubModule extends AndroidSubModule {
                             // Check OP.
                             if (XAshmanManager.get().isServiceAvailable()) {
                                 int mode = XAshmanManager.get().getPermissionControlBlockModeForPkg(
-                                        AppOpsManagerCompat.OP_SET_ALARM, pkgName);
+                                        AppOpsManagerCompat.OP_SET_ALARM, pkgName, true);
                                 if (mode == AppOpsManagerCompat.MODE_IGNORED) {
                                     if (BuildConfig.DEBUG) {
                                         Log.d(XposedLog.TAG_PREFIX, "set alarm, MODE_IGNORED returning...");

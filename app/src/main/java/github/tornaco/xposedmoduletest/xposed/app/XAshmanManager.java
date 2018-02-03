@@ -579,19 +579,19 @@ public class XAshmanManager {
         }
     }
 
-    public int getPermissionControlBlockModeForPkg(int code, String pkg) {
+    public int getPermissionControlBlockModeForPkg(int code, String pkg, boolean log) {
         ensureService();
         try {
-            return mService.getPermissionControlBlockModeForPkg(code, pkg);
+            return mService.getPermissionControlBlockModeForPkg(code, pkg, log);
         } catch (Exception e) {
             return AppOpsManagerCompat.MODE_ALLOWED;
         }
     }
 
-    public int getPermissionControlBlockModeForUid(int code, int uid) {
+    public int getPermissionControlBlockModeForUid(int code, int uid, boolean log) {
         ensureService();
         try {
-            return mService.getPermissionControlBlockModeForUid(code, uid);
+            return mService.getPermissionControlBlockModeForUid(code, uid, log);
         } catch (Exception e) {
             return AppOpsManagerCompat.MODE_ALLOWED;
         }

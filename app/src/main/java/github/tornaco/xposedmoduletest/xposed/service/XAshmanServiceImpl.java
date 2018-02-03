@@ -1608,7 +1608,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         // Check Op first for this package.
         int mode = getPermissionControlBlockModeForPkg(
-                AppOpsManagerCompat.OP_START_SERVICE, packageName);
+                AppOpsManagerCompat.OP_START_SERVICE, packageName, true);
         if (mode == AppOpsManagerCompat.MODE_IGNORED) {
             XposedLog.verbose("checkRestartService: deny op");
             return false;
@@ -1676,7 +1676,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         // Check Op first for this package.
         int mode = getPermissionControlBlockModeForPkg(
-                AppOpsManagerCompat.OP_START_SERVICE, servicePkgName);
+                AppOpsManagerCompat.OP_START_SERVICE, servicePkgName, true);
         if (mode == AppOpsManagerCompat.MODE_IGNORED) {
 
             if (PkgUtil.isSystemOrPhoneOrShell(callerUid)) {
@@ -3116,13 +3116,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return true;
     }
 
+    @BinderCall
     @Override
-    @BinderCall(restrict = "any")
-    public int getPermissionControlBlockModeForPkg(int code, String pkg) {
-        return getPermissionControlBlockModeForPkg(code, pkg, true);
-    }
-
-    int getPermissionControlBlockModeForPkg(int code, String pkg, boolean log) {
+    public int getPermissionControlBlockModeForPkg(int code, String pkg, boolean log) {
         int mode = getPermissionControlBlockModeForPkgInternal(code, pkg);
         if (log) {
             logOperationIfNecessary(code, Integer.MAX_VALUE, pkg, null, mode);
@@ -3161,7 +3157,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall(restrict = "any")
-    public int getPermissionControlBlockModeForUid(int code, int uid) throws RemoteException {
+    public int getPermissionControlBlockModeForUid(int code, int uid, boolean log) throws RemoteException {
         if (DEBUG_OP) {
             XposedLog.verbose("getPermissionControlBlockModeForUid code %s pkg %s", code, uid);
         }
@@ -3170,7 +3166,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (pkg == null) {
             return AppOpsManagerCompat.MODE_ALLOWED;
         }
-        return getPermissionControlBlockModeForPkg(code, pkg);
+        return getPermissionControlBlockModeForPkg(code, pkg, log);
     }
 
     @Override

@@ -556,12 +556,12 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
-    public int getPermissionControlBlockModeForPkg(int code, String pkg) throws RemoteException {
+    public int getPermissionControlBlockModeForPkg(int code, String pkg, boolean log) throws RemoteException {
         return 0;
     }
 
     @Override
-    public int getPermissionControlBlockModeForUid(int code, int uid) throws RemoteException {
+    public int getPermissionControlBlockModeForUid(int code, int uid, boolean log) throws RemoteException {
         return 0;
     }
 

@@ -72,7 +72,8 @@ class WakelockSubModule extends AndroidSubModule {
                             // Check OP.
                             if (XAshmanManager.get().isServiceAvailable()) {
                                 int mode = XAshmanManager.get().getPermissionControlBlockModeForPkg(
-                                        AppOpsManagerCompat.OP_WAKE_LOCK, pkgName);
+                                        AppOpsManagerCompat.OP_WAKE_LOCK, pkgName,
+                                        true);
                                 if (mode == AppOpsManagerCompat.MODE_IGNORED) {
 //                                XposedLog.verbose("acquire wake lock, MODE_IGNORED returning...");
                                     param.setResult(null);
