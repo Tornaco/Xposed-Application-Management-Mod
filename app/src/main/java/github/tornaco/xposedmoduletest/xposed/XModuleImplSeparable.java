@@ -17,9 +17,10 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 class XModuleImplSeparable extends XModuleAbs {
 
     XModuleImplSeparable() {
-        IModuleBridge firewall = new XModuleServiceDelegate();
+        IModuleBridge bridge = new XModuleServiceDelegate();
+        XposedLog.boot("Bridge created: " + bridge);
         for (SubModule s : SubModuleManager.getInstance().getAllSubModules()) {
-            s.onBridgeCreate(firewall);
+            s.onBridgeCreate(bridge);
         }
     }
 

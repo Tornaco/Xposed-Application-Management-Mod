@@ -16,4 +16,5 @@ public interface AppKey {
     String GUIDE_READ = "guide_read";
     String HIDE_TILE = "hide_tile_";
     String DONATED = "donated";
+    String SHOW_TILE_DIVIDER = "show_tile_divider";
 }

@@ -23,12 +23,15 @@ public interface IModuleBridge {
 
     void onModuleInitError(SubModule module);
 
+    @CoreApi
     @CommonBringUpApi
     void attachContext(Context context);
 
+    @CoreApi
     @CommonBringUpApi
     void publish();
 
+    @CoreApi
     @CommonBringUpApi
     void systemReady();
 

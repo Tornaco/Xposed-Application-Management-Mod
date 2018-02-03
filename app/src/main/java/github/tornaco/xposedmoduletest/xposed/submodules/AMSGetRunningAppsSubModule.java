@@ -53,7 +53,8 @@ class AMSGetRunningAppsSubModule extends AndroidSubModule {
                             XAshmanManager xAshmanManager = XAshmanManager.get();
                             if (xAshmanManager.isServiceAvailable()) {
                                 int mode = xAshmanManager.getPermissionControlBlockModeForUid(
-                                        AppOpsManagerCompat.OP_GET_RUNNING_TASKS, callingUid);
+                                        AppOpsManagerCompat.OP_GET_RUNNING_TASKS, callingUid,
+                                        true);
                                 if (mode == AppOpsManagerCompat.MODE_IGNORED) {
                                     XposedLog.verbose("getRunningAppProcesses, MODE_IGNORED returning empty for :"
                                             + callingUid);

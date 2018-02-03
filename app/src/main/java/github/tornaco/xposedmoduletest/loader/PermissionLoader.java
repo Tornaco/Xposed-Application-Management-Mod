@@ -107,7 +107,7 @@ public interface PermissionLoader {
 
                 p.setIconRes(AppOpsManagerCompat.opToIconRes(code));
 
-                p.setMode(XAshmanManager.get().getPermissionControlBlockModeForPkg(code, pkg));
+                p.setMode(XAshmanManager.get().getPermissionControlBlockModeForPkg(code, pkg,false));
 
                 Logger.d("Add perm: " + p);
 
@@ -128,7 +128,7 @@ public interface PermissionLoader {
                 String summary = AppOpsManagerCompat.getOpSummary(context, ecode);
                 p.setSummary(summary);
                 p.setIconRes(AppOpsManagerCompat.opToIconRes(ecode));
-                p.setMode(XAshmanManager.get().getPermissionControlBlockModeForPkg(ecode, pkg));
+                p.setMode(XAshmanManager.get().getPermissionControlBlockModeForPkg(ecode, pkg, false));
                 Logger.d("Add perm: " + p);
                 permissions.add(p);
             }
@@ -162,7 +162,7 @@ public interface PermissionLoader {
                 if (permission == null || (Arrays.binarySearch(decleared, permission) >= 0)) {
                     CommonPackageInfo c = new CommonPackageInfo();
                     c.setPkgName(info.packageName);
-                    c.setVersion(XAshmanManager.get().getPermissionControlBlockModeForPkg(op, c.getPkgName()));
+                    c.setVersion(XAshmanManager.get().getPermissionControlBlockModeForPkg(op, c.getPkgName(), false));
                     c.setSystemApp(PkgUtil.isSystemApp(context, info.packageName));
 
                     if (c.isSystemApp() && !showSystem) {

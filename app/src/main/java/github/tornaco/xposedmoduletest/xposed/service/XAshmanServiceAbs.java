@@ -35,4 +35,8 @@ abstract class XAshmanServiceAbs extends IAshmanService.Stub
     public void onModuleInitError(SubModule module) {
         this.hasModuleError = true;
     }
+
+    static <T> T throwNoImpl() {
+        throw new IllegalStateException("No impl");
+    }
 }

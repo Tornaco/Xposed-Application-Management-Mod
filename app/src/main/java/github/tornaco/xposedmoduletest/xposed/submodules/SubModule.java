@@ -28,7 +28,10 @@ public interface SubModule {
     String name();
 
     String needBuildVar();
+
     int needMinSdk();
+
+    boolean isCoreModule();
 
     enum SubModuleStatus {
         UNKNOWN,

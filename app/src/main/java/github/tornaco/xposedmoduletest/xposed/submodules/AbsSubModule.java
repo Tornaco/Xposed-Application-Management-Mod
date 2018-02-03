@@ -62,6 +62,11 @@ abstract class AbsSubModule implements SubModule {
     }
 
     @Override
+    public boolean isCoreModule() {
+        return false;
+    }
+
+    @Override
     public String name() {
         return getClass().getSimpleName();
     }

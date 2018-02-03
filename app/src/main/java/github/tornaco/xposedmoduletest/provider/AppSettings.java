@@ -87,6 +87,19 @@ public class AppSettings extends Observable {
 
     }
 
+    public static boolean isShowTileDivider(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(AppKey.SHOW_TILE_DIVIDER, false);
+    }
+
+    public static void setShowDivider(Context context, boolean show) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(AppKey.SHOW_TILE_DIVIDER, show)
+                .apply();
+
+    }
+
     public static void setFirstSee(Context context, String tag) {
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit()

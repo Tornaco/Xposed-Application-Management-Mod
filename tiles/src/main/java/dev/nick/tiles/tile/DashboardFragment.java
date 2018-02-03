@@ -106,6 +106,7 @@ public class DashboardFragment extends Fragment {
             ContainerView categoryContent =
                     categoryView.findViewById(R.id.category_content);
             categoryContent.setNumColumns(getNumColumes());
+            categoryContent.setShowDivider(showDivider());
 
             final int tilesCount = category.getTilesCount();
             for (int i = 0; i < tilesCount; i++) {
@@ -120,12 +121,15 @@ public class DashboardFragment extends Fragment {
             // Add the category
             mDashboard.addView(categoryView);
         }
-        long delta = System.currentTimeMillis() - start;
         onUIBuilt();
     }
 
     protected void onUIBuilt() {
         // None
+    }
+
+    protected boolean showDivider() {
+        return false;
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)

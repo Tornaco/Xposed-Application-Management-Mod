@@ -32,10 +32,16 @@ public class SubModuleManager {
     private final Set<SubModule> SUBS = new HashSet<>();
 
     private void addToSubsChecked(SubModule subModule) {
+
         boolean isRedemptionMode = RepoProxy.hasFileIndicator(REDEMPTION);
         if (isRedemptionMode) {
-            XposedLog.wtf("Won't add module because we are in redemption mode: " + subModule.name());
-            return;
+            boolean isCoreModule = subModule.isCoreModule();
+            if (isCoreModule) {
+                XposedLog.wtf("Still add core module even we are in redemption mode: " + subModule.name());
+            } else {
+                XposedLog.wtf("Won't add module because we are in redemption mode: " + subModule.name());
+                return;
+            }
         }
 
         String var = subModule.needBuildVar();
