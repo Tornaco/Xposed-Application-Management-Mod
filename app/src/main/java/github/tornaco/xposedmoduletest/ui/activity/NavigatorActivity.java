@@ -278,6 +278,44 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             developerMessage.setTimeMills(System.currentTimeMillis());
             Logger.e(GsonUtil.getGson().toJson(developerMessage));
         }
+
+        checkForRedemptionMode();
+    }
+
+    private void checkForRedemptionMode() {
+        boolean redemption = XAshmanManager.get().isServiceAvailable()
+                && XAshmanManager.get().isInRedemptionMode();
+        if (redemption) {
+            new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.title_redemption_mode)
+                    .setMessage(R.string.message_redemption_mode)
+                    .setCancelable(false)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finishAffinity();
+                        }
+                    })
+                    .setNeutralButton(R.string.learn_redemption_mode,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                                    navigateToWebPage(getString(R.string.app_wiki_url));
+                                }
+                            })
+                    .setNegativeButton(R.string.leave_redemption_mode,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    XAshmanManager.get().leaveRedemptionMode();
+                                    finishAffinity();
+                                    Toast.makeText(getContext(), R.string.app_intro_need_restart, Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                    .create()
+                    .show();
+        }
     }
 
     private void showDeveloperMessage(DeveloperMessage message) {

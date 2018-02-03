@@ -42,4 +42,9 @@ class AMSShutdownSubModule extends AndroidSubModule {
             setErrorMessage(Log.getStackTraceString(e));
         }
     }
+
+    @Override
+    public boolean isCoreModule() {
+        return true;
+    }
 }

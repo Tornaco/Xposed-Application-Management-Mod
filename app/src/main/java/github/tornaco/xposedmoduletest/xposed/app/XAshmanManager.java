@@ -1478,6 +1478,7 @@ public class XAshmanManager {
     }
 
     public boolean isPanicHomeEnabled() {
+        ensureService();
         try {
             return mService.isPanicHomeEnabled();
         } catch (Exception e) {
@@ -1486,6 +1487,7 @@ public class XAshmanManager {
     }
 
     public void setPanicHomeEnabled(boolean enable) {
+        ensureService();
         try {
             mService.setPanicHomeEnabled(enable);
         } catch (Exception e) {
@@ -1494,6 +1496,7 @@ public class XAshmanManager {
     }
 
     public boolean isPanicLockEnabled() {
+        ensureService();
         try {
             return mService.isPanicLockEnabled();
         } catch (Exception e) {
@@ -1502,6 +1505,7 @@ public class XAshmanManager {
     }
 
     public void setPanicLockEnabled(boolean enable) {
+        ensureService();
         try {
             mService.setPanicLockEnabled(enable);
         } catch (Exception e) {
@@ -1509,9 +1513,37 @@ public class XAshmanManager {
     }
 
     public void lockNow() {
+        ensureService();
         try {
             mService.lockNow();
         } catch (Exception e) {
+
+        }
+    }
+
+    public boolean isInRedemptionMode() {
+        ensureService();
+        try {
+            return mService.isInRedemptionMode();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public void leaveRedemptionMode()  {
+        ensureService();
+        try {
+            mService.leaveRedemptionMode();
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public void enterRedemptionMode()  {
+        ensureService();
+        try {
+            mService.enterRedemptionMode();
+        } catch (RemoteException e) {
 
         }
     }

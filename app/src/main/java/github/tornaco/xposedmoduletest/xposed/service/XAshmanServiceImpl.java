@@ -132,6 +132,7 @@ import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerP
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.service.shell.AshShellCommand;
 import github.tornaco.xposedmoduletest.xposed.submodules.InputManagerInjectInputSubModule;
+import github.tornaco.xposedmoduletest.xposed.submodules.SubModuleManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.AllArgsConstructor;
@@ -4619,17 +4620,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public boolean isInRedemptionMode() throws RemoteException {
-        return false;
+        return RepoProxy.hasFileIndicator(SubModuleManager.REDEMPTION);
     }
 
     @Override
     public void leaveRedemptionMode() throws RemoteException {
-
+        RepoProxy.deleteFileIndicator(SubModuleManager.REDEMPTION);
     }
 
     @Override
     public void enterRedemptionMode() throws RemoteException {
-
+        RepoProxy.createFileIndicator(SubModuleManager.REDEMPTION);
     }
 
     private int checkOperationInternal(int code, int uid, String packageName, String reason) {
