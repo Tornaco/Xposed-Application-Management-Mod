@@ -310,7 +310,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                                 public void onClick(DialogInterface dialog, int which) {
                                     XAshmanManager.get().leaveRedemptionMode();
                                     finishAffinity();
-                                    Toast.makeText(getContext(), R.string.app_intro_need_restart, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), R.string.redemption_need_restart, Toast.LENGTH_SHORT).show();
                                 }
                             })
                     .create()
