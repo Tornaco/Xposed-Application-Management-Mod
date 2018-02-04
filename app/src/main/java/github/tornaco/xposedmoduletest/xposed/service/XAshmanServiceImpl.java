@@ -45,6 +45,7 @@ import android.os.PowerManager;
 import android.os.Process;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+import android.os.SELinux;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
 import android.os.UserHandle;
@@ -94,6 +95,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
+import de.robv.android.xposed.SELinuxHelper;
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.android.common.Holder;
@@ -4629,6 +4631,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         RepoProxy.createFileIndicator(SubModuleManager.REDEMPTION);
     }
 
+    @Override
+    public boolean isSELinuxEnabled() throws RemoteException {
+        return SELinuxHelper.isSELinuxEnabled();
+    }
+
+    @Override
+    public boolean isSELinuxEnforced() throws RemoteException {
+        return SELinuxHelper.isSELinuxEnforced();
+    }
+
+    @Override
+    public void setSelinuxEnforce(boolean enforce) throws RemoteException {
+    }
+
     private int checkOperationInternal(int code, int uid, String packageName, String reason) {
         if (packageName == null) return AppOpsManagerCompat.MODE_ALLOWED;
 
@@ -6357,6 +6373,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
                         if (autoAdd) {
                             if (!isInWhiteList(packageName)) {
+
+                                // Do not apply for google vending.
+                                if ("com.android.vending".equals(packageName)) {
+                                    return;
+                                }
 
                                 // Apply template.
                                 AppSettings template = getAppInstalledAutoApplyTemplate();

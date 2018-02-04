@@ -62,8 +62,10 @@ class RuntimeInitSubModule extends AndroidSubModule {
                                 XposedLog.wtf("==================FATAL================");
                                 XposedLog.wtf("Android is dying, something serious bad going");
                                 // Save the trace to storage.
+                                Thread t = (Thread) param.args[0];
+                                XposedLog.wtf("Android is dying on thread: " + t);
                                 Throwable e = (Throwable) param.args[1];
-                                String trace = Log.getStackTraceString(e);
+                                String trace = t + "\n" + Log.getStackTraceString(e);
                                 XposedLog.wtf(trace);
                                 File systemFile = new File(Environment.getDataDirectory(), "system");
                                 File dir = new File(systemFile, "tor_apm");
@@ -85,7 +87,7 @@ class RuntimeInitSubModule extends AndroidSubModule {
 
                                 // Check if it we cause this err.
                                 boolean maybeUs = trace.contains(BuildConfig.APPLICATION_ID);
-                                if (true || maybeUs) {
+                                if (maybeUs) {
                                     XposedLog.wtf("Maybe our APM module cause this err, disable our module anyway.");
                                     // Fake disable by create a file indicator.
                                     RepoProxy.createFileIndicator(SubModuleManager.REDEMPTION);

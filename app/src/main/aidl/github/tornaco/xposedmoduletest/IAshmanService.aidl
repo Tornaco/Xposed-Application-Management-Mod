@@ -353,4 +353,8 @@ interface IAshmanService {
      boolean isInRedemptionMode();
      void leaveRedemptionMode();
      void enterRedemptionMode();
+
+     boolean isSELinuxEnabled();
+     boolean isSELinuxEnforced();
+     void setSelinuxEnforce(boolean enforce);
 }
