@@ -357,4 +357,7 @@ interface IAshmanService {
      boolean isSELinuxEnabled();
      boolean isSELinuxEnforced();
      void setSelinuxEnforce(boolean enforce);
+
+     boolean isPowerSaveModeEnabled();
+     void setPowerSaveModeEnabled(boolean enable);
 }

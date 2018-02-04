@@ -100,6 +100,16 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
 
     }
 
+    @Override
+    public boolean isPowerSaveModeEnabled() throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public void setPowerSaveModeEnabled(boolean enable) throws RemoteException {
+
+    }
+
     // Below API will be ignored.
 
     @Override

@@ -128,6 +128,8 @@ interface AshManHandler {
 
     void setResidentEnabled(boolean enabled);
 
+    void setPowerSaveModeEnabled(boolean enabled);
+
     void setPanicHomeEnabled(boolean enabled);
 
     void setPanicLockEnabled(boolean enabled);

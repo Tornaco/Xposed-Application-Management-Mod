@@ -45,7 +45,6 @@ import android.os.PowerManager;
 import android.os.Process;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.os.SELinux;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
 import android.os.UserHandle;
@@ -219,6 +218,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final AtomicBoolean mLazyEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mDozeEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mForeDozeEnabled = new AtomicBoolean(false);
+
+    private final AtomicBoolean mPowerSaveModeEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mAutoAddToBlackListForNewApp = new AtomicBoolean(false);
     private final AtomicBoolean mShowFocusedActivityInfoEnabled = new AtomicBoolean(false);
@@ -898,6 +899,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             boolean forceDoze = (boolean) SystemSettings.APM_FORCE_DOZE_ENABLE_B.readFromSystemSettings(getContext());
             mForeDozeEnabled.set(forceDoze);
             XposedLog.boot("forceDoze: " + String.valueOf(forceDoze));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            boolean powerSave = (boolean) SystemSettings.APM_POWER_SAVE_B.readFromSystemSettings(getContext());
+            mPowerSaveModeEnabled.set(powerSave);
+            XposedLog.boot("powerSave: " + String.valueOf(powerSave));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -2696,6 +2705,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void logServiceEventToMemory(final ServiceEvent serviceEvent) {
+        if (isPowerSaveModeEnabled()){
+            return;
+        }
         Runnable r = new Runnable() {
             @Override
             public void run() {
@@ -2724,6 +2736,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void logBroadcastEventToMemory(final BroadcastEvent broadcastEvent) {
+        if (isPowerSaveModeEnabled()){
+            return;
+        }
         Runnable r = new Runnable() {
             @Override
             public void run() {
@@ -4461,10 +4476,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void logOperationIfNecessary(int code, int uid, String packageName, String reason, int mode) {
+        // No log for power save.
+        if (isPowerSaveModeEnabled()) return;
+
         if (code >= AppOpsManagerCompat._NUM_OP) {
             // Do not add invaild op.
             return;
         }
+
         if (packageName == null) return;
 
         if (BuildConfig.APPLICATION_ID.equals(packageName)) return;
@@ -4643,6 +4662,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public void setSelinuxEnforce(boolean enforce) throws RemoteException {
+    }
+
+    @Override
+    public boolean isPowerSaveModeEnabled() {
+        return mPowerSaveModeEnabled.get();
+    }
+
+    @Override
+    public void setPowerSaveModeEnabled(boolean enable) throws RemoteException {
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETPOWERSAVEMODEENABLED, enable).sendToTarget();
     }
 
     private int checkOperationInternal(int code, int uid, String packageName, String reason) {
@@ -5584,6 +5613,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETPANICLOCKENABLED:
                     HandlerImpl.this.setPanicLockEnabled((Boolean) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_SETPOWERSAVEMODEENABLED:
+                    HandlerImpl.this.setPowerSaveModeEnabled((Boolean) msg.obj);
+                    break;
             }
         }
 
@@ -5647,6 +5679,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setResidentEnabled(boolean enabled) {
             if (mResidentEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.APM_RESIDENT_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setPowerSaveModeEnabled(boolean enabled) {
+            if (mPowerSaveModeEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.APM_POWER_SAVE_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 
