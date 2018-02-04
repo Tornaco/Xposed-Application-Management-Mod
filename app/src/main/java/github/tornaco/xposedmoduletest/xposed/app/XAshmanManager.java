@@ -1530,7 +1530,7 @@ public class XAshmanManager {
         }
     }
 
-    public void leaveRedemptionMode()  {
+    public void leaveRedemptionMode() {
         ensureService();
         try {
             mService.leaveRedemptionMode();
@@ -1539,10 +1539,50 @@ public class XAshmanManager {
         }
     }
 
-    public void enterRedemptionMode()  {
+    public void enterRedemptionMode() {
         ensureService();
         try {
             mService.enterRedemptionMode();
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public boolean isSELinuxEnabled() {
+        try {
+            return mService.isSELinuxEnabled();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public boolean isSELinuxEnforced() {
+        try {
+            return mService.isSELinuxEnforced();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public void setSelinuxEnforce(boolean enforce) {
+        try {
+            mService.setSelinuxEnforce(enforce);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public boolean isPowerSaveModeEnabled() {
+        try {
+            return mService.isPowerSaveModeEnabled();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public void setPowerSaveModeEnabled(boolean enable) {
+        try {
+            mService.setPowerSaveModeEnabled(enable);
         } catch (RemoteException e) {
 
         }

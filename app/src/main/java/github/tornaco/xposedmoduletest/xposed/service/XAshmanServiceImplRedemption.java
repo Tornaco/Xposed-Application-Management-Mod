@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import de.robv.android.xposed.SELinuxHelper;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IBooleanCallback1;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
@@ -82,6 +83,31 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     @Override
     public void enterRedemptionMode() throws RemoteException {
         RepoProxy.createFileIndicator(SubModuleManager.REDEMPTION);
+    }
+
+    @Override
+    public boolean isSELinuxEnabled() throws RemoteException {
+        return SELinuxHelper.isSELinuxEnabled();
+    }
+
+    @Override
+    public boolean isSELinuxEnforced() throws RemoteException {
+        return SELinuxHelper.isSELinuxEnforced();
+    }
+
+    @Override
+    public void setSelinuxEnforce(boolean enforce) throws RemoteException {
+
+    }
+
+    @Override
+    public boolean isPowerSaveModeEnabled() throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public void setPowerSaveModeEnabled(boolean enable) throws RemoteException {
+
     }
 
     // Below API will be ignored.

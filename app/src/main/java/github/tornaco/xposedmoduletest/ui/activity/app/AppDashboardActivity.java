@@ -28,7 +28,7 @@ import github.tornaco.xposedmoduletest.backup.DataBackup;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlack;
 import github.tornaco.xposedmoduletest.ui.tiles.app.Backup;
-import github.tornaco.xposedmoduletest.ui.tiles.app.DoNotKillSBNApp;
+import github.tornaco.xposedmoduletest.ui.tiles.app.PowerSave;
 import github.tornaco.xposedmoduletest.ui.tiles.app.Restore;
 import github.tornaco.xposedmoduletest.ui.tiles.app.RestoreDefault;
 import github.tornaco.xposedmoduletest.ui.tiles.app.ShowTileDivider;
@@ -216,6 +216,10 @@ public class AppDashboardActivity extends WithWithCustomTabActivity
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
 
+            Category system = new Category();
+            system.titleRes = R.string.title_opt;
+            system.addTile(new PowerSave(getActivity()));
+
             Category systemProtect = new Category();
             systemProtect.titleRes = R.string.title_app_settings;
             systemProtect.addTile(new WhiteSystemApp(getActivity()));
@@ -233,6 +237,7 @@ public class AppDashboardActivity extends WithWithCustomTabActivity
             theme.addTile(new ThemeChooser(getActivity()));
             theme.addTile(new ShowTileDivider(getActivity()));
 
+            categories.add(system);
             categories.add(systemProtect);
             categories.add(data);
             categories.add(dataHook);
