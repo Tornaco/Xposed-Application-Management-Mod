@@ -1689,12 +1689,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         int mode = getPermissionControlBlockModeForPkg(
                 AppOpsManagerCompat.OP_START_SERVICE, servicePkgName, true);
         if (mode == AppOpsManagerCompat.MODE_IGNORED) {
-
-            if (PkgUtil.isSystemOrPhoneOrShell(callerUid)) {
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.wtf("This is called by system, dangerous blocking!!!");
-            }
-
             return CheckResult.DENIED_OP_DENIED;
         }
 
