@@ -142,6 +142,9 @@ public class SubModuleManager {
 
         addToSubsChecked(new ActivityStackRealStartActivitySubModule());
         addToSubsChecked(new DevicePolicyManagerServiceSubModule());
+
+        addToSubsChecked(new PackageInstallerServiceSubModule());
+        addToSubsChecked(new RuntimeSubModule());
     }
 
     @Synchronized

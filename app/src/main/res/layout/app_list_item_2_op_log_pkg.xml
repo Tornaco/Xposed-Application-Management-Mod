@@ -56,8 +56,6 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin_large"
-                android:fadingEdge="horizontal"
-                android:maxLines="1"
                 android:text="@string/title_system_app" />
 
             <TextView
@@ -67,9 +65,8 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@android:id/title"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin_large"
+                android:layout_toStartOf="@android:id/text1"
                 android:layout_marginTop="5dp"
-                android:fadingEdge="horizontal"
-                android:maxLines="1"
                 android:text="@string/title_system_app" />
         </RelativeLayout>
     </LinearLayout>

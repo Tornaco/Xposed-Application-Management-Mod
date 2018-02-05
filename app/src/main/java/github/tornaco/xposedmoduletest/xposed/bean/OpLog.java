@@ -25,6 +25,7 @@ public class OpLog implements Parcelable {
     private long when;
     private String packageName;
     private long times;
+    private String[] payload;
 
     protected OpLog(Parcel in) {
         code = in.readInt();
@@ -32,6 +33,7 @@ public class OpLog implements Parcelable {
         when = in.readLong();
         packageName = in.readString();
         times = in.readLong();
+        payload = in.readStringArray();
     }
 
     public static final Creator<OpLog> CREATOR = new Creator<OpLog>() {
@@ -58,5 +60,6 @@ public class OpLog implements Parcelable {
         dest.writeLong(when);
         dest.writeString(packageName);
         dest.writeLong(times);
+        dest.writeStringArray(payload);
     }
 }

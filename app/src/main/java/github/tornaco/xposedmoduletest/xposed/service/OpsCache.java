@@ -47,10 +47,10 @@ class OpsCache {
     }
 
     // Sync.
-    void logPackageOp(int code, int mode, String pkg) {
+    void logPackageOp(int code, int mode, String pkg, String[] payload) {
         synchronized (sLock) {
-            logForOp(code, mode, pkg);
-            logForPkg(code, mode, pkg);
+            logForOp(code, mode, pkg, payload);
+            logForPkg(code, mode, pkg, payload);
 
             if (BuildConfig.DEBUG) {
                 XposedLog.verbose(TAG + "logPackageOp %s %s %s", code, mode, pkg);
@@ -82,7 +82,7 @@ class OpsCache {
         }
     }
 
-    private void logForOp(int code, int mode, String pkg) {
+    private void logForOp(int code, int mode, String pkg, String[] payload) {
         List<OpLog> ops = mOpCache.get(code);
         if (ops == null) {
             ops = new ArrayList<>();
@@ -94,12 +94,13 @@ class OpsCache {
                 .packageName(pkg)
                 .mode(mode)
                 .code(code)
+                .payload(payload == null ? new String[0] : payload)
                 .build();
         ops.add(log);
         mOpCache.put(code, ops);
     }
 
-    private void logForPkg(int code, int mode, String pkg) {
+    private void logForPkg(int code, int mode, String pkg, String[] payload) {
         List<OpLog> ops = mPkgCache.get(pkg);
         if (ops == null) {
             ops = new ArrayList<>();
@@ -111,6 +112,7 @@ class OpsCache {
                 .packageName(pkg)
                 .mode(mode)
                 .code(code)
+                .payload(payload == null ? new String[0] : payload)
                 .build();
         ops.add(log);
         mPkgCache.put(pkg, ops);

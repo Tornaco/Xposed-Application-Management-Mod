@@ -12,6 +12,7 @@ import android.view.View;
 import org.newstand.logger.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -96,7 +97,8 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
                 int mode = log.getMode();
                 String modeStr = mode == AppOpsManagerCompat.MODE_ALLOWED ? getString(R.string.mode_allowed)
                         : getString(R.string.mode_ignored);
-                holder.getLineTwoTextView().setText(timeStr + "\t" + modeStr);
+                holder.getLineTwoTextView().setText(timeStr + "\t" + modeStr + "\t"
+                        + Arrays.toString(log.getPayload()));
                 // This is query by package.
                 if (mPackageName != null) {
                     String title = AppOpsManagerCompat.getOpLabel(getContext(), log.getCode());

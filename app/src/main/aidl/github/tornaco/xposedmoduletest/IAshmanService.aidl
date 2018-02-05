@@ -122,8 +122,8 @@ interface IAshmanService {
     void setPermissionControlEnabled(boolean enabled);
     boolean isPermissionControlEnabled();
 
-    int getPermissionControlBlockModeForPkg(int code, String pkg, boolean log);
-    int getPermissionControlBlockModeForUid(int code, int uid, boolean log);
+    int getPermissionControlBlockModeForPkg(int code, String pkg, boolean log, in String[] payload);
+    int getPermissionControlBlockModeForUid(int code, int uid, boolean log, in String[] payload);
     void setPermissionControlBlockModeForPkg(int code, String pkg, int mode);
 
     void setUserDefinedAndroidId(String id);

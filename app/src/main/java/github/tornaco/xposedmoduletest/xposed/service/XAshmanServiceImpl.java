@@ -1572,7 +1572,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public boolean checkService(ComponentName serviceComp, int callerUid) {
         if (serviceComp == null) return true;
         String appPkg = serviceComp.getPackageName();
-        CheckResult res = checkServiceDetailed(appPkg, callerUid);
+        CheckResult res = checkServiceDetailed(appPkg, serviceComp.toString(), callerUid);
         // Saving res record.
         if (!res.res && res == CheckResult.USER_DENIED) {
             logServiceEventToMemory(
@@ -1619,7 +1619,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         // Check Op first for this package.
         int mode = getPermissionControlBlockModeForPkg(
-                AppOpsManagerCompat.OP_START_SERVICE, packageName, true);
+                AppOpsManagerCompat.OP_START_SERVICE, packageName, true, new String[]{String.valueOf(componentName)});
         if (mode == AppOpsManagerCompat.MODE_IGNORED) {
             XposedLog.verbose("checkRestartService: deny op");
             return false;
@@ -1669,7 +1669,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return true;
     }
 
-    private CheckResult checkServiceDetailed(String servicePkgName, int callerUid) {
+    private CheckResult checkServiceDetailed(String servicePkgName, String serviceName, int callerUid) {
         if (TextUtils.isEmpty(servicePkgName)) return CheckResult.BAD_ARGS;
 
         if (isInWhiteList(servicePkgName)) {
@@ -1687,7 +1687,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         // Check Op first for this package.
         int mode = getPermissionControlBlockModeForPkg(
-                AppOpsManagerCompat.OP_START_SERVICE, servicePkgName, true);
+                AppOpsManagerCompat.OP_START_SERVICE, servicePkgName, true, new String[]{serviceName});
         if (mode == AppOpsManagerCompat.MODE_IGNORED) {
             return CheckResult.DENIED_OP_DENIED;
         }
@@ -2699,7 +2699,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void logServiceEventToMemory(final ServiceEvent serviceEvent) {
-        if (isPowerSaveModeEnabled()){
+        if (isPowerSaveModeEnabled()) {
             return;
         }
         Runnable r = new Runnable() {
@@ -2730,7 +2730,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void logBroadcastEventToMemory(final BroadcastEvent broadcastEvent) {
-        if (isPowerSaveModeEnabled()){
+        if (isPowerSaveModeEnabled()) {
             return;
         }
         Runnable r = new Runnable() {
@@ -2767,11 +2767,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         mLoggingService.execute(new ErrorCatchRunnable(r, "logBroadcastEventToMemory"));
     }
 
-    private void logOpEventToMemory(final String pkg, final int op, final int mode) {
+    private void logOpEventToMemory(final String pkg, final int op, final int mode, final String[] payload) {
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                mOpsCache.logPackageOp(op, mode, pkg);
+                mOpsCache.logPackageOp(op, mode, pkg, payload);
             }
         };
         mLoggingService.execute(new ErrorCatchRunnable(r, "logOpEventToMemory"));
@@ -3129,15 +3129,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @BinderCall
     @Override
-    public int getPermissionControlBlockModeForPkg(int code, String pkg, boolean log) {
+    public int getPermissionControlBlockModeForPkg(int code, String pkg, boolean log, String[] payload) {
         int mode = getPermissionControlBlockModeForPkgInternal(code, pkg);
         if (log) {
-            logOperationIfNecessary(code, Integer.MAX_VALUE, pkg, null, mode);
+            logOperationIfNecessary(code, Integer.MAX_VALUE, pkg, null, mode, payload);
         }
         return mode;
     }
 
-    int getPermissionControlBlockModeForPkgInternal(int code, String pkg) {
+    private int getPermissionControlBlockModeForPkgInternal(int code, String pkg) {
         if (DEBUG_OP) {
             XposedLog.verbose("getPermissionControlBlockModeForPkg code %s pkg %s", code, pkg);
         }
@@ -3168,7 +3168,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall(restrict = "any")
-    public int getPermissionControlBlockModeForUid(int code, int uid, boolean log) throws RemoteException {
+    public int getPermissionControlBlockModeForUid(int code, int uid, boolean log, String[] payload) throws RemoteException {
         if (DEBUG_OP) {
             XposedLog.verbose("getPermissionControlBlockModeForUid code %s pkg %s", code, uid);
         }
@@ -3177,7 +3177,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (pkg == null) {
             return AppOpsManagerCompat.MODE_ALLOWED;
         }
-        return getPermissionControlBlockModeForPkg(code, pkg, log);
+        return getPermissionControlBlockModeForPkg(code, pkg, log, payload);
     }
 
     @Override
@@ -4195,17 +4195,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public AppSettings retrieveAppSettingsForPackage(String pkg) throws RemoteException {
 
         int mode = getPermissionControlBlockModeForPkg(
-                AppOpsManagerCompat.OP_WAKE_LOCK, pkg, false
+                AppOpsManagerCompat.OP_WAKE_LOCK, pkg, false, null
         );
         boolean wakelock = mode == AppOpsManagerCompat.MODE_IGNORED;
 
         mode = getPermissionControlBlockModeForPkg(
-                AppOpsManagerCompat.OP_START_SERVICE, pkg, false
+                AppOpsManagerCompat.OP_START_SERVICE, pkg, false, null
         );
         boolean service = mode == AppOpsManagerCompat.MODE_IGNORED;
 
         mode = getPermissionControlBlockModeForPkg(
-                AppOpsManagerCompat.OP_SET_ALARM, pkg, false
+                AppOpsManagerCompat.OP_SET_ALARM, pkg, false, null
         );
         boolean alarm = mode == AppOpsManagerCompat.MODE_IGNORED;
 
@@ -4271,7 +4271,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         try {
             for (int i = 0; i < AppOpsManagerCompat._NUM_OP; i++) {
                 int code = i;
-                int mode = getPermissionControlBlockModeForPkg(code, XAshmanManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME, false);
+                int mode = getPermissionControlBlockModeForPkg(code, XAshmanManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME, false, null);
                 XposedLog.verbose("Template code and mode: %s %s", code, mode);
                 setPermissionControlBlockModeForPkg(code, pkg, mode);
             }
@@ -4465,11 +4465,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public int checkOperation(int code, int uid, String packageName, String reason) {
         int mode = checkOperationInternal(code, uid, packageName, reason);
-        logOperationIfNecessary(code, uid, packageName, reason, mode);
+        logOperationIfNecessary(code, uid, packageName, reason, mode, null);
         return mode;
     }
 
-    private void logOperationIfNecessary(int code, int uid, String packageName, String reason, int mode) {
+    private void logOperationIfNecessary(int code, int uid, String packageName, String reason, int mode, String[] payload) {
         // No log for power save.
         if (isPowerSaveModeEnabled()) return;
 
@@ -4490,7 +4490,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return;
 
         if (AppOpsManagerCompat.isLoggableOp(code)) {
-            logOpEventToMemory(packageName, code, mode);
+            logOpEventToMemory(packageName, code, mode, payload);
         }
     }
 
