@@ -21,7 +21,10 @@ import android.app.AppOpsManager;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 
+import com.google.common.collect.Sets;
+
 import java.util.HashMap;
+import java.util.Set;
 
 import github.tornaco.xposedmoduletest.R;
 import lombok.Synchronized;
@@ -883,6 +886,19 @@ public final class AppOpsManagerCompat {
             AppOpsManager.MODE_ALLOWED,
             AppOpsManager.MODE_ALLOWED,
     };
+
+    private static final Set<Integer> sLoggableOpSet = Sets.newHashSet(
+
+            // EXT
+            OP_READ_INSTALLED_APPS,
+            OP_GET_RUNNING_TASKS,
+            OP_GET_DEVICE_ID,
+            OP_GET_SIM_SERIAL_NUMBER,
+            OP_GET_LINE1_NUMBER,
+            OP_SET_ALARM,
+            OP_START_SERVICE,
+            OP_WAKE_LOCK
+    );
 
     /**
      * Mapping from a permission to the corresponding app op.

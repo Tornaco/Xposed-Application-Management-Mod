@@ -6,6 +6,7 @@ import android.view.View;
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.ui.widget.MinerDialog;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 
 /**
@@ -25,6 +26,8 @@ public class OpenMarket extends QuickTile {
             @Override
             public void onClick(View v) {
                 super.onClick(v);
+
+                // MinerDialog.show(context);
             }
         };
     }
