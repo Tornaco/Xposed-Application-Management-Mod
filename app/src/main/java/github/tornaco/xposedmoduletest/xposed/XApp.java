@@ -7,6 +7,7 @@ import android.support.multidex.MultiDexApplication;
 
 import com.tencent.bugly.crashreport.BuglyLog;
 import com.tencent.bugly.crashreport.CrashReport;
+import com.vanniktech.emoji.EmojiManager;
 
 import org.newstand.logger.AndroidLogAdapter;
 import org.newstand.logger.Logger;
@@ -17,6 +18,7 @@ import github.tornaco.apigen.BuildVar;
 import github.tornaco.apigen.GithubCommitSha;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.provider.XSettings;
+import github.tornaco.xposedmoduletest.ui.widget.SimpleEmojiProvider;
 
 /**
  * Created by guohao4 on 2017/10/17.
@@ -76,6 +78,8 @@ public class XApp extends MultiDexApplication {
             // Test error.
             Logger.e("This is a test...");
         }
+
+        EmojiManager.install(new SimpleEmojiProvider());
     }
 
     public static boolean isPlayVersion() {

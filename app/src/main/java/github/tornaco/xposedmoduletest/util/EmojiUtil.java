@@ -37,6 +37,25 @@ public class EmojiUtil {
             ERHA
     };
 
+    public static final int[] ALL = new int[]{
+            HAPPY,
+            UNHAPPY,
+            BOOST, SHEEP,
+            HEIHEIHEI,
+            DOG,
+            FIVE_MORE,
+            ZHOUMEI,
+            HONGLIAN,
+            ERHA
+    };
+
+    public static String localReplaceEmojiCode(String from) {
+        for (int code : ALL) {
+            from = from.replace(String.valueOf(code), getEmojiByUnicode(code));
+        }
+        return from;
+    }
+
     public static String randomEmoji() {
         int r = new Random().nextInt(RANDOM_CANDIDATES.length);
         return getEmojiByUnicode(RANDOM_CANDIDATES[r]);

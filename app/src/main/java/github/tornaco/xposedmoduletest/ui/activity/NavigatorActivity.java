@@ -71,6 +71,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.Resident;
 import github.tornaco.xposedmoduletest.ui.tiles.SmartSense;
 import github.tornaco.xposedmoduletest.ui.tiles.TRKill;
 import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
+import github.tornaco.xposedmoduletest.ui.widget.EmojiViewUtil;
 import github.tornaco.xposedmoduletest.util.GsonUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
@@ -324,10 +325,10 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         boolean debug = message.isTest();
         if (debug && !BuildConfig.DEBUG) return;
         Logger.d("showDeveloperMessage: " + message + ", " + show);
-        if (show) {
+        if (BuildConfig.DEBUG || show) {
             new AlertDialog.Builder(getActivity())
                     .setTitle(message.getTitle())
-                    .setMessage(message.getMessage())
+                    .setView(EmojiViewUtil.makeMessageViewForDialog(getContext(), message.getMessage()))
                     .setPositiveButton(android.R.string.ok, null)
                     .setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
