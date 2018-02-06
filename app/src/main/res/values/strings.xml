@@ -462,5 +462,7 @@
     <string name="title_selinux">SELINUX</string>
     <string name="title_selinux_mode_auto">开机自动设置</string>
     <string name="summary_selinux_mode_auto">上面开关更改模式并不是永久的，重启会失效，因此勾选此选项，开机时可以自动设置Selinux模式。应用管理需要接收开机广播。</string>
+    <string name="title_uninstall_app">卸载应用</string>
+    <string name="message_uninstall_app">此操作无法恢复，请确认。</string>
 
 </resources>

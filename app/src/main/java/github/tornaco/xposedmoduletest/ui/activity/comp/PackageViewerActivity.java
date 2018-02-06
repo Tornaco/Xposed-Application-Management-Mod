@@ -172,44 +172,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                         ComponentEditorActivity.start(getActivity(), packageInfo.getPkgName());
                         break;
                     case R.id.action_comp_uninstall:
-
-                        if (!PkgUtil.isSystemApp(getContext(), packageInfo.getPkgName())) {
-                            PackageManagerCompat.unInstallUserAppWithIntent(getContext(), packageInfo.getPkgName());
-                        } else {
-                            PackageManagerCompat.unInstallSystemApp(PackageViewerActivity.this,
-                                    packageInfo.getPkgName(), new PackageManagerCompat.UnInstallCallback() {
-                                        @Override
-                                        public void onSuccess() {
-                                            showTips(R.string.tips_uninstall_sys_app_success,
-                                                    true,
-                                                    getString(R.string.title_restart_android),
-                                                    new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            PowerManagerCompat.restartAndroid();
-                                                        }
-                                                    });
-                                        }
-
-                                        @Override
-                                        public void onFail(int err) {
-                                            showTips(getString(R.string.tips_uninstall_sys_app_fail) + err,
-                                                    true,
-                                                    null,
-                                                    null);
-                                        }
-
-                                        @Override
-                                        public void maybeSuccess() {
-                                            runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    startLoading();
-                                                }
-                                            });
-                                        }
-                                    });
-                        }
+                        onRequestUnInstallApp(packageInfo);
                         break;
                     case R.id.action_comp_details:
                         PackageManagerCompat.showAppDetails(getActivity(), packageInfo.getPkgName());
@@ -237,6 +200,62 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
             }
         });
         popupMenu.show();
+    }
+
+    private void onRequestUnInstallApp(final CommonPackageInfo packageInfo) {
+        new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.title_uninstall_app)
+                        + "\t"
+                        + PkgUtil.loadNameByPkgName(getContext(), packageInfo.getPkgName()))
+                .setMessage(getString(R.string.message_uninstall_app))
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        doUnInstallApp(packageInfo);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void doUnInstallApp(CommonPackageInfo packageInfo) {
+        if (!PkgUtil.isSystemApp(getContext(), packageInfo.getPkgName())) {
+            PackageManagerCompat.unInstallUserAppWithIntent(getContext(), packageInfo.getPkgName());
+        } else {
+            PackageManagerCompat.unInstallSystemApp(PackageViewerActivity.this,
+                    packageInfo.getPkgName(), new PackageManagerCompat.UnInstallCallback() {
+                        @Override
+                        public void onSuccess() {
+                            showTips(R.string.tips_uninstall_sys_app_success,
+                                    true,
+                                    getString(R.string.title_restart_android),
+                                    new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            PowerManagerCompat.restartAndroid();
+                                        }
+                                    });
+                        }
+
+                        @Override
+                        public void onFail(int err) {
+                            showTips(getString(R.string.tips_uninstall_sys_app_fail) + err,
+                                    true,
+                                    null,
+                                    null);
+                        }
+
+                        @Override
+                        public void maybeSuccess() {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    startLoading();
+                                }
+                            });
+                        }
+                    });
+        }
     }
 
     private void onRequestAppSettings(String pkgName) {

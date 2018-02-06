@@ -93,8 +93,9 @@ public class PackageManagerCompat {
 
                 File file = new File(paths[0]);
                 boolean success;
+                // mount -o rw,remount /system
                 CommandResult c = Shell.SU.run(
-                        "mount -o remount,rw /system",
+                        "mount -o rw,remount /system",
                         "rm -rf " + file.getPath());
                 success = c.isSuccessful();
 
