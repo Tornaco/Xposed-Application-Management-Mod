@@ -455,5 +455,12 @@
     <string name="power_save">尽可能减少应用管理对系统资源与电量的消耗，并且会关闭 关联启动记录 权限访问记录。建议如果你觉得耗电异常，可以尝试开启该开关，当你需要排查应用时，再临时关闭本开关，用以查看相关记录。</string>
     <string name="title_system">系统</string>
     <string name="title_opt">优化</string>
+    <string name="title_selinux_mode">Selinux状态</string>
+    <string name="summary_selinux_enforcing">执行中</string>
+    <string name="summary_selinux_not_enforcing">许可</string>
+    <string name="message_selinux_not_enabled">Selinux模式不可用</string>
+    <string name="title_selinux">SELINUX</string>
+    <string name="title_selinux_mode_auto">开机自动设置</string>
+    <string name="summary_selinux_mode_auto">上面开关更改模式并不是永久的，重启会失效，因此勾选此选项，开机时可以自动设置Selinux模式。应用管理需要接收开机广播。</string>
 
 </resources>

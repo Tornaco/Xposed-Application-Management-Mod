@@ -87,6 +87,32 @@ public class AppSettings extends Observable {
 
     }
 
+    public static boolean isSelinuxModeAutoSetEnabled(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(AppKey.AUTO_SELINUX_MODE, false);
+    }
+
+    public static void setSelinuxModeAutoSetEnabled(Context context, boolean read) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(AppKey.AUTO_SELINUX_MODE, read)
+                .apply();
+
+    }
+
+    public static boolean isSelinuxModeEnforceEnabled(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(AppKey.SELINUX_MODE_ENFORCE, true);
+    }
+
+    public static void setSelinuxModeEnforceEnabled(Context context, boolean read) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(AppKey.SELINUX_MODE_ENFORCE, read)
+                .apply();
+
+    }
+
     public static boolean isShowTileDivider(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(AppKey.SHOW_TILE_DIVIDER, false);

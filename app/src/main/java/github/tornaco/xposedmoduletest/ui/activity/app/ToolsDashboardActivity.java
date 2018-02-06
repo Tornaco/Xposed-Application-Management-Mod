@@ -10,8 +10,10 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.ActivityLifeCycleDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppDevMode;
+import github.tornaco.xposedmoduletest.ui.tiles.app.AutoSeLinuxMode;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CrashDump;
 import github.tornaco.xposedmoduletest.ui.tiles.app.MokeCrash;
+import github.tornaco.xposedmoduletest.ui.tiles.app.SeLinuxMode;
 import github.tornaco.xposedmoduletest.ui.tiles.app.ShowFocusedActivity;
 
 /**
@@ -39,6 +41,12 @@ public class ToolsDashboardActivity extends WithWithCustomTabActivity {
             settings.addTile(new AppDevMode(getActivity()));
             settings.addTile(new ShowFocusedActivity(getActivity()));
 
+            Category selinux = new Category();
+            selinux.titleRes = R.string.title_selinux;
+            selinux.addTile(new SeLinuxMode(getActivity()));
+            Category hook3 = new Category();
+            hook3.addTile(new AutoSeLinuxMode(getActivity()));
+
             Category hook = new Category();
             hook.addTile(new CrashDump(getActivity()));
 
@@ -48,6 +56,8 @@ public class ToolsDashboardActivity extends WithWithCustomTabActivity {
             categories.add(settings);
             categories.add(hook);
             categories.add(hook2);
+            categories.add(selinux);
+            categories.add(hook3);
         }
     }
 

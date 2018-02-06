@@ -17,4 +17,6 @@ public interface AppKey {
     String HIDE_TILE = "hide_tile_";
     String DONATED = "donated";
     String SHOW_TILE_DIVIDER = "show_tile_divider";
+    String SELINUX_MODE_ENFORCE = "selinux_mode_enforce";
+    String AUTO_SELINUX_MODE = "auto_selinux_mode";
 }
