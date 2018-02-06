@@ -3,6 +3,8 @@ package github.tornaco.xposedmoduletest.util;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 
+import org.newstand.logger.Logger;
+
 import java.util.Random;
 
 /**
@@ -51,6 +53,8 @@ public class EmojiUtil {
 
     public static String localReplaceEmojiCode(String from) {
         for (int code : ALL) {
+            boolean contains = from.contains(String.valueOf(code));
+            Logger.d("CONTAINS EMOJI CODE %s %s ", code, contains);
             from = from.replace(String.valueOf(code), getEmojiByUnicode(code));
         }
         return from;
