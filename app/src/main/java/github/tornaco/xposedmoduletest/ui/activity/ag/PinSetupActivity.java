@@ -7,11 +7,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.widget.ImageView;
 
-import com.andrognito.patternlockview.PatternLockView;
-import com.andrognito.patternlockview.listener.PatternLockViewListener;
-import com.andrognito.patternlockview.utils.PatternLockUtils;
-
-import java.util.List;
+import com.andrognito.pinlockview.IndicatorDots;
+import com.andrognito.pinlockview.PinLockListener;
+import com.andrognito.pinlockview.PinLockView;
 
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.provider.LockStorage;
@@ -22,28 +20,29 @@ import github.tornaco.xposedmoduletest.ui.activity.NeedLockActivity;
  * Email: Tornaco@163.com
  */
 
-public class PatternSetupActivity extends NeedLockActivity implements PatternLockViewListener {
+public class PinSetupActivity extends NeedLockActivity implements PinLockListener {
 
     public static void start(Context context) {
-        Intent starter = new Intent(context, PatternSetupActivity.class);
+        Intent starter = new Intent(context, PinSetupActivity.class);
         starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(starter);
     }
 
-    private PatternLockView patternLockView;
+    private PinLockView pinLockView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.pattern_setup);
-        patternLockView = findViewById(R.id.pattern_lock_view);
+        setContentView(R.layout.pin_setup);
+        pinLockView = findViewById(R.id.pin_lock_view);
+        IndicatorDots indicatorDots = findViewById(R.id.indicator_dots);
+        pinLockView.attachIndicatorDots(indicatorDots);
         if (mUserTheme.isReverseTheme()) {
             ImageView imageView = findViewById(R.id.icon);
             imageView.setColorFilter(ContextCompat.getColor(getContext(),
                     mUserTheme.getThemeColor()), android.graphics.PorterDuff.Mode.MULTIPLY);
         }
-        patternLockView.addPatternLockListener(this);
-        patternLockView.setEnableHapticFeedback(true);
+        pinLockView.setPinLockListener(this);
     }
 
     @Override
@@ -52,24 +51,19 @@ public class PatternSetupActivity extends NeedLockActivity implements PatternLoc
     }
 
     @Override
-    public void onStarted() {
-
-    }
-
-    @Override
-    public void onProgress(List<PatternLockView.Dot> progressPattern) {
-
-    }
-
-    @Override
-    public void onComplete(List<PatternLockView.Dot> pattern) {
-        LockStorage.setPattern(getApplicationContext(), PatternLockUtils.patternToString(patternLockView, pattern));
-        LockStorage.setLockMethod(getActivity(), LockStorage.LockMethod.Pattern);
+    public void onComplete(String pin) {
+        LockStorage.setPin(getApplicationContext(), pin);// FIXME Need encrypt.
+        LockStorage.setLockMethod(getActivity(), LockStorage.LockMethod.Pin);
         finish();
     }
 
     @Override
-    public void onCleared() {
+    public void onEmpty() {
+
+    }
+
+    @Override
+    public void onPinChange(int pinLength, String intermediatePin) {
 
     }
 }

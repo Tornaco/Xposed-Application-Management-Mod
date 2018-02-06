@@ -1,1 +1,1 @@
-include ':app', ':daogenerator', ':api-gen-annotations', ":api-gen-compiler", ':tiles', ':patternlockview', ':mdsearch', ':dateformatter'
+include ':app', ':daogenerator', ':api-gen-annotations', ":api-gen-compiler", ':tiles', ':patternlockview', ':mdsearch', ':dateformatter', ':pinlockview'

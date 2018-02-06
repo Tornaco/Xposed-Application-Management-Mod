@@ -88,7 +88,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         readSettings();
-        setContentView(R.layout.verify_displayer);
+        setContentView(R.layout.verify_displayer_pattern);
         if (resolveIntent(getIntent())) {
             showVerifyView();
 

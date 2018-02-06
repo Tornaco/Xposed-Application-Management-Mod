@@ -107,6 +107,7 @@ dependencies {
     // compile project(':keyguard')
     implementation project(':tiles')
     implementation project(':patternlockview')
+    implementation project(':pinlockview')
     implementation project(':mdsearch')
     implementation project(':dateformatter')
 

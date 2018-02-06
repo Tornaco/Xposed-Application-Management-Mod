@@ -54,7 +54,10 @@
         </activity>
         <activity
             android:name=".ui.activity.ag.PatternSetupActivity"
-
+            android:label="@string/title_setup_code_new"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.ag.PinSetupActivity"
             android:label="@string/title_setup_code_new"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
