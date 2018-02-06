@@ -14,6 +14,7 @@ import github.tornaco.xposedmoduletest.util.Singleton;
  */
 
 public class SettingsProvider {
+
     private static final String TAG = "SettingsProvider";
 
     private static final int SETTINGS_KEY_TOR_AG = 0x1;
@@ -40,13 +41,21 @@ public class SettingsProvider {
         HandlerThread handlerThread = new HandlerThread("SettingsProvider@Tor");
         handlerThread.start();
 
-        File systemFile = new File(Environment.getDataDirectory(), "system");
-        File dir = new File(systemFile, "tor");
+        File dir = getBaseDataDir();
         mSettingsState = new SettingsState(mLock,
                 new File(dir, SETTINGS_NAME_TOR_AG),
                 SETTINGS_KEY_TOR_AG,
                 -1, // No limit.
                 handlerThread.getLooper());
+    }
+
+    private static File getBaseDataDir() {
+        File systemFile = new File(Environment.getDataDirectory(), "system");
+        File dir = new File(systemFile, "tor_apm");
+        if (!dir.exists()) {
+            dir = new File(systemFile, "tor");
+        }
+        return dir;
     }
 
     private boolean insertSettingLocked(String name, String value) {

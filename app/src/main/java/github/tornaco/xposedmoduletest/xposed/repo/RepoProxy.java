@@ -25,6 +25,7 @@ import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
+import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -73,12 +74,7 @@ public class RepoProxy {
     }
 
     public static void createFileIndicator(String name) {
-        File systemFile = new File(Environment.getDataDirectory(), "system");
-        File dir = new File(systemFile, "tor_apm");
-        if (!dir.exists()) {
-            dir = new File(systemFile, "tor");
-        }
-        File f = new File(dir, name);
+        File f = new File(getBaseDataDir(), name);
         try {
             Files.createParentDirs(f);
         } catch (Exception e) {
@@ -92,13 +88,7 @@ public class RepoProxy {
     }
 
     public static void deleteFileIndicator(String name) {
-
-        File systemFile = new File(Environment.getDataDirectory(), "system");
-        File dir = new File(systemFile, "tor_apm");
-        if (!dir.exists()) {
-            dir = new File(systemFile, "tor");
-        }
-        File f = new File(dir, name);
+        File f = new File(getBaseDataDir(), name);
         try {
             f.delete();
         } catch (Exception e) {
@@ -107,21 +97,30 @@ public class RepoProxy {
     }
 
     public static boolean hasFileIndicator(String name) {
-        File systemFile = new File(Environment.getDataDirectory(), "system");
-        File dir = new File(systemFile, "tor_apm");
-        if (!dir.exists()) {
-            dir = new File(systemFile, "tor");
-        }
-        File f = new File(dir, name);
+        File f = new File(getBaseDataDir(), name);
         return f.exists();
     }
 
-    private void bringBases(Handler h, ExecutorService io) {
+    private static File getBaseDataDir() {
         File systemFile = new File(Environment.getDataDirectory(), "system");
         File dir = new File(systemFile, "tor_apm");
         if (!dir.exists()) {
             dir = new File(systemFile, "tor");
         }
+        return dir;
+    }
+
+    private static void cleanUpBaseDataDir() {
+        try {
+            FileUtil.deleteDir(getBaseDataDir());
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail clean up dir: " + e);
+        }
+    }
+
+    private void bringBases(Handler h, ExecutorService io) {
+
+        File dir = getBaseDataDir();
 
         boots = new StringSetRepo(new File(dir, "boots"), h, io);
         starts = new StringSetRepo(new File(dir, "starts"), h, io);
@@ -162,11 +161,7 @@ public class RepoProxy {
 
     private void bringUpMaps(Handler h, ExecutorService io) {
 
-        File systemFile = new File(Environment.getDataDirectory(), "system");
-        File dir = new File(systemFile, "tor_apm");
-        if (!dir.exists()) {
-            dir = new File(systemFile, "tor");
-        }
+        File dir = getBaseDataDir();
 
         appFocused = new StringMapRepo(new File(dir, "app_focused"), h, io);
         appUnFocused = new StringMapRepo(new File(dir, "app_unfocused"), h, io);
