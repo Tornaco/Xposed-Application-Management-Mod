@@ -6,87 +6,97 @@
     android:layout_height="match_parent"
     android:background="@color/window_background">
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/appbar"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:theme="?torAppbarTheme">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/appbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="?torAppbarPopupTheme"
-            app:theme="?torToolbarTheme" />
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:theme="?torAppbarTheme">
 
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="?torAppbarPopupTheme"
+                app:theme="?torToolbarTheme" />
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/appbar">
+
+                <RelativeLayout
+                    android:id="@+id/info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:paddingBottom="@dimen/activity_vertical_margin_large">
+
+                    <ImageView
+                        android:id="@+id/icon"
+                        android:layout_width="@dimen/thumbnail_size_large"
+                        android:layout_height="@dimen/thumbnail_size_large"
+                        android:layout_centerHorizontal="true"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_verified_user_black_24dp"
+                        android:visibility="visible" />
+
+                    <TextView
+                        android:id="@+id/label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/icon"
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="@dimen/activity_horizontal_margin_small"
+                        android:layout_marginTop="@dimen/activity_vertical_margin"
+                        android:text="@string/title_setup_code_new"
+                        android:textAllCaps="true"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textColor="?torMenuIconTintColor" />
+
+                </RelativeLayout>
+            </RelativeLayout>
+
+        </android.support.design.widget.AppBarLayout>
 
         <RelativeLayout
-            android:id="@+id/info"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/appbar"
-            android:layout_centerHorizontal="true"
-            android:paddingBottom="@dimen/activity_vertical_margin_large">
+            android:id="@+id/pin_container"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="@dimen/activity_vertical_margin_large"
+            android:layout_marginTop="@dimen/activity_vertical_margin_large"
+            android:layout_weight="1"
+            android:gravity="center">
 
-            <ImageView
-                android:id="@+id/icon"
-                android:layout_width="@dimen/thumbnail_size_large"
-                android:layout_height="@dimen/thumbnail_size_large"
-                android:layout_centerHorizontal="true"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_verified_user_black_24dp"
-                android:visibility="visible" />
-
-            <TextView
-                android:id="@+id/label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/icon"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="@dimen/activity_horizontal_margin_small"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:text="@string/title_setup_code_new"
-                android:textAllCaps="true"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                android:textColor="?torMenuIconTintColor" />
+            <com.andrognito.patternlockview.PatternLockView
+                android:id="@+id/pattern_lock_view"
+                android:layout_width="@dimen/pattern_lock_size"
+                android:layout_height="@dimen/pattern_lock_size"
+                app:aspectRatio="square"
+                app:aspectRatioEnabled="true"
+                app:correctStateColor="@color/green"
+                app:dotAnimationDuration="200"
+                app:dotCount="3"
+                app:dotNormalSize="12dp"
+                app:dotSelectedSize="24dp"
+                app:normalStateColor="@color/black"
+                app:pathEndAnimationDuration="100"
+                app:pathWidth="4dp"
+                app:wrongStateColor="@color/pomegranate" />
 
         </RelativeLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/pattern_lock_info_container_padding" />
-
-    </android.support.design.widget.AppBarLayout>
-
-    <RelativeLayout
-        android:id="@+id/pin_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="@dimen/activity_vertical_margin_large"
-        android:layout_marginTop="@dimen/activity_vertical_margin_large">
-
-        <com.andrognito.patternlockview.PatternLockView
-            android:id="@+id/pattern_lock_view"
-            android:layout_width="@dimen/pattern_lock_size"
-            android:layout_height="@dimen/pattern_lock_size"
-            app:aspectRatio="square"
-            app:aspectRatioEnabled="true"
-            app:correctStateColor="@color/green"
-            app:dotAnimationDuration="200"
-            app:dotCount="3"
-            app:dotNormalSize="12dp"
-            app:dotSelectedSize="24dp"
-            app:normalStateColor="@color/black"
-            app:pathEndAnimationDuration="100"
-            app:pathWidth="4dp"
-            app:wrongStateColor="@color/pomegranate" />
-
-    </RelativeLayout>
-
+    </LinearLayout>
 </RelativeLayout>
 

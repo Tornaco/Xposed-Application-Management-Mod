@@ -94,12 +94,12 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
             // Test fast res.
             if (BuildConfig.DEBUG) {
-                getUIThreadHandler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        XAppGuardManager.get().setResult(tid, XAppVerifyMode.MODE_ALLOWED);
-                    }
-                }, 100);
+//                getUIThreadHandler().postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        XAppGuardManager.get().setResult(tid, XAppVerifyMode.MODE_ALLOWED);
+//                    }
+//                }, 100);
             }
         }
     }
