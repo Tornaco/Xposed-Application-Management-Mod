@@ -11,7 +11,8 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion as int
         targetSdkVersion rootProject.ext.compileSdkVersion as int
         versionCode 4063
-        versionName "4.6.3"
+        versionName "4.6.3-BETA"
+        multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -31,7 +32,7 @@ android {
             signingConfig signingConfigs.release
         }
         debug {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
@@ -51,6 +52,23 @@ greendao {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+
+    // Test start.
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    testImplementation 'junit:junit:4.12'
+
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    // Set this dependency to use JUnit 4 rules
+    androidTestImplementation 'com.android.support.test:rules:1.0.1'
+    // Set this dependency to build and run Espresso tests
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    // Set this dependency to build and run UI Automator tests
+    androidTestImplementation 'com.android.support.test.uiautomator:uiautomator-v18:2.1.2'
+    // Test end.
+
+    implementation 'com.android.support:multidex:1.0.2'
 
     implementation rootProject.ext.supportAppCompat
     implementation rootProject.ext.supportCardView

@@ -66,6 +66,7 @@
                 android:layout_below="@android:id/title"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin_large"
                 android:layout_toStartOf="@android:id/text1"
+                android:layout_marginBottom="@dimen/activity_horizontal_margin_small"
                 android:layout_marginTop="5dp"
                 android:text="@string/title_system_app" />
         </RelativeLayout>

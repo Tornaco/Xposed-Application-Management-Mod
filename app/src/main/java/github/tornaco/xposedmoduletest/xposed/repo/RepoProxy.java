@@ -53,7 +53,7 @@ public class RepoProxy {
             lazy, comps, white_list_hooks_dynamic,
             pending_disable_apps,
             pending_disable_apps_tr,
-            resident;
+            resident, dozeWhiteListAdding, dozeWhiteListRemoval;
 
     private MapRepo<String, String> componentReplacement, appFocused, appUnFocused;
 
@@ -139,6 +139,8 @@ public class RepoProxy {
         pending_disable_apps = new StringSetRepo(new File(dir, "pending_disable_apps"), h, io);
         pending_disable_apps_tr = new StringSetRepo(new File(dir, "pending_disable_apps_tr"), h, io);
         resident = new StringSetRepo(new File(dir, "resident"), h, io);
+        dozeWhiteListAdding = new StringSetRepo(new File(dir, "dozeWhiteListAdding"), h, io);
+        dozeWhiteListRemoval = new StringSetRepo(new File(dir, "dozeWhiteListRemoval"), h, io);
 
         if (BuildConfig.DEBUG) try {
             @SuppressLint("SdCardPath") File dynamicHooks =
@@ -382,6 +384,14 @@ public class RepoProxy {
         return locks == null ? STRING_SET_NULL_HACK : locks;
     }
 
+    public SetRepo<String> getDozeWhiteListAdding() {
+        return dozeWhiteListAdding == null ? STRING_SET_NULL_HACK : dozeWhiteListAdding;
+    }
+
+    public SetRepo<String> getDozeWhiteListRemoval() {
+        return dozeWhiteListRemoval == null ? STRING_SET_NULL_HACK : dozeWhiteListRemoval;
+    }
+
     public SetRepo<String> getUninstall() {
         return uninstall == null ? STRING_SET_NULL_HACK : uninstall;
     }
@@ -495,6 +505,8 @@ public class RepoProxy {
         getPending_disable_apps().removeAll();
         getPending_disable_apps_tr().removeAll();
         getResident().removeAll();
+        getDozeWhiteListAdding().removeAll();
+        getDozeWhiteListRemoval().removeAll();
 
         getAppFocused().clear();
         getAppUnFocused().clear();

@@ -1,7 +1,9 @@
 package github.tornaco.xposedmoduletest.xposed;
 
 import android.annotation.SuppressLint;
-import android.app.Application;
+import android.content.Context;
+import android.support.multidex.MultiDex;
+import android.support.multidex.MultiDexApplication;
 
 import com.tencent.bugly.crashreport.BuglyLog;
 import com.tencent.bugly.crashreport.CrashReport;
@@ -23,13 +25,18 @@ import github.tornaco.xposedmoduletest.provider.XSettings;
 @GithubCommitSha
 @BuildHostInfo
 @BuildVar
-public class XApp extends Application {
+public class XApp extends MultiDexApplication {
 
     @SuppressLint("StaticFieldLeak")
     private static XApp xApp;
 
     public static XApp getApp() {
         return xApp;
+    }
+
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 
     @Override

@@ -55,4 +55,8 @@ public abstract class OSUtil {
     public static boolean isNTDDevice() {
         return Build.MANUFACTURER.contains("NTD");
     }
+
+    public static boolean isHuaWeiDevice() {
+        return Build.MANUFACTURER.contains("HUAWEI");
+    }
 }

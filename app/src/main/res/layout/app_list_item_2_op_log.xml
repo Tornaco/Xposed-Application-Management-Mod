@@ -65,6 +65,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@android:id/title"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin_large"
+                android:layout_marginBottom="@dimen/activity_horizontal_margin_small"
                 android:layout_toStartOf="@android:id/text1"
                 android:text="@string/app_wiki_url" />
         </RelativeLayout>

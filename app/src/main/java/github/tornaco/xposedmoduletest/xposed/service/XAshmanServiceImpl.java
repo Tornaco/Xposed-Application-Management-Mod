@@ -2954,10 +2954,32 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             @Override
             public void run() {
                 forceReloadPackages();
+
+                // It is safe.
+                if (OSUtil.isHuaWeiDevice()) {
+                    applyDozeWhiteList();
+                }
             }
         }, "reload installed apps"), 15 * 1000);
 
         cacheWebviewPackacgaes();
+    }
+
+    private void applyDozeWhiteList() {
+        XposedLog.verbose("applyDozeWhiteList: " + mDeviceIdleController);
+        try {
+            if (mDeviceIdleController == null) return;
+            Set<String> adding = RepoProxy.getProxy().getDozeWhiteListAdding().getAll();
+            for (String add : adding) {
+                mDeviceIdleController.addPowerSaveWhitelistAppInternal(add);
+            }
+            Set<String> removing = RepoProxy.getProxy().getDozeWhiteListRemoval().getAll();
+            for (String r : removing) {
+                mDeviceIdleController.removePowerSaveWhitelistAppInternal(r);
+            }
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail applyDozeWhiteList: " + Log.getStackTraceString(e));
+        }
     }
 
     private final Set<String> mWebviewProviders = new HashSet<>();
@@ -5330,12 +5352,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void addPowerSaveWhitelistApp(String pkg) throws RemoteException {
         mDeviceIdleController.addPowerSaveWhitelistAppInternal(pkg);
+        RepoProxy.getProxy().getDozeWhiteListAdding().add(pkg);
+        RepoProxy.getProxy().getDozeWhiteListRemoval().remove(pkg);
     }
 
     @BinderCall
     @Override
     public void removePowerSaveWhitelistApp(String pkg) throws RemoteException {
         mDeviceIdleController.removePowerSaveWhitelistAppInternal(pkg);
+        RepoProxy.getProxy().getDozeWhiteListRemoval().add(pkg);
+        RepoProxy.getProxy().getDozeWhiteListAdding().remove(pkg);
     }
 
     @BinderCall

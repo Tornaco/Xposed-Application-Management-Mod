@@ -97,8 +97,11 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
                 int mode = log.getMode();
                 String modeStr = mode == AppOpsManagerCompat.MODE_ALLOWED ? getString(R.string.mode_allowed)
                         : getString(R.string.mode_ignored);
-                holder.getLineTwoTextView().setText(timeStr + "\t" + modeStr + "\t"
-                        + Arrays.toString(log.getPayload()));
+                String desc = timeStr + "\t" + modeStr;
+                if (log.getPayload() != null && log.getPayload().length > 0) {
+                    desc = desc + "\n" + Arrays.toString(log.getPayload());
+                }
+                holder.getLineTwoTextView().setText(desc);
                 // This is query by package.
                 if (mPackageName != null) {
                     String title = AppOpsManagerCompat.getOpLabel(getContext(), log.getCode());
