@@ -23,6 +23,9 @@ import android.widget.Toast;
 
 import com.andrognito.patternlockview.PatternLockView;
 import com.andrognito.patternlockview.utils.PatternLockUtils;
+import com.andrognito.pinlockview.IndicatorDots;
+import com.andrognito.pinlockview.PinLockListener;
+import com.andrognito.pinlockview.PinLockView;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 
 import org.newstand.logger.Logger;
@@ -68,6 +71,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
     private boolean testMode;
 
     private boolean mTakePhoto;
+    private LockStorage.LockMethod mLockMethod;
 
     private CancellationSignal mCancellationSignal;
 
@@ -88,7 +92,9 @@ public class VerifyDisplayerActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         readSettings();
-        setContentView(R.layout.verify_displayer_pattern);
+        setContentView(mLockMethod == LockStorage.LockMethod.Pattern ?
+                R.layout.verify_displayer_pattern
+                : R.layout.verify_displayer_pin);
         if (resolveIntent(getIntent())) {
             showVerifyView();
 
@@ -106,6 +112,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private void readSettings() {
         this.mTakePhoto = XSettings.takenPhotoEnabled(this);
+        this.mLockMethod = LockStorage.getLockMethod(this);
     }
 
     private void showVerifyView() {
@@ -173,7 +180,11 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private void setupLockView() {
-        setupPatternLockView();
+        if (mLockMethod == LockStorage.LockMethod.Pattern) {
+            setupPatternLockView();
+        } else {
+            setupPinLockView();
+        }
     }
 
     private void setupPatternLockView() {
@@ -212,6 +223,43 @@ public class VerifyDisplayerActivity extends BaseActivity {
             }
         });
         patternLockView.setEnableHapticFeedback(true);
+    }
+
+    private void setupPinLockView() {
+        final PinLockView pinLockView = findViewById(R.id.pin_lock_view);
+        IndicatorDots indicatorDots = findViewById(R.id.indicator_dots);
+        pinLockView.attachIndicatorDots(indicatorDots);
+        pinLockView.setPinLockListener(new PinLockListener() {
+            @Override
+            public void onComplete(String pin) {
+                cancelCheckTask();
+                // Check pattern.
+                mCheckTask = LockStorage.checkPinAsync(getApplicationContext(),
+                        pin,
+                        new LockStorage.PatternCheckListener() {
+                            @Override
+                            public void onMatch() {
+                                onPass();
+                            }
+
+                            @Override
+                            public void onMisMatch() {
+                                pinLockView.resetPinLockView();
+                                takePhoto();
+                            }
+                        });
+            }
+
+            @Override
+            public void onEmpty() {
+
+            }
+
+            @Override
+            public void onPinChange(int pinLength, String intermediatePin) {
+
+            }
+        });
     }
 
     private void takePhoto() {
