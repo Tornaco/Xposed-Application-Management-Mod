@@ -90,6 +90,7 @@ public class DozeNavActivity extends CommonPackageInfoListActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.doze, menu);
         return super.onCreateOptionsMenu(menu);
     }
 

@@ -115,6 +115,7 @@ public class PrivacyNavActivity extends CommonPackageInfoListActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.privacy, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
