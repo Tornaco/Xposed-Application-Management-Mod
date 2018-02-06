@@ -137,7 +137,8 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
 
 
                                 ActivityManager.TaskThumbnail tt = (ActivityManager.TaskThumbnail) param.getResult();
-                                tt.mainThumbnail = XBitmapUtil.createBlurredBitmap(tt.mainThumbnail);
+                                int br = XAppGuardManager.get().getBlurRadius();
+                                tt.mainThumbnail = XBitmapUtil.createBlurredBitmap(tt.mainThumbnail, br, XBitmapUtil.BITMAP_SCALE);
                                 param.setResult(tt);
                                 XposedLog.verbose("Thumb replaced!");
                             } catch (Throwable e) {
@@ -214,7 +215,7 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
             int radius = getBridge().getBlurRadius();
             float scale = getBridge().getBlurScale();
             XposedLog.verbose("onScreenshotApplicationsNAndBelow, bluring, r and s: " + radius + "-" + scale);
-            Bitmap blured = (XBitmapUtil.createBlurredBitmap(res));
+            Bitmap blured = (XBitmapUtil.createBlurredBitmap(res, radius, scale));
             if (blured != null)
                 param.setResult(blured);
         } else {

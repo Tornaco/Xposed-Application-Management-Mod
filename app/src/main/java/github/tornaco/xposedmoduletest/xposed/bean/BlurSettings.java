@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.google.gson.Gson;
 
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.util.XBitmapUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,7 +24,7 @@ import lombok.ToString;
 @ToString
 public class BlurSettings implements Parcelable, Cloneable {
 
-    public static final float BITMAP_SCALE = 0.2f;
+    public static final float BITMAP_SCALE = XBitmapUtil.BITMAP_SCALE;
     /* Initial blur radius. */
     public static final int BLUR_RADIUS = 15;
     public static final int BLUR_RADIUS_MAX = 25;

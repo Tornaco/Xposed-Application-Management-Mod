@@ -146,6 +146,7 @@ public class SubModuleManager {
         addToSubsChecked(new PackageInstallerServiceSubModule());
         addToSubsChecked(new RuntimeSubModule());
         // addToSubsChecked(new UNIXProcessSubModule());
+        addToSubsChecked(new AndroidProcessSubModule());
     }
 
     @Synchronized
