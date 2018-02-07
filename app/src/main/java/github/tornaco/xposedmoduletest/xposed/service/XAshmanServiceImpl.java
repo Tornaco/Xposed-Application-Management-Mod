@@ -131,10 +131,13 @@ import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerSer
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
+import github.tornaco.xposedmoduletest.xposed.service.rule.Rule;
+import github.tornaco.xposedmoduletest.xposed.service.rule.RuleParser;
 import github.tornaco.xposedmoduletest.xposed.service.shell.AshShellCommand;
 import github.tornaco.xposedmoduletest.xposed.submodules.InputManagerInjectInputSubModule;
 import github.tornaco.xposedmoduletest.xposed.submodules.SubModuleManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
+import github.tornaco.xposedmoduletest.xposed.util.XStopWatch;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -1574,7 +1577,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         String appPkg = serviceComp.getPackageName();
         CheckResult res = checkServiceDetailed(appPkg, serviceComp.toString(), callerUid);
         // Saving res record.
-        if (!res.res && res == CheckResult.USER_DENIED) {
+        if (!res.res) {
             logServiceEventToMemory(
                     ServiceEvent.builder()
                             .service("Service")
@@ -1582,6 +1585,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             .allowed(res.res)
                             .appName(null)
                             .pkg(appPkg)
+                            .why(res.getWhy())
                             .callerUid(callerUid)
                             .when(System.currentTimeMillis())
                             .build());
@@ -1748,6 +1752,32 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.APP_RUNNING;
         }
 
+        XStopWatch stopWatch = null;
+        if (BuildConfig.DEBUG) {
+            stopWatch = XStopWatch.start("START RULE CHECK");
+        }
+
+        // First check the user rules.
+        String callerPackageName = PkgUtil.pkgForUid(getContext(), callerUid);
+        if (callerPackageName != null) {
+            String[] patternAllow = constructStartAllowedRulePattern(callerPackageName, servicePkgName);
+            boolean isThisCallerAllowedInRule = RepoProxy.getProxy().getStart_rules().has(patternAllow);
+            if (isThisCallerAllowedInRule) {
+                return CheckResult.ALLOWED_IN_RULE;
+            }
+
+            String[] patternDeny = constructStartDenyRulePattern(callerPackageName, servicePkgName);
+            boolean isThisCallerDeniedInRule = RepoProxy.getProxy().getStart_rules().has(patternDeny);
+            if (isThisCallerDeniedInRule) {
+                return CheckResult.DENIED_IN_RULE;
+            }
+        }
+        if (BuildConfig.DEBUG) {
+            if (stopWatch != null) {
+                stopWatch.stop();
+            }
+        }
+
         // If this app is not in good condition, and user choose to block:
         boolean blockedByUser = isPackageStartBlockByUser(servicePkgName);
         // User block!!!
@@ -1765,16 +1795,32 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return CheckResult.ALLOWED_GENERAL;
     }
 
+    private String[] constructStartAllowedRulePattern(String callerPackage, String targetPackage) {
+        return new String[]{
+                "ALLOW * " + targetPackage,
+                "ALLOW * *",
+                "ALLOW " + callerPackage + " *",
+        };
+    }
+
+    private String[] constructStartDenyRulePattern(String callerPackage, String targetPackage) {
+        return new String[]{
+                "DENY * " + targetPackage,
+                "DENY " + callerPackage + " *",
+        };
+    }
+
     @Override
     @InternalCall
     public boolean checkBroadcast(String action, int receiverUid, int callerUid) {
         CheckResult res = checkBroadcastDetailed(action, receiverUid, callerUid);
         // Saving res record.
-        if (!res.res && res == CheckResult.USER_DENIED) {
+        if (!res.res) {
             logBroadcastEventToMemory(
                     BroadcastEvent.builder()
                             .action(action)
                             .allowed(res.res)
+                            .why(res.getWhy())
                             .appName(null)
                             .receiver(receiverUid)
                             .caller(callerUid)
@@ -2573,10 +2619,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         String receiverPkgName = PkgUtil.pkgForUid(getContext(), receiverUid);
         if (TextUtils.isEmpty(receiverPkgName)) return CheckResult.BAD_ARGS;
 
-        return checkBroadcastDetailed(receiverPkgName);
+        return checkBroadcastDetailed(receiverPkgName, PkgUtil.pkgForUid(getContext(), callerUid));
     }
 
-    private CheckResult checkBroadcastDetailed(String receiverPkgName) {
+    private CheckResult checkBroadcastDetailed(String receiverPkgName, String callerPackageName) {
 
         if (isInWhiteList(receiverPkgName)) {
             return CheckResult.WHITE_LISTED;
@@ -2716,6 +2762,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         .callerPkgName(callerPkg)
                         .appName(null)
                         .howManyTimes(oldTimes + 1)
+                        .reason(serviceEvent.why)
                         .timeWhen(System.currentTimeMillis())
                         .build();
                 if (XposedLog.isVerboseLoggable())
@@ -2757,6 +2804,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         .appName(null)
                         .callerPkgName(callerPkg)
                         .howManyTimes(oldTimes + 1)
+                        .reason(broadcastEvent.why)
                         .timeWhen(System.currentTimeMillis())
                         .build();
                 if (XposedLog.isVerboseLoggable())
@@ -4691,24 +4739,25 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public String[] getStartCallerWhiteList() throws RemoteException {
-        return convertObjectArrayToStringArray(RepoProxy.getProxy().getStart_caller_whitelist().getAll().toArray());
+    public String[] getStartRules() throws RemoteException {
+        return convertObjectArrayToStringArray(RepoProxy.getProxy().getStart_rules().getAll().toArray());
     }
 
     @Override
-    public void addOrRemoveStartCallerWhiteList(String[] pkgs,
-                                                final boolean add) throws RemoteException {
-        Collections.consumeRemaining(pkgs, new Consumer<String>() {
-            @Override
-            public void accept(String s) {
-                if (add) {
-                    RepoProxy.getProxy().getStart_caller_whitelist().add(s);
-                } else {
-                    RepoProxy.getProxy().getStart_caller_whitelist().remove(s);
-                }
-            }
-        });
-
+    public boolean addOrRemoveStartRules(String rule,
+                                         final boolean add) throws RemoteException {
+        XposedLog.verbose("addOrRemoveStartRules: " + rule + ", " + add);
+        RuleParser p = RuleParser.Factory.newParser();
+        Rule r = p.parse(rule);
+        XposedLog.verbose("addOrRemoveStartRules: " + r);
+        if (r == null) return false;
+        String rulePattern = r.toInternalPattern();
+        if (add) {
+            RepoProxy.getProxy().getStart_rules().add(rulePattern);
+            return true;
+        } else {
+            return RepoProxy.getProxy().getStart_rules().remove(rulePattern);
+        }
     }
 
     private int checkOperationInternal(int code, int uid, String packageName, String reason) {
@@ -6860,6 +6909,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public static final CheckResult JUST_BRING_DOWN = new CheckResult(false, "JUST_BRING_DOWN", true);
         public static final CheckResult DENIED_LAZY = new CheckResult(false, "DENIED_LAZY", true);
         public static final CheckResult DENIED_GREEN_APP = new CheckResult(false, "DENIED_GREEN_APP", true);
+        public static final CheckResult DENIED_IN_RULE = new CheckResult(false, "DENIED_IN_RULE", true);
+        public static final CheckResult ALLOWED_IN_RULE = new CheckResult(true, "ALLOWED_IN_RULE", true);
         public static final CheckResult ALLOWED_GENERAL = new CheckResult(true, "ALLOWED_GENERAL", true);
 
         private boolean res;

@@ -111,13 +111,13 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
-    public String[] getStartCallerWhiteList() throws RemoteException {
+    public String[] getStartRules() throws RemoteException {
         return new String[0];
     }
 
     @Override
-    public void addOrRemoveStartCallerWhiteList(String[] pkgs, boolean add) throws RemoteException {
-
+    public boolean addOrRemoveStartRules(String rule, boolean add) throws RemoteException {
+        return false;
     }
 
     // Below API will be ignored.

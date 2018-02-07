@@ -22,6 +22,7 @@ public class BlockRecord2 implements Parcelable {
     private String appName;
     private long timeWhen;
     private long howManyTimes;
+    private String reason;
 
     protected BlockRecord2(Parcel in) {
         pkgName = in.readString();
@@ -29,6 +30,7 @@ public class BlockRecord2 implements Parcelable {
         appName = in.readString();
         timeWhen = in.readLong();
         howManyTimes = in.readLong();
+        reason = in.readString();
     }
 
     public static final Creator<BlockRecord2> CREATOR = new Creator<BlockRecord2>() {
@@ -55,5 +57,6 @@ public class BlockRecord2 implements Parcelable {
         dest.writeString(appName);
         dest.writeLong(timeWhen);
         dest.writeLong(howManyTimes);
+        dest.writeString(reason);
     }
 }

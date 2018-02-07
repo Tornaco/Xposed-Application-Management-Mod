@@ -32,7 +32,7 @@
     <string name="title_setup_code_new">输入新的密码</string>
     <string name="title_setup_code_invalid">密码不符合规范</string>
     <string name="title_setup_code_mismatch">两次输入不一致</string>
-    <string name="title_help">新手必读（非常重要）</string>
+    <string name="title_help">新手手册</string>
     <string name="title_donate">捐赠</string>
     <string name="title_show_system_app">显示系统应用</string>
     <string name="first_run_title">XXXXX？!</string>
@@ -128,7 +128,7 @@
     <string name="app_lock_need_unlock">需要验证密码以继续</string>
     <string name="title_general_settings">基本设置</string>
     <string name="lk_delay">清理延时</string>
-    <string name="block_record_summary">已经阻止%1$s次，最近阻止%2$s，妄图启动者 %3$s。</string>
+    <string name="block_record_summary">已经阻止%1$s次，最近阻止%2$s， 阻止原因 %3$s，妄图启动者 %4$s。</string>
     <string name="title_component_editor">组件控制- %1$s</string>
     <string name="tab_text_1">服务</string>
     <string name="tab_text_2">广播</string>
@@ -431,7 +431,7 @@
     <string name="theme_name_pink">少女</string>
     <string name="theme_name_newyear">新年</string>
     <string name="summary_ops_template">绿化/常规权限均可在此配置。</string>
-    <string name="app_name_android">系统核心</string>
+    <string name="app_name_android">Android系统</string>
     <string name="app_ext">拓展</string>
     <string name="coming_soon">X</string>
     <string name="summary_app_resident">最大程度上防止应用进程被Low memory killer杀死，常驻内存。</string>
@@ -466,5 +466,7 @@
     <string name="summary_selinux_mode_auto">开机时可以自动设置Selinux模式。应用管理需要接收开机广播。</string>
     <string name="title_uninstall_app">卸载应用</string>
     <string name="message_uninstall_app">此操作无法恢复，请确认。</string>
+    <string name="title_app_auto_start_rule">关联启动规则</string>
+    <string name="summary_start_app_rules">你可以通过制定规则来细化关联启动控制，详细使用方法请参考新手使用手册。\n\n注意：规则优先级大于关联启动禁用的应用列表。</string>
 
 </resources>

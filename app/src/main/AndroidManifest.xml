@@ -135,8 +135,11 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.start.StartAppNavActivity"
-
             android:label="@string/title_app_auto_start"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.start.StartRuleNavActivity"
+            android:label="@string/title_app_auto_start_rule"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.start.StartAppPickerActivity"

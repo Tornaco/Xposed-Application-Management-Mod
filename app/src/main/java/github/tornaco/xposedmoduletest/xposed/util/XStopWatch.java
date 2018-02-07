@@ -41,7 +41,7 @@ public class XStopWatch {
         mName = name;
         mStart = getCurrentTime();
         mLastSplit = mStart;
-        XposedLog.debug("XStopWatch(" + mName + ") start");
+        XposedLog.wtf("XStopWatch(" + mName + ") start");
     }
 
     public static XStopWatch start(String name) {
@@ -51,13 +51,13 @@ public class XStopWatch {
     public void split(String label) {
         long now = getCurrentTime();
         long elapse = now - mLastSplit;
-        XposedLog.debug("XStopWatch(" + mName + ") split(" + label + ") " + elapse + "ms");
+        XposedLog.wtf("XStopWatch(" + mName + ") split(" + label + ") " + elapse + "ms");
         mLastSplit = now;
     }
 
     public void stop() {
         long now = getCurrentTime();
-        XposedLog.debug("XStopWatch(" + mName + ") stop: "
+        XposedLog.wtf("XStopWatch(" + mName + ") stop: "
                 + (now - mLastSplit)
                 + "  (total " + (now - mStart) + ")"
                 + "ms");

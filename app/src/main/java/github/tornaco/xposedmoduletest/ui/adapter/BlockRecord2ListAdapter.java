@@ -74,6 +74,7 @@ public class BlockRecord2ListAdapter extends RecyclerView.Adapter<BlockRecord2Li
                 context.getString(R.string.block_record_summary,
                         String.valueOf(blockRecord.getHowManyTimes()),
                         FuzzyDateTimeFormatter.getTimeAgo(context, new Date(blockRecord.getTimeWhen())),
+                        blockRecord.getReason(),
                         PkgUtil.loadNameByPkgName(context, blockRecord.getCallerPkgName())));
 
         CommonPackageInfo c = new CommonPackageInfo();

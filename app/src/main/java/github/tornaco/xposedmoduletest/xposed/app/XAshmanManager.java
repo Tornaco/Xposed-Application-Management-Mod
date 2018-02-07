@@ -1605,4 +1605,20 @@ public class XAshmanManager {
 
         }
     }
+
+    public String[] getStartRules() {
+        try {
+            return mService.getStartRules();
+        } catch (RemoteException e) {
+            return ArrayUtil.newEmptyStringArray();
+        }
+    }
+
+    public boolean addOrRemoveStartRules(String rule, boolean add) {
+        try {
+            return mService.addOrRemoveStartRules(rule, add);
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
 }

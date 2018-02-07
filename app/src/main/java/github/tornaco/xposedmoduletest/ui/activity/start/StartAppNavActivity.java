@@ -116,6 +116,9 @@ public class StartAppNavActivity extends CommonPackageInfoListActivity implement
         if (item.getItemId() == R.id.action_block_record_viewer) {
             BlockRecordViewerActivity.start(this, null);
         }
+        if (item.getItemId() == R.id.action_rules) {
+            StartRuleNavActivity.start(this);
+        }
         return super.onOptionsItemSelected(item);
     }
 }

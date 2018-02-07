@@ -30,4 +30,9 @@
         android:title="@string/title_block_viewer"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/action_rules"
+        android:title="@string/title_app_auto_start_rule"
+        app:showAsAction="never" />
+
 </menu>

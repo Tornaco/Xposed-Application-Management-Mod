@@ -47,7 +47,10 @@ public class RepoProxy {
         return sProxy.get();
     }
 
-    private SetRepo<String> boots, starts, start_caller_whitelist, lks, rfks, trks,
+    private SetRepo<String> boots,
+            starts,
+            start_rules,
+            lks, rfks, trks,
             perms, privacy, greens,
             blurs, locks, uninstall,
             data_restrict, wifi_restrict,
@@ -124,7 +127,7 @@ public class RepoProxy {
 
         boots = new StringSetRepo(new File(dir, "boots"), h, io);
         starts = new StringSetRepo(new File(dir, "starts"), h, io);
-        start_caller_whitelist = new StringSetRepo(new File(dir, "start_caller_whitelist"), h, io);
+        start_rules = new StringSetRepo(new File(dir, "start_rules"), h, io);
         lks = new StringSetRepo(new File(dir, "lks"), h, io);
         rfks = new StringSetRepo(new File(dir, "rfks"), h, io);
         trks = new StringSetRepo(new File(dir, "trks"), h, io);
@@ -221,6 +224,12 @@ public class RepoProxy {
         @Override
         public boolean has(String s) {
             XposedLog.verbose("has element on NULL-HACK");
+            return false;
+        }
+
+        @Override
+        public boolean has(String[] t) {
+            XposedLog.verbose("has element[] on NULL-HACK");
             return false;
         }
 
@@ -348,8 +357,8 @@ public class RepoProxy {
         return starts == null ? STRING_SET_NULL_HACK : starts;
     }
 
-    public SetRepo<String> getStart_caller_whitelist() {
-        return start_caller_whitelist == null ? STRING_SET_NULL_HACK : start_caller_whitelist;
+    public SetRepo<String> getStart_rules() {
+        return start_rules == null ? STRING_SET_NULL_HACK : start_rules;
     }
 
     public SetRepo<String> getLks() {
@@ -507,6 +516,8 @@ public class RepoProxy {
         getResident().removeAll();
         getDoze_whitelist_adding().removeAll();
         getDoze_whitelist_removal().removeAll();
+
+        getStart_rules().removeAll();
 
         getAppFocused().clear();
         getAppUnFocused().clear();

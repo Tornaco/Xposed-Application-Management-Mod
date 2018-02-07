@@ -10,5 +10,9 @@ import lombok.Data;
 public class Rule {
     private RuleAction ruleAction;
     private RuleTargetType[] ruleTargetTypes;
-    private String[] ruleTargets;
+    private String[] ruleTargets;// "XXXXX.XXX XXXX.XXXXXXX"
+
+    public String toInternalPattern() {
+        return ruleAction.name().toUpperCase() + " " + ruleTargets[0] + " " + ruleTargets[1];
+    }
 }

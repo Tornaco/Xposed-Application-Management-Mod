@@ -209,6 +209,16 @@ public class StringSetRepo implements SetRepo<String> {
     }
 
     @Override
+    public boolean has(String[] t) {
+        if (t != null) {
+            for (String tt : t) {
+                if (has(tt)) return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public String name() {
         return Files.getNameWithoutExtension(mFile.getBaseFile().getPath());
     }
