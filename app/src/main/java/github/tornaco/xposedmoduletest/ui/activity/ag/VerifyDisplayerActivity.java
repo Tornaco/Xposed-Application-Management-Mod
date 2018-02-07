@@ -213,6 +213,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
                                 patternLockView.setViewMode(PatternLockView.PatternViewMode.WRONG);
                                 patternLockView.clearPattern();
                                 takePhoto();
+                                setupLabel(getString(R.string.title_wrong_pwd));
                             }
                         });
             }
@@ -246,6 +247,8 @@ public class VerifyDisplayerActivity extends BaseActivity {
                             public void onMisMatch() {
                                 pinLockView.resetPinLockView();
                                 takePhoto();
+
+                                setupLabel(getString(R.string.title_wrong_pwd));
                             }
                         });
             }

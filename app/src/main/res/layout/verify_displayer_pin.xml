@@ -78,13 +78,13 @@
 
         <RelativeLayout
             android:id="@+id/pin_container"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_gravity="center"
+            android:layout_gravity="center|bottom"
             android:layout_marginBottom="@dimen/activity_vertical_margin_large"
             android:layout_marginTop="@dimen/activity_vertical_margin_large"
             android:layout_weight="3"
-            android:gravity="center">
+            android:gravity="center|bottom">
 
             <com.andrognito.pinlockview.IndicatorDots
                 android:id="@+id/indicator_dots"
@@ -103,9 +103,10 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/activity_horizontal_margin"
                 app:keypadTextColor="@color/black"
-                app:keypadTextSize="24dp" />
+                app:keypadTextSize="25sp" />
 
         </RelativeLayout>
+
     </LinearLayout>
 
 

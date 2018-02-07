@@ -82,11 +82,11 @@
             android:id="@+id/pin_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_gravity="center"
+            android:layout_gravity="center|bottom"
             android:layout_marginBottom="@dimen/activity_vertical_margin_large"
             android:layout_marginTop="@dimen/activity_horizontal_margin"
             android:layout_weight="3"
-            android:gravity="center">
+            android:gravity="center|bottom">
 
             <com.andrognito.patternlockview.PatternLockView
                 android:id="@+id/pattern_lock_view"

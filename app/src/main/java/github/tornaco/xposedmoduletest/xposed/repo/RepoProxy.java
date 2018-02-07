@@ -47,14 +47,14 @@ public class RepoProxy {
         return sProxy.get();
     }
 
-    private SetRepo<String> boots, starts, lks, rfks, trks,
+    private SetRepo<String> boots, starts, start_caller_whitelist, lks, rfks, trks,
             perms, privacy, greens,
             blurs, locks, uninstall,
             data_restrict, wifi_restrict,
             lazy, comps, white_list_hooks_dynamic,
             pending_disable_apps,
             pending_disable_apps_tr,
-            resident, dozeWhiteListAdding, dozeWhiteListRemoval;
+            resident, doze_whitelist_adding, doze_whitelist_removal;
 
     private MapRepo<String, String> componentReplacement, appFocused, appUnFocused;
 
@@ -124,6 +124,7 @@ public class RepoProxy {
 
         boots = new StringSetRepo(new File(dir, "boots"), h, io);
         starts = new StringSetRepo(new File(dir, "starts"), h, io);
+        start_caller_whitelist = new StringSetRepo(new File(dir, "start_caller_whitelist"), h, io);
         lks = new StringSetRepo(new File(dir, "lks"), h, io);
         rfks = new StringSetRepo(new File(dir, "rfks"), h, io);
         trks = new StringSetRepo(new File(dir, "trks"), h, io);
@@ -138,8 +139,8 @@ public class RepoProxy {
         pending_disable_apps = new StringSetRepo(new File(dir, "pending_disable_apps"), h, io);
         pending_disable_apps_tr = new StringSetRepo(new File(dir, "pending_disable_apps_tr"), h, io);
         resident = new StringSetRepo(new File(dir, "resident"), h, io);
-        dozeWhiteListAdding = new StringSetRepo(new File(dir, "dozeWhiteListAdding"), h, io);
-        dozeWhiteListRemoval = new StringSetRepo(new File(dir, "dozeWhiteListRemoval"), h, io);
+        doze_whitelist_adding = new StringSetRepo(new File(dir, "doze_whitelist_adding"), h, io);
+        doze_whitelist_removal = new StringSetRepo(new File(dir, "doze_whitelist_removal"), h, io);
 
         if (BuildConfig.DEBUG) try {
             @SuppressLint("SdCardPath") File dynamicHooks =
@@ -347,6 +348,10 @@ public class RepoProxy {
         return starts == null ? STRING_SET_NULL_HACK : starts;
     }
 
+    public SetRepo<String> getStart_caller_whitelist() {
+        return start_caller_whitelist == null ? STRING_SET_NULL_HACK : start_caller_whitelist;
+    }
+
     public SetRepo<String> getLks() {
         return lks == null ? STRING_SET_NULL_HACK : lks;
     }
@@ -379,12 +384,12 @@ public class RepoProxy {
         return locks == null ? STRING_SET_NULL_HACK : locks;
     }
 
-    public SetRepo<String> getDozeWhiteListAdding() {
-        return dozeWhiteListAdding == null ? STRING_SET_NULL_HACK : dozeWhiteListAdding;
+    public SetRepo<String> getDoze_whitelist_adding() {
+        return doze_whitelist_adding == null ? STRING_SET_NULL_HACK : doze_whitelist_adding;
     }
 
-    public SetRepo<String> getDozeWhiteListRemoval() {
-        return dozeWhiteListRemoval == null ? STRING_SET_NULL_HACK : dozeWhiteListRemoval;
+    public SetRepo<String> getDoze_whitelist_removal() {
+        return doze_whitelist_removal == null ? STRING_SET_NULL_HACK : doze_whitelist_removal;
     }
 
     public SetRepo<String> getUninstall() {
@@ -500,8 +505,8 @@ public class RepoProxy {
         getPending_disable_apps().removeAll();
         getPending_disable_apps_tr().removeAll();
         getResident().removeAll();
-        getDozeWhiteListAdding().removeAll();
-        getDozeWhiteListRemoval().removeAll();
+        getDoze_whitelist_adding().removeAll();
+        getDoze_whitelist_removal().removeAll();
 
         getAppFocused().clear();
         getAppUnFocused().clear();

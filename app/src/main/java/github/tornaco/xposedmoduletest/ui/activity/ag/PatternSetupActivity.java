@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.andrognito.patternlockview.PatternLockView;
 import com.andrognito.patternlockview.listener.PatternLockViewListener;
@@ -35,7 +36,7 @@ public class PatternSetupActivity extends NeedLockActivity implements PatternLoc
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.pattern_setup);
+        setContentView(R.layout.verify_displayer_pattern);
         patternLockView = findViewById(R.id.pattern_lock_view);
         if (mUserTheme.isReverseTheme()) {
             ImageView imageView = findViewById(R.id.icon);
@@ -44,6 +45,17 @@ public class PatternSetupActivity extends NeedLockActivity implements PatternLoc
         }
         patternLockView.addPatternLockListener(this);
         patternLockView.setEnableHapticFeedback(true);
+
+        setupLabel(getNewLockLabel());
+    }
+
+    private String getNewLockLabel() {
+        return getString(R.string.input_new_password);
+    }
+
+    private void setupLabel(String label) {
+        TextView textView = findViewById(R.id.label);
+        textView.setText(label);
     }
 
     @Override

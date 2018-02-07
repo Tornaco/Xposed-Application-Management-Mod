@@ -3,7 +3,6 @@ package github.tornaco.xposedmoduletest.ui.activity;
 import android.app.ActivityManager;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -180,8 +179,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         }
     }
 
-    private boolean mDrawerUserInfoSetup;
-
     private void setupView() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -200,34 +197,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity
 
             @Override
             public void onDrawerOpened(@NonNull View drawerView) {
-                if (mDrawerUserInfoSetup) return;
-
-                runOnUiThreadChecked(new Runnable() {
-                    @Override
-                    public void run() {
-                        boolean guideRead = AppSettings.isGuideRead(getContext());
-                        TextView userLevel = drawer.findViewById(R.id.user_name);
-
-                        if ((XApp.isPlayVersion() || AppSettings.isDonated(getContext()) || BuildConfig.DEBUG)
-                                && XAshmanManager.get().isServiceAvailable()) {
-                            String userName = XAshmanManager.get().getUserName();
-                            if (userName != null) {
-                                userLevel.setText(userName);
-                            } else {
-                                userLevel.setText(guideRead ? R.string.user_level_middle : R.string.user_level_low);
-                            }
-                            Bitmap userIcon = XAshmanManager.get().getUserIcon();
-                            if (userIcon != null) {
-                                ImageView userIconView = drawer.findViewById(R.id.user_avatar);
-                                userIconView.setImageBitmap(userIcon);
-                            }
-                        } else {
-                            userLevel.setText(guideRead ? R.string.user_level_middle : R.string.user_level_low);
-                        }
-
-                        mDrawerUserInfoSetup = true;
-                    }
-                });
             }
 
             @Override

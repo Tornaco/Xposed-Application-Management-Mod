@@ -360,4 +360,7 @@ interface IAshmanService {
 
      boolean isPowerSaveModeEnabled();
      void setPowerSaveModeEnabled(boolean enable);
+
+     String[] getStartCallerWhiteList();
+     void addOrRemoveStartCallerWhiteList(in String[] pkgs, boolean add);
 }

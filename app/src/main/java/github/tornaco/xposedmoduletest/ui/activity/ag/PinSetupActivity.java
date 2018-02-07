@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.andrognito.pinlockview.IndicatorDots;
 import com.andrognito.pinlockview.PinLockListener;
@@ -33,7 +34,7 @@ public class PinSetupActivity extends NeedLockActivity implements PinLockListene
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.pin_setup);
+        setContentView(R.layout.verify_displayer_pin);
         pinLockView = findViewById(R.id.pin_lock_view);
         IndicatorDots indicatorDots = findViewById(R.id.indicator_dots);
         pinLockView.attachIndicatorDots(indicatorDots);
@@ -43,6 +44,17 @@ public class PinSetupActivity extends NeedLockActivity implements PinLockListene
                     mUserTheme.getThemeColor()), android.graphics.PorterDuff.Mode.MULTIPLY);
         }
         pinLockView.setPinLockListener(this);
+
+        setupLabel(getNewLockLabel());
+    }
+
+    private String getNewLockLabel() {
+        return getString(R.string.input_new_password);
+    }
+
+    private void setupLabel(String label) {
+        TextView textView = findViewById(R.id.label);
+        textView.setText(label);
     }
 
     @Override

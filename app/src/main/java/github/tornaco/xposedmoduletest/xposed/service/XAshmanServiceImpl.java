@@ -2969,11 +2969,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         XposedLog.verbose("applyDozeWhiteList: " + mDeviceIdleController);
         try {
             if (mDeviceIdleController == null) return;
-            Set<String> adding = RepoProxy.getProxy().getDozeWhiteListAdding().getAll();
+            Set<String> adding = RepoProxy.getProxy().getDoze_whitelist_adding().getAll();
             for (String add : adding) {
                 mDeviceIdleController.addPowerSaveWhitelistAppInternal(add);
             }
-            Set<String> removing = RepoProxy.getProxy().getDozeWhiteListRemoval().getAll();
+            Set<String> removing = RepoProxy.getProxy().getDoze_whitelist_removal().getAll();
             for (String r : removing) {
                 mDeviceIdleController.removePowerSaveWhitelistAppInternal(r);
             }
@@ -4690,6 +4690,27 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETPOWERSAVEMODEENABLED, enable).sendToTarget();
     }
 
+    @Override
+    public String[] getStartCallerWhiteList() throws RemoteException {
+        return convertObjectArrayToStringArray(RepoProxy.getProxy().getStart_caller_whitelist().getAll().toArray());
+    }
+
+    @Override
+    public void addOrRemoveStartCallerWhiteList(String[] pkgs,
+                                                final boolean add) throws RemoteException {
+        Collections.consumeRemaining(pkgs, new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                if (add) {
+                    RepoProxy.getProxy().getStart_caller_whitelist().add(s);
+                } else {
+                    RepoProxy.getProxy().getStart_caller_whitelist().remove(s);
+                }
+            }
+        });
+
+    }
+
     private int checkOperationInternal(int code, int uid, String packageName, String reason) {
         if (packageName == null) return AppOpsManagerCompat.MODE_ALLOWED;
 
@@ -5352,16 +5373,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void addPowerSaveWhitelistApp(String pkg) throws RemoteException {
         mDeviceIdleController.addPowerSaveWhitelistAppInternal(pkg);
-        RepoProxy.getProxy().getDozeWhiteListAdding().add(pkg);
-        RepoProxy.getProxy().getDozeWhiteListRemoval().remove(pkg);
+        RepoProxy.getProxy().getDoze_whitelist_adding().add(pkg);
+        RepoProxy.getProxy().getDoze_whitelist_removal().remove(pkg);
     }
 
     @BinderCall
     @Override
     public void removePowerSaveWhitelistApp(String pkg) throws RemoteException {
         mDeviceIdleController.removePowerSaveWhitelistAppInternal(pkg);
-        RepoProxy.getProxy().getDozeWhiteListRemoval().add(pkg);
-        RepoProxy.getProxy().getDozeWhiteListAdding().remove(pkg);
+        RepoProxy.getProxy().getDoze_whitelist_removal().add(pkg);
+        RepoProxy.getProxy().getDoze_whitelist_adding().remove(pkg);
     }
 
     @BinderCall
