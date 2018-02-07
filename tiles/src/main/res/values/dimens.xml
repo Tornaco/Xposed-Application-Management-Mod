@@ -23,7 +23,7 @@
     <dimen name="dashboard_category_padding_end">0dp</dimen>
 
     <!-- Dashboard category bot margin -->
-    <dimen name="dashboard_category_bot_margin">16dp</dimen>
+    <dimen name="dashboard_category_bot_margin">12dp</dimen>
 
     <!-- Dashboard category panel elevation -->
     <dimen name="dashboard_category_elevation">2dp</dimen>

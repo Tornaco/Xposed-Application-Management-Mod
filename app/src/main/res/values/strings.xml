@@ -233,7 +233,7 @@
     <string name="title_enable_all">启用当前页全部</string>
     <string name="clear_data">帮我清除以上设置</string>
     <string name="title_auto_black">自动应用配置模板</string>
-    <string name="summary_auto_black">为新安装应用自动配置，点击设置模板</string>
+    <string name="summary_auto_black">为新安装应用自动配置，点击设置模板。</string>
     <string name="title_restart_rec">重启到Recovery模式</string>
     <string name="title_restart_bl">重启到Bootloader模式</string>
     <string name="title_perm_control">权限控制</string>
@@ -279,7 +279,7 @@
     <string name="user_notice_no">与我期望的不同</string>
     <string name="user_notice_yes">我觉得还行</string>
     <string name="title_crash_dump">错误报告</string>
-    <string name="summary_crash_dump">当某个应用发生异常闪退时，显示一个详细的错误堆栈并转储到Xposed日志，通常可以反馈给该应用开发者以帮助解决该问题。</string>
+    <string name="summary_crash_dump">当某应用异常闪退时，显示一个详细的错误堆栈。</string>
     <string name="title_crash_moke">模拟崩溃</string>
     <string name="summary_crash_moke">点击后，应用管理会进行闪退。</string>
     <string name="summary_exp">实验功能</string>
@@ -463,7 +463,7 @@
     <string name="message_selinux_not_enabled">Selinux模式不可用</string>
     <string name="title_selinux">SELINUX</string>
     <string name="title_selinux_mode_auto">开机自动设置</string>
-    <string name="summary_selinux_mode_auto">上面开关更改模式并不是永久的，重启会失效，因此勾选此选项，开机时可以自动设置Selinux模式。应用管理需要接收开机广播。</string>
+    <string name="summary_selinux_mode_auto">开机时可以自动设置Selinux模式。应用管理需要接收开机广播。</string>
     <string name="title_uninstall_app">卸载应用</string>
     <string name="message_uninstall_app">此操作无法恢复，请确认。</string>
 

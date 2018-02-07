@@ -163,7 +163,7 @@
             android:layout_marginLeft="@dimen/activity_horizontal_margin_tiny"
             android:layout_marginRight="@dimen/activity_horizontal_margin_tiny"
             android:layout_marginStart="@dimen/activity_horizontal_margin_tiny"
-            android:layout_marginTop="@dimen/activity_horizontal_margin_tiny"
+            android:layout_marginTop="@dimen/activity_horizontal_margin_marco"
             android:orientation="vertical" />
 
     </RelativeLayout>
