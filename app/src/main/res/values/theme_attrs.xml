@@ -8,6 +8,7 @@
 
     <attr name="torToolbarTheme" format="reference" />
     <attr name="torMenuIconTintColor" format="color" />
+    <attr name="torDrawerMenuIconTintColor" format="color" />
 
     <attr name="torAppbarDescriptionBackgroundColor" format="color" />
 

@@ -6,7 +6,7 @@
     <dimen name="text_margin">16dp</dimen>
 
     <dimen name="dashboard_tile_text_size">16sp</dimen>
-    <dimen name="dashboard_tile_text_size_small">13sp</dimen>
+    <dimen name="dashboard_tile_text_size_small">15sp</dimen>
 
     <!-- Dashboard margins between each tiles within the layout -->
     <dimen name="dashboard_cell_gap_x">0dp</dimen>

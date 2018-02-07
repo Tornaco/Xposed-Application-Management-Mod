@@ -26,6 +26,7 @@
         <item name="torAppbarTheme">@style/AppTheme.AppBarOverlay</item>
         <item name="torMDSearchBackground">?colorPrimary</item>
         <item name="torMenuIconTintColor">@color/white</item>
+        <item name="torDrawerMenuIconTintColor">@color/amber_dark</item>
     </style>
 
     <!-- Base application theme. -->
@@ -60,6 +61,7 @@
         <item name="torAppbarTheme">@style/AppTheme.AppBarOverlay</item>
         <item name="torMDSearchBackground">?colorPrimary</item>
         <item name="torMenuIconTintColor">@color/white</item>
+        <item name="torDrawerMenuIconTintColor">@color/red_dark</item>
     </style>
 
     <!-- Base application theme. -->
@@ -92,6 +94,7 @@
         <item name="torAppbarTheme">@style/AppThemeLight.AppBarOverlay</item>
         <item name="torMDSearchBackground">@color/white</item>
         <item name="torMenuIconTintColor">@color/white</item>
+        <item name="torDrawerMenuIconTintColor">@color/primary</item>
     </style>
 
     <style name="AppThemeLight.Drawer">
@@ -136,6 +139,7 @@
         <item name="torAppbarTheme">@style/AppThemeLight.AppBarOverlay</item>
         <item name="torMDSearchBackground">@color/white</item>
         <item name="torMenuIconTintColor">@color/white</item>
+        <item name="torDrawerMenuIconTintColor">@color/pink</item>
     </style>
 
     <style name="AppThemePink.Drawer">
@@ -179,6 +183,7 @@
         <item name="torAppbarTheme">@style/AppThemeLight.AppBarOverlay</item>
         <item name="torMDSearchBackground">@color/white</item>
         <item name="torMenuIconTintColor">@color/white</item>
+        <item name="torDrawerMenuIconTintColor">@color/red</item>
     </style>
 
     <style name="AppThemeNEWYEAR.Drawer">
@@ -202,11 +207,8 @@
     <style name="AppThemeO" parent="Theme.AppCompat.Light">
         <item name="switchBarTheme">@style/SwitchBarSettingsInvert</item>
         <item name="torToolbarTheme">@style/ToolbarThemeCommon</item>
-
         <item name="colorAccent">@color/primary_dark</item>
-
         <item name="android:windowBackground">@color/window_background</item>
-
         <item name="torCardBackgroundColor">@color/card_background</item>
         <item name="torCardAccentBackgroundColor">@color/green</item>
         <item name="torCardTitleColor">@color/white</item>
@@ -221,6 +223,7 @@
         <item name="torAppbarTheme">@style/AppThemeLight.AppBarOverlay</item>
         <item name="torMDSearchBackground">@color/white</item>
         <item name="torMenuIconTintColor">@color/primary_dark</item>
+        <item name="torDrawerMenuIconTintColor">@color/primary_dark</item>
     </style>
 
     <style name="AppThemeO.Drawer">
