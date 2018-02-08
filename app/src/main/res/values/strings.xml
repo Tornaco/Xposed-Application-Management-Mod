@@ -391,8 +391,10 @@
     <string name="title_start_test">Test</string>
     <string name="title_app_ana">应用排查</string>
     <string name="title_device_status">健康状况</string>
-    <string name="title_device_status_good">模块已激活，模块初始化与兼容性均良好，设备运行状况良好。</string>
-    <string name="title_device_status_module_err">模块已激活，但是模块初始化遇到了兼容性问题，请按照新手教程，截取Xposed日志，汇报给开发者，以解决该问题。设备运行状况良好。</string>
+    <string name="title_device_status_summary">模块已激活，模块兼容性%1$s，系统运行状况%2$s。</string>
+    <string name="title_device_status_summary_good">良好</string>
+    <string name="title_device_status_summary_compat_ng">遇到了故障，请按照新手手册上报日志，或者无视这些故障继续使用</string>
+    <string name="title_device_status_summary_system_ng">异常，检测到你的系统曾经出现了故障，可能经历过异常重启，死机，尽管不确定是不是应用管理导致的，仍然强烈建议按照新手手册上报日志，协助开发者提升应用稳定与兼容性，你也可以进入工具箱清空这些错误日志。</string>
     <string name="donated">我已经捐赠</string>
     <string name="donated_available">捐赠版可用</string>
     <string name="err_context_null">糟糕，无法获取所在的活动，无法显示对话框，蛋疼！</string>
@@ -470,5 +472,8 @@
     <string name="summary_start_app_rules">你可以通过制定规则来细化关联启动控制，详细使用方法请参考新手使用手册。\n\n注意：规则优先级大于关联启动禁用的应用列表。</string>
     <string name="title_new_start_rule">新建规则</string>
     <string name="start_rule_add_fail">无法添加该规则，请检查语法</string>
+    <string name="title_cleanup_system_error_trace">清空错误日志</string>
+    <string name="summary_cleanup_system_error_trace">删除所有的收集到的系统错误日志。</string>
+    <string name="res_cleanup_system_error_trace_success">已经清除所有日志</string>
 
 </resources>

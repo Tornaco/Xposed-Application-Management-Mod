@@ -136,6 +136,7 @@ import github.tornaco.xposedmoduletest.xposed.service.rule.RuleParser;
 import github.tornaco.xposedmoduletest.xposed.service.shell.AshShellCommand;
 import github.tornaco.xposedmoduletest.xposed.submodules.InputManagerInjectInputSubModule;
 import github.tornaco.xposedmoduletest.xposed.submodules.SubModuleManager;
+import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XStopWatch;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -4758,6 +4759,28 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         } else {
             return RepoProxy.getProxy().getStart_rules().remove(rulePattern);
         }
+    }
+
+    @Override
+    public boolean hasSystemError() throws RemoteException {
+        final Holder<Boolean> res = new Holder<>();
+        wrapCallingIdetUnCaught(new ErrorCatchRunnable(new Runnable() {
+            @Override
+            public void run() {
+                res.setData(!FileUtil.isEmptyDirOrNoExist(RepoProxy.getSystemErrorTraceDir()));
+            }
+        }, "hasSystemError"));
+        return res.getData();
+    }
+
+    @Override
+    public void cleanUpSystemErrorTraces() throws RemoteException {
+        wrapCallingIdetUnCaught(new ErrorCatchRunnable(new Runnable() {
+            @Override
+            public void run() {
+                FileUtil.deleteDir(RepoProxy.getSystemErrorTraceDir());
+            }
+        }, "cleanUpSystemErrorTraces"));
     }
 
     private int checkOperationInternal(int code, int uid, String packageName, String reason) {

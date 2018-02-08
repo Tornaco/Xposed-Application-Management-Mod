@@ -132,4 +132,9 @@ public abstract class FileUtil {
     public static boolean isEmptyDir(File dir) {
         return dir.exists() && dir.isDirectory() && dir.list().length == 0;
     }
+
+    public static boolean isEmptyDirOrNoExist(File dir) {
+        if (!dir.exists()) return true;
+        return isEmptyDir(dir);
+    }
 }

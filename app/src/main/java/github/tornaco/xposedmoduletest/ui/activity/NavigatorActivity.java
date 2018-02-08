@@ -1,6 +1,5 @@
 package github.tornaco.xposedmoduletest.ui.activity;
 
-import android.app.ActivityManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,7 +22,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -78,7 +76,6 @@ import github.tornaco.xposedmoduletest.xposed.XApp;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
-import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import lombok.Getter;
 
 /**
@@ -296,6 +293,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         Logger.d("showDeveloperMessage: " + message + ", " + show);
         if (BuildConfig.DEBUG || show) {
             AppSettings.setShowInfo(getContext(), messageId, false);
+            Logger.d("showing DeveloperMessage: " + message);
             new AlertDialog.Builder(getActivity())
                     .setTitle(message.getTitle())
                     .setView(EmojiViewUtil.makeMessageViewForDialog(getContext(), message.getMessage()))
@@ -548,7 +546,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         private void setupDeviceStatus() {
 
             boolean isNewBuild = AppSettings.isNewBuild(getActivity());
-            boolean isDonatedOrPlay = XApp.isPlayVersion() || AppSettings.isDonated(getContext());
             boolean serviceAvailable = isServiceAvailable();
 
             // Do not setup for new build.
@@ -570,32 +567,32 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                     }
                 });
 
-                final TextView memInfoText = rootView.findViewById(R.id.mem_info);
-                final ProgressBar memPercentView = rootView.findViewById(R.id.mem_percent);
                 XExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            ActivityManager.MemoryInfo m = XAshmanManager.get().getMemoryInfo();
-                            Logger.e("setupDeviceStatus: " + m);
-                            if (m != null) {
-                                final String infoStr = FileUtil.formatSize(m.availMem) + "/" + FileUtil.formatSize(m.totalMem);
-                                final int percent = (int) (100 * (((float) m.availMem / (float) m.totalMem)));
-                                BaseActivity baseActivity = (BaseActivity) getActivity();
-                                if (baseActivity != null) {
-                                    baseActivity.runOnUiThreadChecked(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            memInfoText.setText(infoStr);
-                                            memPercentView.setProgress(percent);
-                                            boolean hasModuleError = XAshmanManager.get().hasModuleError();
-                                            summaryView.setText(
-                                                    hasModuleError
-                                                            ? R.string.title_device_status_module_err
-                                                            : R.string.title_device_status_good);
+                            final boolean hasModuleError = XAshmanManager.get().hasModuleError();
+                            final boolean hasSystemError = XAshmanManager.get().hasSystemError();
+                            Logger.d("hasModuleError %s hasSystemError %s", hasModuleError, hasSystemError);
+                            BaseActivity baseActivity = (BaseActivity) getActivity();
+                            if (baseActivity != null) {
+                                baseActivity.runOnUiThreadChecked(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (hasModuleError || hasSystemError) {
+                                            ViewGroup header = findView(rootView, R.id.header1);
+                                            header.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.amber));
+                                            // Setup Icon.
+                                            ImageView imageView = findView(rootView, R.id.icon1);
+                                            imageView.setImageResource(R.drawable.ic_error_black_24dp);
                                         }
-                                    });
-                                }
+
+                                        String summary = getString(R.string.title_device_status_summary,
+                                                (hasModuleError ? getString(R.string.title_device_status_summary_compat_ng) : getString(R.string.title_device_status_summary_good)),
+                                                hasSystemError ? getString(R.string.title_device_status_summary_system_ng) : getString(R.string.title_device_status_summary_good));
+                                        summaryView.setText(summary);
+                                    }
+                                });
                             }
                         } catch (Throwable ignored) {
                             Logger.e("setupDeviceStatus: " + ignored);

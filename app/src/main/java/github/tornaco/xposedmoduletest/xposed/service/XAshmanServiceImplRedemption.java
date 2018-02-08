@@ -75,6 +75,17 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
         return true; // Yes!!!
     }
 
+
+    @Override
+    public boolean hasSystemError() throws RemoteException {
+        return true;  // Yes!!!
+    }
+
+    @Override
+    public void cleanUpSystemErrorTraces() throws RemoteException {
+        // Noop.
+    }
+
     @Override
     public void leaveRedemptionMode() throws RemoteException {
         RepoProxy.deleteFileIndicator(SubModuleManager.REDEMPTION);

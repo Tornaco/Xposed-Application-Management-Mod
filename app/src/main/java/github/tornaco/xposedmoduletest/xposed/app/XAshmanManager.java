@@ -1567,6 +1567,7 @@ public class XAshmanManager {
     }
 
     public boolean isSELinuxEnabled() {
+        ensureService();
         try {
             return mService.isSELinuxEnabled();
         } catch (RemoteException e) {
@@ -1575,6 +1576,7 @@ public class XAshmanManager {
     }
 
     public boolean isSELinuxEnforced() {
+        ensureService();
         try {
             return mService.isSELinuxEnforced();
         } catch (RemoteException e) {
@@ -1583,6 +1585,7 @@ public class XAshmanManager {
     }
 
     public void setSelinuxEnforce(boolean enforce) {
+        ensureService();
         try {
             mService.setSelinuxEnforce(enforce);
         } catch (RemoteException e) {
@@ -1591,6 +1594,7 @@ public class XAshmanManager {
     }
 
     public boolean isPowerSaveModeEnabled() {
+        ensureService();
         try {
             return mService.isPowerSaveModeEnabled();
         } catch (RemoteException e) {
@@ -1599,6 +1603,7 @@ public class XAshmanManager {
     }
 
     public void setPowerSaveModeEnabled(boolean enable) {
+        ensureService();
         try {
             mService.setPowerSaveModeEnabled(enable);
         } catch (RemoteException e) {
@@ -1607,6 +1612,7 @@ public class XAshmanManager {
     }
 
     public String[] getStartRules() {
+        ensureService();
         try {
             return mService.getStartRules();
         } catch (RemoteException e) {
@@ -1615,10 +1621,29 @@ public class XAshmanManager {
     }
 
     public boolean addOrRemoveStartRules(String rule, boolean add) {
+        ensureService();
         try {
             return mService.addOrRemoveStartRules(rule, add);
         } catch (RemoteException e) {
             return false;
+        }
+    }
+
+    public boolean hasSystemError() {
+        ensureService();
+        try {
+            return mService.hasSystemError();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public void cleanUpSystemErrorTraces() {
+        ensureService();
+        try {
+            mService.cleanUpSystemErrorTraces();
+        } catch (RemoteException e) {
+
         }
     }
 }

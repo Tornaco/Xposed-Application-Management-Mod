@@ -2,7 +2,6 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import android.app.AndroidAppHelper;
 import android.os.Binder;
-import android.os.Environment;
 import android.util.Log;
 
 import com.google.common.io.Files;
@@ -67,12 +66,7 @@ class RuntimeInitSubModule extends AndroidSubModule {
                                 Throwable e = (Throwable) param.args[1];
                                 String trace = t + "\n" + Log.getStackTraceString(e);
                                 XposedLog.wtf(trace);
-                                File systemFile = new File(Environment.getDataDirectory(), "system");
-                                File dir = new File(systemFile, "tor_apm");
-                                if (!dir.exists()) {
-                                    dir = new File(systemFile, "tor");
-                                }
-                                File traceDir = new File(dir, "trace");
+                                File traceDir = RepoProxy.getSystemErrorTraceDir();
                                 String fileName = "SYSTEM_ERROR_TRACE-" + DateUtils.formatForFileName(System.currentTimeMillis());
                                 File traceFile = new File(traceDir, fileName);
                                 XposedLog.wtf("Writing error trace to: " + traceFile);

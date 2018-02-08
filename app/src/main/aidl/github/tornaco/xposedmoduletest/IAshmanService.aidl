@@ -363,4 +363,7 @@ interface IAshmanService {
 
      String[] getStartRules();
      boolean addOrRemoveStartRules(String rule, boolean add);
+
+     boolean hasSystemError();
+     void cleanUpSystemErrorTraces();
 }

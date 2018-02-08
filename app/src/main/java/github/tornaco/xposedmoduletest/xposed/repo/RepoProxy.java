@@ -104,13 +104,17 @@ public class RepoProxy {
         return f.exists();
     }
 
-    private static File getBaseDataDir() {
+    public static File getBaseDataDir() {
         File systemFile = new File(Environment.getDataDirectory(), "system");
         File dir = new File(systemFile, "tor_apm");
         if (!dir.exists()) {
             dir = new File(systemFile, "tor");
         }
         return dir;
+    }
+
+    public static File getSystemErrorTraceDir() {
+        return new File(getBaseDataDir(), "trace");
     }
 
     private static void cleanUpBaseDataDir() {

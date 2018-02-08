@@ -15,6 +15,6 @@
         android:layout_weight="1"
         android:shadowRadius="2.75"
         android:text="@string/app_wiki_url"
-        android:textColor="?torListItemTitleTextColor"
+        android:textColor="@color/red_dark"
         android:textSize="18sp" />
 </LinearLayout>
