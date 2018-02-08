@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.loader;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,6 +28,13 @@ public class LoaderUtil {
         p.setInstalledTime(PkgUtil.loadInstalledTimeByPkgName(context, pkg));
         p.setAppLevel(XAshmanManager.get().getAppLevel(pkg));
         p.setSystemApp(PkgUtil.isSystemApp(context, pkg));
+
+        if (XAshmanManager.get().isServiceAvailable()) {
+            int state = XAshmanManager.get().getApplicationEnabledSetting(pkg);
+            boolean disabled = state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                    && state != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
+            p.setDisabled(disabled);
+        }
         return p;
     }
 

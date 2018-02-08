@@ -109,11 +109,6 @@ public interface ComponentLoader {
                 CommonPackageInfo packageInfo = LoaderUtil.constructCommonPackageInfo(context, p);
                 if (packageInfo == null) continue;
 
-                int state = XAshmanManager.get().getApplicationEnabledSetting(p);
-                boolean disabled = state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                        && state != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
-                packageInfo.setDisabled(disabled);
-
                 boolean match = (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_DISABLED_APPS && packageInfo.isDisabled())
                         || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ENABLED_APPS && !packageInfo.isDisabled())
                         || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_3RD_APPS && !packageInfo.isSystemApp())
@@ -141,10 +136,6 @@ public interface ComponentLoader {
                         || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_SYSTEM_APPS && packageInfo.isSystemApp());
                 if (!match) continue;
 
-                int state = XAshmanManager.get().getApplicationEnabledSetting(p);
-                boolean disabled = state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                        && state != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
-                packageInfo.setDisabled(disabled);
                 updateOpState(packageInfo);
                 res.add(packageInfo);
             }
