@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.ActivityCompat;
@@ -46,6 +47,7 @@ import github.tornaco.xposedmoduletest.provider.LockStorage;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.util.PatternLockViewListenerAdapter;
+import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 
@@ -404,13 +406,24 @@ public class VerifyDisplayerActivity extends BaseActivity {
             if (!checkTransaction()) {
                 return;
             }
-            // Delay res.
-            XAppGuardManager.get().setResult(tid, XAppVerifyMode.MODE_ALLOWED);
+
+            final boolean needFix = AppSettings.isAppLockWorkaroundEnabled(getContext());
+            long resDelay = needFix ? 800 : 100;
+            Handler h = XExecutor.getUIThreadHandler();
+            h.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Logger.w("set Res delayed: " + needFix);
+                    // Delay res.
+                    XAppGuardManager.get().setResult(tid, XAppVerifyMode.MODE_ALLOWED);
+                }
+            }, resDelay);
+
         } finally {
             try {
+                // Finish first.
                 finish();
             } catch (Throwable ignored) {
-                // Go dead.
             }
         }
     }

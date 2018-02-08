@@ -59,4 +59,8 @@ public abstract class OSUtil {
     public static boolean isHuaWeiDevice() {
         return Build.MANUFACTURER.contains("HUAWEI");
     }
+
+    public static boolean isNubiaDevice() {
+        return Build.FINGERPRINT.contains("nubia");
+    }
 }

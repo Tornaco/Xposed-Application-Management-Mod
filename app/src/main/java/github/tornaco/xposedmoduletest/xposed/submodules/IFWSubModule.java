@@ -79,6 +79,7 @@ public class IFWSubModule extends AndroidSubModule {
                     }
                 }
             });
+
             XposedLog.boot("hookIntentFireWall checkBroadcast OK:" + unHooks2);
 
             Set unHooks3 = XposedBridge.hookAllMethods(hookClass, "checkIntent",
@@ -89,7 +90,6 @@ public class IFWSubModule extends AndroidSubModule {
                             if (BuildConfig.DEBUG) {
                                 XposedLog.verbose("IFW checkIntent: " + Arrays.toString(param.args));
                             }
-                            ComponentName resolvedComponent = (ComponentName) param.args[1];
                         }
                     });
             XposedLog.boot("hookIntentFireWall checkIntent OK:" + unHooks3);

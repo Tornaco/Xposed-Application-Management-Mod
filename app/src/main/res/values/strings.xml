@@ -475,5 +475,7 @@
     <string name="res_cleanup_system_error_trace_success">已经清除所有日志</string>
     <string name="power_save_no_logs">你开启了节电模式，日志可能是过时的</string>
     <string name="message_disabled_apps_create_custom_icon">使用右下角带水印的图标</string>
+    <string name="title_app_lock_workaround">启用Workaround</string>
+    <string name="summary_app_lock_workaround">快速切换解锁与目标应用可能会带来一些稳定性问题，勾选该选项以规避该问题。</string>
 
 </resources>

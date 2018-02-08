@@ -12,6 +12,12 @@
             android:defaultValue="false"
             android:key="fp_enabled"
             android:title="@string/title_use_fp" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="app_lock_workaround"
+            android:summary="@string/summary_app_lock_workaround"
+            android:title="@string/title_app_lock_workaround" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/title_camera">

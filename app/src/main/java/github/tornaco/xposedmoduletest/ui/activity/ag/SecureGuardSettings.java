@@ -15,6 +15,8 @@ import android.support.v7.app.AlertDialog;
 import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.provider.AppKey;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.provider.LockStorage;
 import github.tornaco.xposedmoduletest.provider.XKey;
 import github.tornaco.xposedmoduletest.ui.activity.PhotoViewerActivity;
@@ -72,6 +74,8 @@ public class SecureGuardSettings extends GuardSettingsActivity {
                 }
             });
 
+            SwitchPreference workaround = (SwitchPreference) findPreference(AppKey.APPLOCK_WORKAROUND);
+            workaround.setChecked(AppSettings.isAppLockWorkaroundEnabled(getActivity()));
 
             if (XAppGuardManager.get().isServiceAvailable()) {
 
@@ -119,7 +123,6 @@ public class SecureGuardSettings extends GuardSettingsActivity {
 
 
                 SwitchPreference photoPref = (SwitchPreference) findPreference(XKey.TAKE_PHOTO_ENABLED);
-
                 if (photoPref != null) {
                     photoPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                         @Override

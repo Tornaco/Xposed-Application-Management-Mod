@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import java.util.Observable;
 
 import github.tornaco.xposedmoduletest.util.OSUtil;
+import github.tornaco.xposedmoduletest.util.WorkaroundFixer;
 import github.tornaco.xposedmoduletest.xposed.XApp;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.service.BuildFingerprintBuildHostInfo;
@@ -96,6 +97,20 @@ public class AppSettings extends Observable {
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit()
                 .putBoolean(AppKey.AUTO_SELINUX_MODE, read)
+                .apply();
+
+    }
+
+    public static boolean isAppLockWorkaroundEnabled(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(AppKey.APPLOCK_WORKAROUND,
+                        WorkaroundFixer.isThisDeviceVerifyDisplayerNeedDelayRes());
+    }
+
+    public static void setAppLockWorkaroundEnabled(Context context, boolean b) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(AppKey.APPLOCK_WORKAROUND, b)
                 .apply();
 
     }
