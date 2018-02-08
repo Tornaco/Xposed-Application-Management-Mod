@@ -394,7 +394,7 @@
     <string name="title_device_status_summary">模块已激活，模块兼容性%1$s，系统运行状况%2$s。</string>
     <string name="title_device_status_summary_good">良好</string>
     <string name="title_device_status_summary_compat_ng">遇到了故障，请按照新手手册上报日志，或者无视这些故障继续使用</string>
-    <string name="title_device_status_summary_system_ng">异常，检测到你的系统曾经出现了故障，可能经历过异常重启，死机，尽管不确定是不是应用管理导致的，仍然强烈建议按照新手手册上报日志，协助开发者提升应用稳定与兼容性，你也可以进入工具箱清空这些错误日志。</string>
+    <string name="title_device_status_summary_system_ng">异常，检测到你的系统曾经出现了故障，可能经历过异常重启，死机，尽管不确定是不是应用管理导致的，仍然强烈建议按照新手手册上报日志，协助开发者提升应用稳定与兼容性，你也可以进入工具箱清空这些错误日志</string>
     <string name="donated">我已经捐赠</string>
     <string name="donated_available">捐赠版可用</string>
     <string name="err_context_null">糟糕，无法获取所在的活动，无法显示对话框，蛋疼！</string>
@@ -476,5 +476,6 @@
     <string name="summary_cleanup_system_error_trace">删除所有的收集到的系统错误日志。</string>
     <string name="res_cleanup_system_error_trace_success">已经清除所有日志</string>
     <string name="power_save_no_logs">你开启了节电模式，日志可能是过时的</string>
+    <string name="message_disabled_apps_create_custom_icon">使用右下角带水印的图标</string>
 
 </resources>

@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 
-import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 
@@ -25,8 +24,11 @@ import github.tornaco.xposedmoduletest.util.BitmapUtil;
 
 public class ShortcutUtil {
 
+    // FIXME. Not work on Oreo.
     @SuppressLint("CheckResult")
-    public static void addShortcut(final Context context, final String pkgName, final boolean redisable, final boolean redisabletr) {
+    public static void addShortcut(final Context context, final String pkgName,
+                                   final boolean redisable, final boolean redisabletr,
+                                   final boolean customIcon) {
 
         Logger.d("addShortcut: " + pkgName + "-" + redisable + "-" + redisabletr);
 
@@ -39,7 +41,6 @@ public class ShortcutUtil {
                 .placeholder(0)
                 .error(R.mipmap.ic_launcher_round)
                 .fallback(R.mipmap.ic_launcher_round)
-                .transform(new CircleCrop())
                 .into(new SimpleTarget<Bitmap>() {
                     @Override
                     public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
@@ -63,7 +64,10 @@ public class ShortcutUtil {
                         shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, String.valueOf(title + "*"));
                         shortcut.putExtra("duplicate", false);
 
-                        shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON, BitmapUtil.createDisabledAppLauncherIcon(context, resource));
+                        shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON,
+                                customIcon ?
+                                        BitmapUtil.createDisabledAppLauncherIcon(context, resource)
+                                        : resource);
 
                         context.sendBroadcast(shortcut);
 

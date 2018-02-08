@@ -266,17 +266,19 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
         // FIXME Move to res.
         final String[] items = {getString(R.string.message_disabled_apps_create_shortcut),
                 getString(R.string.message_disabled_apps_re_disable),
-                getString(R.string.message_disabled_apps_re_disable_tr)};
+                getString(R.string.message_disabled_apps_re_disable_tr),
+                getString(R.string.message_disabled_apps_create_custom_icon)};
 
         final boolean[] createShortcut = {true};
         final boolean[] redisable = {true};
         final boolean[] redisable_tr = {true};
+        final boolean[] userCustomIcon = {false};
 
         new AlertDialog.Builder(getActivity()).setCancelable(false)
                 .setTitle(getString(R.string.title_disable_app) + "\t"
                         + PkgUtil.loadNameByPkgName(getContext(), pkgName))
 
-                .setMultiChoiceItems(items, new boolean[]{true, true, true},
+                .setMultiChoiceItems(items, new boolean[]{true, true, true, false},
                         new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
@@ -288,6 +290,9 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                                 }
                                 if (which == 2) {
                                     redisable_tr[0] = isChecked;
+                                }
+                                if (which == 3) {
+                                    userCustomIcon[0] = isChecked;
                                 }
                             }
                         })
@@ -301,7 +306,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                                         false);
 
                                 if (createShortcut[0]) {
-                                    ShortcutUtil.addShortcut(getActivity(), pkgName, redisable[0], redisable_tr[0]);
+                                    ShortcutUtil.addShortcut(getActivity(), pkgName, redisable[0], redisable_tr[0], userCustomIcon[0]);
                                 }
 
                                 startLoading();
