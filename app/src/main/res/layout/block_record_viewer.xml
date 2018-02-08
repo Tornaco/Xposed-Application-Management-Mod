@@ -8,7 +8,9 @@
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin_small"
+        android:layout_marginStart="@dimen/activity_horizontal_margin_small">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view"

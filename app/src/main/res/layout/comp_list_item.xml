@@ -6,9 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:layout_margin="3dp"
+    android:layout_margin="1px"
     card_view:cardCornerRadius="1dp"
-    card_view:cardElevation="1dp"
+    card_view:cardElevation="0dp"
     card_view:contentPadding="5dp">
 
     <RelativeLayout
@@ -75,8 +75,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:layout_toStartOf="@+id/more"
             android:layout_margin="@dimen/activity_horizontal_margin_large"
+            android:layout_toStartOf="@+id/more"
             android:minWidth="@dimen/dashboard_tile_minimum_height">
 
             <Switch

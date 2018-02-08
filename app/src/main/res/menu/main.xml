@@ -3,16 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_help"
+        android:icon="@drawable/ic_book_black_24dp"
+        android:title="@string/title_help"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_change_column_count"
         android:icon="@drawable/ic_view_stream_white_24dp"
         android:title="@string/title_change_column_count"
         app:showAsAction="ifRoom" />
-
-    <item
-        android:id="@+id/action_help"
-        android:icon="@drawable/ic_help_white_24dp"
-        android:title="@string/title_help"
-        app:showAsAction="never" />
 
     <item
         android:id="@+id/action_update_log"

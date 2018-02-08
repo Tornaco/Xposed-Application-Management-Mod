@@ -8,13 +8,13 @@
     <com.vanniktech.emoji.EmojiTextView
         android:id="@+id/content_text"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_horizontal_margin_small"
-        android:layout_marginStart="@dimen/activity_horizontal_margin_large"
+        android:layout_height="0dp"
         android:layout_marginEnd="@dimen/activity_horizontal_margin_large"
+        android:layout_marginStart="@dimen/activity_horizontal_margin_large"
+        android:layout_marginTop="@dimen/activity_horizontal_margin_small"
         android:layout_weight="1"
         android:shadowRadius="2.75"
         android:text="@string/app_wiki_url"
-        android:textColor="@color/black"
+        android:textColor="?torListItemTitleTextColor"
         android:textSize="18sp" />
 </LinearLayout>

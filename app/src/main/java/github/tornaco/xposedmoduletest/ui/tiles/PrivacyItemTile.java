@@ -6,7 +6,7 @@ import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.widget.EditText;
 
-import java.security.SecureRandom;
+import java.util.UUID;
 
 import dev.nick.tiles.tile.QuickTile;
 import github.tornaco.xposedmoduletest.R;
@@ -32,7 +32,7 @@ class PrivacyItemTile extends QuickTile {
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                String text = String.valueOf(new SecureRandom().nextLong());
+                                String text = UUID.randomUUID().toString();
                                 action.onAction(text);
                             }
                         })

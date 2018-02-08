@@ -295,16 +295,11 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         if (debug && !BuildConfig.DEBUG) return;
         Logger.d("showDeveloperMessage: " + message + ", " + show);
         if (BuildConfig.DEBUG || show) {
+            AppSettings.setShowInfo(getContext(), messageId, false);
             new AlertDialog.Builder(getActivity())
                     .setTitle(message.getTitle())
                     .setView(EmojiViewUtil.makeMessageViewForDialog(getContext(), message.getMessage()))
                     .setPositiveButton(android.R.string.ok, null)
-                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            AppSettings.setShowInfo(getContext(), messageId, false);
-                        }
-                    })
                     .setCancelable(message.isCancelable())
                     .create()
                     .show();
