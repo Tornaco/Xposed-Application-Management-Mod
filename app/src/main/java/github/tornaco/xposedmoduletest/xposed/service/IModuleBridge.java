@@ -78,7 +78,8 @@ public interface IModuleBridge {
 
     boolean onEarlyVerifyConfirm(String pkg, String reason);
 
-    void verify(Bundle options, String pkg, int uid, int pid, VerifyListener listener);
+    void verify(Bundle options, String pkg, ComponentName componentName,
+                int uid, int pid, VerifyListener listener);
 
     Intent checkIntent(Intent from);
 

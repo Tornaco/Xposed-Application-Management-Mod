@@ -259,7 +259,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private BroadcastReceiver mBatteryStateReceiver =
             new ProtectedBroadcastReceiver(new BroadcastReceiver() {
-
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     String action = intent.getAction();
@@ -1288,8 +1287,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void verify(Bundle options, String pkg, int uid, int pid, VerifyListener listener) {
-        mAppGuardService.verify(options, pkg, uid, pid, listener);
+    public void verify(Bundle options, String pkg, ComponentName componentName, int uid, int pid, VerifyListener listener) {
+        mAppGuardService.verify(options, pkg, componentName, uid, pid, listener);
     }
 
     @Override
@@ -2886,6 +2885,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 }
             }
         });
+
+        String[] lockWhiteListArr = readStringArrayFromAppGuard("app_lock_white_list_activity");
+        XposedLog.debug("Res app_lock_white_list_activity: " + Arrays.toString(lockWhiteListArr));
+        addAppLockWhiteListActivity(lockWhiteListArr);
     }
 
     private void inflateWhiteListHook() {
@@ -4781,6 +4784,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 FileUtil.deleteDir(RepoProxy.getSystemErrorTraceDir());
             }
         }, "cleanUpSystemErrorTraces"));
+    }
+
+    @Override
+    public void addAppLockWhiteListActivity(String[] activities) {
+        XposedLog.verbose("addAppLockWhiteListActivity: " + Arrays.toString(activities));
+        if (activities == null) return;
+        for (String a : activities) {
+            RepoProxy.getProxy().getLock_white_list_activity().add(a);
+        }
     }
 
     private int checkOperationInternal(int code, int uid, String packageName, String reason) {

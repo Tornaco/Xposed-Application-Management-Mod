@@ -113,7 +113,7 @@ class LauncherAppServiceSubModule extends AndroidSubModule {
                         return;
                     }
 
-                    getBridge().verify(op, pkgName, 0, 0, new VerifyListener() {
+                    getBridge().verify(op, pkgName, null, 0, 0, new VerifyListener() {
                         @Override
                         public void onVerifyRes(String pkg, int uid, int pid, int res) {
                             if (res == XAppVerifyMode.MODE_ALLOWED) try {

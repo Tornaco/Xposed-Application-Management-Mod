@@ -113,6 +113,25 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             initFirstRun();
         }
 
+        loadDevMessages();
+
+        // Dynamic update AppLock whitelist.
+        loadAppLockConfig();
+    }
+
+    private void loadAppLockConfig() {
+        if (XAshmanManager.get().isServiceAvailable()) {
+            XExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    String[] whitelist = getResources().getStringArray(R.array.app_lock_white_list_activity);
+                    XAshmanManager.get().addAppLockWhiteListActivity(whitelist);
+                }
+            });
+        }
+    }
+
+    private void loadDevMessages() {
         // Load dev message.
         DeveloperMessages.loadAsync(new DeveloperMessages.Callback() {
             @Override

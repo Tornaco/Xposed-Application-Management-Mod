@@ -12,7 +12,6 @@ import java.lang.reflect.Method;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 import github.tornaco.xposedmoduletest.xposed.service.VerifyListener;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -143,7 +142,7 @@ class ActivityStartSubModule extends AndroidSubModule {
                                         (Bundle) param.args[finalActivityOptsIndex]
                                         : null;
 
-                        getBridge().verify(options, pkgName, 0, 0,
+                        getBridge().verify(options, pkgName, componentName, 0, 0,
                                 new VerifyListener() {
                                     @Override
                                     public void onVerifyRes(String pkg, int uid, int pid, int res) {

@@ -11,7 +11,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 import github.tornaco.xposedmoduletest.xposed.service.VerifyListener;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -37,9 +36,10 @@ class TaskMoverSubModule extends AndroidSubModule {
                     super.beforeHookedMethod(param);
                     try {
                         String pkgName;
+                        ComponentName componentName = null;
                         Object realActivityObj = XposedHelpers.getObjectField(param.args[0], "realActivity");
                         if (realActivityObj != null) {
-                            ComponentName componentName = (ComponentName) realActivityObj;
+                            componentName = (ComponentName) realActivityObj;
                             pkgName = componentName.getPackageName();
                         } else {
                             // Using aff instead of PKG.
@@ -55,7 +55,7 @@ class TaskMoverSubModule extends AndroidSubModule {
                             return;
                         }
 
-                        getBridge().verify(null, pkgName, 0, 0,
+                        getBridge().verify(null, pkgName, componentName, 0, 0,
                                 new VerifyListener() {
                                     @Override
                                     public void onVerifyRes(String pkg, int uid, int pid, int res) {

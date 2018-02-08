@@ -1646,4 +1646,13 @@ public class XAshmanManager {
 
         }
     }
+
+    public void addAppLockWhiteListActivity(String[] activities) {
+        ensureService();
+        try {
+            mService.addAppLockWhiteListActivity(activities);
+        } catch (RemoteException e) {
+
+        }
+    }
 }

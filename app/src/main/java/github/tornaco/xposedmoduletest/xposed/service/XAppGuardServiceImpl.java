@@ -465,13 +465,29 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
 
     @InternalCall
-    public void verify(Bundle options, String pkg, int uid, int pid, VerifyListener listener) {
-        verifyInternal(options, pkg, uid, pid, false, listener);
+    public void verify(Bundle options, String pkg, ComponentName componentName, int uid, int pid, VerifyListener listener) {
+        verifyInternal(options, pkg, componentName, uid, pid, false, listener);
     }
 
-    private void verifyInternal(Bundle options, String pkg, int uid, int pid,
+    private void verifyInternal(Bundle options, String pkg, ComponentName componentName, int uid, int pid,
                                 boolean injectHomeOnFail, VerifyListener listener) {
-        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("verifyInternal: " + pkg);
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("verifyInternal: " + pkg + "-"
+                    + (componentName == null ? "NULL" : componentName.flattenToShortString()));
+        }
+
+        // Check if in white list.
+        if (componentName != null) {
+            String shortString = componentName.flattenToShortString();
+            boolean inActivityWhiteList =
+                    RepoProxy.getProxy().getLock_white_list_activity().has(shortString);
+            if (inActivityWhiteList) {
+                listener.onVerifyRes(pkg, uid, pid, XAppVerifyMode.MODE_ALLOWED);
+                XposedLog.verbose("Allow activity to start in white list");
+                return;
+            }
+        }
+
         VerifyArgs args = VerifyArgs.builder()
                 .bnds(options)
                 .pid(pid)
@@ -1170,7 +1186,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             if (!onEarlyVerifyConfirm(pkg, "onUserPresent")) {
                 return;
             }
-            verifyInternal(null, pkg, 0, 0, true, VerifyListenerAdapter.getDefault());
+            verifyInternal(null, pkg, null, 0, 0, true, VerifyListenerAdapter.getDefault());
         }
 
         public void setInterruptFPEventVBEnabled(int event, boolean enabled) {

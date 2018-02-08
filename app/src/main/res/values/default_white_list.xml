@@ -23,4 +23,12 @@
     <string-array name="ash_white_list_packages_hooks">
         <item>com.tencent.pb</item>
     </string-array>
+
+    <string-array name="app_lock_white_list_activity">
+        <item>com.tencent.mm/.plugin.voip.ui.VideoActivity</item>
+        <item>com.tencent.mobileqq/com.tencent.av.ui.VideoInviteFull</item>
+        <item>com.tencent.mobileqq/com.tencent.av.ui.AVActivity</item>
+        <item>com.tencent.mobileqq/com.tencent.av.ui.VideoInviteLock</item>
+        <item>com.tencent.mobileqq/.activity.QQLSActivity</item>
+    </string-array>
 </resources>

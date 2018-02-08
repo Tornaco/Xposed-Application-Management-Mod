@@ -366,4 +366,6 @@ interface IAshmanService {
 
      boolean hasSystemError();
      void cleanUpSystemErrorTraces();
+
+     void addAppLockWhiteListActivity(in String[] activities);
 }

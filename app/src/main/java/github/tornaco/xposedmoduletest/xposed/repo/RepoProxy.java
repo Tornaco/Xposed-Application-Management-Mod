@@ -47,12 +47,15 @@ public class RepoProxy {
         return sProxy.get();
     }
 
-    private SetRepo<String> boots,
+    private SetRepo<String>
+            boots,
             starts,
             start_rules,
             lks, rfks, trks,
             perms, privacy, greens,
-            blurs, locks, uninstall,
+            blurs,
+            locks, lock_white_list_activity,
+            uninstall,
             data_restrict, wifi_restrict,
             lazy, comps, white_list_hooks_dynamic,
             pending_disable_apps,
@@ -141,6 +144,7 @@ public class RepoProxy {
         greens = new StringSetRepo(new File(dir, "greens"), h, io);
         blurs = new StringSetRepo(new File(dir, "blurs"), h, io);
         locks = new StringSetRepo(new File(dir, "locks"), h, io);
+        lock_white_list_activity = new StringSetRepo(new File(dir, "lock_white_list_activity"), h, io);
         uninstall = new StringSetRepo(new File(dir, "uninstall"), h, io);
         lazy = new StringSetRepo(new File(dir, "lazy"), h, io);
         pending_disable_apps = new StringSetRepo(new File(dir, "pending_disable_apps"), h, io);
@@ -397,6 +401,10 @@ public class RepoProxy {
         return locks == null ? STRING_SET_NULL_HACK : locks;
     }
 
+    public SetRepo<String> getLock_white_list_activity() {
+        return lock_white_list_activity == null ? STRING_SET_NULL_HACK : lock_white_list_activity;
+    }
+
     public SetRepo<String> getDoze_whitelist_adding() {
         return doze_whitelist_adding == null ? STRING_SET_NULL_HACK : doze_whitelist_adding;
     }
@@ -511,6 +519,7 @@ public class RepoProxy {
         getBlurs().removeAll();
         getComps().removeAll();
         getLocks().removeAll();
+        getLock_white_list_activity().removeAll();
         getUninstall().removeAll();
         getData_restrict().removeAll();
         getWifi_restrict().removeAll();
