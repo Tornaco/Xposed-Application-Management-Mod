@@ -7,6 +7,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ import github.tornaco.xposedmoduletest.loader.BlockRecord2Loader;
 import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.adapter.BlockRecord2ListAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 
 public class BlockRecordViewerActivity extends WithRecyclerView {
@@ -55,6 +57,11 @@ public class BlockRecordViewerActivity extends WithRecyclerView {
     public void onResume() {
         super.onResume();
         startLoading();
+
+        boolean powerSave = XAshmanManager.get().isPowerSaveModeEnabled();
+        if (powerSave) {
+            Toast.makeText(getContext(), R.string.power_save_no_logs, Toast.LENGTH_SHORT).show();
+        }
     }
 
     protected void initView() {

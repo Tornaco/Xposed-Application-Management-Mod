@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.Toast;
 
 import org.newstand.logger.Logger;
 
@@ -51,6 +52,11 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        boolean powerSave = XAshmanManager.get().isPowerSaveModeEnabled();
+        if (powerSave) {
+            Toast.makeText(getContext(), R.string.power_save_no_logs, Toast.LENGTH_SHORT).show();
+        }
 
         mPackageName = getIntent().getStringExtra("tor_pkg");
         mOp = getIntent().getIntExtra("tor_op", -1);

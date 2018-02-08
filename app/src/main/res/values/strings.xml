@@ -475,5 +475,6 @@
     <string name="title_cleanup_system_error_trace">清空错误日志</string>
     <string name="summary_cleanup_system_error_trace">删除所有的收集到的系统错误日志。</string>
     <string name="res_cleanup_system_error_trace_success">已经清除所有日志</string>
+    <string name="power_save_no_logs">你开启了节电模式，日志可能是过时的</string>
 
 </resources>
