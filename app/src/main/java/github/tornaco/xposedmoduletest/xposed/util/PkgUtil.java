@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
@@ -115,12 +114,12 @@ public class PkgUtil {
     public static CharSequence loadNameByPkgName(Context context, String pkg) {
         if (pkg == null) return "NULL";
         if ("android".equals(pkg)) {
-            return context.getString(R.string.app_name_android);
+            return "Android系统"; // FIXME Not availabe in system process.
         }
         // Here we check if this is dummy one.
         boolean isDummy = XAshmanManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME.equals(pkg);
         if (isDummy) {
-            return context.getString(R.string.title_perm_control_template);
+            return "权限配置";
         }
 
         PackageManager pm = context.getPackageManager();

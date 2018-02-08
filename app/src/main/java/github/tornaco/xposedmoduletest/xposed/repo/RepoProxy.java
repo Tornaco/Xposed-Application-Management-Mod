@@ -51,6 +51,7 @@ public class RepoProxy {
             boots,
             starts,
             start_rules,
+            ifw_service, ifw_broadcast, ifw_activity,
             lks, rfks, trks,
             perms, privacy, greens,
             blurs,
@@ -120,6 +121,11 @@ public class RepoProxy {
         return new File(getBaseDataDir(), "trace");
     }
 
+    public static File getSystemErrorTraceDirByVersion() {
+        String versionName = String.valueOf(BuildConfig.VERSION_CODE);
+        return new File(getSystemErrorTraceDir(), versionName);
+    }
+
     private static void cleanUpBaseDataDir() {
         try {
             FileUtil.deleteDir(getBaseDataDir());
@@ -135,6 +141,9 @@ public class RepoProxy {
         boots = new StringSetRepo(new File(dir, "boots"), h, io);
         starts = new StringSetRepo(new File(dir, "starts"), h, io);
         start_rules = new StringSetRepo(new File(dir, "start_rules"), h, io);
+        ifw_activity = new StringSetRepo(new File(dir, "ifw_activity"), h, io);
+        ifw_broadcast = new StringSetRepo(new File(dir, "ifw_broadcast"), h, io);
+        ifw_service = new StringSetRepo(new File(dir, "ifw_service"), h, io);
         lks = new StringSetRepo(new File(dir, "lks"), h, io);
         rfks = new StringSetRepo(new File(dir, "rfks"), h, io);
         trks = new StringSetRepo(new File(dir, "trks"), h, io);
@@ -369,6 +378,18 @@ public class RepoProxy {
         return start_rules == null ? STRING_SET_NULL_HACK : start_rules;
     }
 
+    public SetRepo<String> getIfw_activity() {
+        return ifw_activity == null ? STRING_SET_NULL_HACK : ifw_activity;
+    }
+
+    public SetRepo<String> getIfw_broadcast() {
+        return ifw_broadcast == null ? STRING_SET_NULL_HACK : ifw_broadcast;
+    }
+
+    public SetRepo<String> getIfw_service() {
+        return ifw_service == null ? STRING_SET_NULL_HACK : ifw_service;
+    }
+
     public SetRepo<String> getLks() {
         return lks == null ? STRING_SET_NULL_HACK : lks;
     }
@@ -531,6 +552,9 @@ public class RepoProxy {
         getDoze_whitelist_removal().removeAll();
 
         getStart_rules().removeAll();
+        getIfw_activity().removeAll();
+        getIfw_broadcast().removeAll();
+        getIfw_service().removeAll();
 
         getAppFocused().clear();
         getAppUnFocused().clear();

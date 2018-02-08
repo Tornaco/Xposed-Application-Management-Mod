@@ -168,11 +168,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private static final boolean DEBUG_BROADCAST;
     private static final boolean DEBUG_SERVICE;
+
     private static final boolean DEBUG_OP = false && BuildConfig.DEBUG;
     private static final boolean DEBUG_COMP = false && BuildConfig.DEBUG;
 
     static {
-        DEBUG_BROADCAST = DEBUG_SERVICE = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.DEBUG);
+        DEBUG_BROADCAST = DEBUG_SERVICE =
+                XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.DEBUG);
         XposedLog.boot("DEBUG_BROADCAST & DEBUG_SERVICE: " + DEBUG_BROADCAST);
     }
 
@@ -1214,12 +1216,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @CommonBringUpApi
-    public boolean checkBroadcastIntent(IApplicationThread caller, Intent intent) {
+    public boolean checkBroadcastIntentSending(IApplicationThread caller, Intent intent) {
         mAppGuardService.checkBroadcastIntent(caller, intent);
 
         if (BuildConfig.DEBUG) {
             int callingUid = Binder.getCallingUid();
-            XposedLog.verbose("checkBroadcastIntent: %s, callingUid %s", intent, callingUid);
+            XposedLog.verbose("checkBroadcastIntentSending: %s, callingUid %s", intent, callingUid);
         }
         return true;
     }
@@ -1575,7 +1577,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public boolean checkService(ComponentName serviceComp, int callerUid) {
         if (serviceComp == null) return true;
         String appPkg = serviceComp.getPackageName();
-        CheckResult res = checkServiceDetailed(appPkg, serviceComp.toString(), callerUid);
+        CheckResult res = checkServiceDetailed(appPkg, serviceComp, callerUid);
         // Saving res record.
         if (!res.res) {
             logServiceEventToMemory(
@@ -1592,7 +1594,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
         if (DEBUG_SERVICE) {
             if (XposedLog.isVerboseLoggable()) {
-                XposedLog.verboseOn("XAshmanService checkService returning: " + res + "for: " +
+                XposedLog.verboseOn("checkService returning: " + res + "for: " +
                                 PkgUtil.loadNameByPkgName(getContext(), appPkg)
                                 + ", comp: " + serviceComp
                                 + ", caller: " + PkgUtil.pkgForUid(getContext(), callerUid),
@@ -1673,7 +1675,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return true;
     }
 
-    private CheckResult checkServiceDetailed(String servicePkgName, String serviceName, int callerUid) {
+    private CheckResult checkServiceDetailed(String servicePkgName,
+                                             ComponentName componentName,
+                                             int callerUid) {
         if (TextUtils.isEmpty(servicePkgName)) return CheckResult.BAD_ARGS;
 
         if (isInWhiteList(servicePkgName)) {
@@ -1685,13 +1689,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.SYSTEM_APP;
         }
 
+
         if (PkgUtil.justBringDown(servicePkgName)) {
             return CheckResult.JUST_BRING_DOWN;
         }
 
         // Check Op first for this package.
+        String shortString = componentName.flattenToShortString();
         int mode = getPermissionControlBlockModeForPkg(
-                AppOpsManagerCompat.OP_START_SERVICE, servicePkgName, true, new String[]{serviceName});
+                AppOpsManagerCompat.OP_START_SERVICE, servicePkgName, true, new String[]{shortString});
         if (mode == AppOpsManagerCompat.MODE_IGNORED) {
             return CheckResult.DENIED_OP_DENIED;
         }
@@ -1812,13 +1818,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @InternalCall
-    public boolean checkBroadcast(String action, int receiverUid, int callerUid) {
-        CheckResult res = checkBroadcastDetailed(action, receiverUid, callerUid);
+    public boolean checkBroadcast(Intent intent, int receiverUid, int callerUid) {
+        CheckResult res = checkBroadcastDetailed(intent, receiverUid, callerUid);
         // Saving res record.
         if (!res.res) {
             logBroadcastEventToMemory(
                     BroadcastEvent.builder()
-                            .action(action)
+                            .action(intent.getAction())
                             .allowed(res.res)
                             .why(res.getWhy())
                             .appName(null)
@@ -1831,12 +1837,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (DEBUG_BROADCAST) {
             if (XposedLog.isVerboseLoggable()) {
-                XposedLog.verboseOn("XAshmanService checkBroadcast returning: "
+                XposedLog.verboseOn("checkBroadcast returning: "
                                 + res + " for: "
-                                + PkgUtil.loadNameByPkgName(getContext(), PkgUtil.pkgForUid(getContext(), receiverUid))
+                                + PkgUtil.pkgForUid(getContext(), receiverUid)
                                 + " receiverUid: " + receiverUid
                                 + " callerUid: " + callerUid
-                                + " action: " + action
+                                + " action: " + intent
+                                + " comp: " + intent.getComponent()
                                 + ", caller: " + PkgUtil.pkgForUid(getContext(), callerUid),
                         mLoggingService);
             }
@@ -1845,8 +1852,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public boolean checkBroadcast(Intent intent, String callerPackage, int callingPid, int callingUid)
+    public boolean checkBroadcastDeliver(Intent intent, String callerPackage, int callingPid, int callingUid)
             throws RemoteException {
+        if (DEBUG_BROADCAST) {
+            XposedLog.verbose("checkBroadcastDeliver: " + intent);
+        }
         return true;
     }
 
@@ -2598,10 +2608,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         mainHandler.sendEmptyMessage(AshManHandlerMessages.MSG_FORCERELOADPACKAGES);
     }
 
-    private CheckResult checkBroadcastDetailed(String action, int receiverUid, int callerUid) {
+    private CheckResult checkBroadcastDetailed(Intent action, int receiverUid, int callerUid) {
 
         // Check if this is a boot complete action.
-        if (isBootCompleteBroadcastAction(action)) {
+        if (isBootCompleteBroadcastAction(action.getAction())) {
             return checkBootCompleteBroadcast(receiverUid, callerUid);
         }
 
@@ -2619,10 +2629,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         String receiverPkgName = PkgUtil.pkgForUid(getContext(), receiverUid);
         if (TextUtils.isEmpty(receiverPkgName)) return CheckResult.BAD_ARGS;
 
-        return checkBroadcastDetailed(receiverPkgName, PkgUtil.pkgForUid(getContext(), callerUid));
+        return checkBroadcastDetailed(action, receiverPkgName, PkgUtil.pkgForUid(getContext(), callerUid));
     }
 
-    private CheckResult checkBroadcastDetailed(String receiverPkgName, String callerPackageName) {
+    private CheckResult checkBroadcastDetailed(Intent action, String receiverPkgName, String callerPackageName) {
 
         if (isInWhiteList(receiverPkgName)) {
             return CheckResult.WHITE_LISTED;
@@ -4770,7 +4780,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         wrapCallingIdetUnCaught(new ErrorCatchRunnable(new Runnable() {
             @Override
             public void run() {
-                res.setData(!FileUtil.isEmptyDirOrNoExist(RepoProxy.getSystemErrorTraceDir()));
+                res.setData(!FileUtil.isEmptyDirOrNoExist(RepoProxy.getSystemErrorTraceDirByVersion()));
             }
         }, "hasSystemError"));
         return res.getData();
@@ -6941,6 +6951,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         // Denied cases.
         public static final CheckResult DENIED_GENERAL = new CheckResult(false, "DENIED_GENERAL", true);
         public static final CheckResult DENIED_OP_DENIED = new CheckResult(false, "DENIED_OP_DENIED", true);
+        public static final CheckResult DENIED_IFW = new CheckResult(false, "DENIED_IFW", true);
         public static final CheckResult JUST_BRING_DOWN = new CheckResult(false, "JUST_BRING_DOWN", true);
         public static final CheckResult DENIED_LAZY = new CheckResult(false, "DENIED_LAZY", true);
         public static final CheckResult DENIED_GREEN_APP = new CheckResult(false, "DENIED_GREEN_APP", true);

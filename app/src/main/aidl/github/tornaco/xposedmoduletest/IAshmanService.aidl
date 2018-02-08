@@ -47,8 +47,7 @@ interface IAshmanService {
 
     // API For Firewall.
     boolean checkService(in ComponentName servicePkgName, int callerUid);
-
-    boolean checkBroadcast(String action, int receiverUid, int callerUid);
+    boolean checkBroadcast(in Intent action, int receiverUid, int callerUid);
 
     List<BlockRecord2> getBlockRecords();
 

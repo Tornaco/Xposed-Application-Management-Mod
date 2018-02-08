@@ -154,7 +154,7 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
-    public boolean checkBroadcastIntent(IApplicationThread caller, Intent intent) {
+    public boolean checkBroadcastIntentSending(IApplicationThread caller, Intent intent) {
         return throwNoImpl();
     }
 
@@ -267,8 +267,8 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
-    public boolean checkBroadcast(Intent intent, String callerPackage,
-                                  int callingPid, int callingUid) throws RemoteException {
+    public boolean checkBroadcastDeliver(Intent intent, String callerPackage,
+                                         int callingPid, int callingUid) throws RemoteException {
         return false;
     }
 
@@ -398,7 +398,7 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
-    public boolean checkBroadcast(String action, int receiverUid, int callerUid) throws RemoteException {
+    public boolean checkBroadcast(Intent action, int receiverUid, int callerUid) throws RemoteException {
         return false;
     }
 

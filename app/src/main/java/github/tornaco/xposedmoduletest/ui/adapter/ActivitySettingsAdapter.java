@@ -67,10 +67,19 @@ public class ActivitySettingsAdapter extends ComponentListAdapter<ActivityInfoSe
                 boolean checked = s.isChecked();
                 activityInfoSettings.setAllowed(checked);
                 ComponentName componentName = ComponentUtil.getComponentName(activityInfoSettings.getActivityInfo());
-                xAshmanManager.setComponentEnabledSetting(componentName,
-                        checked ?
-                                PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                                : PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
+
+                switch (getMode()) {
+                    case COMPONENT_ENABLE_DISABLE:
+                        xAshmanManager.setComponentEnabledSetting(componentName,
+                                checked ?
+                                        PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                                        : PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
+                        break;
+                    case IFW:
+
+                        break;
+                }
+
             }
         });
     }

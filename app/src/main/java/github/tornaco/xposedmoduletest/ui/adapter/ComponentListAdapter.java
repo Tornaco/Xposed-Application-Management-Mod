@@ -32,10 +32,19 @@ import lombok.Setter;
 public class ComponentListAdapter<T>
         extends RecyclerView.Adapter<ComponentListAdapter.ComponentHolder> {
 
+    public enum Mode {
+        COMPONENT_ENABLE_DISABLE,
+        IFW
+    }
+
     private final List<T> data = Lists.newArrayList();
 
     @Getter
     private int selection = -1;
+
+    @Getter
+    @Setter
+    private Mode mode = Mode.COMPONENT_ENABLE_DISABLE;
 
     private Context context;
 

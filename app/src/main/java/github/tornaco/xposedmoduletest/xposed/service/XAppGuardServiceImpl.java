@@ -153,6 +153,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     });
 
     private PackageManager mPackageManager;
+    private PowerManager mPowerManager;
 
     // Safe mode is the last clear place user can stay.
     private boolean mIsSafeMode = false;
@@ -188,6 +189,10 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         cacheUIDForUs();
         registerReceiver();
         updateDebugMode();
+
+        // Retrieve power here.
+        mPowerManager = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
+        XposedLog.verbose("systemReady power: " + mPowerManager);
     }
 
     public void retrieveSettings() {
@@ -469,11 +474,23 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         verifyInternal(options, pkg, componentName, uid, pid, false, listener);
     }
 
-    private void verifyInternal(Bundle options, String pkg, ComponentName componentName, int uid, int pid,
+    private void verifyInternal(Bundle options, String pkg, ComponentName componentName,
+                                int uid, int pid,
                                 boolean injectHomeOnFail, VerifyListener listener) {
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("verifyInternal: " + pkg + "-"
                     + (componentName == null ? "NULL" : componentName.flattenToShortString()));
+        }
+
+        boolean screenOn = mPowerManager != null && mPowerManager.isInteractive();
+        if (!screenOn) {
+            boolean inActivityWhiteList =
+                    RepoProxy.getProxy().getLock_white_list_activity().has(pkg);
+            if (inActivityWhiteList) {
+                listener.onVerifyRes(pkg, uid, pid, XAppVerifyMode.MODE_ALLOWED);
+                XposedLog.verbose("Allow activity to start in white list and screen off");
+                return;
+            }
         }
 
         // Check if in white list.

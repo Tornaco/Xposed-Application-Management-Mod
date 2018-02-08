@@ -54,8 +54,8 @@ public interface IModuleBridge {
     boolean onKeyEvent(KeyEvent keyEvent, String source);
 
     @CommonBringUpApi
-    boolean checkBroadcastIntent(IApplicationThread caller,
-                                 Intent intent
+    boolean checkBroadcastIntentSending(IApplicationThread caller,
+                                        Intent intent
 //            , String resolvedType, IIntentReceiver resultTo,
 //                                 int resultCode, String resultData, Bundle map,
 //                                 String requiredPermission, int appOp, boolean serialized, boolean sticky, int userId
@@ -117,10 +117,10 @@ public interface IModuleBridge {
 
     boolean checkRestartService(String packageName, ComponentName componentName) throws RemoteException;
 
-    boolean checkBroadcast(String action, int receiverUid, int callerUid) throws RemoteException;
+    boolean checkBroadcast(Intent intent, int receiverUid, int callerUid) throws RemoteException;
 
     // FIXME  We are not ready to use this one.
-    boolean checkBroadcast(Intent intent, String callerPackage, int callingPid, int callingUid) throws RemoteException;
+    boolean checkBroadcastDeliver(Intent intent, String callerPackage, int callingPid, int callingUid) throws RemoteException;
 
     void onActivityDestroy(Intent intent, String reason);
 

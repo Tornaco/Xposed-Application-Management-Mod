@@ -30,5 +30,9 @@
         <item>com.tencent.mobileqq/com.tencent.av.ui.AVActivity</item>
         <item>com.tencent.mobileqq/com.tencent.av.ui.VideoInviteLock</item>
         <item>com.tencent.mobileqq/.activity.QQLSActivity</item>
+
+        <!--PACKAGES-->
+        <item>com.tencent.mm</item>
+        <item>com.tencent.mobileqq</item>
     </string-array>
 </resources>

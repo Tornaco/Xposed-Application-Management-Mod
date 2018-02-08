@@ -9,7 +9,6 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
-import github.tornaco.xposedmoduletest.IAppGuardService;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -122,7 +121,7 @@ public class XAshmanServiceImplDev extends XAshmanServiceImpl {
     }
 
     @Override
-    public boolean checkBroadcast(String action, int receiverUid, int callerUid) {
+    public boolean checkBroadcast(Intent action, int receiverUid, int callerUid) {
         return super.checkBroadcast(action, receiverUid, callerUid);
     }
 

@@ -42,7 +42,7 @@ class AMSBroadcastIntentSubModule extends AndroidSubModule {
                             IApplicationThread applicationThread = (IApplicationThread) param.args[0];
                             Intent intent = (Intent) param.args[1];
                             if (intent == null) return;
-                            boolean allow = getBridge().checkBroadcastIntent(applicationThread, intent);
+                            boolean allow = getBridge().checkBroadcastIntentSending(applicationThread, intent);
                             if (!allow) {
                                 param.setResult(ActivityManager.BROADCAST_SUCCESS);
                             }

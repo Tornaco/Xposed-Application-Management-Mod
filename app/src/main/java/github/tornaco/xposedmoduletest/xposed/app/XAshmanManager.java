@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.xposed.app;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.RemoteException;
@@ -249,7 +250,7 @@ public class XAshmanManager {
         }
     }
 
-    public boolean checkBroadcast(String action, int receiverUid, int callerUid) {
+    public boolean checkBroadcast(Intent action, int receiverUid, int callerUid) {
         ensureService();
         try {
             return mService.checkBroadcast(action, receiverUid, callerUid);

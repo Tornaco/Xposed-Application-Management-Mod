@@ -53,7 +53,7 @@ class BroadcastQueueSubModule extends AndroidSubModule {
                             // who sent this
                             String callerPackage = (String) XposedHelpers.getObjectField(broadcastRecord, "callerPackage");
                             if (callerPackage == null) return;
-                            boolean allow = getBridge().checkBroadcast(intent, callerPackage, -1, -1);
+                            boolean allow = getBridge().checkBroadcastDeliver(intent, callerPackage, -1, -1);
                             if (!allow) {
                                 param.setResult(null);
                             }

@@ -404,6 +404,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
             if (!checkTransaction()) {
                 return;
             }
+            // Delay res.
             XAppGuardManager.get().setResult(tid, XAppVerifyMode.MODE_ALLOWED);
         } finally {
             try {

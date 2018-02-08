@@ -84,6 +84,10 @@ public class SubModuleManager {
         addToSubsChecked(new ASDSubModule());
         addToSubsChecked(new IFWSubModule());
 
+        if (BuildConfig.DEBUG) {
+            addToSubsChecked(new BroadcastQueueSubModule());
+        }
+
         addToSubsChecked(new AppOpsSubModule4());
         addToSubsChecked(new AppOpsSubModule3());
         addToSubsChecked(new AppOpsSubModule2());

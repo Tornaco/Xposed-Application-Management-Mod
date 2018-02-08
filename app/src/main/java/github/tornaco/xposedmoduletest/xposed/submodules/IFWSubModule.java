@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.util.Log;
 
+import java.util.Arrays;
 import java.util.Set;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -28,35 +29,40 @@ public class IFWSubModule extends AndroidSubModule {
     private void hookIntentFireWall(XC_LoadPackage.LoadPackageParam lpparam) {
         XposedLog.verbose("hookIntentFireWall...");
         try {
-            Class ams = XposedHelpers.findClass("com.android.server.firewall.IntentFirewall",
+            Class hookClass = XposedHelpers.findClass("com.android.server.firewall.IntentFirewall",
                     lpparam.classLoader);
-            Set unHooks = XposedBridge.hookAllMethods(ams, "checkService", new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    super.beforeHookedMethod(param);
-                    if (false && BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
-                        try {
-                            Intent intent = (Intent) param.args[1];
-                            Log.d(XposedLog.TAG_PREFIX,
-                                    "checkService@ intent: " + intent + "extra: " + intent.getExtras()
-                                            + ObjectToStringUtil.intentToString(intent));
-                        } catch (Exception ignored) {
+            Set unHooks = XposedBridge.hookAllMethods(hookClass, "checkService",
+                    new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            super.beforeHookedMethod(param);
+                            if (false && BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
+                                try {
+                                    Intent intent = (Intent) param.args[1];
+                                    Log.d(XposedLog.TAG_PREFIX,
+                                            "checkService@ intent: " + intent + "extra: " + intent.getExtras()
+                                                    + ObjectToStringUtil.intentToString(intent));
+                                } catch (Exception ignored) {
+                                }
+                            }
+                            ComponentName componentName = (ComponentName) param.args[0];
+                            int callerID = (int) param.args[2];
+                            boolean res = getBridge().checkService(componentName, callerID);
+                            if (!res) {
+                                param.setResult(false);
+                            }
                         }
-                    }
-                    ComponentName componentName = (ComponentName) param.args[0];
-                    int callerID = (int) param.args[2];
-                    param.setResult(getBridge().checkService(componentName, callerID));
-                }
-            });
-            XposedLog.boot("hookIntentFireWall OK:" + unHooks);
+                    });
+            XposedLog.boot("hookIntentFireWall checkService OK:" + unHooks);
 
-            Set unHooks2 = XposedBridge.hookAllMethods(ams, "checkBroadcast", new XC_MethodHook() {
+            Set unHooks2 = XposedBridge.hookAllMethods(hookClass, "checkBroadcast", new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     super.beforeHookedMethod(param);
                     int callerUid = (int) param.args[1];
                     int recUid = (int) param.args[4];
                     Intent intent = (Intent) param.args[0];
+                    if (intent == null) return;
 
                     if (false && BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
                         try {
@@ -67,13 +73,31 @@ public class IFWSubModule extends AndroidSubModule {
                         }
                     }
 
-                    String action = intent == null ? null : intent.getAction();
-                    param.setResult(getBridge().checkBroadcast(action, recUid, callerUid));
+                    boolean res = getBridge().checkBroadcast(intent, recUid, callerUid);
+                    if (!res) {
+                        param.setResult(false);
+                    }
                 }
             });
-            XposedLog.boot("hookIntentFireWall2 OK:" + unHooks2);
+            XposedLog.boot("hookIntentFireWall checkBroadcast OK:" + unHooks2);
+
+            Set unHooks3 = XposedBridge.hookAllMethods(hookClass, "checkIntent",
+                    new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            super.beforeHookedMethod(param);
+                            if (BuildConfig.DEBUG) {
+                                XposedLog.verbose("IFW checkIntent: " + Arrays.toString(param.args));
+                            }
+                            ComponentName resolvedComponent = (ComponentName) param.args[1];
+                        }
+                    });
+            XposedLog.boot("hookIntentFireWall checkIntent OK:" + unHooks3);
+
+
             setStatus(unhooksToStatus(unHooks));
             setStatus(unhooksToStatus(unHooks2));
+            setStatus(unhooksToStatus(unHooks3));
         } catch (Exception e) {
             XposedLog.verbose("Fail hook hookIntentFireWall");
             setStatus(SubModuleStatus.ERROR);

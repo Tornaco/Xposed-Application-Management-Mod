@@ -66,7 +66,7 @@ class RuntimeInitSubModule extends AndroidSubModule {
                                 Throwable e = (Throwable) param.args[1];
                                 String trace = t + "\n" + Log.getStackTraceString(e);
                                 XposedLog.wtf(trace);
-                                File traceDir = RepoProxy.getSystemErrorTraceDir();
+                                File traceDir = RepoProxy.getSystemErrorTraceDirByVersion();
                                 String fileName = "SYSTEM_ERROR_TRACE-" + DateUtils.formatForFileName(System.currentTimeMillis());
                                 File traceFile = new File(traceDir, fileName);
                                 XposedLog.wtf("Writing error trace to: " + traceFile);
