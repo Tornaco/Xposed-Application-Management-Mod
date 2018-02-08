@@ -115,6 +115,19 @@ public class AppSettings extends Observable {
 
     }
 
+    public static String getAppIconPack(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(AppKey.APP_ICON_PACK, null);
+    }
+
+    public static void setAppIconPack(Context context, String p) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putString(AppKey.APP_ICON_PACK, p)
+                .apply();
+
+    }
+
     public static boolean isSelinuxModeEnforceEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(AppKey.SELINUX_MODE_ENFORCE, true);

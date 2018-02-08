@@ -49,7 +49,6 @@ public class PkgUtil {
 //            // FIXME Should we skip now?
 //        }
         PackageManager pm = context.getPackageManager();
-
         try {
             ApplicationInfo info = null;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {

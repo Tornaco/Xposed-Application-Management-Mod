@@ -45,7 +45,7 @@ public interface GreeningPackageLoader {
 
             for (String pkg : packages) {
                 CommonPackageInfo p = LoaderUtil.constructCommonPackageInfo(context, pkg);
-                if (p != null) out.add(p);
+                if (p != null && !p.isDisabled()) out.add(p);
             }
 
             java.util.Collections.sort(out, new PinyinComparator());

@@ -63,7 +63,7 @@ public interface DozeWhitelistPackageLoader {
             if (white) {
                 for (String pkg : packages) {
                     CommonPackageInfo p = LoaderUtil.constructCommonPackageInfo(context, pkg);
-                    if (p != null) {
+                    if (p != null && !p.isDisabled()) {
                         if (systemSet.contains(pkg)) {
                             p.setPayload(new String[]{"SYSTEM"});
                         }
@@ -77,7 +77,7 @@ public interface DozeWhitelistPackageLoader {
                     boolean whitelisted = whiteSet.contains(pkg);
                     if (!whitelisted) {
                         CommonPackageInfo p = LoaderUtil.constructCommonPackageInfo(context, pkg);
-                        if (p != null) {
+                        if (p != null && !p.isDisabled()) {
                             out.add(p);
                         }
                     }

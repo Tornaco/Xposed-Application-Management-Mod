@@ -43,7 +43,7 @@ public interface LazyPackageLoader {
 
             for (String pkg : packages) {
                 CommonPackageInfo p = LoaderUtil.constructCommonPackageInfo(context, pkg);
-                if (p != null) out.add(p);
+                if (p != null && !p.isDisabled()) out.add(p);
             }
 
             LoaderUtil.commonSort(out);

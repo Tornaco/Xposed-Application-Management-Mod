@@ -28,6 +28,7 @@ import github.tornaco.xposedmoduletest.backup.DataBackup;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlack;
 import github.tornaco.xposedmoduletest.ui.tiles.app.Backup;
+import github.tornaco.xposedmoduletest.ui.tiles.app.IconPack;
 import github.tornaco.xposedmoduletest.ui.tiles.app.PowerSave;
 import github.tornaco.xposedmoduletest.ui.tiles.app.Restore;
 import github.tornaco.xposedmoduletest.ui.tiles.app.RestoreDefault;
@@ -236,6 +237,7 @@ public class AppDashboardActivity extends WithWithCustomTabActivity
             theme.titleRes = R.string.title_style;
             theme.addTile(new ThemeChooser(getActivity()));
             theme.addTile(new ShowTileDivider(getActivity()));
+            theme.addTile(new IconPack(getActivity()));
 
             categories.add(system);
             categories.add(systemProtect);

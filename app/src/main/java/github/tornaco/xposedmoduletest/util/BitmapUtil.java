@@ -15,6 +15,8 @@ import android.support.annotation.RequiresApi;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.content.ContextCompat;
 
+import java.io.ByteArrayOutputStream;
+
 import github.tornaco.xposedmoduletest.R;
 
 /**
@@ -23,6 +25,15 @@ import github.tornaco.xposedmoduletest.R;
  */
 
 public abstract class BitmapUtil {
+
+    public static byte[] drawableToByteArray(Drawable d, boolean resize) {
+        Bitmap bitmap = ((BitmapDrawable) d).getBitmap();
+
+        if (resize) bitmap = Bitmap.createScaledBitmap(bitmap, 32, 32, false);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        return stream.toByteArray();
+    }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public static Bitmap getBitmap(VectorDrawable vectorDrawable) {

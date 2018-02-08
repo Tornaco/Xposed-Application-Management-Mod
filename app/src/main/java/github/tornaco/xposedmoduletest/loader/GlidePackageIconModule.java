@@ -23,6 +23,9 @@ import org.newstand.logger.Logger;
 
 import github.tornaco.android.common.util.ApkUtil;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
+import github.tornaco.xposedmoduletest.ui.iconpack.IconPack;
+import github.tornaco.xposedmoduletest.ui.iconpack.IconPackManager;
 import github.tornaco.xposedmoduletest.util.BitmapUtil;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.XApp;
@@ -35,6 +38,8 @@ import lombok.Getter;
  */
 @GlideModule
 public class GlidePackageIconModule extends AppGlideModule {
+
+    private static final IconPackManager m = new IconPackManager();
 
     @AllArgsConstructor
     private static class PackageInfoDataFetcher implements DataFetcher<Bitmap> {
@@ -49,7 +54,30 @@ public class GlidePackageIconModule extends AppGlideModule {
                 callback.onLoadFailed(new NullPointerException("Package name is null"));
                 return;
             }
-            Drawable d = ApkUtil.loadIconByPkgName(XApp.getApp().getApplicationContext(), info.getPkgName());
+            Context context = XApp.getApp().getApplicationContext();
+            try {
+                String iconPackPackage = AppSettings.getAppIconPack(context);
+                if (iconPackPackage != null) {
+                    IconPackManager iconPackManager = IconPackManager.getInstance();
+                    IconPack pack = iconPackManager.getIconPackage(context, iconPackPackage);
+                    Logger.d("IconPack: " + pack);
+                    if (pack != null) {
+                        boolean installed = pack.isInstalled();
+                        if (installed) {
+                            Drawable iconPackDrawable = pack.getDrawableIconForPackage(info.getPkgName());
+                            Logger.d("IconPack iconPackDrawable: " + iconPackDrawable);
+                            if (iconPackDrawable != null) {
+                                Bitmap bd = BitmapUtil.getBitmap(XApp.getApp().getApplicationContext(), iconPackDrawable);
+                                callback.onDataReady(bd);
+                                return;
+                            }
+                        }
+                    }
+                }
+            } catch (Throwable e) {
+                Logger.e("Fail load icon from pack: " + Logger.getStackTraceString(e));
+            }
+            Drawable d = ApkUtil.loadIconByPkgName(context, info.getPkgName());
             Bitmap bd = BitmapUtil.getBitmap(XApp.getApp().getApplicationContext(), d);
             callback.onDataReady(bd);
         }

@@ -40,7 +40,7 @@ public interface LockPackageLoader {
             String[] lockedPkgArr = appGuardManager.getLockApps(locked);
             for (String p : lockedPkgArr) {
                 CommonPackageInfo packageInfo = LoaderUtil.constructCommonPackageInfo(context, p);
-                if (packageInfo == null) continue;
+                if (packageInfo == null || packageInfo.isDisabled()) continue;
                 boolean match = filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ALL_APPS
                         || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_3RD_APPS && !packageInfo.isSystemApp())
                         || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_SYSTEM_APPS && packageInfo.isSystemApp());

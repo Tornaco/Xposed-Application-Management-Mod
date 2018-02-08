@@ -47,7 +47,7 @@ public interface TRKillPackageLoader {
 
             for (String pkg : packages) {
                 CommonPackageInfo p = LoaderUtil.constructCommonPackageInfo(context, pkg);
-                if (p == null) continue;
+                if (p == null || p.isDisabled()) continue;
                 boolean match = filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ALL_APPS
                         || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_3RD_APPS && !p.isSystemApp())
                         || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_SYSTEM_APPS && p.isSystemApp());
