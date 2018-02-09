@@ -53,7 +53,7 @@ public class IconPack extends App {
         this.mContext = context;
         this.label = resolveInfo.loadLabel(mContext.getPackageManager());
         this.packageName = resolveInfo.activityInfo.packageName;
-        this.icon = BitmapUtil.drawableToByteArray(resolveInfo.loadIcon(mContext.getPackageManager()), false);
+        // this.icon = BitmapUtil.drawableToByteArray(resolveInfo.loadIcon(mContext.getPackageManager()), false);
     }
 
     public boolean isInstalled() {
