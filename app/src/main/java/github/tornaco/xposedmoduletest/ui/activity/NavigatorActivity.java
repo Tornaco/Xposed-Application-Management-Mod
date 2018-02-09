@@ -107,16 +107,29 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             XAshmanManager.get().forceReloadPackages();
         }
 
+        if (!XApp.isPlayVersion()) {
+            // FIXME Extract to constant.
+            boolean showUserGuide = AppSettings.isShowInfoEnabled(this, "USER_GUIDES_AIO", true);
+            if (showUserGuide) {
+                UserGuideActivityA.start(getActivity());
+            }
+        }
+
+        miscIfNotFirst();
+
         if (OSUtil.isOOrAbove()) {
             initTVStateForOreo();
         } else {
             initFirstRun();
         }
+    }
 
-        loadDevMessages();
-
-        // Dynamic update AppLock whitelist.
-        loadAppLockConfig();
+    private void miscIfNotFirst() {
+        if (!AppSettings.isFirstRun(getApplicationContext())) {
+            loadDevMessages();
+            // Dynamic update AppLock whitelist.
+            loadAppLockConfig();
+        }
     }
 
     private void loadAppLockConfig() {
@@ -342,10 +355,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity
     private void initFirstRun() {
         try {
             if (AppSettings.isFirstRun(getApplicationContext())) {
-
-                if (!XApp.isPlayVersion()) {
-                    UserGuideActivityA.start(getActivity());
-                }
 
                 new AlertDialog.Builder(NavigatorActivity.this)
                         .setTitle(R.string.title_app_update_log)

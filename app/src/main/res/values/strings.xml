@@ -480,5 +480,6 @@
     <string name="title_app_icon_pack">图标包</string>
     <string name="title_app_icon_pack_noop">没找到任何图标包</string>
     <string name="title_app_icon_pack_disable">无</string>
+    <string name="title_app_icon_pack_workaround">切换后如果图标加载异常，请杀掉本应用后重试</string>
 
 </resources>

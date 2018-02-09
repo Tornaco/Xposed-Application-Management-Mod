@@ -75,6 +75,7 @@ public class IconPack extends QuickTile {
 
                                     // Clear glide cache.
                                     Glide.get(context).clearMemory();
+                                    Toast.makeText(context, R.string.title_app_icon_pack_workaround, Toast.LENGTH_SHORT).show();
                                     XExecutor.execute(new Runnable() {
                                         @Override
                                         public void run() {

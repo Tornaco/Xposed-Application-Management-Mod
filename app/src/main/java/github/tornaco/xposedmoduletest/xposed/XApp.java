@@ -74,11 +74,6 @@ public class XApp extends MultiDexApplication {
                 })
                 .build());
 
-        if (BuildConfig.DEBUG) {
-            // Test error.
-            Logger.e("This is a test...");
-        }
-
         EmojiManager.install(new SimpleEmojiProvider());
     }
 
