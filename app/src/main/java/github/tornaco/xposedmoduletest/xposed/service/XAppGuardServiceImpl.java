@@ -182,6 +182,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         return new AppGuardServiceHandlerImpl();
     }
 
+    private boolean mSystemReady;
 
     public void systemReady() {
         XposedLog.wtf("systemReady@" + getClass().getSimpleName());
@@ -193,6 +194,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         // Retrieve power here.
         mPowerManager = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
         XposedLog.verbose("systemReady power: " + mPowerManager);
+
+        mSystemReady = true;
     }
 
     public void retrieveSettings() {
@@ -480,6 +483,12 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("verifyInternal: " + pkg + "-"
                     + (componentName == null ? "NULL" : componentName.flattenToShortString()));
+        }
+
+        if (!mSystemReady) {
+            XposedLog.wtf("System not ready, won't verify");
+            listener.onVerifyRes(pkg, uid, pid, XAppVerifyMode.MODE_ALLOWED);
+            return;
         }
 
         boolean screenOn = mPowerManager != null && mPowerManager.isInteractive();
@@ -1140,6 +1149,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             mServiceHandler.removeMessages(MSG_TRANSACTION_EXPIRE_BASE + transactionID);
         }
 
+        private int mFatalErrorTimes = 0;
+
         public void verify(VerifyArgs args) {
             XposedLog.debug("onVerify:" + args);
             int tid = TransactionFactory.transactionID();
@@ -1162,10 +1173,15 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             try {
                 getContext().startActivity(intent, bnds);
             } catch (Throwable anf) {
+                mFatalErrorTimes++;
                 XposedLog.wtf("*** FATAL ERROR *** ActivityNotFoundException!!!");
                 setResult(tid, XAppVerifyMode.MODE_ALLOWED);
-                // Disable to make sure we are safe.
-                setEnabled(false);
+
+                // Disable app lock when error too many times.
+                if (mFatalErrorTimes >= 5) {
+                    // Disable to make sure we are safe.
+                    setEnabled(false);
+                }
             }
         }
 
