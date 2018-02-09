@@ -136,7 +136,9 @@ public class VerifyDisplayerActivity extends BaseActivity {
         setTitle(null);
 
         // Check if our passcode has been set.
-        if (!testMode && !LockStorage.iaPatternSet(getApplicationContext())) {
+        boolean pwdSet = (LockStorage.getLockMethod(this) == LockStorage.LockMethod.Pattern && LockStorage.iaPatternSet(this))
+                || (LockStorage.getLockMethod(this) == LockStorage.LockMethod.Pin && LockStorage.isPinSet(this));
+        if (!testMode && !pwdSet) {
             Toast.makeText(this, R.string.summary_setup_passcode_none_set, Toast.LENGTH_SHORT).show();
             onPass();
             return;
