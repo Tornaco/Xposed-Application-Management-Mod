@@ -1760,7 +1760,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         XStopWatch stopWatch = null;
         if (BuildConfig.DEBUG) {
-            stopWatch = XStopWatch.start("START RULE CHECK");
+            stopWatch = XStopWatch.start("SERVICE START RULE CHECK");
         }
 
         // First check the user rules.
@@ -1768,12 +1768,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (callerPackageName != null) {
             String[] patternAllow = constructStartAllowedRulePattern(callerPackageName, servicePkgName);
             boolean isThisCallerAllowedInRule = RepoProxy.getProxy().getStart_rules().has(patternAllow);
+            if (BuildConfig.DEBUG) {
+                XposedLog.verbose("check service patternAllow: " + Arrays.toString(patternAllow) + ", has rule: " + isThisCallerAllowedInRule);
+            }
             if (isThisCallerAllowedInRule) {
                 return CheckResult.ALLOWED_IN_RULE;
             }
 
             String[] patternDeny = constructStartDenyRulePattern(callerPackageName, servicePkgName);
             boolean isThisCallerDeniedInRule = RepoProxy.getProxy().getStart_rules().has(patternDeny);
+            if (BuildConfig.DEBUG) {
+                XposedLog.verbose("check service patternDeny: " + Arrays.toString(patternDeny) + ", has rule: " + isThisCallerDeniedInRule);
+            }
             if (isThisCallerDeniedInRule) {
                 return CheckResult.DENIED_IN_RULE;
             }
@@ -2666,6 +2672,37 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (PkgUtil.isAppRunning(getContext(), receiverPkgName, isSystemApp)) {
             return CheckResult.APP_RUNNING;
+        }
+
+        XStopWatch stopWatch = null;
+        if (BuildConfig.DEBUG) {
+            stopWatch = XStopWatch.start("BROADCAST START RULE CHECK");
+        }
+
+        // First check the user rules.
+        if (callerPackageName != null && receiverPkgName != null) {
+            String[] patternAllow = constructStartAllowedRulePattern(callerPackageName, receiverPkgName);
+            boolean isThisCallerAllowedInRule = RepoProxy.getProxy().getStart_rules().has(patternAllow);
+            if (BuildConfig.DEBUG) {
+                XposedLog.verbose("check broadcast patternAllow: " + Arrays.toString(patternAllow) + ", has rule: " + isThisCallerAllowedInRule);
+            }
+            if (isThisCallerAllowedInRule) {
+                return CheckResult.ALLOWED_IN_RULE;
+            }
+
+            String[] patternDeny = constructStartDenyRulePattern(callerPackageName, receiverPkgName);
+            boolean isThisCallerDeniedInRule = RepoProxy.getProxy().getStart_rules().has(patternDeny);
+            if (BuildConfig.DEBUG) {
+                XposedLog.verbose("check broadcast patternDeny: " + Arrays.toString(patternDeny) + ", has rule: " + isThisCallerDeniedInRule);
+            }
+            if (isThisCallerDeniedInRule) {
+                return CheckResult.DENIED_IN_RULE;
+            }
+        }
+        if (BuildConfig.DEBUG) {
+            if (stopWatch != null) {
+                stopWatch.stop();
+            }
         }
 
         // It is in user black list.
