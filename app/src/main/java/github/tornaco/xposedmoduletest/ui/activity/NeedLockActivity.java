@@ -37,7 +37,6 @@ import org.newstand.logger.Logger;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.camera.CameraManager;
 import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerCompat;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.provider.LockStorage;
@@ -224,7 +223,7 @@ public class NeedLockActivity<T> extends WithSearchActivity<T> {
 
         public void detach(boolean withAnim) {
             try {
-                CameraManager.get().closeCamera();
+//                CameraManager.get().closeCamera();
 
                 if (mScreenBroadcastReceiver != null) {
                     unregisterReceiver(mScreenBroadcastReceiver);
@@ -287,24 +286,24 @@ public class NeedLockActivity<T> extends WithSearchActivity<T> {
 
         private void takePhoto() {
             Logger.d("takePhoto, enabled: " + mTakePhoto);
-            if (mTakePhoto) {
-                try {
-                    setupCamera();
-                    CameraManager.get().captureSaveAsync(new CameraManager.PictureCallback() {
-                        @Override
-                        public void onImageReady(String path) {
-                            Logger.d("CameraManager- onImageReady@" + path);
-                        }
-
-                        @Override
-                        public void onFail(Exception e) {
-                            Logger.d("CameraManager- onFail@" + e);
-                        }
-                    });
-                } catch (Throwable e) {
-                    Logger.e("Fail take photo: " + Logger.getStackTraceString(e));
-                }
-            }
+//            if (mTakePhoto) {
+//                try {
+//                    setupCamera();
+//                    CameraManager.get().captureSaveAsync(new CameraManager.PictureCallback() {
+//                        @Override
+//                        public void onImageReady(String path) {
+//                            Logger.d("CameraManager- onImageReady@" + path);
+//                        }
+//
+//                        @Override
+//                        public void onFail(Exception e) {
+//                            Logger.d("CameraManager- onFail@" + e);
+//                        }
+//                    });
+//                } catch (Throwable e) {
+//                    Logger.e("Fail take photo: " + Logger.getStackTraceString(e));
+//                }
+//            }
         }
 
         private void setupFP() {
@@ -536,7 +535,7 @@ public class NeedLockActivity<T> extends WithSearchActivity<T> {
 
         public void detach(boolean withAnim) {
             try {
-                CameraManager.get().closeCamera();
+//                CameraManager.get().closeCamera();
 
                 if (mScreenBroadcastReceiver != null) {
                     unregisterReceiver(mScreenBroadcastReceiver);
@@ -599,24 +598,24 @@ public class NeedLockActivity<T> extends WithSearchActivity<T> {
 
         private void takePhoto() {
             Logger.d("takePhoto, enabled: " + mTakePhoto);
-            if (mTakePhoto) {
-                try {
-                    setupCamera();
-                    CameraManager.get().captureSaveAsync(new CameraManager.PictureCallback() {
-                        @Override
-                        public void onImageReady(String path) {
-                            Logger.d("CameraManager- onImageReady@" + path);
-                        }
-
-                        @Override
-                        public void onFail(Exception e) {
-                            Logger.d("CameraManager- onFail@" + e);
-                        }
-                    });
-                } catch (Throwable e) {
-                    Logger.e("Fail take photo: " + Logger.getStackTraceString(e));
-                }
-            }
+//            if (mTakePhoto) {
+//                try {
+//                    setupCamera();
+//                    CameraManager.get().captureSaveAsync(new CameraManager.PictureCallback() {
+//                        @Override
+//                        public void onImageReady(String path) {
+//                            Logger.d("CameraManager- onImageReady@" + path);
+//                        }
+//
+//                        @Override
+//                        public void onFail(Exception e) {
+//                            Logger.d("CameraManager- onFail@" + e);
+//                        }
+//                    });
+//                } catch (Throwable e) {
+//                    Logger.e("Fail take photo: " + Logger.getStackTraceString(e));
+//                }
+//            }
         }
 
         private void setupFP() {

@@ -37,7 +37,6 @@ import github.tornaco.android.common.util.ApkUtil;
 import github.tornaco.android.common.util.ColorUtil;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.camera.CameraManager;
 import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerCompat;
 import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
@@ -271,24 +270,24 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private void takePhoto() {
         Logger.d("takePhoto, enabled: " + mTakePhoto);
-        if (mTakePhoto) {
-            try {
-                setupCamera();
-                CameraManager.get().captureSaveAsync(new CameraManager.PictureCallback() {
-                    @Override
-                    public void onImageReady(String path) {
-                        Logger.d("CameraManager- onImageReady@" + path);
-                    }
-
-                    @Override
-                    public void onFail(Exception e) {
-                        Logger.d("CameraManager- onFail@" + e);
-                    }
-                });
-            } catch (Throwable e) {
-                Logger.e("Fail take photo: " + Logger.getStackTraceString(e));
-            }
-        }
+//        if (mTakePhoto) {
+//            try {
+//                setupCamera();
+//                CameraManager.get().captureSaveAsync(new CameraManager.PictureCallback() {
+//                    @Override
+//                    public void onImageReady(String path) {
+//                        Logger.d("CameraManager- onImageReady@" + path);
+//                    }
+//
+//                    @Override
+//                    public void onFail(Exception e) {
+//                        Logger.d("CameraManager- onFail@" + e);
+//                    }
+//                });
+//            } catch (Throwable e) {
+//                Logger.e("Fail take photo: " + Logger.getStackTraceString(e));
+//            }
+//        }
     }
 
     private void cancelCheckTask() {
@@ -546,7 +545,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         try {
-            CameraManager.get().closeCamera();
+//            CameraManager.get().closeCamera();
 
             if (mScreenBroadcastReceiver != null) {
                 unregisterReceiver(mScreenBroadcastReceiver);
