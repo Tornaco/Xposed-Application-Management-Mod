@@ -11,6 +11,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -91,6 +92,14 @@ public class DashboardFragment extends Fragment {
                 categoryLabel.setText(category.getTitle(res));
             else {
                 categoryLabel.setVisibility(View.GONE);
+            }
+
+            ImageButton moreBtn = categoryView.findViewById(R.id.dashboard_more);
+            if (category.moreDrawableRes > 0) {
+                moreBtn.setImageResource(category.moreDrawableRes);
+                moreBtn.setOnClickListener(category.onMoreButtonClickListener);
+            } else {
+                moreBtn.setVisibility(View.INVISIBLE);
             }
 
             final TextView categorySummary = categoryView.findViewById(R.id.category_summary);

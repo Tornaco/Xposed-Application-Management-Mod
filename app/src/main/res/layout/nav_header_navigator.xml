@@ -13,12 +13,12 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <ImageView
             android:id="@+id/user_avatar"
-            android:layout_width="@dimen/avatar_size"
-            android:layout_height="@dimen/avatar_size"
+            android:layout_width="@dimen/avatar_size_large"
+            android:layout_height="@dimen/avatar_size_large"
             android:layout_above="@+id/user_name"
             android:src="@drawable/ic_header_avatar_web" />
 

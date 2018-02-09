@@ -20,6 +20,7 @@ import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -48,6 +49,8 @@ public class Category {
     public CharSequence title;
     public CharSequence summary;
     public int summaryRes;
+    public int moreDrawableRes;
+    public View.OnClickListener onMoreButtonClickListener;
     /**
      * List of the category's children
      */

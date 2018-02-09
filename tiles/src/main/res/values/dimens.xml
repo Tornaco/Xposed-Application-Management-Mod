@@ -52,4 +52,5 @@
     <dimen name="toolbar_elevation">5dp</dimen>
 
     <dimen name="drop_down_width">150dp</dimen>
+    <dimen name="dashboard_category_btn_size">24dp</dimen>
 </resources>

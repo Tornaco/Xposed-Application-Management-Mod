@@ -481,5 +481,7 @@
     <string name="title_app_icon_pack_noop">没找到任何图标包</string>
     <string name="title_app_icon_pack_disable">无</string>
     <string name="title_app_icon_pack_workaround">切换后如果图标加载异常，请杀掉本应用后重试</string>
+    <string name="category_help_exp">实验功能可能不稳定，如果遇到问题，作者可能会以低优先级解决</string>
+    <string name="category_help_advance">建议新手先观望，或者仔细阅读使用教程再使用高级功能</string>
 
 </resources>
