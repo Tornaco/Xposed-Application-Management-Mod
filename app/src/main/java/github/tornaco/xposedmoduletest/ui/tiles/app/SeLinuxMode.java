@@ -71,7 +71,13 @@ public class SeLinuxMode extends QuickTile {
                                 }
                             }
                         })
-                        .setNegativeButton(android.R.string.cancel, null)
+                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                setChecked(!checked);
+                            }
+                        })
+                        .setCancelable(false)
                         .show();
             }
         };
