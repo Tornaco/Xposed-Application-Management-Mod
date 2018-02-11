@@ -436,12 +436,6 @@
                 android:resource="@xml/appwidget_info" />
         </receiver>
 
-        <receiver android:name=".service.BootReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
         <activity
             android:name=".ui.activity.whyyouhere.UserGuideActivityA"
             android:label="@string/title_activity_user_giude"
