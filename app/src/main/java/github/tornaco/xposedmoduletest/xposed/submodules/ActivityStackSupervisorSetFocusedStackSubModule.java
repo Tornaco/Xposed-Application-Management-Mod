@@ -1,6 +1,5 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
-import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
@@ -18,7 +17,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
-// Hook hookSetFocusStackUnchecked settings.
+// Hook hookReportActivityVisibleLocked settings.
 // Only for Oreo.
 //  void setFocusStackUnchecked(String reason, ActivityStack focusCandidate)
 class ActivityStackSupervisorSetFocusedStackSubModule extends AndroidSubModule {
@@ -30,38 +29,33 @@ class ActivityStackSupervisorSetFocusedStackSubModule extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        hookSetFocusStackUnchecked(lpparam);
+        hookReportActivityVisibleLocked(lpparam);
     }
 
-    private void hookSetFocusStackUnchecked(XC_LoadPackage.LoadPackageParam lpparam) {
-        XposedLog.verbose("setFocusStackUnchecked...");
+    private void hookReportActivityVisibleLocked(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedLog.verbose("reportActivityVisibleLocked...");
         try {
             Class ams = XposedHelpers.findClass("com.android.server.am.ActivityStackSupervisor",
                     lpparam.classLoader);
-            Set unHooks = XposedBridge.hookAllMethods(ams, "setFocusStackUnchecked", new XC_MethodHook() {
+            Set unHooks = XposedBridge.hookAllMethods(ams, "reportActivityVisibleLocked", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
-                    String reason = (String) param.args[0];
-                    Object activityStack = param.args[1];
-                    Object taskRecord = XposedHelpers.callMethod(activityStack, "topTask");
-                    if (taskRecord == null) return;
-                    Object realActivityObj = XposedHelpers.getObjectField(taskRecord, "realActivity");
-                    if (realActivityObj != null) {
-                        ComponentName componentName = (ComponentName) realActivityObj;
-                        XposedLog.verbose("setFocusStackUnchecked:" + componentName);
-                        Intent intent = new Intent();
-                        intent.setComponent(componentName);
+                    Object ar = param.args[0];
+                    if (ar == null) return;
+                    Intent intent = (Intent) XposedHelpers.getObjectField(ar, "intent");
+                    if (intent != null) {
+                        XposedLog.verbose("reportActivityVisibleLocked:" + intent);
                         getBridge().onPackageMoveToFront(intent);
                     } else {
-                        XposedLog.verbose("setFocusStackUnchecked, no realActivity obj");
+                        XposedLog.verbose("reportActivityVisibleLocked, no realActivity obj");
                     }
                 }
             });
-            logOnBootStage("setFocusStackUnchecked OK:" + unHooks);
+            logOnBootStage("reportActivityVisibleLocked OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            logOnBootStage("Fail setFocusStackUnchecked: " + Log.getStackTraceString(e));
+            logOnBootStage("Fail reportActivityVisibleLocked: " + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

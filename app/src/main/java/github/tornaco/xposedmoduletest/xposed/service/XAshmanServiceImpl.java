@@ -5108,11 +5108,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @InternalCall
     @CommonBringUpApi
     public void onPackageMoveToFront(final Intent who) {
+        if (BuildConfig.DEBUG){
+            XposedLog.verbose("onPackageMoveToFront: " + who);
+        }
         mAppGuardService.onPackageMoveToFront(who);
 
         onPackageMoveToFront(PkgUtil.packageNameOf(who));
 
-        if (showFocusedActivityInfoEnabled()) {
+        if (mIsSystemReady && showFocusedActivityInfoEnabled()) {
             mLazyHandler.removeCallbacks(toastRunnable);
             if (who != null) {
                 mFocusedCompName = who.getComponent();
