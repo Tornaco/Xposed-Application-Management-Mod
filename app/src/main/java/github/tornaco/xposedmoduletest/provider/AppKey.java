@@ -18,7 +18,6 @@ public interface AppKey {
     String DONATED = "donated";
     String SHOW_TILE_DIVIDER = "show_tile_divider";
     String SELINUX_MODE_ENFORCE = "selinux_mode_enforce";
-    String AUTO_SELINUX_MODE = "auto_selinux_mode";
     String APPLOCK_WORKAROUND = "app_lock_workaround";
     String APP_ICON_PACK = "app_icon_pack";
 }

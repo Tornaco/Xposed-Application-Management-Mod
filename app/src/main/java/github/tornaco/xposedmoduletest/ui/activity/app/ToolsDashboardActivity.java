@@ -46,13 +46,7 @@ public class ToolsDashboardActivity extends WithWithCustomTabActivity {
             settings.addTile(new MokeCrash(getActivity()));
             settings.addTile(new CleanUpSystemErrorTrace(getActivity()));
 
-            Category selinux = new Category();
-            selinux.titleRes = R.string.title_selinux;
-            selinux.addTile(new SeLinuxMode(getActivity()));
-            selinux.addTile(new AutoSeLinuxMode(getActivity()));
-
             categories.add(settings);
-            categories.add(selinux);
         }
     }
 

@@ -88,19 +88,6 @@ public class AppSettings extends Observable {
 
     }
 
-    public static boolean isSelinuxModeAutoSetEnabled(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(AppKey.AUTO_SELINUX_MODE, false);
-    }
-
-    public static void setSelinuxModeAutoSetEnabled(Context context, boolean read) {
-        PreferenceManager.getDefaultSharedPreferences(context)
-                .edit()
-                .putBoolean(AppKey.AUTO_SELINUX_MODE, read)
-                .apply();
-
-    }
-
     public static boolean isAppLockWorkaroundEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(AppKey.APPLOCK_WORKAROUND,
