@@ -10,12 +10,10 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.ActivityLifeCycleDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppDevMode;
-import github.tornaco.xposedmoduletest.ui.tiles.app.AutoSeLinuxMode;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CleanUpSystemErrorTrace;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CrashDump;
 import github.tornaco.xposedmoduletest.ui.tiles.app.MokeCrash;
 import github.tornaco.xposedmoduletest.ui.tiles.app.NullHack;
-import github.tornaco.xposedmoduletest.ui.tiles.app.SeLinuxMode;
 import github.tornaco.xposedmoduletest.ui.tiles.app.ShowFocusedActivity;
 
 /**
