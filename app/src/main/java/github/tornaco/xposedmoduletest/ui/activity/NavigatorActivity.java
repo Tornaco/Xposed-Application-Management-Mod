@@ -155,15 +155,18 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             @Override
             public void onSuccess(final List<DeveloperMessage> messages) {
                 if (!isDestroyed() && messages != null && messages.size() > 0) {
-                    runOnUiThreadChecked(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                showDeveloperMessage(messages.get(0));
-                            } catch (Throwable ignored) {
+                    boolean isDonatedOrPlay = XApp.isPlayVersion() || AppSettings.isDonated(getContext());
+                    if (isDonatedOrPlay){
+                        runOnUiThreadChecked(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    showDeveloperMessage(messages.get(0));
+                                } catch (Throwable ignored) {
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             }
         });
