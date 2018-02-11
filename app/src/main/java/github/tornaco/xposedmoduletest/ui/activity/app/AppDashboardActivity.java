@@ -27,6 +27,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.backup.DataBackup;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlack;
+import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlackNotification;
 import github.tornaco.xposedmoduletest.ui.tiles.app.Backup;
 import github.tornaco.xposedmoduletest.ui.tiles.app.IconPack;
 import github.tornaco.xposedmoduletest.ui.tiles.app.PowerSave;
@@ -225,6 +226,7 @@ public class AppDashboardActivity extends WithWithCustomTabActivity
             systemProtect.titleRes = R.string.title_app_settings;
             systemProtect.addTile(new WhiteSystemApp(getActivity()));
             systemProtect.addTile(new AutoBlack(getActivity()));
+            systemProtect.addTile(new AutoBlackNotification(getActivity()));
 
             Category data = new Category();
             data.titleRes = R.string.title_data;

@@ -1656,4 +1656,22 @@ public class XAshmanManager {
 
         }
     }
+
+    public boolean isAutoAddBlackNotificationEnabled() {
+        ensureService();
+        try {
+            return mService.isAutoAddBlackNotificationEnabled();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public void setAutoAddBlackNotificationEnabled(boolean value) {
+        ensureService();
+        try {
+            mService.setAutoAddBlackNotificationEnabled(value);
+        } catch (RemoteException e) {
+
+        }
+    }
 }

@@ -342,7 +342,15 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            ActivityLifeCycleDashboardFragment current = getCardController().getCurrent();
+            if (!(current instanceof NavigatorFragment)) {
+                getCardController().setCurrent(0);
+                setTitle(R.string.app_name);
+                NavigationView navigationView = findViewById(R.id.nav_view);
+                navigationView.setCheckedItem(R.id.action_home);
+            }else {
+                super.onBackPressed();
+            }
         }
     }
 

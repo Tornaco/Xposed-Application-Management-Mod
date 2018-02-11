@@ -228,6 +228,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final AtomicBoolean mPowerSaveModeEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mAutoAddToBlackListForNewApp = new AtomicBoolean(false);
+    private final AtomicBoolean mAutoAddNotificationToBlackListForNewApp = new AtomicBoolean(false);
     private final AtomicBoolean mShowFocusedActivityInfoEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mLockKillDoNotKillAudioEnabled = new AtomicBoolean(true);
@@ -802,6 +803,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             boolean autoAddBlack = (boolean) SystemSettings.AUTO_BLACK_FOR_NEW_INSTALLED_APP_B.readFromSystemSettings(getContext());
             mAutoAddToBlackListForNewApp.set(autoAddBlack);
             XposedLog.boot("autoAddBlack: " + String.valueOf(autoAddBlack));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            boolean autoAddBlackNotification = (boolean) SystemSettings.AUTO_BLACK_NOTIFICATION_FOR_NEW_INSTALLED_APP_B
+                    .readFromSystemSettings(getContext());
+            mAutoAddNotificationToBlackListForNewApp.set(autoAddBlackNotification);
+            XposedLog.boot("autoAddBlackNotification: " + String.valueOf(autoAddBlackNotification));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -2602,6 +2612,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @BinderCall(restrict = "any")
     public boolean isAutoAddBlackEnabled() throws RemoteException {
         return mAutoAddToBlackListForNewApp.get();
+    }
+
+    @Override
+    @BinderCall(restrict = "any")
+    public boolean isAutoAddBlackNotificationEnabled() throws RemoteException {
+        return mAutoAddNotificationToBlackListForNewApp.get();
+    }
+
+    @Override
+    public void setAutoAddBlackNotificationEnabled(boolean value) throws RemoteException {
+        enforceCallingPermissions();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETAUTOADDBLACKNOTIFICATIONENABLED, value)
+                .sendToTarget();
     }
 
     @Override
@@ -5108,7 +5131,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @InternalCall
     @CommonBringUpApi
     public void onPackageMoveToFront(final Intent who) {
-        if (BuildConfig.DEBUG){
+        if (BuildConfig.DEBUG) {
             XposedLog.verbose("onPackageMoveToFront: " + who);
         }
         mAppGuardService.onPackageMoveToFront(who);
@@ -5738,6 +5761,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETAUTOADDBLACKENABLE:
                     HandlerImpl.this.setAutoAddBlackEnable((Boolean) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_SETAUTOADDBLACKNOTIFICATIONENABLED:
+                    HandlerImpl.this.setAutoAddBlackNotificationEnabled((Boolean) msg.obj);
+                    break;
                 case AshManHandlerMessages.MSG_FORCERELOADPACKAGES:
                     HandlerImpl.this.forceReloadPackages();
                     break;
@@ -5888,6 +5914,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setAutoAddBlackEnable(boolean enabled) {
             if (mAutoAddToBlackListForNewApp.compareAndSet(!enabled, enabled)) {
                 SystemSettings.AUTO_BLACK_FOR_NEW_INSTALLED_APP_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setAutoAddBlackNotificationEnabled(boolean value) {
+            if (mAutoAddNotificationToBlackListForNewApp.compareAndSet(!value, value)) {
+                SystemSettings.AUTO_BLACK_NOTIFICATION_FOR_NEW_INSTALLED_APP_B.writeToSystemSettings(getContext(), value);
             }
         }
 
@@ -6610,9 +6643,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 // Ops.
                                 applyOpsSettingsForPackage(packageName);
 
-                                showNewAppRestrictedNotification(getContext(),
-                                        packageName,
-                                        String.valueOf(PkgUtil.loadNameByPkgName(getContext(), packageName)));
+                                boolean showNotification = isAutoAddBlackNotificationEnabled();
+                                if (showNotification) {
+                                    showNewAppRestrictedNotification(getContext(),
+                                            packageName,
+                                            String.valueOf(PkgUtil.loadNameByPkgName(getContext(), packageName)));
+                                }
                             }
                         }
                     } catch (Throwable e) {

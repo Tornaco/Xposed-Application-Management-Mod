@@ -485,5 +485,6 @@
     <string name="category_help_advance">建议新手先观望，或者仔细阅读使用教程再使用高级功能</string>
     <string name="title_dangerous_selinux_mode_change">危险操作</string>
     <string name="message_dangerous_selinux_mode_change">修改SELINUX策略可能会导致你的设备无法启动。</string>
+    <string name="title_auto_black_noti">显示模板应用通知</string>
 
 </resources>

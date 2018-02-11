@@ -92,6 +92,16 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public boolean isAutoAddBlackNotificationEnabled() throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public void setAutoAddBlackNotificationEnabled(boolean value) throws RemoteException {
+
+    }
+
+    @Override
     public void leaveRedemptionMode() throws RemoteException {
         RepoProxy.deleteFileIndicator(SubModuleManager.REDEMPTION);
     }

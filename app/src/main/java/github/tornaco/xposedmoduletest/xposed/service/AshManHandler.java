@@ -136,6 +136,8 @@ interface AshManHandler {
 
     void setAutoAddBlackEnable(boolean enable);
 
+    void setAutoAddBlackNotificationEnabled(boolean value);
+
     void forceReloadPackages();
 
     void setPermissionControlEnabled(boolean enabled);

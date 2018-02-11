@@ -367,4 +367,8 @@ interface IAshmanService {
      void cleanUpSystemErrorTraces();
 
      void addAppLockWhiteListActivity(in String[] activities);
+
+
+     boolean isAutoAddBlackNotificationEnabled();
+     void setAutoAddBlackNotificationEnabled(boolean value);
 }
