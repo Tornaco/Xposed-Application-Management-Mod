@@ -1,3 +1,5 @@
+# 作为一个练手项目 2018-02-11，已经可以满足自用需求，由于太耽误时间，永久停止代码和文档维护。
+
 # Play
 
 <a href="https://play.google.com/store/apps/details?id=github.tornaco.xposedmoduletest"><img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" height="48"></a>
