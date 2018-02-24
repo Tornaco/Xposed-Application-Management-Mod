@@ -432,7 +432,7 @@
     <string name="theme_name_newyear">新年</string>
     <string name="summary_ops_template">绿化/常规权限均可在此配置。</string>
     <string name="app_name_android">Android系统</string>
-    <string name="app_ext">拓展</string>
+    <string name="app_ext">OPT</string>
     <string name="coming_soon">X</string>
     <string name="summary_app_resident">最大程度上防止应用进程被Low memory killer杀死，常驻内存。</string>
     <string name="title_app_resident">后台保护</string>
@@ -486,5 +486,8 @@
     <string name="title_dangerous_selinux_mode_change">危险操作</string>
     <string name="message_dangerous_selinux_mode_change">修改SELINUX策略可能会导致你的设备无法启动。</string>
     <string name="title_auto_black_noti">显示模板应用通知</string>
+    <string name="title_opt_toast_caller">显示Toast发送者</string>
+    <string name="title_opt_foreground_noti">取消正在前台运行通知</string>
+    <string name="title_opt_ui">UI</string>
 
 </resources>

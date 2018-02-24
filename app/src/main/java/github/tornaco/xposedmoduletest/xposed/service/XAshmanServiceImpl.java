@@ -2628,6 +2628,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    public boolean isOptFeatureEnabled(String tag) throws RemoteException {
+        return SettingsProvider.get().getBoolean("OPT_FEATURE_" + tag, false);
+    }
+
+    @Override
+    public void setOptFeatureEnabled(String tag, boolean enable) throws RemoteException {
+        SettingsProvider.get().putBoolean("OPT_FEATURE_" + tag, enable);
+    }
+
+    @Override
     public void setAutoAddBlackEnable(boolean enable) throws RemoteException {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETAUTOADDBLACKENABLE, enable)
@@ -5134,6 +5144,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (BuildConfig.DEBUG) {
             XposedLog.verbose("onPackageMoveToFront: " + who);
         }
+        if (who == null) return;
+
+        // Check if this is a verifier.
+        // Ignore this event for verifier.
+        ComponentName componentName = who.getComponent();
+        if (componentName != null && XAshmanManager.VERIFIER_CLASS_NAME.equals(componentName.getClassName())) {
+            XposedLog.verbose("Ignore onPackageMoveToFront for verifier...");
+            return;
+        }
+
         mAppGuardService.onPackageMoveToFront(who);
 
         onPackageMoveToFront(PkgUtil.packageNameOf(who));

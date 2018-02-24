@@ -5,11 +5,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
+import android.widget.Toast;
 
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
  * Created by guohao4 on 2018/1/23.
@@ -37,7 +37,7 @@ public class TestAIOActivity extends BaseActivity {
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        XAshmanManager.get().lockNow();
+                        Toast.makeText(getApplicationContext(), "This is a toast", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

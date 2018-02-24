@@ -94,6 +94,7 @@ public class SubModuleManager {
         addToSubsChecked(new AppOpsSubModule());
 
         addToSubsChecked(new ActiveServiceSubModule());
+        addToSubsChecked(new ActiveServiceForegroundNotificationCancellationSubModule());
         addToSubsChecked(new RuntimeInitSubModule());
 
         addToSubsChecked(new AMSBroadcastIntentSubModule());
@@ -116,6 +117,7 @@ public class SubModuleManager {
         addToSubsChecked(new NotificationManagerServiceSubModule());
 
         addToSubsChecked(new ActivitySubModule());
+        addToSubsChecked(new ToastSubModule());
 
         addToSubsChecked(new ServiceManagerSubModule());
         addToSubsChecked(new AppOpsInitSubModule());
