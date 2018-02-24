@@ -68,6 +68,8 @@ import github.tornaco.xposedmoduletest.ui.tiles.Resident;
 import github.tornaco.xposedmoduletest.ui.tiles.SmartSense;
 import github.tornaco.xposedmoduletest.ui.tiles.TRKill;
 import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
+import github.tornaco.xposedmoduletest.ui.tiles.app.DetailedToastActivity;
+import github.tornaco.xposedmoduletest.ui.tiles.app.ForegroundNotificationOptActivity;
 import github.tornaco.xposedmoduletest.ui.widget.EmojiViewUtil;
 import github.tornaco.xposedmoduletest.util.GsonUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
@@ -156,7 +158,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             public void onSuccess(final List<DeveloperMessage> messages) {
                 if (!isDestroyed() && messages != null && messages.size() > 0) {
                     boolean isDonatedOrPlay = XApp.isPlayVersion() || AppSettings.isDonated(getContext());
-                    if (isDonatedOrPlay){
+                    if (isDonatedOrPlay) {
                         runOnUiThreadChecked(new Runnable() {
                             @Override
                             public void run() {
@@ -326,7 +328,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         boolean debug = message.isTest();
         if (debug && !BuildConfig.DEBUG) return;
         Logger.d("showDeveloperMessage: " + message + ", " + show);
-        if (BuildConfig.DEBUG || show) {
+        if (show) {
             AppSettings.setShowInfo(getContext(), messageId, false);
             Logger.d("showing DeveloperMessage: " + message);
             new AlertDialog.Builder(getActivity())
@@ -351,7 +353,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                 setTitle(R.string.app_name);
                 NavigationView navigationView = findViewById(R.id.nav_view);
                 navigationView.setCheckedItem(R.id.action_home);
-            }else {
+            } else {
                 super.onBackPressed();
             }
         }
@@ -488,8 +490,15 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         }
 
         @Override
-        protected int getLayoutId() {
-            return R.layout.fragment_ext;
+        protected void onCreateDashCategories(List<Category> categories) {
+            super.onCreateDashCategories(categories);
+
+            Category ux = new Category();
+            ux.titleRes = R.string.title_opt_ui;
+            ux.addTile(new DetailedToastActivity(getActivity()));
+            ux.addTile(new ForegroundNotificationOptActivity(getActivity()));
+
+            categories.add(ux);
         }
     }
 

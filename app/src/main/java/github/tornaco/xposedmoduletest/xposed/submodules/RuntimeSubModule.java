@@ -49,7 +49,7 @@ class RuntimeSubModule extends AndroidSubModule {
                             if (in instanceof String) {
                                 String command = (String) in;
                                 String caller = AndroidAppHelper.currentPackageName();
-                                Log.d(XposedLog.TAG_PREFIX, String.format("Runtime exec: %s %s", command, caller));
+                                // Log.d(XposedLog.TAG_PREFIX, String.format("Runtime exec: %s %s", command, caller));
                                 if (XAshmanManager.get().isServiceAvailable()) {
                                     int mode = XAshmanManager.get().getPermissionControlBlockModeForPkg(AppOpsManagerCompat
                                             .OP_EXECUTE_SHELL_COMMAND, caller, true, new String[]{command});
@@ -61,7 +61,7 @@ class RuntimeSubModule extends AndroidSubModule {
                             } else if (in instanceof String[]) {
                                 String[] cmdArr = (String[]) in;
                                 String caller = AndroidAppHelper.currentPackageName();
-                                Log.d(XposedLog.TAG_PREFIX, String.format("Runtime exec arr: %s %s", Arrays.toString(cmdArr), caller));
+                                // Log.d(XposedLog.TAG_PREFIX, String.format("Runtime exec arr: %s %s", Arrays.toString(cmdArr), caller));
                                 if (XAshmanManager.get().isServiceAvailable()) {
                                     int mode = XAshmanManager.get().getPermissionControlBlockModeForPkg(AppOpsManagerCompat
                                             .OP_EXECUTE_SHELL_COMMAND, caller, true, cmdArr);

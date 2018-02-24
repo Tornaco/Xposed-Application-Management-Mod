@@ -88,7 +88,7 @@ public class IFWSubModule extends AndroidSubModule {
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
                             if (BuildConfig.DEBUG) {
-                                XposedLog.verbose("IFW checkIntent: " + Arrays.toString(param.args));
+                                // XposedLog.verbose("IFW checkIntent: " + Arrays.toString(param.args));
                             }
                         }
                     });

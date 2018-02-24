@@ -371,4 +371,7 @@ interface IAshmanService {
 
      boolean isAutoAddBlackNotificationEnabled();
      void setAutoAddBlackNotificationEnabled(boolean value);
+
+     boolean isOptFeatureEnabled(String tag);
+     void setOptFeatureEnabled(String tag, boolean enable);
 }

@@ -61,6 +61,11 @@ public class XAshmanManager {
      **/
     public static final int POLICY_REJECT_NONE = 0;
 
+    public enum OPT {
+        TOAST,
+        FOREGROUND_NOTIFICATION,
+    }
+
     public interface Op {
         int ADD = 0x1;
         int REMOVE = 0x2;
@@ -82,6 +87,8 @@ public class XAshmanManager {
 
     public static final String SERVICE_NAME =
             OSUtil.isOOrAbove() ? Context.TV_INPUT_SERVICE : "user.tor_ash";
+
+    public static final String VERIFIER_CLASS_NAME = "github.tornaco.xposedmoduletest.ui.activity.ag.VerifyDisplayerActivity";
 
     private final IAshmanService mService;
 
@@ -1670,6 +1677,24 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.setAutoAddBlackNotificationEnabled(value);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public boolean isOptFeatureEnabled(String tag) {
+        ensureService();
+        try {
+            return mService.isOptFeatureEnabled(tag);
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public void setOptFeatureEnabled(String tag, boolean enable) {
+        ensureService();
+        try {
+            mService.setOptFeatureEnabled(tag, enable);
         } catch (RemoteException e) {
 
         }

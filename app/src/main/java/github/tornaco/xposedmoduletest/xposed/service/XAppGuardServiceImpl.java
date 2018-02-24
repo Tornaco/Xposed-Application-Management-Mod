@@ -50,6 +50,7 @@ import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.MapRepo;
@@ -1002,7 +1003,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     private static Intent buildVerifyIntent(boolean injectHome, int transId, String pkg) {
         Intent intent = new Intent(XAppGuardManager.ACTION_APP_GUARD_VERIFY_DISPLAYER);
         intent.setClassName(BuildConfig.APPLICATION_ID,
-                "github.tornaco.xposedmoduletest.ui.activity.ag.VerifyDisplayerActivity");
+                XAshmanManager.VERIFIER_CLASS_NAME);
         intent.putExtra(XAppGuardManager.EXTRA_PKG_NAME, pkg);
         intent.putExtra(XAppGuardManager.EXTRA_TRANS_ID, transId);
         intent.putExtra(XAppGuardManager.EXTRA_INJECT_HOME_WHEN_FAIL_ID, injectHome);
