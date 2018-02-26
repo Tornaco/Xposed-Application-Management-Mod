@@ -85,7 +85,7 @@ public class SwitchBar extends LinearLayout implements CompoundButton.OnCheckedC
         int textColr = a.getColor(2, Color.WHITE);
         a.recycle();
 
-        mTextView = (TextView) findViewById(R.id.switch_text);
+        mTextView = findViewById(R.id.switch_text);
         mTextView.setTextColor(textColr);
         mLabel = getResources().getString(R.string.switch_off_text);
         mSummarySpan = new TextAppearanceSpan(getContext(), R.style.TextAppearance_Small_SwitchBar);
@@ -93,7 +93,7 @@ public class SwitchBar extends LinearLayout implements CompoundButton.OnCheckedC
         MarginLayoutParams lp = (MarginLayoutParams) mTextView.getLayoutParams();
         lp.setMarginStart(switchBarMarginStart);
 
-        mSwitch = (ToggleSwitch) findViewById(R.id.switch_widget);
+        mSwitch = findViewById(R.id.switch_widget);
         // Prevent onSaveInstanceState() to be called as we are managing the state of the Switch
         // on our own
         mSwitch.setSaveEnabled(false);
@@ -235,7 +235,7 @@ public class SwitchBar extends LinearLayout implements CompoundButton.OnCheckedC
         requestLayout();
     }
 
-    public static interface OnSwitchChangeListener {
+    public interface OnSwitchChangeListener {
         /**
          * Called when the checked state of the Switch has changed.
          *
