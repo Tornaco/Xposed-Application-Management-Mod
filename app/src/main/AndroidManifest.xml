@@ -149,7 +149,7 @@
         <activity
             android:name=".ui.activity.lk.LockKillAppNavActivity"
 
-            android:label="@string/title_app_lock_kill"
+            android:label="@string/title_app_mem_boost"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.lk.LockKillAppPickerActivity"

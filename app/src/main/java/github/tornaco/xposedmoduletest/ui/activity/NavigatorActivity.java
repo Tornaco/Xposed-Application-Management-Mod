@@ -512,7 +512,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         }
 
         @Override
-        protected int getNumColumes() {
+        protected int getNumColumns() {
             boolean two = AppSettings.show2ColumnsIn(getActivity(), NavigatorActivity.class.getSimpleName());
             return two ? 2 : 1;
         }
@@ -659,28 +659,35 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
-            Category category = new Category();
-            category.titleRes = R.string.title_secure;
+            Category sec = new Category();
+            sec.titleRes = R.string.title_secure;
 
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_LOCK)) {
-                category.addTile(new AppGuard(getActivity()));
+                sec.addTile(new AppGuard(getActivity()));
             }
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_BLUR)) {
-                category.addTile(new Blur(getActivity()));
+                sec.addTile(new Blur(getActivity()));
             }
 
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_UNINSTALL)) {
-                category.addTile(new UnInstall(getActivity()));
+                sec.addTile(new UnInstall(getActivity()));
             }
 
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_RESIDENT)) {
                 if (AppSettings.isShowInfoEnabled(getContext(), "show_hidden_features", false)) {
-                    category.addTile(new Resident(getActivity()));
+                    sec.addTile(new Resident(getActivity()));
                 }
             }
 
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_PRIVACY)) {
-                category.addTile(new Privacy(getActivity()));
+                sec.addTile(new Privacy(getActivity()));
+            }
+
+            Category boost = new Category();
+            boost.titleRes = R.string.title_boost;
+            boost.numColumns = 1; // Force se to 1.
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_LK)) {
+                boost.addTile(new LockKill(getActivity()));
             }
 
             Category rest = new Category();
@@ -691,9 +698,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             }
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_START)) {
                 rest.addTile(new AppStart(getActivity()));
-            }
-            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_LK)) {
-                rest.addTile(new LockKill(getActivity()));
             }
 
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_RFK)) {
@@ -756,7 +760,8 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                 exp.addTile(new Lazy(getActivity()));
             }
 
-            if (category.getTilesCount() > 0) categories.add(category);
+            if (boost.getTilesCount() > 0) categories.add(boost);
+            if (sec.getTilesCount() > 0) categories.add(sec);
             if (rest.getTilesCount() > 0) categories.add(rest);
             if (ash.getTilesCount() > 0) categories.add(ash);
             if (exp.getTilesCount() > 0) categories.add(exp);

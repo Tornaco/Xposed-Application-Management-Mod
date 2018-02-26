@@ -44,6 +44,10 @@ public class ClearProcessActivity extends BaseActivity {
         final TextView textView = findViewById(R.id.text);
 
         XAshmanManager.get().clearProcess(new IProcessClearListenerAdapter() {
+            @Override
+            public boolean doNotClearWhenIntervative() throws RemoteException {
+                return false;
+            }
 
             @Override
             public void onPrepareClearing() throws RemoteException {
@@ -62,7 +66,7 @@ public class ClearProcessActivity extends BaseActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        textView.setText(getString(R.string.clearing_process,
+                        textView.setText(getString(R.string.clearing_process_app,
                                 PkgUtil.loadNameByPkgName(getApplicationContext(), pkg)));
                     }
                 });

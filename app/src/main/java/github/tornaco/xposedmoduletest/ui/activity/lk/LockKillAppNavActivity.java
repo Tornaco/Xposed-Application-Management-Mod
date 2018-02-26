@@ -80,6 +80,8 @@ public class LockKillAppNavActivity extends CommonPackageInfoListActivity implem
 
     @Override
     protected void onInitSwitchBar(SwitchBar switchBar) {
+        switchBar.setOnRes(R.string.summary_func_lk_enabled);
+        switchBar.setOffRes(R.string.summary_func_lk_disabled);
         switchBar.show();
         switchBar.setChecked(XAshmanManager.get().isLockKillEnabled());
         switchBar.addOnSwitchChangeListener(this);
