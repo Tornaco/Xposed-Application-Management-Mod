@@ -63,7 +63,7 @@ public class DashboardFragment extends Fragment {
         // Need an impl.
     }
 
-    protected int getNumColumes() {
+    protected int getNumColumns() {
         return getResources().getInteger(R.integer.dashboard_num_columns);
     }
 
@@ -114,14 +114,15 @@ public class DashboardFragment extends Fragment {
 
             ContainerView categoryContent =
                     categoryView.findViewById(R.id.category_content);
-            categoryContent.setNumColumns(getNumColumes());
+            int numColumnsCategory = category.numColumns;
+            categoryContent.setNumColumns(numColumnsCategory > 0 ? numColumnsCategory : getNumColumns());
             categoryContent.setShowDivider(showDivider());
 
             final int tilesCount = category.getTilesCount();
             for (int i = 0; i < tilesCount; i++) {
                 Tile tile = category.getTile(i);
                 TileView tileView = tile.tileView;
-                updateTileView(context, res, tile, tileView.getImageView(),
+                updateTileView(context, res, category, tile, tileView.getImageView(),
                         tileView.getTitleTextView(), tileView.getSummaryTextView());
 
                 categoryContent.addView(tileView);
@@ -143,10 +144,16 @@ public class DashboardFragment extends Fragment {
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void updateTileView(Context context,
-                                Resources res, final Tile tile,
-                                ImageView tileIcon, TextView tileTextView, TextView statusTextView) {
+                                Resources res,
+                                Category category,
+                                final Tile tile,
+                                ImageView tileIcon,
+                                TextView tileTextView,
+                                TextView statusTextView) {
 
-        int column = getNumColumes();
+        // FIXME Check num columns for category.
+        int numColumnsCategory = category.numColumns;
+        int column = numColumnsCategory > 0 ? numColumnsCategory : getNumColumns();
         if (column > 1) {
             float newSize = context.getResources().getDimensionPixelSize(R.dimen.dashboard_tile_text_size_small);
             tileTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, newSize);

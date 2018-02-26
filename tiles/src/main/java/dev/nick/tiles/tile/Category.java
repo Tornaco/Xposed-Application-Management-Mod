@@ -50,6 +50,10 @@ public class Category {
     public CharSequence summary;
     public int summaryRes;
     public int moreDrawableRes;
+    /**
+     * Number of column for this category, force use instead of num column of dashboard.
+     */
+    public int numColumns;
     public View.OnClickListener onMoreButtonClickListener;
     /**
      * List of the category's children

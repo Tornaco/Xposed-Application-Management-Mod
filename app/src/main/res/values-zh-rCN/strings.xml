@@ -89,9 +89,10 @@
     <string name="title_app_boot">自启限制</string>
     <string name="title_app_auto_start">关联启动限制</string>
     <string name="title_clearn">加速</string>
-    <string name="title_app_lock_kill">锁屏清理</string>
+    <string name="title_app_mem_boost">内存清理</string>
     <string name="title_app_rf_kill">返回强退</string>
     <string name="clear_process">清理内存</string>
+    <string name="clear_process_now">立即清理</string>
     <string name="clear_process_complete">清理了个%1$s应用，已达最佳状态</string>
 
     <string name="summary_app_guard">以下应用在启动时需要经过密码验证。</string>
@@ -115,7 +116,7 @@
     <string name="title_block_viewer">阻止记录</string>
     <string name="title_restrict">限制</string>
     <string name="done">完成</string>
-    <string name="clearing_process">正在杀掉%1$s…</string>
+    <string name="clearing_process_app">正在杀掉%1$s…</string>
     <string name="summary_verify_on_home">该功能目前还不稳定，某些应用可能无法适用，如果发现问题请关闭该选项</string>
     <string name="summary_verify_on_screenoff">建议开启以提高安全性</string>
     <string name="title_transaction_expire">过期请求，已忽略</string>
@@ -397,6 +398,7 @@
     <string name="donated_available">捐赠版可用</string>
     <string name="err_context_null">糟糕，无法获取所在的活动，无法显示对话框，蛋疼！</string>
     <string name="summary_func_enabled">已启用</string>
+    <string name="summary_func_lk_enabled">锁屏清理已启用</string>
     <string name="summary_func_disabled">未启用</string>
     <string name="title_all_items">全部</string>
     <string name="configure">配置</string>

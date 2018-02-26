@@ -16,7 +16,7 @@ public class AppLKSetting extends AppSettingsSwitchTile {
 
     public AppLKSetting(@NonNull Context context, AppSettings appSettings) {
         super(context, appSettings);
-        this.titleRes = R.string.title_app_lock_kill;
+        this.titleRes = R.string.title_app_mem_boost;
         this.iconRes = R.drawable.ic_screen_lock_portrait_black_24dp;
     }
 

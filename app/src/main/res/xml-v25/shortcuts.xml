@@ -52,18 +52,5 @@
             android:targetPackage="github.tornaco.xposedmoduletest" />
         <categories android:name="android.shortcut.apm" />
     </shortcut>
-    <shortcut
-        android:enabled="true"
-        android:icon="@drawable/ic_screen_lock_portrait_black_16_sc_dp"
-        android:shortcutId="lk"
-        android:shortcutLongLabel="@string/title_app_lock_kill"
-        android:shortcutShortLabel="@string/title_app_lock_kill"
-        tools:targetApi="n_mr1">
-        <intent
-            android:action="android.intent.action.VIEW"
-            android:targetClass="github.tornaco.xposedmoduletest.ui.activity.lk.LockKillAppNavActivity"
-            android:targetPackage="github.tornaco.xposedmoduletest" />
-        <categories android:name="android.shortcut.apm" />
-    </shortcut>
     <!-- Specify more shortcuts here. -->
 </shortcuts>
