@@ -761,6 +761,11 @@ final class SettingsState {
         }
     }
 
+
+    public void reset() {
+        mSettings.clear();
+    }
+
     private final class MyHandler extends Handler {
         public static final int MSG_PERSIST_SETTINGS = 1;
 

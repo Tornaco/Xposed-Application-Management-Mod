@@ -1,15 +1,17 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
-import android.app.ActivityThread;
+import android.content.pm.ApplicationInfo;
+import android.content.res.Configuration;
 import android.util.Log;
-
-import com.google.common.collect.Sets;
 
 import java.util.Set;
 
+import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import de.robv.android.xposed.XposedHelpers;
+import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -20,34 +22,47 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 public class ActivityThreadModule extends AndroidSubModule {
 
     @Override
-    public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        // XposedLog.verbose("ActivityModule handleLoadingPackage@" + lpparam.packageName);
-        // hookActivityThreadForApp(lpparam.packageName);
+    public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {
+        super.initZygote(startupParam);
+        hookHandleBindApplication();
     }
 
-    private void hookActivityThreadForApp(final String pkg) {
-        XposedLog.verbose("hookActivityThreadForApp: " + pkg);
+    private void hookHandleBindApplication() {
+        XposedLog.verbose("hookHandleBindApplication");
         try {
-            Set unHooks = XposedBridge.hookAllMethods(ActivityThread.class, "handleResumeActivity",
+            Class clz = XposedHelpers.findClass("android.app.ActivityThread", null);
+            Set unHooks = XposedBridge.hookAllMethods(clz, "handleBindApplication",
                     new XC_MethodHook() {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
-                            XposedLog.verbose("handleResumeActivity: " + param.args[0]);
+                            Object appBindData = param.args[0];
+                            if (appBindData == null) return;
+                            Configuration configuration = (Configuration) XposedHelpers.getObjectField(appBindData, "config");
+                            ApplicationInfo applicationInfo = (ApplicationInfo) XposedHelpers.getObjectField(appBindData, "appInfo");
+                            if (configuration == null || applicationInfo == null) return;
+                            if (BuildConfig.DEBUG) {
+                                Log.d(XposedLog.TAG_PREFIX, "handleBindApplication: " + configuration + ", app info: " + applicationInfo.packageName);
+                            }
+                            // Do not hook android config for safety.
+                            if ("android".equals(applicationInfo.packageName)) {
+                                return;
+                            }
+                            if (XAshmanManager.get().isServiceAvailable()) {
+                                int densityDpi = XAshmanManager.get().getAppConfigOverlayIntSetting(applicationInfo.packageName, "densityDpi");
+                                if (densityDpi != XAshmanManager.ConfigOverlays.NONE) {
+                                    configuration.densityDpi = densityDpi;
+                                }
+                            }
                         }
                     });
             setStatus(unhooksToStatus(unHooks));
-            XposedLog.verbose("hookActivityThreadForApp OK:" + unHooks);
+            XposedLog.verbose("hookHandleBindApplication OK:" + unHooks);
         } catch (Throwable e) {
-            XposedLog.verbose("Fail hookActivityThreadForApp: " + pkg + ", error:" + e);
+            XposedLog.verbose("Fail hookHandleBindApplication" + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }
     }
 
-    //
-    @Override
-    public Set<String> getInterestedPackages() {
-        return Sets.newHashSet("*");
-    }
 }

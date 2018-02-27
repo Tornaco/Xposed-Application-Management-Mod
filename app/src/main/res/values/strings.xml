@@ -497,5 +497,9 @@
     <string name="summary_exclude_recent_none">默认</string>
     <string name="summary_exclude_recent_exclude">强制隐藏</string>
     <string name="summary_exclude_recent_include">强制显示</string>
+    <string name="summary_density_overlay">DensityDpi</string>
+    <string name="summary_density_overlay_should_be_positive">必须大于0</string>
+    <string name="summary_density_overlay_fail">设定失败，请检查数值是否合法</string>
+    <string name="title_density_overlay">DensityDpi</string>
 
 </resources>

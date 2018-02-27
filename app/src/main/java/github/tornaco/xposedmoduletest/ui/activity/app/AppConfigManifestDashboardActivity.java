@@ -17,6 +17,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
+import github.tornaco.xposedmoduletest.ui.tiles.config.DensityOverlay;
 import github.tornaco.xposedmoduletest.ui.tiles.config.ExcludeFromRecent;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
@@ -110,6 +111,7 @@ public class AppConfigManifestDashboardActivity extends WithWithCustomTabActivit
 
             Category category = new Category();
             category.addTile(new ExcludeFromRecent(getActivity(), mPkg));
+            category.addTile(new DensityOverlay(getActivity(), mPkg));
             categories.add(category);
 
         }

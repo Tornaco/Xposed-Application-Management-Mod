@@ -2649,6 +2649,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    public int getAppConfigOverlayIntSetting(String appPackageName, String tag) throws RemoteException {
+        return SettingsProvider.get().getInt("CONFIG_OVERLAY_" + tag + "_" + appPackageName,
+                XAshmanManager.ConfigOverlays.NONE);// Invalid.
+    }
+
+    @Override
+    public void setAppConfigOverlayIntSetting(String appPackageName, String tag, int value) throws RemoteException {
+        SettingsProvider.get().putInt("CONFIG_OVERLAY_" + tag + "_" + appPackageName, value);
+    }
+
+    @Override
     public void setAutoAddBlackEnable(boolean enable) throws RemoteException {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETAUTOADDBLACKENABLE, enable)

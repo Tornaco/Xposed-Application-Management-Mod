@@ -91,6 +91,10 @@ public class XAshmanManager {
         int INCLUDE = 2;
     }
 
+    public interface ConfigOverlays {
+        int NONE = Integer.MIN_VALUE;
+    }
+
     public static final String SERVICE_NAME =
             OSUtil.isOOrAbove() ? Context.TV_INPUT_SERVICE : "user.tor_ash";
 
@@ -1717,6 +1721,22 @@ public class XAshmanManager {
     public void setRecentTaskExcludeSetting(ComponentName c, int setting) {
         try {
             mService.setRecentTaskExcludeSetting(c, setting);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public int getAppConfigOverlayIntSetting(String appPackageName, String tag) {
+        try {
+            return mService.getAppConfigOverlayIntSetting(appPackageName, tag);
+        } catch (RemoteException e) {
+            return ConfigOverlays.NONE;
+        }
+    }
+
+    public void setAppConfigOverlayIntSetting(String appPackageName, String tag, int value) {
+        try {
+            mService.setAppConfigOverlayIntSetting(appPackageName, tag, value);
         } catch (RemoteException e) {
 
         }

@@ -559,5 +559,8 @@ public class RepoProxy {
         getAppFocused().clear();
         getAppUnFocused().clear();
         getComponentReplacement().clear();
+
+        // Reset all settings.
+        SettingsProvider.get().reset();
     }
 }
