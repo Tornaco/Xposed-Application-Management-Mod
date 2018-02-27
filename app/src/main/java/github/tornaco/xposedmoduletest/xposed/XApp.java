@@ -32,6 +32,8 @@ public class XApp extends MultiDexApplication {
     @SuppressLint("StaticFieldLeak")
     private static XApp xApp;
 
+    private boolean mInit;
+
     public static XApp getApp() {
         return xApp;
     }
@@ -45,8 +47,15 @@ public class XApp extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         xApp = this;
+        lazyInit();
+    }
 
-        initLogger();
+    public void lazyInit() {
+        if (!mInit) {
+            initLogger();
+            EmojiManager.install(new SimpleEmojiProvider());
+            mInit = true;
+        }
     }
 
     private void initLogger() {
@@ -74,7 +83,6 @@ public class XApp extends MultiDexApplication {
                 })
                 .build());
 
-        EmojiManager.install(new SimpleEmojiProvider());
     }
 
     public static boolean isPlayVersion() {

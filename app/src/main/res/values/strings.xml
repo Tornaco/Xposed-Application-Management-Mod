@@ -501,5 +501,6 @@
     <string name="summary_density_overlay_should_be_positive">必须大于0</string>
     <string name="summary_density_overlay_fail">设定失败，请检查数值是否合法</string>
     <string name="title_density_overlay">DensityDpi</string>
+    <string name="app_splash_boot">快上车</string>
 
 </resources>

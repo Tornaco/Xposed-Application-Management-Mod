@@ -62,8 +62,7 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.NavigatorActivity"
-
-            android:theme="@style/AppThemeLight.Drawer.NoActionBar">
+            android:theme="@style/AppThemeLauncher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -74,6 +73,10 @@
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
         </activity>
+
+        <activity
+            android:name=".ui.activity.SplashActivity"
+            android:theme="@style/AppThemeSplash" />
         <activity
             android:name=".ui.activity.app.GetPlayVersionActivity"
             android:label="@string/title_get_play" />
