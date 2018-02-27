@@ -2,9 +2,11 @@ package github.tornaco.xposedmoduletest.xposed.service;
 
 import android.content.Context;
 import android.os.RemoteException;
+import android.util.Log;
 
 import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.xposed.submodules.SubModule;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -34,6 +36,7 @@ abstract class XAshmanServiceAbs extends IAshmanService.Stub
     @Override
     public void onModuleInitError(SubModule module) {
         this.hasModuleError = true;
+        XposedLog.wtf("**** ERROR onModuleInitError ****: " + module + "\n" + Log.getStackTraceString(new Throwable()));
     }
 
     static <T> T throwNoImpl() {
