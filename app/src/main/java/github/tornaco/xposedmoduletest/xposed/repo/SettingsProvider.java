@@ -108,7 +108,9 @@ public class SettingsProvider {
 
     public int getInt(String name, int def) {
         try {
-            return Integer.parseInt(getString(name, String.valueOf(def)));
+            String s = getString(name, String.valueOf(def));
+            if (s == null) return def;
+            return Integer.parseInt(s);
         } catch (Throwable e) {
             Log.e(TAG, "getInt" + Log.getStackTraceString(e));
             return def;

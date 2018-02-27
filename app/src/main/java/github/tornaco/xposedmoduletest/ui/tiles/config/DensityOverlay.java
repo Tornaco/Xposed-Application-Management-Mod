@@ -26,6 +26,8 @@ public class DensityOverlay extends QuickTile {
             int density = XAshmanManager.get().getAppConfigOverlayIntSetting(pkg, "densityDpi");
             if (density != XAshmanManager.ConfigOverlays.NONE) {
                 this.summary = String.valueOf(density);
+            } else {
+                this.summary = "DEFAULT";
             }
         }
         this.tileView = new EditTextTileView(context) {
@@ -37,7 +39,7 @@ public class DensityOverlay extends QuickTile {
 
             @Override
             protected CharSequence getHint() {
-                return String.valueOf(context.getResources().getConfiguration().densityDpi);
+                return "输入0重置为默认数值";
             }
 
             @Override
@@ -65,10 +67,12 @@ public class DensityOverlay extends QuickTile {
                     if (density < 0) {
                         Toast.makeText(context, R.string.summary_density_overlay_should_be_positive, Toast.LENGTH_SHORT).show();
                     } else {
-                        XAshmanManager.get().setAppConfigOverlayIntSetting(pkg, "densityDpi", density);
+                        XAshmanManager.get().setAppConfigOverlayIntSetting(pkg, "densityDpi",
+                                density == 0 ? XAshmanManager.ConfigOverlays.NONE : density);
 
                         // Update summary.
-                        final String delayMillsStr = String.valueOf(density);
+                        final String delayMillsStr =
+                                density == 0 ? "DEFAULT" : String.valueOf(density);
                         getSummaryTextView().setText(delayMillsStr);
                     }
                 } catch (Throwable e) {

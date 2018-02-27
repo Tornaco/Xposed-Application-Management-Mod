@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import android.content.pm.ApplicationInfo;
+import android.content.res.CompatibilityInfo;
 import android.content.res.Configuration;
 import android.util.Log;
 
@@ -19,7 +20,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
-public class ActivityThreadModule extends AndroidSubModule {
+public class ActivityThreadBindAppSubModule extends AndroidSubModule {
 
     @Override
     public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {
@@ -41,17 +42,28 @@ public class ActivityThreadModule extends AndroidSubModule {
                             Configuration configuration = (Configuration) XposedHelpers.getObjectField(appBindData, "config");
                             ApplicationInfo applicationInfo = (ApplicationInfo) XposedHelpers.getObjectField(appBindData, "appInfo");
                             if (configuration == null || applicationInfo == null) return;
-                            if (BuildConfig.DEBUG) {
-                                Log.d(XposedLog.TAG_PREFIX, "handleBindApplication: " + configuration + ", app info: " + applicationInfo.packageName);
-                            }
                             // Do not hook android config for safety.
                             if ("android".equals(applicationInfo.packageName)) {
                                 return;
                             }
+                            // Check
+                            CompatibilityInfo compatibilityInfo
+                                    = (CompatibilityInfo) XposedHelpers.getObjectField(appBindData, "compatInfo");
                             if (XAshmanManager.get().isServiceAvailable()) {
                                 int densityDpi = XAshmanManager.get().getAppConfigOverlayIntSetting(applicationInfo.packageName, "densityDpi");
+                                if (BuildConfig.DEBUG) {
+                                    Log.d(XposedLog.TAG_PREFIX, "handleBindApplication: "
+                                            + applicationInfo.packageName + "-" + configuration.densityDpi + "-" + densityDpi
+                                            + "-" + compatibilityInfo);
+                                }
                                 if (densityDpi != XAshmanManager.ConfigOverlays.NONE) {
                                     configuration.densityDpi = densityDpi;
+                                    if (compatibilityInfo != null) {
+                                        XposedHelpers.setObjectField(compatibilityInfo, "applicationDensity", densityDpi);
+                                        if (BuildConfig.DEBUG){
+                                            XposedLog.verbose("Change compatibilityInfo to: " + compatibilityInfo);
+                                        }
+                                    }
                                 }
                             }
                         }

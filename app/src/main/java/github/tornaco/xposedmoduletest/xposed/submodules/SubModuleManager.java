@@ -157,7 +157,8 @@ public class SubModuleManager {
         addToSubsChecked(new PackageParserSubModule());
         addToSubsChecked(new AMSCreateRecentTaskInfoFromTaskRecordSubModule());
 
-        addToSubsChecked(new ActivityThreadModule());
+        addToSubsChecked(new ResourceManagerApplyConfigSubModule());
+        addToSubsChecked(new ResourceSubModule());
     }
 
     @Synchronized
