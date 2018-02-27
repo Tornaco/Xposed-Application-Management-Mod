@@ -374,4 +374,7 @@ interface IAshmanService {
 
      boolean isOptFeatureEnabled(String tag);
      void setOptFeatureEnabled(String tag, boolean enable);
+
+     int getRecentTaskExcludeSetting(in ComponentName c);
+     void setRecentTaskExcludeSetting(in ComponentName c, int setting);
 }

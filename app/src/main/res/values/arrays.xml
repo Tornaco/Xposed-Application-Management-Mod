@@ -38,4 +38,10 @@
         <item>300</item>
     </string-array>
 
+    <string-array name="exclude_from_recent_settings">
+        <item>@string/summary_exclude_recent_none</item>
+        <item>@string/summary_exclude_recent_exclude</item>
+        <item>@string/summary_exclude_recent_include</item>
+    </string-array>
+
 </resources>

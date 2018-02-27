@@ -275,6 +275,11 @@
             android:label="@string/title_per_app_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
+            android:name=".ui.activity.app.AppConfigManifestDashboardActivity"
+            android:exported="true"
+            android:label="@string/title_config_setting"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
             android:name=".ui.activity.app.InstalledAppTemplateSettingsDashboardActivity"
             android:label="@string/title_per_app_template"
             android:theme="@style/AppThemeLight.NoActionBar" />

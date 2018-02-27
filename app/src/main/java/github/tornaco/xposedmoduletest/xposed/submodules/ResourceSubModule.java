@@ -36,6 +36,7 @@ class ResourceSubModule extends AndroidSubModule {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
+                            XposedLog.verbose("updateConfiguration:", Log.getStackTraceString(new Throwable()));
                         }
                     });
 

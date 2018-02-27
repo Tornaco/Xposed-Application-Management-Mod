@@ -2638,6 +2638,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    public int getRecentTaskExcludeSetting(ComponentName c) {
+        if (c == null) return XAshmanManager.ExcludeRecentSetting.NONE;
+        return SettingsProvider.get().getInt("RECENT_EXCLUDE_" + c.getPackageName(), XAshmanManager.ExcludeRecentSetting.NONE);
+    }
+
+    @Override
+    public void setRecentTaskExcludeSetting(ComponentName c, int setting) throws RemoteException {
+        SettingsProvider.get().putInt("RECENT_EXCLUDE_" + c.getPackageName(), setting);
+    }
+
+    @Override
     public void setAutoAddBlackEnable(boolean enable) throws RemoteException {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETAUTOADDBLACKENABLE, enable)

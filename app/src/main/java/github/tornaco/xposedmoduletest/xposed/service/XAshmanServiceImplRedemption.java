@@ -112,6 +112,16 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public int getRecentTaskExcludeSetting(ComponentName c) {
+        return XAshmanManager.ExcludeRecentSetting.NONE;
+    }
+
+    @Override
+    public void setRecentTaskExcludeSetting(ComponentName c, int setting) throws RemoteException {
+
+    }
+
+    @Override
     public void leaveRedemptionMode() throws RemoteException {
         RepoProxy.deleteFileIndicator(SubModuleManager.REDEMPTION);
     }

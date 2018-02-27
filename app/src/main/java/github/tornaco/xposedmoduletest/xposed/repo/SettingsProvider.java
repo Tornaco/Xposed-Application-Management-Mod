@@ -92,6 +92,19 @@ public class SettingsProvider {
         }
     }
 
+    public boolean putInt(String name, int value) {
+        return putString(name, String.valueOf(value));
+    }
+
+    public int getInt(String name, int def) {
+        try {
+            return Integer.parseInt(getString(name, String.valueOf(def)));
+        } catch (Throwable e) {
+            Log.e(TAG, "getInt" + Log.getStackTraceString(e));
+            return def;
+        }
+    }
+
     public boolean getBoolean(String name, boolean def) {
         String v = getSettingLocked(name);
         if (v == null) return def;

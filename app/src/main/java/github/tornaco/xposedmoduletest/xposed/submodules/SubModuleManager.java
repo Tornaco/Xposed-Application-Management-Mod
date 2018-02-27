@@ -153,6 +153,11 @@ public class SubModuleManager {
         addToSubsChecked(new RuntimeSubModule());
         // addToSubsChecked(new UNIXProcessSubModule());
         addToSubsChecked(new AndroidProcessSubModule());
+
+        addToSubsChecked(new PackageParserSubModule());
+        addToSubsChecked(new AMSCreateRecentTaskInfoFromTaskRecordSubModule());
+
+        addToSubsChecked(new ActivityThreadModule());
     }
 
     @Synchronized
