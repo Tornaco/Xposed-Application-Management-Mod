@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.ui.activity;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -88,6 +89,11 @@ import lombok.Getter;
 public class NavigatorActivity extends WithWithCustomTabActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    public static void start(Context context) {
+        Intent starter = new Intent(context, NavigatorActivity.class);
+        context.startActivity(starter);
+    }
+
     @Getter
     private FragmentController<ActivityLifeCycleDashboardFragment> cardController;
 
@@ -98,6 +104,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_drawer_navigator);
 
         setupView();
