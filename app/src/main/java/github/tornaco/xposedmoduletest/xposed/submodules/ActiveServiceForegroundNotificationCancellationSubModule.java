@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
+import android.os.Build;
 import android.util.Log;
 
 import java.util.Set;
@@ -9,6 +10,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -20,16 +22,26 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 class ActiveServiceForegroundNotificationCancellationSubModule extends AndroidSubModule {
 
     @Override
-    public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        hookRetrieveService(lpparam);
+    public int needMinSdk() {
+        return Build.VERSION_CODES.N;
     }
 
-    private void hookRetrieveService(XC_LoadPackage.LoadPackageParam lpparam) {
-        XposedLog.verbose("hookRetrieveService...");
+    @Override
+    public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
+        hookCancelForegroundNotificationLocked(lpparam);
+    }
+
+    private void hookCancelForegroundNotificationLocked(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedLog.verbose("hookCancelForegroundNotificationLocked...");
         try {
             Class ams = XposedHelpers.findClass("com.android.server.am.ActiveServices",
                     lpparam.classLoader);
-            Set unHooks = XposedBridge.hookAllMethods(ams, "cancelForegroudNotificationLocked",
+            // There is a mistake on N source code, maybe the developer is a Chinese?
+            // It's funny.
+            Set unHooks = XposedBridge.hookAllMethods(ams,
+                    OSUtil.isOOrAbove()
+                            ? "cancelForegroundNotificationLocked"
+                            : "cancelForegroudNotificationLocked",
                     new XC_MethodHook() {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param)
@@ -55,10 +67,10 @@ class ActiveServiceForegroundNotificationCancellationSubModule extends AndroidSu
                             }
                         }
                     });
-            XposedLog.verbose("hookRetrieveService OK:" + unHooks);
+            XposedLog.verbose("hookCancelForegroundNotificationLocked OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XposedLog.verbose("Fail hookRetrieveService: " + Log.getStackTraceString(e));
+            XposedLog.verbose("Fail hookCancelForegroundNotificationLocked: " + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

@@ -146,5 +146,7 @@ public interface IModuleBridge {
     boolean residentEnableInternal();
 
     boolean isPanicLockEnabled() throws RemoteException;
+
+    int getRecentTaskExcludeSetting(ComponentName c) throws RemoteException;
     // API For ASH END.
 }

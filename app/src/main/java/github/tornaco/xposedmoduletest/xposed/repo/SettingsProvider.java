@@ -2,11 +2,14 @@ package github.tornaco.xposedmoduletest.xposed.repo;
 
 import android.os.Environment;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.util.Log;
 
 import java.io.File;
 
+import github.tornaco.android.common.BlackHole;
 import github.tornaco.xposedmoduletest.util.Singleton;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/12/19.
@@ -34,19 +37,26 @@ public class SettingsProvider {
 
     private SettingsState mSettingsState;
 
+    private Looper mLooper;
+
     private final Object mLock = new Object();
 
     public SettingsProvider() {
 
         HandlerThread handlerThread = new HandlerThread("SettingsProvider@Tor");
         handlerThread.start();
+        mLooper = handlerThread.getLooper();
 
+        initSettingsState(mLooper);
+    }
+
+    private void initSettingsState(Looper looper) {
         File dir = getBaseDataDir();
         mSettingsState = new SettingsState(mLock,
                 new File(dir, SETTINGS_NAME_TOR_AG),
                 SETTINGS_KEY_TOR_AG,
                 -1, // No limit.
-                handlerThread.getLooper());
+                looper);
     }
 
     private static File getBaseDataDir() {
@@ -92,6 +102,21 @@ public class SettingsProvider {
         }
     }
 
+    public boolean putInt(String name, int value) {
+        return putString(name, String.valueOf(value));
+    }
+
+    public int getInt(String name, int def) {
+        try {
+            String s = getString(name, String.valueOf(def));
+            if (s == null) return def;
+            return Integer.parseInt(s);
+        } catch (Throwable e) {
+            Log.e(TAG, "getInt" + Log.getStackTraceString(e));
+            return def;
+        }
+    }
+
     public boolean getBoolean(String name, boolean def) {
         String v = getSettingLocked(name);
         if (v == null) return def;
@@ -109,6 +134,20 @@ public class SettingsProvider {
         } catch (Throwable e) {
             Log.e(TAG, "putBoolean" + Log.getStackTraceString(e));
             return false;
+        }
+    }
+
+    public void reset() {
+        try {
+            synchronized (mLock) {
+                mSettingsState.reset();
+                File dir = getBaseDataDir();
+                BlackHole.eat(new File(dir, SETTINGS_NAME_TOR_AG).delete());
+                initSettingsState(mLooper);
+                XposedLog.verbose("Settings state has been reset!");
+            }
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail reset settings state: " + Log.getStackTraceString(e));
         }
     }
 }

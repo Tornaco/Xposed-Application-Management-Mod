@@ -227,7 +227,7 @@
     <string name="title_import_fail_invalid_file">无效文件</string>
     <string name="config_dpi">DPI</string>
     <string name="config_font_scale">字体缩放</string>
-    <string name="title_config_setting">应用配置</string>
+    <string name="title_config_setting">Configuration/Manifest</string>
     <string name="title_disable_all">禁用当前页全部</string>
     <string name="title_enable_all">启用当前页全部</string>
     <string name="clear_data">帮我清除以上设置</string>
@@ -493,5 +493,13 @@
     <string name="title_boost">加速</string>
     <string name="title_opt_toast_caller">显示Toast发送者</string>
     <string name="title_opt_foreground_noti">禁止应用“前台运行”通知</string>
+    <string name="title_exclude_from_recent">从最近任务隐藏</string>
+    <string name="summary_exclude_recent_none">默认</string>
+    <string name="summary_exclude_recent_exclude">强制隐藏</string>
+    <string name="summary_exclude_recent_include">强制显示</string>
+    <string name="summary_density_overlay">DensityDpi</string>
+    <string name="summary_density_overlay_should_be_positive">必须大于0</string>
+    <string name="summary_density_overlay_fail">设定失败，请检查数值是否合法</string>
+    <string name="title_density_overlay">DensityDpi</string>
 
 </resources>

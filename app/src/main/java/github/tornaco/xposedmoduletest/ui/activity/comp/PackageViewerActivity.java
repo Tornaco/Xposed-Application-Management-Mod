@@ -39,6 +39,7 @@ import github.tornaco.xposedmoduletest.loader.ComponentLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.model.SenseAction;
 import github.tornaco.xposedmoduletest.ui.activity.ShortcutStubActivity;
+import github.tornaco.xposedmoduletest.ui.activity.app.AppConfigManifestDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.PerAppSettingsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
@@ -194,12 +195,19 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                     case R.id.action_app_settings:
                         onRequestAppSettings(packageInfo.getPkgName());
                         break;
+                    case R.id.action_config_setting:
+                        onRequestConfigSettings(packageInfo.getPkgName());
+                        break;
 
                 }
                 return true;
             }
         });
         popupMenu.show();
+    }
+
+    private void onRequestConfigSettings(String pkgName) {
+        AppConfigManifestDashboardActivity.start(getContext(), pkgName);
     }
 
     private void onRequestUnInstallApp(final CommonPackageInfo packageInfo) {

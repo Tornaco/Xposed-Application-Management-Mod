@@ -46,8 +46,8 @@ public class PackageManagerCompat {
         String appPath = PkgUtil.pathOf(context, pkg);
         new AlertDialog.Builder(context)
                 .setTitle(appName)
-                .setMessage(String.format("Version code: %s \nVersion name: %s \nApk path: %s",
-                        versionCode, versionName, appPath))
+                .setMessage(String.format("Version code: %s \nVersion name: %s \nApk path: %s \nPackageName: %s",
+                        versionCode, versionName, appPath, pkg))
                 .setCancelable(true)
                 .show();
     }
