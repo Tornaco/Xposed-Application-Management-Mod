@@ -55,7 +55,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="@dimen/dashboard_tile_image_margin_end" />
+        android:layout_marginEnd="@dimen/dashboard_tile_image_margin_start" />
 
     <View
         android:id="@+id/tile_divider"
@@ -68,11 +68,11 @@
 
     <ProgressBar
         android:id="@+id/progress_bar"
-        android:layout_alignParentBottom="true"
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-        android:progress="30"
-        android:max="100"
         android:layout_width="match_parent"
-        android:layout_height="2dp" />
+        android:layout_height="2dp"
+        android:layout_alignParentBottom="true"
+        android:max="100"
+        android:progress="30" />
 
 </RelativeLayout>

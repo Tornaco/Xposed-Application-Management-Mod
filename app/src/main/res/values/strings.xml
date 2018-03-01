@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">应用管理</string>
+    <string name="app_code_name">X-APM</string>
     <string name="manage_overlay">管理叠加层</string>
     <string name="switch_on_text">已启用</string>
     <string name="switch_off_text">未启用</string>
@@ -502,5 +503,8 @@
     <string name="summary_density_overlay_fail">设定失败，请检查数值是否合法</string>
     <string name="title_density_overlay">DensityDpi</string>
     <string name="app_splash_boot">快上车</string>
+    <string name="theme_name_invert">INVERT</string>
+    <string name="title_add_shortcut">创建桌面快捷方式</string>
+    <string name="pay_miner">帮我挖1分钱的矿，只需几秒钟时间</string>
 
 </resources>

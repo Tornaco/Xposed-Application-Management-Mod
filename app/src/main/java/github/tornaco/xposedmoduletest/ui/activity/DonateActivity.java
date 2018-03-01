@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.ui.activity;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
@@ -50,6 +51,13 @@ public class DonateActivity extends BaseActivity implements SwitchBar.OnSwitchCh
             }
         });
 
+        findViewById(R.id.pay_miner).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigateToWebPage("https://cnhv.co/1u8yx");
+            }
+        });
+
         SwitchBar switchBar = findViewById(R.id.switchbar);
         switchBar.setEnabled(true);
         switchBar.show();
@@ -63,5 +71,13 @@ public class DonateActivity extends BaseActivity implements SwitchBar.OnSwitchCh
     @Override
     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
         AppSettings.setDonated(getContext(), isChecked);
+    }
+
+    public void navigateToWebPage(String url) {
+        Uri uri = Uri.parse(url);
+        Intent intent = new Intent(Intent.ACTION_VIEW)
+                .setData(uri)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 }

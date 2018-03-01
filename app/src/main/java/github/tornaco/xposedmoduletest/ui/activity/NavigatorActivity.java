@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.ui.activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -72,6 +73,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
 import github.tornaco.xposedmoduletest.ui.tiles.app.DetailedToastActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.ForegroundNotificationOptActivity;
 import github.tornaco.xposedmoduletest.ui.widget.EmojiViewUtil;
+import github.tornaco.xposedmoduletest.ui.widget.ToastManager;
 import github.tornaco.xposedmoduletest.util.GsonUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
@@ -503,7 +505,10 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             Category ux = new Category();
             ux.titleRes = R.string.title_opt_ui;
             ux.addTile(new DetailedToastActivity(getActivity()));
-            ux.addTile(new ForegroundNotificationOptActivity(getActivity()));
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                ux.addTile(new ForegroundNotificationOptActivity(getActivity()));
+            }
 
             categories.add(ux);
         }
@@ -691,6 +696,24 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             }
 
             Category boost = new Category();
+            boost.moreDrawableRes = R.drawable.ic_more_vert_black_24dp;
+            boost.onMoreButtonClickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Build and show pop menu.
+                    PopupMenu popupMenu = new PopupMenu(getActivity(), v);
+                    popupMenu.inflate(R.menu.card_boost);
+                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            ToastManager.show(getActivity(),"No impl, waiting for developer's work...");
+                            return true;
+                        }
+                    });
+                    popupMenu.show();
+
+                }
+            };
             boost.titleRes = R.string.title_boost;
             boost.numColumns = 1; // Force se to 1.
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_LK)) {
@@ -786,7 +809,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
 
         protected void showPowerPopMenu(View anchor) {
             PopupMenu popupMenu = new PopupMenu(getContext(), anchor);
-            popupMenu.inflate(getPopupMenuRes());
+            popupMenu.inflate(getCardPopupMenuRes());
             popupMenu.setOnMenuItemClickListener(onCreateOnMenuItemClickListener());
             popupMenu.show();
         }
@@ -824,7 +847,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             });
         }
 
-        public int getPopupMenuRes() {
+        public int getCardPopupMenuRes() {
             return R.menu.card;
         }
     }

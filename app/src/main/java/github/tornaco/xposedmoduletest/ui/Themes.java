@@ -51,6 +51,13 @@ public enum Themes {
             R.style.AppThemeO_Drawer_NoActionBar,
             true),
 
+    INVERT(R.string.theme_name_invert,
+            R.color.black,
+            R.style.AppThemeINVERSE,
+            R.style.AppThemeINVERSE_NoActionBar,
+            R.style.AppThemeINVERSE_Drawer_NoActionBar,
+            true),
+
     DEFAULT(R.string.theme_name_def,
             R.color.primary,
             R.style.AppThemeLight,

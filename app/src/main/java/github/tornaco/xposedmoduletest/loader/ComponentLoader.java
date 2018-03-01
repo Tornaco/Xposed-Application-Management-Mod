@@ -17,6 +17,7 @@ import java.util.List;
 
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.model.ActivityInfoSettings;
 import github.tornaco.xposedmoduletest.model.ActivityInfoSettingsList;
@@ -108,7 +109,6 @@ public interface ComponentLoader {
             for (String p : packages) {
                 CommonPackageInfo packageInfo = LoaderUtil.constructCommonPackageInfo(context, p);
                 if (packageInfo == null) continue;
-
                 boolean match = (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_DISABLED_APPS && packageInfo.isDisabled())
                         || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ENABLED_APPS && !packageInfo.isDisabled())
                         || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_3RD_APPS && !packageInfo.isSystemApp())
@@ -118,6 +118,22 @@ public interface ComponentLoader {
                     res.add(packageInfo);
                 }
             }
+
+            // Add me for debug.
+            if (true || BuildConfig.DEBUG) {
+                CommonPackageInfo packageInfo = LoaderUtil.constructCommonPackageInfo(context, BuildConfig.APPLICATION_ID);
+                if (packageInfo != null) {
+                    boolean match = (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_DISABLED_APPS && packageInfo.isDisabled())
+                            || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ENABLED_APPS && !packageInfo.isDisabled())
+                            || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_3RD_APPS && !packageInfo.isSystemApp())
+                            || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_SYSTEM_APPS && packageInfo.isSystemApp())
+                            || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ALL_APPS);
+                    if (match) {
+                        res.add(packageInfo);
+                    }
+                }
+            }
+
             sort.performSort(res);
             return res;
         }

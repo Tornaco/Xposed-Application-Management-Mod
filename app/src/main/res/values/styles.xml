@@ -245,6 +245,41 @@
         <item name="android:windowBackground">@color/window_background</item>
     </style>
 
+    <style name="AppThemeINVERSE" parent="Theme.AppCompat.Light">
+        <item name="switchBarTheme">@style/SwitchBarSettingsInvert</item>
+        <item name="torToolbarTheme">@style/ToolbarThemeCommon</item>
+        <item name="colorAccent">@color/black</item>
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="torCardBackgroundColor">@color/card_background</item>
+        <item name="torCardAccentBackgroundColor">@color/green</item>
+        <item name="torCardTitleColor">@color/white</item>
+        <item name="torCardSummaryColor">@color/third_text</item>
+        <item name="torMainWindowBackgroundColor">@color/window_background</item>
+        <item name="torListItemTitleTextColor">@color/black</item>
+        <item name="torListItemSummaryTextColor">@color/black</item>
+        <item name="torListItemHighlightTextColor">@color/black</item>
+        <item name="torTileContainerBackgroundColor">@color/white</item>
+        <item name="torAppbarDescriptionBackgroundColor">@color/white</item>
+        <item name="torAppbarPopupTheme">@style/AppThemeLight.PopupOverlay</item>
+        <item name="torAppbarTheme">@style/AppThemeLight.AppBarOverlay</item>
+        <item name="torMDSearchBackground">@color/white</item>
+        <item name="torMenuIconTintColor">@color/black</item>
+        <item name="torDrawerMenuIconTintColor">@color/black</item>
+    </style>
+
+    <style name="AppThemeINVERSE.Drawer">
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="AppThemeINVERSEDialog" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorPrimary">@color/red</item>
+        <item name="colorPrimaryDark">@color/red_dark</item>
+        <item name="colorAccent">@color/black</item>
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
+
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -291,6 +326,16 @@
     </style>
 
     <style name="AppThemeO.Drawer.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppThemeINVERSE.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppThemeINVERSE.Drawer.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
@@ -347,6 +392,11 @@
     <style name="ButtonBarAliPay" parent="Theme.AppCompat.Light.Dialog">
         <!-- Used by controls, e.g. CheckBox, ProgressBar, etc. -->
         <item name="colorButtonNormal">@color/blue</item>
+    </style>
+
+    <style name="ButtonBarMiner" parent="Theme.AppCompat.Light.Dialog">
+        <!-- Used by controls, e.g. CheckBox, ProgressBar, etc. -->
+        <item name="colorButtonNormal">@color/amber_dark</item>
     </style>
 
     <style name="ButtonBarWeChatPay" parent="Theme.AppCompat.Light.Dialog">
@@ -445,6 +495,13 @@
     <style name="ActionButton.Small">
         <item name="android:textSize">12sp</item>
         <item name="android:minWidth">64dip</item>
+    </style>
+
+    <style name="DrawerHeaderTitle">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:ellipsize">end</item>
     </style>
 
     <!-- The list item main text style/color -->

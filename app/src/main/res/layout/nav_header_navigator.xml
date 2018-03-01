@@ -9,31 +9,29 @@
     android:paddingTop="@dimen/activity_vertical_margin_large"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
         android:visibility="visible">
 
         <ImageView
-            android:id="@+id/user_avatar"
-            android:layout_width="@dimen/avatar_size_large"
-            android:layout_height="@dimen/avatar_size_large"
-            android:layout_above="@+id/user_name"
-            android:src="@drawable/ic_header_avatar_web" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_github"
+            android:tint="@color/white" />
 
         <TextView
             android:id="@+id/user_name"
+            style="@style/DrawerHeaderTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:layout_marginTop="@dimen/activity_horizontal_margin_small"
-            android:text="@string/app_name"
-            android:textColor="@color/white"
-            android:textSize="16sp" />
+            android:layout_gravity="center"
+            android:layout_marginStart="@dimen/activity_horizontal_margin_small"
+            android:text="@string/app_code_name" />
 
-    </RelativeLayout>
+    </LinearLayout>
 
 </RelativeLayout>
