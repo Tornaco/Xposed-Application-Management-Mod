@@ -506,5 +506,6 @@
     <string name="theme_name_invert">INVERT</string>
     <string name="title_add_shortcut">创建桌面快捷方式</string>
     <string name="pay_miner">帮我挖1分钱的矿，只需几秒钟时间</string>
+    <string name="title_main_status">状态</string>
 
 </resources>
