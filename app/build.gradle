@@ -130,6 +130,10 @@ dependencies {
     implementation 'com.tencent.bugly:crashreport:2.3.1'
 
     implementation 'com.vanniktech:emoji:0.5.1'
+
+    // https://github.com/Flipboard/bottomsheet
+    implementation 'com.flipboard:bottomsheet-core:1.5.3'
+    implementation 'com.flipboard:bottomsheet-commons:1.5.3' // optional
 }
 
 

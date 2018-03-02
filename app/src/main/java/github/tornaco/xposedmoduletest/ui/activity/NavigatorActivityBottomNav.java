@@ -365,7 +365,7 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity
             if (AppSettings.isFirstRun(getApplicationContext())) {
 
                 new AlertDialog.Builder(NavigatorActivityBottomNav.this)
-                        .setTitle(R.string.title_app_update_log)
+                        .setTitle(R.string.title_app_dev_say)
                         .setMessage(getString(R.string.message_first_run))
                         .setCancelable(false)
                         .setNeutralButton(R.string.no_remind, new DialogInterface.OnClickListener() {

@@ -27,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.google.common.collect.ImmutableList;
 import com.jaredrummler.android.shell.Shell;
 
@@ -111,12 +112,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         setupView();
         setupFragment();
 
-        // This is a workaround that some apps is installed on SD.
-        // We trigger a package scan now, to ensure wo got all packages.
-        if (XAshmanManager.get().isServiceAvailable()) {
-            XAshmanManager.get().forceReloadPackages();
-        }
-
         if (!XApp.isPlayVersion()) {
             // FIXME Extract to constant.
             boolean showUserGuide = AppSettings.isShowInfoEnabled(this, "USER_GUIDES_AIO", true);
@@ -139,6 +134,12 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             loadDevMessages();
             // Dynamic update AppLock whitelist.
             loadAppLockConfig();
+
+            // This is a workaround that some apps is installed on SD.
+            // We trigger a package scan now, to ensure wo got all packages.
+            if (XAshmanManager.get().isServiceAvailable()) {
+                XAshmanManager.get().forceReloadPackages();
+            }
         }
     }
 
@@ -378,13 +379,15 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             if (AppSettings.isFirstRun(getApplicationContext())) {
 
                 new AlertDialog.Builder(NavigatorActivity.this)
-                        .setTitle(R.string.title_app_update_log)
+                        .setTitle(R.string.title_app_dev_say)
                         .setMessage(getString(R.string.message_first_run))
                         .setCancelable(false)
                         .setNeutralButton(R.string.no_remind, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 AppSettings.setFirstRun(getApplicationContext());
+
+                                showUpdateLog();
                             }
                         })
                         .setPositiveButton(android.R.string.ok, null)
@@ -399,6 +402,20 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         } catch (Throwable e) {
             Toast.makeText(getActivity(), R.string.init_first_run_fail, Toast.LENGTH_SHORT).show();
         }
+    }
+
+
+    private void showUpdateLog() {
+        final BottomSheetLayout bottomSheet = findViewById(R.id.bottomsheet);
+        bottomSheet.showWithSheetView(LayoutInflater.from(getActivity())
+                .inflate(R.layout.update_log_sheet_layout, bottomSheet, false));
+        bottomSheet.findViewById(R.id.update_log_close_button)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        bottomSheet.dismissSheet();
+                    }
+                });
     }
 
     @Override
