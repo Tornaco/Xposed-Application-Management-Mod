@@ -8,6 +8,7 @@ import android.content.Context;
  */
 
 public class MinerDialog {
+
     public static void show(Context context) {
 
     }

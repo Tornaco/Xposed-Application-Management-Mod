@@ -13,6 +13,7 @@ import java.util.List;
 import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.android.common.util.ColorUtil;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.provider.XSettings;
@@ -111,7 +112,11 @@ public class AppConfigManifestDashboardActivity extends WithWithCustomTabActivit
 
             Category category = new Category();
             category.addTile(new ExcludeFromRecent(getActivity(), mPkg));
-            category.addTile(new DensityOverlay(getActivity(), mPkg));
+
+            if (BuildConfig.DEBUG) {
+                category.addTile(new DensityOverlay(getActivity(), mPkg));
+            }
+
             categories.add(category);
 
         }
