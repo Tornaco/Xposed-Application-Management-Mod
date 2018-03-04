@@ -29,7 +29,7 @@
             android:layout_gravity="center"
             android:layout_marginEnd="8dip"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:tint="@color/grey"/>
+            android:tint="@color/grey" />
 
         <RelativeLayout
             android:layout_width="0dp"

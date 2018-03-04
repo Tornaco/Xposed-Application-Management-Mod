@@ -30,4 +30,8 @@
         5. UX更新。\n\n
         *******************************
     </string>
+
+    <string name="update_log_469">
+        性能优化与易用性提升。
+    </string>
 </resources>

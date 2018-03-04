@@ -44,4 +44,8 @@ class KeyEventSender {
     static boolean injectHomeKey() {
         return injectKey(KeyEvent.KEYCODE_HOME);
     }
+
+    static boolean injectPowerKey() {
+        return injectKey(KeyEvent.KEYCODE_POWER);
+    }
 }

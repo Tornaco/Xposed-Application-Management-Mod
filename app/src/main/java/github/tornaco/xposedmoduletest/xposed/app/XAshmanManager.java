@@ -1711,6 +1711,7 @@ public class XAshmanManager {
     }
 
     public int getRecentTaskExcludeSetting(ComponentName c) {
+        ensureService();
         try {
             return mService.getRecentTaskExcludeSetting(c);
         } catch (RemoteException e) {
@@ -1719,6 +1720,7 @@ public class XAshmanManager {
     }
 
     public void setRecentTaskExcludeSetting(ComponentName c, int setting) {
+        ensureService();
         try {
             mService.setRecentTaskExcludeSetting(c, setting);
         } catch (RemoteException e) {
@@ -1727,6 +1729,7 @@ public class XAshmanManager {
     }
 
     public int getAppConfigOverlayIntSetting(String appPackageName, String tag) {
+        ensureService();
         try {
             return mService.getAppConfigOverlayIntSetting(appPackageName, tag);
         } catch (RemoteException e) {
@@ -1735,8 +1738,18 @@ public class XAshmanManager {
     }
 
     public void setAppConfigOverlayIntSetting(String appPackageName, String tag, int value) {
+        ensureService();
         try {
             mService.setAppConfigOverlayIntSetting(appPackageName, tag, value);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public void injectPowerEvent() {
+        ensureService();
+        try {
+            mService.injectPowerEvent();
         } catch (RemoteException e) {
 
         }

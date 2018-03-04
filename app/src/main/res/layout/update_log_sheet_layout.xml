@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?torCardBackgroundColor"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@android:id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="@dimen/activity_horizontal_margin_small"
+        android:layout_marginTop="@dimen/activity_horizontal_margin_small"
+        android:padding="@dimen/header_padding_tiny"
+        android:text="@string/title_app_update_log"
+        android:textAllCaps="true"
+        android:textColor="?colorAccent"
+        android:textSize="21sp"
+        android:textStyle="bold" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_below="@android:id/title"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin_small"
+        android:layout_marginRight="@dimen/activity_horizontal_margin_small"
+        android:layout_marginTop="1px"
+        android:background="@color/dividerLight" />
+
+    <TextView
+        android:id="@android:id/text1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@android:id/title"
+        android:layout_marginStart="@dimen/activity_horizontal_margin_small"
+        android:layout_marginTop="@dimen/activity_horizontal_margin_small"
+        android:padding="@dimen/header_padding_tiny"
+        android:text="@string/update_log_469"
+        android:textAllCaps="true"
+        android:textColor="?torListItemSummaryTextColor"
+        android:textStyle="normal" />
+
+
+    <Button
+        android:id="@+id/update_log_close_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@android:id/text1"
+        android:layout_margin="@dimen/activity_horizontal_margin_small"
+        android:text="@string/done"
+        android:textColor="@color/white"
+        android:theme="@style/ButtonBarGuide" />
+</RelativeLayout>

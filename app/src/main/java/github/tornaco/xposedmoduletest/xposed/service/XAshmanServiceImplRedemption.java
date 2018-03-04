@@ -132,6 +132,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public void injectPowerEvent() throws RemoteException {
+
+    }
+
+    @Override
     public void leaveRedemptionMode() throws RemoteException {
         RepoProxy.deleteFileIndicator(SubModuleManager.REDEMPTION);
     }

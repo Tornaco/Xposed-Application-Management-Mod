@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.activity.NavigatorActivity">
+    android:orientation="vertical"
+    tools:context=".ui.activity.NavigatorActivityBottomNav">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -21,17 +22,18 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <com.flipboard.bottomsheet.BottomSheetLayout
-        android:id="@+id/bottomsheet"
+    <FrameLayout
+        android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize">
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
-        <FrameLayout
-            android:id="@+id/container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+    <android.support.design.widget.BottomNavigationView
+        android:id="@+id/navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="?android:attr/windowBackground"
+        app:menu="@menu/navigation" />
 
-    </com.flipboard.bottomsheet.BottomSheetLayout>
-
-</android.support.design.widget.CoordinatorLayout>
+</LinearLayout>

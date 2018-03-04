@@ -8,11 +8,11 @@ import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
@@ -27,7 +27,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.google.common.collect.ImmutableList;
 import com.jaredrummler.android.shell.Shell;
 
@@ -51,6 +50,7 @@ import github.tornaco.xposedmoduletest.ui.activity.app.AppDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.GetPlayVersionActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.ToolsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.helper.RunningServicesActivity;
+import github.tornaco.xposedmoduletest.ui.activity.test.TestAIOActivity;
 import github.tornaco.xposedmoduletest.ui.activity.whyyouhere.UserGuideActivityA;
 import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
@@ -88,11 +88,11 @@ import lombok.Getter;
  * Email: Tornaco@163.com
  */
 
-public class NavigatorActivity extends WithWithCustomTabActivity
+public class NavigatorActivityBottomNav extends WithWithCustomTabActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static void start(Context context) {
-        Intent starter = new Intent(context, NavigatorActivity.class);
+        Intent starter = new Intent(context, NavigatorActivityBottomNav.class);
         context.startActivity(starter);
     }
 
@@ -100,17 +100,23 @@ public class NavigatorActivity extends WithWithCustomTabActivity
     private FragmentController<ActivityLifeCycleDashboardFragment> cardController;
 
     protected int getUserSetThemeResId(Themes themes) {
-        return themes.getThemeStyleResNoActionBarDrawer();
+        return themes.getThemeStyleResNoActionBar();
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_drawer_navigator);
+        setContentView(R.layout.activity_drawer_navigator2);
 
         setupView();
         setupFragment();
+
+        // This is a workaround that some apps is installed on SD.
+        // We trigger a package scan now, to ensure wo got all packages.
+        if (XAshmanManager.get().isServiceAvailable()) {
+            XAshmanManager.get().forceReloadPackages();
+        }
 
         if (!XApp.isPlayVersion()) {
             // FIXME Extract to constant.
@@ -134,12 +140,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             loadDevMessages();
             // Dynamic update AppLock whitelist.
             loadAppLockConfig();
-
-            // This is a workaround that some apps is installed on SD.
-            // We trigger a package scan now, to ensure wo got all packages.
-            if (XAshmanManager.get().isServiceAvailable()) {
-                XAshmanManager.get().forceReloadPackages();
-            }
         }
     }
 
@@ -195,7 +195,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             boolean hasTv = OSUtil.hasTvFeature(this);
             Logger.w("initTVStateForOreo, hasTvFeature: " + hasTv);
 
-            new AlertDialog.Builder(NavigatorActivity.this)
+            new AlertDialog.Builder(NavigatorActivityBottomNav.this)
                     .setTitle(R.string.title_app_oreo_update)
                     .setMessage(getString(
                             hasTv ?
@@ -222,55 +222,41 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         }
     }
 
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.navigation_home:
+                    return true;
+                case R.id.navigation_secure:
+                    return true;
+                case R.id.navigation_advanced:
+                    return true;
+            }
+            return false;
+
+
+        }
+
+    };
+
     private void setupView() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        final DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        drawer.addDrawerListener(new DrawerLayout.DrawerListener() {
-            @Override
-            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
-
-            }
-
-            @Override
-            public void onDrawerOpened(@NonNull View drawerView) {
-            }
-
-            @Override
-            public void onDrawerClosed(@NonNull View drawerView) {
-
-            }
-
-            @Override
-            public void onDrawerStateChanged(int newState) {
-
-            }
-        });
-
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        MenuItem play = navigationView.getMenu().findItem(R.id.action_play_version);
-        MenuItem donate = navigationView.getMenu().findItem(R.id.action_donate);
-        boolean isPlayVersion = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.PLAY);
-        play.setVisible(!isPlayVersion);
-        donate.setVisible(!isPlayVersion);
-
-        navigationView.setCheckedItem(R.id.action_home);
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
     protected void setupFragment() {
         final List<ActivityLifeCycleDashboardFragment> cards =
                 ImmutableList.of(
-                        onCreateMainFragment(),
+                        new DeviceStatusFragment(),
+                        new NavigatorFragment(),
                         new ToolsDashboardActivity.Dashboards(),
-                        onCreateEXTFragment());
+                        new EXTFragment());
         cardController = new FragmentController<>(getSupportFragmentManager(), cards, R.id.container);
         cardController.setDefaultIndex(0);
         cardController.setCurrent(0);
@@ -378,7 +364,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         try {
             if (AppSettings.isFirstRun(getApplicationContext())) {
 
-                new AlertDialog.Builder(NavigatorActivity.this)
+                new AlertDialog.Builder(NavigatorActivityBottomNav.this)
                         .setTitle(R.string.title_app_dev_say)
                         .setMessage(getString(R.string.message_first_run))
                         .setCancelable(false)
@@ -386,8 +372,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 AppSettings.setFirstRun(getApplicationContext());
-
-                                showUpdateLog();
                             }
                         })
                         .setPositiveButton(android.R.string.ok, null)
@@ -402,20 +386,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         } catch (Throwable e) {
             Toast.makeText(getActivity(), R.string.init_first_run_fail, Toast.LENGTH_SHORT).show();
         }
-    }
-
-
-    private void showUpdateLog() {
-        final BottomSheetLayout bottomSheet = findViewById(R.id.bottomsheet);
-        bottomSheet.showWithSheetView(LayoutInflater.from(getActivity())
-                .inflate(R.layout.update_log_sheet_layout, bottomSheet, false));
-        bottomSheet.findViewById(R.id.update_log_close_button)
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        bottomSheet.dismissSheet();
-                    }
-                });
     }
 
     @Override
@@ -433,8 +403,8 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         }
 
         if (item.getItemId() == R.id.action_change_column_count) {
-            boolean two = AppSettings.show2ColumnsIn(getActivity(), NavigatorActivity.class.getSimpleName());
-            AppSettings.setShow2ColumnsIn(getContext(), NavigatorActivity.class.getSimpleName(), !two);
+            boolean two = AppSettings.show2ColumnsIn(getActivity(), NavigatorActivityBottomNav.class.getSimpleName());
+            AppSettings.setShow2ColumnsIn(getContext(), NavigatorActivityBottomNav.class.getSimpleName(), !two);
             Toast.makeText(getContext(), "Duang~~~~~~~", Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -442,7 +412,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
     }
 
     private void onRequestUninstalledAPM() {
-        new AlertDialog.Builder(NavigatorActivity.this)
+        new AlertDialog.Builder(NavigatorActivityBottomNav.this)
                 .setTitle(R.string.title_uninstall_apm)
                 .setMessage(getString(R.string.message_uninstall_apm))
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -459,13 +429,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                 .show();
     }
 
-    protected ActivityLifeCycleDashboardFragment onCreateMainFragment() {
-        return new NavigatorFragment();
-    }
-
-    protected ActivityLifeCycleDashboardFragment onCreateEXTFragment() {
-        return new EXTFragment();
-    }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -530,6 +493,13 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         }
     }
 
+    public static class DeviceStatusFragment extends ActivityLifeCycleDashboardFragment {
+        @Override
+        protected int getLayoutId() {
+            return R.layout.fragment_dev_status;
+        }
+    }
+
     public static class NavigatorFragment extends ActivityLifeCycleDashboardFragment {
         @Getter
         private View rootView;
@@ -541,7 +511,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
 
         @Override
         protected int getNumColumns() {
-            boolean two = AppSettings.show2ColumnsIn(getActivity(), NavigatorActivity.class.getSimpleName());
+            boolean two = AppSettings.show2ColumnsIn(getActivity(), NavigatorActivityBottomNav.class.getSimpleName());
             return two ? 2 : 1;
         }
 
@@ -722,11 +692,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                     popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
-                            if (item.getItemId() == R.id.action_lock_now) {
-                                XAshmanManager.get().injectPowerEvent();
-                            } else {
-                                ToastManager.show(getActivity(), "No impl, waiting for developer's work...");
-                            }
+                            ToastManager.show(getActivity(), "No impl, waiting for developer's work...");
                             return true;
                         }
                     });
@@ -848,7 +814,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                         executeCommandAsync("reboot bootloader");
                     }
                     if (item.getItemId() == R.id.action_start_test) {
-                        NavigatorActivityBottomNav.start(getActivity());
+                        TestAIOActivity.start(getContext());
                     }
                     if (item.getItemId() == R.id.action_running_services) {
                         startActivity(new Intent(getActivity(), RunningServicesActivity.class));
