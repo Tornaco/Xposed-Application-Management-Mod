@@ -508,5 +508,7 @@
     <string name="pay_miner">帮我挖1分钱的矿，只需几秒钟时间</string>
     <string name="title_main_status">状态</string>
     <string name="title_app_update_log">更新日志</string>
+    <string name="title_add_lock_shortcut">添加锁屏快捷方式</string>
+    <string name="title_lock_now">立即锁屏</string>
 
 </resources>

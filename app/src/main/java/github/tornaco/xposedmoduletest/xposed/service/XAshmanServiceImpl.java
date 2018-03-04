@@ -2660,6 +2660,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
+    public void injectPowerEvent() throws RemoteException {
+        mainHandler.post(new ErrorCatchRunnable(new Runnable() {
+            @Override
+            public void run() {
+                KeyEventSender.injectPowerKey();
+            }
+        }, "injectPowerEvent"));
+    }
+
+    @Override
     public void setAutoAddBlackEnable(boolean enable) throws RemoteException {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETAUTOADDBLACKENABLE, enable)

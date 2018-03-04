@@ -722,7 +722,11 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                     popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
-                            ToastManager.show(getActivity(), "No impl, waiting for developer's work...");
+                            if (item.getItemId() == R.id.action_lock_now) {
+                                XAshmanManager.get().injectPowerEvent();
+                            } else {
+                                ToastManager.show(getActivity(), "No impl, waiting for developer's work...");
+                            }
                             return true;
                         }
                     });
