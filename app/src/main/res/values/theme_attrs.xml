@@ -24,4 +24,7 @@
     <attr name="torListItemTitleTextColor" format="color" />
     <attr name="torListItemSummaryTextColor" format="color" />
     <attr name="torListItemHighlightTextColor" format="color" />
+
+    <attr name="torBottomNavTextColor" format="color" />
+    <attr name="torBottomNavButtonColor" format="color" />
 </resources>

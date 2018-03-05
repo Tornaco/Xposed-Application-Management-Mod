@@ -33,7 +33,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="?android:attr/windowBackground"
+        android:background="?colorPrimary"
+        app:itemIconTint="@color/bottom_nav_reverse_btn_colors"
+        app:itemTextColor="@color/bottom_nav_reverse_text_colors"
         app:menu="@menu/navigation" />
 
 </LinearLayout>

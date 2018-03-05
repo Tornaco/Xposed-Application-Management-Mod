@@ -6,28 +6,24 @@ import android.view.View;
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.ui.activity.NavigatorActivityBottomNav;
+import github.tornaco.xposedmoduletest.ui.activity.app.GetPlayVersionActivity;
 
 /**
- * Created by guohao4 on 2017/11/16.
+ * Created by guohao4 on 2017/11/10.
  * Email: Tornaco@163.com
  */
 
-public class Restore extends QuickTile {
+public class AppGetPlay extends QuickTile {
 
-    public Restore(final Context context) {
+    public AppGetPlay(final Context context) {
         super(context);
-
-        this.titleRes = R.string.title_restore;
-        this.summaryRes = R.string.summary_title_restore;
-        this.iconRes = R.drawable.ic_import_export_black_24dp;
-
+        this.titleRes = R.string.title_get_play;
+        this.iconRes = R.drawable.ic_shop_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override
             public void onClick(View v) {
                 super.onClick(v);
-                NavigatorActivityBottomNav ad = (NavigatorActivityBottomNav) context;
-                ad.onRequestRestore();
+                GetPlayVersionActivity.start(context);
             }
         };
     }

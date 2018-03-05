@@ -1,5 +1,7 @@
 package github.tornaco.xposedmoduletest.ui;
 
+import android.support.annotation.StringRes;
+
 import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 
@@ -8,14 +10,18 @@ import github.tornaco.xposedmoduletest.provider.AppSettings;
  * Email: Tornaco@163.com
  */
 
-public class ActivityLifeCycleDashboardFragment extends DashboardFragment {
+public abstract class ActivityLifeCycleDashboardFragment extends DashboardFragment {
 
     public void onActivityResume() {
     }
 
     @Override
     protected boolean showDivider() {
-        if (getActivity() == null) return false;
-        return AppSettings.isShowTileDivider(getActivity());
+        return getActivity() != null && AppSettings.isShowTileDivider(getActivity());
+    }
+
+    @StringRes
+    public int getPageTitle() {
+        return 0;
     }
 }

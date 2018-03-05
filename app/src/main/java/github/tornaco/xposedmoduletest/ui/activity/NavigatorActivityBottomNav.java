@@ -1,18 +1,20 @@
 package github.tornaco.xposedmoduletest.ui.activity;
 
+import android.Manifest;
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
@@ -29,15 +31,20 @@ import android.widget.Toast;
 
 import com.google.common.collect.ImmutableList;
 import com.jaredrummler.android.shell.Shell;
+import com.nononsenseapps.filepicker.FilePickerActivity;
+import com.nononsenseapps.filepicker.Utils;
 
 import org.newstand.logger.Logger;
 
+import java.io.File;
 import java.util.List;
-import java.util.UUID;
 
 import dev.nick.tiles.tile.Category;
+import github.tornaco.permission.requester.RequiresPermission;
+import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.backup.DataBackup;
 import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.license.DeveloperMessage;
 import github.tornaco.xposedmoduletest.license.DeveloperMessages;
@@ -45,13 +52,7 @@ import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.ActivityLifeCycleDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.FragmentController;
 import github.tornaco.xposedmoduletest.ui.Themes;
-import github.tornaco.xposedmoduletest.ui.activity.app.AboutDashboardActivity;
-import github.tornaco.xposedmoduletest.ui.activity.app.AppDashboardActivity;
-import github.tornaco.xposedmoduletest.ui.activity.app.GetPlayVersionActivity;
-import github.tornaco.xposedmoduletest.ui.activity.app.ToolsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.helper.RunningServicesActivity;
-import github.tornaco.xposedmoduletest.ui.activity.test.TestAIOActivity;
-import github.tornaco.xposedmoduletest.ui.activity.whyyouhere.UserGuideActivityA;
 import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
 import github.tornaco.xposedmoduletest.ui.tiles.AppStart;
@@ -70,11 +71,30 @@ import github.tornaco.xposedmoduletest.ui.tiles.Resident;
 import github.tornaco.xposedmoduletest.ui.tiles.SmartSense;
 import github.tornaco.xposedmoduletest.ui.tiles.TRKill;
 import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
-import github.tornaco.xposedmoduletest.ui.tiles.app.DetailedToastActivity;
-import github.tornaco.xposedmoduletest.ui.tiles.app.ForegroundNotificationOptActivity;
+import github.tornaco.xposedmoduletest.ui.tiles.app.AppDevMode;
+import github.tornaco.xposedmoduletest.ui.tiles.app.AppDeveloper;
+import github.tornaco.xposedmoduletest.ui.tiles.app.AppDonate;
+import github.tornaco.xposedmoduletest.ui.tiles.app.AppGetPlay;
+import github.tornaco.xposedmoduletest.ui.tiles.app.AppVersion;
+import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlack;
+import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlackNotification;
+import github.tornaco.xposedmoduletest.ui.tiles.app.Backup;
+import github.tornaco.xposedmoduletest.ui.tiles.app.CleanUpSystemErrorTrace;
+import github.tornaco.xposedmoduletest.ui.tiles.app.CrashDump;
+import github.tornaco.xposedmoduletest.ui.tiles.app.IconPack;
+import github.tornaco.xposedmoduletest.ui.tiles.app.MokeCrash;
+import github.tornaco.xposedmoduletest.ui.tiles.app.OpenMarket;
+import github.tornaco.xposedmoduletest.ui.tiles.app.OpenSource;
+import github.tornaco.xposedmoduletest.ui.tiles.app.PowerSave;
+import github.tornaco.xposedmoduletest.ui.tiles.app.PrivacyPolicy;
+import github.tornaco.xposedmoduletest.ui.tiles.app.Restore;
+import github.tornaco.xposedmoduletest.ui.tiles.app.RestoreDefault;
+import github.tornaco.xposedmoduletest.ui.tiles.app.ShowFocusedActivity;
+import github.tornaco.xposedmoduletest.ui.tiles.app.ShowTileDivider;
+import github.tornaco.xposedmoduletest.ui.tiles.app.ThemeChooser;
+import github.tornaco.xposedmoduletest.ui.tiles.app.WhiteSystemApp;
 import github.tornaco.xposedmoduletest.ui.widget.EmojiViewUtil;
 import github.tornaco.xposedmoduletest.ui.widget.ToastManager;
-import github.tornaco.xposedmoduletest.util.GsonUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.XApp;
@@ -82,14 +102,25 @@ import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.Synchronized;
 
 /**
  * Created by guohao4 on 2017/11/10.
  * Email: Tornaco@163.com
  */
+@RuntimePermissions
+public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implements
+        DataBackup.BackupRestoreListener {
 
-public class NavigatorActivityBottomNav extends WithWithCustomTabActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+    interface INDEXS {
+        int BASE = 0;
+        int STATUS = BASE;
+        int MANAGE = BASE + 1;
+        int TOOLS = BASE + 2;
+        int SETTINGS = BASE + 3;
+        int ABOUT = BASE + 4;
+    }
 
     public static void start(Context context) {
         Intent starter = new Intent(context, NavigatorActivityBottomNav.class);
@@ -99,6 +130,10 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity
     @Getter
     private FragmentController<ActivityLifeCycleDashboardFragment> cardController;
 
+    @Getter
+    @Setter
+    private int bottomNavIndex;
+
     protected int getUserSetThemeResId(Themes themes) {
         return themes.getThemeStyleResNoActionBar();
     }
@@ -107,7 +142,7 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_drawer_navigator2);
+        setContentView(R.layout.activity_bottom_nav);
 
         setupView();
         setupFragment();
@@ -116,14 +151,6 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity
         // We trigger a package scan now, to ensure wo got all packages.
         if (XAshmanManager.get().isServiceAvailable()) {
             XAshmanManager.get().forceReloadPackages();
-        }
-
-        if (!XApp.isPlayVersion()) {
-            // FIXME Extract to constant.
-            boolean showUserGuide = AppSettings.isShowInfoEnabled(this, "USER_GUIDES_AIO", true);
-            if (showUserGuide) {
-                UserGuideActivityA.start(getActivity());
-            }
         }
 
         miscIfNotFirst();
@@ -222,22 +249,36 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity
         }
     }
 
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+    private BottomNavigationView.OnNavigationItemSelectedListener
+            mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    return true;
-                case R.id.navigation_secure:
-                    return true;
-                case R.id.navigation_advanced:
-                    return true;
+                    cardController.setCurrent(INDEXS.STATUS);
+                    break;
+                case R.id.navigation_manage:
+                    cardController.setCurrent(INDEXS.MANAGE);
+                    break;
+                case R.id.navigation_tools:
+                    cardController.setCurrent(INDEXS.TOOLS);
+                    break;
+                case R.id.navigation_settings:
+                    cardController.setCurrent(INDEXS.SETTINGS);
+                    break;
+                case R.id.navigation_about:
+                    cardController.setCurrent(INDEXS.ABOUT);
+                    break;
             }
-            return false;
-
-
+            ActivityLifeCycleDashboardFragment dashboardFragment = getCardController().getCurrent();
+            @StringRes int titleRes = dashboardFragment.getPageTitle();
+            setTitle(titleRes);
+            setBottomNavIndex(getCardController().getCurrentIndex());
+            // Update menus.
+            invalidateOptionsMenu();
+            return true;
         }
 
     };
@@ -246,7 +287,7 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
@@ -254,9 +295,10 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity
         final List<ActivityLifeCycleDashboardFragment> cards =
                 ImmutableList.of(
                         new DeviceStatusFragment(),
-                        new NavigatorFragment(),
-                        new ToolsDashboardActivity.Dashboards(),
-                        new EXTFragment());
+                        new ManageNavFragment(),
+                        new ToolsNavFragment(),
+                        new SettingsNavFragment(),
+                        new AboutNavFragment());
         cardController = new FragmentController<>(getSupportFragmentManager(), cards, R.id.container);
         cardController.setDefaultIndex(0);
         cardController.setCurrent(0);
@@ -266,18 +308,6 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity
     protected void onResume() {
         super.onResume();
         cardController.getCurrent().onActivityResume();
-
-
-        if (BuildConfig.DEBUG) {
-            DeveloperMessage developerMessage = new DeveloperMessage();
-            developerMessage.setTitle("Test title");
-            developerMessage.setMessage("Test message");
-            developerMessage.setCancelable(true);
-            developerMessage.setMessageId(UUID.randomUUID().toString());
-            developerMessage.setTimeMills(System.currentTimeMillis());
-            Logger.e(GsonUtil.getGson().toJson(developerMessage));
-        }
-
         checkForRedemptionMode();
     }
 
@@ -336,30 +366,6 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            ActivityLifeCycleDashboardFragment current = getCardController().getCurrent();
-            if (!(current instanceof NavigatorFragment)) {
-                getCardController().setCurrent(0);
-                setTitle(R.string.app_name);
-                NavigationView navigationView = findViewById(R.id.nav_view);
-                navigationView.setCheckedItem(R.id.action_home);
-            } else {
-                super.onBackPressed();
-            }
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
     private void initFirstRun() {
         try {
             if (AppSettings.isFirstRun(getApplicationContext())) {
@@ -386,6 +392,20 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity
         } catch (Throwable e) {
             Toast.makeText(getActivity(), R.string.init_first_run_fail, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem changeCol = menu.findItem(R.id.action_change_column_count);
+        changeCol.setVisible(INDEXS.MANAGE == getBottomNavIndex());
+        Logger.w("onPrepareOptionsMenu: " + getBottomNavIndex());
+        return true;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -430,46 +450,41 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity
     }
 
 
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_settings) {
-            startActivity(new Intent(this, AppDashboardActivity.class));
+    public static class ToolsNavFragment extends ActivityLifeCycleDashboardFragment {
+        @Override
+        public int getPageTitle() {
+            return R.string.title_tools;
         }
 
-        if (item.getItemId() == R.id.action_play_version) {
-            GetPlayVersionActivity.start(getActivity());
-        }
+        @Override
+        protected void onCreateDashCategories(List<Category> categories) {
+            super.onCreateDashCategories(categories);
 
-        if (item.getItemId() == R.id.action_about) {
-            startActivity(new Intent(this, AboutDashboardActivity.class));
+            Category dev = new Category();
+            dev.titleRes = R.string.title_dev_tools;
+            dev.addTile(new AppDevMode(getActivity()));
+            dev.addTile(new ShowFocusedActivity(getActivity()));
+            dev.addTile(new CrashDump(getActivity()));
+            dev.addTile(new MokeCrash(getActivity()));
+            dev.addTile(new CleanUpSystemErrorTrace(getActivity()));
+            categories.add(dev);
         }
-        if (item.getItemId() == R.id.action_tools) {
-            getCardController().setCurrent(1);
-            setTitle(R.string.action_tools);
-        }
-
-        if (item.getItemId() == R.id.action_home) {
-            getCardController().setCurrent(0);
-            setTitle(R.string.app_name);
-        }
-
-        if (item.getItemId() == R.id.action_ext) {
-            getCardController().setCurrent(2);
-            setTitle(R.string.app_ext);
-        }
-
-        if (item.getItemId() == R.id.action_donate) {
-            startActivity(new Intent(getContext(), DonateActivity.class));
-        }
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 
-    public static class EXTFragment extends ActivityLifeCycleDashboardFragment {
+    public static class DeviceStatusFragment extends ActivityLifeCycleDashboardFragment {
+
         @Getter
         private View rootView;
+
+        @Override
+        protected int getLayoutId() {
+            return R.layout.fragment_dev_status;
+        }
+
+        @Override
+        public int getPageTitle() {
+            return R.string.title_device_status;
+        }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -481,44 +496,32 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
 
-            Category ux = new Category();
-            ux.titleRes = R.string.title_opt_ui;
-            ux.addTile(new DetailedToastActivity(getActivity()));
+            Category boost = new Category();
+            boost.moreDrawableRes = R.drawable.ic_more_vert_black_24dp;
+            boost.onMoreButtonClickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Build and show pop menu.
+                    PopupMenu popupMenu = new PopupMenu(getActivity(), v);
+                    popupMenu.inflate(R.menu.card_boost);
+                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            ToastManager.show(getActivity(), "No impl, waiting for developer's work...");
+                            return true;
+                        }
+                    });
+                    popupMenu.show();
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-                ux.addTile(new ForegroundNotificationOptActivity(getActivity()));
+                }
+            };
+            boost.titleRes = R.string.title_boost;
+            boost.numColumns = 1; // Force se to 1.
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_LK)) {
+                boost.addTile(new LockKill(getActivity()));
             }
 
-            categories.add(ux);
-        }
-    }
-
-    public static class DeviceStatusFragment extends ActivityLifeCycleDashboardFragment {
-        @Override
-        protected int getLayoutId() {
-            return R.layout.fragment_dev_status;
-        }
-    }
-
-    public static class NavigatorFragment extends ActivityLifeCycleDashboardFragment {
-        @Getter
-        private View rootView;
-
-        @Override
-        protected int getLayoutId() {
-            return R.layout.fragment_navigator;
-        }
-
-        @Override
-        protected int getNumColumns() {
-            boolean two = AppSettings.show2ColumnsIn(getActivity(), NavigatorActivityBottomNav.class.getSimpleName());
-            return two ? 2 : 1;
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            rootView = super.onCreateView(inflater, container, savedInstanceState);
-            return rootView;
+            categories.add(boost);
         }
 
         @Override
@@ -654,6 +657,89 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity
             return XAppGuardManager.get().isServiceAvailable();
         }
 
+        @SuppressWarnings("unchecked")
+        protected <T extends View> T findView(@IdRes int idRes) {
+            return (T) getRootView().findViewById(idRes);
+        }
+
+        @SuppressWarnings("unchecked")
+        protected <T extends View> T findView(View root, @IdRes int idRes) {
+            return (T) root.findViewById(idRes);
+        }
+
+        protected void showPowerPopMenu(View anchor) {
+            PopupMenu popupMenu = new PopupMenu(getContext(), anchor);
+            popupMenu.inflate(getCardPopupMenuRes());
+            popupMenu.setOnMenuItemClickListener(onCreateOnMenuItemClickListener());
+            popupMenu.show();
+        }
+
+        private PopupMenu.OnMenuItemClickListener onCreateOnMenuItemClickListener() {
+            return new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    if (item.getItemId() == R.id.action_soft_restart) {
+                        executeCommandAsync("stop;start");
+                    }
+                    if (item.getItemId() == R.id.action_restart_rec) {
+                        executeCommandAsync("reboot recovery");
+                    }
+                    if (item.getItemId() == R.id.action_restart_bl) {
+                        executeCommandAsync("reboot bootloader");
+                    }
+                    if (item.getItemId() == R.id.action_start_test) {
+                        NavigatorActivityBottomNav.start(getActivity());
+                    }
+                    if (item.getItemId() == R.id.action_running_services) {
+                        startActivity(new Intent(getActivity(), RunningServicesActivity.class));
+                    }
+                    return false;
+                }
+            };
+        }
+
+        void executeCommandAsync(final String cmd) {
+            XExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    Shell.SU.run(cmd);
+                }
+            });
+        }
+
+        public int getCardPopupMenuRes() {
+            return R.menu.card;
+        }
+    }
+
+    public static class ManageNavFragment
+            extends ActivityLifeCycleDashboardFragment {
+        @Getter
+        private View rootView;
+
+        @Override
+        public int getPageTitle() {
+            return R.string.title_manage;
+        }
+
+        @Override
+        protected int getNumColumns() {
+            boolean two = AppSettings.show2ColumnsIn(getActivity(), NavigatorActivityBottomNav.class.getSimpleName());
+            return two ? 2 : 1;
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            rootView = super.onCreateView(inflater, container, savedInstanceState);
+            return rootView;
+        }
+
+        @Override
+        public void onActivityResume() {
+            super.onActivityResume();
+            buildUI(getActivity());
+        }
+
         @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
@@ -679,31 +765,6 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity
 
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_PRIVACY)) {
                 sec.addTile(new Privacy(getActivity()));
-            }
-
-            Category boost = new Category();
-            boost.moreDrawableRes = R.drawable.ic_more_vert_black_24dp;
-            boost.onMoreButtonClickListener = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // Build and show pop menu.
-                    PopupMenu popupMenu = new PopupMenu(getActivity(), v);
-                    popupMenu.inflate(R.menu.card_boost);
-                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                        @Override
-                        public boolean onMenuItemClick(MenuItem item) {
-                            ToastManager.show(getActivity(), "No impl, waiting for developer's work...");
-                            return true;
-                        }
-                    });
-                    popupMenu.show();
-
-                }
-            };
-            boost.titleRes = R.string.title_boost;
-            boost.numColumns = 1; // Force se to 1.
-            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_LK)) {
-                boost.addTile(new LockKill(getActivity()));
             }
 
             Category rest = new Category();
@@ -776,65 +837,251 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity
                 exp.addTile(new Lazy(getActivity()));
             }
 
-            if (boost.getTilesCount() > 0) categories.add(boost);
             if (sec.getTilesCount() > 0) categories.add(sec);
             if (rest.getTilesCount() > 0) categories.add(rest);
             if (ash.getTilesCount() > 0) categories.add(ash);
             if (exp.getTilesCount() > 0) categories.add(exp);
         }
 
-        @SuppressWarnings("unchecked")
-        protected <T extends View> T findView(@IdRes int idRes) {
-            return (T) getRootView().findViewById(idRes);
+    }
+
+    // Settings block.
+    private ProgressDialog mProgressDialog;
+
+    @Synchronized
+    private void showProgressDialog() {
+        cancelProgressDialog();
+        if (isDestroyed()) return;
+
+        mProgressDialog = new ProgressDialog(getActivity());
+        mProgressDialog.setIndeterminate(true);
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.setMessage(getString(R.string.message_saving_changes));
+        mProgressDialog.show();
+    }
+
+    @Synchronized
+    private void cancelProgressDialog() {
+        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
+        }
+    }
+
+    @RequiresPermission({Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE})
+    void performBackup(final File dir) {
+        XExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                DataBackup.performBackup(dir, NavigatorActivityBottomNav.this);
+            }
+        });
+    }
+
+    @RequiresPermission({Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE})
+    void performRestore(final File zipFile) {
+        XExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                DataBackup.performRestore(getContext(), zipFile, NavigatorActivityBottomNav.this);
+            }
+        });
+    }
+
+    public void onRequestBackup() {
+        NavigatorActivityBottomNavPermissionRequester.onRequestBackupInternalChecked(this);
+    }
+
+
+    public void onRequestRestore() {
+        NavigatorActivityBottomNavPermissionRequester.onRequestRestoreInternalChecked(this);
+    }
+
+    @RequiresPermission({Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE})
+    public void onRequestBackupInternal() {
+        pickSingleFile(this, REQUEST_CODE_PICK_BACKUP_DIR, FilePickerActivity.MODE_DIR);
+    }
+
+    @RequiresPermission({Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE})
+    public void onRequestRestoreInternal() {
+        pickSingleFile(this, REQUEST_CODE_PICK_RESTORE_FILE, FilePickerActivity.MODE_FILE);
+    }
+
+    private static final int REQUEST_CODE_PICK_BACKUP_DIR = 0x111;
+    private static final int REQUEST_CODE_PICK_RESTORE_FILE = 0x112;
+
+    private static void pickSingleFile(Activity activity, int code, int mode) {
+        // This always works
+        Intent i = new Intent(activity, FilePickerActivity.class);
+        // This works if you defined the intent filter
+        // Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+
+        // Set these depending on your use case. These are the defaults.
+        i.putExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false);
+        i.putExtra(FilePickerActivity.EXTRA_ALLOW_CREATE_DIR, false);
+        i.putExtra(FilePickerActivity.EXTRA_MODE, mode);
+
+        // Configure initial directory by specifying a String.
+        // You could specify a String like "/storage/emulated/0/", but that can
+        // dangerous. Always use Android's API calls to getSingleton paths to the SD-card or
+        // internal memory.
+        i.putExtra(FilePickerActivity.EXTRA_START_PATH, Environment.getExternalStorageDirectory().getPath());
+
+        activity.startActivityForResult(i, code);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_PICK_BACKUP_DIR && resultCode == Activity.RESULT_OK) {
+            // Use the provided utility method to parse the result
+            List<Uri> files = Utils.getSelectedFilesFromResult(data);
+            File file = Utils.getFileForUri(files.get(0));
+            onBackupDirPicked(file);
         }
 
-        @SuppressWarnings("unchecked")
-        protected <T extends View> T findView(View root, @IdRes int idRes) {
-            return (T) root.findViewById(idRes);
+        if (requestCode == REQUEST_CODE_PICK_RESTORE_FILE && resultCode == Activity.RESULT_OK) {
+            // Use the provided utility method to parse the result
+            List<Uri> files = Utils.getSelectedFilesFromResult(data);
+            File file = Utils.getFileForUri(files.get(0));
+            onRestoreFilePicked(file);
         }
+    }
 
-        protected void showPowerPopMenu(View anchor) {
-            PopupMenu popupMenu = new PopupMenu(getContext(), anchor);
-            popupMenu.inflate(getCardPopupMenuRes());
-            popupMenu.setOnMenuItemClickListener(onCreateOnMenuItemClickListener());
-            popupMenu.show();
-        }
+    private void onRestoreFilePicked(File file) {
+        NavigatorActivityBottomNavPermissionRequester.performRestoreChecked(file, this);
+    }
 
-        private PopupMenu.OnMenuItemClickListener onCreateOnMenuItemClickListener() {
-            return new PopupMenu.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    if (item.getItemId() == R.id.action_soft_restart) {
-                        executeCommandAsync("stop;start");
-                    }
-                    if (item.getItemId() == R.id.action_restart_rec) {
-                        executeCommandAsync("reboot recovery");
-                    }
-                    if (item.getItemId() == R.id.action_restart_bl) {
-                        executeCommandAsync("reboot bootloader");
-                    }
-                    if (item.getItemId() == R.id.action_start_test) {
-                        TestAIOActivity.start(getContext());
-                    }
-                    if (item.getItemId() == R.id.action_running_services) {
-                        startActivity(new Intent(getActivity(), RunningServicesActivity.class));
-                    }
-                    return false;
-                }
-            };
-        }
+    private void onBackupDirPicked(File file) {
+        NavigatorActivityBottomNavPermissionRequester.performBackupChecked(file, this);
+    }
 
-        void executeCommandAsync(final String cmd) {
-            XExecutor.execute(new Runnable() {
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        NavigatorActivityBottomNavPermissionRequester.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onFail(int errNum, final Throwable e) {
+        runOnUiThreadChecked(new Runnable() {
+            @Override
+            public void run() {
+                cancelProgressDialog();
+                Toast.makeText(getActivity(),
+                        getString(R.string.title_export_or_import_fail) + "\n" +
+                                Logger.getStackTraceString(e), Toast.LENGTH_SHORT).show();
+            }
+        });
+        Logger.e("Fail backup: " + Logger.getStackTraceString(e));
+    }
+
+    @Override
+    public void onSuccess() {
+        runOnUiThreadChecked(new Runnable() {
+            @Override
+            public void run() {
+                cancelProgressDialog();
+                Toast.makeText(getActivity(), R.string.title_backup_restore_success, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public void onProgress(float progress) {
+        if (progress == 0f) {
+            runOnUiThreadChecked(new Runnable() {
                 @Override
                 public void run() {
-                    Shell.SU.run(cmd);
+                    showProgressDialog();
                 }
             });
         }
+    }
 
-        public int getCardPopupMenuRes() {
-            return R.menu.card;
+    public static class SettingsNavFragment extends ActivityLifeCycleDashboardFragment {
+
+        @Override
+        public int getPageTitle() {
+            return R.string.title_settings;
+        }
+
+        @Override
+        protected void onCreateDashCategories(List<Category> categories) {
+            super.onCreateDashCategories(categories);
+
+            Category system = new Category();
+            system.titleRes = R.string.title_opt;
+            system.addTile(new PowerSave(getActivity()));
+
+            Category systemProtect = new Category();
+            systemProtect.titleRes = R.string.title_app_settings;
+            systemProtect.addTile(new WhiteSystemApp(getActivity()));
+            systemProtect.addTile(new AutoBlack(getActivity()));
+            systemProtect.addTile(new AutoBlackNotification(getActivity()));
+
+            Category data = new Category();
+            data.titleRes = R.string.title_data;
+            data.addTile(new RestoreDefault(getActivity()));
+            data.addTile(new Restore(getActivity()));
+            Category dataHook = new Category();
+            dataHook.addTile(new Backup(getActivity()));
+
+            Category theme = new Category();
+            theme.titleRes = R.string.title_style;
+            theme.addTile(new ThemeChooser(getActivity()));
+            theme.addTile(new ShowTileDivider(getActivity()));
+            theme.addTile(new IconPack(getActivity()));
+
+            categories.add(system);
+            categories.add(systemProtect);
+            categories.add(data);
+            categories.add(dataHook);
+            categories.add(theme);
+        }
+    }
+
+    public static class AboutNavFragment extends ActivityLifeCycleDashboardFragment {
+        @Override
+        public int getPageTitle() {
+            return R.string.title_about;
+        }
+
+        @Override
+        protected void onCreateDashCategories(List<Category> categories) {
+            super.onCreateDashCategories(categories);
+
+            Category personal = new Category();
+            personal.titleRes = R.string.title_about;
+
+            personal.addTile(new AppDeveloper(getActivity()));
+
+            Category hook = new Category();
+            hook.addTile(new OpenMarket(getActivity()));
+            hook.addTile(new PrivacyPolicy(getActivity()));
+            hook.addTile(new OpenSource(getActivity()));
+
+            Category hook2 = new Category();
+            hook2.addTile(new AppVersion(getActivity()));
+
+
+            boolean isPlayVersion = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.PLAY);
+
+            categories.add(personal);
+            categories.add(hook2);
+            categories.add(hook);
+
+            if (!isPlayVersion) {
+                Category help = new Category();
+                help.titleRes = R.string.title_help_dev;
+                help.addTile(new AppDonate(getActivity()));
+                help.addTile(new AppGetPlay(getActivity()));
+                categories.add(help);
+            }
         }
     }
 }

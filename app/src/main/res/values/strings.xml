@@ -240,7 +240,7 @@
     <string name="summary_perm_control">禁用应用的某些权限可能会导致该应用运行出现异常；禁用某些系统应用权限可能会导致设备无法正常使用，甚至无法启动。</string>
     <string name="navigation_drawer_open">open</string>
     <string name="navigation_drawer_close">close</string>
-    <string name="action_tools">工具箱</string>
+    <string name="title_tools">工具箱</string>
     <string name="title_dev_tools">开发者工具</string>
     <string name="title_show_focused_activity">显示当前活动</string>
     <string name="summary_show_focused_activity">以Toast的形式显示当前的Activity。</string>
@@ -510,5 +510,7 @@
     <string name="title_app_update_log">更新日志</string>
     <string name="title_add_lock_shortcut">添加锁屏快捷方式</string>
     <string name="title_lock_now">立即锁屏</string>
+    <string name="title_manage">管理</string>
+    <string name="title_help_dev">帮助开发者</string>
 
 </resources>

@@ -33,7 +33,7 @@ public class LockKill extends QuickTile {
         this.titleRes = R.string.title_app_mem_boost;
         if (XAshmanManager.get().isServiceAvailable()) {
             this.summaryRes = XAshmanManager.get().isLockKillEnabled() ?
-                    R.string.summary_func_lk_enabled : 0;
+                    R.string.summary_func_lk_enabled : R.string.summary_func_lk_disabled;
         }
         this.iconRes = R.drawable.ic_donut_small_black_24px;
 
