@@ -399,6 +399,14 @@
             android:label="@string/title_nf"
             android:theme="@style/AppThemeLight.NoActionBar" />
 
+        <activity
+            android:name=".ui.activity.stub.LockScreenStubActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".ui.activity.stub.ClearStubActivity"
+            android:exported="true" />
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}.provider"

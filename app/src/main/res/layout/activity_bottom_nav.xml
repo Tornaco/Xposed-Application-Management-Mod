@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".ui.activity.NavigatorActivityBottomNav">
 
     <android.support.design.widget.AppBarLayout
@@ -22,11 +21,18 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <FrameLayout
-        android:id="@+id/container"
+    <com.flipboard.bottomsheet.BottomSheetLayout
+        android:id="@+id/bottomsheet"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize">
+
+        <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </com.flipboard.bottomsheet.BottomSheetLayout>
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"
@@ -38,4 +44,4 @@
         app:itemTextColor="@color/bottom_nav_reverse_text_colors"
         app:menu="@menu/navigation" />
 
-</LinearLayout>
+</android.support.design.widget.CoordinatorLayout>

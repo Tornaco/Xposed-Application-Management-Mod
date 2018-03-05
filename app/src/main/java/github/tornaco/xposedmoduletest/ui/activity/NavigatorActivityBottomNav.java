@@ -28,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.google.common.collect.ImmutableList;
 import com.jaredrummler.android.shell.Shell;
 import com.nononsenseapps.filepicker.FilePickerActivity;
@@ -52,6 +53,8 @@ import github.tornaco.xposedmoduletest.ui.ActivityLifeCycleDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.FragmentController;
 import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.activity.helper.RunningServicesActivity;
+import github.tornaco.xposedmoduletest.ui.activity.stub.ClearStubActivity;
+import github.tornaco.xposedmoduletest.ui.activity.stub.LockScreenStubActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
 import github.tornaco.xposedmoduletest.ui.tiles.AppStart;
@@ -378,9 +381,15 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 AppSettings.setFirstRun(getApplicationContext());
+                                showUpdateLog();
                             }
                         })
-                        .setPositiveButton(android.R.string.ok, null)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                showUpdateLog();
+                            }
+                        })
                         .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -392,6 +401,19 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
         } catch (Throwable e) {
             Toast.makeText(getActivity(), R.string.init_first_run_fail, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void showUpdateLog() {
+        final BottomSheetLayout bottomSheet = findViewById(R.id.bottomsheet);
+        bottomSheet.showWithSheetView(LayoutInflater.from(getActivity())
+                .inflate(R.layout.update_log_sheet_layout, bottomSheet, false));
+        bottomSheet.findViewById(R.id.update_log_close_button)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        bottomSheet.dismissSheet();
+                    }
+                });
     }
 
     @Override
@@ -501,6 +523,10 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
             assist.numColumns = 1; // Force se to 1.
             assist.addTile(new RunningServices(getActivity()));
 
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_COMP_EDIT)) {
+                assist.addTile(new ComponentManager(getActivity()));
+            }
+
             Category boost = new Category();
             boost.moreDrawableRes = R.drawable.ic_more_vert_black_24dp;
             boost.onMoreButtonClickListener = new View.OnClickListener() {
@@ -512,7 +538,15 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
                     popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
-                            ToastManager.show(getActivity(), "No impl, waiting for developer's work...");
+                            if (item.getItemId() == R.id.action_lock_now) {
+                                XAshmanManager.get().injectPowerEvent();
+                            } else if (item.getItemId() == R.id.action_add_lock_shortcut) {
+                                LockScreenStubActivity.addShortcut(getActivity());
+                            } else if (item.getItemId() == R.id.action_add_shortcut) {
+                                ClearStubActivity.addShortcut(getActivity());
+                            } else {
+                                ToastManager.show(getActivity(), "No impl, waiting for developer's work...");
+                            }
                             return true;
                         }
                     });
@@ -525,7 +559,6 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_LK)) {
                 boost.addTile(new LockKill(getActivity()));
             }
-
 
             categories.add(assist);
             categories.add(boost);
@@ -787,10 +820,6 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
                     Toast.makeText(getActivity(), R.string.category_help_advance, Toast.LENGTH_SHORT).show();
                 }
             };
-
-            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_COMP_EDIT)) {
-                ash.addTile(new ComponentManager(getActivity()));
-            }
 
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_COMP_REPLACE)) {
                 ash.addTile(new CompReplacement(getActivity()));
