@@ -108,8 +108,8 @@
         <item name="torMenuIconTintColor">@color/white</item>
         <item name="torDrawerMenuIconTintColor">@color/primary</item>
 
-        <item name="torBottomNavTextColor">@color/white</item>
-        <item name="torBottomNavButtonColor">@color/white</item>
+        <item name="torBottomNavTextColor">@color/grey</item>
+        <item name="torBottomNavButtonColor">@color/grey</item>
     </style>
 
     <style name="AppThemeLight.Drawer">
@@ -156,8 +156,8 @@
         <item name="torMenuIconTintColor">@color/white</item>
         <item name="torDrawerMenuIconTintColor">@color/pink</item>
 
-        <item name="torBottomNavTextColor">@color/white</item>
-        <item name="torBottomNavButtonColor">@color/white</item>
+        <item name="torBottomNavTextColor">@color/grey</item>
+        <item name="torBottomNavButtonColor">@color/grey</item>
     </style>
 
     <style name="AppThemePink.Drawer">
@@ -203,8 +203,8 @@
         <item name="torMenuIconTintColor">@color/white</item>
         <item name="torDrawerMenuIconTintColor">@color/red</item>
 
-        <item name="torBottomNavTextColor">@color/white</item>
-        <item name="torBottomNavButtonColor">@color/white</item>
+        <item name="torBottomNavTextColor">@color/grey</item>
+        <item name="torBottomNavButtonColor">@color/grey</item>
     </style>
 
     <style name="AppThemeNEWYEAR.Drawer">

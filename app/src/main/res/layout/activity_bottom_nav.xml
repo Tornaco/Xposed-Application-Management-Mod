@@ -33,7 +33,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="?colorPrimary"
+        android:background="?android:windowBackground"
         app:itemIconTint="@color/bottom_nav_reverse_btn_colors"
         app:itemTextColor="@color/bottom_nav_reverse_text_colors"
         app:menu="@menu/navigation" />
