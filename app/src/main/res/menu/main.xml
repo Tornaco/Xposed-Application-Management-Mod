@@ -23,5 +23,6 @@
         android:id="@+id/action_uninstall"
         android:icon="@drawable/ic_delete_black_24dp"
         android:title="@string/title_uninstall_apm"
+        android:visible="false"
         app:showAsAction="never" />
 </menu>

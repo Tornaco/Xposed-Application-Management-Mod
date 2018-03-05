@@ -440,10 +440,6 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
             navigateToWebPage(getString(R.string.app_rel_url));
         }
 
-        if (item.getItemId() == R.id.action_uninstall) {
-            onRequestUninstalledAPM();
-        }
-
         if (item.getItemId() == R.id.action_change_column_count) {
             boolean two = AppSettings.show2ColumnsIn(getActivity(), NavigatorActivityBottomNav.class.getSimpleName());
             AppSettings.setShow2ColumnsIn(getContext(), NavigatorActivityBottomNav.class.getSimpleName(), !two);
@@ -451,24 +447,6 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
             finish();
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void onRequestUninstalledAPM() {
-        new AlertDialog.Builder(NavigatorActivityBottomNav.this)
-                .setTitle(R.string.title_uninstall_apm)
-                .setMessage(getString(R.string.message_uninstall_apm))
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (XAshmanManager.get().isServiceAvailable()) {
-                            XAshmanManager.get().restoreDefaultSettings();
-                            Toast.makeText(getContext(), R.string.summary_restore_done, Toast.LENGTH_SHORT).show();
-                        }
-                        PackageManagerCompat.unInstallUserAppWithIntent(getContext(), getPackageName());
-                    }
-                })
-                .setNegativeButton(android.R.string.cancel, null)
-                .show();
     }
 
 
@@ -584,6 +562,14 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
                         }
                     });
 
+            findView(rootView, R.id.button)
+                    .setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            onRequestUninstalledAPM();
+                        }
+                    });
+
             // Setup title.
             TextView statusTitle = findView(rootView, android.R.id.title);
 
@@ -630,6 +616,25 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
             }
 
             setupDeviceStatus();
+        }
+
+        private void onRequestUninstalledAPM() {
+            if (getActivity() == null) return;
+            new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.title_uninstall_apm)
+                    .setMessage(getString(R.string.message_uninstall_apm))
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (XAshmanManager.get().isServiceAvailable()) {
+                                XAshmanManager.get().restoreDefaultSettings();
+                                Toast.makeText(getContext(), R.string.summary_restore_done, Toast.LENGTH_SHORT).show();
+                            }
+                            PackageManagerCompat.unInstallUserAppWithIntent(getContext(), BuildConfig.APPLICATION_ID);
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show();
         }
 
         private void setupDeviceStatus() {
