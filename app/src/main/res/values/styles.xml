@@ -487,10 +487,11 @@
     <style name="CardIntroText" parent="@style/TextAppearance.AppCompat.Small">
         <item name="android:textColor">?torCardSummaryColor</item>
         <item name="android:textAllCaps">false</item>
-        <item name="android:paddingRight">@dimen/activity_horizontal_margin_middle</item>
-        <item name="android:paddingTop">@dimen/activity_horizontal_margin_middle</item>
-        <item name="android:paddingLeft">@dimen/activity_horizontal_margin_middle</item>
-        <item name="android:paddingBottom">@dimen/activity_horizontal_margin_middle</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:paddingRight">@dimen/activity_horizontal_margin</item>
+        <item name="android:paddingTop">@dimen/activity_horizontal_margin</item>
+        <item name="android:paddingLeft">@dimen/activity_horizontal_margin</item>
+        <item name="android:paddingBottom">@dimen/activity_horizontal_margin</item>
     </style>
 
     <style name="PrivacyBottomSummaryText" parent="@style/TextAppearance.AppCompat.Small">
