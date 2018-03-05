@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.ui.activity.smartsense;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
@@ -10,9 +11,9 @@ import java.util.List;
 import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
-import github.tornaco.xposedmoduletest.ui.tiles.smartsense.AppFocusAction;
+import github.tornaco.xposedmoduletest.ui.tiles.app.DetailedToastActivity;
+import github.tornaco.xposedmoduletest.ui.tiles.app.ForegroundNotificationOptActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.smartsense.LongPressBackKey;
 import github.tornaco.xposedmoduletest.ui.tiles.smartsense.PanicLock;
 
@@ -52,14 +53,15 @@ public class SmartSenseDashboardActivity extends BaseActivity {
 
             Category app = new Category();
             app.titleRes = R.string.title_app;
-            app.addTile(new AppFocusAction(getActivity()));
+            // app.addTile(new AppFocusAction(getActivity()));
+            app.addTile(new DetailedToastActivity(getActivity()));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                app.addTile(new ForegroundNotificationOptActivity(getActivity()));
+            }
 
             categories.add(keys);
             categories.add(panic);
-
-            if (XSettings.isDevMode(getActivity())) {
-                categories.add(app);
-            }
+            categories.add(app);
         }
     }
 

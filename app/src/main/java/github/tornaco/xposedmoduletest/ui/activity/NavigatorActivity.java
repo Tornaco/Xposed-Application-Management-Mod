@@ -47,7 +47,7 @@ import github.tornaco.xposedmoduletest.ui.ActivityLifeCycleDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.FragmentController;
 import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.activity.app.AboutDashboardActivity;
-import github.tornaco.xposedmoduletest.ui.activity.app.AppDashboardActivity;
+import github.tornaco.xposedmoduletest.ui.activity.app.SettingsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.GetPlayVersionActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.ToolsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.helper.RunningServicesActivity;
@@ -470,7 +470,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.action_settings) {
-            startActivity(new Intent(this, AppDashboardActivity.class));
+            startActivity(new Intent(this, SettingsDashboardActivity.class));
         }
 
         if (item.getItemId() == R.id.action_play_version) {
@@ -482,7 +482,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         }
         if (item.getItemId() == R.id.action_tools) {
             getCardController().setCurrent(1);
-            setTitle(R.string.action_tools);
+            setTitle(R.string.title_tools);
         }
 
         if (item.getItemId() == R.id.action_home) {

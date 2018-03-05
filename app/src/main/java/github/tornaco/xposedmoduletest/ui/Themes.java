@@ -21,49 +21,49 @@ public enum Themes {
             R.style.AppTheme,
             R.style.AppTheme_NoActionBar,
             R.style.AppTheme_Drawer_NoActionBar,
-            false),
+            false, true),
 
     BLACK(R.string.theme_name_black,
             R.color.black,
             R.style.AppThemeBlack,
             R.style.AppThemeBlack_NoActionBar,
             R.style.AppThemeBlack_Drawer_NoActionBar,
-            false),
+            false, true),
 
     PINK(R.string.theme_name_pink,
             R.color.pink,
             R.style.AppThemePink,
             R.style.AppThemePink_NoActionBar,
             R.style.AppThemePink_Drawer_NoActionBar,
-            false),
+            false, false),
 
     NEWYEAR(R.string.theme_name_newyear,
             R.color.red,
             R.style.AppThemeNEWYEAR,
             R.style.AppThemeNEWYEAR_NoActionBar,
             R.style.AppThemeNEWYEAR_Drawer_NoActionBar,
-            false),
+            false, false),
 
     O(R.string.theme_name_o,
             R.color.primary_dark,
             R.style.AppThemeO,
             R.style.AppThemeO_NoActionBar,
             R.style.AppThemeO_Drawer_NoActionBar,
-            true),
+            true, false),
 
     INVERT(R.string.theme_name_invert,
             R.color.black,
             R.style.AppThemeINVERSE,
             R.style.AppThemeINVERSE_NoActionBar,
             R.style.AppThemeINVERSE_Drawer_NoActionBar,
-            true),
+            true, false),
 
     DEFAULT(R.string.theme_name_def,
             R.color.primary,
             R.style.AppThemeLight,
             R.style.AppThemeLight_NoActionBar,
             R.style.AppThemeLight_Drawer_NoActionBar,
-            false);
+            false, false);
 
     int themeStyleRes;
     int themeStyleResNoActionBar;
@@ -76,17 +76,26 @@ public enum Themes {
 
     boolean isReverseTheme;
 
-    Themes(int themeName, int themeColor, int themeStyleRes, int themeStyleResNoActionBar, int themeStyleResNoActionBarDrawer, boolean isReverseTheme) {
+    boolean isDarkTheme;
+
+    Themes(int themeName, int themeColor, int themeStyleRes,
+           int themeStyleResNoActionBar, int themeStyleResNoActionBarDrawer,
+           boolean isReverseTheme, boolean isDarkTheme) {
         this.themeName = themeName;
         this.themeColor = themeColor;
         this.themeStyleRes = themeStyleRes;
         this.themeStyleResNoActionBar = themeStyleResNoActionBar;
         this.themeStyleResNoActionBarDrawer = themeStyleResNoActionBarDrawer;
         this.isReverseTheme = isReverseTheme;
+        this.isDarkTheme = isDarkTheme;
     }
 
     public boolean isReverseTheme() {
         return isReverseTheme;
+    }
+
+    public boolean isDarkTheme() {
+        return isDarkTheme;
     }
 
     public int getThemeStyleRes() {

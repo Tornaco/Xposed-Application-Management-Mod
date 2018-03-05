@@ -44,7 +44,7 @@ import lombok.Synchronized;
  * Email: Tornaco@163.com
  */
 @RuntimePermissions
-public class AppDashboardActivity extends WithWithCustomTabActivity
+public class SettingsDashboardActivity extends WithWithCustomTabActivity
         implements DataBackup.BackupRestoreListener {
 
     private ProgressDialog mProgressDialog;
@@ -74,7 +74,7 @@ public class AppDashboardActivity extends WithWithCustomTabActivity
         XExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                DataBackup.performBackup(dir, AppDashboardActivity.this);
+                DataBackup.performBackup(dir, SettingsDashboardActivity.this);
             }
         });
     }
@@ -85,18 +85,18 @@ public class AppDashboardActivity extends WithWithCustomTabActivity
         XExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                DataBackup.performRestore(getContext(), zipFile, AppDashboardActivity.this);
+                DataBackup.performRestore(getContext(), zipFile, SettingsDashboardActivity.this);
             }
         });
     }
 
     public void onRequestBackup() {
-        AppDashboardActivityPermissionRequester.onRequestBackupInternalChecked(this);
+        SettingsDashboardActivityPermissionRequester.onRequestBackupInternalChecked(this);
     }
 
 
     public void onRequestRestore() {
-        AppDashboardActivityPermissionRequester.onRequestRestoreInternalChecked(this);
+        SettingsDashboardActivityPermissionRequester.onRequestRestoreInternalChecked(this);
     }
 
     @RequiresPermission({Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -153,18 +153,18 @@ public class AppDashboardActivity extends WithWithCustomTabActivity
     }
 
     private void onRestoreFilePicked(File file) {
-        AppDashboardActivityPermissionRequester.performRestoreChecked(file, this);
+        SettingsDashboardActivityPermissionRequester.performRestoreChecked(file, this);
     }
 
     private void onBackupDirPicked(File file) {
-        AppDashboardActivityPermissionRequester.performBackupChecked(file, this);
+        SettingsDashboardActivityPermissionRequester.performBackupChecked(file, this);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        AppDashboardActivityPermissionRequester.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        SettingsDashboardActivityPermissionRequester.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
@@ -173,7 +173,7 @@ public class AppDashboardActivity extends WithWithCustomTabActivity
         setContentView(R.layout.container_with_appbar_template);
         setupToolbar();
         showHomeAsUp();
-        replaceV4(R.id.container, new Dashboards(), null, false);
+        replaceV4(R.id.container, new SettingsNavFragment(), null, false);
     }
 
     @Override
@@ -213,7 +213,7 @@ public class AppDashboardActivity extends WithWithCustomTabActivity
         }
     }
 
-    public static class Dashboards extends DashboardFragment {
+    public static class SettingsNavFragment extends DashboardFragment {
         @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);

@@ -60,8 +60,13 @@
             android:name=".ui.activity.ag.PinSetupActivity"
             android:label="@string/title_setup_code_new"
             android:theme="@style/AppThemeLight.NoActionBar" />
+
         <activity
             android:name=".ui.activity.NavigatorActivity"
+            android:theme="@style/AppThemeLauncher" />
+
+        <activity
+            android:name=".ui.activity.NavigatorActivityBottomNav"
             android:theme="@style/AppThemeLauncher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -72,11 +77,6 @@
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
-        </activity>
-
-        <activity
-            android:name=".ui.activity.NavigatorActivityBottomNav"
-            android:theme="@style/AppThemeLauncher">
         </activity>
 
         <activity
@@ -263,7 +263,7 @@
             android:label="@string/title_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
-            android:name=".ui.activity.app.AppDashboardActivity"
+            android:name=".ui.activity.app.SettingsDashboardActivity"
 
             android:label="@string/title_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />

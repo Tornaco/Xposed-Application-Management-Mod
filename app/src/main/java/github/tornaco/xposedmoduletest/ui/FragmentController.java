@@ -34,6 +34,8 @@ public class FragmentController<T extends Fragment> {
 
     private T mCurrent;
 
+    private int mCurrentIndex = 0;
+
     private int mDefIndex = 0;
 
     private int containerId = R.id.container;
@@ -74,6 +76,10 @@ public class FragmentController<T extends Fragment> {
         return mCurrent == null ? mPages.get(mDefIndex) : mCurrent;
     }
 
+    public int getCurrentIndex() {
+        return mCurrentIndex;
+    }
+
     public void setCurrent(int index) {
         FragmentManager fragmentManager = mFragmentManager;
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -82,5 +88,6 @@ public class FragmentController<T extends Fragment> {
         transaction.show(current);
         transaction.commitAllowingStateLoss();
         mCurrent = current;
+        mCurrentIndex = index;
     }
 }

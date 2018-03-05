@@ -27,10 +27,10 @@ public class AboutDashboardActivity extends WithWithCustomTabActivity {
         setContentView(R.layout.container_with_appbar_template);
         setupToolbar();
         showHomeAsUp();
-        replaceV4(R.id.container, new Dashboards(), null, false);
+        replaceV4(R.id.container, new AboutNavFragment(), null, false);
     }
 
-    public static class Dashboards extends DashboardFragment {
+    public static class AboutNavFragment extends DashboardFragment {
         @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
