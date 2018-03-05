@@ -512,5 +512,6 @@
     <string name="title_lock_now">立即锁屏</string>
     <string name="title_manage">管理</string>
     <string name="title_help_dev">帮助开发者</string>
+    <string name="title_assistant">顾问</string>
 
 </resources>

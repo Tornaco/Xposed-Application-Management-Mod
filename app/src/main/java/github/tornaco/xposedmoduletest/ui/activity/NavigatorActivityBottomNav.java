@@ -24,7 +24,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -68,6 +67,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.PermControl;
 import github.tornaco.xposedmoduletest.ui.tiles.Privacy;
 import github.tornaco.xposedmoduletest.ui.tiles.RFKill;
 import github.tornaco.xposedmoduletest.ui.tiles.Resident;
+import github.tornaco.xposedmoduletest.ui.tiles.RunningServices;
 import github.tornaco.xposedmoduletest.ui.tiles.SmartSense;
 import github.tornaco.xposedmoduletest.ui.tiles.TRKill;
 import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
@@ -496,6 +496,11 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
 
+            Category assist = new Category();
+            assist.titleRes = R.string.title_assistant;
+            assist.numColumns = 1; // Force se to 1.
+            assist.addTile(new RunningServices(getActivity()));
+
             Category boost = new Category();
             boost.moreDrawableRes = R.drawable.ic_more_vert_black_24dp;
             boost.onMoreButtonClickListener = new View.OnClickListener() {
@@ -521,6 +526,8 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
                 boost.addTile(new LockKill(getActivity()));
             }
 
+
+            categories.add(assist);
             categories.add(boost);
         }
 
@@ -607,14 +614,6 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
             }
 
             if (serviceAvailable) {
-
-                Button button = findView(rootView, R.id.button);
-                button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        startActivity(new Intent(getActivity(), RunningServicesActivity.class));
-                    }
-                });
 
                 XExecutor.execute(new Runnable() {
                     @Override
