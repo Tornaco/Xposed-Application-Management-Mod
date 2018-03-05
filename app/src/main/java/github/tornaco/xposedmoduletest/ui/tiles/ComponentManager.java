@@ -19,7 +19,7 @@ public class ComponentManager extends QuickTile {
     public ComponentManager(final Context context) {
         super(context);
         this.titleRes = R.string.title_component_manager;
-        this.iconRes = R.drawable.ic_bubble_chart_black_24dp;
+        this.iconRes = R.drawable.ic_dashboard_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override
             public void onClick(View v) {
