@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppThemeO" parent="Theme.AppCompat.Light">
+        <item name="switchBarTheme">@style/SwitchBarSettingsInvert</item>
+        <item name="torToolbarTheme">@style/ToolbarThemeCommon</item>
+        <item name="colorAccent">@color/primary_dark</item>
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="torCardBackgroundColor">@color/card_background</item>
+        <item name="torCardAccentBackgroundColor">@color/green</item>
+        <item name="torCardTitleColor">@color/white</item>
+        <item name="torCardSummaryColor">@color/third_text</item>
+        <item name="torMainWindowBackgroundColor">@color/window_background</item>
+        <item name="torListItemTitleTextColor">@color/black</item>
+        <item name="torListItemSummaryTextColor">@color/black</item>
+        <item name="torListItemHighlightTextColor">@color/black</item>
+        <item name="torTileContainerBackgroundColor">@color/white</item>
+        <item name="torAppbarDescriptionBackgroundColor">@color/white</item>
+        <item name="torAppbarPopupTheme">@style/AppThemeLight.PopupOverlay</item>
+        <item name="torAppbarTheme">@style/AppThemeLight.AppBarOverlay</item>
+        <item name="torMDSearchBackground">@color/white</item>
+        <item name="torMenuIconTintColor">@color/primary_dark</item>
+        <item name="torDrawerMenuIconTintColor">@color/primary_dark</item>
+
+        <item name="torBottomNavTextColor">@color/grey</item>
+        <item name="torBottomNavButtonColor">@color/grey</item>
+
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@color/window_background</item>
+    </style>
+
+    <style name="AppThemeINVERSE" parent="Theme.AppCompat.Light">
+        <item name="switchBarTheme">@style/SwitchBarSettingsInvert</item>
+        <item name="torToolbarTheme">@style/ToolbarThemeCommon</item>
+        <item name="colorAccent">@color/black</item>
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="torCardBackgroundColor">@color/card_background</item>
+        <item name="torCardAccentBackgroundColor">@color/green</item>
+        <item name="torCardTitleColor">@color/white</item>
+        <item name="torCardSummaryColor">@color/third_text</item>
+        <item name="torMainWindowBackgroundColor">@color/window_background</item>
+        <item name="torListItemTitleTextColor">@color/black</item>
+        <item name="torListItemSummaryTextColor">@color/black</item>
+        <item name="torListItemHighlightTextColor">@color/black</item>
+        <item name="torTileContainerBackgroundColor">@color/white</item>
+        <item name="torAppbarDescriptionBackgroundColor">@color/white</item>
+        <item name="torAppbarPopupTheme">@style/AppThemeLight.PopupOverlay</item>
+        <item name="torAppbarTheme">@style/AppThemeLight.AppBarOverlay</item>
+        <item name="torMDSearchBackground">@color/white</item>
+        <item name="torMenuIconTintColor">@color/black</item>
+        <item name="torDrawerMenuIconTintColor">@color/black</item>
+
+        <item name="torBottomNavTextColor">@color/grey</item>
+        <item name="torBottomNavButtonColor">@color/grey</item>
+
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@color/window_background</item>
+    </style>
+</resources>
