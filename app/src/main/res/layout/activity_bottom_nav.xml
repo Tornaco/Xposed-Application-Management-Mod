@@ -27,21 +27,29 @@
         android:layout_height="match_parent"
         android:layout_marginTop="?attr/actionBarSize">
 
-        <FrameLayout
-            android:id="@+id/container"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="match_parent">
+
+            <FrameLayout
+                android:id="@+id/container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_above="@+id/navigation"/>
+
+            <android.support.design.widget.BottomNavigationView
+                android:id="@+id/navigation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_gravity="bottom"
+                android:background="?android:windowBackground"
+                app:itemIconTint="@color/bottom_nav_reverse_btn_colors"
+                app:itemTextColor="@color/bottom_nav_reverse_text_colors"
+                app:menu="@menu/navigation" />
+        </RelativeLayout>
 
     </com.flipboard.bottomsheet.BottomSheetLayout>
 
-    <android.support.design.widget.BottomNavigationView
-        android:id="@+id/navigation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:background="?android:windowBackground"
-        app:itemIconTint="@color/bottom_nav_reverse_btn_colors"
-        app:itemTextColor="@color/bottom_nav_reverse_text_colors"
-        app:menu="@menu/navigation" />
 
 </android.support.design.widget.CoordinatorLayout>

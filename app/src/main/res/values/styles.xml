@@ -248,6 +248,7 @@
 
         <item name="torBottomNavTextColor">@color/grey</item>
         <item name="torBottomNavButtonColor">@color/grey</item>
+
     </style>
 
     <style name="AppThemeO.Drawer">
@@ -286,6 +287,7 @@
 
         <item name="torBottomNavTextColor">@color/grey</item>
         <item name="torBottomNavButtonColor">@color/grey</item>
+
     </style>
 
     <style name="AppThemeINVERSE.Drawer">
