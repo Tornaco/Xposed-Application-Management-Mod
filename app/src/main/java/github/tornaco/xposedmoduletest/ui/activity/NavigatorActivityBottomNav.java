@@ -614,7 +614,6 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
             }
 
             if (serviceAvailable) {
-
                 XExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
@@ -647,8 +646,6 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
                         }
                     }
                 });
-            } else {
-                findView(rootView, R.id.mem).setVisibility(View.GONE);
             }
         }
 
