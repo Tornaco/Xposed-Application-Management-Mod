@@ -82,7 +82,8 @@ public class XAshmanManager {
         int SYSTEM = 1;
         int MEDIA_UID = 2;
         int PHONE_UID = 3;
-        int SYSTEM_UID = 4;
+        int WEBVIEW_IMPL = 4;
+        int SYSTEM_UID = 5;
     }
 
     public interface ExcludeRecentSetting {
@@ -100,7 +101,7 @@ public class XAshmanManager {
 
     public static final String VERIFIER_CLASS_NAME = "github.tornaco.xposedmoduletest.ui.activity.ag.VerifyDisplayerActivity";
 
-    private final IAshmanService mService;
+    private IAshmanService mService;
 
     private static final Singleton<XAshmanManager> sManager
             = new Singleton<XAshmanManager>() {
@@ -111,7 +112,7 @@ public class XAshmanManager {
     };
 
     private XAshmanManager() {
-        mService = IAshmanService.Stub.asInterface(ServiceManager.getService(SERVICE_NAME));
+        retrieveService();
     }
 
     public static XAshmanManager get() {
@@ -120,6 +121,10 @@ public class XAshmanManager {
 
     public boolean isServiceAvailable() {
         return mService != null;
+    }
+
+    public void retrieveService() {
+        mService = IAshmanService.Stub.asInterface(ServiceManager.getService(SERVICE_NAME));
     }
 
     public Optional<XAshmanManager> optional() {
