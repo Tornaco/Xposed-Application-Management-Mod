@@ -596,7 +596,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (inWhite) return true;
 
         // Check if webview provider.
-        if (isWebviewProvider(pkg)) return true;
+        // if (isWebviewProvider(pkg)) return true;
 
         if (WHITE_LIST_PATTERNS.size() == 0) return false;
 
