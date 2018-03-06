@@ -39,6 +39,9 @@ import org.newstand.logger.Logger;
 import java.io.File;
 import java.util.List;
 
+import dev.nick.eventbus.Event;
+import dev.nick.eventbus.EventBus;
+import dev.nick.eventbus.EventReceiver;
 import dev.nick.tiles.tile.Category;
 import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
@@ -163,6 +166,36 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
         } else {
             initFirstRun();
         }
+
+        registerEventReceivers();
+    }
+
+    private EventReceiver mEventReceiver = new EventReceiver() {
+        @Override
+        public void onReceive(@NonNull final Event event) {
+            if (isDestroyed()) return;
+
+            runOnUiThreadChecked(new Runnable() {
+                @Override
+                public void run() {
+                    for (ActivityLifeCycleDashboardFragment f : getCardController().getPages()) {
+                        f.onEvent(event);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public int[] events() {
+            return new int[]{
+                    XApp.EVENT_INSTALLED_APPS_CACHE_UPDATE,
+                    XApp.EVENT_RUNNING_SERVICE_CACHE_UPDATE,
+            };
+        }
+    };
+
+    private void registerEventReceivers() {
+        EventBus.getInstance().subscribe(mEventReceiver);
     }
 
     private void miscIfNotFirst() {
@@ -547,6 +580,21 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
             super.onActivityResume();
             setupView();
             buildUI(getActivity());
+        }
+
+        @Override
+        public void onEvent(Event event) {
+            super.onEvent(event);
+            if (event.getEventType() == XApp.EVENT_RUNNING_SERVICE_CACHE_UPDATE
+                    || event.getEventType() == XApp.EVENT_INSTALLED_APPS_CACHE_UPDATE) {
+
+                BaseActivity activity = (BaseActivity) getActivity();
+                boolean visible = activity != null && activity.isVisable();
+
+                if (visible) {
+                    buildUI(getActivity());
+                }
+            }
         }
 
         private void setupView() {

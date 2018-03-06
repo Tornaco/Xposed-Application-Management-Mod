@@ -26,6 +26,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.View;
+import lombok.Getter;
 import lombok.Synchronized;
 
 /**
@@ -40,11 +41,39 @@ public class BaseActivity extends AppCompatActivity implements View {
 
     protected Themes mUserTheme;
 
+    @Getter
+    private boolean isVisable;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mUserTheme = XSettings.getThemes(this.getContext());
         setTheme(getUserSetThemeResId(mUserTheme));
+        isVisable = true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isVisable = true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        isVisable = false;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        isVisable = false;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        isVisable = false;
     }
 
     protected int getUserSetThemeResId(Themes themes) {

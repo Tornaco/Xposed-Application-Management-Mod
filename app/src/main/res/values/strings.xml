@@ -139,6 +139,7 @@
     <string name="summary_service_info_comp">%1$s</string>
     <string name="summary_service_info_comp_maybe_ad">疑似广告</string>
     <string name="title_component_manager">我的应用</string>
+    <string name="summary_component_manager">共安装%1$s个应用</string>
     <string name="title_export_comp_settings">导出应用配置</string>
     <string name="title_export_service_settings">导出服务配置</string>
     <string name="title_export_broadcast_settings">导出广播配置</string>
@@ -514,5 +515,6 @@
     <string name="title_help_dev">帮助开发者</string>
     <string name="title_assistant">顾问</string>
     <string name="app_level_webview_impl">Webview实现</string>
+    <string name="summary_running_services">%1$s个应用，%2$s个服务正在运行</string>
 
 </resources>

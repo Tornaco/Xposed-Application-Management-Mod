@@ -7,6 +7,7 @@ import android.view.View;
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.cache.RunningServicesLoadingCache;
 import github.tornaco.xposedmoduletest.ui.activity.helper.RunningServicesActivity;
 
 /**
@@ -19,6 +20,11 @@ public class RunningServices extends QuickTile {
     public RunningServices(final Context context) {
         super(context);
         this.titleRes = R.string.title_running_services;
+        RunningServicesLoadingCache.RunningServicesData data = RunningServicesLoadingCache.getInstance().getIfPresent();
+        if (data != null) {
+            this.summary = context.getString(R.string.summary_running_services,
+                    String.valueOf(data.getAppCount()), String.valueOf(data.getServiceCount()));
+        }
         this.iconRes = R.drawable.ic_format_list_bulleted_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override
