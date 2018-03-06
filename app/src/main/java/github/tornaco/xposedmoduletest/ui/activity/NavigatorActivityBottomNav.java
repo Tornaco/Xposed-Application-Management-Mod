@@ -338,6 +338,9 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
         cardController = new FragmentController<>(getSupportFragmentManager(), cards, R.id.container);
         cardController.setDefaultIndex(0);
         cardController.setCurrent(0);
+
+        // Set activity title from the first one.
+        setTitle(cards.get(INDEXS.STATUS).getPageTitle());
     }
 
     @Override

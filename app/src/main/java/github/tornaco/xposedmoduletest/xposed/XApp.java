@@ -74,6 +74,7 @@ public class XApp extends MultiDexApplication {
                         // This is the main activity.
                         if (activity instanceof NavigatorActivityBottomNav) {
                             cacheRunningServices();
+                            cacheInstalledApps();
                         }
                     }
                 });
