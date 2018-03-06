@@ -267,9 +267,11 @@ public class PkgUtil {
         return !(ri == null || ri.activityInfo == null);
     }
 
+    // Fix dead lock issue when call this along with xxx framework patch.
     public static boolean isDefaultSmsApp(Context context, String packageName) {
-        String def = Telephony.Sms.getDefaultSmsPackage(context);
-        return def != null && def.equals(packageName);
+        // String def = Telephony.Sms.getDefaultSmsPackage(context);
+        // return def != null && def.equals(packageName);
+        return false;
     }
 
     public static Set<String> getRunningProcessPackages(Context context) {
