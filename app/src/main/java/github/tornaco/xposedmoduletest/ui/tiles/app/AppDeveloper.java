@@ -16,7 +16,7 @@ public class AppDeveloper extends QuickTile {
     public AppDeveloper(final Context context) {
         super(context);
         this.titleRes = R.string.title_developer;
-        this.summary = "Tornaco/tornaco@163.com";
+        this.summary = "Tornaco/tornaco@163.com\nSplash icon made by Smashicons from www.flaticon.com ";
         this.iconRes = R.drawable.ic_account_circle_black_24dp;
         this.tileView = new QuickTileView(context, this);
     }
