@@ -191,3 +191,5 @@ public static java.lang.String TABLENAME;
 
 -dontwarn com.tencent.bugly.**
 -keep public class com.tencent.bugly.**{*;}
+
+-keep class dev.nick.eventbus.** {*;}

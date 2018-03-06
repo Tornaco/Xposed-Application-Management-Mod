@@ -68,7 +68,7 @@ public class InstalledAppsLoadingCache {
                         int appCount = infoList.size();
                         return new InstalledAppsData(infoList, appCount);
                     } finally {
-                        EventBus.getInstance().publish(new Event(XApp.EVENT_INSTALLED_APPS_CACHE_UPDATE));
+                        EventBus.from().publish(new Event(XApp.EVENT_INSTALLED_APPS_CACHE_UPDATE));
                     }
                 }
             });

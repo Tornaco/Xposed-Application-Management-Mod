@@ -195,7 +195,7 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
     };
 
     private void registerEventReceivers() {
-        EventBus.getInstance().subscribe(mEventReceiver);
+        EventBus.from().subscribe(mEventReceiver);
     }
 
     private void miscIfNotFirst() {
