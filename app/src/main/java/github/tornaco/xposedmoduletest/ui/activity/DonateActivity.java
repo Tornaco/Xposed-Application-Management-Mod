@@ -1,5 +1,8 @@
 package github.tornaco.xposedmoduletest.ui.activity;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -51,10 +54,17 @@ public class DonateActivity extends BaseActivity implements SwitchBar.OnSwitchCh
             }
         });
 
-        findViewById(R.id.pay_miner).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.pay_btc).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                navigateToWebPage("https://cnhv.co/1u8yx");
+                copyTextToClipBoard("btc", "1GTYfybX6WjbSDPAwpuAu4qKocsTAEMrUN");
+            }
+        });
+
+        findViewById(R.id.pay_eth).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                copyTextToClipBoard("eth", "0xf2a73cc9b369b125f435878526eeb640c850369e");
             }
         });
 
@@ -79,5 +89,18 @@ public class DonateActivity extends BaseActivity implements SwitchBar.OnSwitchCh
                 .setData(uri)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+    }
+
+    private void copyTextToClipBoard(final String tag, final String text) {
+        showTips(getString(R.string.message_coin_address_copied, tag, text), false,
+                getString(android.R.string.copy), new Runnable() {
+                    @Override
+                    public void run() {
+                        ClipboardManager cmb = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                        if (cmb != null) {
+                            cmb.setPrimaryClip(ClipData.newPlainText(tag, text));
+                        }
+                    }
+                });
     }
 }
