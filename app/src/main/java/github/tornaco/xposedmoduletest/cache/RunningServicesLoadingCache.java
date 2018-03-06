@@ -72,7 +72,7 @@ public class RunningServicesLoadingCache {
                         }
                         return new RunningServicesData(data, serviceCount, appCount);
                     } finally {
-                        EventBus.getInstance().publish(new Event(XApp.EVENT_RUNNING_SERVICE_CACHE_UPDATE));
+                        EventBus.from().publish(new Event(XApp.EVENT_RUNNING_SERVICE_CACHE_UPDATE));
                     }
                 }
             });

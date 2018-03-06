@@ -58,7 +58,6 @@ public class XApp extends MultiDexApplication {
         xApp = this;
         initLogger();
         EmojiManager.install(new SimpleEmojiProvider());
-        EventBus.create(this).setDebuggable(BuildConfig.DEBUG);
         cacheRunningServices();
         cacheInstalledApps();
         registerLifeCycleCallback();
