@@ -11,6 +11,7 @@ import java.util.List;
 
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.cache.RunningServicesLoadingCache;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
@@ -24,11 +25,8 @@ import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 public class RunningServicesActivity
         extends CommonPackageInfoListActivity {
 
-    private RunningState mState;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mState = RunningState.getInstance(getApplicationContext());
         super.onCreate(savedInstanceState);
         fab.hide();
     }
@@ -69,11 +67,9 @@ public class RunningServicesActivity
     @Override
     protected List<? extends CommonPackageInfo> performLoading() {
         if (isDestroyed()) return new ArrayList<>();
-        mState.updateNow();
-        ArrayList<RunningState.MergedItem> items =
-                mShowCache ?
-                        mState.getCurrentBackgroundItems()
-                        : mState.getCurrentMergedItems();
+        RunningServicesLoadingCache.getInstance().refresh();
+        List<RunningState.MergedItem> items = RunningServicesLoadingCache.getInstance()
+                .getRunningServiceCache().getList();
         ArrayList<RunningServiceInfoDisplay> displays = new ArrayList<>();
         for (RunningState.MergedItem m : items) {
             RunningServiceInfoDisplay d = new RunningServiceInfoDisplay(m);
@@ -89,11 +85,5 @@ public class RunningServicesActivity
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mState.reset();
     }
 }

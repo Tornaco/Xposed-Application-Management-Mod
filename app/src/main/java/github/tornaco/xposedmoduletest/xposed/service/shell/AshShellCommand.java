@@ -4,9 +4,11 @@ import android.os.RemoteException;
 
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.IAshmanService;
+import github.tornaco.xposedmoduletest.IProcessClearListener;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -50,6 +52,57 @@ public class AshShellCommand extends ShellCommandCompat {
                     case "app_lock":
                         mService.setAppLockEnabled(false);
                         break;
+
+                }
+                break;
+
+            case "lock-screen":
+                mService.injectPowerEvent();
+                break;
+            case "clear-processes":
+                final CountDownLatch latch = new CountDownLatch(1);
+                mService.clearProcess(new IProcessClearListener.Stub() {
+                    @Override
+                    public boolean doNotClearWhenIntervative() throws RemoteException {
+                        return false;
+                    }
+
+                    @Override
+                    public void onPrepareClearing() throws RemoteException {
+
+                    }
+
+                    @Override
+                    public void onStartClearing(int plan) throws RemoteException {
+
+                    }
+
+                    @Override
+                    public void onClearingPkg(String pkg) throws RemoteException {
+
+                    }
+
+                    @Override
+                    public void onClearedPkg(String pkg) throws RemoteException {
+                        final PrintWriter pw = getOutPrintWriter();
+                        pw.println("    Killed: " + pkg);
+                    }
+
+                    @Override
+                    public void onAllCleared(String[] pkg) throws RemoteException {
+                        final PrintWriter pw = getOutPrintWriter();
+                        pw.println("    DONE!");
+                        latch.countDown();
+                    }
+
+                    @Override
+                    public void onIgnoredPkg(String pkg, String reason) throws RemoteException {
+
+                    }
+                });
+                try {
+                    latch.await();
+                } catch (InterruptedException ignored) {
 
                 }
                 break;
@@ -110,6 +163,14 @@ public class AshShellCommand extends ShellCommandCompat {
         pw.println("    disable [module]");
         pw.println("        Disable [module], [module] can be one of:");
         pw.println(modules.toString());
+        pw.println("");
+
+        pw.println("    lock-screen");
+        pw.println("        Lock screen now");
+        pw.println("");
+
+        pw.println("    clear-processes");
+        pw.println("        Clear processes now");
         pw.println("");
 
         pw.println("    reset");

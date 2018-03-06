@@ -498,7 +498,7 @@ public class RunningState {
     }
 
     @ToString
-    static class MergedItem extends BaseItem {
+    public static class MergedItem extends BaseItem {
         ProcessItem mProcess;
         final ArrayList<ProcessItem> mOtherProcesses = new ArrayList<>();
         final ArrayList<ServiceItem> mServices = new ArrayList<>();
@@ -572,6 +572,10 @@ public class RunningState {
             return context.getDrawable(
                     com.android.internal.R.drawable.ic_menu_cc);
         }
+
+        public int serviceCount() {
+            return mServices == null ? 0 : mServices.size();
+        }
     }
 
     class ServiceProcessComparator implements Comparator<ProcessItem> {
@@ -639,7 +643,7 @@ public class RunningState {
         }
     }
 
-    void updateNow() {
+    public void updateNow() {
         synchronized (mLock) {
             try {
                 update(mApplicationContext);
@@ -1196,19 +1200,19 @@ public class RunningState {
         return changed;
     }
 
-    void setWatchingBackgroundItems(boolean watching) {
+    public void setWatchingBackgroundItems(boolean watching) {
         synchronized (mLock) {
             mWatchingBackgroundItems = watching;
         }
     }
 
-    ArrayList<MergedItem> getCurrentMergedItems() {
+    public ArrayList<MergedItem> getCurrentMergedItems() {
         synchronized (mLock) {
             return mMergedItems;
         }
     }
 
-    ArrayList<MergedItem> getCurrentBackgroundItems() {
+    public ArrayList<MergedItem> getCurrentBackgroundItems() {
         synchronized (mLock) {
             return mUserBackgroundItems;
         }

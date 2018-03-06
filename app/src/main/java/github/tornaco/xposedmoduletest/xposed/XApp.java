@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
@@ -13,12 +14,19 @@ import org.newstand.logger.AndroidLogAdapter;
 import org.newstand.logger.Logger;
 import org.newstand.logger.Settings;
 
+import dev.nick.eventbus.EventBus;
+import github.tornaco.android.common.BlackHole;
 import github.tornaco.apigen.BuildHostInfo;
 import github.tornaco.apigen.BuildVar;
 import github.tornaco.apigen.GithubCommitSha;
 import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.cache.InstalledAppsLoadingCache;
+import github.tornaco.xposedmoduletest.cache.RunningServicesLoadingCache;
 import github.tornaco.xposedmoduletest.provider.XSettings;
+import github.tornaco.xposedmoduletest.ui.activity.NavigatorActivityBottomNav;
 import github.tornaco.xposedmoduletest.ui.widget.SimpleEmojiProvider;
+import github.tornaco.xposedmoduletest.util.ActvityLifeCycleAdapter;
+import github.tornaco.xposedmoduletest.util.XExecutor;
 
 /**
  * Created by guohao4 on 2017/10/17.
@@ -29,10 +37,11 @@ import github.tornaco.xposedmoduletest.ui.widget.SimpleEmojiProvider;
 @BuildVar
 public class XApp extends MultiDexApplication {
 
+    public static final int EVENT_RUNNING_SERVICE_CACHE_UPDATE = 0x1;
+    public static final int EVENT_INSTALLED_APPS_CACHE_UPDATE = 0x2;
+
     @SuppressLint("StaticFieldLeak")
     private static XApp xApp;
-
-    private boolean mInit;
 
     public static XApp getApp() {
         return xApp;
@@ -47,15 +56,46 @@ public class XApp extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         xApp = this;
-        lazyInit();
+        initLogger();
+        EmojiManager.install(new SimpleEmojiProvider());
+        EventBus.create(this).setDebuggable(BuildConfig.DEBUG);
+        cacheRunningServices();
+        cacheInstalledApps();
+        registerLifeCycleCallback();
     }
 
-    public void lazyInit() {
-        if (!mInit) {
-            initLogger();
-            EmojiManager.install(new SimpleEmojiProvider());
-            mInit = true;
-        }
+    private void registerLifeCycleCallback() {
+        registerActivityLifecycleCallbacks(
+                new ActvityLifeCycleAdapter() {
+                    @Override
+                    public void onActivityResumed(Activity activity) {
+                        super.onActivityResumed(activity);
+
+                        // This is the main activity.
+                        if (activity instanceof NavigatorActivityBottomNav) {
+                            cacheRunningServices();
+                            cacheInstalledApps();
+                        }
+                    }
+                });
+    }
+
+    private void cacheInstalledApps() {
+        XExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                BlackHole.eat(InstalledAppsLoadingCache.getInstance().getInstalledAppsCache());
+            }
+        });
+    }
+
+    private void cacheRunningServices() {
+        XExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                BlackHole.eat(RunningServicesLoadingCache.getInstance().getRunningServiceCache());
+            }
+        });
     }
 
     private void initLogger() {

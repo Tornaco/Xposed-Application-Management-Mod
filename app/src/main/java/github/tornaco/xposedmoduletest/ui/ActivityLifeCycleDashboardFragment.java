@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.ui;
 
 import android.support.annotation.StringRes;
 
+import dev.nick.eventbus.Event;
 import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 
@@ -23,5 +24,8 @@ public abstract class ActivityLifeCycleDashboardFragment extends DashboardFragme
     @StringRes
     public int getPageTitle() {
         return 0;
+    }
+
+    public void onEvent(Event event) {
     }
 }

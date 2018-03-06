@@ -68,6 +68,10 @@ public class FragmentController<T extends Fragment> {
         transaction.commitAllowingStateLoss();
     }
 
+    public List<T> getPages() {
+        return mPages;
+    }
+
     public void setDefaultIndex(int index) {
         mDefIndex = index;
     }
