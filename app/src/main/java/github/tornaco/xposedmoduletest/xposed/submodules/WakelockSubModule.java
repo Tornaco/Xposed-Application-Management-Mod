@@ -47,6 +47,8 @@ class WakelockSubModule extends AndroidSubModule {
                                     .isServiceAvailable();
                             if (!ashServiceAvailable) {
                                 Log.e(XposedLog.TAG_PREFIX, "WakeLock-Service not available.");
+                                // Try retrieve service again.
+                                XAshmanManager.get().retrieveService();
                                 return;
                             }
 

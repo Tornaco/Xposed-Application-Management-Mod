@@ -17,6 +17,7 @@
         <item>com.zui.incallui</item>
 
         <item>github.tornaco.xposedmoduletest</item>
+        <item>de.robv.android.xposed.installer</item>
 
     </string-array>
 

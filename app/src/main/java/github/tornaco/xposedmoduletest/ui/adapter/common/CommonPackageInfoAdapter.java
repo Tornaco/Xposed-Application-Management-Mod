@@ -120,6 +120,8 @@ public class CommonPackageInfoAdapter
                 return context.getString(R.string.app_level_phone);
             case XAshmanManager.AppLevel.MEDIA_UID:
                 return context.getString(R.string.app_level_media);
+            case XAshmanManager.AppLevel.WEBVIEW_IMPL:
+                return context.getString(R.string.app_level_webview_impl);
         }
         return null;
     }
@@ -136,6 +138,8 @@ public class CommonPackageInfoAdapter
                 return ContextCompat.getColor(context, R.color.green_dark);
             case XAshmanManager.AppLevel.MEDIA_UID:
                 return ContextCompat.getColor(context, R.color.blue_dark);
+            case XAshmanManager.AppLevel.WEBVIEW_IMPL:
+                return ContextCompat.getColor(context, R.color.blue_grey);
         }
         return 0;
     }

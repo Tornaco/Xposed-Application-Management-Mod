@@ -513,5 +513,6 @@
     <string name="title_manage">管理</string>
     <string name="title_help_dev">帮助开发者</string>
     <string name="title_assistant">顾问</string>
+    <string name="app_level_webview_impl">Webview实现</string>
 
 </resources>

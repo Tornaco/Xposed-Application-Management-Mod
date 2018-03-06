@@ -46,7 +46,9 @@ class AMSCreateRecentTaskInfoFromTaskRecordSubModule extends AndroidSubModule {
                             boolean excludeRecent = (flags & Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS) == Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
                             String pkgName = componentName.getPackageName();
                             if (TextUtils.isEmpty(pkgName)) return;
-                            XposedLog.verbose("- createRecentTaskInfoFromTaskRecord exclude: %s comp: %s", excludeRecent, componentName);
+                            if (BuildConfig.DEBUG) {
+                                XposedLog.verbose("- createRecentTaskInfoFromTaskRecord exclude: %s comp: %s", excludeRecent, componentName);
+                            }
                             int setting = getBridge().getRecentTaskExcludeSetting(componentName);
                             if (setting == XAshmanManager.ExcludeRecentSetting.NONE) {
                                 // Do nothing.

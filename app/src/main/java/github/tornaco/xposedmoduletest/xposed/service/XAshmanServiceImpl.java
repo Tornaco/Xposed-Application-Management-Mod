@@ -173,8 +173,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private static final boolean DEBUG_COMP = false && BuildConfig.DEBUG;
 
     static {
-        DEBUG_BROADCAST = DEBUG_SERVICE =
-                XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.DEBUG);
+        DEBUG_BROADCAST = DEBUG_SERVICE = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.DEBUG);
         XposedLog.boot("DEBUG_BROADCAST & DEBUG_SERVICE: " + DEBUG_BROADCAST);
     }
 
@@ -1394,6 +1393,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return XAshmanManager.AppLevel.PHONE_UID;
         }
 
+        if (isWebviewProvider(pkg)){
+            return XAshmanManager.AppLevel.WEBVIEW_IMPL;
+        }
+
         // Do not change this order.
         if (SYSTEM_APPS.contains(pkg)) {
             return XAshmanManager.AppLevel.SYSTEM;
@@ -2213,15 +2216,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 return new String[0];
             }
 
-            XposedLog.verbose("getBootBlockApps, has size: " + packages.size());
-            XposedLog.verbose("getBootBlockApps, has gms: " + packages.contains("com.google.android.gms"));
-
             final List<String> outList = Lists.newArrayList();
 
             // Remove those not in blocked list.
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
-            XposedLog.verbose("getBootBlockApps, allPackagesArr size: " + allPackagesArr.length);
-            XposedLog.verbose("getBootBlockApps, allPackagess: " + Arrays.toString(allPackagesArr));
 
             Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
                 @Override
@@ -2241,9 +2239,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     if (isWhiteSysAppEnabled() && isInSystemAppList(s)) {
                         XposedLog.verbose("// Kik system package: " + s);
                         return;
-                    }
-                    if (XposedLog.isVerboseLoggable()) {
-                        XposedLog.verbose(XposedLog.TAG_LIST + "Adding no-boot pkg: " + s);
                     }
                     outList.add(s);
                 }
