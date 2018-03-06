@@ -151,7 +151,7 @@
     <string name="title_activity_donate">捐赠</string>
 
     <string name="action_settings">设置</string>
-    <string name="donate_intro">开发很辛苦，占用了很多个人休息时间，请他喝杯咖啡休息下吧~ 记得留下昵称~\n已经捐赠过的朋友请不要重复捐赠，作者没有服务器为你们存储凭据:( 请大家直接勾选上面的已经捐赠按钮，非常感谢你们的支持。早就不想干了。因为你们的支持，作者才有了坚持的动力:) </string>
+    <string name="donate_intro">开发很辛苦，占用了很多个人休息时间，请他喝杯咖啡休息下吧~ 记得留下昵称~\n已经捐赠过的朋友请不要重复捐赠，作者没有服务器为你们存储凭据:( 请大家直接勾选上面的已经捐赠按钮，非常感谢你们的支持。</string>
     <string name="title_developer">开发者</string>
     <string name="title_support">支持我</string>
     <string name="title_export">导出</string>
@@ -516,5 +516,8 @@
     <string name="title_assistant">顾问</string>
     <string name="app_level_webview_impl">Webview实现</string>
     <string name="summary_running_services">%1$s个应用，%2$s个服务正在运行</string>
+    <string name="pay_btc">比特币BTC</string>
+    <string name="pay_eth">以太坊ETH</string>
+    <string name="message_coin_address_copied">%1$s地址 %2$s</string>
 
 </resources>

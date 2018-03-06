@@ -421,9 +421,14 @@
         <item name="colorButtonNormal">@color/blue</item>
     </style>
 
-    <style name="ButtonBarMiner" parent="Theme.AppCompat.Light.Dialog">
+    <style name="ButtonBarBTC" parent="Theme.AppCompat.Light.Dialog">
         <!-- Used by controls, e.g. CheckBox, ProgressBar, etc. -->
         <item name="colorButtonNormal">@color/amber_dark</item>
+    </style>
+
+    <style name="ButtonBarETH" parent="Theme.AppCompat.Light.Dialog">
+        <!-- Used by controls, e.g. CheckBox, ProgressBar, etc. -->
+        <item name="colorButtonNormal">@color/blue_grey</item>
     </style>
 
     <style name="ButtonBarWeChatPay" parent="Theme.AppCompat.Light.Dialog">

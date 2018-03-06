@@ -32,7 +32,7 @@
             android:id="@+id/pay_wechat"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:layout_margin="@dimen/activity_horizontal_margin_small"
             android:padding="12dp"
             android:text="@string/pay_wechat"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
@@ -44,7 +44,7 @@
             android:id="@+id/pay_ali"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:layout_margin="@dimen/activity_horizontal_margin_small"
             android:padding="12dp"
             android:text="@string/pay_alipay"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
@@ -52,16 +52,26 @@
             android:theme="@style/ButtonBarAliPay" />
 
         <Button
-            android:id="@+id/pay_miner"
-            android:visibility="gone"
+            android:id="@+id/pay_btc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:layout_margin="@dimen/activity_horizontal_margin_small"
             android:padding="12dp"
-            android:text="@string/pay_miner"
+            android:text="@string/pay_btc"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textColor="@color/white"
-            android:theme="@style/ButtonBarMiner" />
+            android:theme="@style/ButtonBarBTC" />
+
+        <Button
+            android:id="@+id/pay_eth"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/activity_horizontal_margin_small"
+            android:padding="12dp"
+            android:text="@string/pay_eth"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@color/white"
+            android:theme="@style/ButtonBarETH" />
 
     </LinearLayout>
 
