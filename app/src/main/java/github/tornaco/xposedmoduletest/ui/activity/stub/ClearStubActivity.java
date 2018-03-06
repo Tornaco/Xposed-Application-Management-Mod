@@ -82,8 +82,9 @@ public class ClearStubActivity extends Activity {
 
         if (shortcutManager != null && shortcutManager.isRequestPinShortcutSupported()) {
             Intent shortcutInfoIntent = createIntent(context);
+            shortcutInfoIntent.setAction(Intent.ACTION_VIEW);
 
-            ShortcutInfo info = new ShortcutInfo.Builder(context, context.getPackageName())
+            ShortcutInfo info = new ShortcutInfo.Builder(context, context.getPackageName() + "-CLEAR")
                     .setIcon(Icon.createWithBitmap(resource))
                     .setShortLabel(context.getString(R.string.clear_process_now))
                     .setIntent(shortcutInfoIntent)
@@ -98,7 +99,7 @@ public class ClearStubActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        finish();
+        finishAffinity();
 
         if (XAshmanManager.get().isServiceAvailable()) {
             final int[] clearNum = {0};

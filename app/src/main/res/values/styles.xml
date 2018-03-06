@@ -6,6 +6,10 @@
         <item name="android:windowBackground">@drawable/splash_background</item>
     </style>
 
+    <style name="AppThemeStub" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat">
         <item name="switchBarTheme">@style/SwitchBarSettings</item>
