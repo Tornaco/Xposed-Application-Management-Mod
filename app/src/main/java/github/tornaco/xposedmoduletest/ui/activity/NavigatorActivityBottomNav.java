@@ -493,6 +493,12 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
         }
 
         @Override
+        protected int getLayoutId() {
+            return R.layout.dashboard_with_margin;
+        }
+
+
+        @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
 
@@ -808,6 +814,11 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
         }
 
         @Override
+        protected int getLayoutId() {
+            return R.layout.dashboard_with_margin;
+        }
+
+        @Override
         protected int getNumColumns() {
             boolean two = AppSettings.show2ColumnsIn(getActivity(), NavigatorActivityBottomNav.class.getSimpleName());
             return two ? 2 : 1;
@@ -1092,6 +1103,12 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
         }
 
         @Override
+        protected int getLayoutId() {
+            return R.layout.dashboard_with_margin;
+        }
+
+
+        @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
 
@@ -1130,6 +1147,11 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
         @Override
         public int getPageTitle() {
             return R.string.title_about;
+        }
+
+        @Override
+        protected int getLayoutId() {
+            return R.layout.dashboard_with_margin;
         }
 
         @Override

@@ -16,6 +16,8 @@ import android.support.annotation.RequiresApi;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 
+import org.newstand.logger.Logger;
+
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.util.OSUtil;
@@ -44,7 +46,8 @@ public class LockScreenStubActivity extends Activity {
                 .fallback(R.mipmap.ic_launcher_round)
                 .into(new SimpleTarget<Bitmap>() {
                     @Override
-                    public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                    public void onResourceReady(Bitmap resource,
+                                                Transition<? super Bitmap> transition) {
                         if (OSUtil.isOOrAbove()) {
                             doAddForO(context, resource);
                         } else {
@@ -77,8 +80,9 @@ public class LockScreenStubActivity extends Activity {
 
         if (shortcutManager != null && shortcutManager.isRequestPinShortcutSupported()) {
             Intent shortcutInfoIntent = createIntent(context);
+            shortcutInfoIntent.setAction(Intent.ACTION_VIEW);
 
-            ShortcutInfo info = new ShortcutInfo.Builder(context, context.getPackageName())
+            ShortcutInfo info = new ShortcutInfo.Builder(context, context.getPackageName() + "-LOCK")
                     .setIcon(Icon.createWithBitmap(resource))
                     .setShortLabel(context.getString(R.string.title_lock_now))
                     .setIntent(shortcutInfoIntent)
@@ -95,6 +99,7 @@ public class LockScreenStubActivity extends Activity {
         if (XAshmanManager.get().isServiceAvailable()) {
             XAshmanManager.get().injectPowerEvent();
         }
-        finish();
+        Logger.w("LockScreenStubActivity create");
+        finishAffinity();
     }
 }

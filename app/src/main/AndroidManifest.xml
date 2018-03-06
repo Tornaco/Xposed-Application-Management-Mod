@@ -401,10 +401,12 @@
 
         <activity
             android:name=".ui.activity.stub.LockScreenStubActivity"
+            android:theme="@style/AppThemeStub"
             android:exported="true" />
 
         <activity
             android:name=".ui.activity.stub.ClearStubActivity"
+            android:theme="@style/AppThemeStub"
             android:exported="true" />
 
         <provider
