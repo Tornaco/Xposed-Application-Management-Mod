@@ -21,7 +21,7 @@
         android:fromXScale="0.9"
         android:fromYScale="0.9"
         android:interpolator="@android:anim/decelerate_interpolator"
-        android:pivotX="50%"
+        android:pivotX="90%"
         android:pivotY="100%"
         android:toXScale="1.0"
         android:toYScale="1.0" />

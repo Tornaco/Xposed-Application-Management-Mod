@@ -87,6 +87,7 @@ public class FragmentController<T extends Fragment> {
     public void setCurrent(int index) {
         FragmentManager fragmentManager = mFragmentManager;
         FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setCustomAnimations(android.R.anim.fade_in, 0);
         transaction.hide(getCurrent());
         T current = mPages.get(index);
         transaction.show(current);
