@@ -1393,7 +1393,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return XAshmanManager.AppLevel.PHONE_UID;
         }
 
-        if (isWebviewProvider(pkg)){
+        if (isWebviewProvider(pkg)) {
             return XAshmanManager.AppLevel.WEBVIEW_IMPL;
         }
 
@@ -1823,19 +1823,60 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return CheckResult.ALLOWED_GENERAL;
     }
 
-    private String[] constructStartAllowedRulePattern(String callerPackage, String targetPackage) {
-        return new String[]{
-                "ALLOW * " + targetPackage,
-                "ALLOW * *",
-                "ALLOW " + callerPackage + " *",
-        };
+    // Rule caches.
+    private final Map<Pair<String, String>, String[]> mAllowRuleMap = new HashMap<>();
+    private final Map<Pair<String, String>, String[]> mDenyRuleMap = new HashMap<>();
+
+    private String[] getAllowRulesFromCache(String callerPackage, String targetPackage) {
+        return mAllowRuleMap.get(new Pair<>(callerPackage, targetPackage));
     }
 
+    private String[] getDenyRulesFromCache(String callerPackage, String targetPackage) {
+        return mDenyRuleMap.get(new Pair<>(callerPackage, targetPackage));
+    }
+
+    private void addToAllowRulesCache(String callerPackage, String targetPackage, String[] rules) {
+        mAllowRuleMap.put(new Pair<>(callerPackage, targetPackage), rules);
+    }
+
+    private void addToDenyRulesCache(String callerPackage, String targetPackage, String[] rules) {
+        mDenyRuleMap.put(new Pair<>(callerPackage, targetPackage), rules);
+    }
+
+    // Example A B
+    // ALLOW A B
+    // ALLOW * B
+    // ALLOW A *
+    // ALLOW * *
+    private String[] constructStartAllowedRulePattern(String callerPackage, String targetPackage) {
+        String[] rules = getAllowRulesFromCache(callerPackage, targetPackage);
+        if (rules == null) {
+            rules = new String[]{
+                    String.format("ALLOW %s %s", callerPackage, targetPackage),
+                    String.format("ALLOW * %s", targetPackage),
+                    String.format("ALLOW %s *", callerPackage),
+                    "ALLOW * *",
+            };
+            addToAllowRulesCache(callerPackage, targetPackage, rules);
+        }
+        return rules;
+    }
+
+    // Example A B
+    // DENY A B
+    // DENY * B
+    // DENY A *
     private String[] constructStartDenyRulePattern(String callerPackage, String targetPackage) {
-        return new String[]{
-                "DENY * " + targetPackage,
-                "DENY " + callerPackage + " *",
-        };
+        String[] rules = getDenyRulesFromCache(callerPackage, targetPackage);
+        if (rules == null) {
+            rules = new String[]{
+                    String.format("DENY %s %s", callerPackage, targetPackage),
+                    "DENY * " + targetPackage,
+                    "DENY " + callerPackage + " *",
+            };
+            addToDenyRulesCache(callerPackage, targetPackage, rules);
+        }
+        return rules;
     }
 
     @Override
