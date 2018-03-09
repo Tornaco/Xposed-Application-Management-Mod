@@ -22,8 +22,8 @@
         <item name="torMenuIconTintColor">@color/primary_dark</item>
         <item name="torDrawerMenuIconTintColor">@color/primary_dark</item>
 
-        <item name="torBottomNavTextColor">@color/grey</item>
-        <item name="torBottomNavButtonColor">@color/grey</item>
+        <item name="torBottomNavTextColor">@color/primary_dark</item>
+        <item name="torBottomNavButtonColor">@color/primary_dark</item>
 
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:statusBarColor">@color/window_background</item>
@@ -50,8 +50,8 @@
         <item name="torMenuIconTintColor">@color/black</item>
         <item name="torDrawerMenuIconTintColor">@color/black</item>
 
-        <item name="torBottomNavTextColor">@color/grey</item>
-        <item name="torBottomNavButtonColor">@color/grey</item>
+        <item name="torBottomNavTextColor">@color/black</item>
+        <item name="torBottomNavButtonColor">@color/black</item>
 
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:statusBarColor">@color/window_background</item>

@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <!--<item android:color="?colorAccent" android:state_pressed="true" /> &lt;!&ndash; pressed &ndash;&gt;-->
-    <!--<item android:color="?colorAccent" android:state_focused="true" /> &lt;!&ndash; focused &ndash;&gt;-->
-    <item android:color="?colorAccent" android:state_activated="true" /> <!-- focused -->
-    <item android:color="?colorAccent" android:state_selected="true" /> <!-- focused -->
-    <item android:color="?torBottomNavTextColor" android:state_selected="false" /> <!-- focused -->
-    <item android:color="?torBottomNavTextColor" /> <!-- default -->
+    <item android:color="?torBottomNavTextColor" android:state_checked="true" />
+    <item android:color="@color/grey" android:state_checked="false" />
 </selector>

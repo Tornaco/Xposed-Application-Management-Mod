@@ -38,8 +38,8 @@
         <item name="torMenuIconTintColor">@color/white</item>
         <item name="torDrawerMenuIconTintColor">@color/amber_dark</item>
 
-        <item name="torBottomNavTextColor">@color/grey</item>
-        <item name="torBottomNavButtonColor">@color/grey</item>
+        <item name="torBottomNavTextColor">@color/amber_dark</item>
+        <item name="torBottomNavButtonColor">@color/amber_dark</item>
     </style>
 
     <!-- Base application theme. -->
@@ -76,8 +76,8 @@
         <item name="torMenuIconTintColor">@color/white</item>
         <item name="torDrawerMenuIconTintColor">@color/red_dark</item>
 
-        <item name="torBottomNavTextColor">@color/grey</item>
-        <item name="torBottomNavButtonColor">@color/grey</item>
+        <item name="torBottomNavTextColor">@color/red_dark</item>
+        <item name="torBottomNavButtonColor">@color/red_dark</item>
     </style>
 
     <!-- Base application theme. -->
@@ -112,8 +112,8 @@
         <item name="torMenuIconTintColor">@color/white</item>
         <item name="torDrawerMenuIconTintColor">@color/primary</item>
 
-        <item name="torBottomNavTextColor">@color/grey</item>
-        <item name="torBottomNavButtonColor">@color/grey</item>
+        <item name="torBottomNavTextColor">@color/primary_dark</item>
+        <item name="torBottomNavButtonColor">@color/primary_dark</item>
     </style>
 
     <style name="AppThemeLight.Drawer">
@@ -160,8 +160,8 @@
         <item name="torMenuIconTintColor">@color/white</item>
         <item name="torDrawerMenuIconTintColor">@color/pink</item>
 
-        <item name="torBottomNavTextColor">@color/grey</item>
-        <item name="torBottomNavButtonColor">@color/grey</item>
+        <item name="torBottomNavTextColor">@color/pink</item>
+        <item name="torBottomNavButtonColor">@color/pink</item>
     </style>
 
     <style name="AppThemePink.Drawer">
@@ -207,8 +207,8 @@
         <item name="torMenuIconTintColor">@color/white</item>
         <item name="torDrawerMenuIconTintColor">@color/red</item>
 
-        <item name="torBottomNavTextColor">@color/grey</item>
-        <item name="torBottomNavButtonColor">@color/grey</item>
+        <item name="torBottomNavTextColor">@color/red</item>
+        <item name="torBottomNavButtonColor">@color/red</item>
     </style>
 
     <style name="AppThemeNEWYEAR.Drawer">
@@ -250,8 +250,8 @@
         <item name="torMenuIconTintColor">@color/primary_dark</item>
         <item name="torDrawerMenuIconTintColor">@color/primary_dark</item>
 
-        <item name="torBottomNavTextColor">@color/grey</item>
-        <item name="torBottomNavButtonColor">@color/grey</item>
+        <item name="torBottomNavTextColor">@color/primary_dark</item>
+        <item name="torBottomNavButtonColor">@color/primary_dark</item>
 
     </style>
 
@@ -289,8 +289,8 @@
         <item name="torMenuIconTintColor">@color/black</item>
         <item name="torDrawerMenuIconTintColor">@color/black</item>
 
-        <item name="torBottomNavTextColor">@color/grey</item>
-        <item name="torBottomNavButtonColor">@color/grey</item>
+        <item name="torBottomNavTextColor">@color/black</item>
+        <item name="torBottomNavButtonColor">@color/black</item>
 
     </style>
 
