@@ -51,7 +51,6 @@ import github.tornaco.xposedmoduletest.ui.activity.app.SettingsDashboardActivity
 import github.tornaco.xposedmoduletest.ui.activity.app.GetPlayVersionActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.ToolsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.helper.RunningServicesActivity;
-import github.tornaco.xposedmoduletest.ui.activity.whyyouhere.UserGuideActivityA;
 import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
 import github.tornaco.xposedmoduletest.ui.tiles.AppStart;
@@ -116,7 +115,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             // FIXME Extract to constant.
             boolean showUserGuide = AppSettings.isShowInfoEnabled(this, "USER_GUIDES_AIO", true);
             if (showUserGuide) {
-                UserGuideActivityA.start(getActivity());
             }
         }
 
