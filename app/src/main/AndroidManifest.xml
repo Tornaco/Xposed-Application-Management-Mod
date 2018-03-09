@@ -7,13 +7,11 @@
     <uses-permission android:name="com.fingerprints.service.ACCESS_FINGERPRINT_MANAGER" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_LOGS" />
-
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
     <uses-permission android:name="com.android.launcher.permission.UNINSTALL_SHORTCUT" />
     <uses-permission android:name="android.permission.INSTALL_SHORTCUT" />
@@ -40,7 +38,6 @@
             android:value="53" />
 
         <activity android:name=".ui.activity.test.TestAIOActivity" />
-
         <activity
             android:name=".ui.activity.ag.VerifyDisplayerActivity"
             android:excludeFromRecents="true"
@@ -62,11 +59,9 @@
             android:name=".ui.activity.ag.PinSetupActivity"
             android:label="@string/title_setup_code_new"
             android:theme="@style/AppThemeLight.NoActionBar" />
-
         <activity
             android:name=".ui.activity.NavigatorActivity"
             android:theme="@style/AppThemeLauncher" />
-
         <activity
             android:name=".ui.activity.NavigatorActivityBottomNav"
             android:theme="@style/AppThemeLauncher">
@@ -80,7 +75,6 @@
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
         </activity>
-
         <activity
             android:name=".ui.activity.SplashActivity"
             android:theme="@style/AppThemeSplash" />
@@ -89,32 +83,26 @@
             android:label="@string/title_get_play" />
         <activity
             android:name=".ui.activity.ag.GuardAppNavActivity"
-
             android:label="@string/title_app_guard"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.ag.GuardAppPickerActivity"
-
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.blur.BlurAppNavActivity"
-
             android:label="@string/title_app_recent_blur"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.blur.BlurAppPickerActivity"
-
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.lazy.LazyAppNavActivity"
-
             android:label="@string/title_app_lazy"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.lazy.LazyAppPickerActivity"
-
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
@@ -135,12 +123,10 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.boot.BootAppNavActivity"
-
             android:label="@string/title_app_boot"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.boot.BootAppPickerActivity"
-
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
@@ -153,47 +139,38 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.start.StartAppPickerActivity"
-
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.lk.LockKillAppNavActivity"
-
             android:label="@string/title_app_mem_boost"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.lk.LockKillAppPickerActivity"
-
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.rf.RFKillAppNavActivity"
-
             android:label="@string/title_app_rf_kill"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.rf.RFKillAppPickerActivity"
-
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.trk.TRKillAppNavActivity"
-
             android:label="@string/title_app_tr_kill"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.trk.TRKillAppPickerActivity"
-
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.app.PrivacyAppListNavActivity"
-
             android:label="@string/title_privacy_apps"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.app.PrivacyAppListPickerActivity"
-
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
@@ -210,42 +187,34 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.doze.DozeEventHistoryViewerActivity"
-
             android:label="@string/title_last_doze"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.helper.RunningServicesActivity"
-
             android:label="@string/title_running_services"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.ag.SecureGuardSettings"
-
             android:label="@string/title_secure"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.ag.ExperimentGuardSettings"
-
             android:label="@string/title_exp"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.ag.AdvancedGuardSettings"
-
             android:label="@string/title_advance"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.ag.VerifierGuardSettings"
-
             android:label="@string/title_verifier"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.ag.GuardSettingsDashboardActivity"
-
             android:label="@string/title_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.smartsense.SmartSenseDashboardActivity"
-
             android:label="@string/title_smart_sense"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
@@ -266,17 +235,14 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.app.SettingsDashboardActivity"
-
             android:label="@string/title_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.app.PrivacyNavActivity"
-
             android:label="@string/title_privacy"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.app.ToolsDashboardActivity"
-
             android:label="@string/title_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
@@ -295,7 +261,6 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.app.AboutDashboardActivity"
-
             android:label="@string/title_about"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
@@ -308,21 +273,17 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.blur.GeneralBlurSettings"
-
             android:label="@string/title_general_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.comp.GeneralCompSettings"
-
             android:label="@string/title_general_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.PhotoViewerActivity"
-
             android:label="@string/title_view_photos" />
         <activity
             android:name=".ui.activity.BlockRecordViewerActivity"
-
             android:label="@string/title_block_viewer" />
         <activity
             android:name=".ui.activity.ClearProcessActivity"
@@ -338,17 +299,14 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.comp.ComponentReplacementActivity"
-
             android:label="@string/title_comp_replacement"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.comp.PackageViewerActivity"
-
             android:label="@string/title_component_manager"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.smartsense.FocusedAppActionActivity"
-
             android:label="@string/title_app_focus_acions"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
@@ -365,17 +323,14 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.green2.ExtraOpsSettingActivity"
-
             android:label="@string/title_greening"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.perm.Apps2OpListActivity"
-
             android:label="@string/title_perm_control"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.perm.Op2AppsListActivity"
-
             android:label="@string/title_perm_control"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
@@ -400,16 +355,14 @@
             android:name=".ui.activity.nf.NetworkRestrictActivity"
             android:label="@string/title_nf"
             android:theme="@style/AppThemeLight.NoActionBar" />
-
         <activity
             android:name=".ui.activity.stub.LockScreenStubActivity"
-            android:theme="@style/AppThemeStub"
-            android:exported="true" />
-
+            android:exported="true"
+            android:theme="@style/AppThemeStub" />
         <activity
             android:name=".ui.activity.stub.ClearStubActivity"
-            android:theme="@style/AppThemeStub"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/AppThemeStub" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -420,7 +373,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
         <provider
             android:name=".provider.ComponentsReplacementProvider"
             android:authorities="github.tornaco.xposedmoduletest.components_replacement_provider"
@@ -435,13 +387,11 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
-
         <service
             android:name=".service.APMQuickTileService"
             android:icon="@drawable/ic_add_alert_black_24dp"
             android:label="@string/title_show_focused_activity"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
-
             <meta-data
                 android:name="android.service.quicksettings.ACTIVE_TILE"
                 android:value="true" />
@@ -450,27 +400,6 @@
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
         </service>
-
-        <activity
-            android:name=".ui.activity.whyyouhere.UserGuideActivityA"
-            android:label="@string/title_activity_user_giude"
-            android:theme="@style/AppThemeLight.NoActionBar" />
-        <activity
-            android:name=".ui.activity.whyyouhere.UserGuideActivityB"
-            android:label="@string/title_activity_user_giude"
-            android:theme="@style/AppThemeLight.NoActionBar" />
-        <activity
-            android:name=".ui.activity.whyyouhere.UserGuideActivityC"
-            android:label="@string/title_activity_user_giude"
-            android:theme="@style/AppThemeLight.NoActionBar" />
-        <activity
-            android:name=".ui.activity.whyyouhere.UserGuideActivityD"
-            android:label="@string/title_activity_user_giude"
-            android:theme="@style/AppThemeLight.NoActionBar" />
-        <activity
-            android:name=".ui.activity.whyyouhere.UserGuideActivityE"
-            android:label="@string/title_activity_user_giude"
-            android:theme="@style/AppThemeLight.NoActionBar" />
     </application>
 
 </manifest>
