@@ -20,4 +20,5 @@ public interface AppKey {
     String SELINUX_MODE_ENFORCE = "selinux_mode_enforce";
     String APPLOCK_WORKAROUND = "app_lock_workaround";
     String APP_ICON_PACK = "app_icon_pack";
+    String BOTTOM_NO_SHIFT = "bottom_nav_no_shift";
 }

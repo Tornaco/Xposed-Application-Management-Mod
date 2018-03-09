@@ -102,6 +102,20 @@ public class AppSettings extends Observable {
 
     }
 
+    public static boolean isBottomNavNoShiftEnabled(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(AppKey.BOTTOM_NO_SHIFT,
+                        false);
+    }
+
+    public static void setBottomNavNoShiftEnabled(Context context, boolean b) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(AppKey.BOTTOM_NO_SHIFT, b)
+                .apply();
+
+    }
+
     public static String getAppIconPack(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getString(AppKey.APP_ICON_PACK, null);
@@ -178,7 +192,7 @@ public class AppSettings extends Observable {
 
     public static boolean show2ColumnsIn(Context context, String where) {
         return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-                .getBoolean(AppKey.MAIN_DASH_COLUMN_COUNT + where, true);
+                .getBoolean(AppKey.MAIN_DASH_COLUMN_COUNT + where, false);
     }
 
     public static void setShow2ColumnsIn(Context context, String who, boolean show) {

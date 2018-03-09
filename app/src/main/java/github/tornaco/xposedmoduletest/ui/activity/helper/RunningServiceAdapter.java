@@ -1,16 +1,25 @@
 package github.tornaco.xposedmoduletest.ui.activity.helper;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.newstand.logger.Logger;
+
+import java.util.ArrayList;
 
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.app.PerAppSettingsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
+import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
+import lombok.Getter;
+import lombok.experimental.Delegate;
+import tornaco.lib.widget.CheckableImageView;
 
 /**
  * Created by guohao4 on 2017/12/20.
@@ -25,19 +34,31 @@ public class RunningServiceAdapter extends CommonPackageInfoAdapter {
 
     @Override
     protected int getTemplateLayoutRes() {
-        return R.layout.app_list_item_2;
+        return R.layout.app_list_item_running_services;
     }
 
     @Override
+    protected CommonViewHolder onCreateViewHolder(View root) {
+        return new RunningServiceInfoHolder(root, super.onCreateViewHolder(root));
+    }
+
+    @SuppressLint("SetTextI18n")
+    @Override
     public void onBindViewHolder(CommonViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
+        RunningServiceInfoHolder runningServiceInfoHolder = (RunningServiceInfoHolder) holder;
         final RunningServiceInfoDisplay display = (RunningServiceInfoDisplay) getCommonPackageInfos().get(position);
         holder.getLineTwoTextView().setText(display.getMergedItem().mDescription);
         holder.getSystemAppIndicator().setVisibility(View.VISIBLE);
-        if (BuildConfig.DEBUG) {
-            Logger.e("mem for this app: " + display.getMergedItem().mSizeStr);
-        }
+
         holder.getSystemAppIndicator().setText(display.getMergedItem().mSizeStr);
+
+        RunningState.ProcessItem processItem = display.getMergedItem().mProcess;
+        // FIXME Extract text to res.
+        if (processItem != null) {
+            runningServiceInfoHolder.getProcessNameView().setVisibility(View.GONE);
+        }
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -64,5 +85,50 @@ public class RunningServiceAdapter extends CommonPackageInfoAdapter {
     @Override
     public boolean onBackPressed() {
         return false;
+    }
+
+    private static class RunningServiceInfoHolder extends CommonPackageInfoAdapter.CommonViewHolder {
+        @Getter
+        private CommonViewHolder commonViewHolder;
+
+        @Getter
+        private TextView processNameView;
+
+        RunningServiceInfoHolder(View itemView, CommonViewHolder commonViewHolder) {
+            super(itemView);
+            this.commonViewHolder = commonViewHolder;
+            this.processNameView = itemView.findViewById(R.id.text_process);
+        }
+
+        @Override
+        public TextView getLineOneTextView() {
+            return commonViewHolder.getLineOneTextView();
+        }
+
+        @Override
+        public TextView getLineTwoTextView() {
+            return commonViewHolder.getLineTwoTextView();
+        }
+
+        @Override
+        public TextView getSystemAppIndicator() {
+            return commonViewHolder.getSystemAppIndicator();
+        }
+
+        @Override
+        public View getExtraIndicator() {
+            return commonViewHolder.getExtraIndicator();
+        }
+
+        @Override
+        public CheckableImageView getCheckableImageView() {
+            return commonViewHolder.getCheckableImageView();
+        }
+
+        @Override
+        @Nullable
+        public View getMoreBtn() {
+            return commonViewHolder.getMoreBtn();
+        }
     }
 }
