@@ -201,6 +201,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private final Map<String, BlockRecord2> mBlockRecords = new HashMap<>();
 
+    // Save the service name and starter uid.
+    private final Map<String, Integer> mServiceStartRecords = new HashMap<>();
+
     private Handler mainHandler, mLazyHandler, mDozeHandler;
 
     private final Holder<String> mAudioFocusedPackage = new Holder<>();
@@ -1591,9 +1594,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (serviceComp == null) return true;
         String appPkg = serviceComp.getPackageName();
         CheckResult res = checkServiceDetailed(appPkg, serviceComp, callerUid);
+
         // Saving res record.
         if (!res.res) {
-            logServiceEventToMemory(
+            logServiceBlockEventToMemory(
                     ServiceEvent.builder()
                             .service("Service")
                             .why(res.why)
@@ -1604,7 +1608,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             .callerUid(callerUid)
                             .when(System.currentTimeMillis())
                             .build());
+        } else {
+            // Log start event.
+            onServiceStartBy(serviceComp.flattenToString(), callerUid);
         }
+
         if (DEBUG_SERVICE) {
             if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verboseOn("checkService returning: " + res + "for: " +
@@ -1885,7 +1893,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         CheckResult res = checkBroadcastDetailed(intent, receiverUid, callerUid);
         // Saving res record.
         if (!res.res) {
-            logBroadcastEventToMemory(
+            logBroadcastBlockEventToMemory(
                     BroadcastEvent.builder()
                             .action(intent.getAction())
                             .allowed(res.res)
@@ -2898,7 +2906,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return Intent.ACTION_BOOT_COMPLETED.equals(action);
     }
 
-    private void logServiceEventToMemory(final ServiceEvent serviceEvent) {
+    private void logServiceBlockEventToMemory(final ServiceEvent serviceEvent) {
         if (isPowerSaveModeEnabled()) {
             return;
         }
@@ -2925,12 +2933,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
         };
 
-        mLoggingService.execute(new ErrorCatchRunnable(r, "logServiceEventToMemory"));
+        mLoggingService.execute(new ErrorCatchRunnable(r, "logServiceBlockEventToMemory"));
 
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_NOTIFYSTARTBLOCK, serviceEvent.getPkg()).sendToTarget();
     }
 
-    private void logBroadcastEventToMemory(final BroadcastEvent broadcastEvent) {
+    private void logBroadcastBlockEventToMemory(final BroadcastEvent broadcastEvent) {
         if (isPowerSaveModeEnabled()) {
             return;
         }
@@ -2966,7 +2974,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 addBlockRecord(blockRecord2);
             }
         };
-        mLoggingService.execute(new ErrorCatchRunnable(r, "logBroadcastEventToMemory"));
+        mLoggingService.execute(new ErrorCatchRunnable(r, "logBroadcastBlockEventToMemory"));
     }
 
     private void logOpEventToMemory(final String pkg, final int op, final int mode, final String[] payload) {
@@ -5553,6 +5561,22 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         synchronized (mBlockRecords) {
             return mBlockRecords.get(pkg);
         }
+    }
+
+    private void onServiceStartBy(String serviceName, int starterUid) {
+        if (isPowerSaveModeEnabled()) {
+            return;
+        }
+        mServiceStartRecords.put(serviceName, starterUid);
+    }
+
+    @Override
+    public String getServiceStarter(ComponentName service) throws RemoteException {
+        if (service==null) return null;
+        String key = service.flattenToString();
+        Integer uid = mServiceStartRecords.get(key);
+        if (uid==null) return null;
+        return PkgUtil.pkgForUid(getContext(), uid);
     }
 
     @BinderCall

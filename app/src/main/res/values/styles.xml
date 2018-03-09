@@ -563,6 +563,14 @@
     </style>
 
     <!-- The list item secondary text style/color -->
+    <style name="ListItemThirdText">
+        <item name="android:textColor">?torListItemSummaryTextColor</item>
+        <item name="android:textSize">@dimen/list_item_third_text_size</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <!-- The list item secondary text style/color -->
     <style name="ListItemSecondaryTextHighlight">
         <item name="android:textColor">@color/amber_dark</item>
         <item name="android:textSize">@dimen/list_item_third_text_size</item>

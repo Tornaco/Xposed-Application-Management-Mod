@@ -33,6 +33,7 @@ import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerSer
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
 import github.tornaco.xposedmoduletest.xposed.submodules.SubModuleManager;
+import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -134,6 +135,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     @Override
     public void injectPowerEvent() throws RemoteException {
 
+    }
+
+    @Override
+    public String getServiceStarter(ComponentName service) throws RemoteException {
+        return null;
     }
 
     @Override

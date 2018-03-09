@@ -519,5 +519,8 @@
     <string name="pay_btc">比特币BTC</string>
     <string name="pay_eth">以太坊ETH</string>
     <string name="message_coin_address_copied">%1$s地址 %2$s</string>
+    <string name="title_bottom_nav_no_shift">Remove shift</string>
+    <string name="summary_bottom_nav_no_shift">强制移除底部上升效果</string>
+    <string name="title_user_tools">用户工具</string>
 
 </resources>

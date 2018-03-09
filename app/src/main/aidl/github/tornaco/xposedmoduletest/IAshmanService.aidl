@@ -383,4 +383,6 @@ interface IAshmanService {
      void setAppConfigOverlayIntSetting(String appPackageName, String tag, int value);
 
      void injectPowerEvent();
+
+     String getServiceStarter(in ComponentName service);
 }

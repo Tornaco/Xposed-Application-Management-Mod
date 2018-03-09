@@ -1759,4 +1759,14 @@ public class XAshmanManager {
 
         }
     }
+
+    public String getServiceStarter(ComponentName service) {
+        ensureService();
+        try {
+            return mService.getServiceStarter(service);
+        } catch (RemoteException e) {
+            return null;
+        }
+    }
+
 }

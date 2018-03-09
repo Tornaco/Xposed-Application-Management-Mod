@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -115,7 +116,11 @@ public class DashboardFragment extends Fragment {
             ContainerView categoryContent =
                     categoryView.findViewById(R.id.category_content);
             int numColumnsCategory = category.numColumns;
-            categoryContent.setNumColumns(numColumnsCategory > 0 ? numColumnsCategory : getNumColumns());
+            int columnCount = numColumnsCategory > 0 ? numColumnsCategory : getNumColumns();
+            if (category.tileCount() < 2) {
+                columnCount = 1;
+            }
+            categoryContent.setNumColumns(columnCount);
             categoryContent.setShowDivider(showDivider());
 
             final int tilesCount = category.getTilesCount();
@@ -154,6 +159,11 @@ public class DashboardFragment extends Fragment {
         // FIXME Check num columns for category.
         int numColumnsCategory = category.numColumns;
         int column = numColumnsCategory > 0 ? numColumnsCategory : getNumColumns();
+
+        Log.d("APM-C", "Tile count = " + category.tileCount());
+        if (category.tileCount() < 2) {
+            column = 1;
+        }
         if (column > 1) {
             float newSize = context.getResources().getDimensionPixelSize(R.dimen.dashboard_tile_text_size_small);
             tileTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, newSize);

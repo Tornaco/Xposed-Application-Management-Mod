@@ -68,6 +68,10 @@ public class Category {
         readFromParcel(in);
     }
 
+    int tileCount() {
+        return tiles == null ? 0 : tiles.size();
+    }
+
     public void addTile(Tile tile) {
         if (tile.isEnabled()) {
             tiles.add(tile);

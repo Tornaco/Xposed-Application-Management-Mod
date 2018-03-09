@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.ui.activity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -89,6 +90,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.CleanUpSystemErrorTrace;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CrashDump;
 import github.tornaco.xposedmoduletest.ui.tiles.app.IconPack;
 import github.tornaco.xposedmoduletest.ui.tiles.app.MokeCrash;
+import github.tornaco.xposedmoduletest.ui.tiles.app.NoShift;
 import github.tornaco.xposedmoduletest.ui.tiles.app.OpenMarket;
 import github.tornaco.xposedmoduletest.ui.tiles.app.OpenSource;
 import github.tornaco.xposedmoduletest.ui.tiles.app.PowerSave;
@@ -99,6 +101,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.ShowFocusedActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.ShowTileDivider;
 import github.tornaco.xposedmoduletest.ui.tiles.app.ThemeChooser;
 import github.tornaco.xposedmoduletest.ui.tiles.app.WhiteSystemApp;
+import github.tornaco.xposedmoduletest.ui.widget.BottomNavigationViewHelper;
 import github.tornaco.xposedmoduletest.ui.widget.EmojiViewUtil;
 import github.tornaco.xposedmoduletest.ui.widget.ToastManager;
 import github.tornaco.xposedmoduletest.util.OSUtil;
@@ -325,6 +328,9 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
 
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        if (AppSettings.isBottomNavNoShiftEnabled(getContext())) {
+            BottomNavigationViewHelper.removeShiftMode(navigation);
+        }
     }
 
     protected void setupFragment() {
@@ -455,8 +461,7 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem changeCol = menu.findItem(R.id.action_change_column_count);
-        changeCol.setVisible(INDEXS.MANAGE == getBottomNavIndex());
-        Logger.w("onPrepareOptionsMenu: " + getBottomNavIndex());
+        changeCol.setVisible(INDEXS.STATUS != getBottomNavIndex());
         return true;
     }
 
@@ -477,8 +482,9 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
         }
 
         if (item.getItemId() == R.id.action_change_column_count) {
-            boolean two = AppSettings.show2ColumnsIn(getActivity(), NavigatorActivityBottomNav.class.getSimpleName());
-            AppSettings.setShow2ColumnsIn(getContext(), NavigatorActivityBottomNav.class.getSimpleName(), !two);
+            ActivityLifeCycleDashboardFragment current = getCardController().getCurrent();
+            boolean two = AppSettings.show2ColumnsIn(getActivity(), current.getClass().getSimpleName());
+            AppSettings.setShow2ColumnsIn(getContext(), current.getClass().getSimpleName(), !two);
             Toast.makeText(getContext(), "Duang~~~~~~~", Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -497,6 +503,11 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
             return R.layout.dashboard_with_margin;
         }
 
+        @Override
+        protected int getNumColumns() {
+            boolean two = AppSettings.show2ColumnsIn(getActivity(), ToolsNavFragment.class.getSimpleName());
+            return two ? 2 : 1;
+        }
 
         @Override
         protected void onCreateDashCategories(List<Category> categories) {
@@ -505,11 +516,16 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
             Category dev = new Category();
             dev.titleRes = R.string.title_dev_tools;
             dev.addTile(new AppDevMode(getActivity()));
-            dev.addTile(new ShowFocusedActivity(getActivity()));
             dev.addTile(new CrashDump(getActivity()));
             dev.addTile(new MokeCrash(getActivity()));
-            dev.addTile(new CleanUpSystemErrorTrace(getActivity()));
+
+            Category user = new Category();
+            user.titleRes = R.string.title_user_tools;
+            user.addTile(new ShowFocusedActivity(getActivity()));
+            user.addTile(new CleanUpSystemErrorTrace(getActivity()));
+
             categories.add(dev);
+            categories.add(user);
         }
     }
 
@@ -820,7 +836,7 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
 
         @Override
         protected int getNumColumns() {
-            boolean two = AppSettings.show2ColumnsIn(getActivity(), NavigatorActivityBottomNav.class.getSimpleName());
+            boolean two = AppSettings.show2ColumnsIn(getActivity(), ManageNavFragment.class.getSimpleName());
             return two ? 2 : 1;
         }
 
@@ -1107,6 +1123,11 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
             return R.layout.dashboard_with_margin;
         }
 
+        @Override
+        protected int getNumColumns() {
+            boolean two = AppSettings.show2ColumnsIn(getActivity(), SettingsNavFragment.class.getSimpleName());
+            return two ? 2 : 1;
+        }
 
         @Override
         protected void onCreateDashCategories(List<Category> categories) {
@@ -1134,6 +1155,7 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
             theme.addTile(new ThemeChooser(getActivity()));
             theme.addTile(new ShowTileDivider(getActivity()));
             theme.addTile(new IconPack(getActivity()));
+            theme.addTile(new NoShift(getActivity()));
 
             categories.add(system);
             categories.add(systemProtect);
@@ -1152,6 +1174,12 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
         @Override
         protected int getLayoutId() {
             return R.layout.dashboard_with_margin;
+        }
+
+        @Override
+        protected int getNumColumns() {
+            boolean two = AppSettings.show2ColumnsIn(getActivity(), AboutNavFragment.class.getSimpleName());
+            return two ? 2 : 1;
         }
 
         @Override

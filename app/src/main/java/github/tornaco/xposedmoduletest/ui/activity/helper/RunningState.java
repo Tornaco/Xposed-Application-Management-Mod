@@ -262,20 +262,13 @@ public class RunningState {
     static class ServiceItem extends BaseItem {
         ActivityManager.RunningServiceInfo mRunningService;
         ServiceInfo mServiceInfo;
+        String starter;
         boolean mShownAsStarted;
 
         MergedItem mMergedItem;
 
         public ServiceItem() {
             super(false);
-        }
-
-        @Override
-        public String toString() {
-            return "ServiceItem{" +
-                    "mServiceInfo=" + mServiceInfo +
-                    ", mShownAsStarted=" + mShownAsStarted +
-                    '}';
         }
     }
 
@@ -407,6 +400,10 @@ public class RunningState {
                             + service.service);
                     return false;
                 }
+                // Query starter.
+                if (XAshmanManager.get().isServiceAvailable()) {
+                    si.starter = XAshmanManager.get().getServiceStarter(si.mServiceInfo.getComponentName());
+                }
                 si.mDisplayLabel = makeLabel(pm,
                         si.mRunningService.service.getClassName(), si.mServiceInfo);
                 mLabel = mDisplayLabel != null ? mDisplayLabel.toString() : null;
@@ -497,7 +494,6 @@ public class RunningState {
         }
     }
 
-    @ToString
     public static class MergedItem extends BaseItem {
         ProcessItem mProcess;
         final ArrayList<ProcessItem> mOtherProcesses = new ArrayList<>();
