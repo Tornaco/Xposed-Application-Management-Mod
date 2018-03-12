@@ -38,5 +38,5 @@
     <string name="update_log_470">1. 解决潜在的可能与某补丁冲突造成系统ANR问题。\n2. 修复Chrome等浏览器不显示到列表问题。\n3. 修复创建快捷方式闪退问题。\n4. Shell接口增加 锁屏/清理。\n5. 主页卡片摘要优化。
     </string>
 
-    <string name="update_log_493">修复正在M上运行应用无法加载问题。</string>
+    <string name="update_log_493">1. 修复正在M上运行应用无法加载问题。\n2. 修复某些APP获取正运行应用权限被禁用时fc问题。</string>
 </resources>
