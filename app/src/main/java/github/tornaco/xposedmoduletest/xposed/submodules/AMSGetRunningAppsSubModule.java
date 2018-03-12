@@ -12,9 +12,11 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.service.DeprecatedSince;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -24,6 +26,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // Hook hookGetRunningAppProcess settings.
+@DeprecatedSince("4.9.3")
 class AMSGetRunningAppsSubModule extends AndroidSubModule {
 
     @Override
@@ -33,7 +36,11 @@ class AMSGetRunningAppsSubModule extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        hookGetRunningAppProcess(lpparam);
+        // No need to check ops. Now 3-rd app can only get self process.
+        // so we break here, only hook it for debug.
+        if (BuildConfig.DEBUG) {
+            hookGetRunningAppProcess(lpparam);
+        }
     }
 
     private void hookGetRunningAppProcess(XC_LoadPackage.LoadPackageParam lpparam) {
@@ -44,8 +51,9 @@ class AMSGetRunningAppsSubModule extends AndroidSubModule {
             Set unHooks = XposedBridge.hookAllMethods(ams, "getRunningAppProcesses",
                     new XC_MethodHook() {
                         @Override
-                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                            super.beforeHookedMethod(param);
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            super.afterHookedMethod(param);
+
                             int callingUid = Binder.getCallingUid();
 
                             if (PkgUtil.isSystemOrPhoneOrShell(callingUid)) return;
@@ -56,11 +64,28 @@ class AMSGetRunningAppsSubModule extends AndroidSubModule {
                                         AppOpsManagerCompat.OP_GET_RUNNING_TASKS, callingUid,
                                         true);
                                 if (mode == AppOpsManagerCompat.MODE_IGNORED) {
-                                    XposedLog.verbose("getRunningAppProcesses, MODE_IGNORED returning empty for :"
-                                            + callingUid);
                                     try {
-                                        List<ActivityManager.RunningAppProcessInfo> empty = new ArrayList<>(0);
-                                        param.setResult(empty);
+                                        @SuppressWarnings("unchecked") List<ActivityManager.RunningAppProcessInfo> empty
+                                                = (List<ActivityManager.RunningAppProcessInfo>) param.getResult();
+                                        ActivityManager.RunningAppProcessInfo selfInfo = null;
+                                        if (empty != null) {
+                                            for (int i = 0; i < empty.size(); i++) {
+                                                ActivityManager.RunningAppProcessInfo info = empty.get(i);
+                                                int uid = info.uid;
+                                                if (BuildConfig.DEBUG) {
+                                                    XposedLog.verbose("getRunningAppProcesses items uid %s caller %s", uid, callingUid);
+                                                }
+                                                if (uid == callingUid) {
+                                                    selfInfo = info;
+                                                    break;
+                                                }
+                                            }
+                                            empty.clear();
+                                            empty.add(selfInfo);
+                                            param.setResult(empty);
+                                            XposedLog.verbose("getRunningAppProcesses, MODE_IGNORED returning empty for :"
+                                                    + callingUid);
+                                        }
                                     } catch (Exception e) {
                                         param.setResult(null);
                                         XposedLog.wtf("Fail get empty ArrayList:" + e);
