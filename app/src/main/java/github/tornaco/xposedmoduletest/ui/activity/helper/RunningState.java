@@ -402,7 +402,8 @@ public class RunningState {
                 }
                 // Query starter.
                 if (XAshmanManager.get().isServiceAvailable()) {
-                    si.starter = XAshmanManager.get().getServiceStarter(si.mServiceInfo.getComponentName());
+                    // updateNow: java.lang.NoSuchMethodError: No virtual method getComponentName()Landroid/content/ComponentName; in class Landroid/content/pm/
+                    // si.starter = XAshmanManager.get().getServiceStarter(si.mServiceInfo.getComponentName());
                 }
                 si.mDisplayLabel = makeLabel(pm,
                         si.mRunningService.service.getClassName(), si.mServiceInfo);
