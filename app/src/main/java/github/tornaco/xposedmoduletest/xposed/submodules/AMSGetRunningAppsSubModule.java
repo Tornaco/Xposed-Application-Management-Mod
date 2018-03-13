@@ -4,7 +4,6 @@ import android.app.ActivityManager;
 import android.os.Binder;
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 

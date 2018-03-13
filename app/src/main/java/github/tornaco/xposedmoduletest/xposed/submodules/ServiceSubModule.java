@@ -175,7 +175,7 @@ class ServiceSubModule extends AndroidSubModule {
                                                             .hasNotificationForPackage(hostPackage);
                                             if (!skip) {
                                                 h.obtainMessage(0, this).sendToTarget();
-                                            }else {
+                                            } else {
                                                 Log.d(XposedLog.TAG_LAZY, "Lazy skipped for SBN");
                                             }
                                         }

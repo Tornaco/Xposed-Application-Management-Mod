@@ -84,10 +84,6 @@ public class SubModuleManager {
         addToSubsChecked(new ASDSubModule());
         addToSubsChecked(new IFWSubModule());
 
-        if (BuildConfig.DEBUG) {
-            addToSubsChecked(new BroadcastQueueSubModule());
-        }
-
         addToSubsChecked(new AppOpsSubModule4());
         addToSubsChecked(new AppOpsSubModule3());
         addToSubsChecked(new AppOpsSubModule2());
@@ -160,6 +156,16 @@ public class SubModuleManager {
         if (BuildConfig.DEBUG) {
             addToSubsChecked(new ResourceManagerApplyConfigSubModule());
             addToSubsChecked(new ResourceSubModule());
+        }
+
+
+        if (BuildConfig.DEBUG) {
+            addToSubsChecked(new BroadcastQueueSubModule());
+        }
+
+        if (BuildConfig.DEBUG){
+            addToSubsChecked(new ViewTouchEventSubModule());
+            addToSubsChecked(new ViewGroupDebugDrawSubModule());
         }
     }
 

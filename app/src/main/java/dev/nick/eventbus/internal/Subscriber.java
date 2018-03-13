@@ -18,7 +18,6 @@ package dev.nick.eventbus.internal;
 
 import android.support.annotation.NonNull;
 
-import dev.nick.eventbus.EventReceiver;
 import dev.nick.eventbus.IEventReceiver;
 
 /**
@@ -27,5 +26,6 @@ import dev.nick.eventbus.IEventReceiver;
  */
 public interface Subscriber {
     void subscribe(@NonNull IEventReceiver receiver);
+
     void unSubscribe(@NonNull IEventReceiver receiver);
 }

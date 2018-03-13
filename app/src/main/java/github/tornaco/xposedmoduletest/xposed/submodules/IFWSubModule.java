@@ -4,7 +4,6 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.util.Log;
 
-import java.util.Arrays;
 import java.util.Set;
 
 import de.robv.android.xposed.XC_MethodHook;

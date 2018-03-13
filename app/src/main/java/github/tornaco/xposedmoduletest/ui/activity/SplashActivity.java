@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.xposed.XApp;
 
 /**
  * Created by guohao4 on 2018/2/27.

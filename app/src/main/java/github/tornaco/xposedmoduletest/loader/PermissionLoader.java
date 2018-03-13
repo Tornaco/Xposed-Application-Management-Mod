@@ -107,7 +107,7 @@ public interface PermissionLoader {
 
                 p.setIconRes(AppOpsManagerCompat.opToIconRes(code));
 
-                p.setMode(XAshmanManager.get().getPermissionControlBlockModeForPkg(code, pkg,false));
+                p.setMode(XAshmanManager.get().getPermissionControlBlockModeForPkg(code, pkg, false));
 
                 Logger.d("Add perm: " + p);
 

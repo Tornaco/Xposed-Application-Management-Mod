@@ -8,17 +8,10 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.newstand.logger.Logger;
-
-import java.util.ArrayList;
-
-import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.app.PerAppSettingsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
-import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import lombok.Getter;
-import lombok.experimental.Delegate;
 import tornaco.lib.widget.CheckableImageView;
 
 /**

@@ -60,6 +60,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.SparseBooleanArray;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.WindowManager;
 import android.view.WindowManagerPolicy;
 import android.webkit.IWebViewUpdateService;
@@ -3177,6 +3178,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }, "reload installed apps"), 15 * 1000);
 
         cacheWebviewPackacgaes();
+
+        // Disable layout debug incase our logic make the system dead in loop.
+        if (BuildConfig.DEBUG) {
+            SystemProperties.set(View.DEBUG_LAYOUT_PROPERTY, String.valueOf(false));
+        }
     }
 
     private void applyDozeWhiteList() {
@@ -5572,10 +5578,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public String getServiceStarter(ComponentName service) throws RemoteException {
-        if (service==null) return null;
+        if (service == null) return null;
         String key = service.flattenToString();
         Integer uid = mServiceStartRecords.get(key);
-        if (uid==null) return null;
+        if (uid == null) return null;
         return PkgUtil.pkgForUid(getContext(), uid);
     }
 

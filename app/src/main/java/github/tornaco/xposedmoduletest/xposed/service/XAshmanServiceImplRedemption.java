@@ -33,7 +33,6 @@ import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerSer
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
 import github.tornaco.xposedmoduletest.xposed.submodules.SubModuleManager;
-import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**

@@ -39,8 +39,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import github.tornaco.xposedmoduletest.util.BitmapUtil;
-
 public class IconPack extends App {
 
     private final Context mContext;

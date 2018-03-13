@@ -45,7 +45,6 @@ import java.util.List;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.InterestingConfigChanges;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
-import lombok.ToString;
 
 /**
  * Singleton for retrieving and monitoring the state about all running

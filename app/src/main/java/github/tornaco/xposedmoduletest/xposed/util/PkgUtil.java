@@ -18,7 +18,6 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.os.UserHandle;
 import android.print.PrintManager;
-import android.provider.Telephony;
 import android.util.SparseArray;
 
 import java.util.ArrayList;

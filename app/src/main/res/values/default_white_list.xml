@@ -21,6 +21,7 @@
 
     </string-array>
 
+    // These apps will not be add into white list even it is CORE(SMS/PHONE .etc) app.
     <string-array name="ash_white_list_packages_hooks">
         <item>com.tencent.pb</item>
     </string-array>

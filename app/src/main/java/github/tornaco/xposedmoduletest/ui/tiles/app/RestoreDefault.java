@@ -8,8 +8,6 @@ import android.widget.Toast;
 
 import com.jaredrummler.android.shell.Shell;
 
-import org.newstand.logger.Logger;
-
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
