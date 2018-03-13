@@ -3,7 +3,6 @@ package github.tornaco.xposedmoduletest.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 

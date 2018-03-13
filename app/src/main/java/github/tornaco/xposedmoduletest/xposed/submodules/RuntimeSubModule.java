@@ -5,7 +5,6 @@ import android.util.Log;
 
 import com.google.common.collect.Sets;
 
-import java.util.Arrays;
 import java.util.Set;
 
 import de.robv.android.xposed.IXposedHookZygoteInit;

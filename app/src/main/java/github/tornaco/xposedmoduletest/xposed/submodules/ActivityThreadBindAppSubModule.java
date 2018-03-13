@@ -60,7 +60,7 @@ public class ActivityThreadBindAppSubModule extends AndroidSubModule {
                                     configuration.densityDpi = densityDpi;
                                     if (compatibilityInfo != null) {
                                         XposedHelpers.setObjectField(compatibilityInfo, "applicationDensity", densityDpi);
-                                        if (BuildConfig.DEBUG){
+                                        if (BuildConfig.DEBUG) {
                                             XposedLog.verbose("Change compatibilityInfo to: " + compatibilityInfo);
                                         }
                                     }

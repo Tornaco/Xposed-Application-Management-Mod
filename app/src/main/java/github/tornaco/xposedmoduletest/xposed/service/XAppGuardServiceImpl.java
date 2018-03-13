@@ -106,7 +106,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     static {
         PREBUILT_WHITE_LIST.add("com.android.systemui");
         PREBUILT_WHITE_LIST.add("android");
-        PREBUILT_WHITE_LIST.add(BuildConfig.APPLICATION_ID);
+        // PREBUILT_WHITE_LIST.add(BuildConfig.APPLICATION_ID);
     }
 
     private boolean isInSystemAppList(String pkg) {
@@ -492,6 +492,23 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             return;
         }
 
+        if (componentName != null) {
+            boolean isAPM = XAshmanManager.VERIFIER_CLASS_NAME.equals(componentName.getClassName());
+            if (BuildConfig.DEBUG) {
+                XposedLog.verbose("is APM?" + isAPM);
+            }
+            if (isAPM) {
+                listener.onVerifyRes(pkg, uid, pid, XAppVerifyMode.MODE_ALLOWED);
+                XposedLog.verbose("Do not ever verify APM-VERIFIER it self.");
+                return;
+            }
+        } else if (BuildConfig.APPLICATION_ID.equals(pkg)) {
+            listener.onVerifyRes(pkg, uid, pid, XAppVerifyMode.MODE_ALLOWED);
+            XposedLog.verbose("We do not know which one of us is top now, in-case it loops. skip verify us.");
+            return;
+        }
+
+        // Fix issues that WeChat and QQ can not active it self when receive a video chat.
         boolean screenOn = mPowerManager != null && mPowerManager.isInteractive();
         if (!screenOn) {
             boolean inActivityWhiteList =
@@ -502,7 +519,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 return;
             }
         }
-
         // Check if in white list.
         if (componentName != null) {
             String shortString = componentName.flattenToShortString();
@@ -526,7 +542,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_VERIFY, args).sendToTarget();
     }
 
-
     @BinderCall(restrict = "hooks")
     public void onPackageMoveToFront(Intent who) {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("onPackageMoveToFront: " + who);
@@ -539,7 +554,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         if (mServiceHandler == null) return;
         mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_ONACTIVITYPACKAGERESUME, pkg).sendToTarget();
     }
-
 
     public boolean isInterruptFPEventVBEnabled(int event) throws RemoteException {
         enforceCallingPermissions();
@@ -559,7 +573,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         return keyguardManager != null && keyguardManager.isKeyguardLocked();
     }
 
-
     @BinderCall
     public void setInterruptFPEventVBEnabled(int event, boolean enabled) throws RemoteException {
         enforceCallingPermissions();
@@ -568,11 +581,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 .sendToTarget();
     }
 
-
     public String serial() {
         return mSerialUUID.toString();
     }
-
 
     public boolean onKeyEvent(KeyEvent keyEvent, String source) {
         // Nothing to do.
@@ -596,24 +607,20 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         return true;
     }
 
-
     @InternalCall
     public boolean isBlurForPkg(String pkg) {
         return isBlurEnabled() && isPackageInBlurList(pkg);
     }
-
 
     @InternalCall
     public float getBlurScale() {
         return BlurSettings.BITMAP_SCALE;
     }
 
-
     @InternalCall
     public int getBlurRadius() {
         return mBlurRadius.get();
     }
-
 
     public void setBlurRadius(int r) {
         XposedLog.verbose("setBlurRadius: " + r);
@@ -623,13 +630,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 .sendToTarget();
     }
 
-
     public boolean interruptFPSuccessVibrate() {
         boolean isKeyguard = isDeviceLocked();
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("Device is locked: " + isKeyguard);
         return !isKeyguard && mInterruptFPSuccessVB.get();
     }
-
 
     public boolean interruptFPErrorVibrate() {
         boolean isKeyguard = isDeviceLocked();
@@ -637,11 +642,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         return !isKeyguard && mInterruptFPERRORVB.get();
     }
 
-
     public boolean isActivityStartShouldBeInterrupted(ComponentName componentName) {
         return false;
     }
-
 
     public void forceReloadPackages() throws RemoteException {
 
@@ -684,7 +687,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         return out;
     }
 
-
     public String[] getLockApps(boolean lock) throws RemoteException {
         if (lock) {
             Set<String> packages = mRepoProxy.getLocks().getAll();
@@ -726,7 +728,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         }
     }
 
-
     public void addOrRemoveLockApps(String[] packages, boolean add) throws RemoteException {
         if (XposedLog.isVerboseLoggable())
             XposedLog.verbose("addOrRemoveLockApps: " + Arrays.toString(packages));
@@ -734,7 +735,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         if (packages == null || packages.length == 0) return;
         addOrRemoveFromRepo(packages, mRepoProxy.getLocks(), add);
     }
-
 
     public String[] getBlurApps(boolean blur) throws RemoteException {
         if (blur) {
@@ -777,7 +777,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             return convertObjectArrayToStringArray(objArr);
         }
     }
-
 
     public void addOrRemoveBlurApps(String[] packages, boolean blur) throws RemoteException {
         if (XposedLog.isVerboseLoggable())

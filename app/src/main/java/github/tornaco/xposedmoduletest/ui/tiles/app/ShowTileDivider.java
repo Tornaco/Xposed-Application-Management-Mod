@@ -19,7 +19,7 @@ public class ShowTileDivider extends QuickTile {
         super(context);
         this.titleRes = R.string.title_show_tile_divider;
         this.iconRes = R.drawable.ic_line_style_black_24dp;
-        this.tileView = new SwitchTileView(context){
+        this.tileView = new SwitchTileView(context) {
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);

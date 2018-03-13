@@ -26,6 +26,7 @@ public interface SetRepo<T> {
     void removeAll();
 
     boolean has(T t);
+
     boolean has(T[] t);
 
     String name();

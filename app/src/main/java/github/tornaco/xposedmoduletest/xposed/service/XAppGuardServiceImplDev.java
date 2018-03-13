@@ -7,7 +7,6 @@ import android.os.Message;
 import android.util.Log;
 
 import de.robv.android.xposed.XposedBridge;
-import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**

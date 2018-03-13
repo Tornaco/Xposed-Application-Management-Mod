@@ -46,7 +46,7 @@ public class ResourceManagerApplyConfigSubModule extends AndroidSubModule {
                                 int densityDpi = XAshmanManager.get().getAppConfigOverlayIntSetting(currentPackage, "densityDpi");
                                 if (BuildConfig.DEBUG) {
                                     Log.d(XposedLog.TAG_PREFIX, "handleBindApplication: "
-                                            + currentPackage + "-" + configuration.densityDpi + "-" + densityDpi
+                                                    + currentPackage + "-" + configuration.densityDpi + "-" + densityDpi
 //                                            + "-" + compatibilityInfo
                                     );
                                 }

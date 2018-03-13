@@ -1,7 +1,6 @@
 package github.tornaco.xposedmoduletest.ui.activity.helper;
 
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
-import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Delegate;

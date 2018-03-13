@@ -14,7 +14,6 @@ import org.newstand.logger.AndroidLogAdapter;
 import org.newstand.logger.Logger;
 import org.newstand.logger.Settings;
 
-import dev.nick.eventbus.EventBus;
 import github.tornaco.android.common.BlackHole;
 import github.tornaco.apigen.BuildHostInfo;
 import github.tornaco.apigen.BuildVar;

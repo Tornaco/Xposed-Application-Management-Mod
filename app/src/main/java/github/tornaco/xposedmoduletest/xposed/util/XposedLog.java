@@ -29,6 +29,8 @@ public abstract class XposedLog {
     public static final String TAG_USER = "USER-";
     public static final String TAG_KEY = "KEY-";
     public static final String TAG_DOZE = "DOZE-";
+    public static final String TAG_VIEW = "X-APM-VIEW-";
+    public static final String TAG_ME = "X-APM-ME-";
 
     private static LogLevel sLevel = BuildConfig.DEBUG ? LogLevel.ALL : LogLevel.WARN;
 
