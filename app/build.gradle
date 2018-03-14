@@ -134,6 +134,9 @@ dependencies {
     // https://github.com/Flipboard/bottomsheet
     implementation 'com.flipboard:bottomsheet-core:1.5.3'
     implementation 'com.flipboard:bottomsheet-commons:1.5.3' // optional
+
+    // https://github.com/thoughtbot/expandable-recycler-view
+    implementation 'com.thoughtbot:expandablerecyclerview:1.3'
 }
 
 

@@ -474,6 +474,13 @@
         <item name="android:padding">2dp</item>
     </style>
 
+    <style name="CardSuggestions">
+        <item name="cardBackgroundColor">?colorAccent</item>
+        <item name="android:clickable">true</item>
+        <item name="android:foreground">?selectableItemBackground</item>
+        <item name="android:padding">2dp</item>
+    </style>
+
     <style name="CardTitle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textStyle">normal</item>
         <item name="android:ellipsize">end</item>
