@@ -47,7 +47,7 @@ class UNIXProcessSubModule extends AndroidSubModule {
                                 byte[] data = (byte[]) in;
                                 String cmd = new String(data);
                                 String caller = AndroidAppHelper.currentPackageName();
-                                Log.d(XposedLog.TAG_PREFIX, TAG + "write: " + cmd + ", caller: " + caller);
+                                Log.d(XposedLog.TAG, TAG + "write: " + cmd + ", caller: " + caller);
                             }
                         }
                     });

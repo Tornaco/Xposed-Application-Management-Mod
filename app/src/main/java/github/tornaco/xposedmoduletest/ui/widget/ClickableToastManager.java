@@ -61,7 +61,7 @@ public class ClickableToastManager {
 
             sToast = toast;
         } catch (Throwable ignored) {
-            Log.e(XposedLog.TAG_PREFIX, "ClickableToastManager: " + Log.getStackTraceString(ignored));
+            Log.e(XposedLog.TAG, "ClickableToastManager: " + Log.getStackTraceString(ignored));
         }
     }
 }

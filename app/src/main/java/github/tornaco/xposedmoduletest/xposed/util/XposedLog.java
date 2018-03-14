@@ -22,16 +22,21 @@ public abstract class XposedLog {
         NONE;
     }
 
-    public static final String TAG_PREFIX = "X-APM-S-" + BuildConfig.VERSION_NAME + "-";
-    public static final String TAG_DANGER = "X-APM-DANGER-" + BuildConfig.VERSION_NAME + "-";
-    public static final String TAG_LIST = "X-APM-LIST-" + BuildConfig.VERSION_NAME + "-";
-    public static final String TAG_LAZY = "X-APM-LAZY-" + BuildConfig.VERSION_NAME + "-";
-    public static final String TAG_USER = "USER-";
-    public static final String TAG_KEY = "KEY-";
-    public static final String TAG_DOZE = "DOZE-";
+    public static final String TAG = "X-APM-S-";
+
+    public static final String TAG_DANGER = "X-APM-DANGER-";
+    public static final String TAG_LAZY = "X-APM-LAZY-";
     public static final String TAG_VIEW = "X-APM-VIEW-";
     public static final String TAG_ME = "X-APM-ME-";
 
+    public static final String PREFIX_USER = "USER-";
+    public static final String PREFIX_KEY = "KEY-";
+    public static final String PREFIX_DOZE = "DOZE-";
+
+    public static final String PREFIX_SERVICE = "SERVICE-";
+    public static final String PREFIX_BROADCAST = "BROADCAST-";
+
+    // Default log level.
     private static LogLevel sLevel = BuildConfig.DEBUG ? LogLevel.ALL : LogLevel.WARN;
 
     public static void setLogLevel(LogLevel level) {
@@ -47,14 +52,14 @@ public abstract class XposedLog {
     }
 
     public static void verbose(Object log) {
-        if (isLoggable(LogLevel.VERBOSE)) XposedBridge.log(TAG_PREFIX
+        if (isLoggable(LogLevel.VERBOSE)) XposedBridge.log(TAG
                 + LogLevel.VERBOSE.name()
                 + "-"
                 + String.valueOf(log));
     }
 
     public static void verbose(String format, Object... args) {
-        if (isLoggable(LogLevel.VERBOSE)) XposedBridge.log(TAG_PREFIX
+        if (isLoggable(LogLevel.VERBOSE)) XposedBridge.log(TAG
                 + LogLevel.VERBOSE.name()
                 + "-"
                 + String.format(format, args));
@@ -65,7 +70,7 @@ public abstract class XposedLog {
         if (isLoggable(LogLevel.VERBOSE)) executorService.execute(new Runnable() {
             @Override
             public void run() {
-                XposedBridge.log(TAG_PREFIX
+                XposedBridge.log(TAG
                         + LogLevel.VERBOSE.name()
                         + "-"
                         + String.valueOf(log));
@@ -74,7 +79,7 @@ public abstract class XposedLog {
     }
 
     public static void debug(Object log) {
-        if (isLoggable(LogLevel.DEBUG)) XposedBridge.log(TAG_PREFIX
+        if (isLoggable(LogLevel.DEBUG)) XposedBridge.log(TAG
                 + LogLevel.DEBUG.name()
                 + "-"
                 + String.valueOf(log));
@@ -84,7 +89,7 @@ public abstract class XposedLog {
      * Log anyway, fuck it.
      */
     public static void wtf(Object log) {
-        if (isLoggable(LogLevel.WARN)) XposedBridge.log(TAG_PREFIX
+        if (isLoggable(LogLevel.WARN)) XposedBridge.log(TAG
                 + LogLevel.WARN.name()
                 + "-"
                 + String.valueOf(log));
@@ -92,7 +97,7 @@ public abstract class XposedLog {
 
 
     public static void boot(Object log) {
-        XposedBridge.log(TAG_PREFIX
+        XposedBridge.log(TAG
                 + "BOOT_STAGE"
                 + "-"
                 + String.valueOf(log));

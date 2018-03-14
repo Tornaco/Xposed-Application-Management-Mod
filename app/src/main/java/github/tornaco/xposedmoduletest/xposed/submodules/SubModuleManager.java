@@ -112,7 +112,6 @@ public class SubModuleManager {
         addToSubsChecked(new DeviceIdleControllerSubModule());
         addToSubsChecked(new NotificationManagerServiceSubModule());
 
-        addToSubsChecked(new ActivitySubModule());
         addToSubsChecked(new ToastSubModule());
 
         addToSubsChecked(new ServiceManagerSubModule());
@@ -153,17 +152,22 @@ public class SubModuleManager {
         addToSubsChecked(new PackageParserSubModule());
         addToSubsChecked(new AMSCreateRecentTaskInfoFromTaskRecordSubModule());
 
+        // Submodules for debug purpose.
+        if (BuildConfig.DEBUG) {
+            addToSubsChecked(new ActivitySubModule());
+        }
+
         if (BuildConfig.DEBUG) {
             addToSubsChecked(new ResourceManagerApplyConfigSubModule());
             addToSubsChecked(new ResourceSubModule());
         }
 
-
         if (BuildConfig.DEBUG) {
+            // Dump broadcast details.
             addToSubsChecked(new BroadcastQueueSubModule());
         }
 
-        if (BuildConfig.DEBUG){
+        if (BuildConfig.DEBUG) {
             addToSubsChecked(new ViewTouchEventSubModule());
             addToSubsChecked(new ViewGroupDebugDrawSubModule());
         }

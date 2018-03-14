@@ -99,14 +99,14 @@ class PMSGetInstalledPackagesSubModule extends AndroidSubModule {
                                         AppOpsManagerCompat.OP_READ_INSTALLED_APPS, uid,
                                         true);
                                 if (mode == AppOpsManagerCompat.MODE_IGNORED) {
-                                    Log.d(XposedLog.TAG_PREFIX, "getInstalledApplications, MODE_IGNORED returning empty for :" + uid);
+                                    Log.d(XposedLog.TAG, "getInstalledApplications, MODE_IGNORED returning empty for :" + uid);
                                     try {
                                         // M has no method named empty.
                                         ParceledListSlice<ApplicationInfo> empty = new ParceledListSlice<>(Collections.<ApplicationInfo>emptyList());
                                         param.setResult(empty);
                                     } catch (Exception e) {
                                         param.setResult(null);
-                                        Log.d(XposedLog.TAG_PREFIX, "Fail get empty ParceledListSlice:" + e);
+                                        Log.d(XposedLog.TAG, "Fail get empty ParceledListSlice:" + e);
                                     }
                                 }
                             }

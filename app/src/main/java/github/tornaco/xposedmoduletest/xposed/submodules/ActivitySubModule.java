@@ -2,15 +2,12 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import android.util.Log;
 
-import com.google.common.collect.Sets;
-
 import java.util.Set;
 
 import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
-import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -28,20 +25,6 @@ class ActivitySubModule extends AndroidSubModule {
     @Override
     public int needMinSdk() {
         return super.needMinSdk();
-    }
-
-    @Override
-    public Set<String> getInterestedPackages() {
-        return Sets.newHashSet("*");
-    }
-
-    @Override
-    public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        super.handleLoadingPackage(pkg, lpparam);
-
-        if ("com.coolapk.market".equals(lpparam.packageName)) {
-            XposedLog.danger("LOADING COOLAPK");
-        }
     }
 
     @Override

@@ -174,7 +174,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private static final boolean DEBUG_COMP = false && BuildConfig.DEBUG;
 
     static {
-        DEBUG_BROADCAST = DEBUG_SERVICE = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.DEBUG);
+        boolean isBuildVarDebug = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.DEBUG);
+        DEBUG_BROADCAST = DEBUG_SERVICE = BuildConfig.DEBUG;
         XposedLog.boot("DEBUG_BROADCAST & DEBUG_SERVICE: " + DEBUG_BROADCAST);
     }
 
@@ -305,7 +306,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
                 try {
                     int userHandler = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, -1);
-                    XposedLog.verbose(XposedLog.TAG_USER + "User changed: " + userHandler);
+                    XposedLog.verbose(XposedLog.PREFIX_USER + "User changed: " + userHandler);
                 } catch (Throwable e) {
                     XposedLog.wtf(e);
                 }
@@ -963,14 +964,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             public void run() {
 
                 if (!isDozeSupported()) {
-                    XposedLog.verbose(XposedLog.TAG_DOZE + "mDozeStepper execute but doze not supported");
+                    XposedLog.verbose(XposedLog.PREFIX_DOZE + "mDozeStepper execute but doze not supported");
                     return;
                 }
 
-                XposedLog.verbose(XposedLog.TAG_DOZE + "mDozeStepper execute delay: " + mDozeDelay);
+                XposedLog.verbose(XposedLog.PREFIX_DOZE + "mDozeStepper execute delay: " + mDozeDelay);
 
                 if (mDeviceIdleController == null) {
-                    XposedLog.wtf(XposedLog.TAG_DOZE
+                    XposedLog.wtf(XposedLog.PREFIX_DOZE
                             + "Calling postEnterIdleMode with mDeviceIdleController is null");
                     return;
                 }
@@ -994,7 +995,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 while (curState != DeviceIdleControllerProxy.STATE_IDLE) {
 
                     if (enterDozeTryingTimes.get() > MAX_RETRY_TIME_TO_SIZE) {
-                        XposedLog.wtf(XposedLog.TAG_DOZE + "Fail enter doze mode after trying max times");
+                        XposedLog.wtf(XposedLog.PREFIX_DOZE + "Fail enter doze mode after trying max times");
                         // Post doze message again.
                         postEnterIdleMode(mDozeDelay);
 
@@ -1041,10 +1042,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
                     curState = mDeviceIdleController.getState();
 
-                    XposedLog.verbose(XposedLog.TAG_DOZE + "Step idle @" + time + ", state " + curState);
+                    XposedLog.verbose(XposedLog.PREFIX_DOZE + "Step idle @" + time + ", state " + curState);
                 }
 
-                XposedLog.debug(XposedLog.TAG_DOZE + "We are in doze mode!");
+                XposedLog.debug(XposedLog.PREFIX_DOZE + "We are in doze mode!");
 
                 // Cancel any pending post.
                 cancelEnterIdleModePosts("Doze success");
@@ -1104,7 +1105,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void enterIdleMode() {
             int preCheckCode = isDeviceStateReadyToDoze();
             if (preCheckCode != DozeEvent.FAIL_NOOP) {
-                XposedLog.wtf(XposedLog.TAG_DOZE + "Device not ready!!!");
+                XposedLog.wtf(XposedLog.PREFIX_DOZE + "Device not ready!!!");
                 // Add to events.
                 onDozeEnterFail(preCheckCode);
                 return;
@@ -1112,7 +1113,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             boolean alreadyPost = hasCallbacks(mDozeStepperErrorCatch);
             if (alreadyPost) {
-                XposedLog.wtf(XposedLog.TAG_DOZE + "Already post mDozeStepperErrorCatch!!!");
+                XposedLog.wtf(XposedLog.PREFIX_DOZE + "Already post mDozeStepperErrorCatch!!!");
                 return;
             }
 
@@ -1122,14 +1123,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         @Override
         public void stepIdleStateLocked() {
             if (mDeviceIdleController == null) {
-                XposedLog.wtf(XposedLog.TAG_DOZE + "Calling postEnterIdleMode with mDeviceIdleController is null");
+                XposedLog.wtf(XposedLog.PREFIX_DOZE + "Calling postEnterIdleMode with mDeviceIdleController is null");
                 return;
             }
 
             mDeviceIdleController.stepIdleStateLocked();
 
             if (XposedLog.isVerboseLoggable()) {
-                XposedLog.verbose(XposedLog.TAG_DOZE + "stepIdleStateLocked");
+                XposedLog.verbose(XposedLog.PREFIX_DOZE + "stepIdleStateLocked");
                 int state = mDeviceIdleController.getState();
                 XposedLog.verbose("state: " + DeviceIdleControllerProxy.stateToString(state));
             }
@@ -1138,14 +1139,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         @Override
         public void onScreenOff() {
             if (!hasDozeFeature()) {
-                XposedLog.verbose(XposedLog.TAG_DOZE + "onScreenOff, no doze feature on this build");
+                XposedLog.verbose(XposedLog.PREFIX_DOZE + "onScreenOff, no doze feature on this build");
                 return;
             }
             boolean isDozeEnabled = isDozeEnabled();
             if (isDozeEnabled) {
                 postEnterIdleMode(mDozeDelay);
             } else {
-                XposedLog.verbose(XposedLog.TAG_DOZE + "onScreenOff, doze is not enabled");
+                XposedLog.verbose(XposedLog.PREFIX_DOZE + "onScreenOff, doze is not enabled");
             }
         }
 
@@ -1183,7 +1184,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         @Override
         public void updateDozeEndState() {
             boolean isIdleMode = DozeStateRetriever.isDeviceIdleMode(getContext());
-            XposedLog.verbose(XposedLog.TAG_DOZE + "updateDozeEndState, isDeviceIdleMode: " + isIdleMode);
+            XposedLog.verbose(XposedLog.PREFIX_DOZE + "updateDozeEndState, isDeviceIdleMode: " + isIdleMode);
             if (!isIdleMode) {
                 synchronized (mDozeLock) {
                     DozeEvent de = mLastDozeEvent;
@@ -1450,7 +1451,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     // Go to doze mode.
     private void postEnterIdleMode(long delay) {
-        XposedLog.verbose(XposedLog.TAG_DOZE + "postEnterIdleMode");
+        XposedLog.verbose(XposedLog.PREFIX_DOZE + "postEnterIdleMode");
 
         // Check again, maybe called by doze stepper.
         boolean isDozeEnabled = isDozeEnabled();
@@ -1462,21 +1463,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (mDozeHandler != null) {
             mDozeHandler.sendEmptyMessageDelayed(DozeHandlerMessages.MSG_ENTERIDLEMODE, delay);
         } else {
-            XposedLog.wtf(XposedLog.TAG_DOZE + "postEnterIdleMode while handler is null");
+            XposedLog.wtf(XposedLog.PREFIX_DOZE + "postEnterIdleMode while handler is null");
         }
     }
 
     private void cancelEnterIdleModePosts(String reason) {
-        XposedLog.verbose(XposedLog.TAG_DOZE + "cancelEnterIdleModePosts: " + reason);
+        XposedLog.verbose(XposedLog.PREFIX_DOZE + "cancelEnterIdleModePosts: " + reason);
         if (mDozeHandler != null) {
             mDozeHandler.removeMessages(DozeHandlerMessages.MSG_ENTERIDLEMODE);
         } else {
-            XposedLog.wtf(XposedLog.TAG_DOZE + "cancelEnterIdleModePosts while handler is null");
+            XposedLog.wtf(XposedLog.PREFIX_DOZE + "cancelEnterIdleModePosts while handler is null");
         }
 
         if (XposedLog.isVerboseLoggable()) {
             boolean isIdleMode = DozeStateRetriever.isDeviceIdleMode(getContext());
-            XposedLog.verbose(XposedLog.TAG_DOZE + "cancelEnterIdleModePosts, isDeviceIdleMode: " + isIdleMode);
+            XposedLog.verbose(XposedLog.PREFIX_DOZE + "cancelEnterIdleModePosts, isDeviceIdleMode: " + isIdleMode);
         }
     }
 
@@ -1616,10 +1617,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (DEBUG_SERVICE) {
             if (XposedLog.isVerboseLoggable()) {
-                XposedLog.verboseOn("checkService returning: " + res + "for: " +
-                                PkgUtil.loadNameByPkgName(getContext(), appPkg)
+                XposedLog.verboseOn(
+                        XposedLog.PREFIX_SERVICE + "checkService returning: " + res
+                                + "target: " + appPkg
                                 + ", comp: " + serviceComp
-                                + ", caller: " + PkgUtil.pkgForUid(getContext(), callerUid),
+                                + ", caller: " + callerUid,
                         mLoggingService);
             }
         }
@@ -1711,7 +1713,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.SYSTEM_APP;
         }
 
-
         if (PkgUtil.justBringDown(servicePkgName)) {
             return CheckResult.JUST_BRING_DOWN;
         }
@@ -1729,12 +1730,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         boolean isLazy = isLazyModeEnabled()
                 && isPackageLazyByUser(servicePkgName);
         if (isLazy && !servicePkgName.equals(mTopPackageImd.getData())) {
-
-            if (PkgUtil.isSystemOrPhoneOrShell(callerUid)) {
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.wtf("This is called by system, dangerous blocking!!!");
-            }
-
             return CheckResult.DENIED_LAZY;
         }
 
@@ -1746,12 +1741,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         boolean isGreeningApp = isGreeningEnabled()
                 && isPackageGreeningByUser(servicePkgName);
         if (isGreeningApp) {
-
-            if (PkgUtil.isSystemOrPhoneOrShell(callerUid)) {
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.wtf("This is called by system, dangerous blocking!!!");
-            }
-
             return CheckResult.DENIED_GREEN_APP;
         }
 
@@ -1781,15 +1770,36 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         // First check the user rules.
+        CheckResult ruleCheckRes = getStartCheckResultInRules(callerUid, servicePkgName);
+        if (ruleCheckRes != null) {
+            return ruleCheckRes;
+        }
+
+        // If this app is not in good condition, and user choose to block:
+        boolean blockedByUser = isPackageStartBlockByUser(servicePkgName);
+        // User block!!!
+        if (blockedByUser) {
+            return CheckResult.USER_DENIED;
+        }
+
+        // By default, we allow.
+        return CheckResult.ALLOWED_GENERAL;
+    }
+
+    private CheckResult getStartCheckResultInRules(int callerUid, String targetPackage) {
+        String callerIdentify = PkgUtil.pkgForUid(getContext(), callerUid);
+        return getStartCheckResultInRules(callerIdentify, targetPackage);
+    }
+
+    private CheckResult getStartCheckResultInRules(String caller, String targetPackage) {
+        if (caller == null || targetPackage == null) return null;
         XStopWatch stopWatch = null;
         if (BuildConfig.DEBUG) {
             stopWatch = XStopWatch.start("SERVICE START RULE CHECK");
         }
-
         try {
-            String callerPackageName = PkgUtil.pkgForUid(getContext(), callerUid);
-            if (callerPackageName != null) {
-                String[] patternAllow = constructStartAllowedRulePattern(callerPackageName, servicePkgName);
+            if (caller != null) {
+                String[] patternAllow = constructStartAllowedRulePattern(caller, targetPackage);
                 boolean isThisCallerAllowedInRule = RepoProxy.getProxy().getStart_rules().has(patternAllow);
                 if (BuildConfig.DEBUG) {
                     XposedLog.verbose("check service patternAllow: " + Arrays.toString(patternAllow) + ", has rule: " + isThisCallerAllowedInRule);
@@ -1798,7 +1808,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     return CheckResult.ALLOWED_IN_RULE;
                 }
 
-                String[] patternDeny = constructStartDenyRulePattern(callerPackageName, servicePkgName);
+                String[] patternDeny = constructStartDenyRulePattern(caller, targetPackage);
                 boolean isThisCallerDeniedInRule = RepoProxy.getProxy().getStart_rules().has(patternDeny);
                 if (BuildConfig.DEBUG) {
                     XposedLog.verbose("check service patternDeny: " + Arrays.toString(patternDeny) + ", has rule: " + isThisCallerDeniedInRule);
@@ -1814,22 +1824,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 }
             }
         }
-
-        // If this app is not in good condition, and user choose to block:
-        boolean blockedByUser = isPackageStartBlockByUser(servicePkgName);
-        // User block!!!
-        if (blockedByUser) {
-
-            if (PkgUtil.isSystemOrPhoneOrShell(callerUid)) {
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.wtf("This is called by system, dangerous blocking!!!");
-            }
-
-            return CheckResult.USER_DENIED;
-        }
-
-        // By default, we allow.
-        return CheckResult.ALLOWED_GENERAL;
+        return null;
     }
 
     // Rule caches.
@@ -1909,7 +1904,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (DEBUG_BROADCAST) {
             if (XposedLog.isVerboseLoggable()) {
-                XposedLog.verboseOn("checkBroadcast returning: "
+                XposedLog.verboseOn(
+                        XposedLog.PREFIX_BROADCAST + "checkBroadcast returning: "
                                 + res + " for: "
                                 + PkgUtil.pkgForUid(getContext(), receiverUid)
                                 + " receiverUid: " + receiverUid
@@ -2744,7 +2740,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.SAME_CALLER;
         }
 
-        // FIXME Too slow.
         String receiverPkgName = PkgUtil.pkgForUid(getContext(), receiverUid);
         if (TextUtils.isEmpty(receiverPkgName)) return CheckResult.BAD_ARGS;
 
@@ -2788,37 +2783,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         // First check the user rules.
-        XStopWatch stopWatch = null;
-        if (BuildConfig.DEBUG) {
-            stopWatch = XStopWatch.start("BROADCAST START RULE CHECK");
-        }
-
-        try {
-            if (callerPackageName != null && receiverPkgName != null) {
-                String[] patternAllow = constructStartAllowedRulePattern(callerPackageName, receiverPkgName);
-                boolean isThisCallerAllowedInRule = RepoProxy.getProxy().getStart_rules().has(patternAllow);
-                if (BuildConfig.DEBUG) {
-                    XposedLog.verbose("check broadcast patternAllow: " + Arrays.toString(patternAllow) + ", has rule: " + isThisCallerAllowedInRule);
-                }
-                if (isThisCallerAllowedInRule) {
-                    return CheckResult.ALLOWED_IN_RULE;
-                }
-
-                String[] patternDeny = constructStartDenyRulePattern(callerPackageName, receiverPkgName);
-                boolean isThisCallerDeniedInRule = RepoProxy.getProxy().getStart_rules().has(patternDeny);
-                if (BuildConfig.DEBUG) {
-                    XposedLog.verbose("check broadcast patternDeny: " + Arrays.toString(patternDeny) + ", has rule: " + isThisCallerDeniedInRule);
-                }
-                if (isThisCallerDeniedInRule) {
-                    return CheckResult.DENIED_IN_RULE;
-                }
-            }
-        } finally {
-            if (BuildConfig.DEBUG) {
-                if (stopWatch != null) {
-                    stopWatch.stop();
-                }
-            }
+        CheckResult ruleCheckRes = getStartCheckResultInRules(callerPackageName, receiverPkgName);
+        if (ruleCheckRes != null) {
+            return ruleCheckRes;
         }
 
         // It is in user black list.
@@ -5213,7 +5180,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     String raw = c.flattenToString();
                     mFloatView.setText(raw);
                 } catch (Throwable ignored) {
-                    Log.e(XposedLog.TAG_PREFIX, "toastRunnable: " + Log.getStackTraceString(ignored));
+                    Log.e(XposedLog.TAG, "toastRunnable: " + Log.getStackTraceString(ignored));
                 }
             }
         }
@@ -6837,7 +6804,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             String currentPkg = getTopPackage();
 
             if (BuildConfig.DEBUG) {
-                XposedLog.verbose(XposedLog.TAG_KEY + "onKeyEvent: %s %s, current package: %s",
+                XposedLog.verbose(XposedLog.PREFIX_KEY + "onKeyEvent: %s %s, current package: %s",
                         keyCode,
                         action,
                         currentPkg);
@@ -6962,7 +6929,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         @Override
         public void maybeBackLongPressed(String targetPackage) {
-            XposedLog.verbose(XposedLog.TAG_KEY + "maybeBackLongPressed: " + targetPackage);
+            XposedLog.verbose(XposedLog.PREFIX_KEY + "maybeBackLongPressed: " + targetPackage);
 
             if (isInWhiteList(targetPackage)) {
                 return;
@@ -6971,7 +6938,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             // Check if long press kill is enabled.
             boolean enabled = isLPBKEnabled();
             if (!enabled) {
-                XposedLog.verbose(XposedLog.TAG_KEY + "maybeBackLongPressed not enabled");
+                XposedLog.verbose(XposedLog.PREFIX_KEY + "maybeBackLongPressed not enabled");
                 return;
             }
 
@@ -6984,7 +6951,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             boolean mayBeKillThisPackage = getTopPackage() != null && getTopPackage().equals(targetPackage);
             if (mayBeKillThisPackage) {
-                XposedLog.verbose(XposedLog.TAG_KEY + "mayBeKillThisPackage after long back: " + targetPackage);
+                XposedLog.verbose(XposedLog.PREFIX_KEY + "mayBeKillThisPackage after long back: " + targetPackage);
                 PkgUtil.kill(getContext(), targetPackage);
             }
         }
@@ -6999,17 +6966,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         private void onBackPressed(final String packageName) {
-            XposedLog.verbose(XposedLog.TAG_KEY + "onBackPressed: " + packageName);
+            XposedLog.verbose(XposedLog.PREFIX_KEY + "onBackPressed: " + packageName);
 
             if (packageName == null) return;
 
             if (!isRFKillEnabled()) {
-                XposedLog.verbose(XposedLog.TAG_KEY + "PackageRFKill not enabled for all package");
+                XposedLog.verbose(XposedLog.PREFIX_KEY + "PackageRFKill not enabled for all package");
                 return;
             }
 
             if (!shouldRFKPackage(packageName)) {
-                XposedLog.verbose(XposedLog.TAG_KEY + "PackageRFKill not enabled for this package");
+                XposedLog.verbose(XposedLog.PREFIX_KEY + "PackageRFKill not enabled for this package");
                 return;
             }
 
@@ -7020,10 +6987,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     @Override
                     public void run() {
                         try {
-                            XposedLog.verbose(XposedLog.TAG_KEY + "Killing killPackageWhenBackPressed: " + packageName);
+                            XposedLog.verbose(XposedLog.PREFIX_KEY + "Killing killPackageWhenBackPressed: " + packageName);
 
                             if (packageName.equals(getTopPackage())) {
-                                XposedLog.verbose(XposedLog.TAG_KEY + "Top package is now him, let it go~");
+                                XposedLog.verbose(XposedLog.PREFIX_KEY + "Top package is now him, let it go~");
                                 return;
                             }
 
@@ -7037,7 +7004,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
                             PkgUtil.kill(getContext(), packageName);
                         } catch (Throwable e) {
-                            XposedLog.wtf(XposedLog.TAG_KEY + "Fail rf kill in runnable: " + Log.getStackTraceString(e));
+                            XposedLog.wtf(XposedLog.PREFIX_KEY + "Fail rf kill in runnable: " + Log.getStackTraceString(e));
                         }
                     }
                 }, "killPackageWhenBackPressed"), 666);
