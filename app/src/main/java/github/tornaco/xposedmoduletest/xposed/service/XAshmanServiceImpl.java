@@ -123,6 +123,9 @@ import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.repo.SetRepo;
 import github.tornaco.xposedmoduletest.xposed.repo.SettingsProvider;
+import github.tornaco.xposedmoduletest.xposed.service.am.AppIdler;
+import github.tornaco.xposedmoduletest.xposed.service.am.InactiveAppIdler;
+import github.tornaco.xposedmoduletest.xposed.service.am.KillAppIdler;
 import github.tornaco.xposedmoduletest.xposed.service.bandwidth.BandwidthCommandCompat;
 import github.tornaco.xposedmoduletest.xposed.service.doze.BatterState;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
@@ -263,6 +266,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private boolean mIsSafeMode = false;
 
     private boolean mIsSystemReady = false;
+
+    // App idler.
+    private AppIdler mKillIdler, mInactiveIdler;
+    private AppIdler mDummyIdler = new AppIdler() {
+        @Override
+        public void setAppIdle(String pkg) {
+            XposedLog.wtf("I am a dummy idler, please file a bug!!!!!!!!");
+        }
+    };
 
     private BroadcastReceiver mBatteryStateReceiver =
             new ProtectedBroadcastReceiver(new BroadcastReceiver() {
@@ -3945,7 +3957,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     @Override
                     public void run() {
                         XposedLog.verbose("removeTask, killing: " + finalPkgOfThisTask);
-                        PkgUtil.kill(getContext(), finalPkgOfThisTask);
+                        getAppIdler().setAppIdle(finalPkgOfThisTask);
                     }
                 }, "removeTask-kill"), 888); // FIXME why 888?
             }
@@ -5095,6 +5107,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         mTopPackageListenerCallbacks = new RemoteCallbackList<>();
+
+        if (getContext() != null) {
+            mKillIdler = new KillAppIdler(getContext());
+            mInactiveIdler = new InactiveAppIdler(getContext());
+        }
+    }
+
+    private AppIdler getAppIdler() {
+        if (mKillIdler == null && mInactiveIdler == null) {
+            return mDummyIdler;
+        }
+        return mKillIdler;
     }
 
     protected Handler onCreateServiceHandler() {
@@ -6345,7 +6369,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             return cleared;
                         }
 
-                        PkgUtil.kill(getContext(), runningPackageName);
+                        getAppIdler().setAppIdle(runningPackageName);
 
                         cleared[i] = runningPackageName;
 
@@ -6657,7 +6681,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 return;
                             }
 
-                            PkgUtil.kill(getContext(), packageName);
+                            getAppIdler().setAppIdle(packageName);
                         } catch (Throwable e) {
                             XposedLog.wtf("Fail rf kill in runnable: " + Log.getStackTraceString(e));
                         }
@@ -6952,7 +6976,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             boolean mayBeKillThisPackage = getTopPackage() != null && getTopPackage().equals(targetPackage);
             if (mayBeKillThisPackage) {
                 XposedLog.verbose(XposedLog.PREFIX_KEY + "mayBeKillThisPackage after long back: " + targetPackage);
-                PkgUtil.kill(getContext(), targetPackage);
+                getAppIdler().setAppIdle(targetPackage);
             }
         }
 
@@ -7002,7 +7026,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 //                                return;
 //                            }
 
-                            PkgUtil.kill(getContext(), packageName);
+                            getAppIdler().setAppIdle(packageName);
                         } catch (Throwable e) {
                             XposedLog.wtf(XposedLog.PREFIX_KEY + "Fail rf kill in runnable: " + Log.getStackTraceString(e));
                         }
