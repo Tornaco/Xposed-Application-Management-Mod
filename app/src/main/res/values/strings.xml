@@ -418,7 +418,7 @@
     <string name="loading_res_empty">空空如也，如果是系统应用无法读取，请确保 通用设置-排除系统应用 开关已经关闭</string>
     <string name="title_app_ops_tip">使用须知</string>
     <string name="message_app_ops_tip">为了尽可能降低本应用对系统的影响，权限管理设定值将不会与系统自带APPOPS服务设定值一致，当某个权限被申请时，如果在应用管理这里被拒绝，那么此次权限申请会被拒绝，如果在应用管理这里被允许，系统会继续检查OPS服务设定（4.4以上自带的默认权限管理）。当你清除本应用数据时，权限管理设定不会有遗留问题。</string>
-    <string name="title_uninstall_apm">卸载</string>
+    <string name="title_uninstall_apm">立即卸载</string>
     <string name="message_uninstall_apm">卸载本应用，同时帮你清除所有残留数据。</string>
     <string name="filter_all_op">全部</string>
     <string name="filter_ext_op">拓展</string>
@@ -522,5 +522,22 @@
     <string name="title_bottom_nav_no_shift">Remove shift</string>
     <string name="summary_bottom_nav_no_shift">强制移除底部上升效果</string>
     <string name="title_user_tools">用户工具</string>
+    <string name="suggestion_turn_off_debug_mode">关闭调试模式</string>
+    <string name="suggestions_default">建议</string>
+    <string name="suggestion_summary_turn_off_debug_mode">减少不必要的日志输出，节省系统资源占用。</string>
+    <string name="suggestion_action_turn_off_debug_mode">立即关闭</string>
+    <string name="suggestion_turn_on_power_save">打开节电模式</string>
+    <string name="suggestion_summary_turn_on_power_save">降低应用管理对系统资源消耗，节省电量。</string>
+    <string name="suggestion_action_turn_on_power_save">立即开启</string>
+    <string name="suggestion_active">激活应用管理模块</string>
+    <string name="suggestion_summary_active">没时间解释了，快上车。</string>
+    <string name="suggestion_action_active">现在激活</string>
+    <string name="fail_launch_xposed_installer">无法启动Xposed installer，请手动执行该操作。</string>
+    <string name="suggestion_user_guide">阅读使用手册</string>
+    <string name="suggestion_summary_user_guide">请仔细阅读用户使用手册，防止在使用过程中遇到问题而不知如何解决。</string>
+    <string name="suggestion_action_user_guide">现在阅读</string>
+    <string name="suggestion_donate">喜欢的话来一次捐赠吧</string>
+    <string name="suggestion_summary_donate">支持开发者更加努力的进行改进，解锁更多功能%s。</string>
+    <string name="suggestion_action_donate">我要捐赠</string>
 
 </resources>

@@ -16,7 +16,9 @@ import android.support.annotation.StringRes;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -30,13 +32,16 @@ import android.widget.Toast;
 
 import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.jaredrummler.android.shell.Shell;
 import com.nononsenseapps.filepicker.FilePickerActivity;
 import com.nononsenseapps.filepicker.Utils;
+import com.thoughtbot.expandablerecyclerview.models.ExpandableGroup;
 
 import org.newstand.logger.Logger;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import dev.nick.eventbus.Event;
@@ -48,6 +53,8 @@ import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.backup.DataBackup;
+import github.tornaco.xposedmoduletest.bean.Suggestion;
+import github.tornaco.xposedmoduletest.bean.Suggestions;
 import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.license.DeveloperMessage;
 import github.tornaco.xposedmoduletest.license.DeveloperMessages;
@@ -58,6 +65,7 @@ import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.activity.helper.RunningServicesActivity;
 import github.tornaco.xposedmoduletest.ui.activity.stub.ClearStubActivity;
 import github.tornaco.xposedmoduletest.ui.activity.stub.LockScreenStubActivity;
+import github.tornaco.xposedmoduletest.ui.adapter.suggest.SuggestionsAdapter;
 import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
 import github.tornaco.xposedmoduletest.ui.tiles.AppStart;
@@ -103,6 +111,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.WhiteSystemApp;
 import github.tornaco.xposedmoduletest.ui.widget.BottomNavigationViewHelper;
 import github.tornaco.xposedmoduletest.ui.widget.EmojiViewUtil;
 import github.tornaco.xposedmoduletest.ui.widget.ToastManager;
+import github.tornaco.xposedmoduletest.util.EmojiUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.XApp;
@@ -688,6 +697,131 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
             }
 
             setupDeviceStatus();
+
+            buildSuggestions();
+        }
+
+        private SuggestionsAdapter mSuggestionsAdapter;
+
+        private void buildSuggestions() {
+            List<Suggestion> suggestionList = new ArrayList<>();
+
+            // Guide
+            if (!AppSettings.isGuideRead(getActivity())) {
+                Suggestion suggestion = new Suggestion(
+                        getString(R.string.suggestion_user_guide),
+                        getString(R.string.suggestion_summary_user_guide),
+                        getString(R.string.suggestion_action_user_guide),
+                        R.drawable.ic_book_black_24dp,
+                        new SuggestionsAdapter.OnExpandableGroupActionClickListener() {
+                            @Override
+                            public boolean onActionClick(ExpandableGroup group, int flatPosition, int childIndex) {
+                                WithWithCustomTabActivity customTabActivity = (WithWithCustomTabActivity) getActivity();
+                                if (customTabActivity != null) {
+                                    customTabActivity.navigateToWebPage(getString(R.string.app_wiki_url));
+                                    if (!BuildConfig.DEBUG) {
+                                        AppSettings.setGuideRead(getContext(), true);  // Keep this for debug.
+                                    }
+                                }
+                                // Keep this for debug.
+                                return !BuildConfig.DEBUG;
+                            }
+                        });
+                suggestionList.add(suggestion);
+            }
+
+            // Active!
+            if (!XAshmanManager.get().isServiceAvailable()) {
+                Suggestion suggestion = new Suggestion(
+                        getString(R.string.suggestion_active),
+                        getString(R.string.suggestion_summary_active),
+                        getString(R.string.suggestion_action_active),
+                        R.drawable.ic_extension_black_24dp,
+                        new SuggestionsAdapter.OnExpandableGroupActionClickListener() {
+                            @Override
+                            public boolean onActionClick(ExpandableGroup group, int flatPosition, int childIndex) {
+                                try {
+                                    Intent xposedIntent = new Intent();
+                                    xposedIntent.setClassName("de.robv.android.xposed.installer", "de.robv.android.xposed.installer.WelcomeActivity");
+                                    xposedIntent.setPackage("de.robv.android.xposed.installer");
+                                    xposedIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(xposedIntent);
+                                } catch (Throwable e) {
+                                    Toast.makeText(getActivity(), R.string.fail_launch_xposed_installer, Toast.LENGTH_LONG).show();
+                                }
+                                return false;
+                            }
+                        });
+                suggestionList.add(suggestion);
+            }
+
+            // Donate
+            boolean isPlayVersion = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.PLAY);
+            if (!isPlayVersion && XAshmanManager.get().isServiceAvailable() && !AppSettings.isDonated(getActivity())) {
+                Suggestion suggestion = new Suggestion(
+                        getString(R.string.suggestion_donate),
+                        getString(R.string.suggestion_summary_donate,
+                                EmojiUtil.contactEmojiByUnicode(
+                                        EmojiUtil.DOG,
+                                        EmojiUtil.DOG,
+                                        EmojiUtil.DOG)),
+                        getString(R.string.suggestion_action_donate),
+                        R.drawable.ic_payment_black_24dp,
+                        new SuggestionsAdapter.OnExpandableGroupActionClickListener() {
+                            @Override
+                            public boolean onActionClick(ExpandableGroup group, int flatPosition, int childIndex) {
+                                DonateActivity.start(getActivity());
+                                return false;
+                            }
+                        });
+                suggestionList.add(suggestion);
+            }
+
+            // Debug mode.
+            if (XAppGuardManager.get().isServiceAvailable() && XAppGuardManager.get().isDebug()) {
+                Suggestion suggestion = new Suggestion(
+                        getString(R.string.suggestion_turn_off_debug_mode),
+                        getString(R.string.suggestion_summary_turn_off_debug_mode),
+                        getString(R.string.suggestion_action_turn_off_debug_mode),
+                        R.drawable.ic_developer_mode_black_24dp,
+                        new SuggestionsAdapter.OnExpandableGroupActionClickListener() {
+                            @Override
+                            public boolean onActionClick(ExpandableGroup group, int flatPosition, int childIndex) {
+                                XAppGuardManager.get().setDebug(false);
+                                return true;
+                            }
+                        });
+                suggestionList.add(suggestion);
+            }
+
+            // Power save.
+            if (XAshmanManager.get().isServiceAvailable() && !XAshmanManager.get().isPowerSaveModeEnabled()) {
+                Suggestion suggestion = new Suggestion(
+                        getString(R.string.suggestion_turn_on_power_save),
+                        getString(R.string.suggestion_summary_turn_on_power_save),
+                        getString(R.string.suggestion_action_turn_on_power_save),
+                        R.drawable.ic_power_black_24dp,
+                        new SuggestionsAdapter.OnExpandableGroupActionClickListener() {
+                            @Override
+                            public boolean onActionClick(ExpandableGroup group, int flatPosition, int childIndex) {
+                                XAshmanManager.get().setPowerSaveModeEnabled(true);
+                                return true;
+                            }
+                        });
+                suggestionList.add(suggestion);
+            }
+
+            RecyclerView recyclerView = rootView.findViewById(R.id.suggestion_recycler_view);
+            if (suggestionList.size() > 0) {
+                recyclerView.setVisibility(View.VISIBLE);
+                Suggestions suggestions = new Suggestions(getString(R.string.suggestions_default), suggestionList);
+                mSuggestionsAdapter = new SuggestionsAdapter(getActivity(), Lists.newArrayList(suggestions));
+                LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+                recyclerView.setLayoutManager(layoutManager);
+                recyclerView.setAdapter(mSuggestionsAdapter);
+            } else {
+                recyclerView.setVisibility(View.GONE);
+            }
         }
 
         private void onRequestUninstalledAPM() {

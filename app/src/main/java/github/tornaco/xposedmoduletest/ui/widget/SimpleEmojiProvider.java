@@ -24,7 +24,8 @@ public class SimpleEmojiProvider implements EmojiProvider {
                     @Override
                     public Emoji[] getEmojis() {
                         return new Emoji[]{
-                                new Emoji(EmojiUtil.HAPPY, R.drawable.smile)
+                                new Emoji(EmojiUtil.HAPPY, R.drawable.smile),
+                                new Emoji(EmojiUtil.DOG, R.drawable.d_doge),
                         };
                     }
 

@@ -18,6 +18,7 @@ import android.support.v4.os.CancellationSignal;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -207,16 +208,16 @@ public class VerifyDisplayerActivity extends BaseActivity {
                             public void onMatch() {
                                 patternLockView.setViewMode(PatternLockView.PatternViewMode.CORRECT);
                                 patternLockView.clearPattern();
-
                                 onPass();
                             }
 
                             @Override
                             public void onMisMatch() {
+                                patternLockView.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.shake));
                                 patternLockView.setViewMode(PatternLockView.PatternViewMode.WRONG);
-                                patternLockView.clearPattern();
                                 takePhoto();
                                 setupLabel(getString(R.string.title_wrong_pwd));
+                                patternLockView.clearPattern();
                             }
                         });
             }

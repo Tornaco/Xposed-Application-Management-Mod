@@ -44,10 +44,9 @@
             android:exported="true"
             android:label="@string/title_default_verifyer"
             android:screenOrientation="portrait"
-            android:theme="@style/AppThemeLight.NoActionBar">
+            android:theme="@style/AppThemeSplash">
             <intent-filter>
                 <action android:name="github.tornaco.xpose.app.guard.action.verify.displayer" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
