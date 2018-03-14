@@ -69,4 +69,14 @@ public class EmojiUtil {
     public static String getEmojiByUnicode(int unicode) {
         return new String(Character.toChars(unicode));
     }
+
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    public static String contactEmojiByUnicode(int... unicode) {
+        StringBuilder emojiSB = new StringBuilder();
+        for (int c : unicode) {
+            emojiSB.append(getEmojiByUnicode(c));
+        }
+        return emojiSB.toString();
+    }
 }

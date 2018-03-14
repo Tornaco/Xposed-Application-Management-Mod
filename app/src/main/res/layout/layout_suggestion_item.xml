@@ -42,7 +42,7 @@
                 android:textAppearance="@style/TextAppearance.TileTitle"
                 android:textColor="@color/white" />
 
-            <TextView
+            <com.vanniktech.emoji.EmojiTextView
                 android:id="@+id/summary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

@@ -20,6 +20,11 @@ import github.tornaco.xposedmoduletest.util.AliPayUtil;
 
 public class DonateActivity extends BaseActivity implements SwitchBar.OnSwitchChangeListener {
 
+    public static void start(Context context) {
+        Intent starter = new Intent(context, DonateActivity.class);
+        context.startActivity(starter);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -536,5 +536,8 @@
     <string name="suggestion_user_guide">阅读使用手册</string>
     <string name="suggestion_summary_user_guide">请仔细阅读用户使用手册，防止在使用过程中遇到问题而不知如何解决。</string>
     <string name="suggestion_action_user_guide">现在阅读</string>
+    <string name="suggestion_donate">喜欢的话来一次捐赠吧</string>
+    <string name="suggestion_summary_donate">支持开发者更加努力的进行改进，解锁更多功能%s。</string>
+    <string name="suggestion_action_donate">我要捐赠</string>
 
 </resources>

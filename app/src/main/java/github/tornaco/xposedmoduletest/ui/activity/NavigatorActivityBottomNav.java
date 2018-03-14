@@ -111,6 +111,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.WhiteSystemApp;
 import github.tornaco.xposedmoduletest.ui.widget.BottomNavigationViewHelper;
 import github.tornaco.xposedmoduletest.ui.widget.EmojiViewUtil;
 import github.tornaco.xposedmoduletest.ui.widget.ToastManager;
+import github.tornaco.xposedmoduletest.util.EmojiUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.XApp;
@@ -612,7 +613,6 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
             super.onActivityResume();
             setupView();
             buildUI(getActivity());
-            buildSuggestions();
         }
 
         @Override
@@ -749,6 +749,28 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
                                 } catch (Throwable e) {
                                     Toast.makeText(getActivity(), R.string.fail_launch_xposed_installer, Toast.LENGTH_LONG).show();
                                 }
+                                return false;
+                            }
+                        });
+                suggestionList.add(suggestion);
+            }
+
+            // Donate
+            boolean isPlayVersion = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.PLAY);
+            if (!isPlayVersion && XAshmanManager.get().isServiceAvailable() && !AppSettings.isDonated(getActivity())) {
+                Suggestion suggestion = new Suggestion(
+                        getString(R.string.suggestion_donate),
+                        getString(R.string.suggestion_summary_donate,
+                                EmojiUtil.contactEmojiByUnicode(
+                                        EmojiUtil.DOG,
+                                        EmojiUtil.DOG,
+                                        EmojiUtil.DOG)),
+                        getString(R.string.suggestion_action_donate),
+                        R.drawable.ic_payment_black_24dp,
+                        new SuggestionsAdapter.OnExpandableGroupActionClickListener() {
+                            @Override
+                            public boolean onActionClick(ExpandableGroup group, int flatPosition, int childIndex) {
+                                DonateActivity.start(getActivity());
                                 return false;
                             }
                         });
