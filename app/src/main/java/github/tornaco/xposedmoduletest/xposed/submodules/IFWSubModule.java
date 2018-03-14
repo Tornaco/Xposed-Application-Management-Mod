@@ -38,7 +38,7 @@ public class IFWSubModule extends AndroidSubModule {
                             if (false && BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
                                 try {
                                     Intent intent = (Intent) param.args[1];
-                                    Log.d(XposedLog.TAG_PREFIX,
+                                    Log.d(XposedLog.TAG,
                                             "checkService@ intent: " + intent + "extra: " + intent.getExtras()
                                                     + ObjectToStringUtil.intentToString(intent));
                                 } catch (Exception ignored) {
@@ -65,7 +65,7 @@ public class IFWSubModule extends AndroidSubModule {
 
                     if (false && BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
                         try {
-                            Log.d(XposedLog.TAG_PREFIX,
+                            Log.d(XposedLog.TAG,
                                     "checkService@ intent: " + intent + "extra: " + intent.getExtras()
                                             + ObjectToStringUtil.intentToString(intent));
                         } catch (Exception ignored) {

@@ -34,7 +34,7 @@ public class ViewTouchEventSubModule extends AndroidSubModule {
                                 throws Throwable {
                             super.beforeHookedMethod(param);
                             View thisView = (View) param.thisObject;
-                            Log.d(XposedLog.TAG_PREFIX, "onTouchEvent: " + thisView + ", id: " + thisView.getId());
+                            Log.d(XposedLog.TAG, "onTouchEvent: " + thisView + ", id: " + thisView.getId());
                         }
                     });
             XposedLog.verbose("hookOnTouchEvent OK:" + unHooks);

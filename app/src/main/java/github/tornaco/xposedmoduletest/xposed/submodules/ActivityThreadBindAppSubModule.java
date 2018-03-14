@@ -52,7 +52,7 @@ public class ActivityThreadBindAppSubModule extends AndroidSubModule {
                             if (XAshmanManager.get().isServiceAvailable()) {
                                 int densityDpi = XAshmanManager.get().getAppConfigOverlayIntSetting(applicationInfo.packageName, "densityDpi");
                                 if (BuildConfig.DEBUG) {
-                                    Log.d(XposedLog.TAG_PREFIX, "handleBindApplication: "
+                                    Log.d(XposedLog.TAG, "handleBindApplication: "
                                             + applicationInfo.packageName + "-" + configuration.densityDpi + "-" + densityDpi
                                             + "-" + compatibilityInfo);
                                 }

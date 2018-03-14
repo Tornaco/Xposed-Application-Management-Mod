@@ -46,7 +46,7 @@ class ResourceSubModule extends AndroidSubModule {
                             if (XAshmanManager.get().isServiceAvailable()) {
                                 int densityDpi = XAshmanManager.get().getAppConfigOverlayIntSetting(currentPackage, "densityDpi");
                                 if (BuildConfig.DEBUG) {
-                                    Log.d(XposedLog.TAG_PREFIX, "updateConfiguration: "
+                                    Log.d(XposedLog.TAG, "updateConfiguration: "
                                             + currentPackage + "-" + configuration.densityDpi + "-" + densityDpi);
                                 }
                                 if (densityDpi != XAshmanManager.ConfigOverlays.NONE) {

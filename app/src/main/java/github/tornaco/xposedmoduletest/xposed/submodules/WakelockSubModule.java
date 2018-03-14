@@ -46,7 +46,7 @@ class WakelockSubModule extends AndroidSubModule {
                             boolean ashServiceAvailable = XAshmanManager.get()
                                     .isServiceAvailable();
                             if (!ashServiceAvailable) {
-                                Log.e(XposedLog.TAG_PREFIX, "WakeLock-Service not available.");
+                                Log.e(XposedLog.TAG, "WakeLock-Service not available.");
                                 // Try retrieve service again.
                                 XAshmanManager.get().retrieveService();
                                 return;
@@ -55,14 +55,14 @@ class WakelockSubModule extends AndroidSubModule {
                             String pkgName = AndroidAppHelper.currentPackageName();
 
 //                            if (BuildConfig.DEBUG) {
-//                                Log.d(XposedLog.TAG_PREFIX, "acquire wakelock: " + pkgName);
+//                                Log.d(XposedLog.TAG, "acquire wakelock: " + pkgName);
 //                            }
 
                             // Check Greening.
                             boolean greening = XAshmanManager.get().isServiceAvailable()
                                     && XAshmanManager.get().isPackageGreening(pkgName);
 //                            if (BuildConfig.DEBUG) {
-//                                Log.d(XposedLog.TAG_PREFIX, "acquire wake lock: "
+//                                Log.d(XposedLog.TAG, "acquire wake lock: "
 //                                        + pkgName
 //                                        + ", greening: " + greening);
 //                            }

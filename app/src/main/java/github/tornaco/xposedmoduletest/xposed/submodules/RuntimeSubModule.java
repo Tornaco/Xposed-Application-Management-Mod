@@ -48,25 +48,25 @@ class RuntimeSubModule extends AndroidSubModule {
                             if (in instanceof String) {
                                 String command = (String) in;
                                 String caller = AndroidAppHelper.currentPackageName();
-                                // Log.d(XposedLog.TAG_PREFIX, String.format("Runtime exec: %s %s", command, caller));
+                                // Log.d(XposedLog.TAG, String.format("Runtime exec: %s %s", command, caller));
                                 if (XAshmanManager.get().isServiceAvailable()) {
                                     int mode = XAshmanManager.get().getPermissionControlBlockModeForPkg(AppOpsManagerCompat
                                             .OP_EXECUTE_SHELL_COMMAND, caller, true, new String[]{command});
                                     if (mode == AppOpsManagerCompat.MODE_IGNORED) {
                                         param.setResult(null);
-                                        Log.d(XposedLog.TAG_PREFIX, "COMMAND BLOCKED");
+                                        Log.d(XposedLog.TAG, "COMMAND BLOCKED");
                                     }
                                 }
                             } else if (in instanceof String[]) {
                                 String[] cmdArr = (String[]) in;
                                 String caller = AndroidAppHelper.currentPackageName();
-                                // Log.d(XposedLog.TAG_PREFIX, String.format("Runtime exec arr: %s %s", Arrays.toString(cmdArr), caller));
+                                // Log.d(XposedLog.TAG, String.format("Runtime exec arr: %s %s", Arrays.toString(cmdArr), caller));
                                 if (XAshmanManager.get().isServiceAvailable()) {
                                     int mode = XAshmanManager.get().getPermissionControlBlockModeForPkg(AppOpsManagerCompat
                                             .OP_EXECUTE_SHELL_COMMAND, caller, true, cmdArr);
                                     if (mode == AppOpsManagerCompat.MODE_IGNORED) {
                                         param.setResult(null);
-                                        Log.d(XposedLog.TAG_PREFIX, "COMMAND BLOCKED");
+                                        Log.d(XposedLog.TAG, "COMMAND BLOCKED");
                                     }
                                 }
                             }

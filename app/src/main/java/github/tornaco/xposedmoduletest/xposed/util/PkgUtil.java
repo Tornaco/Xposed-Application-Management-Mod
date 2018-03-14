@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.os.Process;
 import android.os.UserHandle;
 import android.print.PrintManager;
 import android.util.SparseArray;
@@ -143,6 +144,12 @@ public class PkgUtil {
 
     // FIXME Add a cache.
     public static String pkgForUid(Context context, int uid) {
+        if (Process.SHELL_UID == uid) {
+            return "SHELL";
+        }
+        if (Process.ROOT_UID == uid) {
+            return "ROOT";
+        }
         // Check if in map.
         String cached = sUidMap.get(uid);
         if (cached != null) return cached;
@@ -315,7 +322,6 @@ public class PkgUtil {
             if (!running) return false;
             // Do not rely on the true res for 3-rd apps, also check by system.
         }
-
 
         // This is system app.
         List<ActivityManager.RunningAppProcessInfo> processes =

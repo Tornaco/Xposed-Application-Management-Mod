@@ -60,7 +60,7 @@ class AlarmManagerSubModule extends AndroidSubModule {
                             String pkgName = AndroidAppHelper.currentPackageName();
 
                             if (BuildConfig.DEBUG) {
-                                Log.d(XposedLog.TAG_PREFIX, "set alarm: " + pkgName);
+                                Log.d(XposedLog.TAG, "set alarm: " + pkgName);
                             }
 
                             if ("android".equals(pkgName)) return;
@@ -69,7 +69,7 @@ class AlarmManagerSubModule extends AndroidSubModule {
                             boolean greening = XAshmanManager.get().isServiceAvailable()
                                     && XAshmanManager.get().isPackageGreening(pkgName);
                             if (BuildConfig.DEBUG) {
-                                Log.d(XposedLog.TAG_PREFIX, "set alarm: "
+                                Log.d(XposedLog.TAG, "set alarm: "
                                         + pkgName
                                         + ", greening: " + greening);
                             }
@@ -84,7 +84,7 @@ class AlarmManagerSubModule extends AndroidSubModule {
                                         AppOpsManagerCompat.OP_SET_ALARM, pkgName, true);
                                 if (mode == AppOpsManagerCompat.MODE_IGNORED) {
                                     if (BuildConfig.DEBUG) {
-                                        Log.d(XposedLog.TAG_PREFIX, "set alarm, MODE_IGNORED returning...");
+                                        Log.d(XposedLog.TAG, "set alarm, MODE_IGNORED returning...");
                                     }
                                     param.setResult(null);
                                 }

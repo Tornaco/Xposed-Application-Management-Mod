@@ -39,10 +39,10 @@ class RuleParserImpl implements RuleParser {
     // ALLOW tornaco.github.abc *
     @Override
     public Rule parse(String args) {
-        Log.d(XposedLog.TAG_PREFIX, "parse args: " + args);
+        Log.d(XposedLog.TAG, "parse args: " + args);
         if (args == null) return null;
         String[] arr = args.split("\\s+");
-        Log.d(XposedLog.TAG_PREFIX, "parse args: " + Arrays.toString(arr));
+        Log.d(XposedLog.TAG, "parse args: " + Arrays.toString(arr));
         int N = arr.length;
         if (N != 3) return null;
         RuleAction action = RuleAction.from(arr[0]);

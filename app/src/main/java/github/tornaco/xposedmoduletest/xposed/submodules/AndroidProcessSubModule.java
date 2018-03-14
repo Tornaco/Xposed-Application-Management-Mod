@@ -49,7 +49,7 @@ class AndroidProcessSubModule extends AndroidSubModule {
                             super.afterHookedMethod(param);
                             int pid = (int) param.args[0];
                             String currentPkg = AndroidAppHelper.currentPackageName();
-                            Log.d(XposedLog.TAG_PREFIX, TAG + "killProcess: " + pid + ", pkg: " + currentPkg);
+                            Log.d(XposedLog.TAG, TAG + "killProcess: " + pid + ", pkg: " + currentPkg);
                         }
                     });
             XposedLog.verbose(TAG + "hookKillProcess OK:" + unHooks);
