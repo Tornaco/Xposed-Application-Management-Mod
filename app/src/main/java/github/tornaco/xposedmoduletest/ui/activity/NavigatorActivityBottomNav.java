@@ -96,6 +96,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.Backup;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CleanUpSystemErrorTrace;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CrashDump;
 import github.tornaco.xposedmoduletest.ui.tiles.app.IconPack;
+import github.tornaco.xposedmoduletest.ui.tiles.app.InactiveInsteadOfKillApp;
 import github.tornaco.xposedmoduletest.ui.tiles.app.MokeCrash;
 import github.tornaco.xposedmoduletest.ui.tiles.app.NoShift;
 import github.tornaco.xposedmoduletest.ui.tiles.app.OpenMarket;
@@ -1270,11 +1271,15 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
             system.titleRes = R.string.title_opt;
             system.addTile(new PowerSave(getActivity()));
 
-            Category systemProtect = new Category();
-            systemProtect.titleRes = R.string.title_app_settings;
-            systemProtect.addTile(new WhiteSystemApp(getActivity()));
-            systemProtect.addTile(new AutoBlack(getActivity()));
-            systemProtect.addTile(new AutoBlackNotification(getActivity()));
+            Category restrict = new Category();
+            restrict.titleRes = R.string.title_app_settings;
+            restrict.addTile(new WhiteSystemApp(getActivity()));
+            restrict.addTile(new AutoBlack(getActivity()));
+            restrict.addTile(new AutoBlackNotification(getActivity()));
+
+            Category policy = new Category();
+            policy.titleRes = R.string.title_policy;
+            policy.addTile(new InactiveInsteadOfKillApp(getActivity()));
 
             Category data = new Category();
             data.titleRes = R.string.title_data;
@@ -1291,7 +1296,8 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
             theme.addTile(new NoShift(getActivity()));
 
             categories.add(system);
-            categories.add(systemProtect);
+            categories.add(restrict);
+            categories.add(policy);
             categories.add(data);
             categories.add(dataHook);
             categories.add(theme);

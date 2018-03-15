@@ -539,5 +539,8 @@
     <string name="suggestion_donate">喜欢的话来一次捐赠吧</string>
     <string name="suggestion_summary_donate">支持开发者更加努力的进行改进，解锁更多功能%s。</string>
     <string name="suggestion_action_donate">我要捐赠</string>
+    <string name="title_inactive_instead_of_kill">休眠代替强行停止（实验）</string>
+    <string name="summary_inactive_instead_of_kill">清理应用时使用休眠API而不是强行停止API。</string>
+    <string name="title_policy">策略</string>
 
 </resources>

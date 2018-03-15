@@ -126,6 +126,7 @@ import github.tornaco.xposedmoduletest.xposed.repo.SettingsProvider;
 import github.tornaco.xposedmoduletest.xposed.service.am.AppIdler;
 import github.tornaco.xposedmoduletest.xposed.service.am.InactiveAppIdler;
 import github.tornaco.xposedmoduletest.xposed.service.am.KillAppIdler;
+import github.tornaco.xposedmoduletest.xposed.service.am.UsageStatsServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.bandwidth.BandwidthCommandCompat;
 import github.tornaco.xposedmoduletest.xposed.service.doze.BatterState;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
@@ -941,6 +942,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
+
+        // NEW SETTINGS ARE STORED BY SETTINGS-PROVIDER.
+        // THIS IS SIMPLE FOR US TO CONTROL.
+        // SO PLEASE USE THIS WAY INSTEAD OF SETTINGS FROM SYSTEM.
+        try {
+            mInactiveInsteadOfKillAppInstead.set(SettingsProvider.get().getBoolean("INACTIVE_INSTEAD_OF_KILL", false));
+            XposedLog.boot("mInactiveInsteadOfKillAppInstead: " + String.valueOf(mInactiveInsteadOfKillAppInstead));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail load settings from SettingsProvider:" + Log.getStackTraceString(e));
+        }
+
     }
 
     @Override
@@ -1352,6 +1364,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public boolean isActivityStartShouldBeInterrupted(ComponentName componentName) {
         return mAppGuardService.isActivityStartShouldBeInterrupted(componentName);
+    }
+
+    @Override
+    public void attachUsageStatsService(UsageStatsServiceProxy proxy) {
+        mInactiveIdler = new InactiveAppIdler(proxy);
+        XposedLog.boot("attachUsageStatsService, proxy: " + proxy);
+        XposedLog.boot("attachUsageStatsService, idler: " + mInactiveIdler);
     }
 
     @Override
@@ -5110,15 +5129,26 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (getContext() != null) {
             mKillIdler = new KillAppIdler(getContext());
-            mInactiveIdler = new InactiveAppIdler(getContext());
         }
     }
 
     private AppIdler getAppIdler() {
+        AppIdler idler = getAppIdlerInternal();
+        if (BuildConfig.DEBUG) {
+            XposedLog.verbose("getAppIdler: " + idler);
+        }
+        return idler;
+    }
+
+    private static final boolean HAS_STATS_MANAGER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1;
+
+    private AppIdler getAppIdlerInternal() {
         if (mKillIdler == null && mInactiveIdler == null) {
             return mDummyIdler;
         }
-        return mKillIdler;
+        // Safe check before usage.
+        return (HAS_STATS_MANAGER && mInactiveInsteadOfKillAppInstead.get() && (mInactiveIdler != null))
+                ? mInactiveIdler : mKillIdler;
     }
 
     protected Handler onCreateServiceHandler() {
@@ -5574,6 +5604,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         Integer uid = mServiceStartRecords.get(key);
         if (uid == null) return null;
         return PkgUtil.pkgForUid(getContext(), uid);
+    }
+
+    private AtomicBoolean mInactiveInsteadOfKillAppInstead = new AtomicBoolean(false);
+
+    @Override
+    public boolean isInactiveAppInsteadOfKillPreferred() {
+        return mInactiveInsteadOfKillAppInstead.get();
+    }
+
+    @Override
+    public void setInactiveAppInsteadOfKillPreferred(boolean prefer) throws RemoteException {
+        SettingsProvider.get().putBoolean("INACTIVE_INSTEAD_OF_KILL", prefer);
+        mInactiveInsteadOfKillAppInstead.set(prefer);
     }
 
     @BinderCall

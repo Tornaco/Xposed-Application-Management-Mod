@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.support.annotation.Nullable;
@@ -1769,4 +1770,22 @@ public class XAshmanManager {
         }
     }
 
+    public boolean isInactiveAppInsteadOfKillPreferred() {
+        try {
+            return mService.isInactiveAppInsteadOfKillPreferred();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public void setInactiveAppInsteadOfKillPreferred(boolean prefer) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
+            return;
+        }
+        try {
+            mService.setInactiveAppInsteadOfKillPreferred(prefer);
+        } catch (RemoteException e) {
+
+        }
+    }
 }
