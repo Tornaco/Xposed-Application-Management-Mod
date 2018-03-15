@@ -28,6 +28,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 import github.tornaco.xposedmoduletest.xposed.bean.OpsSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
+import github.tornaco.xposedmoduletest.xposed.service.am.UsageStatsServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
@@ -139,6 +140,16 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     @Override
     public String getServiceStarter(ComponentName service) throws RemoteException {
         return null;
+    }
+
+    @Override
+    public boolean isInactiveAppInsteadOfKillPreferred() throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public void setInactiveAppInsteadOfKillPreferred(boolean prefer) throws RemoteException {
+
     }
 
     @Override
@@ -302,6 +313,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
 
     @Override
     public void attachPhoneWindowManager(PhoneWindowManagerProxy proxy) {
+
+    }
+
+    @Override
+    public void attachUsageStatsService(UsageStatsServiceProxy proxy) {
 
     }
 

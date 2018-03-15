@@ -385,4 +385,7 @@ interface IAshmanService {
      void injectPowerEvent();
 
      String getServiceStarter(in ComponentName service);
+
+     boolean isInactiveAppInsteadOfKillPreferred();
+     void setInactiveAppInsteadOfKillPreferred(boolean prefer);
 }

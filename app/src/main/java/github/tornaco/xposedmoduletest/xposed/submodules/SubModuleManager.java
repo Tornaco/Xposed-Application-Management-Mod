@@ -117,6 +117,9 @@ public class SubModuleManager {
         addToSubsChecked(new ServiceManagerSubModule());
         addToSubsChecked(new AppOpsInitSubModule());
 
+        // To inactive an app.
+        addToSubsChecked(new UsageStatsSubModule());
+
         // Task id manage.
         addToSubsChecked(new TaskChangeNotificationControllerSubModule());
 

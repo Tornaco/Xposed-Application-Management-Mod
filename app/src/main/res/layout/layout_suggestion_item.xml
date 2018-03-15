@@ -39,6 +39,7 @@
                 android:layout_height="wrap_content"
                 android:fadingEdge="horizontal"
                 android:text="@string/app_name"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin_small"
                 android:textAppearance="@style/TextAppearance.TileTitle"
                 android:textColor="@color/white" />
 
@@ -50,6 +51,7 @@
                 android:layout_alignStart="@android:id/title"
                 android:layout_below="@id/title"
                 android:ellipsize="end"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin_small"
                 android:maxLines="30"
                 android:text="@string/app_name"
                 android:textAppearance="@style/TextAppearance.TileSubTitle"

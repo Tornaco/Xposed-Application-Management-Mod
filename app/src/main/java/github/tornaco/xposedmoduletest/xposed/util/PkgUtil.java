@@ -376,18 +376,6 @@ public class PkgUtil {
         return false;
     }
 
-    public static void kill(Context context, ActivityManager.RunningAppProcessInfo runningAppProcessInfo) {
-        // Process.sendSignalQuiet(runningAppProcessInfo.pid, Process.SIGNAL_KILL);
-        if (runningAppProcessInfo.pkgList == null || runningAppProcessInfo.pkgList.length < 1) {
-            return;
-        }
-        try {
-            String pkg = runningAppProcessInfo.pkgList[0];
-            kill(context, pkg);
-        } catch (Exception ignored) {
-        }
-    }
-
     private static final Object sLock = new Object();
     private static Handler sPkgBringDownHandler;
 

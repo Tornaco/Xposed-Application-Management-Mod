@@ -55,10 +55,9 @@ public class RunningServiceAdapter extends CommonPackageInfoAdapter {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!display.isSystemApp()) {
-                    PerAppSettingsDashboardActivity.start(getContext(), display.getPkgName());
-                } else {
-                    Toast.makeText(getContext(), R.string.system_app_not_allowed_set_running_services,
+                PerAppSettingsDashboardActivity.start(getContext(), display.getPkgName());
+                if (display.isSystemApp()) {
+                    Toast.makeText(getContext(), R.string.system_app_need_ne_careful_running_services,
                             Toast.LENGTH_SHORT).show();
                 }
             }

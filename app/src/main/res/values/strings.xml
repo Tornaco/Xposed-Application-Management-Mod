@@ -453,6 +453,7 @@
     <string name="mode_allowed">允许</string>
     <string name="mode_ignored">拒绝</string>
     <string name="system_app_not_allowed_set_running_services">系统应用不允许在此快捷设置，请前往相应功能区谨慎设定</string>
+    <string name="system_app_need_ne_careful_running_services">系统应用请谨慎设定</string>
     <string name="title_redemption_mode">自救模式</string>
     <string name="message_redemption_mode">应用管理现在处于自救模式，所有功能已经停用。由于上次设备启动时遇到致命错误，导致设备无法正常启动，因此应用管理进入该模式保证关闭所有系统级别的劫持（虽然该错误并不一定是由应用管理导致的！），请查看新手手册了解更多，或者直接点击按钮退出该模式（重启生效）。</string>
     <string name="leave_redemption_mode">退出自救模式</string>
@@ -539,5 +540,8 @@
     <string name="suggestion_donate">喜欢的话来一次捐赠吧</string>
     <string name="suggestion_summary_donate">支持开发者更加努力的进行改进，解锁更多功能%s。</string>
     <string name="suggestion_action_donate">我要捐赠</string>
+    <string name="title_inactive_instead_of_kill">休眠代替强行停止（实验）</string>
+    <string name="summary_inactive_instead_of_kill">清理应用时使用休眠API而不是强行停止API。</string>
+    <string name="title_policy">策略</string>
 
 </resources>

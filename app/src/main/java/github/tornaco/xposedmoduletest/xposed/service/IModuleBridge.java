@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.view.KeyEvent;
 
+import github.tornaco.xposedmoduletest.xposed.service.am.UsageStatsServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
@@ -108,6 +109,8 @@ public interface IModuleBridge {
     void attachDevicePolicyManagerService(DevicePolicyManagerServiceProxy proxy);
 
     void attachPhoneWindowManager(PhoneWindowManagerProxy proxy);
+
+    void attachUsageStatsService(UsageStatsServiceProxy proxy);
 
     boolean checkService(ComponentName service, int callerUid) throws RemoteException;
 
