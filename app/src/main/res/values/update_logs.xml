@@ -39,4 +39,9 @@
     </string>
 
     <string name="update_log_493">1. 修复正在M上运行应用无法加载问题。\n2. 修复某些APP获取正运行应用权限被禁用时fc问题。</string>
+    <string name="update_log_494">- 注意，该版本为BETA版本，可能不稳定。\n
+- 支持SHELL/ROOT的关联启动规则。\n
+- 新增用户使用建议。\n
+- 新增休眠与强行停止接口。\n
+- Bug fixes</string>
 </resources>
