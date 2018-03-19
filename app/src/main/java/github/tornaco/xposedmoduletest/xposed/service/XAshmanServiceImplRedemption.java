@@ -153,6 +153,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public void mockSystemDead(long delay) throws RemoteException {
+
+    }
+
+    @Override
     public void leaveRedemptionMode() throws RemoteException {
         RepoProxy.deleteFileIndicator(SubModuleManager.REDEMPTION);
     }

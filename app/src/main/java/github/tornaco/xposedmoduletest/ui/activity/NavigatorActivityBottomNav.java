@@ -98,6 +98,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.CrashDump;
 import github.tornaco.xposedmoduletest.ui.tiles.app.IconPack;
 import github.tornaco.xposedmoduletest.ui.tiles.app.InactiveInsteadOfKillApp;
 import github.tornaco.xposedmoduletest.ui.tiles.app.MokeCrash;
+import github.tornaco.xposedmoduletest.ui.tiles.app.MokeSystemDead;
 import github.tornaco.xposedmoduletest.ui.tiles.app.NoShift;
 import github.tornaco.xposedmoduletest.ui.tiles.app.OpenMarket;
 import github.tornaco.xposedmoduletest.ui.tiles.app.OpenSource;
@@ -527,6 +528,7 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
             dev.addTile(new AppDevMode(getActivity()));
             dev.addTile(new CrashDump(getActivity()));
             dev.addTile(new MokeCrash(getActivity()));
+            dev.addTile(new MokeSystemDead(getActivity()));
 
             Category user = new Category();
             user.titleRes = R.string.title_user_tools;
@@ -695,6 +697,7 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
                 imageView.setImageResource(isServiceAvailable()
                         ? isDonatedOrPlay ? R.drawable.ic_multiline_chart_black_24dp : R.drawable.ic_check_circle_black_24dp
                         : R.drawable.ic_error_black_24dp);
+
             }
 
             setupDeviceStatus();
