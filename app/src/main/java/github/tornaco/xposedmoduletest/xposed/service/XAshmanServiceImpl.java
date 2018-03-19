@@ -5140,7 +5140,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return idler;
     }
 
-    private static final boolean HAS_STATS_MANAGER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1;
+    // FIXME Temp disable this feature for user build.
+    // There is some serious issue on MIUI that cause system dead.
+    private static final boolean HAS_STATS_MANAGER =
+            BuildConfig.DEBUG && Build.VERSION.SDK_INT
+                    >= Build.VERSION_CODES.LOLLIPOP_MR1;
 
     private AppIdler getAppIdlerInternal() {
         if (mKillIdler == null && mInactiveIdler == null) {
@@ -5617,6 +5621,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public void setInactiveAppInsteadOfKillPreferred(boolean prefer) throws RemoteException {
         SettingsProvider.get().putBoolean("INACTIVE_INSTEAD_OF_KILL", prefer);
         mInactiveInsteadOfKillAppInstead.set(prefer);
+    }
+
+    @Override
+    public void mockSystemDead(long delay) throws RemoteException {
+        enforceCallingPermissions();
+        mainHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                throw new IllegalStateException("Mock system dead by user, bye!");
+            }
+        }, delay);
     }
 
     @BinderCall

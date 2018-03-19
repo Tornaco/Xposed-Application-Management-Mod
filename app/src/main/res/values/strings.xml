@@ -543,5 +543,7 @@
     <string name="title_inactive_instead_of_kill">休眠代替强行停止（实验）</string>
     <string name="summary_inactive_instead_of_kill">清理应用时使用休眠API而不是强行停止API。</string>
     <string name="title_policy">策略</string>
+    <string name="title_system_dead_moke">模拟系统级别崩溃</string>
+    <string name="summary_system_dead_moke">系统将在5秒内模拟依次崩溃，会导致设备重启。</string>
 
 </resources>

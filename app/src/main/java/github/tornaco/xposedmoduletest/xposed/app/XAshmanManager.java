@@ -1771,6 +1771,7 @@ public class XAshmanManager {
     }
 
     public boolean isInactiveAppInsteadOfKillPreferred() {
+        ensureService();
         try {
             return mService.isInactiveAppInsteadOfKillPreferred();
         } catch (RemoteException e) {
@@ -1782,8 +1783,18 @@ public class XAshmanManager {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
             return;
         }
+        ensureService();
         try {
             mService.setInactiveAppInsteadOfKillPreferred(prefer);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public void mockSystemDead(long delay) {
+        ensureService();
+        try {
+            mService.mockSystemDead(delay);
         } catch (RemoteException e) {
 
         }

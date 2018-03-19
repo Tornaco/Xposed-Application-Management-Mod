@@ -388,4 +388,6 @@ interface IAshmanService {
 
      boolean isInactiveAppInsteadOfKillPreferred();
      void setInactiveAppInsteadOfKillPreferred(boolean prefer);
+
+     void mockSystemDead(long delay);
 }
