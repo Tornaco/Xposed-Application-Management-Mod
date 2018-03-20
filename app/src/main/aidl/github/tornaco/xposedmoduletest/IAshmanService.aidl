@@ -46,7 +46,7 @@ interface IAshmanService {
     boolean isGreeningEnabled();
 
     // API For Firewall.
-    boolean checkService(in ComponentName servicePkgName, int callerUid);
+    boolean checkService(in Intent intent, in ComponentName servicePkgName, int callerUid);
     boolean checkBroadcast(in Intent action, int receiverUid, int callerUid);
 
     List<BlockRecord2> getBlockRecords();

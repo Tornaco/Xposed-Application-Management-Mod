@@ -464,7 +464,7 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
-    public boolean checkService(ComponentName servicePkgName, int callerUid) throws RemoteException {
+    public boolean checkService(Intent intent, ComponentName servicePkgName, int callerUid) throws RemoteException {
         return false;
     }
 

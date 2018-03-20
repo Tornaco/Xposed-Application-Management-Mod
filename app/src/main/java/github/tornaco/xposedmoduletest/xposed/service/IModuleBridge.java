@@ -112,7 +112,7 @@ public interface IModuleBridge {
 
     void attachUsageStatsService(UsageStatsServiceProxy proxy);
 
-    boolean checkService(ComponentName service, int callerUid) throws RemoteException;
+    boolean checkService(Intent intent, ComponentName service, int callerUid) throws RemoteException;
 
     @Deprecated
     boolean checkService(Intent service, String callingPackage, int callingPid, int callingUid, boolean callingFromFg)

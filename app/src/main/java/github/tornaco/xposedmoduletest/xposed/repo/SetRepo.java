@@ -27,6 +27,7 @@ public interface SetRepo<T> {
 
     boolean has(T t);
 
+    // Note, Array element may be null
     boolean has(T[] t);
 
     String name();
