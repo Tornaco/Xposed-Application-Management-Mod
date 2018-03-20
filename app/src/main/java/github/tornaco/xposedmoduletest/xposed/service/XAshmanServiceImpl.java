@@ -4534,6 +4534,34 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @SuppressWarnings("UnnecessaryLocalVariable")
+    // FIX DEAD LOCK ISSUE:
+    /*
+    "ASHMAN-LAZY-H" prio=5 tid=22 Blocked
+  | group="main" sCount=1 dsCount=0 obj=0x12c03d30 self=0xb2b6ff00
+  | sysTid=26699 nice=0 cgrp=default sched=0/0 handle=0x9977f920
+  | state=S schedstat=( 73325877 143207864 319 ) utm=5 stm=2 core=0 HZ=100
+  | stack=0x9967d000-0x9967f000 stackSize=1038KB
+  | held mutexes=
+  at com.android.server.pm.PackageManagerService.getApplicationInfo(PackageManagerService.java:3448)
+  - waiting to lock <0x0a1659d8> (a android.util.ArrayMap) held by thread 1
+  at com.android.server.AppOpsService.getOpsRawLocked(AppOpsService.java:1436)
+  at com.android.server.AppOpsService.getOpLocked(AppOpsService.java:1495)
+  at com.android.server.AppOpsService.setMode(AppOpsService.java:704)
+  - locked <0x08da60bb> (a com.android.server.AppOpsService)
+  at android.app.AppOpsManager.setMode(AppOpsManager.java:1649)
+  at github.tornaco.xposedmoduletest.xposed.service.XAshmanServiceImpl.setPermissionControlBlockModeForPkg(unavailable:-1)
+  at github.tornaco.xposedmoduletest.xposed.service.XAshmanServiceImpl.applyOpsSettingsForPackage(unavailable:-1)
+  at github.tornaco.xposedmoduletest.xposed.service.XAshmanServiceImpl.access$11300(unavailable:-1)
+  at github.tornaco.xposedmoduletest.xposed.service.XAshmanServiceImpl$LazyHandler.onBroadcastAction(unavailable:-1)
+  at github.tornaco.xposedmoduletest.xposed.service.XAshmanServiceImpl$LazyHandler.handleMessage(unavailable:-1)
+  at github.tornaco.xposedmoduletest.xposed.service.XAshmanServiceImplDev$10$1.onCall(unavailable:-1)
+  at github.tornaco.xposedmoduletest.xposed.service.XAshmanServiceImplDev.makeSafeCall(unavailable:-1)
+  at github.tornaco.xposedmoduletest.xposed.service.XAshmanServiceImplDev.access$800(unavailable:-1)
+  at github.tornaco.xposedmoduletest.xposed.service.XAshmanServiceImplDev$10.handleMessage(unavailable:-1)
+  at android.os.Handler.dispatchMessage(Handler.java:98)
+  at android.os.Looper.loop(Looper.java:154)
+  at android.os.HandlerThread.run(HandlerThread.java:61)
+     */
     private void applyOpsSettingsForPackage(String pkg) throws RemoteException {
         XposedLog.verbose("applyOpsSettingsForPackage: " + pkg);
         try {
@@ -6836,14 +6864,27 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 XposedLog.verbose("Apply app settings template for new app!!!!!!!!!!!");
 
                                 // Ops.
-                                applyOpsSettingsForPackage(packageName);
+                                // Note. Please see detailed comment @applyOpsSettingsForPackage.
+                                final String finalPkgName = packageName;
+                                postDelayed(new ErrorCatchRunnable(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            applyOpsSettingsForPackage(finalPkgName);
 
-                                boolean showNotification = isAutoAddBlackNotificationEnabled();
-                                if (showNotification) {
-                                    showNewAppRestrictedNotification(getContext(),
-                                            packageName,
-                                            String.valueOf(PkgUtil.loadNameByPkgName(getContext(), packageName)));
-                                }
+
+                                            boolean showNotification = isAutoAddBlackNotificationEnabled();
+                                            if (showNotification) {
+                                                showNewAppRestrictedNotification(getContext(),
+                                                        finalPkgName,
+                                                        String.valueOf(PkgUtil.loadNameByPkgName(getContext(), finalPkgName)));
+                                            }
+
+                                        } catch (RemoteException e) {
+                                            e.rethrowAsRuntimeException();
+                                        }
+                                    }
+                                }, "applyOpsSettingsForPackage"), 8000);
                             }
                         }
                     } catch (Throwable e) {
