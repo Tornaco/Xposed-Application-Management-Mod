@@ -1,13 +1,17 @@
 # ~~作为一个练手项目 2018-02-11，已经可以满足自用需求，由于太耽误时间，永久停止代码和文档维护。~~ 
 > 会尽力解决github上提交的Issues，结合自身使用需求进行维护。
 
-# Play
+# Play版本
 
 <a href="https://play.google.com/store/apps/details?id=github.tornaco.xposedmoduletest"><img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" height="48"></a>
 
 # 开发与交流TG群组
 
 https://t.me/xposed_apm_mod
+
+# WIKI
+
+https://github.com/Tornaco/X-APM/wiki
 
 # TRAVIS
 
