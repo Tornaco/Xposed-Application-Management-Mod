@@ -5,6 +5,10 @@
 
 <a href="https://play.google.com/store/apps/details?id=github.tornaco.xposedmoduletest"><img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" height="48"></a>
 
+# 开发与交流TG群组
+
+https://t.me/xposed_apm_mod
+
 # TRAVIS
 
 [![Build Status](https://travis-ci.org/Tornaco/XAppGuard.svg?branch=master)](https://travis-ci.org/Tornaco/XAppGuard)
