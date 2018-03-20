@@ -134,6 +134,7 @@ import github.tornaco.xposedmoduletest.xposed.service.doze.DozeStateRetriever;
 import github.tornaco.xposedmoduletest.xposed.service.doze.PowerWhitelistBackend;
 import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
+import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.GCMFCMHelper;
 import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.service.rule.Rule;
@@ -1623,10 +1624,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @InternalCall
-    public boolean checkService(ComponentName serviceComp, int callerUid) {
+    public boolean checkService(Intent intent, ComponentName serviceComp, int callerUid) {
         if (serviceComp == null) return true;
         String appPkg = serviceComp.getPackageName();
-        CheckResult res = checkServiceDetailed(appPkg, serviceComp, callerUid);
+        CheckResult res = checkServiceDetailed(intent, appPkg, serviceComp, callerUid);
 
         // Saving res record.
         if (!res.res) {
@@ -1730,7 +1731,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return true;
     }
 
-    private CheckResult checkServiceDetailed(String servicePkgName,
+    private CheckResult checkServiceDetailed(Intent intent,
+                                             String servicePkgName,
                                              ComponentName componentName,
                                              int callerUid) {
         if (TextUtils.isEmpty(servicePkgName)) return CheckResult.BAD_ARGS;
@@ -1801,7 +1803,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         // First check the user rules.
-        CheckResult ruleCheckRes = getStartCheckResultInRules(callerUid, servicePkgName);
+        CheckResult ruleCheckRes = getStartCheckResultInRules(intent, callerUid, servicePkgName);
         if (ruleCheckRes != null) {
             return ruleCheckRes;
         }
@@ -1817,20 +1819,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return CheckResult.ALLOWED_GENERAL;
     }
 
-    private CheckResult getStartCheckResultInRules(int callerUid, String targetPackage) {
+    private CheckResult getStartCheckResultInRules(Intent intent, int callerUid, String targetPackage) {
         String callerIdentify = PkgUtil.pkgForUid(getContext(), callerUid);
-        return getStartCheckResultInRules(callerIdentify, targetPackage);
+        return getStartCheckResultInRules(intent, callerIdentify, targetPackage);
     }
 
-    private CheckResult getStartCheckResultInRules(String caller, String targetPackage) {
+    private CheckResult getStartCheckResultInRules(Intent intent, String caller, String targetPackage) {
         if (caller == null || targetPackage == null) return null;
         XStopWatch stopWatch = null;
         if (BuildConfig.DEBUG) {
             stopWatch = XStopWatch.start("SERVICE START RULE CHECK");
         }
         try {
+
             if (caller != null) {
-                String[] patternAllow = constructStartAllowedRulePattern(caller, targetPackage);
+                String[] patternAllow = constructStartAllowedRulePattern(intent, caller, targetPackage);
                 boolean isThisCallerAllowedInRule = RepoProxy.getProxy().getStart_rules().has(patternAllow);
                 if (BuildConfig.DEBUG) {
                     XposedLog.verbose("check service patternAllow: " + Arrays.toString(patternAllow) + ", has rule: " + isThisCallerAllowedInRule);
@@ -1839,7 +1842,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     return CheckResult.ALLOWED_IN_RULE;
                 }
 
-                String[] patternDeny = constructStartDenyRulePattern(caller, targetPackage);
+                String[] patternDeny = constructStartDenyRulePattern(intent, caller, targetPackage);
                 boolean isThisCallerDeniedInRule = RepoProxy.getProxy().getStart_rules().has(patternDeny);
                 if (BuildConfig.DEBUG) {
                     XposedLog.verbose("check service patternDeny: " + Arrays.toString(patternDeny) + ", has rule: " + isThisCallerDeniedInRule);
@@ -1883,14 +1886,25 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     // ALLOW * B
     // ALLOW A *
     // ALLOW * *
-    private String[] constructStartAllowedRulePattern(String callerPackage, String targetPackage) {
+
+    // ALLOW GCM *
+    // ALLOW GCM B
+    private String[] constructStartAllowedRulePattern(Intent intent, String callerPackage, String targetPackage) {
         String[] rules = getAllowRulesFromCache(callerPackage, targetPackage);
         if (rules == null) {
+            boolean isCMIntent = GCMFCMHelper.isGcmOrFcmIntent(intent);
+
+            if (BuildConfig.DEBUG) {
+                XposedLog.verbose("constructStartAllowedRulePattern, GCM? " + isCMIntent + ", intent: " + intent);
+            }
+
             rules = new String[]{
                     String.format("ALLOW %s %s", callerPackage, targetPackage),
                     String.format("ALLOW * %s", targetPackage),
                     String.format("ALLOW %s *", callerPackage),
                     "ALLOW * *",
+                    isCMIntent ? "ALLOW GCM *" : null,
+                    isCMIntent ? String.format("ALLOW GCM %s", targetPackage) : null,
             };
             addToAllowRulesCache(callerPackage, targetPackage, rules);
         }
@@ -1901,13 +1915,25 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     // DENY A B
     // DENY * B
     // DENY A *
-    private String[] constructStartDenyRulePattern(String callerPackage, String targetPackage) {
+
+    // DENY GCM *
+    // DENY GCM B
+    private String[] constructStartDenyRulePattern(Intent intent, String callerPackage, String targetPackage) {
         String[] rules = getDenyRulesFromCache(callerPackage, targetPackage);
         if (rules == null) {
+            boolean isCMIntent = GCMFCMHelper.isGcmOrFcmIntent(intent);
+
+            if (BuildConfig.DEBUG) {
+                XposedLog.verbose("constructStartDenyRulePattern, GCM? " + isCMIntent + ", intent: " + intent);
+            }
+
             rules = new String[]{
                     String.format("DENY %s %s", callerPackage, targetPackage),
                     "DENY * " + targetPackage,
                     "DENY " + callerPackage + " *",
+                    isCMIntent ? "DENY GCM *" : null,
+                    isCMIntent ? String.format("DENY GCM %s", targetPackage) : null,
+
             };
             addToDenyRulesCache(callerPackage, targetPackage, rules);
         }
@@ -2777,7 +2803,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return checkBroadcastDetailed(action, receiverPkgName, PkgUtil.pkgForUid(getContext(), callerUid));
     }
 
-    private CheckResult checkBroadcastDetailed(Intent action, String receiverPkgName, String callerPackageName) {
+    private CheckResult checkBroadcastDetailed(Intent intent,
+                                               String receiverPkgName,
+                                               String callerPackageName) {
 
         if (isInWhiteList(receiverPkgName)) {
             return CheckResult.WHITE_LISTED;
@@ -2814,7 +2842,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         // First check the user rules.
-        CheckResult ruleCheckRes = getStartCheckResultInRules(callerPackageName, receiverPkgName);
+        CheckResult ruleCheckRes = getStartCheckResultInRules(intent, callerPackageName, receiverPkgName);
         if (ruleCheckRes != null) {
             return ruleCheckRes;
         }

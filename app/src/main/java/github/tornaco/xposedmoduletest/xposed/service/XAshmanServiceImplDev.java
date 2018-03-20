@@ -116,8 +116,8 @@ public class XAshmanServiceImplDev extends XAshmanServiceImpl {
     }
 
     @Override
-    public boolean checkService(ComponentName serviceComp, int callerUid) {
-        return super.checkService(serviceComp, callerUid);
+    public boolean checkService(Intent intent, ComponentName serviceComp, int callerUid) {
+        return super.checkService(intent, serviceComp, callerUid);
     }
 
     @Override

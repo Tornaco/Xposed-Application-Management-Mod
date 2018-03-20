@@ -264,10 +264,10 @@ public class XAshmanManager {
         }
     }
 
-    public boolean checkService(ComponentName servicePkgName, int callerUid) {
+    public boolean checkService(Intent intent, ComponentName servicePkgName, int callerUid) {
         ensureService();
         try {
-            return mService.checkService(servicePkgName, callerUid);
+            return mService.checkService(intent, servicePkgName, callerUid);
         } catch (Exception ignored) {
             return true;
         }

@@ -35,23 +35,27 @@ public class IFWSubModule extends AndroidSubModule {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
-                            if (false && BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
+
+                            Intent intent = (Intent) param.args[1];
+                            // Dump intent for debug build.
+                            if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
                                 try {
-                                    Intent intent = (Intent) param.args[1];
-                                    Log.d(XposedLog.TAG,
+                                    Log.d(XposedLog.TAG + XposedLog.PREFIX_SERVICE,
                                             "checkService@ intent: " + intent + "extra: " + intent.getExtras()
                                                     + ObjectToStringUtil.intentToString(intent));
                                 } catch (Exception ignored) {
                                 }
                             }
+
                             ComponentName componentName = (ComponentName) param.args[0];
                             int callerID = (int) param.args[2];
-                            boolean res = getBridge().checkService(componentName, callerID);
+                            boolean res = getBridge().checkService(intent, componentName, callerID);
                             if (!res) {
                                 param.setResult(false);
                             }
                         }
                     });
+
             XposedLog.boot("hookIntentFireWall checkService OK:" + unHooks);
 
             Set unHooks2 = XposedBridge.hookAllMethods(hookClass, "checkBroadcast", new XC_MethodHook() {
@@ -63,9 +67,10 @@ public class IFWSubModule extends AndroidSubModule {
                     Intent intent = (Intent) param.args[0];
                     if (intent == null) return;
 
-                    if (false && BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
+                    // Dump intent for debug build.
+                    if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
                         try {
-                            Log.d(XposedLog.TAG,
+                            Log.d(XposedLog.TAG + XposedLog.PREFIX_BROADCAST,
                                     "checkService@ intent: " + intent + "extra: " + intent.getExtras()
                                             + ObjectToStringUtil.intentToString(intent));
                         } catch (Exception ignored) {
