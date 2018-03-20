@@ -221,8 +221,11 @@ public class CommonPackageInfoAdapter
             choiceModeListener.onEnterChoiceMode();
             onInfoItemLongClickSelected(position);
             return true;
+        } else {
+            // Select all items.
+            selectAll(getCheckedCount() != getItemCount());
+            return true;
         }
-        return false;
     }
 
 

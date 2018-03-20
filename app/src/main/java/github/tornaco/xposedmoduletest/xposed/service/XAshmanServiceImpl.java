@@ -1893,6 +1893,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         String[] rules = getAllowRulesFromCache(callerPackage, targetPackage);
         if (rules == null) {
             boolean isCMIntent = GCMFCMHelper.isGcmOrFcmIntent(intent);
+
+            if (BuildConfig.DEBUG) {
+                XposedLog.verbose("constructStartAllowedRulePattern, GCM? " + isCMIntent + ", intent: " + intent);
+            }
+
             rules = new String[]{
                     String.format("ALLOW %s %s", callerPackage, targetPackage),
                     String.format("ALLOW * %s", targetPackage),
@@ -1917,6 +1922,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         String[] rules = getDenyRulesFromCache(callerPackage, targetPackage);
         if (rules == null) {
             boolean isCMIntent = GCMFCMHelper.isGcmOrFcmIntent(intent);
+
+            if (BuildConfig.DEBUG) {
+                XposedLog.verbose("constructStartDenyRulePattern, GCM? " + isCMIntent + ", intent: " + intent);
+            }
+
             rules = new String[]{
                     String.format("DENY %s %s", callerPackage, targetPackage),
                     "DENY * " + targetPackage,
