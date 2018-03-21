@@ -2,12 +2,16 @@ package github.tornaco.xposedmoduletest.ui.tiles;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v7.widget.PopupMenu;
+import android.view.MenuItem;
 import android.view.View;
 
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.ui.activity.BlockRecordViewerActivity;
 import github.tornaco.xposedmoduletest.ui.activity.start.StartAppNavActivity;
+import github.tornaco.xposedmoduletest.ui.activity.start.StartRuleNavActivity;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
@@ -31,6 +35,43 @@ public class AppStart extends QuickTile {
                 super.onClick(v);
                 context.startActivity(new Intent(context, StartAppNavActivity.class));
             }
+
+            @Override
+            public boolean onLongClick(View v) {
+                showPopMenu(v);
+                return true;
+            }
+
         };
     }
+
+    private void showPopMenu(View anchor) {
+        PopupMenu popupMenu = new PopupMenu(getContext(), anchor);
+        popupMenu.inflate(getPopupMenuRes());
+        popupMenu.setOnMenuItemClickListener(onCreateOnMenuItemClickListener(anchor.getContext()));
+        popupMenu.show();
+    }
+
+    private PopupMenu.OnMenuItemClickListener
+    onCreateOnMenuItemClickListener(final Context context) {
+        return new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if (item.getItemId() == R.id.action_block_record_viewer) {
+                    BlockRecordViewerActivity.start(context, null);
+                    return true;
+                }
+                if (item.getItemId() == R.id.action_rules) {
+                    StartRuleNavActivity.start(context);
+                    return true;
+                }
+                return false;
+            }
+        };
+    }
+
+    private int getPopupMenuRes() {
+        return R.menu.tile_start;
+    }
+
 }
