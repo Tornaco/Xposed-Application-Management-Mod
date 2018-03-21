@@ -80,6 +80,7 @@ public class SubModuleManager {
 
         addToSubsChecked(new PMSGetInstalledPackagesSubModule());
         addToSubsChecked(new PMSSetComponentEnabledSettingSubModule());
+        //addToSubsChecked(new PMSFilterStoppedSubModule());
 
         addToSubsChecked(new ASDSubModule());
         addToSubsChecked(new IFWSubModule());

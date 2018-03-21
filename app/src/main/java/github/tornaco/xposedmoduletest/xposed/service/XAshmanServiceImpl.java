@@ -123,6 +123,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.repo.SetRepo;
 import github.tornaco.xposedmoduletest.xposed.repo.SettingsProvider;
+import github.tornaco.xposedmoduletest.xposed.service.am.AMSProxy;
 import github.tornaco.xposedmoduletest.xposed.service.am.AppIdler;
 import github.tornaco.xposedmoduletest.xposed.service.am.InactiveAppIdler;
 import github.tornaco.xposedmoduletest.xposed.service.am.KillAppIdler;
@@ -268,6 +269,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private boolean mIsSafeMode = false;
 
     private boolean mIsSystemReady = false;
+
+    private AMSProxy mAmsProxy;
 
     // App idler.
     private AppIdler mKillIdler, mInactiveIdler;
@@ -1262,7 +1265,57 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             int callingUid = Binder.getCallingUid();
             XposedLog.verbose("checkBroadcastIntentSending: %s, callingUid %s", intent, callingUid);
         }
+
+        // Enhance for GCM/FCM.
+        if (GCMFCMHelper.isGcmOrFcmIntent(intent)) {
+            final String targetPkg = intent.getPackage();
+            if (targetPkg != null) {
+                boolean shouldBeEnhanced = RepoProxy.getProxy()
+                        .getStart_rules()
+                        .has(constructGCMEnhanceRuleForPackage(targetPkg));
+                if (shouldBeEnhanced) {
+                    intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+                    // Notify GCM pending.
+                    GCMFCMHelper.onGcmIntentReceived(targetPkg);
+                    // Start app process.
+                    // FIXME No need to add for system app? Need a real user test.
+                    int appLevel = getAppLevel(targetPkg);
+                    if (appLevel == XAshmanManager.AppLevel.THIRD_PARTY) {
+                        addApp(targetPkg);
+                    }
+                    XposedLog.verbose("Introduce FLAG_INCLUDE_STOPPED_PACKAGES for GCM/FCM package: "
+                            + targetPkg + ", newIntent: " + intent);
+                } else {
+                    XposedLog.verbose("Won't Introduce FLAG_INCLUDE_STOPPED_PACKAGES for GCM/FCM package: " + targetPkg);
+                }
+            }
+        }
+
         return true;
+    }
+
+    // ALLOW GCMENHANCE *
+    // ALLOW GCMENHANCE A
+    private static String[] constructGCMEnhanceRuleForPackage(String packageName) {
+        return new String[]{"ALLOW GCMENHANCE " + packageName,
+                "ALLOW GCMENHANCE *"};
+    }
+
+    private void addApp(String targetPkg) {
+        try {
+            PackageManager pm = getContext().getPackageManager();
+            ApplicationInfo info;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                info = pm.getApplicationInfo(targetPkg, PackageManager.MATCH_UNINSTALLED_PACKAGES);
+            } else {
+                info = pm.getApplicationInfo(targetPkg, PackageManager.GET_UNINSTALLED_PACKAGES);
+            }
+            if (mAmsProxy != null) {
+                mAmsProxy.addAppLocked(info, false, null);
+            }
+        } catch (Exception e) {
+            XposedLog.wtf("Fail addApp: " + Log.getStackTraceString(e));
+        }
     }
 
     @Override
@@ -1365,6 +1418,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public boolean isActivityStartShouldBeInterrupted(ComponentName componentName) {
         return mAppGuardService.isActivityStartShouldBeInterrupted(componentName);
+    }
+
+    @Override
+    public void attachAMS(AMSProxy proxy) {
+        mAmsProxy = proxy;
+        XposedLog.boot("attachAMS, proxy: " + proxy);
     }
 
     @Override
@@ -1746,6 +1805,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.SYSTEM_APP;
         }
 
+        boolean hasGcmIntent = GCMFCMHelper.isHandlingGcmIntent(servicePkgName);
+        if (hasGcmIntent) {
+            return CheckResult.HAS_GCM_INTENT;
+        }
+
         if (PkgUtil.justBringDown(servicePkgName)) {
             return CheckResult.JUST_BRING_DOWN;
         }
@@ -1828,7 +1892,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (caller == null || targetPackage == null) return null;
         XStopWatch stopWatch = null;
         if (BuildConfig.DEBUG) {
-            stopWatch = XStopWatch.start("SERVICE START RULE CHECK");
+            stopWatch = XStopWatch.start("SERVICE START RULE CHECK, is GCM: " + GCMFCMHelper.isGcmOrFcmIntent(intent));
         }
         try {
 
@@ -1836,7 +1900,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 String[] patternAllow = constructStartAllowedRulePattern(intent, caller, targetPackage);
                 boolean isThisCallerAllowedInRule = RepoProxy.getProxy().getStart_rules().has(patternAllow);
                 if (BuildConfig.DEBUG) {
-                    XposedLog.verbose("check service patternAllow: " + Arrays.toString(patternAllow) + ", has rule: " + isThisCallerAllowedInRule);
+                    XposedLog.verbose("check rules patternAllow: " + Arrays.toString(patternAllow)
+                            + ", has rule: " + isThisCallerAllowedInRule);
                 }
                 if (isThisCallerAllowedInRule) {
                     return CheckResult.ALLOWED_IN_RULE;
@@ -1845,7 +1910,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 String[] patternDeny = constructStartDenyRulePattern(intent, caller, targetPackage);
                 boolean isThisCallerDeniedInRule = RepoProxy.getProxy().getStart_rules().has(patternDeny);
                 if (BuildConfig.DEBUG) {
-                    XposedLog.verbose("check service patternDeny: " + Arrays.toString(patternDeny) + ", has rule: " + isThisCallerDeniedInRule);
+                    XposedLog.verbose("check rules patternDeny: " + Arrays.toString(patternDeny)
+                            + ", has rule: " + isThisCallerDeniedInRule);
                 }
                 if (isThisCallerDeniedInRule) {
                     return CheckResult.DENIED_IN_RULE;
@@ -1895,7 +1961,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             boolean isCMIntent = GCMFCMHelper.isGcmOrFcmIntent(intent);
 
             if (BuildConfig.DEBUG) {
-                XposedLog.verbose("constructStartAllowedRulePattern, GCM? " + isCMIntent + ", intent: " + intent);
+                XposedLog.verbose("constructStartAllowedRulePattern, GCM? " + isCMIntent
+                        + ", intent: " + intent + ", targetPackage: " + targetPackage);
             }
 
             rules = new String[]{
@@ -2816,6 +2883,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.APP_RUNNING_TOP;
         }
 
+        boolean hasGcmIntent = GCMFCMHelper.isHandlingGcmIntent(receiverPkgName);
+        if (hasGcmIntent) {
+            return CheckResult.HAS_GCM_INTENT;
+        }
+
         // Lazy but not running on top.
         // Retrieve imd top package ensure our top pkg correct.
         boolean isLazy = isLazyModeEnabled()
@@ -2911,6 +2983,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (isWhiteSysAppEnabled() && isInSystemAppList(receiverPkgName)) {
             return CheckResult.SYSTEM_APP;
+        }
+
+        boolean hasGcmIntent = GCMFCMHelper.isHandlingGcmIntent(receiverPkgName);
+        if (hasGcmIntent) {
+            return CheckResult.HAS_GCM_INTENT;
         }
 
         if (PkgUtil.isHomeApp(getContext(), receiverPkgName)) {
@@ -7252,6 +7329,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public static final CheckResult WHITE_LISTED = new CheckResult(true, "WHITE_LISTED", true);
         public static final CheckResult SYSTEM_APP = new CheckResult(true, "SYSTEM_APP", true);
         public static final CheckResult CALLED_BY_SYSTEM = new CheckResult(true, "CALLED_BY_SYSTEM", true);
+        public static final CheckResult HAS_GCM_INTENT = new CheckResult(true, "HAS_GCM_INTENT", true);
 
         public static final CheckResult HOME_APP = new CheckResult(true, "HOME_APP", true);
         public static final CheckResult LAUNCHER_APP = new CheckResult(true, "LAUNCHER_APP", true);

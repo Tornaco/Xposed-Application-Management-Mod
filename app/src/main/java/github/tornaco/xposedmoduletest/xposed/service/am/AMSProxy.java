@@ -1,19 +1,25 @@
 package github.tornaco.xposedmoduletest.xposed.service.am;
 
-import lombok.AllArgsConstructor;
+import android.content.pm.ApplicationInfo;
+
+import github.tornaco.xposedmoduletest.xposed.service.InvokeTargetProxy;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Getter;
 
 /**
  * Created by guohao4 on 2018/1/23.
  * Email: Tornaco@163.com
  */
-@AllArgsConstructor
 @Getter
-public class AMSProxy {
+public class AMSProxy extends InvokeTargetProxy<Object> {
 
-    private Object host;
+    public AMSProxy(Object host) {
+        super(host);
+    }
 
-    public boolean isAppRunning(String pkg) {
-        return false;
+    public Object addAppLocked(ApplicationInfo applicationInfo, boolean isolated, String abiOverride) {
+        if (applicationInfo == null) return null;
+        XposedLog.verbose("addAppLocked: " + applicationInfo.packageName);
+        return invokeMethod("addAppLocked", applicationInfo, isolated, abiOverride);
     }
 }
