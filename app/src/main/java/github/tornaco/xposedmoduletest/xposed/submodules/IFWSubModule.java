@@ -71,7 +71,7 @@ public class IFWSubModule extends AndroidSubModule {
                     if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
                         try {
                             Log.d(XposedLog.TAG + XposedLog.PREFIX_BROADCAST,
-                                    "checkService@ intent: " + intent + "extra: " + intent.getExtras()
+                                    "checkBroadcast@ intent: " + intent + "extra: " + intent.getExtras()
                                             + ObjectToStringUtil.intentToString(intent));
                         } catch (Exception ignored) {
                         }

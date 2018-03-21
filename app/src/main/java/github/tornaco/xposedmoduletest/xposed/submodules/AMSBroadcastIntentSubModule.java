@@ -24,9 +24,7 @@ class AMSBroadcastIntentSubModule extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        if (BuildConfig.DEBUG) {
-            hookBroadcastIntent(lpparam);
-        }
+        hookBroadcastIntent(lpparam);
     }
 
     private void hookBroadcastIntent(XC_LoadPackage.LoadPackageParam lpparam) {
