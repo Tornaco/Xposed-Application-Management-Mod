@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.xposed.service.am;
 
 import android.content.pm.ApplicationInfo;
 
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.service.InvokeTargetProxy;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Getter;
@@ -17,9 +18,15 @@ public class AMSProxy extends InvokeTargetProxy<Object> {
         super(host);
     }
 
+    // M: Need check.
+    // N: final addAppLocked(ApplicationInfo applicationInfo, boolean isolated, String abiOverride) {}
+    // O: final ProcessRecord addAppLocked(ApplicationInfo info, String customProcess, boolean isolated,String abiOverride) {}
     public Object addAppLocked(ApplicationInfo applicationInfo, boolean isolated, String abiOverride) {
         if (applicationInfo == null) return null;
         XposedLog.verbose("addAppLocked: " + applicationInfo.packageName);
+        if (OSUtil.isOOrAbove()) {
+            return invokeMethod("addAppLocked", applicationInfo, false, isolated, abiOverride);
+        }
         return invokeMethod("addAppLocked", applicationInfo, isolated, abiOverride);
     }
 }
