@@ -5767,6 +5767,58 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }, delay);
     }
 
+    @Override
+    public void clearModuleSettings(String moduleVar) throws RemoteException {
+        enforceCallingPermissions();
+
+        if (moduleVar.equals(XAppBuildVar.APP_BLUR)) {
+            RepoProxy.getProxy().getBlurs().removeAll();
+        }
+        if (moduleVar.equals(XAppBuildVar.APP_BOOT)) {
+            RepoProxy.getProxy().getBoots().removeAll();
+        }
+        if (moduleVar.equals(XAppBuildVar.APP_COMP_REPLACE)) {
+            RepoProxy.getProxy().getComponentReplacement().clear();
+        }
+        if (moduleVar.equals(XAppBuildVar.APP_DATA_CLEAR)) {
+            RepoProxy.getProxy().getUninstall().removeAll();
+        }
+        if (moduleVar.equals(XAppBuildVar.APP_DOZE)) {
+            RepoProxy.getProxy().getDoze_whitelist_adding().removeAll();
+            RepoProxy.getProxy().getDoze_whitelist_removal().removeAll();
+        }
+        if (moduleVar.equals(XAppBuildVar.APP_FIREWALL)) {
+            RepoProxy.getProxy().getData_restrict().removeAll();
+        }
+        if (moduleVar.equals(XAppBuildVar.APP_LAZY)) {
+            RepoProxy.getProxy().getLazy().removeAll();
+        }
+        if (moduleVar.equals(XAppBuildVar.APP_LK)) {
+            RepoProxy.getProxy().getLks().removeAll();
+        }
+        if (moduleVar.equals(XAppBuildVar.APP_LOCK)) {
+            RepoProxy.getProxy().getLocks().removeAll();
+        }
+        if (moduleVar.equals(XAppBuildVar.APP_OPS)) {
+            RepoProxy.getProxy().getPerms().removeAll();
+        }
+        if (moduleVar.equals(XAppBuildVar.APP_PRIVACY)) {
+            RepoProxy.getProxy().getPrivacy().removeAll();
+        }
+        if (moduleVar.equals(XAppBuildVar.APP_RESIDENT)) {
+            RepoProxy.getProxy().getResident().removeAll();
+        }
+        if (moduleVar.equals(XAppBuildVar.APP_RFK)) {
+            RepoProxy.getProxy().getRfks().removeAll();
+        }
+        if (moduleVar.equals(XAppBuildVar.APP_UNINSTALL)) {
+            RepoProxy.getProxy().getUninstall().removeAll();
+        }
+        if (moduleVar.equals(XAppBuildVar.APP_START)) {
+            RepoProxy.getProxy().getStarts().removeAll();
+        }
+    }
+
     @BinderCall
     @Override
     public List<OpLog> getOpLogForPackage(String packageName) {

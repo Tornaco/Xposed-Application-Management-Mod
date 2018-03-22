@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_block_record_viewer"
+        android:icon="@drawable/ic_build_white_24dp"
+        android:title="@string/title_block_viewer"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_rules"
+        android:title="@string/title_app_auto_start_rule"
+        app:showAsAction="never" />
+
+</menu>

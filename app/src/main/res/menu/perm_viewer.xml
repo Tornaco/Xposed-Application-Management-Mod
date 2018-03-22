@@ -22,4 +22,10 @@
         android:checked="false"
         android:title="@string/title_show_system_app" />
 
+    <item
+        android:id="@+id/clear_settings"
+        android:title="@string/title_clear_settings"
+        android:visible="false"
+        app:showAsAction="never" />
+
 </menu>

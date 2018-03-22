@@ -42,38 +42,38 @@ public class BaseActivity extends AppCompatActivity implements View {
     protected Themes mUserTheme;
 
     @Getter
-    private boolean isVisable;
+    private boolean isVisible;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mUserTheme = XSettings.getThemes(this.getContext());
         setTheme(getUserSetThemeResId(mUserTheme));
-        isVisable = true;
+        isVisible = true;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        isVisable = true;
+        isVisible = true;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        isVisable = false;
+        isVisible = false;
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        isVisable = false;
+        isVisible = false;
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        isVisable = false;
+        isVisible = false;
     }
 
     protected int getUserSetThemeResId(Themes themes) {
