@@ -625,7 +625,7 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
                     || event.getEventType() == XApp.EVENT_INSTALLED_APPS_CACHE_UPDATE) {
 
                 BaseActivity activity = (BaseActivity) getActivity();
-                boolean visible = activity != null && activity.isVisable();
+                boolean visible = activity != null && activity.isVisible();
 
                 if (visible) {
                     buildUI(getActivity());

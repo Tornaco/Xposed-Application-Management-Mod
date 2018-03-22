@@ -390,4 +390,6 @@ interface IAshmanService {
      void setInactiveAppInsteadOfKillPreferred(boolean prefer);
 
      void mockSystemDead(long delay);
+
+     void clearModuleSettings(String moduleVar);
 }

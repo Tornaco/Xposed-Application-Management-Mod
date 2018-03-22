@@ -545,5 +545,7 @@
     <string name="title_policy">策略</string>
     <string name="title_system_dead_moke">模拟系统级别崩溃</string>
     <string name="summary_system_dead_moke">系统将在5秒内模拟依次崩溃，会导致设备重启。</string>
+    <string name="title_clear_settings">清空设定</string>
+    <string name="title_opt_toast_icon">显示Toast应用图标</string>
 
 </resources>

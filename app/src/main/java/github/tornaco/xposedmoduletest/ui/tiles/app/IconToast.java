@@ -13,24 +13,25 @@ import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
  * Email: Tornaco@163.com
  */
 
-public class DetailedToastActivity extends QuickTile {
+public class IconToast extends QuickTile {
 
-    public DetailedToastActivity(final Context context) {
+    public IconToast(final Context context) {
         super(context);
-        this.titleRes = R.string.title_opt_toast_caller;
-        this.iconRes = R.drawable.ic_add_alert_black_24dp;
+        this.titleRes = R.string.title_opt_toast_icon;
+        this.iconRes = R.drawable.ic_subway_black_24dp;
         this.tileView = new SwitchTileView(context) {
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);
-                setChecked(XAshmanManager.get().isServiceAvailable() && XAshmanManager.get().isOptFeatureEnabled(XAshmanManager.OPT.TOAST.name()));
+                setChecked(XAshmanManager.get().isServiceAvailable() && XAshmanManager.get()
+                        .isOptFeatureEnabled(XAshmanManager.OPT.TOAST_ICON.name()));
             }
 
             @Override
             protected void onCheckChanged(boolean checked) {
                 super.onCheckChanged(checked);
                 if (XAshmanManager.get().isServiceAvailable()) {
-                    XAshmanManager.get().setOptFeatureEnabled(XAshmanManager.OPT.TOAST.name(), checked);
+                    XAshmanManager.get().setOptFeatureEnabled(XAshmanManager.OPT.TOAST_ICON.name(), checked);
                 }
             }
         };

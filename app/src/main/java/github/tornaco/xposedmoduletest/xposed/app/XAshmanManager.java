@@ -64,6 +64,7 @@ public class XAshmanManager {
 
     public enum OPT {
         TOAST,
+        TOAST_ICON,
         FOREGROUND_NOTIFICATION,
     }
 
@@ -1795,6 +1796,15 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.mockSystemDead(delay);
+        } catch (RemoteException e) {
+
+        }
+    }
+
+    public void clearModuleSettings(String moduleVar) {
+        ensureService();
+        try {
+            mService.clearModuleSettings(moduleVar);
         } catch (RemoteException e) {
 
         }
