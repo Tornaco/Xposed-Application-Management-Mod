@@ -40,7 +40,6 @@ before_script:
 - cp ./hiddenapi/25/android.jar "$ANDROID_HOME/platforms/android-25/"
 after_script:
 - sudo apt-get install tree
-- tree app
 notifications:
   email:
     recipients:
