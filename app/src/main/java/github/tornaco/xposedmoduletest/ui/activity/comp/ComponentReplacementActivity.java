@@ -42,7 +42,7 @@ import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.ComponentReplacement;
 import github.tornaco.xposedmoduletest.bean.ComponentReplacementList;
-import github.tornaco.xposedmoduletest.license.ComponentReplacements;
+import github.tornaco.xposedmoduletest.remote.ComponentReplacements;
 import github.tornaco.xposedmoduletest.loader.ComponentReplacementsLoader;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.WithRecyclerView;

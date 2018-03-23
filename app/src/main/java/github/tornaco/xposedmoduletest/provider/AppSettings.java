@@ -167,6 +167,18 @@ public class AppSettings extends Observable {
                 .getBoolean(tag, true);
     }
 
+    public static void setSentTokenToServer(Context context, boolean sent) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(AppKey.SENT_TOKEN_TO_SERVER, sent)
+                .apply();
+    }
+
+    public static boolean hasSentTokenToServer(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(AppKey.SENT_TOKEN_TO_SERVER, false);
+    }
+
     public static boolean isNewBuild(Context context) {
         String serverSerial = XAshmanManager.get().isServiceAvailable() ? XAshmanManager.get().getBuildSerial() : null;
         if (serverSerial == null) return false;

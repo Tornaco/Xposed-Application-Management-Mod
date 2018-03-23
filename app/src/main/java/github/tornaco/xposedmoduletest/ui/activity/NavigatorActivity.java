@@ -34,14 +34,11 @@ import com.jaredrummler.android.shell.Shell;
 import org.newstand.logger.Logger;
 
 import java.util.List;
-import java.util.UUID;
 
 import dev.nick.tiles.tile.Category;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
-import github.tornaco.xposedmoduletest.license.DeveloperMessage;
-import github.tornaco.xposedmoduletest.license.DeveloperMessages;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.ActivityLifeCycleDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.FragmentController;
@@ -72,9 +69,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
 import github.tornaco.xposedmoduletest.ui.tiles.app.DetailedToast;
 import github.tornaco.xposedmoduletest.ui.tiles.app.ForegroundNotificationOptActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.IconToast;
-import github.tornaco.xposedmoduletest.ui.widget.EmojiViewUtil;
 import github.tornaco.xposedmoduletest.ui.widget.ToastManager;
-import github.tornaco.xposedmoduletest.util.GsonUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.XApp;
@@ -130,7 +125,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity
 
     private void miscIfNotFirst() {
         if (!AppSettings.isFirstRun(getApplicationContext())) {
-            loadDevMessages();
             // Dynamic update AppLock whitelist.
             loadAppLockConfig();
 
@@ -152,34 +146,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                 }
             });
         }
-    }
-
-    private void loadDevMessages() {
-        // Load dev message.
-        DeveloperMessages.loadAsync(new DeveloperMessages.Callback() {
-            @Override
-            public void onError(Throwable e) {
-                // Noop.
-            }
-
-            @Override
-            public void onSuccess(final List<DeveloperMessage> messages) {
-                if (!isDestroyed() && messages != null && messages.size() > 0) {
-                    boolean isDonatedOrPlay = XApp.isPlayVersion() || AppSettings.isDonated(getContext());
-                    if (isDonatedOrPlay) {
-                        runOnUiThreadChecked(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    showDeveloperMessage(messages.get(0));
-                                } catch (Throwable ignored) {
-                                }
-                            }
-                        });
-                    }
-                }
-            }
-        });
     }
 
     private void initTVStateForOreo() {
@@ -279,18 +245,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity
     protected void onResume() {
         super.onResume();
         cardController.getCurrent().onActivityResume();
-
-
-        if (BuildConfig.DEBUG) {
-            DeveloperMessage developerMessage = new DeveloperMessage();
-            developerMessage.setTitle("Test title");
-            developerMessage.setMessage("Test message");
-            developerMessage.setCancelable(true);
-            developerMessage.setMessageId(UUID.randomUUID().toString());
-            developerMessage.setTimeMills(System.currentTimeMillis());
-            Logger.e(GsonUtil.getGson().toJson(developerMessage));
-        }
-
         checkForRedemptionMode();
     }
 
@@ -325,25 +279,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                                     Toast.makeText(getContext(), R.string.redemption_need_restart, Toast.LENGTH_SHORT).show();
                                 }
                             })
-                    .create()
-                    .show();
-        }
-    }
-
-    private void showDeveloperMessage(DeveloperMessage message) {
-        final String messageId = message.getMessageId();
-        boolean show = AppSettings.isShowInfoEnabled(getContext(), messageId);
-        boolean debug = message.isTest();
-        if (debug && !BuildConfig.DEBUG) return;
-        Logger.d("showDeveloperMessage: " + message + ", " + show);
-        if (show) {
-            AppSettings.setShowInfo(getContext(), messageId, false);
-            Logger.d("showing DeveloperMessage: " + message);
-            new AlertDialog.Builder(getActivity())
-                    .setTitle(message.getTitle())
-                    .setView(EmojiViewUtil.makeMessageViewForDialog(getContext(), message.getMessage()))
-                    .setPositiveButton(android.R.string.ok, null)
-                    .setCancelable(message.isCancelable())
                     .create()
                     .show();
         }

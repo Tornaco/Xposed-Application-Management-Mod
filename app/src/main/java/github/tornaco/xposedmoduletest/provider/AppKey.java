@@ -21,4 +21,5 @@ public interface AppKey {
     String APPLOCK_WORKAROUND = "app_lock_workaround";
     String APP_ICON_PACK = "app_icon_pack";
     String BOTTOM_NO_SHIFT = "bottom_nav_no_shift";
+    String SENT_TOKEN_TO_SERVER = "sent_token_to_server";
 }

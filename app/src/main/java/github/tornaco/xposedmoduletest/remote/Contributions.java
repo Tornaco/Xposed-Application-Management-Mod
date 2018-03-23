@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.license;
+package github.tornaco.xposedmoduletest.remote;
 
 import com.google.common.collect.Lists;
 

@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.license;
+package github.tornaco.xposedmoduletest.remote;
 
 import com.google.common.collect.Lists;
 
@@ -6,6 +6,7 @@ import org.newstand.logger.Logger;
 
 import java.util.List;
 
+import github.tornaco.xposedmoduletest.model.PushMessage;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 
 /**
@@ -18,7 +19,7 @@ public class DeveloperMessages {
     public interface Callback {
         void onError(Throwable e);
 
-        void onSuccess(List<DeveloperMessage> messages);
+        void onSuccess(List<PushMessage> messages);
     }
 
     public static void loadAsync(final Callback callback) {
@@ -34,11 +35,11 @@ public class DeveloperMessages {
         Logger.d("DeveloperMessages loading...");
         DeveloperMessageService developerMessageService = DeveloperMessageService.Factory.create();
         try {
-            List<DeveloperMessage> developerMessages = developerMessageService.all().execute().body();
-            if (developerMessages == null)
-                developerMessages = Lists.newArrayListWithCapacity(0);// Avoid npe.
-            Logger.d("DeveloperMessages loading complete " + developerMessages);
-            callback.onSuccess(developerMessages);
+            List<PushMessage> pushMessages = developerMessageService.all().execute().body();
+            if (pushMessages == null)
+                pushMessages = Lists.newArrayListWithCapacity(0);// Avoid npe.
+            Logger.d("DeveloperMessages loading complete " + pushMessages);
+            callback.onSuccess(pushMessages);
         } catch (Exception e) {
             Logger.e("DeveloperMessageService reload error: " + e);
             callback.onError(e);

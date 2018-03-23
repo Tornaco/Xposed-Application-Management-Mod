@@ -160,7 +160,6 @@ public class DashboardFragment extends Fragment {
         int numColumnsCategory = category.numColumns;
         int column = numColumnsCategory > 0 ? numColumnsCategory : getNumColumns();
 
-        Log.d("APM-C", "Tile count = " + category.tileCount());
         if (category.tileCount() < 2) {
             column = 1;
         }
