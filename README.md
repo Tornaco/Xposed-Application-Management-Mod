@@ -15,7 +15,7 @@ https://github.com/Tornaco/X-APM/wiki
 
 # TRAVIS
 
-[![Build Status](https://travis-ci.org/Tornaco/XAppGuard.svg?branch=master)](https://travis-ci.org/Tornaco/XAppGuard)
+[![Build Status](https://travis-ci.org/Tornaco/X-APM.svg?branch=master)](https://travis-ci.org/Tornaco/X-APM)
 
 # 介绍
 
