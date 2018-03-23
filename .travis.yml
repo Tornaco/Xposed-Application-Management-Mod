@@ -38,8 +38,10 @@ before_script:
 - cp ./android-sdk-license "$ANDROID_HOME/licenses/"
 - cp ./hiddenapi/26/android.jar "$ANDROID_HOME/platforms/android-26/"
 - cp ./hiddenapi/25/android.jar "$ANDROID_HOME/platforms/android-25/"
+- openssl enc -des-ede3-cbc -in ./google-services-enc.json -out ./app/google-services.json -d -k $KEYSTORE_PASS
 after_script:
 - sudo apt-get install tree
+- rm -rf ./app/google-services.json
 notifications:
   email:
     recipients:
