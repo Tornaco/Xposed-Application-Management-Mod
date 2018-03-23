@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.service;
 
+import android.app.IntentService;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -9,9 +10,8 @@ import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-
-import com.google.android.gms.gcm.GcmListenerService;
 
 import org.newstand.logger.Logger;
 
@@ -31,35 +31,57 @@ import github.tornaco.xposedmoduletest.util.OSUtil;
 
 // https://firebase.google.com/docs/cloud-messaging/?authuser=0
 // https://github.com/googlesamples/google-services/tree/master/android/gcm/app/src/main/java/gcm/play/android/samples/com/gcmquickstart
-public class XGcmListenerService extends GcmListenerService {
+public class GcmIntentService extends IntentService {
 
     private static final AtomicInteger NOTIFICATION_ID = new AtomicInteger(0);
 
     private static final String NOTIFICATION_CHANNEL = "github.tornaco.notification.channel.gcm";
 
+    public GcmIntentService() {
+        super("GcmIntentService");
+    }
+
+    /**
+     * Creates an IntentService.  Invoked by your subclass's constructor.
+     *
+     * @param name Used to name the worker thread, important only for debugging.
+     */
+    public GcmIntentService(String name) {
+        super(name);
+    }
+
     @Override
-    public void onMessageReceived(String from, Bundle data) {
+    protected void onHandleIntent(@Nullable Intent intent) {
+        if (intent != null) {
+            Bundle extras = intent.getExtras();
 
-        Bundle messageBundle = data.getBundle("notification");
+            if (BuildConfig.DEBUG) {
+                dumpBundle(extras);
+            }
 
-        String message = null;
-        if (messageBundle != null) {
-            message = messageBundle.getString(PushMessage.DATA_SCHEMA_FIREBASE_BODY);
+            if (extras != null) {
+                String from = extras.getString("from");
+                String body = extras.getString("gcm.notification.body");
+                onMessageReceived(from, body);
+
+            }
+
+            XGcmReceiver.completeWakefulIntent(intent);
         }
+    }
 
-        Logger.d("onMessageReceived, data: " + data);
-        Logger.d("onMessageReceived, messageBundle: " + messageBundle);
+    private void onMessageReceived(String from, String body) {
+
         Logger.d("onMessageReceived, from: " + from);
-        Logger.d("onMessageReceived, message: " + message);
+        Logger.d("onMessageReceived, message: " + body);
 
-        PushMessage pushMessage = PushMessage.fromJson(message);
+        PushMessage pushMessage = PushMessage.fromJson(body);
         Logger.d("onMessageReceived, pushMessage: " + pushMessage);
 
         if (pushMessage != null) {
             sendNotification(pushMessage);
         }
     }
-    // [END receive_message]
 
     /**
      * Create and show a simple notification containing the received GCM message.
@@ -124,5 +146,13 @@ public class XGcmListenerService extends GcmListenerService {
                 notificationManager.createNotificationChannel(notificationChannel);
             }
         }
+    }
+
+    static void dumpBundle(Bundle extras) {
+        for (Object key : extras.keySet()) {
+            Logger.d("dumpBundle: " + key);
+            Logger.d("dumpBundle: " + extras.get(String.valueOf(key)));
+        }
+
     }
 }

@@ -404,7 +404,7 @@
 
         <!--GCM-->
         <receiver
-            android:name="com.google.android.gms.gcm.GcmReceiver"
+            android:name=".service.XGcmReceiver"
             android:exported="true"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
@@ -413,13 +413,11 @@
             </intent-filter>
         </receiver>
 
+        <!--Handle notification-->
         <service
-            android:name=".service.XGcmListenerService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-            </intent-filter>
-        </service>
+            android:name=".service.GcmIntentService"
+            android:exported="false" />
+
         <service
             android:name=".service.XInstanceIDListenerService"
             android:exported="false">
@@ -429,7 +427,7 @@
         </service>
         <service
             android:name=".service.XRegistrationIntentService"
-            android:exported="false"/>
+            android:exported="false" />
     </application>
 
 </manifest>
