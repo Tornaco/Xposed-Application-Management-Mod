@@ -106,7 +106,7 @@ public class GcmIntentService extends IntentService {
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL)
-                .setSmallIcon(R.drawable.ic_stat_notification_message)
+                .setSmallIcon(R.drawable.ic_stat_new_release)
                 .setContentTitle(message.getTitle())
                 .setContentText(message.getMessage())
                 .setAutoCancel(true)
