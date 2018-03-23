@@ -56,8 +56,6 @@ import github.tornaco.xposedmoduletest.backup.DataBackup;
 import github.tornaco.xposedmoduletest.bean.Suggestion;
 import github.tornaco.xposedmoduletest.bean.Suggestions;
 import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
-import github.tornaco.xposedmoduletest.license.DeveloperMessage;
-import github.tornaco.xposedmoduletest.license.DeveloperMessages;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.ActivityLifeCycleDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.FragmentController;
@@ -111,7 +109,6 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.ShowTileDivider;
 import github.tornaco.xposedmoduletest.ui.tiles.app.ThemeChooser;
 import github.tornaco.xposedmoduletest.ui.tiles.app.WhiteSystemApp;
 import github.tornaco.xposedmoduletest.ui.widget.BottomNavigationViewHelper;
-import github.tornaco.xposedmoduletest.ui.widget.EmojiViewUtil;
 import github.tornaco.xposedmoduletest.ui.widget.ToastManager;
 import github.tornaco.xposedmoduletest.util.EmojiUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
@@ -129,7 +126,8 @@ import lombok.Synchronized;
  * Email: Tornaco@163.com
  */
 @RuntimePermissions
-public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implements
+public class NavigatorActivityBottomNav
+        extends WithWithCustomTabActivity implements
         DataBackup.BackupRestoreListener {
 
     interface INDEXS {
@@ -213,7 +211,6 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
 
     private void miscIfNotFirst() {
         if (!AppSettings.isFirstRun(getApplicationContext())) {
-            loadDevMessages();
             // Dynamic update AppLock whitelist.
             loadAppLockConfig();
         }
@@ -229,34 +226,6 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
                 }
             });
         }
-    }
-
-    private void loadDevMessages() {
-        // Load dev message.
-        DeveloperMessages.loadAsync(new DeveloperMessages.Callback() {
-            @Override
-            public void onError(Throwable e) {
-                // Noop.
-            }
-
-            @Override
-            public void onSuccess(final List<DeveloperMessage> messages) {
-                if (!isDestroyed() && messages != null && messages.size() > 0) {
-                    boolean isDonatedOrPlay = XApp.isPlayVersion() || AppSettings.isDonated(getContext());
-                    if (isDonatedOrPlay) {
-                        runOnUiThreadChecked(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    showDeveloperMessage(messages.get(0));
-                                } catch (Throwable ignored) {
-                                }
-                            }
-                        });
-                    }
-                }
-            }
-        });
     }
 
     private void initTVStateForOreo() {
@@ -402,24 +371,6 @@ public class NavigatorActivityBottomNav extends WithWithCustomTabActivity implem
         }
     }
 
-    private void showDeveloperMessage(DeveloperMessage message) {
-        final String messageId = message.getMessageId();
-        boolean show = AppSettings.isShowInfoEnabled(getContext(), messageId);
-        boolean debug = message.isTest();
-        if (debug && !BuildConfig.DEBUG) return;
-        Logger.d("showDeveloperMessage: " + message + ", " + show);
-        if (show) {
-            AppSettings.setShowInfo(getContext(), messageId, false);
-            Logger.d("showing DeveloperMessage: " + message);
-            new AlertDialog.Builder(getActivity())
-                    .setTitle(message.getTitle())
-                    .setView(EmojiViewUtil.makeMessageViewForDialog(getContext(), message.getMessage()))
-                    .setPositiveButton(android.R.string.ok, null)
-                    .setCancelable(message.isCancelable())
-                    .create()
-                    .show();
-        }
-    }
 
     private void initFirstRun() {
         try {

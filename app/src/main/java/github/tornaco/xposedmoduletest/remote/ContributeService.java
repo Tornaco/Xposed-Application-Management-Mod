@@ -1,6 +1,8 @@
-package github.tornaco.xposedmoduletest.license;
+package github.tornaco.xposedmoduletest.remote;
 
-import github.tornaco.xposedmoduletest.model.RemoteConfig;
+import java.util.List;
+
+import github.tornaco.xposedmoduletest.model.Contribution;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -11,24 +13,23 @@ import retrofit2.http.GET;
  * Email: Tornaco@163.com
  */
 
-public interface RemoteConfigService {
+public interface ContributeService {
 
     String API_URL = "https://raw.githubusercontent.com/Tornaco/Tor-Data/master/";
 
-    @GET("app_guard_config")
-    Call<RemoteConfig> get();
+    @GET("pay_list_app_guard")
+    Call<List<Contribution>> all();
 
     class Factory {
+        private static ContributeService sHub;
 
-        private static RemoteConfigService sHub;
-
-        public synchronized static RemoteConfigService create() {
+        public synchronized static ContributeService create() {
             if (sHub == null) {
                 Retrofit retrofit = new Retrofit.Builder()
                         .baseUrl(API_URL)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build();
-                sHub = retrofit.create(RemoteConfigService.class);
+                sHub = retrofit.create(ContributeService.class);
             }
             return sHub;
         }

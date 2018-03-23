@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.xposed;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
@@ -21,10 +22,13 @@ import github.tornaco.apigen.GithubCommitSha;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.cache.InstalledAppsLoadingCache;
 import github.tornaco.xposedmoduletest.cache.RunningServicesLoadingCache;
+import github.tornaco.xposedmoduletest.model.PushMessage;
 import github.tornaco.xposedmoduletest.provider.XSettings;
+import github.tornaco.xposedmoduletest.service.XRegistrationIntentService;
 import github.tornaco.xposedmoduletest.ui.activity.NavigatorActivityBottomNav;
 import github.tornaco.xposedmoduletest.ui.widget.SimpleEmojiProvider;
 import github.tornaco.xposedmoduletest.util.ActvityLifeCycleAdapter;
+import github.tornaco.xposedmoduletest.util.GMSUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 
 /**
@@ -38,6 +42,7 @@ public class XApp extends MultiDexApplication {
 
     public static final int EVENT_RUNNING_SERVICE_CACHE_UPDATE = 0x1;
     public static final int EVENT_INSTALLED_APPS_CACHE_UPDATE = 0x2;
+    public static final int EVENT_GCM_REGISTRATION_COMPLETE = 0x3;
 
     @SuppressLint("StaticFieldLeak")
     private static XApp xApp;
@@ -60,6 +65,11 @@ public class XApp extends MultiDexApplication {
         cacheRunningServices();
         cacheInstalledApps();
         registerLifeCycleCallback();
+
+        // For dev.
+        if (BuildConfig.DEBUG) {
+            forDev();
+        }
     }
 
     private void registerLifeCycleCallback() {
@@ -73,6 +83,13 @@ public class XApp extends MultiDexApplication {
                         if (activity instanceof NavigatorActivityBottomNav) {
                             cacheRunningServices();
                             cacheInstalledApps();
+
+                            if (GMSUtil.checkPlayServices(activity.getApplicationContext())) {
+                                // Start IntentService to register this application with GCM.
+                                Intent intent = new Intent(activity.getApplicationContext(), XRegistrationIntentService.class);
+                                startService(intent);
+                            }
+
                         }
                     }
                 });
@@ -125,5 +142,9 @@ public class XApp extends MultiDexApplication {
 
     public static boolean isPlayVersion() {
         return XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.PLAY);
+    }
+
+    private void forDev() {
+        PushMessage.dumpDemo();
     }
 }

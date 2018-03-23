@@ -137,8 +137,12 @@ dependencies {
 
     // https://github.com/thoughtbot/expandable-recycler-view
     implementation 'com.thoughtbot:expandablerecyclerview:1.3'
+
+    implementation 'com.google.firebase:firebase-core:11.8.0'
+    implementation "com.google.android.gms:play-services-gcm:11.8.0"
 }
 
+apply plugin: 'com.google.gms.google-services'
 
 
 

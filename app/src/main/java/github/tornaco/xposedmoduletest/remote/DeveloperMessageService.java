@@ -1,8 +1,8 @@
-package github.tornaco.xposedmoduletest.license;
+package github.tornaco.xposedmoduletest.remote;
 
 import java.util.List;
 
-import github.tornaco.xposedmoduletest.model.Contribution;
+import github.tornaco.xposedmoduletest.model.PushMessage;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -13,23 +13,23 @@ import retrofit2.http.GET;
  * Email: Tornaco@163.com
  */
 
-public interface ContributeService {
+public interface DeveloperMessageService {
 
-    String API_URL = "https://raw.githubusercontent.com/Tornaco/Tor-Data/master/";
+    String API_URL = "https://raw.githubusercontent.com/Tornaco/X-APM/master/remote/";
 
-    @GET("pay_list_app_guard")
-    Call<List<Contribution>> all();
+    @GET("developer_messages")
+    Call<List<PushMessage>> all();
 
     class Factory {
-        private static ContributeService sHub;
+        private static DeveloperMessageService sHub;
 
-        public synchronized static ContributeService create() {
+        public synchronized static DeveloperMessageService create() {
             if (sHub == null) {
                 Retrofit retrofit = new Retrofit.Builder()
                         .baseUrl(API_URL)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build();
-                sHub = retrofit.create(ContributeService.class);
+                sHub = retrofit.create(DeveloperMessageService.class);
             }
             return sHub;
         }

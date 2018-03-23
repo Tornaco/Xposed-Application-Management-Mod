@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.license;
+package github.tornaco.xposedmoduletest.remote;
 
 import org.newstand.logger.Logger;
 
