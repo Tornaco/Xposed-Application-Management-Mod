@@ -473,7 +473,7 @@
     <string name="title_uninstall_app">卸载应用</string>
     <string name="message_uninstall_app">此操作无法恢复，请确认。</string>
     <string name="title_app_auto_start_rule">关联启动规则</string>
-    <string name="summary_start_app_rules">你居然点进来了，如果你觉得关联启动控制没啥不满意的，你可以出去了。你可以通过制定规则来细化关联启动控制，详细使用方法请参考新手使用手册。\n\n注意：规则优先级大于关联启动禁用的应用列表。</string>
+    <string name="summary_start_app_rules">你可以通过制定规则来细化关联启动控制，详细使用方法请参考新手使用手册。\n\n注意：规则的优先级大于其他一切设定（例如，绿化，关联启动列表）。</string>
     <string name="title_new_start_rule">新建规则</string>
     <string name="start_rule_add_fail">无法添加该规则，请检查语法</string>
     <string name="title_cleanup_system_error_trace">清空错误日志</string>
