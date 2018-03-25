@@ -1805,6 +1805,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.SYSTEM_APP;
         }
 
+        // First check the user rules.
+        CheckResult ruleCheckRes = getStartCheckResultInRules(intent, callerUid, servicePkgName);
+        if (ruleCheckRes != null) {
+            return ruleCheckRes;
+        }
+
         boolean hasGcmIntent = GCMFCMHelper.isHandlingGcmIntent(servicePkgName);
         if (hasGcmIntent) {
             return CheckResult.HAS_GCM_INTENT;
@@ -1864,12 +1870,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (PkgUtil.isAppRunning(getContext(), servicePkgName, isSystemApp)) {
             return CheckResult.APP_RUNNING;
-        }
-
-        // First check the user rules.
-        CheckResult ruleCheckRes = getStartCheckResultInRules(intent, callerUid, servicePkgName);
-        if (ruleCheckRes != null) {
-            return ruleCheckRes;
         }
 
         // If this app is not in good condition, and user choose to block:
@@ -2878,6 +2878,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.WHITE_LISTED;
         }
 
+        // First check the user rules.
+        CheckResult ruleCheckRes = getStartCheckResultInRules(intent, callerPackageName, receiverPkgName);
+        if (ruleCheckRes != null) {
+            return ruleCheckRes;
+        }
+
         boolean isOnTop = isPackageRunningOnTop(receiverPkgName);
         if (isOnTop) {
             return CheckResult.APP_RUNNING_TOP;
@@ -2911,12 +2917,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         if (PkgUtil.isAppRunning(getContext(), receiverPkgName, isSystemApp)) {
             return CheckResult.APP_RUNNING;
-        }
-
-        // First check the user rules.
-        CheckResult ruleCheckRes = getStartCheckResultInRules(intent, callerPackageName, receiverPkgName);
-        if (ruleCheckRes != null) {
-            return ruleCheckRes;
         }
 
         // It is in user black list.
