@@ -179,6 +179,18 @@ public class AppSettings extends Observable {
                 .getBoolean(AppKey.SENT_TOKEN_TO_SERVER, false);
     }
 
+    public static void setSuscribeGcmMessage(Context context, boolean rec) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(AppKey.SUBSCRIBE_GCM_MESSAGES, rec)
+                .apply();
+    }
+
+    public static boolean isSubscribeGcmMessage(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(AppKey.SUBSCRIBE_GCM_MESSAGES, true);
+    }
+
     public static boolean isNewBuild(Context context) {
         String serverSerial = XAshmanManager.get().isServiceAvailable() ? XAshmanManager.get().getBuildSerial() : null;
         if (serverSerial == null) return false;

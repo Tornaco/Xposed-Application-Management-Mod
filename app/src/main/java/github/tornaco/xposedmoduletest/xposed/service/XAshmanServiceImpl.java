@@ -1996,6 +1996,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     // ALLOW GCM *
     // ALLOW GCM B
+
+    // ALLOW THIS THIS
     private String[] constructStartAllowedRulePattern(Intent intent, String callerPackage, String targetPackage) {
         String[] rules = getAllowRulesFromCache(callerPackage, targetPackage);
         if (rules == null) {
@@ -2003,7 +2005,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             if (BuildConfig.DEBUG) {
                 XposedLog.verbose("constructStartAllowedRulePattern, GCM? " + isCMIntent
-                        + ", intent: " + intent + ", targetPackage: " + targetPackage);
+                                + ", intent: " + intent + ", " +
+                                "targetPackage: " + targetPackage,
+                        "callerPackage: " + callerPackage);
             }
 
             rules = new String[]{
@@ -2013,6 +2017,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     "ALLOW * *",
                     isCMIntent ? "ALLOW GCM *" : null,
                     isCMIntent ? String.format("ALLOW GCM %s", targetPackage) : null,
+                    (targetPackage.equals(callerPackage)) ? "ALLOW THIS THIS" : null,
             };
             addToAllowRulesCache(callerPackage, targetPackage, rules);
         }

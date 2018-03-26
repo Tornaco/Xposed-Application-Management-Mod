@@ -93,6 +93,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlackNotification;
 import github.tornaco.xposedmoduletest.ui.tiles.app.Backup;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CleanUpSystemErrorTrace;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CrashDump;
+import github.tornaco.xposedmoduletest.ui.tiles.app.GcmMessagesSubscriber;
 import github.tornaco.xposedmoduletest.ui.tiles.app.IconPack;
 import github.tornaco.xposedmoduletest.ui.tiles.app.InactiveInsteadOfKillApp;
 import github.tornaco.xposedmoduletest.ui.tiles.app.MokeCrash;
@@ -1249,12 +1250,17 @@ public class NavigatorActivityBottomNav
             theme.addTile(new IconPack(getActivity()));
             theme.addTile(new NoShift(getActivity()));
 
+            Category others = new Category();
+            others.titleRes = R.string.title_others;
+            others.addTile(new GcmMessagesSubscriber(getActivity()));
+
             categories.add(system);
             categories.add(restrict);
             categories.add(policy);
             categories.add(data);
             categories.add(dataHook);
             categories.add(theme);
+            categories.add(others);
         }
     }
 
