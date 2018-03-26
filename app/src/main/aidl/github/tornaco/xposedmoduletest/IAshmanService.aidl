@@ -392,4 +392,8 @@ interface IAshmanService {
      void mockSystemDead(long delay);
 
      void clearModuleSettings(String moduleVar);
+
+     // Doze motion.
+     boolean isDisableMotionEnabled();
+     void setDisableMotionEnabled(boolean enable);
 }

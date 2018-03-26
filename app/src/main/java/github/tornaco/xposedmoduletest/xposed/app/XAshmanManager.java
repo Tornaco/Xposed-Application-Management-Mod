@@ -1809,4 +1809,20 @@ public class XAshmanManager {
 
         }
     }
+
+    public boolean isDisableMotionEnabled() {
+        try {
+            return mService.isDisableMotionEnabled();
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    public void setDisableMotionEnabled(boolean enable) {
+        try {
+            mService.setDisableMotionEnabled(enable);
+        } catch (RemoteException e) {
+
+        }
+    }
 }

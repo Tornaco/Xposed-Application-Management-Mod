@@ -355,7 +355,7 @@
     <string name="title_apps">应用列表</string>
     <string name="title_privacy_policy">隐私权政策</string>
     <string name="title_force_doze">强制进入</string>
-    <string name="summary_doze_force">强行进入，最为致命。</string>
+    <string name="summary_doze_force">摆脱一些严格要求。</string>
     <string name="theme_name_black">A屏黑</string>
     <string name="title_doze_fail_generic_failure">状态改变失败</string>
     <string name="perm_apps">按应用</string>
@@ -547,5 +547,6 @@
     <string name="summary_system_dead_moke">系统将在5秒内模拟依次崩溃，会导致设备重启。</string>
     <string name="title_clear_settings">清空设定</string>
     <string name="title_opt_toast_icon">显示Toast应用图标</string>
+    <string name="title_disable_motion">禁用运动检测</string>
 
 </resources>

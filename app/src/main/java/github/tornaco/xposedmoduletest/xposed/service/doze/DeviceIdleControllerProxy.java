@@ -128,6 +128,24 @@ public class DeviceIdleControllerProxy {
 
     private Object deviceIdleController;
 
+    public void startMonitoringMotionLocked() {
+        XposedLog.verbose("startMonitoringMotionLocked");
+        try {
+            XposedHelpers.callMethod(deviceIdleController, "startMonitoringMotionLocked");
+        } catch (Exception e) {
+            XposedLog.wtf("startMonitoringMotionLocked call fail: " + Log.getStackTraceString(e));
+        }
+    }
+
+    public void stopMonitoringMotionLocked() {
+        XposedLog.verbose("stopMonitoringMotionLocked");
+        try {
+            XposedHelpers.callMethod(deviceIdleController, "stopMonitoringMotionLocked");
+        } catch (Exception e) {
+            XposedLog.wtf("stopMonitoringMotionLocked call fail: " + Log.getStackTraceString(e));
+        }
+    }
+
     public void setForceIdle(boolean force) {
         try {
             XposedHelpers.setObjectField(deviceIdleController, "mForceIdle", force);

@@ -234,6 +234,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final AtomicBoolean mLazyEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mDozeEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mForeDozeEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mDisableMotionEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mPowerSaveModeEnabled = new AtomicBoolean(false);
 
@@ -940,6 +941,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         try {
+            boolean disableMotion = (boolean) SystemSettings.APM_DISABLE_MOTION_ENABLE_B.readFromSystemSettings(getContext());
+            mDisableMotionEnabled.set(disableMotion);
+            XposedLog.boot("disableMotion: " + String.valueOf(disableMotion));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
             boolean powerSave = (boolean) SystemSettings.APM_POWER_SAVE_B.readFromSystemSettings(getContext());
             mPowerSaveModeEnabled.set(powerSave);
             XposedLog.boot("powerSave: " + String.valueOf(powerSave));
@@ -1014,6 +1023,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     mDeviceIdleController.setDeepIdle(true);
                     mDeviceIdleController.setForceIdle(isForceDozeEnabled());
                     XposedLog.verbose("isForceIdle: " + mDeviceIdleController.isForceIdle());
+
+                    // Apply motion state.
+                    if (isDisableMotionEnabled()) {
+                        mDeviceIdleController.stopMonitoringMotionLocked();
+                    } else {
+                        mDeviceIdleController.startMonitoringMotionLocked();
+                    }
+
                     mDeviceIdleController.becomeInactiveIfAppropriateLocked();
 
                     onDozeEnterStart();
@@ -1206,6 +1223,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setForceDozeEnabled(boolean enabled) {
             if (mForeDozeEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.APM_FORCE_DOZE_ENABLE_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setDisableMotionEnabled(boolean enabled) {
+            if (mDisableMotionEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.APM_DISABLE_MOTION_ENABLE_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 
@@ -5842,6 +5866,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
         if (moduleVar.equals(XAppBuildVar.APP_START)) {
             RepoProxy.getProxy().getStarts().removeAll();
+        }
+    }
+
+    @Override
+    public boolean isDisableMotionEnabled() {
+        return mDisableMotionEnabled.get();
+    }
+
+    @Override
+    public void setDisableMotionEnabled(boolean enable) throws RemoteException {
+        enforceCallingPermissions();
+        if (mDozeHandler != null) {
+            mDozeHandler.obtainMessage(DozeHandlerMessages.MSG_SETDISABLEMOTIONENABLED, enable).sendToTarget();
         }
     }
 

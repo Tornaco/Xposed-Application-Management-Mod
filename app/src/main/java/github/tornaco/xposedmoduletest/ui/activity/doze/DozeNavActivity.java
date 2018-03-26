@@ -13,6 +13,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
+import github.tornaco.xposedmoduletest.ui.tiles.doze.DisableMotionTile;
 import github.tornaco.xposedmoduletest.ui.tiles.doze.DozeDelayTile;
 import github.tornaco.xposedmoduletest.ui.tiles.doze.DozeEnterTile;
 import github.tornaco.xposedmoduletest.ui.tiles.doze.DozeWhitelistTile;
@@ -117,6 +118,7 @@ public class DozeNavActivity extends CommonPackageInfoListActivity
             config.titleRes = R.string.title_config;
             config.addTile(new DozeDelayTile(getActivity()));
             config.addTile(new ForceDozeTile(getActivity()));
+            config.addTile(new DisableMotionTile(getActivity()));
             config.addTile(new DozeWhitelistTile(getActivity()));
 
             categories.add(state);
