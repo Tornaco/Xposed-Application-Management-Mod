@@ -548,5 +548,7 @@
     <string name="title_clear_settings">清空设定</string>
     <string name="title_opt_toast_icon">显示Toast应用图标</string>
     <string name="title_disable_motion">禁用运动检测</string>
+    <string name="title_subscribe_gcm_messages">接收开发动态</string>
+    <string name="summary_subscribe_gcm_messages">作者会将最新版本发布，以及其他开发动态以GCM通道推送给当前设备。</string>
 
 </resources>

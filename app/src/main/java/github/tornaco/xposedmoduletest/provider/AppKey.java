@@ -22,4 +22,5 @@ public interface AppKey {
     String APP_ICON_PACK = "app_icon_pack";
     String BOTTOM_NO_SHIFT = "bottom_nav_no_shift";
     String SENT_TOKEN_TO_SERVER = "sent_token_to_server";
+    String SUBSCRIBE_GCM_MESSAGES = "receive_gcm_messages";
 }

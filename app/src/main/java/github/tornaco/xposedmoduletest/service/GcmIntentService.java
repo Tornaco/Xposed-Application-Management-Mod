@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.service;
 
 import android.app.IntentService;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -20,7 +21,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.model.PushMessage;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.NavigatorActivityBottomNav;
+import github.tornaco.xposedmoduletest.util.MarketUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 
 /**
@@ -63,7 +66,6 @@ public class GcmIntentService extends IntentService {
                 String from = extras.getString("from");
                 String body = extras.getString("gcm.notification.body");
                 onMessageReceived(from, body);
-
             }
 
             XGcmReceiver.completeWakefulIntent(intent);
@@ -79,7 +81,12 @@ public class GcmIntentService extends IntentService {
         Logger.d("onMessageReceived, pushMessage: " + pushMessage);
 
         if (pushMessage != null) {
-            sendNotification(pushMessage);
+
+            // Read settings.
+            boolean subscribe = AppSettings.isSubscribeGcmMessage(this);
+            if (subscribe) {
+                sendNotification(pushMessage);
+            }
         }
     }
 
@@ -99,18 +106,37 @@ public class GcmIntentService extends IntentService {
 
         createNotificationChannelForO();
 
-        Intent intent = new Intent(this, NavigatorActivityBottomNav.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
+
+        Intent intent;
+        PendingIntent pendingIntent;
+
+        int type = message.getType();
+        if (type == PushMessage.TYPE_APP_UPDATE) {
+            intent = MarketUtil.buildIntent(BuildConfig.APPLICATION_ID);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        } else {
+            intent = new Intent(this, NavigatorActivityBottomNav.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        }
+
+        pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
+
+        android.support.v4.app.NotificationCompat.BigTextStyle style =
+                new android.support.v4.app.NotificationCompat.BigTextStyle();
+        style.bigText(message.getMessage());
+        style.setBigContentTitle(message.getTitle());
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL)
                 .setSmallIcon(R.drawable.ic_stat_new_release)
                 .setContentTitle(message.getTitle())
                 .setContentText(message.getMessage())
+                .setStyle(style)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
+                .setVisibility(Notification.VISIBILITY_PUBLIC)
+                // .setFullScreenIntent(pendingIntent, message.getImportance() == IMPORTANCE_MAX)
                 .setContentIntent(pendingIntent);
 
         NotificationManager notificationManager =
