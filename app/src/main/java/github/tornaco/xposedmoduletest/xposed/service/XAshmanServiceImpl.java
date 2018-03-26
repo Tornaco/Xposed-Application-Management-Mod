@@ -234,6 +234,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final AtomicBoolean mLazyEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mDozeEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mForeDozeEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mDisableMotionEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mPowerSaveModeEnabled = new AtomicBoolean(false);
 
@@ -940,6 +941,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         try {
+            boolean disableMotion = (boolean) SystemSettings.APM_DISABLE_MOTION_ENABLE_B.readFromSystemSettings(getContext());
+            mDisableMotionEnabled.set(disableMotion);
+            XposedLog.boot("disableMotion: " + String.valueOf(disableMotion));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
             boolean powerSave = (boolean) SystemSettings.APM_POWER_SAVE_B.readFromSystemSettings(getContext());
             mPowerSaveModeEnabled.set(powerSave);
             XposedLog.boot("powerSave: " + String.valueOf(powerSave));
@@ -1014,6 +1023,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     mDeviceIdleController.setDeepIdle(true);
                     mDeviceIdleController.setForceIdle(isForceDozeEnabled());
                     XposedLog.verbose("isForceIdle: " + mDeviceIdleController.isForceIdle());
+
+                    // Apply motion state.
+                    if (isDisableMotionEnabled()) {
+                        mDeviceIdleController.stopMonitoringMotionLocked();
+                    } else {
+                        mDeviceIdleController.startMonitoringMotionLocked();
+                    }
+
                     mDeviceIdleController.becomeInactiveIfAppropriateLocked();
 
                     onDozeEnterStart();
@@ -1121,6 +1138,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case DozeHandlerMessages.MSG_SETFORCEDOZEENABLED:
                     DozeHandlerImpl.this.setForceDozeEnabled((Boolean) msg.obj);
                     break;
+                case DozeHandlerMessages.MSG_SETDISABLEMOTIONENABLED:
+                    DozeHandlerImpl.this.setDisableMotionEnabled((Boolean) msg.obj);
+                    break;
                 case DozeHandlerMessages.MSG_ONSCREENON:
                     DozeHandlerImpl.this.onScreenOn();
                     break;
@@ -1206,6 +1226,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setForceDozeEnabled(boolean enabled) {
             if (mForeDozeEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.APM_FORCE_DOZE_ENABLE_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setDisableMotionEnabled(boolean enabled) {
+            if (mDisableMotionEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.APM_DISABLE_MOTION_ENABLE_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 
@@ -1861,6 +1888,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (appLevel > XAshmanManager.AppLevel.SYSTEM) {
                 return CheckResult.SAME_CALLER_CORE;
             }
+
+            // Note. This is a workaround for MIUI.
+            // We don't know why the path is 'THIS' to 'THIS' when
+            // click a notification to launch the pending intent.
+            // maybe MIPUSH?
+            // Fk it.
+            boolean isAllowedThisToThis = RepoProxy.getProxy().getStart_rules().has(RULE_PATTERN_THIS_TO_THIS);
+            if (isAllowedThisToThis) {
+                return CheckResult.SAME_CALLER_RULE;
+            }
         }
 
         boolean isOnTop = isPackageRunningOnTop(servicePkgName);
@@ -1882,6 +1919,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         // By default, we allow.
         return CheckResult.ALLOWED_GENERAL;
     }
+
+    private static final String[] RULE_PATTERN_THIS_TO_THIS = new String[]{
+            "ALLOW THIS THIS"
+    };
 
     private CheckResult getStartCheckResultInRules(Intent intent, int callerUid, String targetPackage) {
         String callerIdentify = PkgUtil.pkgForUid(getContext(), callerUid);
@@ -2862,6 +2903,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         // Broadcast targetServicePkg/to same app is allowed.
         if (callerUid == receiverUid && PkgUtil.isSystemOrPhoneOrShell(callerUid)) {
             return CheckResult.SAME_CALLER;
+        }
+
+        if (callerUid == receiverUid) {
+            // Note. This is a workaround for MIUI.
+            // We don't know why the path is 'THIS' to 'THIS' when
+            // click a notification to launch the pending intent.
+            // maybe MIPUSH?
+            // Fk it.
+            boolean isAllowedThisToThis = RepoProxy.getProxy().getStart_rules().has(RULE_PATTERN_THIS_TO_THIS);
+            if (isAllowedThisToThis) {
+                return CheckResult.SAME_CALLER_RULE;
+            }
         }
 
         String receiverPkgName = PkgUtil.pkgForUid(getContext(), receiverUid);
@@ -5819,6 +5872,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
+    @Override
+    public boolean isDisableMotionEnabled() {
+        return mDisableMotionEnabled.get();
+    }
+
+    @Override
+    public void setDisableMotionEnabled(boolean enable) throws RemoteException {
+        enforceCallingPermissions();
+        if (mDozeHandler != null) {
+            mDozeHandler.obtainMessage(DozeHandlerMessages.MSG_SETDISABLEMOTIONENABLED, enable).sendToTarget();
+        }
+    }
+
     @BinderCall
     @Override
     public List<OpLog> getOpLogForPackage(String packageName) {
@@ -7391,6 +7457,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public static final CheckResult APP_RUNNING_TOP = new CheckResult(true, "APP_RUNNING_TOP", true);
         public static final CheckResult SAME_CALLER = new CheckResult(true, "SAME_CALLER", true);
         public static final CheckResult SAME_CALLER_CORE = new CheckResult(true, "SAME_CALLER_CORE", true);
+        public static final CheckResult SAME_CALLER_RULE = new CheckResult(true, "SAME_CALLER_RULE", true);
 
         public static final CheckResult BAD_ARGS = new CheckResult(true, "BAD_ARGS", true);
         public static final CheckResult USER_ALLOWED = new CheckResult(true, "USER_ALLOWED", true);
