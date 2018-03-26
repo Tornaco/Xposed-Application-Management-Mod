@@ -1138,6 +1138,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case DozeHandlerMessages.MSG_SETFORCEDOZEENABLED:
                     DozeHandlerImpl.this.setForceDozeEnabled((Boolean) msg.obj);
                     break;
+                case DozeHandlerMessages.MSG_SETDISABLEMOTIONENABLED:
+                    DozeHandlerImpl.this.setDisableMotionEnabled((Boolean) msg.obj);
+                    break;
                 case DozeHandlerMessages.MSG_ONSCREENON:
                     DozeHandlerImpl.this.onScreenOn();
                     break;
