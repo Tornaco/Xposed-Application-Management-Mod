@@ -46,8 +46,8 @@
 - Bug fixes</string>
     
     <string name="update_log_496">
-        - DOZE：禁用运动检测（未测试）。
-        - 关联启动：支持更多规则。
+        - DOZE：禁用运动检测（未测试）。\n
+        - 关联启动：支持更多规则。\n
         - 其他。
     </string>
 </resources>
