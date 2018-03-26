@@ -17,6 +17,7 @@ import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.util.DateUtils;
 import github.tornaco.xposedmoduletest.util.OSUtil;
+import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -77,6 +78,13 @@ class RuntimeInitSubModule extends AndroidSubModule {
                                     XposedLog.wtf("System error trace has been write to: " + traceFile);
                                 } catch (Throwable e2) {
                                     XposedLog.wtf("Fail write system err trace: " + Log.getStackTraceString(e2));
+                                }
+
+                                // Disable debug mode, because I wonder it is debug mode
+                                // who made this err.
+                                if (XAppGuardManager.get().isServiceAvailable()) {
+                                    XposedLog.wtf("Disable debug mode first:(");
+                                    XAppGuardManager.get().setDebug(false);
                                 }
 
                                 // Check if it we cause this err.
