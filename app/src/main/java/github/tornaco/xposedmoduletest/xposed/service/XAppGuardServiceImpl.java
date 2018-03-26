@@ -129,7 +129,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 }
             });
 
-    private BroadcastReceiver mPackageReceiver = new ProtectedBroadcastReceiver(new BroadcastReceiver() {
+    private BroadcastReceiver mPackageReceiver =
+            new ProtectedBroadcastReceiver(new BroadcastReceiver() {
 
         public void onReceive(Context context, Intent intent) {
 
@@ -224,7 +225,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             boolean interruptFPE = (boolean) SystemSettings.INTERRUPT_FP_ERROR_VB_ENABLED_B.readFromSystemSettings(getContext());
             mInterruptFPERRORVB.set(interruptFPE);
 
-            boolean debug = BuildConfig.DEBUG;
+            boolean debug = (boolean) SystemSettings.APP_GUARD_DEBUG_MODE_B_S.readFromSystemSettings(getContext());
             mDebugEnabled.set(debug);
             XposedLog.setLogLevel(mDebugEnabled.get() ? XposedLog.LogLevel.ALL : XposedLog.LogLevel.WARN);
 
@@ -1189,11 +1190,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             sendMessageDelayed(obtainMessage(MSG_TRANSACTION_EXPIRE_BASE + transaction, transaction), TRANSACTION_EXPIRE_TIME);
         }
 
-
         public void mockCrash() {
-            throw new IllegalStateException("Let's CRASH, bye bye you...");
+            throw new IllegalStateException("Let's CRASH, bye...");
         }
-
 
         public void setDebug(boolean debug) {
             if (mDebugEnabled.compareAndSet(!debug, debug)) {
@@ -1203,12 +1202,10 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             warnIfDebug();
         }
 
-
         public void onActivityPackageResume(String pkg) {
             onAppSwitchedTo(pkg);
             mTopActivityPkg.setData(pkg);
         }
-
 
         public void onUserPresent() {
             String pkg = mTopActivityPkg.getData();
