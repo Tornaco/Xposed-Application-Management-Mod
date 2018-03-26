@@ -1861,6 +1861,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             if (appLevel > XAshmanManager.AppLevel.SYSTEM) {
                 return CheckResult.SAME_CALLER_CORE;
             }
+
+            // Note. This is a workaround for MIUI.
+            // We don't know why the path is 'THIS' to 'THIS' when
+            // click a notification to launch the pending intent.
+            // maybe MIPUSH?
+            // Fk it.
+            boolean isAllowedThisToThis = RepoProxy.getProxy().getStart_rules().has(RULE_PATTERN_THIS_TO_THIS);
+            if (isAllowedThisToThis) {
+                return CheckResult.SAME_CALLER_RULE;
+            }
         }
 
         boolean isOnTop = isPackageRunningOnTop(servicePkgName);
@@ -1882,6 +1892,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         // By default, we allow.
         return CheckResult.ALLOWED_GENERAL;
     }
+
+    private static final String[] RULE_PATTERN_THIS_TO_THIS = new String[]{
+            "ALLOW THIS THIS"
+    };
 
     private CheckResult getStartCheckResultInRules(Intent intent, int callerUid, String targetPackage) {
         String callerIdentify = PkgUtil.pkgForUid(getContext(), callerUid);
@@ -2862,6 +2876,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         // Broadcast targetServicePkg/to same app is allowed.
         if (callerUid == receiverUid && PkgUtil.isSystemOrPhoneOrShell(callerUid)) {
             return CheckResult.SAME_CALLER;
+        }
+
+        if (callerUid == receiverUid) {
+            // Note. This is a workaround for MIUI.
+            // We don't know why the path is 'THIS' to 'THIS' when
+            // click a notification to launch the pending intent.
+            // maybe MIPUSH?
+            // Fk it.
+            boolean isAllowedThisToThis = RepoProxy.getProxy().getStart_rules().has(RULE_PATTERN_THIS_TO_THIS);
+            if (isAllowedThisToThis) {
+                return CheckResult.SAME_CALLER_RULE;
+            }
         }
 
         String receiverPkgName = PkgUtil.pkgForUid(getContext(), receiverUid);
@@ -7391,6 +7417,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public static final CheckResult APP_RUNNING_TOP = new CheckResult(true, "APP_RUNNING_TOP", true);
         public static final CheckResult SAME_CALLER = new CheckResult(true, "SAME_CALLER", true);
         public static final CheckResult SAME_CALLER_CORE = new CheckResult(true, "SAME_CALLER_CORE", true);
+        public static final CheckResult SAME_CALLER_RULE = new CheckResult(true, "SAME_CALLER_RULE", true);
 
         public static final CheckResult BAD_ARGS = new CheckResult(true, "BAD_ARGS", true);
         public static final CheckResult USER_ALLOWED = new CheckResult(true, "USER_ALLOWED", true);
