@@ -2005,9 +2005,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             if (BuildConfig.DEBUG) {
                 XposedLog.verbose("constructStartAllowedRulePattern, GCM? " + isCMIntent
-                                + ", intent: " + intent + ", " +
-                                "targetPackage: " + targetPackage,
-                        "callerPackage: " + callerPackage);
+                                + ", intent: " + intent +
+                                ", targetPackage: " + targetPackage,
+                        ", callerPackage: " + callerPackage);
             }
 
             rules = new String[]{
