@@ -129,6 +129,9 @@ public class SubModuleManager {
 
         // Blur
         addToSubsChecked(new ScreenshotApplicationsSubModule());
+        if (BuildConfig.DEBUG) {
+            addToSubsChecked(new ThumbnalDataSubModule());
+        }
 
         addToSubsChecked(new PackageInstallerSubModule());
         addToSubsChecked(new PMSSubModule());
