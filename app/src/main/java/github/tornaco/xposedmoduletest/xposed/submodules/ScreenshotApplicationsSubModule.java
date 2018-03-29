@@ -135,7 +135,6 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
                                     return;
                                 }
 
-
                                 ActivityManager.TaskThumbnail tt = (ActivityManager.TaskThumbnail) param.getResult();
                                 int br = XAppGuardManager.get().getBlurRadius();
                                 tt.mainThumbnail = XBitmapUtil.createBlurredBitmap(tt.mainThumbnail, br, XBitmapUtil.BITMAP_SCALE);

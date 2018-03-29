@@ -80,19 +80,19 @@ class RuntimeInitSubModule extends AndroidSubModule {
                                     XposedLog.wtf("Fail write system err trace: " + Log.getStackTraceString(e2));
                                 }
 
-                                // Disable debug mode, because I wonder it is debug mode
-                                // who made this err.
-                                if (XAppGuardManager.get().isServiceAvailable()) {
-                                    XposedLog.wtf("Disable debug mode first:(");
-                                    XAppGuardManager.get().setDebug(false);
-                                }
-
                                 // Check if it we cause this err.
                                 boolean maybeUs = trace.contains(BuildConfig.APPLICATION_ID);
                                 if (maybeUs) {
                                     XposedLog.wtf("Maybe our APM module cause this err, disable our module anyway.");
                                     // Fake disable by create a file indicator.
                                     RepoProxy.createFileIndicator(SubModuleManager.REDEMPTION);
+
+                                    // Disable debug mode, because I wonder it is debug mode
+                                    // who made this err.
+                                    if (XAppGuardManager.get().isServiceAvailable()) {
+                                        XposedLog.wtf("Disable debug mode first:(");
+                                        XAppGuardManager.get().setDebug(false);
+                                    }
                                 }
                                 XposedLog.wtf("==================FATAL HANDLE END================");
                             }
