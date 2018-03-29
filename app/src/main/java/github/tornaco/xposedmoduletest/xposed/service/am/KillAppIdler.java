@@ -13,11 +13,18 @@ import lombok.AllArgsConstructor;
 public class KillAppIdler implements AppIdler {
 
     private Context context;
+    private OnAppIdleListener listener;
 
     @Override
     public void setAppIdle(String pkg) {
         if (pkg != null) {
             PkgUtil.kill(context, pkg);
+            listener.onAppIdle(pkg);
         }
+    }
+
+    @Override
+    public void setListener(OnAppIdleListener listener) {
+        this.listener = listener;
     }
 }

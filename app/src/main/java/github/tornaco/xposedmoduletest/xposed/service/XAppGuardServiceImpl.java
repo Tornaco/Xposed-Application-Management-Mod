@@ -225,7 +225,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             boolean interruptFPE = (boolean) SystemSettings.INTERRUPT_FP_ERROR_VB_ENABLED_B.readFromSystemSettings(getContext());
             mInterruptFPERRORVB.set(interruptFPE);
 
-            boolean debug = (boolean) SystemSettings.APP_GUARD_DEBUG_MODE_B_S.readFromSystemSettings(getContext());
+            boolean debug = BuildConfig.DEBUG;
             mDebugEnabled.set(debug);
             XposedLog.setLogLevel(mDebugEnabled.get() ? XposedLog.LogLevel.ALL : XposedLog.LogLevel.WARN);
 

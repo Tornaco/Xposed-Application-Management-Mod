@@ -18,10 +18,14 @@ public class XGcmReceiver extends GcmReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         // super.onReceive(context, intent);
-        Logger.d("XGcmReceiver, onReceive: " + intent);
-        ComponentName comp = new ComponentName(context.getPackageName(),
-                GcmIntentService.class.getName());
-        startWakefulService(context, (intent.setComponent(comp)));
-        setResultCode(Activity.RESULT_OK);
+        try {
+            Logger.d("XGcmReceiver, onReceive: " + intent);
+            ComponentName comp = new ComponentName(context.getPackageName(),
+                    GcmIntentService.class.getName());
+            startWakefulService(context, (intent.setComponent(comp)));
+            setResultCode(Activity.RESULT_OK);
+        } catch (Throwable throwable) {
+            // Fixme Do something later.
+        }
     }
 }

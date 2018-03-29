@@ -55,20 +55,24 @@ public class GcmIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        if (intent != null) {
-            Bundle extras = intent.getExtras();
+        try {
+            if (intent != null) {
+                Bundle extras = intent.getExtras();
 
-            if (BuildConfig.DEBUG) {
-                dumpBundle(extras);
+                if (BuildConfig.DEBUG) {
+                    dumpBundle(extras);
+                }
+
+                if (extras != null) {
+                    String from = extras.getString("from");
+                    String body = extras.getString("gcm.notification.body");
+                    onMessageReceived(from, body);
+                }
+
+                XGcmReceiver.completeWakefulIntent(intent);
             }
-
-            if (extras != null) {
-                String from = extras.getString("from");
-                String body = extras.getString("gcm.notification.body");
-                onMessageReceived(from, body);
-            }
-
-            XGcmReceiver.completeWakefulIntent(intent);
+        } catch (Throwable e) {
+            // Fixme Do something later.
         }
     }
 

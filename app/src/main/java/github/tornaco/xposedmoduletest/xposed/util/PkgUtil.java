@@ -110,10 +110,17 @@ public class PkgUtil {
         }
     }
 
+    public static CharSequence loadNameByPkgNameFixed(Context context, String pkg, int uid) {
+        if (isSystemCall(uid)) {
+            return "Android系统";
+        }
+        return loadNameByPkgName(context, pkg);
+    }
+
     public static CharSequence loadNameByPkgName(Context context, String pkg) {
         if (pkg == null) return "NULL";
         if ("android".equals(pkg)) {
-            return "Android系统"; // FIXME Not availabe in system process.
+            return "Android操作系统"; // FIXME Not availabe in system process.
         }
         // Here we check if this is dummy one.
         boolean isDummy = XAshmanManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME.equals(pkg);

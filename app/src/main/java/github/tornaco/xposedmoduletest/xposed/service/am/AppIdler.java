@@ -5,5 +5,12 @@ package github.tornaco.xposedmoduletest.xposed.service.am;
  */
 
 public interface AppIdler {
+
     void setAppIdle(String pkg);
+
+    void setListener(OnAppIdleListener listener);
+
+    interface OnAppIdleListener {
+        void onAppIdle(String pkg);
+    }
 }

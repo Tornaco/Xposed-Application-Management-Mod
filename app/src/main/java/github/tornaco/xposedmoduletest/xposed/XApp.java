@@ -84,7 +84,9 @@ public class XApp extends MultiDexApplication {
                             cacheRunningServices();
                             cacheInstalledApps();
 
-                            if (GMSUtil.checkPlayServices(activity.getApplicationContext())) {
+                            // Only test on debug build.
+                            if (BuildConfig.DEBUG
+                                    && GMSUtil.checkPlayServices(activity.getApplicationContext())) {
                                 // Start IntentService to register this application with GCM.
                                 Intent intent = new Intent(activity.getApplicationContext(), XRegistrationIntentService.class);
                                 startService(intent);

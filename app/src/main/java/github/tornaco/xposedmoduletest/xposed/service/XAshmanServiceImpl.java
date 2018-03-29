@@ -167,6 +167,7 @@ import static github.tornaco.xposedmoduletest.xposed.bean.DozeEvent.FAIL_RETRY_T
  * Email: Tornaco@163.com
  */
 
+// TODO This file is really too long, please make sub-modules.
 public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private static final String SYSTEM_UI_PKG = "com.android.systemui";
@@ -280,7 +281,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setAppIdle(String pkg) {
             XposedLog.wtf("I am a dummy idler, please file a bug!!!!!!!!");
         }
+
+        @Override
+        public void setListener(OnAppIdleListener listener) {
+            // Nothing.
+        }
     };
+
+    private AppIdler.OnAppIdleListener mOnAppIdleListener = this::removeFromAppFirstStartNotifyPackages;
 
     private BroadcastReceiver mBatteryStateReceiver =
             new ProtectedBroadcastReceiver(new BroadcastReceiver() {
@@ -1456,6 +1464,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void attachUsageStatsService(UsageStatsServiceProxy proxy) {
         mInactiveIdler = new InactiveAppIdler(proxy);
+        mInactiveIdler.setListener(mOnAppIdleListener);
         XposedLog.boot("attachUsageStatsService, proxy: " + proxy);
         XposedLog.boot("attachUsageStatsService, idler: " + mInactiveIdler);
     }
@@ -1916,8 +1925,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return CheckResult.USER_DENIED;
         }
 
-        // By default, we allow.
-        return CheckResult.ALLOWED_GENERAL;
+        try {
+            // By default, we allow.
+            return CheckResult.ALLOWED_GENERAL;
+        } finally {
+            String callerIdentify = PkgUtil.pkgForUid(getContext(), callerUid);
+            onAppServiceStartBy(servicePkgName, callerIdentify, callerUid);
+        }
     }
 
     private static final String[] RULE_PATTERN_THIS_TO_THIS = new String[]{
@@ -1966,6 +1980,47 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
         }
         return null;
+    }
+
+    private final Set<String> mAppFirstStartNotifyPackages = new HashSet<>();
+
+    private void onAppFirstStartNotified(String whoPkg) {
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("onAppFirstStartNotified: " + whoPkg);
+        }
+        mAppFirstStartNotifyPackages.add(whoPkg);
+    }
+
+    private boolean isAppFirstStartNotified(String whoPkg) {
+        return mAppFirstStartNotifyPackages.contains(whoPkg);
+    }
+
+    private void removeFromAppFirstStartNotifyPackages(String whoPkg) {
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("removeFromAppFirstStartNotifyPackages: " + whoPkg);
+        }
+        mAppFirstStartNotifyPackages.remove(whoPkg);
+    }
+
+    private void onAppServiceStartBy(String servicePkgName, String callerIdentify, int callerUid) {
+        if (BuildConfig.DEBUG) {
+            boolean isAppInMemCleanList = isPackageLKByUser(servicePkgName);
+
+            if (isAppInMemCleanList && !isAppFirstStartNotified(servicePkgName)) {
+
+                String log = String.format("App %s start by %s",
+                        PkgUtil.loadNameByPkgName(getContext(), servicePkgName),
+                        PkgUtil.loadNameByPkgNameFixed(getContext(), callerIdentify, callerUid));
+
+                XposedLog.verbose(log);
+
+                Runnable r = () -> {
+                    Toast.makeText(getContext(), log, Toast.LENGTH_SHORT).show();
+                    onAppFirstStartNotified(servicePkgName);
+                };
+                mainHandler.post(r);
+            }
+        }
     }
 
     // Rule caches.
@@ -2798,10 +2853,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public int getControlMode() {
         enforceCallingPermissions();
         return mControlMode.get();
-    }
-
-    private boolean isWhiteListControlMode() {
-        return mControlMode.get() == XAshmanManager.ControlMode.WHITE_LIST;
     }
 
     @Override
@@ -5319,7 +5370,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         mTopPackageListenerCallbacks = new RemoteCallbackList<>();
 
         if (getContext() != null) {
-            mKillIdler = new KillAppIdler(getContext());
+            mKillIdler = new KillAppIdler(getContext(), mOnAppIdleListener);
         }
     }
 
