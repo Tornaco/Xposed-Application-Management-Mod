@@ -1811,6 +1811,7 @@ public class XAshmanManager {
     }
 
     public boolean isDisableMotionEnabled() {
+        ensureService();
         try {
             return mService.isDisableMotionEnabled();
         } catch (RemoteException e) {
@@ -1819,10 +1820,20 @@ public class XAshmanManager {
     }
 
     public void setDisableMotionEnabled(boolean enable) {
+        ensureService();
         try {
             mService.setDisableMotionEnabled(enable);
         } catch (RemoteException e) {
 
+        }
+    }
+
+    public boolean isGCMSupportPackage(String pkg) {
+        ensureService();
+        try {
+            return mService.isGCMSupportPackage(pkg);
+        } catch (RemoteException e) {
+            return false;
         }
     }
 }

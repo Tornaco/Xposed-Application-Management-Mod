@@ -25,7 +25,8 @@ import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapte
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
-public class StartAppNavActivity extends CommonPackageInfoListActivity implements SwitchBar.OnSwitchChangeListener, AdapterView.OnItemSelectedListener {
+public class StartAppNavActivity extends CommonPackageInfoListActivity
+        implements SwitchBar.OnSwitchChangeListener, AdapterView.OnItemSelectedListener {
 
     private List<FilterOption> mFilterOptions;
 
@@ -62,13 +63,10 @@ public class StartAppNavActivity extends CommonPackageInfoListActivity implement
     @Override
     protected void onRequestClearItemsInBackground() {
         Collections.consumeRemaining(getCommonPackageInfoAdapter().getCommonPackageInfos(),
-                new Consumer<CommonPackageInfo>() {
-                    @Override
-                    public void accept(CommonPackageInfo commonPackageInfo) {
-                        if (commonPackageInfo.isChecked()) {
-                            XAshmanManager.get().addOrRemoveStartBlockApps(new String[]{commonPackageInfo.getPkgName()},
-                                    XAshmanManager.Op.REMOVE);
-                        }
+                commonPackageInfo -> {
+                    if (commonPackageInfo.isChecked()) {
+                        XAshmanManager.get().addOrRemoveStartBlockApps(new String[]{commonPackageInfo.getPkgName()},
+                                XAshmanManager.Op.REMOVE);
                     }
                 });
     }

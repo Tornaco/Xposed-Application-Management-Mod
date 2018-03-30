@@ -396,4 +396,6 @@ interface IAshmanService {
      // Doze motion.
      boolean isDisableMotionEnabled();
      void setDisableMotionEnabled(boolean enable);
+
+     boolean isGCMSupportPackage(String pkg);
 }

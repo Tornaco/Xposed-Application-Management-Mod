@@ -549,4 +549,12 @@ public class PkgUtil {
         }
         return out;
     }
+
+    public static boolean isGCMOrFCMSupportedForPackage(Context context, String packageName) {
+        PackageManager pkgManager = context.getPackageManager();
+        Intent intent = new Intent("com.google.android.c2dm.intent.RECEIVE", null);
+        intent.setPackage(packageName);
+        ResolveInfo ri = pkgManager.resolveActivity(intent, 0);
+        return ri != null;
+    }
 }

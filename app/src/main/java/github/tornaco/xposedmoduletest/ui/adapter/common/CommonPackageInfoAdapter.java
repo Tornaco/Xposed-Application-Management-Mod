@@ -1,12 +1,15 @@
 package github.tornaco.xposedmoduletest.ui.adapter.common;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.ColorInt;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import cn.nekocode.badge.BadgeDrawable;
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
@@ -82,12 +86,7 @@ public class CommonPackageInfoAdapter
     }
 
     public void selectAll(final boolean selectAll) {
-        Collections.consumeRemaining(getCommonPackageInfos(), new Consumer<CommonPackageInfo>() {
-            @Override
-            public void accept(CommonPackageInfo packageInfo) {
-                packageInfo.setChecked(selectAll);
-            }
-        });
+        Collections.consumeRemaining(getCommonPackageInfos(), packageInfo -> packageInfo.setChecked(selectAll));
         notifyDataSetChanged();
         onItemCheckChanged();
     }
@@ -123,7 +122,7 @@ public class CommonPackageInfoAdapter
             case XAshmanManager.AppLevel.WEBVIEW_IMPL:
                 return context.getString(R.string.app_level_webview_impl);
         }
-        return null;
+        return "";
     }
 
     protected int getSystemAppIndicatorColor(int appLevel) {
@@ -148,12 +147,7 @@ public class CommonPackageInfoAdapter
     public void onBindViewHolder(final CommonViewHolder holder, final int position) {
         final CommonPackageInfo packageInfo = commonPackageInfos.get(position);
 
-        int appLevel = packageInfo.getAppLevel();
-
-        holder.getSystemAppIndicator().setVisibility(appLevel != XAshmanManager.AppLevel.THIRD_PARTY ? View.VISIBLE : View.GONE);
-        holder.getSystemAppIndicator().setText(getSystemAppIndicatorLabel(appLevel));
-        int levelColor = getSystemAppIndicatorColor(appLevel);
-        holder.getSystemAppIndicator().setTextColor(levelColor);
+        inflatePackageDesc(packageInfo, holder.getSystemAppIndicator());
 
         holder.getExtraIndicator().setVisibility(View.INVISIBLE);
 
@@ -181,24 +175,58 @@ public class CommonPackageInfoAdapter
             final CommonPackageInfo commonPackageInfo = getCommonPackageInfos().get(position);
             holder.getCheckableImageView().setChecked(commonPackageInfo.isChecked(), false);
 
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (isChoiceMode()) {
-                        commonPackageInfo.setChecked(!commonPackageInfo.isChecked());
-                        holder.getCheckableImageView().setChecked(commonPackageInfo.isChecked());
-                        onItemCheckChanged();
-                    }
+            holder.itemView.setOnClickListener(v -> {
+                if (isChoiceMode()) {
+                    commonPackageInfo.setChecked(!commonPackageInfo.isChecked());
+                    holder.getCheckableImageView().setChecked(commonPackageInfo.isChecked());
+                    onItemCheckChanged();
                 }
             });
         }
 
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                return onItemLongClick(v, holder.getAdapterPosition());
+        holder.itemView.setOnLongClickListener(v -> onItemLongClick(v, holder.getAdapterPosition()));
+    }
+
+    @Getter
+    final BadgeDrawable gcmBadge =
+            new BadgeDrawable.Builder()
+                    .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
+                    .badgeColor(Color.GRAY)
+                    .text1("GCM")
+                    .build();
+
+    BadgeDrawable createAppLevelBadge(String levelText, int levelColor) {
+        if (levelText == null) return null;
+        return new BadgeDrawable.Builder()
+                .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
+                .badgeColor(levelColor)
+                .text1(levelText)
+                .build();
+    }
+
+    void inflatePackageDesc(CommonPackageInfo info, TextView textView) {
+        int appLevel = info.getAppLevel();
+        String appLevelDesc = getSystemAppIndicatorLabel(appLevel);
+        BadgeDrawable appLevelDrawable = createAppLevelBadge(appLevelDesc, getSystemAppIndicatorColor(appLevel));
+
+        List<CharSequence> descSets = new ArrayList<>(2);
+        if (appLevelDrawable != null) {
+            descSets.add(appLevelDrawable.toSpannable());
+        }
+        if (info.isGCMSupport()) {
+            descSets.add(getGcmBadge().toSpannable());
+        }
+        if (descSets.size() > 0) {
+            CharSequence fullDesc = "";
+            for (int i = 0; i < descSets.size(); i++) {
+                fullDesc = TextUtils.concat(fullDesc, descSets.get(i), " ");
             }
-        });
+            SpannableString spannableString =
+                    new SpannableString(fullDesc);
+            textView.setText(spannableString);
+        } else {
+            textView.setText(null);
+        }
     }
 
     public interface ItemCheckListener {

@@ -28,6 +28,7 @@ public class LoaderUtil {
         p.setInstalledTime(PkgUtil.loadInstalledTimeByPkgName(context, pkg));
         p.setAppLevel(XAshmanManager.get().getAppLevel(pkg));
         p.setSystemApp(PkgUtil.isSystemApp(context, pkg));
+        p.setGCMSupport(XAshmanManager.get().isGCMSupportPackage(pkg));
 
         if (XAshmanManager.get().isServiceAvailable()) {
             int state = XAshmanManager.get().getApplicationEnabledSetting(pkg);
