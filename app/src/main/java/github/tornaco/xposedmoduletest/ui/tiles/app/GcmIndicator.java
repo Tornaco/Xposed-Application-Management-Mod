@@ -19,7 +19,7 @@ public class GcmIndicator extends QuickTile {
         super(context);
         this.titleRes = R.string.title_gcm_indicator;
         this.summaryRes = R.string.summary_gcm_indicator;
-        this.iconRes = R.drawable.ic_data_usage_black_24dp;
+        this.iconRes = R.drawable.ic_filter_tilt_shift_black_24dp;
         this.tileView = new SwitchTileView(context) {
             @Override
             protected void onBindActionView(RelativeLayout container) {
