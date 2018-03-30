@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -441,12 +442,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void parsePackageAsync(final String... pkg) {
-        mWorkingService.execute(new Runnable() {
-            @Override
-            public void run() {
-                cachePackages(pkg);
-            }
-        });
+        mWorkingService.execute(() -> cachePackages(pkg));
     }
 
     private static final AtomicInteger NOTIFICATION_ID = new AtomicInteger(0);
@@ -546,6 +542,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void cachePackages() {
+        XposedLog.verbose("cachePackages");
         final PackageManager pm = this.getContext().getPackageManager();
 
         // Retrieve our package first.
@@ -3356,12 +3353,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         registerReceiver();
 
         // Dump build vars.
-        Collections.consumeRemaining(XAppBuildVar.BUILD_VARS, new Consumer() {
-            @Override
-            public void accept(Object o) {
-                XposedLog.wtf("BUILD_VARS: " + o);
-            }
-        });
+        //noinspection unchecked
+        Collections.consumeRemaining(XAppBuildVar.BUILD_VARS, o -> XposedLog.wtf("BUILD_VARS: " + o));
 
         // Try to setup the list after 15s if network control is enabled.
         if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_FIREWALL)) {
@@ -3438,6 +3431,53 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
         } catch (Throwable e) {
             XposedLog.wtf("Fail cacheWebviewPackacgaes: " + Log.getStackTraceString(e));
+        }
+    }
+
+    private final Set<String> mGCMSupportPackages = new HashSet<>();
+
+    @Override
+    public boolean isGCMSupportPackage(String pkg) {
+        enforceCallingPermissions();
+        return mGCMSupportPackages.contains(pkg);
+    }
+
+    private void cacheGCMPackages() {
+        XposedLog.verbose("cacheGCMPackages...");
+        try {
+            if (getContext() == null) return;
+            List<ResolveInfo> list = getContext().getPackageManager()
+                    .queryBroadcastReceivers(
+                            new Intent(GCMFCMHelper.ACTION_FCM),
+                            0);
+            if (list != null) {
+                for (ResolveInfo r : list) {
+                    String pkg = r.activityInfo == null ? null : r.activityInfo.packageName;
+                    if (pkg != null) {
+                        mGCMSupportPackages.add(pkg);
+                        XposedLog.verbose("cacheGCMPackages-FCM: " + pkg);
+                    } else {
+                        XposedLog.verbose("cacheGCMPackages-FCM, pkg is null: " + r);
+                    }
+                }
+            }
+            list = getContext().getPackageManager()
+                    .queryBroadcastReceivers(
+                            new Intent(GCMFCMHelper.ACTION_GCM),
+                            0);
+            if (list != null) {
+                for (ResolveInfo r : list) {
+                    String pkg = r.activityInfo == null ? null : r.activityInfo.packageName;
+                    if (pkg != null) {
+                        mGCMSupportPackages.add(pkg);
+                        XposedLog.verbose("cacheGCMPackages-GCM: " + pkg);
+                    } else {
+                        XposedLog.verbose("cacheGCMPackages-GCM, pkg is null: " + r);
+                    }
+                }
+            }
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail cacheGCMPackages: " + Log.getStackTraceString(e));
         }
     }
 
@@ -6400,23 +6440,23 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         @Override
         public void forceReloadPackages() {
-            mWorkingService.execute(new Runnable() {
-                @Override
-                public void run() {
-                    cachePackages();
-                    // Remove onwer package to fix previous bugs.
-                    try {
-                        RepoProxy.getProxy().getBoots().remove(BuildConfig.APPLICATION_ID);
-                        RepoProxy.getProxy().getStarts().remove(BuildConfig.APPLICATION_ID);
-                        RepoProxy.getProxy().getRfks().remove(BuildConfig.APPLICATION_ID);
-                        RepoProxy.getProxy().getGreens().remove(BuildConfig.APPLICATION_ID);
-                        RepoProxy.getProxy().getLks().remove(BuildConfig.APPLICATION_ID);
-                        RepoProxy.getProxy().getPrivacy().remove(BuildConfig.APPLICATION_ID);
+            XposedLog.verbose("forceReloadPackages");
+            mWorkingService.execute(() -> {
+                cachePackages();
 
-                        RepoProxy.getProxy().getWhite_list_hooks_dynamic().reloadAsync();
-                    } catch (Throwable e) {
-                        XposedLog.wtf("Fail remove owner package targetServicePkg repo: " + Log.getStackTraceString(e));
-                    }
+                cacheGCMPackages();
+
+                // Remove onwer package to fix previous bugs.
+                try {
+                    RepoProxy.getProxy().getBoots().remove(BuildConfig.APPLICATION_ID);
+                    RepoProxy.getProxy().getStarts().remove(BuildConfig.APPLICATION_ID);
+                    RepoProxy.getProxy().getRfks().remove(BuildConfig.APPLICATION_ID);
+                    RepoProxy.getProxy().getGreens().remove(BuildConfig.APPLICATION_ID);
+                    RepoProxy.getProxy().getLks().remove(BuildConfig.APPLICATION_ID);
+                    RepoProxy.getProxy().getPrivacy().remove(BuildConfig.APPLICATION_ID);
+                    RepoProxy.getProxy().getWhite_list_hooks_dynamic().reloadAsync();
+                } catch (Throwable e) {
+                    XposedLog.wtf("Fail remove owner package targetServicePkg repo: " + Log.getStackTraceString(e));
                 }
             });
         }
@@ -7117,27 +7157,28 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 // Ops.
                                 // Note. Please see detailed comment @applyOpsSettingsForPackage.
                                 final String finalPkgName = packageName;
-                                postDelayed(new ErrorCatchRunnable(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        try {
-                                            applyOpsSettingsForPackage(finalPkgName);
+                                postDelayed(new ErrorCatchRunnable(() -> {
+                                    try {
+                                        applyOpsSettingsForPackage(finalPkgName);
 
-
-                                            boolean showNotification = isAutoAddBlackNotificationEnabled();
-                                            if (showNotification) {
-                                                showNewAppRestrictedNotification(getContext(),
-                                                        finalPkgName,
-                                                        String.valueOf(PkgUtil.loadNameByPkgName(getContext(), finalPkgName)));
-                                            }
-
-                                        } catch (RemoteException e) {
-                                            e.rethrowAsRuntimeException();
+                                        boolean showNotification = isAutoAddBlackNotificationEnabled();
+                                        if (showNotification) {
+                                            showNewAppRestrictedNotification(getContext(),
+                                                    finalPkgName,
+                                                    String.valueOf(PkgUtil.loadNameByPkgName(getContext(), finalPkgName)));
                                         }
+
+                                    } catch (RemoteException e) {
+                                        e.rethrowAsRuntimeException();
                                     }
                                 }, "applyOpsSettingsForPackage"), 8000);
                             }
                         }
+
+
+                        // Cache GCM packages async.
+                        mWorkingService.execute(new ErrorCatchRunnable(XAshmanServiceImpl.this::cacheGCMPackages, "cacheGCMPackages"));
+
                     } catch (Throwable e) {
                         XposedLog.wtf(Log.getStackTraceString(e));
                     }

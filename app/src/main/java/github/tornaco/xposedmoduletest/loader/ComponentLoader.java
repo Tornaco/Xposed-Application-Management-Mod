@@ -106,6 +106,7 @@ public interface ComponentLoader {
             String[] packages = XAshmanManager.get().getInstalledApps(
                     showSystem ? XAshmanManager.FLAG_SHOW_SYSTEM_APP : XAshmanManager.FLAG_NONE);
             List<CommonPackageInfo> res = new ArrayList<>();
+
             for (String p : packages) {
                 CommonPackageInfo packageInfo = LoaderUtil.constructCommonPackageInfo(context, p);
                 if (packageInfo == null) continue;
@@ -116,6 +117,11 @@ public interface ComponentLoader {
                         || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ALL_APPS);
                 if (match) {
                     res.add(packageInfo);
+                }
+
+
+                if (BuildConfig.DEBUG) {
+                    Logger.d("loadInstalledApps: " + packageInfo +", gcm support: " + packageInfo.isGCMSupport());
                 }
             }
 

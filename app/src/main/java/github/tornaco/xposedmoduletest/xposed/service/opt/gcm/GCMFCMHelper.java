@@ -25,8 +25,8 @@ public class GCMFCMHelper {
     private static Handler sInternalHandler;
 
     // com.google.android.c2dm.intent.RECEIVE
-    private static final String ACTION_GCM = "com.google.android.c2dm.intent.RECEIVE";
-    private static final String ACTION_FCM = "com.google.firebase.MESSAGING_EVENT";
+    public static final String ACTION_GCM = "com.google.android.c2dm.intent.RECEIVE";
+    public static final String ACTION_FCM = "com.google.firebase.MESSAGING_EVENT";
 
     public static boolean isGcmIntent(Intent intent) {
         return intent != null && ACTION_GCM.equals(intent.getAction());

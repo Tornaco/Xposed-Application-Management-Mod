@@ -29,6 +29,7 @@ public class CommonPackageInfo {
     private long installedTime;
     private int usageTimes;
     private Object args;
+    private boolean isGCMSupport;
 
     public boolean isAllExtraPermDisabled() {
         return !isServiceOpAllowed() && !isAlarmOpAllowed() && !isWakelockOpAllowed();
