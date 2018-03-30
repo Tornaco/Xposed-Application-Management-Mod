@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
-import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.support.annotation.Nullable;
 
@@ -1319,7 +1318,7 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.clearOpLogForPackage(packageName);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -1328,7 +1327,7 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.clearOpLogForOp(cod);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -1568,7 +1567,7 @@ public class XAshmanManager {
         ensureService();
         try {
             return mService.isInRedemptionMode();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -1577,7 +1576,7 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.leaveRedemptionMode();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -1586,7 +1585,7 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.enterRedemptionMode();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -1595,7 +1594,7 @@ public class XAshmanManager {
         ensureService();
         try {
             return mService.isSELinuxEnabled();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -1604,7 +1603,7 @@ public class XAshmanManager {
         ensureService();
         try {
             return mService.isSELinuxEnforced();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -1613,7 +1612,7 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.setSelinuxEnforce(enforce);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -1622,7 +1621,7 @@ public class XAshmanManager {
         ensureService();
         try {
             return mService.isPowerSaveModeEnabled();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -1631,7 +1630,7 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.setPowerSaveModeEnabled(enable);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -1640,7 +1639,7 @@ public class XAshmanManager {
         ensureService();
         try {
             return mService.getStartRules();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             return ArrayUtil.newEmptyStringArray();
         }
     }
@@ -1649,7 +1648,7 @@ public class XAshmanManager {
         ensureService();
         try {
             return mService.addOrRemoveStartRules(rule, add);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -1658,7 +1657,7 @@ public class XAshmanManager {
         ensureService();
         try {
             return mService.hasSystemError();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -1667,7 +1666,7 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.cleanUpSystemErrorTraces();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -1676,7 +1675,7 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.addAppLockWhiteListActivity(activities);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -1685,7 +1684,7 @@ public class XAshmanManager {
         ensureService();
         try {
             return mService.isAutoAddBlackNotificationEnabled();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -1694,7 +1693,7 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.setAutoAddBlackNotificationEnabled(value);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -1703,7 +1702,7 @@ public class XAshmanManager {
         ensureService();
         try {
             return mService.isOptFeatureEnabled(tag);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -1712,7 +1711,7 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.setOptFeatureEnabled(tag, enable);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -1721,7 +1720,7 @@ public class XAshmanManager {
         ensureService();
         try {
             return mService.getRecentTaskExcludeSetting(c);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             return ExcludeRecentSetting.NONE;
         }
     }
@@ -1730,7 +1729,7 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.setRecentTaskExcludeSetting(c, setting);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -1739,7 +1738,7 @@ public class XAshmanManager {
         ensureService();
         try {
             return mService.getAppConfigOverlayIntSetting(appPackageName, tag);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             return ConfigOverlays.NONE;
         }
     }
@@ -1748,7 +1747,7 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.setAppConfigOverlayIntSetting(appPackageName, tag, value);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -1757,7 +1756,7 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.injectPowerEvent();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -1766,7 +1765,7 @@ public class XAshmanManager {
         ensureService();
         try {
             return mService.getServiceStarter(service);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             return null;
         }
     }
@@ -1775,7 +1774,7 @@ public class XAshmanManager {
         ensureService();
         try {
             return mService.isInactiveAppInsteadOfKillPreferred();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -1787,7 +1786,7 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.setInactiveAppInsteadOfKillPreferred(prefer);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -1796,7 +1795,7 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.mockSystemDead(delay);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -1805,7 +1804,7 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.clearModuleSettings(moduleVar);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -1814,7 +1813,7 @@ public class XAshmanManager {
         ensureService();
         try {
             return mService.isDisableMotionEnabled();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -1823,7 +1822,7 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.setDisableMotionEnabled(enable);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -1832,7 +1831,7 @@ public class XAshmanManager {
         ensureService();
         try {
             return mService.isGCMSupportPackage(pkg);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             return false;
         }
     }
