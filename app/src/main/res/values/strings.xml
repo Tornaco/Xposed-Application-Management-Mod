@@ -550,5 +550,10 @@
     <string name="title_disable_motion">禁用运动检测</string>
     <string name="title_subscribe_gcm_messages">接收开发动态</string>
     <string name="summary_subscribe_gcm_messages">作者会将最新版本发布，以及其他开发动态以GCM通道推送给当前设备。</string>
+    <string name="title_talkers">集中营</string>
+    <string name="summary_talkers_others">QQ: 468297384 308734833\nTG: https://t.me/xposed_apm_mod</string>
+    <string name="summary_talkers_play">TG: https://t.me/xposed_apm_mod</string>
+    <string name="title_gcm_indicator">GCM指示器</string>
+    <string name="summary_gcm_indicator">应用列表显示该应用是否支持GCM。</string>
 
 </resources>

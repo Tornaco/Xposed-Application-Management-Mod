@@ -93,6 +93,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlackNotification;
 import github.tornaco.xposedmoduletest.ui.tiles.app.Backup;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CleanUpSystemErrorTrace;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CrashDump;
+import github.tornaco.xposedmoduletest.ui.tiles.app.GcmIndicator;
 import github.tornaco.xposedmoduletest.ui.tiles.app.GcmMessagesSubscriber;
 import github.tornaco.xposedmoduletest.ui.tiles.app.IconPack;
 import github.tornaco.xposedmoduletest.ui.tiles.app.InactiveInsteadOfKillApp;
@@ -107,6 +108,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.Restore;
 import github.tornaco.xposedmoduletest.ui.tiles.app.RestoreDefault;
 import github.tornaco.xposedmoduletest.ui.tiles.app.ShowFocusedActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.ShowTileDivider;
+import github.tornaco.xposedmoduletest.ui.tiles.app.Talkers;
 import github.tornaco.xposedmoduletest.ui.tiles.app.ThemeChooser;
 import github.tornaco.xposedmoduletest.ui.tiles.app.WhiteSystemApp;
 import github.tornaco.xposedmoduletest.ui.widget.BottomNavigationViewHelper;
@@ -1249,6 +1251,7 @@ public class NavigatorActivityBottomNav
             theme.addTile(new ShowTileDivider(getActivity()));
             theme.addTile(new IconPack(getActivity()));
             theme.addTile(new NoShift(getActivity()));
+            theme.addTile(new GcmIndicator(getActivity()));
 
             Category others = new Category();
             others.titleRes = R.string.title_others;
@@ -1294,6 +1297,7 @@ public class NavigatorActivityBottomNav
             hook.addTile(new OpenMarket(getActivity()));
             hook.addTile(new PrivacyPolicy(getActivity()));
             hook.addTile(new OpenSource(getActivity()));
+            hook.addTile(new Talkers(getActivity()));
 
             Category hook2 = new Category();
             hook2.addTile(new AppVersion(getActivity()));

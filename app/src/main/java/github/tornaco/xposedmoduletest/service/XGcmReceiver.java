@@ -9,6 +9,8 @@ import com.google.android.gms.gcm.GcmReceiver;
 
 import org.newstand.logger.Logger;
 
+import github.tornaco.xposedmoduletest.BuildConfig;
+
 /**
  * Created by Tornaco on 2018/3/23 14:18.
  * God bless no bug!
@@ -18,7 +20,7 @@ public class XGcmReceiver extends GcmReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         // super.onReceive(context, intent);
-        try {
+        if (BuildConfig.DEBUG) try {
             Logger.d("XGcmReceiver, onReceive: " + intent);
             ComponentName comp = new ComponentName(context.getPackageName(),
                     GcmIntentService.class.getName());
