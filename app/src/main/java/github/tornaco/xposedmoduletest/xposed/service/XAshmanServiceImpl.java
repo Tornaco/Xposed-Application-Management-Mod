@@ -1544,7 +1544,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private boolean hasNotificationForPackageInternal(String pkg) {
-        if (pkg == null) return false;
         if (mNotificationService == null) {
             XposedLog.wtf("hasNotificationForPackageInternal called when nms is null");
             return false;
@@ -1897,13 +1896,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             int appLevel = getAppLevel(servicePkgName);
             if (appLevel > XAshmanManager.AppLevel.SYSTEM) {
                 return CheckResult.SAME_CALLER_CORE;
-            }
-
-            // Check if has notification.
-            // Fix that appp can not be launched when has notification on MIUI or flyme.
-            boolean hasNotification = hasNotificationForPackageInternal(servicePkgName);
-            if (hasNotification) {
-                return CheckResult.SAME_CALLER_HAS_SBN;
             }
 
             // Note. This is a workaround for MIUI.
@@ -2970,15 +2962,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         if (callerUid == receiverUid) {
-
-            // Check if has notification.
-            // Fix that appp can not be launched when has notification on MIUI or flyme.
-//            String receiverPkgName = PkgUtil.pkgForUid(getContext(), receiverUid);
-//            boolean hasNotification = hasNotificationForPackageInternal(receiverPkgName);
-//            if (hasNotification) {
-//                return CheckResult.SAME_CALLER_HAS_SBN;
-//            }
-
             // Note. This is a workaround for MIUI.
             // We don't know why the path is 'THIS' to 'THIS' when
             // click a notification to launch the pending intent.
@@ -7531,7 +7514,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public static final CheckResult SAME_CALLER = new CheckResult(true, "SAME_CALLER", true);
         public static final CheckResult SAME_CALLER_CORE = new CheckResult(true, "SAME_CALLER_CORE", true);
         public static final CheckResult SAME_CALLER_RULE = new CheckResult(true, "SAME_CALLER_RULE", true);
-        public static final CheckResult SAME_CALLER_HAS_SBN = new CheckResult(true, "SAME_CALLER_HAS_SBN", true);
 
         public static final CheckResult BAD_ARGS = new CheckResult(true, "BAD_ARGS", true);
         public static final CheckResult USER_ALLOWED = new CheckResult(true, "USER_ALLOWED", true);
