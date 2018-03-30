@@ -28,6 +28,7 @@ import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import lombok.Getter;
 import lombok.Setter;
@@ -61,6 +62,8 @@ public class CommonPackageInfoAdapter
     @Getter
     private ChoiceModeListener choiceModeListener;
 
+    private boolean showGcmIndicator = false;
+
     public CommonPackageInfoAdapter(Context context) {
         this.context = context;
         this.highlightColor = ContextCompat.getColor(context, R.color.accent);
@@ -72,6 +75,8 @@ public class CommonPackageInfoAdapter
         this.normalColor = ContextCompat.getColor(context, resId);
 
         setChoiceMode(false);
+
+        this.showGcmIndicator = AppSettings.isShowGcmIndicator(context);
     }
 
     @Getter
@@ -147,7 +152,7 @@ public class CommonPackageInfoAdapter
     public void onBindViewHolder(final CommonViewHolder holder, final int position) {
         final CommonPackageInfo packageInfo = commonPackageInfos.get(position);
 
-        inflatePackageDesc(packageInfo, holder.getSystemAppIndicator());
+        inflatePackageDesc(packageInfo, holder.getSystemAppIndicator(), showGcmIndicator);
 
         holder.getExtraIndicator().setVisibility(View.INVISIBLE);
 
@@ -204,7 +209,7 @@ public class CommonPackageInfoAdapter
                 .build();
     }
 
-    void inflatePackageDesc(CommonPackageInfo info, TextView textView) {
+    void inflatePackageDesc(CommonPackageInfo info, TextView textView, boolean showGcmIndicator) {
         int appLevel = info.getAppLevel();
         String appLevelDesc = getSystemAppIndicatorLabel(appLevel);
         BadgeDrawable appLevelDrawable = createAppLevelBadge(appLevelDesc, getSystemAppIndicatorColor(appLevel));
@@ -213,7 +218,7 @@ public class CommonPackageInfoAdapter
         if (appLevelDrawable != null) {
             descSets.add(appLevelDrawable.toSpannable());
         }
-        if (info.isGCMSupport()) {
+        if (showGcmIndicator && info.isGCMSupport()) {
             descSets.add(getGcmBadge().toSpannable());
         }
         if (descSets.size() > 0) {

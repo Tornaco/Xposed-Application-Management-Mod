@@ -105,7 +105,7 @@ public class AppSettings extends Observable {
     public static boolean isBottomNavNoShiftEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(AppKey.BOTTOM_NO_SHIFT,
-                        false);
+                        true);
     }
 
     public static void setBottomNavNoShiftEnabled(Context context, boolean b) {
@@ -189,6 +189,18 @@ public class AppSettings extends Observable {
     public static boolean isSubscribeGcmMessage(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(AppKey.SUBSCRIBE_GCM_MESSAGES, true);
+    }
+
+    public static void setShowGcmIndicator(Context context, boolean rec) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(AppKey.GCM_INDICATOR, rec)
+                .apply();
+    }
+
+    public static boolean isShowGcmIndicator(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(AppKey.GCM_INDICATOR, true);
     }
 
     public static boolean isNewBuild(Context context) {

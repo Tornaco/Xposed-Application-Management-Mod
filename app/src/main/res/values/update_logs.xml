@@ -44,10 +44,13 @@
 - 新增用户使用建议。\n
 - 新增休眠与强行停止接口。\n
 - Bug fixes</string>
-    
+
     <string name="update_log_496">
         - DOZE：禁用运动检测（未测试）。\n
         - 关联启动：支持更多规则。\n
         - 其他。
+    </string>
+
+    <string name="update_log_497">修复偶尔闪退问题。
     </string>
 </resources>
