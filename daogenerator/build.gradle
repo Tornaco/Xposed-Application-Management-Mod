@@ -5,5 +5,5 @@ apply plugin: 'application'
 mainClassName = "tornaco.dao.DaoGenerator"
 
 dependencies {
-    compile "org.greenrobot:greendao-generator:${rootProject.ext.greendaoVersion}"
+    implementation "org.greenrobot:greendao-generator:${rootProject.ext.greendaoVersion}"
 }
