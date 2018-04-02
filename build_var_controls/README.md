@@ -47,4 +47,7 @@ app_comp_replace 移花接木
 play 是否是Play版本
 
 ### 执行gradle命令进行编译
-```./build_release.sh```
+
+Windows环境 ```./gradlew app:assembleRelease```
+
+Linux环境 ```./gradle app:assembleRelease```
