@@ -299,8 +299,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private static final String ACTION_CLEAR_PROCESS = "github.tornaco.broadcast.action.clear_process";
 
-    private final ErrorCatchRunnable mClearCompleteToastRunnable = new ErrorCatchRunnable(() ->
-            Toast.makeText(getContext(), "清理完成", Toast.LENGTH_SHORT).show(), "mClearCompleteToastRunnable");
+    private final ErrorCatchRunnable mClearCompleteToastRunnable
+            = new ErrorCatchRunnable(new Runnable() {
+        @Override
+        public void run() {
+            Toast.makeText(getContext(), "清理完成", Toast.LENGTH_SHORT).show();
+            mRunningProcessPackages.clear();
+        }
+    }, "mClearCompleteToastRunnable");
 
     private ProtectedBroadcastReceiver mClearProcessBroadcast =
             new ProtectedBroadcastReceiver(new BroadcastReceiver() {
