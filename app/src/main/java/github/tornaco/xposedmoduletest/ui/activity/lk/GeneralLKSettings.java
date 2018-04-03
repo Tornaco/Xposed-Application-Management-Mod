@@ -3,7 +3,6 @@ package github.tornaco.xposedmoduletest.ui.activity.lk;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.preference.ListPreference;
-import android.preference.Preference;
 import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
 
@@ -37,38 +36,37 @@ public class GeneralLKSettings extends GuardSettingsActivity {
                 int sec = (int) (delay / 1000);
                 delayPref.setValue(String.valueOf(sec));
                 delayPref.setSummary(delayPref.getEntries()[delayPref.findIndexOfValue(String.valueOf(sec))]);
-                delayPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        String vs = (String) newValue;
-                        int sec = Integer.parseInt(vs);
-                        long mills = sec * 1000;
-                        XAshmanManager.get().setLockKillDelay(mills);
-                        delayPref.setSummary(delayPref.getEntries()[delayPref.findIndexOfValue(String.valueOf(sec))]);
-                        return true;
-                    }
+                delayPref.setOnPreferenceChangeListener((preference, newValue) -> {
+                    String vs = (String) newValue;
+                    int sec1 = Integer.parseInt(vs);
+                    long mills = sec1 * 1000;
+                    XAshmanManager.get().setLockKillDelay(mills);
+                    delayPref.setSummary(delayPref.getEntries()[delayPref.findIndexOfValue(String.valueOf(sec1))]);
+                    return true;
                 });
 
                 SwitchPreference doNotKillAudioPref = (SwitchPreference) findPreference("do_not_kill_audio");
                 doNotKillAudioPref.setChecked(XAshmanManager.get().isLockKillDoNotKillAudioEnabled());
-                doNotKillAudioPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        boolean enabled = (boolean) newValue;
-                        XAshmanManager.get().setLockKillDoNotKillAudioEnabled(enabled);
-                        return true;
-                    }
+                doNotKillAudioPref.setOnPreferenceChangeListener((preference, newValue) -> {
+                    boolean enabled = (boolean) newValue;
+                    XAshmanManager.get().setLockKillDoNotKillAudioEnabled(enabled);
+                    return true;
                 });
 
                 SwitchPreference doNotKillSBNPref = (SwitchPreference) findPreference("do_not_kill_sbn");
                 doNotKillSBNPref.setChecked(XAshmanManager.get().isDoNotKillSBNEnabled(XAppBuildVar.APP_LK));
-                doNotKillSBNPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        boolean enabled = (boolean) newValue;
-                        XAshmanManager.get().setDoNotKillSBNEnabled(enabled, XAppBuildVar.APP_LK);
-                        return true;
-                    }
+                doNotKillSBNPref.setOnPreferenceChangeListener((preference, newValue) -> {
+                    boolean enabled = (boolean) newValue;
+                    XAshmanManager.get().setDoNotKillSBNEnabled(enabled, XAppBuildVar.APP_LK);
+                    return true;
+                });
+
+                SwitchPreference showAppProcessUpdate = (SwitchPreference) findPreference("show_app_process_update");
+                showAppProcessUpdate.setChecked(XAshmanManager.get().isShowAppProcessUpdateNotificationEnabled());
+                showAppProcessUpdate.setOnPreferenceChangeListener((preference, newValue) -> {
+                    boolean enabled = (boolean) newValue;
+                    XAshmanManager.get().setShowAppProcessUpdateNotificationEnabled(enabled);
+                    return true;
                 });
             } else {
                 getPreferenceScreen().setEnabled(false);

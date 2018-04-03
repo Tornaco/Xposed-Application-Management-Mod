@@ -20,6 +20,7 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.provider.Settings;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -47,7 +48,6 @@ import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.android.common.Holder;
 import github.tornaco.xposedmoduletest.BuildConfig;
-import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -132,27 +132,27 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     private BroadcastReceiver mPackageReceiver =
             new ProtectedBroadcastReceiver(new BroadcastReceiver() {
 
-        public void onReceive(Context context, Intent intent) {
+                public void onReceive(Context context, Intent intent) {
 
-            String action = intent.getAction();
-            if (action == null || intent.getData() == null) {
-                // They send us bad action~
-                return;
-            }
+                    String action = intent.getAction();
+                    if (action == null || intent.getData() == null) {
+                        // They send us bad action~
+                        return;
+                    }
 
-            String packageName = intent.getData().getSchemeSpecificPart();
-            if (packageName == null) return;
+                    String packageName = intent.getData().getSchemeSpecificPart();
+                    if (packageName == null) return;
 
-            switch (action) {
-                case Intent.ACTION_PACKAGE_ADDED:
-                case Intent.ACTION_PACKAGE_REPLACED:
-                    cacheUIDForUs();
-                    break;
-                case Intent.ACTION_PACKAGE_REMOVED:
-                    break;
-            }
-        }
-    });
+                    switch (action) {
+                        case Intent.ACTION_PACKAGE_ADDED:
+                        case Intent.ACTION_PACKAGE_REPLACED:
+                            cacheUIDForUs();
+                            break;
+                        case Intent.ACTION_PACKAGE_REMOVED:
+                            break;
+                    }
+                }
+            });
 
     private PackageManager mPackageManager;
     private PowerManager mPowerManager;
@@ -959,7 +959,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
 
     // Warn user if dev mode is open.
-    private final static int NOTIFICATION_ID = 20182018;
+    private final static int NOTIFICATION_ID_DEBUG_MODE = 20182018;
 
     private void updateDebugMode() {
         mServiceHandler.sendEmptyMessageDelayed(AppGuardServiceHandlerMessages.MSG_WARNIFDEBUG, 10 * 1000);
@@ -1248,27 +1248,20 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             boolean isDevMode = mDebugEnabled.get();
             try {
                 if (isDevMode) {
-                    Notification n;
-                    if (OSUtil.isOOrAbove()) {
-                        n = new Notification.Builder(getContext(), XAshmanServiceImpl.NOTIFICATION_CHANNEL_ID_DEFAULT)
-                                .setOngoing(true)
-                                .setContentTitle("应用管理")
-                                .setContentText("调试模式已经打开。")
-                                .setSmallIcon(android.R.drawable.stat_sys_warning)
-                                .build();
-                    } else {
-                        n = new Notification.Builder(getContext())
-                                .setOngoing(true)
-                                .setContentTitle("应用管理")
-                                .setContentText("调试模式已经打开。")
-                                .setSmallIcon(android.R.drawable.stat_sys_warning)
-                                .build();
-                    }
-                    NotificationManagerCompat.from(getContext()).cancel(NOTIFICATION_ID);
+                    NotificationCompat.Builder builder
+                            = new NotificationCompat.Builder(getContext(),
+                            XAshmanServiceImpl.NOTIFICATION_CHANNEL_ID_DEFAULT);
+                    Notification n = builder
+                            .setOngoing(true)
+                            .setContentTitle("应用管理")
+                            .setContentText("调试模式已经打开。")
+                            .setSmallIcon(android.R.drawable.stat_sys_warning)
+                            .build();
+                    NotificationManagerCompat.from(getContext()).cancel(NOTIFICATION_ID_DEBUG_MODE);
                     NotificationManagerCompat.from(getContext())
-                            .notify(NOTIFICATION_ID, n);
+                            .notify(NOTIFICATION_ID_DEBUG_MODE, n);
                 } else {
-                    NotificationManagerCompat.from(getContext()).cancel(NOTIFICATION_ID);
+                    NotificationManagerCompat.from(getContext()).cancel(NOTIFICATION_ID_DEBUG_MODE);
                 }
             } catch (Throwable e) {
                 Toast.makeText(getContext(),

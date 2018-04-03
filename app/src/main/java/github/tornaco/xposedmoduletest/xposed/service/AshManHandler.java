@@ -31,6 +31,8 @@ interface AshManHandler {
 
     void setLockKillEnabled(boolean enabled);
 
+    void setShowAppProcessUpdateNotificationEnabled(boolean enabled);
+
     void setLockKillDoNotKillAudioEnabled(boolean enabled);
 
     void setLazyModeEnabled(boolean enabled);

@@ -1835,4 +1835,22 @@ public class XAshmanManager {
             return false;
         }
     }
+
+    public boolean isShowAppProcessUpdateNotificationEnabled() {
+        ensureService();
+        try {
+            return mService.isShowAppProcessUpdateNotificationEnabled();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void setShowAppProcessUpdateNotificationEnabled(boolean enabled) {
+        ensureService();
+        try {
+            mService.setShowAppProcessUpdateNotificationEnabled(enabled);
+        } catch (Exception e) {
+
+        }
+    }
 }

@@ -398,4 +398,7 @@ interface IAshmanService {
      void setDisableMotionEnabled(boolean enable);
 
      boolean isGCMSupportPackage(String pkg);
+
+     boolean isShowAppProcessUpdateNotificationEnabled();
+     void setShowAppProcessUpdateNotificationEnabled(boolean enabled);
 }

@@ -555,5 +555,7 @@
     <string name="summary_talkers_play">TG: https://t.me/xposed_apm_mod</string>
     <string name="title_gcm_indicator">GCM指示器</string>
     <string name="summary_gcm_indicator">应用列表显示该应用是否支持GCM。</string>
+    <string name="title_show_app_process_update">显示可清理应用通知</string>
+    <string name="summary_show_app_process_update">显示一个通知，帮助用户快速清理以及监控可清理的应用。</string>
 
 </resources>
