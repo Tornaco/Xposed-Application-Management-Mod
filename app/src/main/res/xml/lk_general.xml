@@ -21,4 +21,13 @@
             android:key="key_lk_delay"
             android:title="@string/lk_delay" />
     </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/title_opt">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="show_app_process_update"
+            android:persistent="false"
+            android:summary="@string/summary_show_app_process_update"
+            android:title="@string/title_show_app_process_update" />
+    </PreferenceCategory>
 </PreferenceScreen>

@@ -250,6 +250,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final AtomicBoolean mShowFocusedActivityInfoEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mLockKillDoNotKillAudioEnabled = new AtomicBoolean(true);
+    private final AtomicBoolean mShowAppProcessUpdateNotification = new AtomicBoolean(true);
 
     private final AtomicBoolean mDoNotKillSBNEnabled = new AtomicBoolean(true);
     private final AtomicBoolean mDoNotKillSBNGreenEnabled = new AtomicBoolean(true);
@@ -258,6 +259,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final AtomicBoolean mTaskRemovedKillEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mLongPressBackKillEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mCompSettingBlockEnabled = new AtomicBoolean(false);
+
 
     private final Holder<String> mUserDefinedDeviceId = new Holder<>();
     private final Holder<String> mUserDefinedAndroidId = new Holder<>();
@@ -536,7 +538,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private static final int NOTIFICATION_ID_APP_PROCESS = Integer.MAX_VALUE - 2018;
 
     static final String NOTIFICATION_CHANNEL_ID_DEFAULT = "dev.tornaco.notification.channel.id.X-APM";
-    static final String NOTIFICATION_CHANNEL_ID_APP_PROCESS = "dev.tornaco.notification.channel.id.X-APM-PROCESS";
+    private static final String NOTIFICATION_CHANNEL_ID_APP_PROCESS = "dev.tornaco.notification.channel.id.X-APM-PROCESS";
 
     void createDefaultNotificationChannelForO() {
         if (OSUtil.isOOrAbove()) {
@@ -564,7 +566,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
-    void createAppProcessNotificationChannelForO() {
+    private void createAppProcessNotificationChannelForO() {
         if (OSUtil.isOOrAbove()) {
             NotificationManager notificationManager = (NotificationManager)
                     getContext().getSystemService(
@@ -614,8 +616,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 .notify(NOTIFICATION_ID_DYNAMIC.getAndIncrement(), n);
     }
 
+    private void clearRunningAppProcessUpdateNotification() {
+        NotificationManagerCompat.from(getContext())
+                .cancel(NOTIFICATION_ID_APP_PROCESS);
+    }
+
     private void showRunningAppProcessUpdateNotification() {
         if (!isNotificationPostReady()) {
+            return;
+        }
+        if (!isShowAppProcessUpdateNotificationEnabled()) {
             return;
         }
         if (XposedLog.isVerboseLoggable()) {
@@ -642,6 +652,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 .setContentText("当前有" + recentApp + "等" + mRunningProcessPackages.size() + "个应用等待被清理。")
                 .setSmallIcon(android.R.drawable.stat_sys_warning)
                 .setContentIntent(clearIntent)
+                .setAutoCancel(true)
                 .addAction(0, "立即清理", clearIntent)
                 .build();
         NotificationManagerCompat.from(getContext())
@@ -1003,6 +1014,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     .readFromSystemSettings(getContext());
             mLockKillDoNotKillAudioEnabled.set(lockKillDoNotKillAudioEnabled);
             XposedLog.boot("lockKillDoNotKillAudioEnabled: " + String.valueOf(lockKillDoNotKillAudioEnabled));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            boolean showAppProcessUpdateNotification = (boolean) SystemSettings.APM_SHOW_APP_PROCESS_UPDATE_B
+                    .readFromSystemSettings(getContext());
+            mShowAppProcessUpdateNotification.set(showAppProcessUpdateNotification);
+            XposedLog.boot("showAppProcessUpdateNotification: " + String.valueOf(showAppProcessUpdateNotification));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -3588,6 +3608,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public boolean isGCMSupportPackage(String pkg) {
         enforceCallingPermissions();
         return mGCMSupportPackages.contains(pkg);
+    }
+
+    @Override
+    public boolean isShowAppProcessUpdateNotificationEnabled() {
+        return mShowAppProcessUpdateNotification.get();
+    }
+
+    @Override
+    public void setShowAppProcessUpdateNotificationEnabled(boolean enabled) throws RemoteException {
+        enforceCallingPermissions();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETSHOWAPPPROCESSUPDATENOTIFICATIONENABLED, enabled).sendToTarget();
+        if (!enabled) {
+            mLazyHandler.post(new ErrorCatchRunnable(this::clearRunningAppProcessUpdateNotification, "clearRunningAppProcessUpdateNotification"));
+        }
     }
 
     private void cacheGCMPackages() {
@@ -6357,6 +6391,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETLOCKKILLENABLED:
                     HandlerImpl.this.setLockKillEnabled((Boolean) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_SETSHOWAPPPROCESSUPDATENOTIFICATIONENABLED:
+                    HandlerImpl.this.setShowAppProcessUpdateNotificationEnabled((Boolean) msg.obj);
+                    break;
                 case AshManHandlerMessages.MSG_SETRFKILLENABLED:
                     HandlerImpl.this.setRFKillEnabled((Boolean) msg.obj);
                     break;
@@ -6535,6 +6572,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setLockKillEnabled(boolean enabled) {
             if (mLockKillEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.LOCK_KILL_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setShowAppProcessUpdateNotificationEnabled(boolean enabled) {
+            if (mShowAppProcessUpdateNotification.compareAndSet(!enabled, enabled)) {
+                SystemSettings.APM_SHOW_APP_PROCESS_UPDATE_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 

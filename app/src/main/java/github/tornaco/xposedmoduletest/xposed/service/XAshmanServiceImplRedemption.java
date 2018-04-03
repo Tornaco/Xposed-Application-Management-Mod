@@ -190,6 +190,16 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public boolean isShowAppProcessUpdateNotificationEnabled() throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public void setShowAppProcessUpdateNotificationEnabled(boolean enabled) throws RemoteException {
+
+    }
+
+    @Override
     public void leaveRedemptionMode() throws RemoteException {
         RepoProxy.deleteFileIndicator(SubModuleManager.REDEMPTION);
     }
