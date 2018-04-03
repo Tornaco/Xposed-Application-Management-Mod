@@ -55,6 +55,7 @@ import android.os.Vibrator;
 import android.provider.Settings;
 import android.service.notification.StatusBarNotification;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.telephony.TelephonyManager;
@@ -115,6 +116,7 @@ import github.tornaco.xposedmoduletest.util.ArrayUtil;
 import github.tornaco.xposedmoduletest.util.GsonUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
+import github.tornaco.xposedmoduletest.xposed.app.IProcessClearListenerAdapter;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
@@ -275,6 +277,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private boolean mIsSafeMode = false;
 
     private boolean mIsSystemReady = false;
+    private boolean mIsNotificationPostReady = false;
 
     private AMSProxy mAmsProxy;
 
@@ -292,7 +295,87 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     };
 
-    private AppIdler.OnAppIdleListener mOnAppIdleListener = this::removeFromAppFirstStartNotifyPackages;
+    private static final String ACTION_CLEAR_PROCESS = "github.tornaco.broadcast.action.clear_process";
+
+    private final ErrorCatchRunnable mClearCompleteToastRunnable = new ErrorCatchRunnable(() ->
+            Toast.makeText(getContext(), "清理完成", Toast.LENGTH_SHORT).show(), "mClearCompleteToastRunnable");
+
+    private ProtectedBroadcastReceiver mClearProcessBroadcast =
+            new ProtectedBroadcastReceiver(new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    try {
+                        XposedLog.verbose("mClearProcessBroadcast, receive");
+                        clearProcess(new IProcessClearListenerAdapter() {
+                            @Override
+                            public boolean doNotClearWhenIntervative() throws RemoteException {
+                                return false;
+                            }
+
+                            @Override
+                            public void onAllCleared(String[] pkg) throws RemoteException {
+                                super.onAllCleared(pkg);
+                                mLazyHandler.post(mClearCompleteToastRunnable);
+                            }
+                        });
+                    } catch (RemoteException e) {
+                        XposedLog.wtf("Fail call clearProcess: " + Log.getStackTraceString(e));
+                    }
+                }
+            });
+
+    // Dynamic updated when AMS add app or remove app process.
+    private final LinkedList<String> mRunningProcessPackages = new LinkedList<>();
+
+    private void addToRunningProcessPackages(String pkg) {
+        if (isInWhiteList(pkg)) return;
+        if (isInSystemAppList(pkg)) return;
+
+        boolean isLKList = isPackageLKByUser(pkg);
+        if (!isLKList) {
+            XposedLog.verbose("addToRunningProcessPackages, skip for none LK: " + pkg);
+            return;
+        }
+
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("addToRunningProcessPackages: " + pkg);
+        }
+        if (!mRunningProcessPackages.contains(pkg)) {
+            mRunningProcessPackages.addFirst(pkg);
+            onRunningProcessPackagesUpdate();
+        }
+    }
+
+    private void removeFromRunningProcessPackages(String... pkg) {
+        if (pkg == null || pkg.length == 0) return;
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("removeFromRunningProcessPackages: " + Arrays.toString(pkg));
+        }
+        boolean changed = false;
+        for (String p : pkg) {
+            if (mRunningProcessPackages.remove(p)) {
+                changed = true;
+            }
+        }
+        if (changed) {
+            onRunningProcessPackagesUpdate();
+        }
+    }
+
+    private Runnable mShowRunningAppProcessUpdateNotificationRunnable
+            = new ErrorCatchRunnable(this::showRunningAppProcessUpdateNotification, "showRunningAppProcessUpdateNotification");
+
+    private void onRunningProcessPackagesUpdate() {
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("onRunningProcessPackagesUpdate");
+        }
+
+        // always handle in lazy handler.
+        mLazyHandler.removeCallbacks(mShowRunningAppProcessUpdateNotificationRunnable);
+        mLazyHandler.post(mShowRunningAppProcessUpdateNotificationRunnable);
+    }
+
+    private AppIdler.OnAppIdleListener mOnAppIdleListener = this::removeFromRunningProcessPackages;
 
     private BroadcastReceiver mBatteryStateReceiver =
             new ProtectedBroadcastReceiver(new BroadcastReceiver() {
@@ -344,6 +427,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     });
 
+    @SuppressLint("UseSparseArrays")
     private final Map<Integer, ComponentName> mTaskIdMap = new HashMap<>();
 
     private XAppGuardServiceImpl mAppGuardService;
@@ -448,24 +532,26 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         mWorkingService.execute(() -> cachePackages(pkg));
     }
 
-    private static final AtomicInteger NOTIFICATION_ID = new AtomicInteger(0);
+    private static final AtomicInteger NOTIFICATION_ID_DYNAMIC = new AtomicInteger(0);
+    private static final int NOTIFICATION_ID_APP_PROCESS = Integer.MAX_VALUE - 2018;
 
-    static final String NOTIFICATION_CHANNEL_ID = "dev.tornaco.notification.channel.id.X-APM";
+    static final String NOTIFICATION_CHANNEL_ID_DEFAULT = "dev.tornaco.notification.channel.id.X-APM";
+    static final String NOTIFICATION_CHANNEL_ID_APP_PROCESS = "dev.tornaco.notification.channel.id.X-APM-PROCESS";
 
-    void createNotificationChannelForO() {
+    void createDefaultNotificationChannelForO() {
         if (OSUtil.isOOrAbove()) {
             NotificationManager notificationManager = (NotificationManager)
                     getContext().getSystemService(
                             Context.NOTIFICATION_SERVICE);
             NotificationChannel nc = null;
             if (notificationManager != null) {
-                nc = notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID);
+                nc = notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID_DEFAULT);
             }
             if (nc != null) {
                 return;
             }
             NotificationChannel notificationChannel;
-            notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
+            notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID_DEFAULT,
                     "apm",
                     NotificationManager.IMPORTANCE_DEFAULT);
             notificationChannel.enableLights(true);
@@ -478,10 +564,34 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
+    void createAppProcessNotificationChannelForO() {
+        if (OSUtil.isOOrAbove()) {
+            NotificationManager notificationManager = (NotificationManager)
+                    getContext().getSystemService(
+                            Context.NOTIFICATION_SERVICE);
+            NotificationChannel nc = null;
+            if (notificationManager != null) {
+                nc = notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID_APP_PROCESS);
+            }
+            if (nc != null) {
+                return;
+            }
+            NotificationChannel notificationChannel;
+            notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID_APP_PROCESS,
+                    "apm",
+                    NotificationManager.IMPORTANCE_LOW);
+            notificationChannel.enableLights(false);
+            notificationChannel.enableVibration(false);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
+        }
+    }
+
     private void showNewAppRestrictedNotification(Context context, String pkg, String name) {
         XposedLog.verbose("Add to black list showNewAppRestrictedNotification: " + name);
 
-        createNotificationChannelForO();
+        createDefaultNotificationChannelForO();
 
         // FIXME Extract an intent.
         Intent viewer = new Intent();
@@ -491,7 +601,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         viewer.putExtra("pkg_name", pkg);
         viewer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID_DEFAULT);
 
         Notification n = builder
                 .setContentIntent(PendingIntent.getActivity(getContext(), 0x1, viewer,
@@ -501,7 +611,46 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 .setSmallIcon(android.R.drawable.stat_sys_warning)
                 .build();
         NotificationManagerCompat.from(context)
-                .notify(NOTIFICATION_ID.getAndIncrement(), n);
+                .notify(NOTIFICATION_ID_DYNAMIC.getAndIncrement(), n);
+    }
+
+    private void showRunningAppProcessUpdateNotification() {
+        if (!isNotificationPostReady()) {
+            return;
+        }
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("showRunningAppProcessUpdateNotification");
+        }
+
+        createAppProcessNotificationChannelForO();
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(),
+                NOTIFICATION_CHANNEL_ID_APP_PROCESS);
+
+        Intent clearBroadcastIntent = new Intent(ACTION_CLEAR_PROCESS);
+        PendingIntent clearIntent = PendingIntent.getBroadcast(getContext(), 0, clearBroadcastIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        if (mRunningProcessPackages.size() < 1) {
+            return;
+        }
+
+        // FIXME May occur index err. need sync action.
+        String recentApp = String.valueOf(PkgUtil.loadNameByPkgName(getContext(), mRunningProcessPackages.get(0)));
+
+        Notification n = builder
+                .setContentTitle("等待清理的应用")
+                .setContentText("当前有" + recentApp + "等" + mRunningProcessPackages.size() + "个应用等待被清理。")
+                .setSmallIcon(android.R.drawable.stat_sys_warning)
+                .setContentIntent(clearIntent)
+                .addAction(0, "立即清理", clearIntent)
+                .build();
+        NotificationManagerCompat.from(getContext())
+                .notify(NOTIFICATION_ID_APP_PROCESS, n);
+
+        if (BuildConfig.DEBUG) {
+            XposedLog.verbose("showRunningAppProcessUpdateNotification:"
+                    + Arrays.toString(mRunningProcessPackages.toArray()));
+        }
     }
 
     private void cachePackages(final String... pkg) {
@@ -696,6 +845,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private boolean isSystemReady() {
         return mIsSystemReady;
+    }
+
+    public boolean isNotificationPostReady() {
+        return mIsNotificationPostReady;
     }
 
     private void loadConfigFromSettings() {
@@ -1919,8 +2072,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             // By default, we allow.
             return CheckResult.ALLOWED_GENERAL;
         } finally {
-            String callerIdentify = PkgUtil.pkgForUid(getContext(), callerUid);
-            onAppServiceStartBy(servicePkgName, callerIdentify, callerUid);
+            // Nothing.
         }
     }
 
@@ -1970,47 +2122,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
         }
         return null;
-    }
-
-    private final Set<String> mAppFirstStartNotifyPackages = new HashSet<>();
-
-    private void onAppFirstStartNotified(String whoPkg) {
-        if (XposedLog.isVerboseLoggable()) {
-            XposedLog.verbose("onAppFirstStartNotified: " + whoPkg);
-        }
-        mAppFirstStartNotifyPackages.add(whoPkg);
-    }
-
-    private boolean isAppFirstStartNotified(String whoPkg) {
-        return mAppFirstStartNotifyPackages.contains(whoPkg);
-    }
-
-    private void removeFromAppFirstStartNotifyPackages(String whoPkg) {
-        if (XposedLog.isVerboseLoggable()) {
-            XposedLog.verbose("removeFromAppFirstStartNotifyPackages: " + whoPkg);
-        }
-        mAppFirstStartNotifyPackages.remove(whoPkg);
-    }
-
-    private void onAppServiceStartBy(String servicePkgName, String callerIdentify, int callerUid) {
-        if (BuildConfig.DEBUG) {
-            boolean isAppInMemCleanList = isPackageLKByUser(servicePkgName);
-
-            if (isAppInMemCleanList && !isAppFirstStartNotified(servicePkgName)) {
-
-                String log = String.format("App %s start by %s",
-                        PkgUtil.loadNameByPkgName(getContext(), servicePkgName),
-                        PkgUtil.loadNameByPkgNameFixed(getContext(), callerIdentify, callerUid));
-
-                XposedLog.verbose(log);
-
-                Runnable r = () -> {
-                    Toast.makeText(getContext(), log, Toast.LENGTH_SHORT).show();
-                    onAppFirstStartNotified(servicePkgName);
-                };
-                mainHandler.post(r);
-            }
-        }
     }
 
     // Rule caches.
@@ -2614,15 +2725,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             // Remove those not in blocked list.
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
-            Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
-                @Override
-                public void accept(String s) {
-                    if (outList.contains(s)) return;// Kik dup package.
-                    if (isPackageLKByUser(s)) return;
-                    if (isInWhiteList(s)) return;
-                    if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
-                    outList.add(s);
-                }
+            Collections.consumeRemaining(allPackagesArr, s -> {
+                if (outList.contains(s)) return;// Kik dup package.
+                if (isPackageLKByUser(s)) return;
+                if (isInWhiteList(s)) return;
+                if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
+                outList.add(s);
             });
 
             if (outList.size() == 0) {
@@ -2638,14 +2746,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
             final List<String> noSys = Lists.newArrayList();
 
-            Collections.consumeRemaining(packages, new Consumer<String>() {
-                @Override
-                public void accept(String p) {
-                    if (isWhiteSysAppEnabled() && isInSystemAppList(p)) {
-                        return;
-                    }
-                    noSys.add(p);
+            Collections.consumeRemaining(packages, p -> {
+                if (isWhiteSysAppEnabled() && isInSystemAppList(p)) {
+                    return;
                 }
+                noSys.add(p);
             });
             return convertObjectArrayToStringArray(noSys.toArray());
         }
@@ -2658,6 +2763,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
         addOrRemoveFromRepo(packages, RepoProxy.getProxy().getLks(), op == XAshmanManager.Op.ADD);
+        if (op == XAshmanManager.Op.REMOVE) {
+            removeFromRunningProcessPackages(packages);
+        }
     }
 
     @Override
@@ -3234,6 +3342,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
         getContext().registerReceiver(mBatteryStateReceiver, intentFilter);
 
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(ACTION_CLEAR_PROCESS);
+        getContext().registerReceiver(mClearProcessBroadcast, intentFilter);
+
         // This is a test.
         // FIMXE THIS IS FUCKING DANGEROUS FOR USER. BE CAREFUL.
         if (BuildConfig.DEBUG) {
@@ -3288,6 +3400,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         });
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     private Icon loadIconFromAPMApp(String resName) {
         Context appContext = getAPMAppContext();
         if (appContext != null) {
@@ -3395,29 +3508,27 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         // Try to setup the list after 15s if network control is enabled.
         if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_FIREWALL)) {
-            mLazyHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        applyRestrictionBlackList();
-                    } catch (Throwable ignored) {
-                    }
+            mLazyHandler.postDelayed(() -> {
+                try {
+                    applyRestrictionBlackList();
+                } catch (Throwable ignored) {
                 }
             }, 10 * 1000);
         }
 
         // Reload packages after 15s, for those apps installed on sd.
-        mLazyHandler.postDelayed(new ErrorCatchRunnable(new Runnable() {
-            @Override
-            public void run() {
-                forceReloadPackages();
+        mLazyHandler.postDelayed(new ErrorCatchRunnable(() -> {
+            forceReloadPackages();
 
-                // It is safe.
-                if (OSUtil.isHuaWeiDevice()) {
-                    applyDozeWhiteList();
-                }
+            // It is safe.
+            if (OSUtil.isHuaWeiDevice()) {
+                applyDozeWhiteList();
             }
         }, "reload installed apps"), 15 * 1000);
+
+        mLazyHandler.postDelayed(new ErrorCatchRunnable(() -> {
+            mIsNotificationPostReady = true;
+        }, "Ready to post notifications"), 3 * 1000);
 
         cacheWebviewPackacgaes();
 
@@ -4263,12 +4374,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 }
                 // Now we kill this pkg delay to let am handle first.
                 final String finalPkgOfThisTask = pkgOfThisTask;
-                mLazyHandler.postDelayed(new ErrorCatchRunnable(new Runnable() {
-                    @Override
-                    public void run() {
-                        XposedLog.verbose("removeTask, killing: " + finalPkgOfThisTask);
-                        getAppIdler().setAppIdle(finalPkgOfThisTask);
-                    }
+                mLazyHandler.postDelayed(new ErrorCatchRunnable(() -> {
+                    XposedLog.verbose("removeTask, killing: " + finalPkgOfThisTask);
+                    getAppIdler().setAppIdle(finalPkgOfThisTask);
                 }, "removeTask-kill"), 888); // FIXME why 888?
             }
         }
@@ -6212,21 +6320,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @SuppressLint("HandlerLeak")
     private class HandlerImpl extends Handler implements AshManHandler {
 
-        public HandlerImpl() {
+        HandlerImpl() {
         }
 
         public HandlerImpl(Looper looper) {
             super(looper);
         }
 
-        private final Runnable clearProcessRunnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    clearProcess(null);
-                } catch (Throwable e) {
-                    XposedLog.wtf("Error on clearProcessRunnable: " + Log.getStackTraceString(e));
-                }
+        private final Runnable clearProcessRunnable = () -> {
+            try {
+                clearProcess(null);
+            } catch (Throwable e) {
+                XposedLog.wtf("Error on clearProcessRunnable: " + Log.getStackTraceString(e));
             }
         };
 
@@ -6839,12 +6944,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         @Override
         public void clearBlockRecords() {
-            Runnable clear = new Runnable() {
-                @Override
-                public void run() {
-                    synchronized (mBlockRecords) {
-                        mBlockRecords.clear();
-                    }
+            Runnable clear = () -> {
+                synchronized (mBlockRecords) {
+                    mBlockRecords.clear();
                 }
             };
             mWorkingService.execute(clear);
@@ -7065,7 +7167,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         @Override
         public void onStartProcessLocked(ApplicationInfo applicationInfo) {
             if (XposedLog.isVerboseLoggable()) {
-                XposedLog.verbose("onStartProcessLocked: " + applicationInfo.packageName);
+                XposedLog.verbose("onStartProcessLocked: " + applicationInfo);
+            }
+            if (applicationInfo != null && applicationInfo.packageName != null) {
+                addToRunningProcessPackages(applicationInfo.packageName);
             }
         }
 
@@ -7073,6 +7178,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void onRemoveProcessLocked(ApplicationInfo applicationInfo, boolean callerWillRestart, boolean allowRestart, String reason) {
             if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("onRemoveProcessLocked: %s %s %s %s ", applicationInfo, callerWillRestart, allowRestart, reason);
+            }
+            if (applicationInfo != null && applicationInfo.packageName != null) {
+                removeFromRunningProcessPackages(applicationInfo.packageName);
             }
         }
 
