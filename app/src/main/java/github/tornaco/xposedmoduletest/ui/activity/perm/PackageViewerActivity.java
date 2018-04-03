@@ -2,8 +2,6 @@ package github.tornaco.xposedmoduletest.ui.activity.perm;
 
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
 
 import java.util.List;
 
@@ -41,13 +39,18 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity {
 
     @Override
     protected CommonPackageInfoAdapter onCreateAdapter() {
-        CommonPackageInfoViewerAdapter adapter = new CommonPackageInfoViewerAdapter(this);
-        adapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+        CommonPackageInfoViewerAdapter adapter = new CommonPackageInfoViewerAdapter(this) {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                CommonPackageInfo info = getCommonPackageInfoAdapter().getCommonPackageInfos().get(position);
-                Apps2OpListActivity.start(getActivity(), info.getPkgName());
+            protected boolean enableLongPressTriggerAllSelection() {
+                // No need.
+                return false;
             }
+        };
+
+        adapter.setOnItemClickListener((parent, view, position, id) -> {
+            CommonPackageInfo info = getCommonPackageInfoAdapter().getCommonPackageInfos().get(position);
+            Apps2OpListActivity.start(getActivity(), info.getPkgName());
         });
         return adapter;
     }

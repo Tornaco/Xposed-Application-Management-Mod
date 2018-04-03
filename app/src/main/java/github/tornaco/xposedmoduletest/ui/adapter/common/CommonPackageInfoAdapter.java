@@ -24,7 +24,6 @@ import java.util.List;
 
 import cn.nekocode.badge.BadgeDrawable;
 import github.tornaco.android.common.Collections;
-import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
@@ -209,7 +208,12 @@ public class CommonPackageInfoAdapter
                 .build();
     }
 
+    protected boolean onBuildGCMIndicator(CommonPackageInfo info, TextView textView) {
+        return true;
+    }
+
     void inflatePackageDesc(CommonPackageInfo info, TextView textView, boolean showGcmIndicator) {
+
         int appLevel = info.getAppLevel();
         String appLevelDesc = getSystemAppIndicatorLabel(appLevel);
         BadgeDrawable appLevelDrawable = createAppLevelBadge(appLevelDesc, getSystemAppIndicatorColor(appLevel));
@@ -218,7 +222,7 @@ public class CommonPackageInfoAdapter
         if (appLevelDrawable != null) {
             descSets.add(appLevelDrawable.toSpannable());
         }
-        if (showGcmIndicator && info.isGCMSupport()) {
+        if (onBuildGCMIndicator(info, textView) && showGcmIndicator && info.isGCMSupport()) {
             descSets.add(getGcmBadge().toSpannable());
         }
         if (descSets.size() > 0) {
@@ -254,13 +258,17 @@ public class CommonPackageInfoAdapter
             choiceModeListener.onEnterChoiceMode();
             onInfoItemLongClickSelected(position);
             return true;
-        } else {
+        } else if (enableLongPressTriggerAllSelection()) {
             // Select all items.
             selectAll(getCheckedCount() != getItemCount());
             return true;
         }
+        return false;
     }
 
+    protected boolean enableLongPressTriggerAllSelection() {
+        return true;
+    }
 
     private void onInfoItemLongClickSelected(int position) {
         getCommonPackageInfos().get(position).setChecked(true);
@@ -284,11 +292,8 @@ public class CommonPackageInfoAdapter
 
     private void clearCheckStateForAllItems() {
         Collections.consumeRemaining(getCommonPackageInfos(),
-                new Consumer<CommonPackageInfo>() {
-                    @Override
-                    public void accept(CommonPackageInfo info) {
-                        if (info.isChecked()) info.setChecked(false);
-                    }
+                info -> {
+                    if (info.isChecked()) info.setChecked(false);
                 });
     }
 
@@ -300,11 +305,8 @@ public class CommonPackageInfoAdapter
     public int getCheckedCount() {
         final int[] c = {0};
         Collections.consumeRemaining(commonPackageInfos,
-                new Consumer<CommonPackageInfo>() {
-                    @Override
-                    public void accept(CommonPackageInfo info) {
-                        if (info.isChecked()) c[0]++;
-                    }
+                info -> {
+                    if (info.isChecked()) c[0]++;
                 });
         return c[0];
     }
