@@ -30,6 +30,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
@@ -54,6 +55,7 @@ import android.os.Vibrator;
 import android.provider.Settings;
 import android.service.notification.StatusBarNotification;
 import android.support.annotation.NonNull;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -489,15 +491,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         viewer.putExtra("pkg_name", pkg);
         viewer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        Notification n = OSUtil.isOOrAbove() ?
-                new Notification.Builder(context, NOTIFICATION_CHANNEL_ID)
-                        .setContentTitle("模板已应用")
-                        .setContentText("已按照模板将 " + name + " 完成设置")
-                        .setSmallIcon(android.R.drawable.stat_sys_warning)
-                        .setContentIntent(PendingIntent.getActivity(getContext(), 0x1, viewer, PendingIntent.FLAG_CANCEL_CURRENT))
-                        .build()
-                : new Notification.Builder(context)
-                .setContentIntent(PendingIntent.getActivity(getContext(), 0x1, viewer, PendingIntent.FLAG_CANCEL_CURRENT))
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID);
+
+        Notification n = builder
+                .setContentIntent(PendingIntent.getActivity(getContext(), 0x1, viewer,
+                        PendingIntent.FLAG_CANCEL_CURRENT))
                 .setContentTitle("模板已应用")
                 .setContentText("已按照模板将 " + name + " 完成设置")
                 .setSmallIcon(android.R.drawable.stat_sys_warning)
@@ -511,33 +509,30 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         final PackageManager pm = getContext().getPackageManager();
 
-        Collections.consumeRemaining(pkg, new Consumer<String>() {
-            @Override
-            public void accept(String s) {
-                ApplicationInfo applicationInfo;
-                try {
+        Collections.consumeRemaining(pkg, s -> {
+            ApplicationInfo applicationInfo;
+            try {
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        applicationInfo = pm.getApplicationInfo(s, PackageManager.MATCH_UNINSTALLED_PACKAGES);
-                    } else {
-                        applicationInfo = pm.getApplicationInfo(s, PackageManager.GET_UNINSTALLED_PACKAGES);
-                    }
-
-                    int uid = applicationInfo.uid;
-                    String pkg = applicationInfo.packageName;
-                    if (TextUtils.isEmpty(pkg)) return;
-
-                    if (XposedLog.isVerboseLoggable()) {
-                        XposedLog.verbose("Cached pkg:" + pkg + "-" + uid);
-                    }
-
-                    // Cache it.
-                    mPackagesCache.put(pkg, uid);
-                    PkgUtil.cachePkgUid(pkg, uid);
-
-                } catch (Exception ignored) {
-                    XposedLog.wtf("Fail cachePackages: " + ignored);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    applicationInfo = pm.getApplicationInfo(s, PackageManager.MATCH_UNINSTALLED_PACKAGES);
+                } else {
+                    applicationInfo = pm.getApplicationInfo(s, PackageManager.GET_UNINSTALLED_PACKAGES);
                 }
+
+                int uid = applicationInfo.uid;
+                String pkg1 = applicationInfo.packageName;
+                if (TextUtils.isEmpty(pkg1)) return;
+
+                if (XposedLog.isVerboseLoggable()) {
+                    XposedLog.verbose("Cached pkg:" + pkg1 + "-" + uid);
+                }
+
+                // Cache it.
+                mPackagesCache.put(pkg1, uid);
+                PkgUtil.cachePkgUid(pkg1, uid);
+
+            } catch (Exception ignored) {
+                XposedLog.wtf("Fail cachePackages: " + ignored);
             }
         });
     }
@@ -571,43 +566,40 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             : pm.getInstalledApplications(android.content.pm.PackageManager.GET_UNINSTALLED_PACKAGES);
 
             Collections.consumeRemaining(applicationInfos,
-                    new Consumer<ApplicationInfo>() {
-                        @Override
-                        public void accept(ApplicationInfo applicationInfo) {
-                            String pkg = applicationInfo.packageName;
-                            int uid = applicationInfo.uid;
-                            if (TextUtils.isEmpty(pkg)) {
-                                XposedLog.wtf("Found no pkg app:" + applicationInfo);
-                                return;
+                    applicationInfo -> {
+                        String pkg = applicationInfo.packageName;
+                        int uid = applicationInfo.uid;
+                        if (TextUtils.isEmpty(pkg)) {
+                            XposedLog.wtf("Found no pkg app:" + applicationInfo);
+                            return;
+                        }
+
+                        mPackagesCache.put(pkg, uid);
+                        PkgUtil.cachePkgUid(pkg, uid);
+
+                        // Add system apps to system list.
+                        boolean isSystemApp = (applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
+                        if (isSystemApp) {
+                            addToSystemApps(pkg);
+                        }
+
+                        android.content.pm.PackageInfo packageInfo;
+                        // Check if android system uid or media, phone.
+                        try {
+                            packageInfo = pm.getPackageInfo(pkg, 0);
+                            String sharedUserId = packageInfo.sharedUserId;
+                            if ("android.uid.phone".equals(sharedUserId)) {
+                                addToPhoneApps(pkg);
+                            }
+                            if ("android.media".equals(sharedUserId)) {
+                                addToMediaApps(pkg);
+                            }
+                            if ("android.uid.system".equals(sharedUserId)) {
+                                addToCoreApps(pkg);
                             }
 
-                            mPackagesCache.put(pkg, uid);
-                            PkgUtil.cachePkgUid(pkg, uid);
-
-                            // Add system apps to system list.
-                            boolean isSystemApp = (applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
-                            if (isSystemApp) {
-                                addToSystemApps(pkg);
-                            }
-
-                            android.content.pm.PackageInfo packageInfo;
-                            // Check if android system uid or media, phone.
-                            try {
-                                packageInfo = pm.getPackageInfo(pkg, 0);
-                                String sharedUserId = packageInfo.sharedUserId;
-                                if ("android.uid.phone".equals(sharedUserId)) {
-                                    addToPhoneApps(pkg);
-                                }
-                                if ("android.media".equals(sharedUserId)) {
-                                    addToMediaApps(pkg);
-                                }
-                                if ("android.uid.system".equals(sharedUserId)) {
-                                    addToCoreApps(pkg);
-                                }
-
-                            } catch (Exception e) {
-                                XposedLog.wtf("NameNotFoundException: " + e + ", for: " + pkg);
-                            }
+                        } catch (Exception e) {
+                            XposedLog.wtf("NameNotFoundException: " + e + ", for: " + pkg);
                         }
                     });
         } catch (Exception ignored) {
@@ -3256,7 +3248,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void inflateWhiteList() {
-        String[] whiteListArr = readStringArrayFromAppGuard("default_ash_white_list_packages");
+        String[] whiteListArr = readStringArrayFromAPMApp("default_ash_white_list_packages");
         XposedLog.debug("Res default_ash_white_list_packages: " + Arrays.toString(whiteListArr));
         Collections.consumeRemaining(whiteListArr, new Consumer<String>() {
             @Override
@@ -3280,13 +3272,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
         });
 
-        String[] lockWhiteListArr = readStringArrayFromAppGuard("app_lock_white_list_activity");
+        String[] lockWhiteListArr = readStringArrayFromAPMApp("app_lock_white_list_activity");
         XposedLog.debug("Res app_lock_white_list_activity: " + Arrays.toString(lockWhiteListArr));
         addAppLockWhiteListActivity(lockWhiteListArr);
     }
 
     private void inflateWhiteListHook() {
-        String[] whiteListArr = readStringArrayFromAppGuard("ash_white_list_packages_hooks");
+        String[] whiteListArr = readStringArrayFromAPMApp("ash_white_list_packages_hooks");
         XposedLog.debug("Res ash_white_list_packages_hooks: " + Arrays.toString(whiteListArr));
         Collections.consumeRemaining(whiteListArr, new Consumer<String>() {
             @Override
@@ -3296,28 +3288,51 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         });
     }
 
-    private Drawable loadDrawableFromAppGuard(String resName, int fallback) {
+    private Icon loadIconFromAPMApp(String resName) {
+        Context appContext = getAPMAppContext();
+        if (appContext != null) {
+            Resources res = appContext.getResources();
+            if (res != null) {
+                int id = res.getIdentifier(resName, "drawable", BuildConfig.APPLICATION_ID);
+                return Icon.createWithResource(res, id);
+            }
+        }
+        return Icon.createWithResource(getContext(), android.R.drawable.stat_sys_warning);
+    }
+
+    private Context getAPMAppContext() {
         Context context = getContext();
         if (context == null) {
             XposedLog.wtf("Context is null!!!");
             return null;
         }
         try {
-            Context appContext =
-                    context.createPackageContext(BuildConfig.APPLICATION_ID, CONTEXT_IGNORE_SECURITY);
+            return context.createPackageContext(BuildConfig.APPLICATION_ID, CONTEXT_IGNORE_SECURITY);
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail createPackageContext: " + Log.getStackTraceString(e));
+        }
+        return null;
+    }
+
+    private Drawable loadDrawableFromAPMApp(String resName, int fallback) {
+        try {
+            Context appContext = getAPMAppContext();
+            if (appContext == null) {
+                return null;
+            }
             Resources res = appContext.getResources();
             int id = res.getIdentifier(resName, "drawable", BuildConfig.APPLICATION_ID);
-            XposedLog.debug("loadDrawableFromAppGuard get id: " + id + ", for res: " + resName);
+            XposedLog.debug("loadDrawableFromAPMApp get id: " + id + ", for res: " + resName);
             if (id != 0) {
                 return res.getDrawable(id);
             }
         } catch (Throwable e) {
             XposedLog.wtf("Fail createPackageContext: " + Log.getStackTraceString(e));
         }
-        return context.getDrawable(fallback);
+        return getContext().getDrawable(fallback);
     }
 
-    private String[] readStringArrayFromAppGuard(String resName) {
+    private String[] readStringArrayFromAPMApp(String resName) {
         Context context = getContext();
         if (context == null) {
             XposedLog.wtf("Context is null!!!");
@@ -3328,7 +3343,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     context.createPackageContext(BuildConfig.APPLICATION_ID, CONTEXT_IGNORE_SECURITY);
             Resources res = appContext.getResources();
             int id = res.getIdentifier(resName, "array", BuildConfig.APPLICATION_ID);
-            XposedLog.debug("readStringArrayFromAppGuard get id: " + id + ", for res: " + resName);
+            XposedLog.debug("readStringArrayFromAPMApp get id: " + id + ", for res: " + resName);
             if (id != 0) {
                 return res.getStringArray(id);
             }
