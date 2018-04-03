@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.app.IApplicationThread;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -116,6 +117,16 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     @Override
     public int getRecentTaskExcludeSetting(ComponentName c) {
         return XAshmanManager.ExcludeRecentSetting.NONE;
+    }
+
+    @Override
+    public void onStartProcessLocked(ApplicationInfo applicationInfo) {
+
+    }
+
+    @Override
+    public void onRemoveProcessLocked(ApplicationInfo applicationInfo, boolean callerWillRestart, boolean allowRestart, String reason) {
+
     }
 
     @Override

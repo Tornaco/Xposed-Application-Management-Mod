@@ -1,7 +1,6 @@
 package github.tornaco.xposedmoduletest.ui.activity.perm;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -75,19 +74,11 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
                     .setTitle(R.string.title_app_ops_tip)
                     .setMessage(getString(R.string.message_app_ops_tip))
                     .setCancelable(false)
-                    .setNeutralButton(R.string.no_remind, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            AppSettings.setShowInfo(getApplicationContext(), "ops_settings", false);
-                        }
-                    })
+                    .setNeutralButton(R.string.no_remind, (dialog, which) -> AppSettings.setShowInfo(getApplicationContext(), "ops_settings", false))
                     .setPositiveButton(android.R.string.ok, null)
-                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finishAffinity();
-                            PackageManagerCompat.unInstallUserAppWithIntent(getContext(), getPackageName());
-                        }
+                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+                        finishAffinity();
+                        PackageManagerCompat.unInstallUserAppWithIntent(getContext(), getPackageName());
                     })
                     .show();
 
@@ -127,13 +118,10 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
 
         setSummaryView();
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                SwitchBar switchBar = findViewById(R.id.switchbar);
-                if (switchBar == null) return;
-                switchBar.hide();
-            }
+        runOnUiThread(() -> {
+            SwitchBar switchBar = findViewById(R.id.switchbar);
+            if (switchBar == null) return;
+            switchBar.hide();
         });
 
         boolean donateOrPlay = XApp.isPlayVersion() || AppSettings.isDonated(getContext());
@@ -218,7 +206,8 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
      */
     public static class OpsViewerFragment extends Fragment
             implements SearchViewResults.SearchPerformer<CommonPackageInfo>,
-            onSimpleSearchActionsListener<CommonPackageInfo>, AdapterView.OnItemSelectedListener {
+            onSimpleSearchActionsListener<CommonPackageInfo>,
+            AdapterView.OnItemSelectedListener {
 
         /**
          * The fragment argument representing the section number for this
@@ -238,20 +227,14 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
 
         protected void startLoading() {
             swipeRefreshLayout.setRefreshing(true);
-            XExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    final List res = performLoading();
-                    if (getActivity() == null || isDetached()) return;
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            swipeRefreshLayout.setRefreshing(false);
-                            //noinspection unchecked
-                            commonPackageInfoViewerAdapter.update(res);
-                        }
-                    });
-                }
+            XExecutor.execute(() -> {
+                final List res = performLoading();
+                if (getActivity() == null || isDetached()) return;
+                getActivity().runOnUiThread(() -> {
+                    swipeRefreshLayout.setRefreshing(false);
+                    //noinspection unchecked
+                    commonPackageInfoViewerAdapter.update(res);
+                });
             });
         }
 
@@ -273,85 +256,82 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
         }
 
         protected CommonPackageInfoViewerAdapter onCreateAdapter() {
-            CommonPackageInfoViewerAdapter adapter = new CommonPackageInfoViewerAdapter(getActivity()) {
-                @Override
-                public void onBindViewHolder(CommonViewHolder holder, int position) {
-                    super.onBindViewHolder(holder, position);
-
-                    final CommonPackageInfo packageInfo = getCommonPackageInfos().get(position);
-
-                    if (index == INDEX_OPS) {
-                        holder.getLineTwoTextView().setText(packageInfo.getPayload()[0]);
-                        if (getActivity() != null) {
-                            holder.getCheckableImageView().setImageDrawable(ContextCompat
-                                    .getDrawable(getActivity(), github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat
-                                            .opToIconRes(packageInfo.getVersion())));
-                        }
-                    }
-
-                    //noinspection ConstantConditions
-                    holder.getMoreBtn().setOnClickListener(new View.OnClickListener() {
+            CommonPackageInfoViewerAdapter adapter =
+                    new CommonPackageInfoViewerAdapter(getActivity()) {
                         @Override
-                        public void onClick(View v) {
-                            showPopMenu(packageInfo, v);
+                        protected boolean enableLongPressTriggerAllSelection() {
+                            return false;
                         }
-                    });
-                }
 
-                void showPopMenu(final CommonPackageInfo t, View anchor) {
-                    PopupMenu popupMenu = new PopupMenu(getContext(), anchor);
-                    popupMenu.inflate(getPopupMenuRes());
-                    popupMenu.setOnMenuItemClickListener(onCreateOnMenuItemClickListener(t));
-                    popupMenu.show();
-                }
+                        @Override
+                        protected boolean onBuildGCMIndicator(CommonPackageInfo info, TextView textView) {
+                            return false;
+                        }
 
-                int getPopupMenuRes() {
-                    return R.menu.perm_ops_item;
-                }
+                        @Override
+                        public void onBindViewHolder(CommonViewHolder holder, int position) {
+                            super.onBindViewHolder(holder, position);
 
-                PopupMenu.OnMenuItemClickListener onCreateOnMenuItemClickListener(final CommonPackageInfo t) {
-                    if (index == INDEX_OPS) {
-                        return new PopupMenu.OnMenuItemClickListener() {
-                            @Override
-                            public boolean onMenuItemClick(MenuItem item) {
-                                OpLogViewerActivity.start(getContext(), null, t.getVersion());
-                                return true;
+                            final CommonPackageInfo packageInfo = getCommonPackageInfos().get(position);
+
+                            if (index == INDEX_OPS) {
+                                holder.getLineTwoTextView().setText(packageInfo.getPayload()[0]);
+                                if (getActivity() != null) {
+                                    holder.getCheckableImageView().setImageDrawable(ContextCompat
+                                            .getDrawable(getActivity(), github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat
+                                                    .opToIconRes(packageInfo.getVersion())));
+                                }
                             }
-                        };
-                    } else if (index == INDEX_APPS) {
-                        return new PopupMenu.OnMenuItemClickListener() {
-                            @Override
-                            public boolean onMenuItemClick(MenuItem item) {
-                                OpLogViewerActivity.start(getContext(), t.getPkgName(), -1);
-                                return true;
+
+                            //noinspection ConstantConditions
+                            holder.getMoreBtn().setOnClickListener(v -> showPopMenu(packageInfo, v));
+                        }
+
+                        void showPopMenu(final CommonPackageInfo t, View anchor) {
+                            PopupMenu popupMenu = new PopupMenu(getContext(), anchor);
+                            popupMenu.inflate(getPopupMenuRes());
+                            popupMenu.setOnMenuItemClickListener(onCreateOnMenuItemClickListener(t));
+                            popupMenu.show();
+                        }
+
+                        int getPopupMenuRes() {
+                            return R.menu.perm_ops_item;
+                        }
+
+                        PopupMenu.OnMenuItemClickListener onCreateOnMenuItemClickListener(final CommonPackageInfo t) {
+                            if (index == INDEX_OPS) {
+                                return item -> {
+                                    OpLogViewerActivity.start(getContext(), null, t.getVersion());
+                                    return true;
+                                };
+                            } else if (index == INDEX_APPS) {
+                                return item -> {
+                                    OpLogViewerActivity.start(getContext(), t.getPkgName(), -1);
+                                    return true;
+                                };
                             }
-                        };
-                    }
-                    return null;
-                }
+                            return null;
+                        }
 
-                @Override
-                protected boolean imageLoadingEnabled() {
-                    return index == INDEX_APPS;
-                }
+                        @Override
+                        protected boolean imageLoadingEnabled() {
+                            return index == INDEX_APPS;
+                        }
 
-                @Override
-                protected int getTemplateLayoutRes() {
-                    return index == INDEX_OPS ?
-                            R.layout.app_list_item_2_ops
-                            : R.layout.app_list_item_2_perm;
-                }
-            };
+                        @Override
+                        protected int getTemplateLayoutRes() {
+                            return index == INDEX_OPS ?
+                                    R.layout.app_list_item_2_ops
+                                    : R.layout.app_list_item_2_perm;
+                        }
+                    };
 
-            adapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    CommonPackageInfo info = commonPackageInfoViewerAdapter.getCommonPackageInfos().get(position);
-                    if (index == INDEX_APPS) {
-                        Apps2OpListActivity.start(getActivity(), info.getPkgName());
-                    } else if (index == INDEX_OPS) {
-                        Op2AppsListActivity.start(getActivity(), info.getVersion(), mShowSystemApp);
-                    }
+            adapter.setOnItemClickListener((parent, view, position, id) -> {
+                CommonPackageInfo info = commonPackageInfoViewerAdapter.getCommonPackageInfos().get(position);
+                if (index == INDEX_APPS) {
+                    Apps2OpListActivity.start(getActivity(), info.getPkgName());
+                } else if (index == INDEX_OPS) {
+                    Op2AppsListActivity.start(getActivity(), info.getVersion(), mShowSystemApp);
                 }
             });
             return adapter;
@@ -437,12 +417,7 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
 
 
             swipeRefreshLayout.setOnRefreshListener(
-                    new SwipeRefreshLayout.OnRefreshListener() {
-                        @Override
-                        public void onRefresh() {
-                            startLoading();
-                        }
-                    });
+                    () -> startLoading());
 
             ViewGroup filterContainer = rootView.findViewById(R.id.apps_filter_spinner_container);
             onInitFilterSpinner(filterContainer);

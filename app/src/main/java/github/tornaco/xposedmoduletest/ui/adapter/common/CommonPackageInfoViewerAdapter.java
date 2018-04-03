@@ -56,12 +56,9 @@ public class CommonPackageInfoViewerAdapter extends CommonPackageInfoAdapter {
             holder.getLineOneTextView().setText(packageInfo.getAppName());
             holder.getLineOneTextView().setTextColor(mDefaultTextColor);
         }
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (onItemClickListener != null) {
-                    onItemClickListener.onItemClick(null, v, holder.getAdapterPosition(), holder.getItemId());
-                }
+        holder.itemView.setOnClickListener(v -> {
+            if (onItemClickListener != null) {
+                onItemClickListener.onItemClick(null, v, holder.getAdapterPosition(), holder.getItemId());
             }
         });
     }

@@ -99,6 +99,8 @@ public class SubModuleManager {
         addToSubsChecked(new AMSGetRunningAppsSubModule());
         addToSubsChecked(new AMSCheckPermissionSubModule());
         addToSubsChecked(new AMSMoveTaskToBackSubModule());
+        addToSubsChecked(new AMSStartProcessLockedSubModule());
+        addToSubsChecked(new AMSRemoveProcessLockedSubModule());
 
         addToSubsChecked(new AMSSetFocusedActivitySubModule());
         addToSubsChecked(new ActivityStackSupervisorSetFocusedStackSubModule());

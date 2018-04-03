@@ -94,17 +94,14 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                 super.onBindViewHolder(holder, position);
                 final CommonPackageInfo packageInfo = getCommonPackageInfos().get(position);
                 if (packageInfo.isDisabled()) {
-                    View.OnClickListener listener = new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            try {
-                                if (packageInfo.isDisabled()) {
-                                    getContext().startActivity(ShortcutStubActivity
-                                            .createIntent(getContext(), packageInfo.getPkgName(), true, true));
-                                }
-                            } catch (Exception e) {
-                                Toast.makeText(getContext(), R.string.fail_launch_app, Toast.LENGTH_LONG).show();
+                    View.OnClickListener listener = v -> {
+                        try {
+                            if (packageInfo.isDisabled()) {
+                                getContext().startActivity(ShortcutStubActivity
+                                        .createIntent(getContext(), packageInfo.getPkgName(), true, true));
                             }
+                        } catch (Exception e) {
+                            Toast.makeText(getContext(), R.string.fail_launch_app, Toast.LENGTH_LONG).show();
                         }
                     };
                     CompsViewHolder compsViewHolder = (CompsViewHolder) holder;
@@ -120,6 +117,11 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
             @Override
             protected CommonViewHolder onCreateViewHolder(View root) {
                 return new CompsViewHolder(root);
+            }
+
+            @Override
+            protected boolean enableLongPressTriggerAllSelection() {
+                return false;
             }
         };
         adapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -156,52 +158,49 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
         } else {
             popupMenu.getMenu().findItem(R.id.action_disable_app).setVisible(true);
         }
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.action_disable_app:
-                        onRequestDisableApp(packageInfo.getPkgName());
-                        break;
-                    case R.id.action_enable_app:
-                        XAshmanManager.get().setApplicationEnabledSetting(
-                                packageInfo.getPkgName(), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0,
-                                false);
-                        startLoading();
-                        break;
-                    case R.id.action_comp_edit:
-                        ComponentEditorActivity.start(getActivity(), packageInfo.getPkgName());
-                        break;
-                    case R.id.action_comp_uninstall:
-                        onRequestUnInstallApp(packageInfo);
-                        break;
-                    case R.id.action_comp_details:
-                        PackageManagerCompat.showAppDetails(getActivity(), packageInfo.getPkgName());
-                        break;
-                    case R.id.action_comp_export_apk:
-                        mAppPackageToExport = packageInfo.getPkgName();
-                        PackageViewerActivityPermissionRequester.pickSingleFileChecked
-                                (getActivity(), REQUEST_CODE_PICK_APK_EXPORT_PATH,
-                                        PackageViewerActivity.this);
-                        break;
+        popupMenu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.action_disable_app:
+                    onRequestDisableApp(packageInfo.getPkgName());
+                    break;
+                case R.id.action_enable_app:
+                    XAshmanManager.get().setApplicationEnabledSetting(
+                            packageInfo.getPkgName(), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0,
+                            false);
+                    startLoading();
+                    break;
+                case R.id.action_comp_edit:
+                    ComponentEditorActivity.start(getActivity(), packageInfo.getPkgName());
+                    break;
+                case R.id.action_comp_uninstall:
+                    onRequestUnInstallApp(packageInfo);
+                    break;
+                case R.id.action_comp_details:
+                    PackageManagerCompat.showAppDetails(getActivity(), packageInfo.getPkgName());
+                    break;
+                case R.id.action_comp_export_apk:
+                    mAppPackageToExport = packageInfo.getPkgName();
+                    PackageViewerActivityPermissionRequester.pickSingleFileChecked
+                            (getActivity(), REQUEST_CODE_PICK_APK_EXPORT_PATH,
+                                    PackageViewerActivity.this);
+                    break;
 
-                    case R.id.action_app_focused_action:
-                        onRequestAddAppFocusedAction(packageInfo.getPkgName());
-                        break;
-                    case R.id.action_app_unfocused_action:
-                        onRequestAddAppUnFocusedAction(packageInfo.getPkgName());
-                        break;
+                case R.id.action_app_focused_action:
+                    onRequestAddAppFocusedAction(packageInfo.getPkgName());
+                    break;
+                case R.id.action_app_unfocused_action:
+                    onRequestAddAppUnFocusedAction(packageInfo.getPkgName());
+                    break;
 
-                    case R.id.action_app_settings:
-                        onRequestAppSettings(packageInfo.getPkgName());
-                        break;
-                    case R.id.action_config_setting:
-                        onRequestConfigSettings(packageInfo.getPkgName());
-                        break;
+                case R.id.action_app_settings:
+                    onRequestAppSettings(packageInfo.getPkgName());
+                    break;
+                case R.id.action_config_setting:
+                    onRequestConfigSettings(packageInfo.getPkgName());
+                    break;
 
-                }
-                return true;
             }
+            return true;
         });
         popupMenu.show();
     }
@@ -216,12 +215,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                         + "\t"
                         + PkgUtil.loadNameByPkgName(getContext(), packageInfo.getPkgName()))
                 .setMessage(getString(R.string.message_uninstall_app))
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        doUnInstallApp(packageInfo);
-                    }
-                })
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> doUnInstallApp(packageInfo))
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
@@ -237,12 +231,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                             showTips(R.string.tips_uninstall_sys_app_success,
                                     true,
                                     getString(R.string.title_restart_android),
-                                    new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            PowerManagerCompat.restartAndroid();
-                                        }
-                                    });
+                                    PowerManagerCompat::restartAndroid);
                         }
 
                         @Override
@@ -255,12 +244,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
 
                         @Override
                         public void maybeSuccess() {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    startLoading();
-                                }
-                            });
+                            runOnUiThread(() -> startLoading());
                         }
                     });
         }
@@ -287,38 +271,33 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                         + PkgUtil.loadNameByPkgName(getContext(), pkgName))
 
                 .setMultiChoiceItems(items, new boolean[]{true, true, true, false},
-                        new DialogInterface.OnMultiChoiceClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                                if (which == 0) {
-                                    createShortcut[0] = isChecked;
-                                }
-                                if (which == 1) {
-                                    redisable[0] = isChecked;
-                                }
-                                if (which == 2) {
-                                    redisable_tr[0] = isChecked;
-                                }
-                                if (which == 3) {
-                                    userCustomIcon[0] = isChecked;
-                                }
+                        (dialog, which, isChecked) -> {
+                            if (which == 0) {
+                                createShortcut[0] = isChecked;
+                            }
+                            if (which == 1) {
+                                redisable[0] = isChecked;
+                            }
+                            if (which == 2) {
+                                redisable_tr[0] = isChecked;
+                            }
+                            if (which == 3) {
+                                userCustomIcon[0] = isChecked;
                             }
                         })
                 .setPositiveButton(android.R.string.ok,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialoginterface, int i) {
-                                dialoginterface.dismiss();
+                        (dialoginterface, i) -> {
+                            dialoginterface.dismiss();
 
-                                XAshmanManager.get().setApplicationEnabledSetting(
-                                        pkgName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0,
-                                        false);
+                            XAshmanManager.get().setApplicationEnabledSetting(
+                                    pkgName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0,
+                                    false);
 
-                                if (createShortcut[0]) {
-                                    ShortcutUtil.addShortcut(getActivity(), pkgName, redisable[0], redisable_tr[0], userCustomIcon[0]);
-                                }
-
-                                startLoading();
+                            if (createShortcut[0]) {
+                                ShortcutUtil.addShortcut(getActivity(), pkgName, redisable[0], redisable_tr[0], userCustomIcon[0]);
                             }
+
+                            startLoading();
                         })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
@@ -374,48 +353,29 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
             Toast.makeText(getContext(), R.string.err_file_not_found, Toast.LENGTH_LONG).show();
             return;
         }
-        XExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Files.copy(new File(appPath),
-                            new File(file, PkgUtil.loadNameByPkgName(getContext(),
-                                    mAppPackageToExport) + ".apk"));
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showTips(R.string.title_export_success, false, null, null);
-                        }
-                    });
-                } catch (final IOException e) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getContext(), Logger.getStackTraceString(e), Toast.LENGTH_LONG).show();
-                        }
-                    });
-                }
+        XExecutor.execute(() -> {
+            try {
+                Files.copy(new File(appPath),
+                        new File(file, PkgUtil.loadNameByPkgName(getContext(),
+                                mAppPackageToExport) + ".apk"));
+                runOnUiThread(() -> showTips(R.string.title_export_success, false, null, null));
+            } catch (final IOException e) {
+                runOnUiThread(() -> Toast.makeText(getContext(), Logger.getStackTraceString(e), Toast.LENGTH_LONG).show());
             }
         });
     }
 
     private void onRequestAddAppFocusedAction(final String who) {
-        pickAppFocusActions(new ActionReceiver() {
-            @Override
-            public void onActionReceived(List<String> actions) {
-                String[] actionString = ArrayUtil.convertObjectArrayToStringArray(actions.toArray());
-                XAshmanManager.get().addOrRemoveAppFocusAction(who, actionString, true);
-            }
+        pickAppFocusActions(actions -> {
+            String[] actionString = ArrayUtil.convertObjectArrayToStringArray(actions.toArray());
+            XAshmanManager.get().addOrRemoveAppFocusAction(who, actionString, true);
         });
     }
 
     private void onRequestAddAppUnFocusedAction(final String who) {
-        pickAppFocusActions(new ActionReceiver() {
-            @Override
-            public void onActionReceived(List<String> actions) {
-                String[] actionString = ArrayUtil.convertObjectArrayToStringArray(actions.toArray());
-                XAshmanManager.get().addOrRemoveAppUnFocusAction(who, actionString, true);
-            }
+        pickAppFocusActions(actions -> {
+            String[] actionString = ArrayUtil.convertObjectArrayToStringArray(actions.toArray());
+            XAshmanManager.get().addOrRemoveAppUnFocusAction(who, actionString, true);
         });
     }
 
@@ -436,23 +396,15 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                 .setTitle(R.string.title_action_exe_by_sort)
                 .setCancelable(false)
                 .setMultiChoiceItems(actionNames, def,
-                        new DialogInterface.OnMultiChoiceClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                                SenseAction sa = items[which];
-                                if (isChecked) {
-                                    actionSet.add(sa.name());
-                                } else {
-                                    actionSet.remove(sa.name());
-                                }
+                        (dialog, which, isChecked) -> {
+                            SenseAction sa = items[which];
+                            if (isChecked) {
+                                actionSet.add(sa.name());
+                            } else {
+                                actionSet.remove(sa.name());
                             }
                         })
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        receiver.onActionReceived(actionSet);
-                    }
-                })
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> receiver.onActionReceived(actionSet))
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }

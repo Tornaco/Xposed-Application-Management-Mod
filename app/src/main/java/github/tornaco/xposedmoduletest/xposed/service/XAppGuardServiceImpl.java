@@ -1243,14 +1243,14 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         }
 
         public void warnIfDebug() {
-            mService.createNotificationChannelForO();
+            mService.createDefaultNotificationChannelForO();
 
             boolean isDevMode = mDebugEnabled.get();
             try {
                 if (isDevMode) {
                     Notification n;
                     if (OSUtil.isOOrAbove()) {
-                        n = new Notification.Builder(getContext(), XAshmanServiceImpl.NOTIFICATION_CHANNEL_ID)
+                        n = new Notification.Builder(getContext(), XAshmanServiceImpl.NOTIFICATION_CHANNEL_ID_DEFAULT)
                                 .setOngoing(true)
                                 .setContentTitle("应用管理")
                                 .setContentText("调试模式已经打开。")

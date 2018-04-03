@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.newstand.logger.Logger;
@@ -91,7 +92,13 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
 
     @Override
     protected CommonPackageInfoAdapter onCreateAdapter() {
+
         return new CommonPackageInfoViewerAdapter(this) {
+            @Override
+            protected boolean onBuildGCMIndicator(CommonPackageInfo info, TextView textView) {
+                return false;
+            }
+
             @SuppressLint("SetTextI18n")
             @Override
             public void onBindViewHolder(CommonViewHolder holder, int position) {
@@ -108,6 +115,7 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
                     desc = desc + "\n" + Arrays.toString(log.getPayload());
                 }
                 holder.getLineTwoTextView().setText(desc);
+                holder.getLineTwoTextView().setVisibility(View.VISIBLE);
                 // This is query by package.
                 if (mPackageName != null) {
                     String title = AppOpsManagerCompat.getOpLabel(getContext(), log.getCode());
@@ -115,6 +123,11 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
                     holder.getCheckableImageView().setImageDrawable(ContextCompat
                             .getDrawable(getContext(), AppOpsManagerCompat.opToIconRes(log.getCode())));
                 }
+            }
+
+            @Override
+            protected boolean enableLongPressTriggerAllSelection() {
+                return false;
             }
 
             @Override
