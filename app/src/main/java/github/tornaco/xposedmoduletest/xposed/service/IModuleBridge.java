@@ -4,6 +4,7 @@ import android.app.IApplicationThread;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.view.KeyEvent;
@@ -154,5 +155,9 @@ public interface IModuleBridge {
     boolean isPanicLockEnabled() throws RemoteException;
 
     int getRecentTaskExcludeSetting(ComponentName c) throws RemoteException;
+
+    void onStartProcessLocked(ApplicationInfo applicationInfo);
+
+    void onRemoveProcessLocked(ApplicationInfo applicationInfo, boolean callerWillRestart, boolean allowRestart, String reason);
     // API For ASH END.
 }

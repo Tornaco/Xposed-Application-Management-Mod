@@ -120,6 +120,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
 import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 import github.tornaco.xposedmoduletest.xposed.bean.OpsSettings;
+import github.tornaco.xposedmoduletest.xposed.bean.TypePack;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.repo.SetRepo;
@@ -2900,6 +2901,27 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public int getRecentTaskExcludeSetting(ComponentName c) {
         if (c == null) return XAshmanManager.ExcludeRecentSetting.NONE;
         return SettingsProvider.get().getInt("RECENT_EXCLUDE_" + c.getPackageName(), XAshmanManager.ExcludeRecentSetting.NONE);
+    }
+
+    @Override
+    public void onStartProcessLocked(ApplicationInfo applicationInfo) {
+        mLazyHandler.obtainMessage(AshManLZHandlerMessages.MSG_ONSTARTPROCESSLOCKED, applicationInfo)
+                .sendToTarget();
+    }
+
+    @Override
+    public void onRemoveProcessLocked(ApplicationInfo applicationInfo,
+                                      boolean callerWillRestart,
+                                      boolean allowRestart,
+                                      String reason) {
+        TypePack typePack = TypePack.builder()
+                .o1(applicationInfo)
+                .boolean1(callerWillRestart)
+                .boolean2(allowRestart)
+                .s1(reason)
+                .build();
+        mLazyHandler.obtainMessage(AshManLZHandlerMessages.MSG_ONREMOVEPROCESSLOCKED, typePack)
+                .sendToTarget();
     }
 
     @Override
@@ -7022,7 +7044,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             super(looper);
         }
 
-        public LazyHandler() {
+        LazyHandler() {
+        }
+
+        @Override
+        public void onStartProcessLocked(ApplicationInfo applicationInfo) {
+            if (XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose("onStartProcessLocked: " + applicationInfo.packageName);
+            }
+        }
+
+        @Override
+        public void onRemoveProcessLocked(ApplicationInfo applicationInfo, boolean callerWillRestart, boolean allowRestart, String reason) {
+            if (XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose("onRemoveProcessLocked: %s %s %s %s ", applicationInfo, callerWillRestart, allowRestart, reason);
+            }
         }
 
         @Override
@@ -7489,6 +7525,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     break;
                 case AshManLZHandlerMessages.MSG_MAYBEBACKPRESSED:
                     LazyHandler.this.maybeBackPressed((String) msg.obj);
+                    break;
+                case AshManLZHandlerMessages.MSG_ONSTARTPROCESSLOCKED:
+                    LazyHandler.this.onStartProcessLocked((ApplicationInfo) msg.obj);
+                    break;
+                case AshManLZHandlerMessages.MSG_ONREMOVEPROCESSLOCKED:
+                    TypePack pack = (TypePack) msg.obj;
+                    LazyHandler.this.onRemoveProcessLocked((ApplicationInfo) pack.getO1(),
+                            pack.isBoolean1(),
+                            pack.isBoolean2(),
+                            pack.getS1());
                     break;
             }
         }

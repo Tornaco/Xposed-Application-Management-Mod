@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.view.KeyEvent;
 
 import github.tornaco.apigen.CreateMessageIdWithMethods;
@@ -26,4 +27,8 @@ interface AshManLZHandler {
     void maybeBackLongPressed(String targetPackage);
 
     void maybeBackPressed(String targetPackage);
+
+    void onStartProcessLocked(ApplicationInfo applicationInfo);
+
+    void onRemoveProcessLocked(ApplicationInfo applicationInfo, boolean callerWillRestart, boolean allowRestart, String reason);
 }
