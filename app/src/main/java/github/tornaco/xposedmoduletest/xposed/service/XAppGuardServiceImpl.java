@@ -5,6 +5,8 @@ import android.annotation.SuppressLint;
 import android.app.IApplicationThread;
 import android.app.KeyguardManager;
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -48,6 +50,7 @@ import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.android.common.Holder;
 import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -70,6 +73,8 @@ import static android.content.Context.KEYGUARD_SERVICE;
 class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     private static final long TRANSACTION_EXPIRE_TIME = 60 * 1000;
+
+    private static final String NOTIFICATION_CHANNEL_ID_DEBUG = "dev.tornaco.notification.channel.id.X-APM-DEBUG";
 
     private Handler mServiceHandler;
 
@@ -1242,15 +1247,38 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             loadConfigFromSettings();
         }
 
+        void createDebugNotificationChannelForO() {
+            if (OSUtil.isOOrAbove()) {
+                NotificationManager notificationManager = (NotificationManager)
+                        getContext().getSystemService(
+                                Context.NOTIFICATION_SERVICE);
+                NotificationChannel nc = null;
+                if (notificationManager != null) {
+                    nc = notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID_DEBUG);
+                }
+                if (nc != null) {
+                    return;
+                }
+                NotificationChannel notificationChannel;
+                notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID_DEBUG,
+                        "应用管理调试频道",
+                        NotificationManager.IMPORTANCE_LOW);
+                notificationChannel.enableLights(false);
+                notificationChannel.enableVibration(false);
+                if (notificationManager != null) {
+                    notificationManager.createNotificationChannel(notificationChannel);
+                }
+            }
+        }
+
         public void warnIfDebug() {
-            mService.createDefaultNotificationChannelForO();
+            createDebugNotificationChannelForO();
 
             boolean isDevMode = mDebugEnabled.get();
             try {
                 if (isDevMode) {
                     NotificationCompat.Builder builder
-                            = new NotificationCompat.Builder(getContext(),
-                            XAshmanServiceImpl.NOTIFICATION_CHANNEL_ID_DEFAULT);
+                            = new NotificationCompat.Builder(getContext(), NOTIFICATION_CHANNEL_ID_DEBUG);
                     Notification n = builder
                             .setOngoing(true)
                             .setContentTitle("应用管理")
