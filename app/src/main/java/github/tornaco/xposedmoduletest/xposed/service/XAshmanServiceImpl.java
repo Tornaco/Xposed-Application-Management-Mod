@@ -440,7 +440,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private XAppGuardServiceImpl mAppGuardService;
 
-    public XAshmanServiceImpl() {
+    XAshmanServiceImpl() {
         mAppGuardService = new XAppGuardServiceImplDev(this);
     }
 
@@ -513,17 +513,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             "如果你是想安装新版本，强烈建议你保留该数据。")
                     .setCancelable(false)
                     .setPositiveButton("清除数据",
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    RepoProxy.getProxy().deleteAll();
-                                }
-                            })
-                    .setNegativeButton("暂不清除", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                            (dialog, which) -> RepoProxy.getProxy().deleteAll())
+                    .setNegativeButton("暂不清除", (dialog, which) -> {
 
-                        }
                     })
                     .create();
             d.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG);
@@ -543,10 +535,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private static final AtomicInteger NOTIFICATION_ID_DYNAMIC = new AtomicInteger(0);
     private static final int NOTIFICATION_ID_APP_PROCESS = Integer.MAX_VALUE - 2018;
 
-    static final String NOTIFICATION_CHANNEL_ID_DEFAULT = "dev.tornaco.notification.channel.id.X-APM";
+    private static final String NOTIFICATION_CHANNEL_ID_DEFAULT = "dev.tornaco.notification.channel.id.X-APM-DEFAULT";
     private static final String NOTIFICATION_CHANNEL_ID_APP_PROCESS = "dev.tornaco.notification.channel.id.X-APM-PROCESS";
 
-    void createDefaultNotificationChannelForO() {
+    private void createDefaultNotificationChannelForO() {
         if (OSUtil.isOOrAbove()) {
             NotificationManager notificationManager = (NotificationManager)
                     getContext().getSystemService(
@@ -560,7 +552,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
             NotificationChannel notificationChannel;
             notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID_DEFAULT,
-                    "apm",
+                    "应用管理默认频道",
                     NotificationManager.IMPORTANCE_DEFAULT);
             notificationChannel.enableLights(true);
             notificationChannel.setLightColor(Color.RED);
@@ -586,7 +578,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
             NotificationChannel notificationChannel;
             notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID_APP_PROCESS,
-                    "apm",
+                    "应用管理进程提示频道",
                     NotificationManager.IMPORTANCE_LOW);
             notificationChannel.enableLights(false);
             notificationChannel.enableVibration(false);
