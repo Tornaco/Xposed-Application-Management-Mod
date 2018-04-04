@@ -333,7 +333,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private void addToRunningProcessPackages(String pkg) {
         if (isInWhiteList(pkg)) return;
-        if (isInSystemAppList(pkg)) return;
+        if (isWhiteSysAppEnabled() && isInSystemAppList(pkg)) return;
 
         boolean isLKList = isPackageLKByUser(pkg);
         if (!isLKList) {
@@ -639,6 +639,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         Intent clearBroadcastIntent = new Intent(ACTION_CLEAR_PROCESS);
         PendingIntent clearIntent = PendingIntent.getBroadcast(getContext(), 0, clearBroadcastIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
+        Intent viewerIntent = new Intent();
+        viewerIntent.setPackage(BuildConfig.APPLICATION_ID);
+        viewerIntent.setClassName(BuildConfig.APPLICATION_ID,
+                "github.tornaco.xposedmoduletest.ui.activity.helper.RunningServicesActivity");
+        viewerIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent detailsIntent = PendingIntent.getActivity(getContext(), 0, viewerIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
         if (mRunningProcessPackages.size() < 1) {
             // Now no apps need to be clear.
             clearRunningAppProcessUpdateNotification();
@@ -655,6 +662,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 .setContentIntent(clearIntent)
                 .setAutoCancel(true)
                 .addAction(0, "立即清理", clearIntent)
+                .addAction(0, "查看更多", detailsIntent)
                 .build();
 
         if (OSUtil.isMOrAbove()) {
