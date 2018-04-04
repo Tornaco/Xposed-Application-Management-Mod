@@ -555,7 +555,8 @@
     <string name="summary_talkers_play">TG: https://t.me/xposed_apm_mod</string>
     <string name="title_gcm_indicator">GCM指示器</string>
     <string name="summary_gcm_indicator">应用列表显示该应用是否支持GCM。</string>
-    <string name="title_show_app_process_update">显示可清理应用通知</string>
-    <string name="summary_show_app_process_update">显示一个通知，帮助用户快速清理以及监控可清理的应用。</string>
+    <string name="title_show_app_process_update">显示可清理应用通知（实验）</string>
+    <string name="summary_show_app_process_update">显示一个通知，帮助用户快速清理以及监控可清理的应用。注意，清理列表、条件均与锁屏清理相同，例如将会检查应用是否有通知与是否打开了不清理有通知的应用。</string>
+    <string name="title_cached_background_process">缓存的后台进程</string>
 
 </resources>

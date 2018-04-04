@@ -36,9 +36,11 @@ public class RunningServicesLoadingCache {
         int appCount;
     }
 
-    private static final String KEY_DEFAULT = UUID.randomUUID().toString();
+    private static final String KEY_MERGED = UUID.randomUUID().toString();
+    private static final String KEY_BACKGROUND = UUID.randomUUID().toString();
 
-    private static final Singleton<RunningServicesLoadingCache> sMe = new Singleton<RunningServicesLoadingCache>() {
+    private static final Singleton<RunningServicesLoadingCache> sMe
+            = new Singleton<RunningServicesLoadingCache>() {
         @Override
         protected RunningServicesLoadingCache create() {
             return new RunningServicesLoadingCache();
@@ -61,16 +63,27 @@ public class RunningServicesLoadingCache {
                     try {
                         RunningState state = RunningState.getInstance(XApp.getApp().getApplicationContext());
                         state.updateNow();
-                        List<RunningState.MergedItem> data = state.getCurrentMergedItems();
-                        if (data == null) {
-                            return new RunningServicesData(new ArrayList<RunningState.MergedItem>(0), 0, 0);
+                        List<RunningState.MergedItem> current = state.getCurrentMergedItems();
+                        List<RunningState.MergedItem> bg = state.getCurrentBackgroundItems();
+                        if (current == null && bg == null) {
+                            return new RunningServicesData(new ArrayList<>(0), 0, 0);
                         }
-                        int appCount = data.size() - 1;
+                        if (current == null) {
+                            current = new ArrayList<>(0);
+                        }
+                        if (bg == null) {
+                            bg = new ArrayList<>(0);
+                        }
+                        int appCount = current.size() + bg.size();
                         int serviceCount = 0;
-                        for (RunningState.MergedItem item : data) {
+                        for (RunningState.MergedItem item : current) {
                             serviceCount += item.serviceCount();
                         }
-                        return new RunningServicesData(data, serviceCount, appCount);
+                        // Add bg items.
+                        List<RunningState.MergedItem> all = new ArrayList<>();
+                        all.addAll(current);
+                        all.addAll(bg);
+                        return new RunningServicesData(all, serviceCount, appCount);
                     } finally {
                         EventBus.from().publish(new Event(XApp.EVENT_RUNNING_SERVICE_CACHE_UPDATE));
                     }
@@ -78,7 +91,7 @@ public class RunningServicesLoadingCache {
             });
 
     public RunningServicesData getRunningServiceCache() {
-        return getRunningServiceCache(KEY_DEFAULT);
+        return getRunningServiceCache(KEY_MERGED);
     }
 
     public RunningServicesData getRunningServiceCache(String key) {
@@ -91,7 +104,7 @@ public class RunningServicesLoadingCache {
 
     @Nullable
     public RunningServicesData getIfPresent() {
-        return getIfPresent(KEY_DEFAULT);
+        return getIfPresent(KEY_MERGED);
     }
 
     @Nullable
@@ -100,7 +113,7 @@ public class RunningServicesLoadingCache {
     }
 
     public void refresh() {
-        refresh(KEY_DEFAULT);
+        refresh(KEY_MERGED);
     }
 
     public void refresh(String key) {

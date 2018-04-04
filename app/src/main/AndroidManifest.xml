@@ -193,6 +193,7 @@
         <activity
             android:name=".ui.activity.helper.RunningServicesActivity"
             android:label="@string/title_running_services"
+            android:exported="true"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.ag.SecureGuardSettings"

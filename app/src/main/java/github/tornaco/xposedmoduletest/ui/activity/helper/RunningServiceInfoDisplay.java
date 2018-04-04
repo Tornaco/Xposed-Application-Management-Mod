@@ -1,5 +1,8 @@
 package github.tornaco.xposedmoduletest.ui.activity.helper;
 
+import android.content.Context;
+import android.content.pm.PackageManager;
+
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import lombok.Getter;
 import lombok.ToString;
@@ -11,17 +14,27 @@ import lombok.experimental.Delegate;
  */
 @ToString
 @Getter
-public class RunningServiceInfoDisplay extends CommonPackageInfo {
+class RunningServiceInfoDisplay extends CommonPackageInfo {
     @Delegate
     private RunningState.MergedItem mergedItem;
 
-    public RunningServiceInfoDisplay(RunningState.MergedItem mergedItem) {
+    RunningServiceInfoDisplay(Context context, RunningState.MergedItem mergedItem) {
         this.mergedItem = mergedItem;
-        String appName =
-                mergedItem.mDisplayLabel == null ? mergedItem.mLabel : mergedItem.mDisplayLabel.toString();
-        setAppName(appName);
-        String pkgName = mergedItem.mPackageInfo
-                == null ? mergedItem.mProcess.mProcessName : mergedItem.mPackageInfo.packageName;
+
+        PackageManager pm = context.getPackageManager();
+        if (mergedItem.mPackageInfo == null) {
+            // Items for background processes don't normally load
+            // their labels for performance reasons.  Do it now.
+            if (mergedItem.mProcess != null) {
+                mergedItem.mProcess.ensureLabel(pm);
+                mergedItem.mPackageInfo = mergedItem.mProcess.mPackageInfo;
+                mergedItem.mDisplayLabel = mergedItem.mProcess.mDisplayLabel;
+            }
+        }
+
+        setAppName(String.valueOf(mergedItem.mDisplayLabel));
+
+        String pkgName = mergedItem.mPackageInfo.packageName;
         setPkgName(pkgName);
     }
 }

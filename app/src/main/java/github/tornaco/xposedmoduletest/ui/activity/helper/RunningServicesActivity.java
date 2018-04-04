@@ -72,7 +72,7 @@ public class RunningServicesActivity
                 .getRunningServiceCache().getList();
         ArrayList<RunningServiceInfoDisplay> displays = new ArrayList<>();
         for (RunningState.MergedItem m : items) {
-            RunningServiceInfoDisplay d = new RunningServiceInfoDisplay(m);
+            RunningServiceInfoDisplay d = new RunningServiceInfoDisplay(this, m);
             if (BuildConfig.APPLICATION_ID.equals(d.getPkgName())) continue;
             d.setSystemApp(PkgUtil.isSystemApp(getApplicationContext(), d.getPkgName()));
             displays.add(d);
