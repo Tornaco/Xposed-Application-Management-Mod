@@ -41,9 +41,14 @@ public class RunningServiceAdapter extends CommonPackageInfoAdapter {
         super.onBindViewHolder(holder, position);
         RunningServiceInfoHolder runningServiceInfoHolder = (RunningServiceInfoHolder) holder;
         final RunningServiceInfoDisplay display = (RunningServiceInfoDisplay) getCommonPackageInfos().get(position);
-        holder.getLineTwoTextView().setText(display.getMergedItem().mDescription);
-        holder.getSystemAppIndicator().setVisibility(View.VISIBLE);
 
+        if (display.getMergedItem().mBackground) {
+            holder.getLineTwoTextView().setText(R.string.title_cached_background_process);
+        } else {
+            holder.getLineTwoTextView().setText(display.getMergedItem().mDescription);
+        }
+
+        holder.getSystemAppIndicator().setVisibility(View.VISIBLE);
         holder.getSystemAppIndicator().setText(display.getMergedItem().mSizeStr);
 
         RunningState.ProcessItem processItem = display.getMergedItem().mProcess;
@@ -52,14 +57,11 @@ public class RunningServiceAdapter extends CommonPackageInfoAdapter {
             runningServiceInfoHolder.getProcessNameView().setVisibility(View.GONE);
         }
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PerAppSettingsDashboardActivity.start(getContext(), display.getPkgName());
-                if (display.isSystemApp()) {
-                    Toast.makeText(getContext(), R.string.system_app_need_ne_careful_running_services,
-                            Toast.LENGTH_SHORT).show();
-                }
+        holder.itemView.setOnClickListener(v -> {
+            PerAppSettingsDashboardActivity.start(getContext(), display.getPkgName());
+            if (display.isSystemApp()) {
+                Toast.makeText(getContext(), R.string.system_app_need_ne_careful_running_services,
+                        Toast.LENGTH_SHORT).show();
             }
         });
     }
