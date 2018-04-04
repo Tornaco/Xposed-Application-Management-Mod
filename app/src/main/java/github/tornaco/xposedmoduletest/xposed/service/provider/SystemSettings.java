@@ -854,7 +854,7 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
         }
     },
 
-    APM_SHOW_APP_PROCESS_UPDATE_B(1) {
+    APM_SHOW_APP_PROCESS_UPDATE_B(0) {
         @Override
         public boolean writeToSystemSettings(Context context, Object value) {
             ContentResolver resolver = context.getContentResolver();

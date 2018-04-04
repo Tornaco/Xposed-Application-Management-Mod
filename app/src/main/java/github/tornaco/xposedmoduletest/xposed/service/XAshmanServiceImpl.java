@@ -26,11 +26,8 @@ import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.Icon;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
@@ -55,7 +52,6 @@ import android.os.Vibrator;
 import android.provider.Settings;
 import android.service.notification.StatusBarNotification;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.telephony.TelephonyManager;
@@ -159,7 +155,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import static android.content.Context.CONTEXT_IGNORE_SECURITY;
 import static android.content.Context.KEYGUARD_SERVICE;
 import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_NONE;
 import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_ON_DATA;
@@ -250,7 +245,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final AtomicBoolean mShowFocusedActivityInfoEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mLockKillDoNotKillAudioEnabled = new AtomicBoolean(true);
-    private final AtomicBoolean mShowAppProcessUpdateNotification = new AtomicBoolean(true);
+    private final AtomicBoolean mShowAppProcessUpdateNotification = new AtomicBoolean(false);
 
     private final AtomicBoolean mDoNotKillSBNEnabled = new AtomicBoolean(true);
     private final AtomicBoolean mDoNotKillSBNGreenEnabled = new AtomicBoolean(true);
@@ -610,6 +605,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 .setContentText("已按照模板将 " + name + " 完成设置")
                 .setSmallIcon(android.R.drawable.stat_sys_warning)
                 .build();
+
+        if (OSUtil.isMOrAbove()) {
+            n.setSmallIcon(new AppResource(getContext()).loadIconFromAPMApp("ic_stat_apply_template"));
+        }
+
         NotificationManagerCompat.from(context)
                 .notify(NOTIFICATION_ID_DYNAMIC.getAndIncrement(), n);
     }
@@ -639,6 +639,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         PendingIntent clearIntent = PendingIntent.getBroadcast(getContext(), 0, clearBroadcastIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         if (mRunningProcessPackages.size() < 1) {
+            // Now no apps need to be clear.
+            clearRunningAppProcessUpdateNotification();
             return;
         }
 
@@ -653,6 +655,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 .setAutoCancel(true)
                 .addAction(0, "立即清理", clearIntent)
                 .build();
+
+        if (OSUtil.isMOrAbove()) {
+            n.setSmallIcon(new AppResource(getContext()).loadIconFromAPMApp("ic_stat_process_update"));
+        }
+
         NotificationManagerCompat.from(getContext())
                 .notify(NOTIFICATION_ID_APP_PROCESS, n);
 
@@ -3328,12 +3335,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void logOpEventToMemory(final String pkg, final int op, final int mode, final String[] payload) {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                mOpsCache.logPackageOp(op, mode, pkg, payload);
-            }
-        };
+        Runnable r = () -> mOpsCache.logPackageOp(op, mode, pkg, payload);
         mLoggingService.execute(new ErrorCatchRunnable(r, "logOpEventToMemory"));
     }
 
@@ -3378,111 +3380,38 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     private void inflateWhiteList() {
-        String[] whiteListArr = readStringArrayFromAPMApp("default_ash_white_list_packages");
+        String[] whiteListArr = new AppResource(getContext()).readStringArrayFromAPMApp("default_ash_white_list_packages");
         XposedLog.debug("Res default_ash_white_list_packages: " + Arrays.toString(whiteListArr));
-        Collections.consumeRemaining(whiteListArr, new Consumer<String>() {
-            @Override
-            public void accept(String s) {
-                if (TextUtils.isEmpty(s)) return;
-                // Only accept pattern with *
-                boolean isPattern = s.contains("*");
-                if (isPattern) {
-                    try {
-                        addWhiteListPattern(Pattern.compile(s));
-                        if (XposedLog.isVerboseLoggable())
-                            XposedLog.verbose("Adding pattern: " + s);
-                    } catch (Throwable e) {
-                        if (XposedLog.isVerboseLoggable())
-                            XposedLog.verbose("Invalid pattern: " + s);
-                        addToWhiteList(s);
-                    }
-                } else {
+        Collections.consumeRemaining(whiteListArr, s -> {
+            if (TextUtils.isEmpty(s)) return;
+            // Only accept pattern with *
+            boolean isPattern = s.contains("*");
+            if (isPattern) {
+                try {
+                    addWhiteListPattern(Pattern.compile(s));
+                    if (XposedLog.isVerboseLoggable())
+                        XposedLog.verbose("Adding pattern: " + s);
+                } catch (Throwable e) {
+                    if (XposedLog.isVerboseLoggable())
+                        XposedLog.verbose("Invalid pattern: " + s);
                     addToWhiteList(s);
                 }
+            } else {
+                addToWhiteList(s);
             }
         });
 
-        String[] lockWhiteListArr = readStringArrayFromAPMApp("app_lock_white_list_activity");
+        String[] lockWhiteListArr = new AppResource(getContext()).readStringArrayFromAPMApp("app_lock_white_list_activity");
         XposedLog.debug("Res app_lock_white_list_activity: " + Arrays.toString(lockWhiteListArr));
         addAppLockWhiteListActivity(lockWhiteListArr);
     }
 
     private void inflateWhiteListHook() {
-        String[] whiteListArr = readStringArrayFromAPMApp("ash_white_list_packages_hooks");
+        String[] whiteListArr = new AppResource(getContext()).readStringArrayFromAPMApp("ash_white_list_packages_hooks");
         XposedLog.debug("Res ash_white_list_packages_hooks: " + Arrays.toString(whiteListArr));
-        Collections.consumeRemaining(whiteListArr, new Consumer<String>() {
-            @Override
-            public void accept(String s) {
-                addToWhiteListHook(s);
-            }
-        });
+        Collections.consumeRemaining(whiteListArr, XAshmanServiceImpl::addToWhiteListHook);
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
-    private Icon loadIconFromAPMApp(String resName) {
-        Context appContext = getAPMAppContext();
-        if (appContext != null) {
-            Resources res = appContext.getResources();
-            if (res != null) {
-                int id = res.getIdentifier(resName, "drawable", BuildConfig.APPLICATION_ID);
-                return Icon.createWithResource(res, id);
-            }
-        }
-        return Icon.createWithResource(getContext(), android.R.drawable.stat_sys_warning);
-    }
-
-    private Context getAPMAppContext() {
-        Context context = getContext();
-        if (context == null) {
-            XposedLog.wtf("Context is null!!!");
-            return null;
-        }
-        try {
-            return context.createPackageContext(BuildConfig.APPLICATION_ID, CONTEXT_IGNORE_SECURITY);
-        } catch (Throwable e) {
-            XposedLog.wtf("Fail createPackageContext: " + Log.getStackTraceString(e));
-        }
-        return null;
-    }
-
-    private Drawable loadDrawableFromAPMApp(String resName, int fallback) {
-        try {
-            Context appContext = getAPMAppContext();
-            if (appContext == null) {
-                return null;
-            }
-            Resources res = appContext.getResources();
-            int id = res.getIdentifier(resName, "drawable", BuildConfig.APPLICATION_ID);
-            XposedLog.debug("loadDrawableFromAPMApp get id: " + id + ", for res: " + resName);
-            if (id != 0) {
-                return res.getDrawable(id);
-            }
-        } catch (Throwable e) {
-            XposedLog.wtf("Fail createPackageContext: " + Log.getStackTraceString(e));
-        }
-        return getContext().getDrawable(fallback);
-    }
-
-    private String[] readStringArrayFromAPMApp(String resName) {
-        Context context = getContext();
-        if (context == null) {
-            XposedLog.wtf("Context is null!!!");
-            return new String[0];
-        }
-        try {
-            Context appContext =
-                    context.createPackageContext(BuildConfig.APPLICATION_ID, CONTEXT_IGNORE_SECURITY);
-            Resources res = appContext.getResources();
-            int id = res.getIdentifier(resName, "array", BuildConfig.APPLICATION_ID);
-            XposedLog.debug("readStringArrayFromAPMApp get id: " + id + ", for res: " + resName);
-            if (id != 0) {
-                return res.getStringArray(id);
-            }
-        } catch (Throwable e) {
-            XposedLog.wtf("Fail createPackageContext: " + Log.getStackTraceString(e));
-        }
-        return new String[0];
-    }
 
     @Override
     @CommonBringUpApi

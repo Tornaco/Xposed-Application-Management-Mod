@@ -1285,6 +1285,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                             .setContentText("调试模式已经打开。")
                             .setSmallIcon(android.R.drawable.stat_sys_warning)
                             .build();
+
+                    if (OSUtil.isMOrAbove()) {
+                        n.setSmallIcon(new AppResource(getContext()).loadIconFromAPMApp("ic_stat_debug_mode"));
+                    }
+
                     NotificationManagerCompat.from(getContext()).cancel(NOTIFICATION_ID_DEBUG_MODE);
                     NotificationManagerCompat.from(getContext())
                             .notify(NOTIFICATION_ID_DEBUG_MODE, n);
