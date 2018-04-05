@@ -13,12 +13,15 @@ import android.widget.Toast;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Set;
 
 import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.android.common.util.ApkUtil;
+import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -37,6 +40,61 @@ class ToastSubModule extends AndroidSubModule {
         hookMakeToast();
         if (OSUtil.isOOrAbove()) {
             hookMakeToastOreoAddon();
+        }
+        hookShowToast(startupParam);
+    }
+
+    private void hookShowToast(IXposedHookZygoteInit.StartupParam startupParam) {
+        XposedLog.verbose("hookShowToast...");
+        try {
+            Class clz = XposedHelpers.findClass("android.widget.Toast", null);
+            Set<XC_MethodHook.Unhook> unHooks = XposedBridge.hookAllMethods(clz, "show",
+                    new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            super.beforeHookedMethod(param);
+
+                            if (BuildConfig.DEBUG) {
+                                Log.d(XposedLog.TAG, "Toast show: " + AndroidAppHelper.currentPackageName());
+                            }
+
+                            String currentPackageName = AndroidAppHelper.currentPackageName();
+                            if (currentPackageName == null) return;
+
+                            String text = "";
+                            try {
+                                Toast toast = (Toast) param.thisObject;
+                                View v = toast.getView();
+                                TextView tv = v.findViewById(com.android.internal.R.id.message);
+                                text = String.valueOf(tv.getText());
+                            } catch (Throwable e) {
+                                Log.e(XposedLog.TAG, "Fail retrieve text from toast: " + e);
+                            }
+
+                            int mode = XAshmanManager.get().isServiceAvailable() ?
+                                    XAshmanManager.get().getPermissionControlBlockModeForPkg(
+                                            AppOpsManagerCompat.OP_TOAST_WINDOW,
+                                            currentPackageName, true, new String[]{text})
+                                    : AppOpsManagerCompat.MODE_ALLOWED;
+
+                            if (mode == AppOpsManagerCompat.MODE_IGNORED) {
+                                Log.d(XposedLog.TAG, "Toast show denied");
+                                param.setResult(null);
+                            }
+                        }
+
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            super.afterHookedMethod(param);
+                            handleMakeToastIcon(param);
+                        }
+                    });
+            XposedLog.verbose("hookShowToast OK:" + unHooks);
+            setStatus(unhooksToStatus(unHooks));
+        } catch (Exception e) {
+            XposedLog.verbose("Fail hookShowToast:" + e);
+            setStatus(SubModuleStatus.ERROR);
+            setErrorMessage(Log.getStackTraceString(e));
         }
     }
 
