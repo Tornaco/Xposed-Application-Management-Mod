@@ -294,7 +294,7 @@
         <item>"监控高电耗位置信息服务"</item>
         <item>"获取使用情况统计信息"</item>
         <item>"将麦克风静音或取消静音"</item>
-        <item>"显示问候语"</item>
+        <item>"显示问候语（Toast）"</item>
         <item>"投影媒体"</item>
         <item>"激活 VPN"</item>
         <item>"写入壁纸"</item>
