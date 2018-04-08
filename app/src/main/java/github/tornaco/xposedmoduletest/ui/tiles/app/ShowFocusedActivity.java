@@ -1,11 +1,16 @@
 package github.tornaco.xposedmoduletest.ui.tiles.app;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.os.Build;
 import android.widget.RelativeLayout;
+
+import org.newstand.logger.Logger;
 
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.SwitchTileView;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.service.APMQuickTileService;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
@@ -32,6 +37,14 @@ public class ShowFocusedActivity extends QuickTile {
                 super.onCheckChanged(checked);
                 if (XAshmanManager.get().isServiceAvailable()) {
                     XAshmanManager.get().setShowFocusedActivityInfoEnabled(checked);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        try {
+                            ComponentName componentName = new ComponentName(context, APMQuickTileService.class);
+                            APMQuickTileService.requestListeningState(context, componentName);
+                        } catch (Throwable e) {
+                            Logger.e("Fail requestListeningState to tile: " + e);
+                        }
+                    }
                 }
             }
         };

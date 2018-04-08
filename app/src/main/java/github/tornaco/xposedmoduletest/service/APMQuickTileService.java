@@ -31,7 +31,7 @@ public class APMQuickTileService extends TileService {
         } else {
             getQsTile().setState(Tile.STATE_INACTIVE);
         }
-
+        getQsTile().updateTile();
     }
 
     @Override
@@ -39,10 +39,12 @@ public class APMQuickTileService extends TileService {
         super.onStartListening();
         Logger.d("onStartListening");
         if (XAshmanManager.get().isServiceAvailable()) {
-            getQsTile().setState(XAshmanManager.get().isServiceAvailable() && XAshmanManager.get().showFocusedActivityInfoEnabled() ?
+            getQsTile().setState(XAshmanManager.get().isServiceAvailable()
+                    && XAshmanManager.get().showFocusedActivityInfoEnabled() ?
                     Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
         } else {
             getQsTile().setState(Tile.STATE_INACTIVE);
         }
+        getQsTile().updateTile();
     }
 }
