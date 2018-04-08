@@ -58,7 +58,7 @@ public class WidgetService extends Service {
                     XExecutor.getUIThreadHandler().post(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getApplicationContext(), getString(R.string.clear_process_complete,
+                            Toast.makeText(getApplicationContext(), getString(R.string.clear_process_complete_with_num,
                                     String.valueOf(mClearedPackageNum)),
                                     Toast.LENGTH_LONG).show();
                         }

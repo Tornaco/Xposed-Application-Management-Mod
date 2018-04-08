@@ -175,12 +175,7 @@ public class ComponentEditorActivity extends WithSearchActivity<Searchable>
         int color = ContextCompat.getColor(this, XSettings.getThemes(this).getThemeColor());
 
         // Apply palette color.
-        PaletteColorPicker.pickPrimaryColor(this, new PaletteColorPicker.PickReceiver() {
-            @Override
-            public void onColorReady(int color) {
-                applyColor(color);
-            }
-        }, mPackageName, color);
+        PaletteColorPicker.pickPrimaryColor(this, color1 -> applyColor(color1), mPackageName, color);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -246,24 +241,18 @@ public class ComponentEditorActivity extends WithSearchActivity<Searchable>
                     android.R.string.cancel,
                     R.string.title_copy_to_clipboard,
                     false,
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            String path = getServiceConfigPath();
-                            boolean res = FileUtil.writeString(formated, path);
-                            showSimpleDialog(getString(res ? R.string.title_export_success
-                                            : R.string.title_export_fail),
-                                    path);
-                        }
+                    () -> {
+                        String path = getServiceConfigPath();
+                        boolean res = FileUtil.writeString(formated, path);
+                        showSimpleDialog(getString(res ? R.string.title_export_success
+                                        : R.string.title_export_fail),
+                                path);
                     },
                     null,
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            ClipboardManager cmb = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                            if (cmb != null) {
-                                cmb.setPrimaryClip(ClipData.newPlainText("service_config", formated));
-                            }
+                    () -> {
+                        ClipboardManager cmb = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                        if (cmb != null) {
+                            cmb.setPrimaryClip(ClipData.newPlainText("service_config", formated));
                         }
                     });
             return true;
@@ -277,25 +266,18 @@ public class ComponentEditorActivity extends WithSearchActivity<Searchable>
                     android.R.string.cancel,
                     R.string.title_copy_to_clipboard,
                     false,
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            String path = getBroadcastConfigPath();
-                            boolean res = FileUtil.writeString(formated, path);
-                            showSimpleDialog(getString(res ? R.string.title_export_success
-                                            : R.string.title_export_fail),
-                                    path);
-                        }
+                    () -> {
+                        String path = getBroadcastConfigPath();
+                        boolean res = FileUtil.writeString(formated, path);
+                        showSimpleDialog(getString(res ? R.string.title_export_success
+                                        : R.string.title_export_fail),
+                                path);
                     },
                     null,
-                    new Runnable(
-                    ) {
-                        @Override
-                        public void run() {
-                            ClipboardManager cmb = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                            if (cmb != null) {
-                                cmb.setPrimaryClip(ClipData.newPlainText("broadcast_config", formated));
-                            }
+                    () -> {
+                        ClipboardManager cmb = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                        if (cmb != null) {
+                            cmb.setPrimaryClip(ClipData.newPlainText("broadcast_config", formated));
                         }
                     });
             return true;
@@ -309,25 +291,18 @@ public class ComponentEditorActivity extends WithSearchActivity<Searchable>
                     android.R.string.cancel,
                     R.string.title_copy_to_clipboard,
                     false,
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            String path = getActivityConfigPath();
-                            boolean res = FileUtil.writeString(formated, path);
-                            showSimpleDialog(getString(res ? R.string.title_export_success
-                                            : R.string.title_export_fail),
-                                    path);
-                        }
+                    () -> {
+                        String path = getActivityConfigPath();
+                        boolean res = FileUtil.writeString(formated, path);
+                        showSimpleDialog(getString(res ? R.string.title_export_success
+                                        : R.string.title_export_fail),
+                                path);
                     },
                     null,
-                    new Runnable(
-                    ) {
-                        @Override
-                        public void run() {
-                            ClipboardManager cmb = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                            if (cmb != null) {
-                                cmb.setPrimaryClip(ClipData.newPlainText("activity_config", formated));
-                            }
+                    () -> {
+                        ClipboardManager cmb = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                        if (cmb != null) {
+                            cmb.setPrimaryClip(ClipData.newPlainText("activity_config", formated));
                         }
                     });
             return true;
@@ -398,18 +373,21 @@ public class ComponentEditorActivity extends WithSearchActivity<Searchable>
             // Use the provided utility method to parse the result
             List<Uri> files = Utils.getSelectedFilesFromResult(data);
             File file = Utils.getFileForUri(files.get(0));
+            setLastUserSelectPath(file.getPath());
             onServiceConfigPick(file);
         }
         if (requestCode == REQUEST_CODE_PICK_BROADCAST_CONFIG && resultCode == Activity.RESULT_OK) {
             // Use the provided utility method to parse the result
             List<Uri> files = Utils.getSelectedFilesFromResult(data);
             File file = Utils.getFileForUri(files.get(0));
+            setLastUserSelectPath(file.getPath());
             onBroadcastConfigPick(file);
         }
         if (requestCode == REQUEST_CODE_PICK_ACTIVITY_CONFIG && resultCode == Activity.RESULT_OK) {
             // Use the provided utility method to parse the result
             List<Uri> files = Utils.getSelectedFilesFromResult(data);
             File file = Utils.getFileForUri(files.get(0));
+            setLastUserSelectPath(file.getPath());
             onActivityConfigPick(file);
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -471,9 +449,22 @@ public class ComponentEditorActivity extends WithSearchActivity<Searchable>
         // You could specify a String like "/storage/emulated/0/", but that can
         // dangerous. Always use Android's API calls to getSingleton paths to the SD-card or
         // internal memory.
-        i.putExtra(FilePickerActivity.EXTRA_START_PATH, Environment.getExternalStorageDirectory().getPath());
+        i.putExtra(FilePickerActivity.EXTRA_START_PATH,
+                getLastUserSelectPath() == null
+                        ? Environment.getExternalStorageDirectory().getPath()
+                        : getLastUserSelectPath());
 
         activity.startActivityForResult(i, code);
+    }
+
+    private static String sLastUserSelectPath = null;
+
+    public static String getLastUserSelectPath() {
+        return (sLastUserSelectPath != null && new File(sLastUserSelectPath).exists()) ? sLastUserSelectPath : null;
+    }
+
+    public static void setLastUserSelectPath(String path) {
+        ComponentEditorActivity.sLastUserSelectPath = path;
     }
 
     void onPermissionDenied() {

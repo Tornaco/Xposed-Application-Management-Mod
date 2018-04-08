@@ -86,7 +86,7 @@ public class LockKill extends QuickTile {
                         XExecutor.runOnUIThread(new Runnable() {
                             @Override
                             public void run() {
-                                ToastManager.show(context, context.getString(R.string.clear_process_complete, String.valueOf(clearNum[0])));
+                                ToastManager.show(context, context.getString(R.string.clear_process_complete_with_num, String.valueOf(clearNum[0])));
 
                                 // Update mem state.
                                 mProgressBar.setProgress(getMemoryUsagePercent());

@@ -51,6 +51,6 @@
         - 其他。
     </string>
 
-    <string name="update_log_497">修复偶尔闪退问题。
-    </string>
+    <string name="update_log_497">修复偶尔闪退问题。</string>
+    <string name="update_log_498">修复#97 #77两个issue。\n优化应用管理的通知图标（M+版本）。\n正在运行应用支持查看缓存应用。\n通知栏快速清理（实验）。</string>
 </resources>

@@ -134,7 +134,7 @@ public class ClearStubActivity extends Activity {
                     XExecutor.runOnUIThread(new Runnable() {
                         @Override
                         public void run() {
-                            ToastManager.show(getApplicationContext(), getString(R.string.clear_process_complete, String.valueOf(clearNum[0])));
+                            ToastManager.show(getApplicationContext(), getString(R.string.clear_process_complete_with_num, String.valueOf(clearNum[0])));
                         }
                     });
                 }

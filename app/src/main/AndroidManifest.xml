@@ -192,8 +192,8 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.helper.RunningServicesActivity"
-            android:label="@string/title_running_services"
             android:exported="true"
+            android:label="@string/title_running_services"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.ag.SecureGuardSettings"
@@ -301,8 +301,13 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.comp.ComponentReplacementActivity"
+            android:exported="true"
             android:label="@string/title_comp_replacement"
-            android:theme="@style/AppThemeLight.NoActionBar" />
+            android:theme="@style/AppThemeLight.NoActionBar">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ui.activity.comp.PackageViewerActivity"
             android:label="@string/title_component_manager"

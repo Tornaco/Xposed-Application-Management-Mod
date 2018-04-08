@@ -94,7 +94,8 @@
     <string name="title_app_rf_kill">返回强退</string>
     <string name="clear_process">清理内存</string>
     <string name="clear_process_now">立即清理</string>
-    <string name="clear_process_complete">清理了%1$s个应用，已达最佳状态</string>
+    <string name="clear_process_complete_with_num">清理了%1$s个应用，已达最佳状态</string>
+    <string name="clear_process_complete">清理完成，已达最佳状态</string>
 
     <string name="summary_app_guard">以下应用在启动时需要经过密码验证。</string>
 
