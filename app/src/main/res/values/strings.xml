@@ -474,7 +474,7 @@
     <string name="title_uninstall_app">卸载应用</string>
     <string name="message_uninstall_app">此操作无法恢复，请确认。</string>
     <string name="title_app_auto_start_rule">关联启动规则</string>
-    <string name="summary_start_app_rules">你可以通过制定规则来细化关联启动控制，详细使用方法请参考新手使用手册。\n\n注意：规则的优先级大于其他一切设定（例如，绿化，关联启动列表）。</string>
+    <string name="summary_start_app_rules">你可以通过制定规则来细化关联启动控制，详细使用方法请参考新手使用手册。\n\n注意：规则的优先级大于其他一切设定（例如，绿化，关联启动列表）。\n提示：关闭规则检查或许可以节约设备电量。</string>
     <string name="title_new_start_rule">新建规则</string>
     <string name="start_rule_add_fail">无法添加该规则，请检查语法</string>
     <string name="title_cleanup_system_error_trace">清空错误日志</string>
@@ -559,5 +559,6 @@
     <string name="title_show_app_process_update">显示可清理应用通知（实验）</string>
     <string name="summary_show_app_process_update">显示一个通知，帮助用户快速清理以及监控可清理的应用。注意，清理列表、条件均与锁屏清理相同，例如将会检查应用是否有通知与是否打开了不清理有通知的应用。</string>
     <string name="title_cached_background_process">缓存的后台进程</string>
+    <string name="summary_disable_motion">开关该选项需要重启设备，MIUI版本可能会因为开启该选项而无法进入doze，请注意。开发者也会尽力优化。</string>
 
 </resources>

@@ -119,9 +119,7 @@ public class DozeNavActivity extends CommonPackageInfoListActivity
             config.titleRes = R.string.title_config;
             config.addTile(new DozeDelayTile(getActivity()));
             config.addTile(new ForceDozeTile(getActivity()));
-            if (!OSUtil.isMIUI()) {
-                config.addTile(new DisableMotionTile(getActivity()));
-            }
+            config.addTile(new DisableMotionTile(getActivity()));
             config.addTile(new DozeWhitelistTile(getActivity()));
 
             categories.add(state);

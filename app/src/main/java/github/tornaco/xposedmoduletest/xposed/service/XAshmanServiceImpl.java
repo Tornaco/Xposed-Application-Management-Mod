@@ -221,6 +221,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final AtomicBoolean mWhiteSysAppEnabled = new AtomicBoolean(true);
     private final AtomicBoolean mBootBlockEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mStartBlockEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mStartRuleEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mLockKillEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mGreeningEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mResidentEnabled = new AtomicBoolean(false);
@@ -902,6 +903,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         try {
+            boolean startRuleEnabled = (boolean) SystemSettings.APM_START_RULE_B.readFromSystemSettings(getContext());
+            mStartRuleEnabled.set(startRuleEnabled);
+            XposedLog.boot("startRuleEnabled:" + String.valueOf(startRuleEnabled));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
             boolean lockKillEnabled = (boolean) SystemSettings.LOCK_KILL_ENABLED_B.readFromSystemSettings(getContext());
             mLockKillEnabled.set(lockKillEnabled);
             XposedLog.boot("lockKillEnabled: " + String.valueOf(lockKillEnabled));
@@ -1214,11 +1223,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     // I have no MIUI device and User can not provide
                     // useful info for this, so, this is a ?
                     if (!OSUtil.isMIUI()) {
-                        if (isDisableMotionEnabled()) {
-                            mDeviceIdleController.stopMonitoringMotionLocked();
-                        } else {
-                            mDeviceIdleController.startMonitoringMotionLocked();
-                        }
+
+                    }
+
+                    if (isDisableMotionEnabled()) {
+                        mDeviceIdleController.stopMonitoringMotionLocked();
+                    } else {
+                        // mDeviceIdleController.startMonitoringMotionLocked();
                     }
 
                     mDeviceIdleController.becomeInactiveIfAppropriateLocked();
@@ -1487,9 +1498,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (GCMFCMHelper.isGcmOrFcmIntent(intent)) {
             final String targetPkg = intent.getPackage();
             if (targetPkg != null) {
-                boolean shouldBeEnhanced = RepoProxy.getProxy()
-                        .getStart_rules()
-                        .has(constructGCMEnhanceRuleForPackage(targetPkg));
+                @StartRuleCheck
+                boolean shouldBeEnhanced =
+                        isStartRuleEnabled() && RepoProxy.getProxy()
+                                .getStart_rules()
+                                .has(constructGCMEnhanceRuleForPackage(targetPkg));
                 if (shouldBeEnhanced) {
                     intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
                     // Notify GCM pending.
@@ -2019,9 +2032,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         // First check the user rules.
-        CheckResult ruleCheckRes = getStartCheckResultInRules(intent, callerUid, servicePkgName);
-        if (ruleCheckRes != null) {
-            return ruleCheckRes;
+        boolean checkRule = isStartRuleEnabled();
+        if (checkRule) {
+            @StartRuleCheck
+            CheckResult ruleCheckRes = getStartCheckResultInRules(intent, callerUid, servicePkgName);
+            if (ruleCheckRes != null) {
+                return ruleCheckRes;
+            }
         }
 
         boolean hasGcmIntent = GCMFCMHelper.isHandlingGcmIntent(servicePkgName);
@@ -2080,9 +2097,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             // click a notification to launch the pending intent.
             // maybe MIPUSH?
             // Fk it.
-            boolean isAllowedThisToThis = RepoProxy.getProxy().getStart_rules().has(RULE_PATTERN_THIS_TO_THIS);
-            if (isAllowedThisToThis) {
-                return CheckResult.SAME_CALLER_RULE;
+            if (checkRule) {
+                @StartRuleCheck
+                boolean isAllowedThisToThis = RepoProxy.getProxy().getStart_rules().has(RULE_PATTERN_THIS_TO_THIS);
+                if (isAllowedThisToThis) {
+                    return CheckResult.SAME_CALLER_RULE;
+                }
             }
         }
 
@@ -3074,12 +3094,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public void injectPowerEvent() throws RemoteException {
-        mainHandler.post(new ErrorCatchRunnable(new Runnable() {
-            @Override
-            public void run() {
-                KeyEventSender.injectPowerKey();
-            }
-        }, "injectPowerEvent"));
+        mainHandler.post(new ErrorCatchRunnable(() -> KeyEventSender.injectPowerKey(), "injectPowerEvent"));
     }
 
     @Override
@@ -3118,9 +3133,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             // click a notification to launch the pending intent.
             // maybe MIPUSH?
             // Fk it.
-            boolean isAllowedThisToThis = RepoProxy.getProxy().getStart_rules().has(RULE_PATTERN_THIS_TO_THIS);
-            if (isAllowedThisToThis) {
-                return CheckResult.SAME_CALLER_RULE;
+            if (isStartRuleEnabled()) {
+                @StartRuleCheck
+                boolean isAllowedThisToThis = RepoProxy.getProxy().getStart_rules().has(RULE_PATTERN_THIS_TO_THIS);
+                if (isAllowedThisToThis) {
+                    return CheckResult.SAME_CALLER_RULE;
+                }
             }
         }
 
@@ -3139,9 +3157,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         // First check the user rules.
-        CheckResult ruleCheckRes = getStartCheckResultInRules(intent, callerPackageName, receiverPkgName);
-        if (ruleCheckRes != null) {
-            return ruleCheckRes;
+        boolean checkRule = isStartRuleEnabled();
+        if (checkRule) {
+            @StartRuleCheck
+            CheckResult ruleCheckRes = getStartCheckResultInRules(intent, callerPackageName, receiverPkgName);
+            if (ruleCheckRes != null) {
+                return ruleCheckRes;
+            }
         }
 
         boolean isOnTop = isPackageRunningOnTop(receiverPkgName);
@@ -3556,6 +3578,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (!enabled) {
             mLazyHandler.post(new ErrorCatchRunnable(this::clearRunningAppProcessUpdateNotification, "clearRunningAppProcessUpdateNotification"));
         }
+    }
+
+    @Override
+    public boolean isStartRuleEnabled() {
+        return mStartRuleEnabled.get();
+    }
+
+    @Override
+    public void setStartRuleEnabled(boolean enabled) throws RemoteException {
+        enforceCallingPermissions();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETSTARTRULEENABLED, enabled).sendToTarget();
     }
 
     private void cacheGCMPackages() {
@@ -6322,6 +6355,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETSTARTBLOCKENABLED:
                     HandlerImpl.this.setStartBlockEnabled((Boolean) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_SETSTARTRULEENABLED:
+                    HandlerImpl.this.setStartRuleEnabled((Boolean) msg.obj);
+                    break;
                 case AshManHandlerMessages.MSG_SETLOCKKILLENABLED:
                     HandlerImpl.this.setLockKillEnabled((Boolean) msg.obj);
                     break;
@@ -6499,6 +6535,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setStartBlockEnabled(boolean enabled) {
             if (mStartBlockEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.START_BLOCK_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setStartRuleEnabled(boolean enabled) {
+            if (mStartRuleEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.APM_START_RULE_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 

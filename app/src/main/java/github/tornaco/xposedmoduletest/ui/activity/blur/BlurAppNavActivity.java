@@ -63,12 +63,9 @@ public class BlurAppNavActivity extends CommonPackageInfoListActivity implements
     @Override
     protected void onRequestClearItemsInBackground() {
         Collections.consumeRemaining(getCommonPackageInfoAdapter().getCommonPackageInfos(),
-                new Consumer<CommonPackageInfo>() {
-                    @Override
-                    public void accept(CommonPackageInfo commonPackageInfo) {
-                        if (commonPackageInfo.isChecked()) {
-                            XAppGuardManager.get().addOrRemoveBlurApps(new String[]{commonPackageInfo.getPkgName()}, false);
-                        }
+                commonPackageInfo -> {
+                    if (commonPackageInfo.isChecked()) {
+                        XAppGuardManager.get().addOrRemoveBlurApps(new String[]{commonPackageInfo.getPkgName()}, false);
                     }
                 });
     }

@@ -19,6 +19,7 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
+import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 public class StartRuleNavActivity extends CommonPackageInfoListActivity
@@ -32,20 +33,19 @@ public class StartRuleNavActivity extends CommonPackageInfoListActivity
     @Override
     protected void onRequestClearItemsInBackground() {
         Collections.consumeRemaining(getCommonPackageInfoAdapter().getCommonPackageInfos(),
-                new Consumer<CommonPackageInfo>() {
-                    @Override
-                    public void accept(CommonPackageInfo commonPackageInfo) {
-                        if (commonPackageInfo.isChecked()) {
-                            XAshmanManager.get().addOrRemoveStartRules(commonPackageInfo.getAppName(),
-                                    false);
-                        }
+                commonPackageInfo -> {
+                    if (commonPackageInfo.isChecked()) {
+                        XAshmanManager.get().addOrRemoveStartRules(commonPackageInfo.getAppName(),
+                                false);
                     }
                 });
     }
 
     @Override
     protected void onInitSwitchBar(SwitchBar switchBar) {
-        switchBar.hide();
+        switchBar.show();
+        switchBar.setChecked(XAshmanManager.get().isStartRuleEnabled());
+        switchBar.addOnSwitchChangeListener(this);
     }
 
     @Override
@@ -55,16 +55,13 @@ public class StartRuleNavActivity extends CommonPackageInfoListActivity
                 .setTitle(R.string.title_new_start_rule)
                 .setView(e)
                 .setPositiveButton(android.R.string.ok,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                String text = e.getText().toString();
-                                boolean added = XAshmanManager.get().addOrRemoveStartRules(text, true);
-                                if (added) {
-                                    startLoading();
-                                } else {
-                                    Toast.makeText(getContext(), R.string.start_rule_add_fail, Toast.LENGTH_SHORT).show();
-                                }
+                        (dialog, which) -> {
+                            String text = e.getText().toString();
+                            boolean added = XAshmanManager.get().addOrRemoveStartRules(text, true);
+                            if (added) {
+                                startLoading();
+                            } else {
+                                Toast.makeText(getContext(), R.string.start_rule_add_fail, Toast.LENGTH_SHORT).show();
                             }
                         })
                 .show();
@@ -87,6 +84,7 @@ public class StartRuleNavActivity extends CommonPackageInfoListActivity
 
     @Override
     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
+        XAshmanManager.get().setStartRuleEnabled(isChecked);
     }
 
     @Override

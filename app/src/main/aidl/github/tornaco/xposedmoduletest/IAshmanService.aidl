@@ -401,4 +401,7 @@ interface IAshmanService {
 
      boolean isShowAppProcessUpdateNotificationEnabled();
      void setShowAppProcessUpdateNotificationEnabled(boolean enabled);
+
+     boolean isStartRuleEnabled();
+     void setStartRuleEnabled(boolean enabled);
 }
