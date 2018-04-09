@@ -34,6 +34,10 @@ public class Resident extends QuickTile {
         this.iconRes = R.drawable.ic_grade_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_orange;
+            }
+            @Override
             public void onClick(View v) {
                 super.onClick(v);
                 if (donateOrPlay) {

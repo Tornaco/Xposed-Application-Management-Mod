@@ -27,6 +27,10 @@ public class TRKill extends QuickTile {
         this.iconRes = R.drawable.ic_clear_all_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_blue;
+            }
+            @Override
             public void onClick(View v) {
                 super.onClick(v);
                 context.startActivity(new Intent(context, TRKillAppNavActivity.class));

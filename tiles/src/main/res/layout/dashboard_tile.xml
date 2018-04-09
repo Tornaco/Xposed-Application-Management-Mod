@@ -14,6 +14,7 @@
         android:layout_marginLeft="@dimen/dashboard_tile_image_margin_start"
         android:layout_marginRight="@dimen/dashboard_tile_image_margin_end"
         android:layout_marginStart="@dimen/dashboard_tile_image_margin_start"
+        android:padding="@dimen/dashboard_tile_image_padding"
         android:scaleType="fitXY" />
 
     <RelativeLayout
@@ -52,10 +53,10 @@
         style="@style/ActionArea"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/dashboard_tile_image_margin_end"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_centerVertical="true" />
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="@dimen/dashboard_tile_image_margin_end" />
 
     <View
         android:id="@+id/tile_divider"

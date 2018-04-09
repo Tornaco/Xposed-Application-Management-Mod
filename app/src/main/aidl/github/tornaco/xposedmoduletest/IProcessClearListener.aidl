@@ -5,6 +5,7 @@ package github.tornaco.xposedmoduletest;
 
 interface IProcessClearListener {
     boolean doNotClearWhenIntervative();
+    boolean onlyForThoseInList();
     void onPrepareClearing();
     void onStartClearing(int plan);
     void onClearingPkg(String pkg);

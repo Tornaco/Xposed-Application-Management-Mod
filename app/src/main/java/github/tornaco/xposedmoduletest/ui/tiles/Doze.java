@@ -27,6 +27,10 @@ public class Doze extends QuickTile {
         this.iconRes = R.drawable.ic_airline_seat_individual_suite_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_pink;
+            }
+            @Override
             public void onClick(View v) {
                 super.onClick(v);
                 context.startActivity(new Intent(context, DozeNavActivity.class));

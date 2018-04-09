@@ -17,6 +17,8 @@
 package dev.nick.tiles.tile;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.support.annotation.DrawableRes;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -60,8 +62,15 @@ public class TileView extends FrameLayout implements View.OnClickListener, View.
 
     protected void onViewInflated(View view) {
         mImageView = view.findViewById(R.id.icon);
-        if (useStaticTintColor())
-            mImageView.setColorFilter(ContextCompat.getColor(getContext(), R.color.tile_icon_tint));
+
+        if (getImageViewBackgroundRes() != 0) {
+            mImageView.setBackgroundResource(getImageViewBackgroundRes());
+            mImageView.setColorFilter(Color.WHITE);
+        } else {
+            if (useStaticTintColor()) {
+                mImageView.setColorFilter(ContextCompat.getColor(getContext(), R.color.tile_icon_tint));
+            }
+        }
         mTitleTextView = view.findViewById(R.id.title);
         mStatusTextView = view.findViewById(R.id.status);
         mDivider = view.findViewById(R.id.tile_divider);
@@ -73,6 +82,11 @@ public class TileView extends FrameLayout implements View.OnClickListener, View.
 
         setBackgroundResource(R.drawable.dashboard_tile_background);
         setFocusable(true);
+    }
+
+    @DrawableRes
+    protected int getImageViewBackgroundRes() {
+        return R.drawable.tile_bg_grey_dark;
     }
 
     protected void onBindActionView(RelativeLayout container) {

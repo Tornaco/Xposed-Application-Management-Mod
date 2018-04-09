@@ -530,30 +530,24 @@ public class NavigatorActivityBottomNav
 
             Category boost = new Category();
             boost.moreDrawableRes = R.drawable.ic_more_vert_black_24dp;
-            boost.onMoreButtonClickListener = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // Build and show pop menu.
-                    PopupMenu popupMenu = new PopupMenu(getActivity(), v);
-                    popupMenu.inflate(R.menu.card_boost);
-                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                        @Override
-                        public boolean onMenuItemClick(MenuItem item) {
-                            if (item.getItemId() == R.id.action_lock_now) {
-                                XAshmanManager.get().injectPowerEvent();
-                            } else if (item.getItemId() == R.id.action_add_lock_shortcut) {
-                                LockScreenStubActivity.addShortcut(getActivity());
-                            } else if (item.getItemId() == R.id.action_add_shortcut) {
-                                ClearStubActivity.addShortcut(getActivity());
-                            } else {
-                                ToastManager.show(getActivity(), "No impl, waiting for developer's work...");
-                            }
-                            return true;
-                        }
-                    });
-                    popupMenu.show();
+            boost.onMoreButtonClickListener = v -> {
+                // Build and show pop menu.
+                PopupMenu popupMenu = new PopupMenu(getActivity(), v);
+                popupMenu.inflate(R.menu.card_boost);
+                popupMenu.setOnMenuItemClickListener(item -> {
+                    if (item.getItemId() == R.id.action_lock_now) {
+                        XAshmanManager.get().injectPowerEvent();
+                    } else if (item.getItemId() == R.id.action_add_lock_shortcut) {
+                        LockScreenStubActivity.addShortcut(getActivity());
+                    } else if (item.getItemId() == R.id.action_add_shortcut) {
+                        ClearStubActivity.addShortcut(getActivity());
+                    } else {
+                        ToastManager.show(getActivity(), "No impl, waiting for developer's work...");
+                    }
+                    return true;
+                });
+                popupMenu.show();
 
-                }
             };
             boost.titleRes = R.string.title_boost;
             boost.numColumns = 1; // Force se to 1.
@@ -988,12 +982,7 @@ public class NavigatorActivityBottomNav
             Category ash = new Category();
             ash.titleRes = R.string.title_control;
             ash.moreDrawableRes = R.drawable.ic_help_black_24dp;
-            ash.onMoreButtonClickListener = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Toast.makeText(getActivity(), R.string.category_help_advance, Toast.LENGTH_SHORT).show();
-                }
-            };
+            ash.onMoreButtonClickListener = v -> Toast.makeText(getActivity(), R.string.category_help_advance, Toast.LENGTH_SHORT).show();
 
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_COMP_REPLACE)) {
                 ash.addTile(new CompReplacement(getActivity()));
@@ -1018,12 +1007,7 @@ public class NavigatorActivityBottomNav
 
             Category exp = new Category();
             exp.moreDrawableRes = R.drawable.ic_help_black_24dp;
-            exp.onMoreButtonClickListener = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Toast.makeText(getActivity(), R.string.category_help_exp, Toast.LENGTH_SHORT).show();
-                }
-            };
+            exp.onMoreButtonClickListener = v -> Toast.makeText(getActivity(), R.string.category_help_exp, Toast.LENGTH_SHORT).show();
             exp.titleRes = R.string.title_exp;
 
             // L do not support doze.

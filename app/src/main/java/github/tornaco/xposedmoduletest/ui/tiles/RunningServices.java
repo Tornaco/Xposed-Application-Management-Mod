@@ -20,13 +20,19 @@ public class RunningServices extends QuickTile {
     public RunningServices(final Context context) {
         super(context);
         this.titleRes = R.string.title_running_services;
-        RunningServicesLoadingCache.RunningServicesData data = RunningServicesLoadingCache.getInstance().getIfPresent();
+        RunningServicesLoadingCache.RunningServicesData data =
+                RunningServicesLoadingCache.getInstance().getIfPresent();
         if (data != null) {
             this.summary = context.getString(R.string.summary_running_services,
                     String.valueOf(data.getAppCount()), String.valueOf(data.getServiceCount()));
         }
         this.iconRes = R.drawable.ic_format_list_bulleted_black_24dp;
         this.tileView = new QuickTileView(context, this) {
+            @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_amber;
+            }
+
             @Override
             public void onClick(View v) {
                 super.onClick(v);

@@ -22,6 +22,10 @@ public class Greening extends QuickTile {
         this.iconRes = R.drawable.ic_palette_green_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_green;
+            }
+            @Override
             public void onClick(View v) {
                 super.onClick(v);
                 context.startActivity(new Intent(context, ExtraOpsSettingActivity.class));

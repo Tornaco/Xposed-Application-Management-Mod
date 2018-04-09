@@ -68,6 +68,11 @@ public class AshShellCommand extends ShellCommandCompat {
                     }
 
                     @Override
+                    public boolean onlyForThoseInList() throws RemoteException {
+                        return false;
+                    }
+
+                    @Override
                     public void onPrepareClearing() throws RemoteException {
 
                     }
