@@ -30,6 +30,12 @@ public class AppStart extends QuickTile {
         }
         this.iconRes = R.drawable.ic_device_hub_black_24dp;
         this.tileView = new QuickTileView(context, this) {
+
+            @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_indigo;
+            }
+
             @Override
             public void onClick(View v) {
                 super.onClick(v);

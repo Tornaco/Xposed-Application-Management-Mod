@@ -38,6 +38,10 @@ public class LockKill extends QuickTile {
         this.iconRes = R.drawable.ic_donut_small_black_24px;
 
         this.tileView = new ActionTextTileView(context) {
+            @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_green;
+            }
 
             @Override
             protected void onViewInflated(View view) {

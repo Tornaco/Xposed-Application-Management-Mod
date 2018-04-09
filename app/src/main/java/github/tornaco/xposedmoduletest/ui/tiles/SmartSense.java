@@ -21,6 +21,11 @@ public class SmartSense extends QuickTile {
         this.iconRes = R.drawable.ic_airport_shuttle_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_purple;
+            }
+
+            @Override
             public void onClick(View v) {
                 super.onClick(v);
                 SmartSenseDashboardActivity.start(context);

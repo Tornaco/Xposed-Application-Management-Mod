@@ -10,6 +10,7 @@
         android:layout_width="@dimen/dashboard_tile_image_size"
         android:layout_height="@dimen/dashboard_tile_image_size"
         android:layout_centerVertical="true"
+        android:padding="@dimen/dashboard_tile_image_padding"
         android:layout_marginEnd="@dimen/dashboard_tile_image_margin_end"
         android:layout_marginLeft="@dimen/dashboard_tile_image_margin_start"
         android:layout_marginRight="@dimen/dashboard_tile_image_margin_end"

@@ -17,6 +17,11 @@ public class IProcessClearListenerAdapter extends IProcessClearListener.Stub {
     }
 
     @Override
+    public boolean onlyForThoseInList() throws RemoteException {
+        return true;
+    }
+
+    @Override
     public void onPrepareClearing() throws RemoteException {
 
     }

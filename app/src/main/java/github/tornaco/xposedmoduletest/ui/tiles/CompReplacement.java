@@ -22,6 +22,10 @@ public class CompReplacement extends QuickTile {
         this.iconRes = R.drawable.ic_local_florist_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_blue_grey;
+            }
+            @Override
             public void onClick(View v) {
                 super.onClick(v);
                 context.startActivity(new Intent(context, ComponentReplacementActivity.class));
