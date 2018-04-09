@@ -1210,10 +1210,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     XposedLog.verbose("isForceIdle: " + mDeviceIdleController.isForceIdle());
 
                     // Apply motion state.
-                    if (isDisableMotionEnabled()) {
-                        mDeviceIdleController.stopMonitoringMotionLocked();
-                    } else {
-                        mDeviceIdleController.startMonitoringMotionLocked();
+                    // FIXME MIUI may fail for this setting, tmp remove.
+                    // I have no MIUI device and User can not provide
+                    // useful info for this, so, this is a ?
+                    if (!OSUtil.isMIUI()) {
+                        if (isDisableMotionEnabled()) {
+                            mDeviceIdleController.stopMonitoringMotionLocked();
+                        } else {
+                            mDeviceIdleController.startMonitoringMotionLocked();
+                        }
                     }
 
                     mDeviceIdleController.becomeInactiveIfAppropriateLocked();
@@ -1902,22 +1907,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         CheckResult res = checkServiceDetailed(intent, appPkg, serviceComp, callerUid);
 
         // Saving res record.
-        if (!res.res) {
-            logServiceBlockEventToMemory(
-                    ServiceEvent.builder()
-                            .service("Service")
-                            .why(res.why)
-                            .allowed(res.res)
-                            .appName(null)
-                            .pkg(appPkg)
-                            .why(res.getWhy())
-                            .callerUid(callerUid)
-                            .when(System.currentTimeMillis())
-                            .build());
-        } else {
-            // Log start event.
-            onServiceStartBy(serviceComp.flattenToString(), callerUid);
-        }
+        logServiceBlockEventToMemory(
+                ServiceEvent.builder()
+                        .service("Service")
+                        .why(res.why)
+                        .allowed(res.res)
+                        .appName(null)
+                        .pkg(appPkg)
+                        .why(res.getWhy())
+                        .callerUid(callerUid)
+                        .when(System.currentTimeMillis())
+                        .build());
 
         if (DEBUG_SERVICE) {
             if (XposedLog.isVerboseLoggable()) {
@@ -2248,19 +2248,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public boolean checkBroadcast(Intent intent, int receiverUid, int callerUid) {
         CheckResult res = checkBroadcastDetailed(intent, receiverUid, callerUid);
         // Saving res record.
-        if (!res.res) {
-            logBroadcastBlockEventToMemory(
-                    BroadcastEvent.builder()
-                            .action(intent.getAction())
-                            .allowed(res.res)
-                            .why(res.getWhy())
-                            .appName(null)
-                            .receiver(receiverUid)
-                            .caller(callerUid)
-                            .when(System.currentTimeMillis())
-                            .why(res.why)
-                            .build());
-        }
+        logBroadcastBlockEventToMemory(
+                BroadcastEvent.builder()
+                        .action(intent.getAction())
+                        .allowed(res.res)
+                        .why(res.getWhy())
+                        .appName(null)
+                        .receiver(receiverUid)
+                        .caller(callerUid)
+                        .when(System.currentTimeMillis())
+                        .why(res.why)
+                        .build());
 
         if (DEBUG_BROADCAST) {
             if (XposedLog.isVerboseLoggable()) {
@@ -3276,27 +3274,27 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (isPowerSaveModeEnabled()) {
             return;
         }
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                String callerPkg =
-                        PkgUtil.isSystemOrPhoneOrShell(serviceEvent.callerUid)
-                                ? "android"
-                                : PkgUtil.pkgForUid(getContext(), serviceEvent.callerUid);
-                BlockRecord2 old = getBlockRecord(serviceEvent.pkg);
-                long oldTimes = old == null ? 0 : old.getHowManyTimes();
-                BlockRecord2 blockRecord2 = BlockRecord2.builder()
-                        .pkgName(serviceEvent.pkg)
-                        .callerPkgName(callerPkg)
-                        .appName(null)
-                        .howManyTimes(oldTimes + 1)
-                        .reason(serviceEvent.why)
-                        .timeWhen(System.currentTimeMillis())
-                        .build();
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.verbose("SVC BlockRecord2: " + blockRecord2);
-                addBlockRecord(blockRecord2);
-            }
+        Runnable r = () -> {
+            String callerPkg =
+                    PkgUtil.isSystemOrPhoneOrShell(serviceEvent.callerUid)
+                            ? "android"
+                            : PkgUtil.pkgForUid(getContext(), serviceEvent.callerUid);
+            BlockRecord2 old = getBlockRecord(serviceEvent.pkg);
+            long blockedTimes = old == null ? 0 : old.getHowManyTimesBlocked();
+            long allowedTimes = old == null ? 0 : old.getHowManyTimesAllowed();
+            BlockRecord2 blockRecord2 = BlockRecord2.builder()
+                    .pkgName(serviceEvent.pkg)
+                    .callerPkgName(callerPkg)
+                    .appName(null)
+                    .howManyTimesBlocked(serviceEvent.allowed ? blockedTimes : blockedTimes + 1)
+                    .howManyTimesAllowed(serviceEvent.allowed ? allowedTimes + 1 : allowedTimes)
+                    .reason(serviceEvent.why)
+                    .timeWhen(System.currentTimeMillis())
+                    .block(!serviceEvent.allowed)
+                    .build();
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("SVC BlockRecord2: " + blockRecord2);
+            addBlockRecord(blockRecord2);
         };
 
         mLoggingService.execute(new ErrorCatchRunnable(r, "logServiceBlockEventToMemory"));
@@ -3308,37 +3306,37 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (isPowerSaveModeEnabled()) {
             return;
         }
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                String receiverPkgName =
-                        PkgUtil.pkgForUid(getContext(), broadcastEvent.receiver);
-                if (receiverPkgName == null) {
-                    receiverPkgName = PkgUtil.pkgForUid(getContext(), broadcastEvent.receiver);
-                    if (receiverPkgName == null) return;
-                }
-
-                String callerPkg =
-                        PkgUtil.isSystemOrPhoneOrShell(broadcastEvent.caller)
-                                ? "android"
-                                : PkgUtil.pkgForUid(getContext(), broadcastEvent.caller);
-
-                mainHandler.obtainMessage(AshManHandlerMessages.MSG_NOTIFYSTARTBLOCK, receiverPkgName).sendToTarget();
-
-                BlockRecord2 old = getBlockRecord(receiverPkgName);
-                long oldTimes = old == null ? 0 : old.getHowManyTimes();
-                BlockRecord2 blockRecord2 = BlockRecord2.builder()
-                        .pkgName(receiverPkgName)
-                        .appName(null)
-                        .callerPkgName(callerPkg)
-                        .howManyTimes(oldTimes + 1)
-                        .reason(broadcastEvent.why)
-                        .timeWhen(System.currentTimeMillis())
-                        .build();
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.verbose("BRD BlockRecord2: " + blockRecord2);
-                addBlockRecord(blockRecord2);
+        Runnable r = () -> {
+            String receiverPkgName =
+                    PkgUtil.pkgForUid(getContext(), broadcastEvent.receiver);
+            if (receiverPkgName == null) {
+                receiverPkgName = PkgUtil.pkgForUid(getContext(), broadcastEvent.receiver);
+                if (receiverPkgName == null) return;
             }
+
+            String callerPkg =
+                    PkgUtil.isSystemOrPhoneOrShell(broadcastEvent.caller)
+                            ? "android"
+                            : PkgUtil.pkgForUid(getContext(), broadcastEvent.caller);
+
+            mainHandler.obtainMessage(AshManHandlerMessages.MSG_NOTIFYSTARTBLOCK, receiverPkgName).sendToTarget();
+
+            BlockRecord2 old = getBlockRecord(receiverPkgName);
+            long blockedTimes = old == null ? 0 : old.getHowManyTimesBlocked();
+            long allowedTimes = old == null ? 0 : old.getHowManyTimesAllowed();
+            BlockRecord2 blockRecord2 = BlockRecord2.builder()
+                    .pkgName(receiverPkgName)
+                    .appName(null)
+                    .callerPkgName(callerPkg)
+                    .howManyTimesBlocked(broadcastEvent.allowed ? blockedTimes : blockedTimes + 1)
+                    .howManyTimesAllowed(broadcastEvent.allowed ? allowedTimes + 1 : allowedTimes)
+                    .reason(broadcastEvent.why)
+                    .timeWhen(System.currentTimeMillis())
+                    .block(!broadcastEvent.allowed)
+                    .build();
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("BRD BlockRecord2: " + blockRecord2);
+            addBlockRecord(blockRecord2);
         };
         mLoggingService.execute(new ErrorCatchRunnable(r, "logBroadcastBlockEventToMemory"));
     }

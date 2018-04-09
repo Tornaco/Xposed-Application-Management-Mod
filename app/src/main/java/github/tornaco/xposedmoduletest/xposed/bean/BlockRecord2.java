@@ -21,16 +21,20 @@ public class BlockRecord2 implements Parcelable {
     @Deprecated
     private String appName;
     private long timeWhen;
-    private long howManyTimes;
+    private long howManyTimesBlocked;
+    private long howManyTimesAllowed;
     private String reason;
+    private boolean block; // Is this request blocked or allowed.
 
     protected BlockRecord2(Parcel in) {
         pkgName = in.readString();
         callerPkgName = in.readString();
         appName = in.readString();
         timeWhen = in.readLong();
-        howManyTimes = in.readLong();
+        howManyTimesBlocked = in.readLong();
+        howManyTimesAllowed = in.readLong();
         reason = in.readString();
+        block = in.readByte() != 0;
     }
 
     public static final Creator<BlockRecord2> CREATOR = new Creator<BlockRecord2>() {
@@ -56,7 +60,9 @@ public class BlockRecord2 implements Parcelable {
         dest.writeString(callerPkgName);
         dest.writeString(appName);
         dest.writeLong(timeWhen);
-        dest.writeLong(howManyTimes);
+        dest.writeLong(howManyTimesBlocked);
+        dest.writeLong(howManyTimesAllowed);
         dest.writeString(reason);
+        dest.writeByte((byte) (block ? 1 : 0));
     }
 }

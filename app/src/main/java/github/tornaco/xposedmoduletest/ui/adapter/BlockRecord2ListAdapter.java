@@ -72,8 +72,10 @@ public class BlockRecord2ListAdapter extends RecyclerView.Adapter<BlockRecord2Li
 
         holder.getLineTwoTextView().setText(
                 context.getString(R.string.block_record_summary,
-                        String.valueOf(blockRecord.getHowManyTimes()),
+                        String.valueOf(blockRecord.getHowManyTimesBlocked()),
+                        String.valueOf(blockRecord.getHowManyTimesAllowed()),
                         FuzzyDateTimeFormatter.getTimeAgo(context, new Date(blockRecord.getTimeWhen())),
+                        blockRecord.isBlock() ? "阻止" : "允许",
                         blockRecord.getReason(),
                         PkgUtil.loadNameByPkgName(context, blockRecord.getCallerPkgName())));
 

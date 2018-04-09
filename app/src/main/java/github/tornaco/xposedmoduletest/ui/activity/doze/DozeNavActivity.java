@@ -19,6 +19,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.doze.DozeEnterTile;
 import github.tornaco.xposedmoduletest.ui.tiles.doze.DozeWhitelistTile;
 import github.tornaco.xposedmoduletest.ui.tiles.doze.ForceDozeTile;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 public class DozeNavActivity extends CommonPackageInfoListActivity
@@ -118,7 +119,9 @@ public class DozeNavActivity extends CommonPackageInfoListActivity
             config.titleRes = R.string.title_config;
             config.addTile(new DozeDelayTile(getActivity()));
             config.addTile(new ForceDozeTile(getActivity()));
-            config.addTile(new DisableMotionTile(getActivity()));
+            if (!OSUtil.isMIUI()) {
+                config.addTile(new DisableMotionTile(getActivity()));
+            }
             config.addTile(new DozeWhitelistTile(getActivity()));
 
             categories.add(state);

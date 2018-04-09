@@ -129,7 +129,7 @@
     <string name="app_lock_need_unlock">需要验证密码以继续</string>
     <string name="title_general_settings">基本设置</string>
     <string name="lk_delay">清理延时</string>
-    <string name="block_record_summary">已经阻止%1$s次，最近阻止%2$s， 阻止原因 %3$s，妄图启动者 %4$s。</string>
+    <string name="block_record_summary">已经阻止%1$s次，允许%2$s次，最近尝试启动%3$s，结果%4$s，原因%5$s，启动者%6$s。</string>
     <string name="title_component_editor">组件控制- %1$s</string>
     <string name="tab_text_1">服务</string>
     <string name="tab_text_2">广播</string>
