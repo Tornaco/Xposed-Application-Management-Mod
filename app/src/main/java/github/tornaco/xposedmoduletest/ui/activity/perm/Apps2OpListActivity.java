@@ -97,12 +97,7 @@ public class Apps2OpListActivity extends WithRecyclerView {
 
 
         swipeRefreshLayout.setOnRefreshListener(
-                new SwipeRefreshLayout.OnRefreshListener() {
-                    @Override
-                    public void onRefresh() {
-                        startLoading();
-                    }
-                });
+                () -> startLoading());
     }
 
     private void initColor() {
@@ -110,12 +105,7 @@ public class Apps2OpListActivity extends WithRecyclerView {
         int color = ContextCompat.getColor(this, XSettings.getThemes(this).getThemeColor());
 
         // Apply palette color.
-        PaletteColorPicker.pickPrimaryColor(this, new PaletteColorPicker.PickReceiver() {
-            @Override
-            public void onColorReady(int color) {
-                applyColor(color);
-            }
-        }, mPkg, color);
+        PaletteColorPicker.pickPrimaryColor(this, color1 -> applyColor(color1), mPkg, color);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -133,19 +123,13 @@ public class Apps2OpListActivity extends WithRecyclerView {
 
     protected void startLoading() {
         swipeRefreshLayout.setRefreshing(true);
-        XExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                final List<Permission> res = performLoading();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        swipeRefreshLayout.setRefreshing(false);
-                        permissionOpsAdapter.update(res);
-                        setTitle(mAppName + "\t" + res.size() + "项权限");
-                    }
-                });
-            }
+        XExecutor.execute(() -> {
+            final List<Permission> res = performLoading();
+            runOnUiThread(() -> {
+                swipeRefreshLayout.setRefreshing(false);
+                permissionOpsAdapter.update(res);
+                setTitle(mAppName + "\t" + res.size() + "项权限");
+            });
         });
     }
 
@@ -185,35 +169,21 @@ public class Apps2OpListActivity extends WithRecyclerView {
         p.setIndeterminate(true);
         p.setCancelable(false);
         p.show();
-        XExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Collections.consumeRemaining(permissionOpsAdapter.getData(),
-                            new Consumer<Permission>() {
-                                @Override
-                                public void accept(final Permission permission) {
-                                    int mode = b ? AppOpsManagerCompat.MODE_ALLOWED
-                                            : AppOpsManagerCompat.MODE_IGNORED;
-                                    XAshmanManager.get().setPermissionControlBlockModeForPkg(permission.getCode(), mPkg, mode);
-                                    runOnUiThreadChecked(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            p.setMessage(permission.getName());
-                                        }
-                                    });
-                                }
-                            });
-                } finally {
-                    runOnUiThreadChecked(new Runnable() {
-                        @Override
-                        public void run() {
-                            p.dismiss();
+        XExecutor.execute(() -> {
+            try {
+                Collections.consumeRemaining(permissionOpsAdapter.getData(),
+                        permission -> {
+                            int mode = b ? AppOpsManagerCompat.MODE_ALLOWED
+                                    : AppOpsManagerCompat.MODE_IGNORED;
+                            XAshmanManager.get().setPermissionControlBlockModeForPkg(permission.getCode(), mPkg, mode);
+                            runOnUiThreadChecked(() -> p.setMessage(permission.getName()));
+                        });
+            } finally {
+                runOnUiThreadChecked(() -> {
+                    p.dismiss();
 
-                            startLoading();
-                        }
-                    });
-                }
+                    startLoading();
+                });
             }
         });
     }

@@ -70,17 +70,14 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setImageResource(R.drawable.ic_clear_all_black_24dp);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Clear.
-                if (mPackageName != null) {
-                    XAshmanManager.get().clearOpLogForPackage(mPackageName);
-                } else if (mOp >= 0) {
-                    XAshmanManager.get().clearOpLogForOp(mOp);
-                }
-                startLoading();
+        fab.setOnClickListener(v -> {
+            // Clear.
+            if (mPackageName != null) {
+                XAshmanManager.get().clearOpLogForPackage(mPackageName);
+            } else if (mOp >= 0) {
+                XAshmanManager.get().clearOpLogForOp(mOp);
             }
+            startLoading();
         });
     }
 

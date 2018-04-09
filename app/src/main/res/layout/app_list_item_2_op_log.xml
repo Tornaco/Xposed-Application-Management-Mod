@@ -24,11 +24,14 @@
 
         <tornaco.lib.widget.CheckableImageView
             android:id="@+id/checkable_img_view"
-            android:layout_width="@dimen/thumbnail_size_mini"
-            android:layout_height="@dimen/thumbnail_size_mini"
+            android:layout_width="@dimen/thumbnail_size_small"
+            android:layout_height="@dimen/thumbnail_size_small"
             android:layout_gravity="center"
             android:layout_marginEnd="8dip"
-            android:layout_marginStart="@dimen/activity_horizontal_margin" />
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:background="@drawable/tile_bg_grey_dark"
+            android:padding="@dimen/dashboard_tile_image_padding"
+            android:tint="@color/white" />
 
         <RelativeLayout
             android:layout_width="0dp"

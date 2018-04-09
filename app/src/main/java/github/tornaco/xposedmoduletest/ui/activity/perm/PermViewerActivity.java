@@ -278,8 +278,9 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
                                 holder.getLineTwoTextView().setText(packageInfo.getPayload()[0]);
                                 if (getActivity() != null) {
                                     holder.getCheckableImageView().setImageDrawable(ContextCompat
-                                            .getDrawable(getActivity(), github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat
-                                                    .opToIconRes(packageInfo.getVersion())));
+                                            .getDrawable(getActivity(),
+                                                    github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat
+                                                            .opToIconRes(packageInfo.getVersion())));
                                 }
                             }
 
@@ -416,8 +417,7 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
             recyclerView.setAdapter(commonPackageInfoViewerAdapter);
 
 
-            swipeRefreshLayout.setOnRefreshListener(
-                    () -> startLoading());
+            swipeRefreshLayout.setOnRefreshListener(this::startLoading);
 
             ViewGroup filterContainer = rootView.findViewById(R.id.apps_filter_spinner_container);
             onInitFilterSpinner(filterContainer);
