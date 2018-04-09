@@ -29,6 +29,8 @@ interface AshManHandler {
 
     void setStartBlockEnabled(boolean enabled);
 
+    void setStartRuleEnabled(boolean enabled);
+
     void setLockKillEnabled(boolean enabled);
 
     void setShowAppProcessUpdateNotificationEnabled(boolean enabled);

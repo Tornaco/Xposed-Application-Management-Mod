@@ -221,6 +221,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private final AtomicBoolean mWhiteSysAppEnabled = new AtomicBoolean(true);
     private final AtomicBoolean mBootBlockEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mStartBlockEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mStartRuleEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mLockKillEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mGreeningEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mResidentEnabled = new AtomicBoolean(false);
@@ -902,6 +903,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         try {
+            boolean startRuleEnabled = (boolean) SystemSettings.APM_START_RULE_B.readFromSystemSettings(getContext());
+            mStartRuleEnabled.set(startRuleEnabled);
+            XposedLog.boot("startRuleEnabled:" + String.valueOf(startRuleEnabled));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
             boolean lockKillEnabled = (boolean) SystemSettings.LOCK_KILL_ENABLED_B.readFromSystemSettings(getContext());
             mLockKillEnabled.set(lockKillEnabled);
             XposedLog.boot("lockKillEnabled: " + String.valueOf(lockKillEnabled));
@@ -1210,10 +1219,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                     XposedLog.verbose("isForceIdle: " + mDeviceIdleController.isForceIdle());
 
                     // Apply motion state.
+                    // FIXME MIUI may fail for this setting, tmp remove.
+                    // I have no MIUI device and User can not provide
+                    // useful info for this, so, this is a ?
+                    if (!OSUtil.isMIUI()) {
+
+                    }
+
                     if (isDisableMotionEnabled()) {
                         mDeviceIdleController.stopMonitoringMotionLocked();
                     } else {
-                        mDeviceIdleController.startMonitoringMotionLocked();
+                        // mDeviceIdleController.startMonitoringMotionLocked();
                     }
 
                     mDeviceIdleController.becomeInactiveIfAppropriateLocked();
@@ -1482,9 +1498,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (GCMFCMHelper.isGcmOrFcmIntent(intent)) {
             final String targetPkg = intent.getPackage();
             if (targetPkg != null) {
-                boolean shouldBeEnhanced = RepoProxy.getProxy()
-                        .getStart_rules()
-                        .has(constructGCMEnhanceRuleForPackage(targetPkg));
+                @StartRuleCheck
+                boolean shouldBeEnhanced =
+                        isStartRuleEnabled() && RepoProxy.getProxy()
+                                .getStart_rules()
+                                .has(constructGCMEnhanceRuleForPackage(targetPkg));
                 if (shouldBeEnhanced) {
                     intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
                     // Notify GCM pending.
@@ -1902,22 +1920,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         CheckResult res = checkServiceDetailed(intent, appPkg, serviceComp, callerUid);
 
         // Saving res record.
-        if (!res.res) {
-            logServiceBlockEventToMemory(
-                    ServiceEvent.builder()
-                            .service("Service")
-                            .why(res.why)
-                            .allowed(res.res)
-                            .appName(null)
-                            .pkg(appPkg)
-                            .why(res.getWhy())
-                            .callerUid(callerUid)
-                            .when(System.currentTimeMillis())
-                            .build());
-        } else {
-            // Log start event.
-            onServiceStartBy(serviceComp.flattenToString(), callerUid);
-        }
+        logServiceBlockEventToMemory(
+                ServiceEvent.builder()
+                        .service("Service")
+                        .why(res.why)
+                        .allowed(res.res)
+                        .appName(null)
+                        .pkg(appPkg)
+                        .why(res.getWhy())
+                        .callerUid(callerUid)
+                        .when(System.currentTimeMillis())
+                        .build());
 
         if (DEBUG_SERVICE) {
             if (XposedLog.isVerboseLoggable()) {
@@ -2019,9 +2032,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         // First check the user rules.
-        CheckResult ruleCheckRes = getStartCheckResultInRules(intent, callerUid, servicePkgName);
-        if (ruleCheckRes != null) {
-            return ruleCheckRes;
+        boolean checkRule = isStartRuleEnabled();
+        if (checkRule) {
+            @StartRuleCheck
+            CheckResult ruleCheckRes = getStartCheckResultInRules(intent, callerUid, servicePkgName);
+            if (ruleCheckRes != null) {
+                return ruleCheckRes;
+            }
         }
 
         boolean hasGcmIntent = GCMFCMHelper.isHandlingGcmIntent(servicePkgName);
@@ -2080,9 +2097,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             // click a notification to launch the pending intent.
             // maybe MIPUSH?
             // Fk it.
-            boolean isAllowedThisToThis = RepoProxy.getProxy().getStart_rules().has(RULE_PATTERN_THIS_TO_THIS);
-            if (isAllowedThisToThis) {
-                return CheckResult.SAME_CALLER_RULE;
+            if (checkRule) {
+                @StartRuleCheck
+                boolean isAllowedThisToThis = RepoProxy.getProxy().getStart_rules().has(RULE_PATTERN_THIS_TO_THIS);
+                if (isAllowedThisToThis) {
+                    return CheckResult.SAME_CALLER_RULE;
+                }
             }
         }
 
@@ -2248,19 +2268,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     public boolean checkBroadcast(Intent intent, int receiverUid, int callerUid) {
         CheckResult res = checkBroadcastDetailed(intent, receiverUid, callerUid);
         // Saving res record.
-        if (!res.res) {
-            logBroadcastBlockEventToMemory(
-                    BroadcastEvent.builder()
-                            .action(intent.getAction())
-                            .allowed(res.res)
-                            .why(res.getWhy())
-                            .appName(null)
-                            .receiver(receiverUid)
-                            .caller(callerUid)
-                            .when(System.currentTimeMillis())
-                            .why(res.why)
-                            .build());
-        }
+        logBroadcastBlockEventToMemory(
+                BroadcastEvent.builder()
+                        .action(intent.getAction())
+                        .allowed(res.res)
+                        .why(res.getWhy())
+                        .appName(null)
+                        .receiver(receiverUid)
+                        .caller(callerUid)
+                        .when(System.currentTimeMillis())
+                        .why(res.why)
+                        .build());
 
         if (DEBUG_BROADCAST) {
             if (XposedLog.isVerboseLoggable()) {
@@ -3076,12 +3094,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public void injectPowerEvent() throws RemoteException {
-        mainHandler.post(new ErrorCatchRunnable(new Runnable() {
-            @Override
-            public void run() {
-                KeyEventSender.injectPowerKey();
-            }
-        }, "injectPowerEvent"));
+        mainHandler.post(new ErrorCatchRunnable(() -> KeyEventSender.injectPowerKey(), "injectPowerEvent"));
     }
 
     @Override
@@ -3120,9 +3133,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             // click a notification to launch the pending intent.
             // maybe MIPUSH?
             // Fk it.
-            boolean isAllowedThisToThis = RepoProxy.getProxy().getStart_rules().has(RULE_PATTERN_THIS_TO_THIS);
-            if (isAllowedThisToThis) {
-                return CheckResult.SAME_CALLER_RULE;
+            if (isStartRuleEnabled()) {
+                @StartRuleCheck
+                boolean isAllowedThisToThis = RepoProxy.getProxy().getStart_rules().has(RULE_PATTERN_THIS_TO_THIS);
+                if (isAllowedThisToThis) {
+                    return CheckResult.SAME_CALLER_RULE;
+                }
             }
         }
 
@@ -3141,9 +3157,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         // First check the user rules.
-        CheckResult ruleCheckRes = getStartCheckResultInRules(intent, callerPackageName, receiverPkgName);
-        if (ruleCheckRes != null) {
-            return ruleCheckRes;
+        boolean checkRule = isStartRuleEnabled();
+        if (checkRule) {
+            @StartRuleCheck
+            CheckResult ruleCheckRes = getStartCheckResultInRules(intent, callerPackageName, receiverPkgName);
+            if (ruleCheckRes != null) {
+                return ruleCheckRes;
+            }
         }
 
         boolean isOnTop = isPackageRunningOnTop(receiverPkgName);
@@ -3276,27 +3296,27 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (isPowerSaveModeEnabled()) {
             return;
         }
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                String callerPkg =
-                        PkgUtil.isSystemOrPhoneOrShell(serviceEvent.callerUid)
-                                ? "android"
-                                : PkgUtil.pkgForUid(getContext(), serviceEvent.callerUid);
-                BlockRecord2 old = getBlockRecord(serviceEvent.pkg);
-                long oldTimes = old == null ? 0 : old.getHowManyTimes();
-                BlockRecord2 blockRecord2 = BlockRecord2.builder()
-                        .pkgName(serviceEvent.pkg)
-                        .callerPkgName(callerPkg)
-                        .appName(null)
-                        .howManyTimes(oldTimes + 1)
-                        .reason(serviceEvent.why)
-                        .timeWhen(System.currentTimeMillis())
-                        .build();
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.verbose("SVC BlockRecord2: " + blockRecord2);
-                addBlockRecord(blockRecord2);
-            }
+        Runnable r = () -> {
+            String callerPkg =
+                    PkgUtil.isSystemOrPhoneOrShell(serviceEvent.callerUid)
+                            ? "android"
+                            : PkgUtil.pkgForUid(getContext(), serviceEvent.callerUid);
+            BlockRecord2 old = getBlockRecord(serviceEvent.pkg);
+            long blockedTimes = old == null ? 0 : old.getHowManyTimesBlocked();
+            long allowedTimes = old == null ? 0 : old.getHowManyTimesAllowed();
+            BlockRecord2 blockRecord2 = BlockRecord2.builder()
+                    .pkgName(serviceEvent.pkg)
+                    .callerPkgName(callerPkg)
+                    .appName(null)
+                    .howManyTimesBlocked(serviceEvent.allowed ? blockedTimes : blockedTimes + 1)
+                    .howManyTimesAllowed(serviceEvent.allowed ? allowedTimes + 1 : allowedTimes)
+                    .reason(serviceEvent.why)
+                    .timeWhen(System.currentTimeMillis())
+                    .block(!serviceEvent.allowed)
+                    .build();
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("SVC BlockRecord2: " + blockRecord2);
+            addBlockRecord(blockRecord2);
         };
 
         mLoggingService.execute(new ErrorCatchRunnable(r, "logServiceBlockEventToMemory"));
@@ -3308,37 +3328,37 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (isPowerSaveModeEnabled()) {
             return;
         }
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                String receiverPkgName =
-                        PkgUtil.pkgForUid(getContext(), broadcastEvent.receiver);
-                if (receiverPkgName == null) {
-                    receiverPkgName = PkgUtil.pkgForUid(getContext(), broadcastEvent.receiver);
-                    if (receiverPkgName == null) return;
-                }
-
-                String callerPkg =
-                        PkgUtil.isSystemOrPhoneOrShell(broadcastEvent.caller)
-                                ? "android"
-                                : PkgUtil.pkgForUid(getContext(), broadcastEvent.caller);
-
-                mainHandler.obtainMessage(AshManHandlerMessages.MSG_NOTIFYSTARTBLOCK, receiverPkgName).sendToTarget();
-
-                BlockRecord2 old = getBlockRecord(receiverPkgName);
-                long oldTimes = old == null ? 0 : old.getHowManyTimes();
-                BlockRecord2 blockRecord2 = BlockRecord2.builder()
-                        .pkgName(receiverPkgName)
-                        .appName(null)
-                        .callerPkgName(callerPkg)
-                        .howManyTimes(oldTimes + 1)
-                        .reason(broadcastEvent.why)
-                        .timeWhen(System.currentTimeMillis())
-                        .build();
-                if (XposedLog.isVerboseLoggable())
-                    XposedLog.verbose("BRD BlockRecord2: " + blockRecord2);
-                addBlockRecord(blockRecord2);
+        Runnable r = () -> {
+            String receiverPkgName =
+                    PkgUtil.pkgForUid(getContext(), broadcastEvent.receiver);
+            if (receiverPkgName == null) {
+                receiverPkgName = PkgUtil.pkgForUid(getContext(), broadcastEvent.receiver);
+                if (receiverPkgName == null) return;
             }
+
+            String callerPkg =
+                    PkgUtil.isSystemOrPhoneOrShell(broadcastEvent.caller)
+                            ? "android"
+                            : PkgUtil.pkgForUid(getContext(), broadcastEvent.caller);
+
+            mainHandler.obtainMessage(AshManHandlerMessages.MSG_NOTIFYSTARTBLOCK, receiverPkgName).sendToTarget();
+
+            BlockRecord2 old = getBlockRecord(receiverPkgName);
+            long blockedTimes = old == null ? 0 : old.getHowManyTimesBlocked();
+            long allowedTimes = old == null ? 0 : old.getHowManyTimesAllowed();
+            BlockRecord2 blockRecord2 = BlockRecord2.builder()
+                    .pkgName(receiverPkgName)
+                    .appName(null)
+                    .callerPkgName(callerPkg)
+                    .howManyTimesBlocked(broadcastEvent.allowed ? blockedTimes : blockedTimes + 1)
+                    .howManyTimesAllowed(broadcastEvent.allowed ? allowedTimes + 1 : allowedTimes)
+                    .reason(broadcastEvent.why)
+                    .timeWhen(System.currentTimeMillis())
+                    .block(!broadcastEvent.allowed)
+                    .build();
+            if (XposedLog.isVerboseLoggable())
+                XposedLog.verbose("BRD BlockRecord2: " + blockRecord2);
+            addBlockRecord(blockRecord2);
         };
         mLoggingService.execute(new ErrorCatchRunnable(r, "logBroadcastBlockEventToMemory"));
     }
@@ -3558,6 +3578,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (!enabled) {
             mLazyHandler.post(new ErrorCatchRunnable(this::clearRunningAppProcessUpdateNotification, "clearRunningAppProcessUpdateNotification"));
         }
+    }
+
+    @Override
+    public boolean isStartRuleEnabled() {
+        return mStartRuleEnabled.get();
+    }
+
+    @Override
+    public void setStartRuleEnabled(boolean enabled) throws RemoteException {
+        enforceCallingPermissions();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETSTARTRULEENABLED, enabled).sendToTarget();
     }
 
     private void cacheGCMPackages() {
@@ -6324,6 +6355,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 case AshManHandlerMessages.MSG_SETSTARTBLOCKENABLED:
                     HandlerImpl.this.setStartBlockEnabled((Boolean) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_SETSTARTRULEENABLED:
+                    HandlerImpl.this.setStartRuleEnabled((Boolean) msg.obj);
+                    break;
                 case AshManHandlerMessages.MSG_SETLOCKKILLENABLED:
                     HandlerImpl.this.setLockKillEnabled((Boolean) msg.obj);
                     break;
@@ -6501,6 +6535,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         public void setStartBlockEnabled(boolean enabled) {
             if (mStartBlockEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.START_BLOCK_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setStartRuleEnabled(boolean enabled) {
+            if (mStartRuleEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.APM_START_RULE_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 

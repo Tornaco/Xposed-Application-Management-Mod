@@ -19,6 +19,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.doze.DozeEnterTile;
 import github.tornaco.xposedmoduletest.ui.tiles.doze.DozeWhitelistTile;
 import github.tornaco.xposedmoduletest.ui.tiles.doze.ForceDozeTile;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 public class DozeNavActivity extends CommonPackageInfoListActivity

@@ -18,6 +18,7 @@ public class DisableMotionTile extends QuickTile {
     public DisableMotionTile(final Context context) {
         super(context);
         this.titleRes = R.string.title_disable_motion;
+        this.summaryRes = R.string.summary_disable_motion;
         this.iconRes = R.drawable.ic_directions_run_black_16_sc_dp;
 
         this.tileView = new SwitchTileView(context) {

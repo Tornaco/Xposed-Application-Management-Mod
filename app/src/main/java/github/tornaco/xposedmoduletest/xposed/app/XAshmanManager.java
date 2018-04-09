@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.support.annotation.Nullable;
 
@@ -1849,6 +1850,24 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.setShowAppProcessUpdateNotificationEnabled(enabled);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public boolean isStartRuleEnabled() {
+        ensureService();
+        try {
+            return mService.isStartRuleEnabled();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void setStartRuleEnabled(boolean enabled) {
+        ensureService();
+        try {
+            mService.setStartRuleEnabled(enabled);
         } catch (Exception e) {
 
         }
