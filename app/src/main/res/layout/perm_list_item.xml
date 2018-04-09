@@ -18,14 +18,16 @@
 
         <ImageView
             android:id="@+id/icon"
-            android:layout_width="@dimen/dashboard_tile_image_size"
-            android:layout_height="@dimen/dashboard_tile_image_size"
+            android:layout_width="@dimen/thumbnail_size_small"
+            android:layout_height="@dimen/thumbnail_size_small"
             android:layout_centerVertical="true"
             android:layout_marginEnd="@dimen/dashboard_tile_image_margin_end"
             android:layout_marginStart="@dimen/dashboard_tile_image_margin_start"
+            android:background="@drawable/tile_bg_grey_dark"
+            android:padding="@dimen/dashboard_tile_image_padding"
             android:scaleType="fitXY"
             android:src="@drawable/ic_info_black_24dp"
-            android:tint="@color/grey" />
+            android:tint="@color/white" />
 
         <RelativeLayout
             android:layout_width="match_parent"
