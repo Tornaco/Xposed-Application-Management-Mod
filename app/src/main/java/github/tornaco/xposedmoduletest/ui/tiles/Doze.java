@@ -35,11 +35,6 @@ public class Doze extends QuickTile {
                 super.onClick(v);
                 context.startActivity(new Intent(context, DozeNavActivity.class));
             }
-
-            @Override
-            protected boolean useStaticTintColor() {
-                return true;
-            }
         };
     }
 }

@@ -18,6 +18,7 @@ package dev.nick.tiles.tile;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.support.annotation.CallSuper;
 import android.support.annotation.DrawableRes;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
@@ -31,7 +32,9 @@ import android.widget.TextView;
 
 import dev.nick.tiles.R;
 
-public class TileView extends FrameLayout implements View.OnClickListener, View.OnLongClickListener {
+public class TileView extends FrameLayout
+        implements View.OnClickListener,
+        View.OnLongClickListener {
 
     private static final int DEFAULT_COL_SPAN = 1;
 
@@ -41,6 +44,8 @@ public class TileView extends FrameLayout implements View.OnClickListener, View.
     private View mDivider;
 
     private int mColSpan = DEFAULT_COL_SPAN;
+
+    private boolean mEnabledAndroidPStyledIcon = true;
 
     public TileView(Context context) {
         this(context, null);
@@ -57,20 +62,16 @@ public class TileView extends FrameLayout implements View.OnClickListener, View.
         return R.layout.dashboard_tile;
     }
 
+    @CallSuper
     protected void onCreate(Context context) {
+        mEnabledAndroidPStyledIcon = context.getResources().getBoolean(R.bool.dashboard_android_p_icon);
     }
 
     protected void onViewInflated(View view) {
         mImageView = view.findViewById(R.id.icon);
 
-        if (getImageViewBackgroundRes() != 0) {
-            mImageView.setBackgroundResource(getImageViewBackgroundRes());
-            mImageView.setColorFilter(Color.WHITE);
-        } else {
-            if (useStaticTintColor()) {
-                mImageView.setColorFilter(ContextCompat.getColor(getContext(), R.color.tile_icon_tint));
-            }
-        }
+        applyImageViewStyle();
+
         mTitleTextView = view.findViewById(R.id.title);
         mStatusTextView = view.findViewById(R.id.status);
         mDivider = view.findViewById(R.id.tile_divider);
@@ -84,9 +85,25 @@ public class TileView extends FrameLayout implements View.OnClickListener, View.
         setFocusable(true);
     }
 
+    private void applyImageViewStyle() {
+        if (mImageView != null) {
+            if (mEnabledAndroidPStyledIcon && getImageViewBackgroundRes() != 0) {
+                mImageView.setBackgroundResource(getImageViewBackgroundRes());
+                mImageView.setColorFilter(Color.WHITE);
+            } else {
+                mImageView.setBackgroundResource(0);
+                mImageView.setColorFilter(ContextCompat.getColor(getContext(), R.color.tile_icon_tint));
+                mImageView.setPadding(0, 0, 0, 0);// Remove padding.
+                // Make the icon smaller.
+                mImageView.setScaleX(0.8f);
+                mImageView.setScaleY(0.8f);
+            }
+        }
+    }
+
     @DrawableRes
     protected int getImageViewBackgroundRes() {
-        return R.drawable.tile_bg_grey_dark;
+        return mEnabledAndroidPStyledIcon ? R.drawable.tile_bg_grey_dark : 0;
     }
 
     protected void onBindActionView(RelativeLayout container) {
@@ -117,8 +134,11 @@ public class TileView extends FrameLayout implements View.OnClickListener, View.
         mColSpan = span;
     }
 
-    protected boolean useStaticTintColor() {
-        return true;
+    public void setEnabledAndroidPStyledIcon(boolean enable) {
+        if (enable != this.mEnabledAndroidPStyledIcon) {
+            this.mEnabledAndroidPStyledIcon = enable;
+            applyImageViewStyle();
+        }
     }
 
     @Override

@@ -24,4 +24,5 @@ public interface AppKey {
     String SENT_TOKEN_TO_SERVER = "sent_token_to_server";
     String SUBSCRIBE_GCM_MESSAGES = "receive_gcm_messages";
     String GCM_INDICATOR = "gcm_indicator";
+    String P_STYLE_ICON = "p_style_icon";
 }

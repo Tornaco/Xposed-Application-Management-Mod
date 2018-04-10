@@ -2,4 +2,5 @@
 <resources>
     <!-- Dashboard number of columns -->
     <integer name="dashboard_num_columns">1</integer>
+    <bool name="dashboard_android_p_icon">true</bool>
 </resources>

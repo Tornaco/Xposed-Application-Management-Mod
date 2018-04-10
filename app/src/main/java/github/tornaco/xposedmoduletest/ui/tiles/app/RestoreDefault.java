@@ -25,7 +25,6 @@ public class RestoreDefault extends QuickTile {
         super(context);
 
         this.titleRes = R.string.title_restore_def;
-        this.summaryRes = R.string.summary_restore_def;
         this.iconRes = R.drawable.ic_settings_backup_restore_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override
@@ -35,36 +34,30 @@ public class RestoreDefault extends QuickTile {
                 new AlertDialog.Builder(context)
                         .setTitle(R.string.title_restore_def)
                         .setMessage(R.string.summary_restore_def)
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (XAshmanManager.get().isServiceAvailable()) {
-                                    XAshmanManager.get().restoreDefaultSettings();
-                                    XAppGuardManager.get().restoreDefaultSettings();
-                                    Toast.makeText(context, R.string.summary_restore_done, Toast.LENGTH_SHORT).show();
-                                } else {
-                                    XExecutor.execute(new Runnable() {
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                            if (XAshmanManager.get().isServiceAvailable()) {
+                                XAshmanManager.get().restoreDefaultSettings();
+                                XAppGuardManager.get().restoreDefaultSettings();
+                                Toast.makeText(context, R.string.summary_restore_done, Toast.LENGTH_SHORT).show();
+                            } else {
+                                XExecutor.execute(() -> {
+                                    // Logger.e("Mount: " + Shell.SU.run("mount -o remount,rw /data").isSuccessful());
+                                    final boolean res = Shell.SU.run("rm -rf data/system/tor")
+                                            .isSuccessful();
+                                    Shell.SU.run("rm -rf data/system/tor_apm");
+                                    XExecutor.runOnUIThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            // Logger.e("Mount: " + Shell.SU.run("mount -o remount,rw /data").isSuccessful());
-                                            final boolean res = Shell.SU.run("rm -rf data/system/tor")
-                                                    .isSuccessful();
-                                            Shell.SU.run("rm -rf data/system/tor_apm");
-                                            XExecutor.runOnUIThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    if (res) {
-                                                        Toast.makeText(context, R.string.summary_restore_done, Toast.LENGTH_SHORT).show();
-                                                    } else {
-                                                        Toast.makeText(context, R.string.summary_restore_fail, Toast.LENGTH_SHORT).show();
-                                                    }
-                                                }
-                                            });
+                                            if (res) {
+                                                Toast.makeText(context, R.string.summary_restore_done, Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                Toast.makeText(context, R.string.summary_restore_fail, Toast.LENGTH_SHORT).show();
+                                            }
                                         }
                                     });
-                                }
-
+                                });
                             }
+
                         })
                         .setNegativeButton(android.R.string.cancel, null)
                         .show();

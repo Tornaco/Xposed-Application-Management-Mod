@@ -283,32 +283,21 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
         p.setMessage(getString(R.string.message_saving_changes));
         p.show();
 
-        XExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (isDestroyed()) return;
-                    onRequestClearItemsInBackground();
-                } catch (final Throwable e) {
-                    Logger.e("onRequestClearItems: " + Logger.getStackTraceString(e));
-                    if (isDestroyed()) return;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showSimpleDialog(getString(R.string.title_error_occur), Logger.getStackTraceString(e));
-                        }
-                    });
-                } finally {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            p.dismiss();
-                            getCommonPackageInfoAdapter().onBackPressed();// Leave choice mode ugly.
-                        }
-                    });
-                }
-
+        XExecutor.execute(() -> {
+            try {
+                if (isDestroyed()) return;
+                onRequestClearItemsInBackground();
+            } catch (final Throwable e) {
+                Logger.e("onRequestClearItems: " + Logger.getStackTraceString(e));
+                if (isDestroyed()) return;
+                runOnUiThread(() -> showSimpleDialog(getString(R.string.title_error_occur), Logger.getStackTraceString(e)));
+            } finally {
+                runOnUiThread(() -> {
+                    p.dismiss();
+                    getCommonPackageInfoAdapter().onBackPressed();// Leave choice mode ugly.
+                });
             }
+
         });
     }
 
@@ -347,22 +336,16 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
     protected void startLoading() {
         if (!hasRecyclerView()) return;
         swipeRefreshLayout.setRefreshing(true);
-        XExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                final List<? extends CommonPackageInfo> res = performLoading();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
+        XExecutor.execute(() -> {
+            final List<? extends CommonPackageInfo> res = performLoading();
+            runOnUiThread(() -> {
 //                        if (Collections.isNullOrEmpty(res)) {
 //                            Toast.makeText(getContext(), R.string.loading_res_empty, Toast.LENGTH_SHORT).show();
 //                        }
 
-                        swipeRefreshLayout.setRefreshing(false);
-                        commonPackageInfoAdapter.update(res);
-                    }
-                });
-            }
+                swipeRefreshLayout.setRefreshing(false);
+                commonPackageInfoAdapter.update(res);
+            });
         });
     }
 

@@ -296,8 +296,8 @@ public class NeedLockActivity<T> extends WithSearchActivity<T> {
 //                        }
 //
 //                        @Override
-//                        public void onFail(Exception e) {
-//                            Logger.d("CameraManager- onFail@" + e);
+//                        public void onDataBackupFail(Exception e) {
+//                            Logger.d("CameraManager- onDataBackupFail@" + e);
 //                        }
 //                    });
 //                } catch (Throwable e) {
@@ -608,8 +608,8 @@ public class NeedLockActivity<T> extends WithSearchActivity<T> {
 //                        }
 //
 //                        @Override
-//                        public void onFail(Exception e) {
-//                            Logger.d("CameraManager- onFail@" + e);
+//                        public void onDataBackupFail(Exception e) {
+//                            Logger.d("CameraManager- onDataBackupFail@" + e);
 //                        }
 //                    });
 //                } catch (Throwable e) {

@@ -177,7 +177,7 @@ public class SettingsDashboardActivity extends WithWithCustomTabActivity
     }
 
     @Override
-    public void onFail(int errNum, final Throwable e) {
+    public void onDataBackupFail(int errNum, final Throwable e) {
         runOnUiThreadChecked(new Runnable() {
             @Override
             public void run() {
@@ -191,7 +191,7 @@ public class SettingsDashboardActivity extends WithWithCustomTabActivity
     }
 
     @Override
-    public void onSuccess() {
+    public void onDataBackupSuccess() {
         runOnUiThreadChecked(new Runnable() {
             @Override
             public void run() {

@@ -203,6 +203,18 @@ public class AppSettings extends Observable {
                 .getBoolean(AppKey.GCM_INDICATOR, true);
     }
 
+    public static void setPStyleIcon(Context context, boolean p) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(AppKey.P_STYLE_ICON, p)
+                .apply();
+    }
+
+    public static boolean isPStyleIcon(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(AppKey.P_STYLE_ICON, true);
+    }
+
     public static boolean isNewBuild(Context context) {
         String serverSerial = XAshmanManager.get().isServiceAvailable() ? XAshmanManager.get().getBuildSerial() : null;
         if (serverSerial == null) return false;

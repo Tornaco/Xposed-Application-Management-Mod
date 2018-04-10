@@ -16,7 +16,6 @@ import github.tornaco.xposedmoduletest.cache.RunningServicesLoadingCache;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
-import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.IProcessClearListenerAdapter;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -58,12 +57,12 @@ public class RunningServicesActivity
                         @Override
                         public void onAllCleared(final String[] pkg) throws RemoteException {
                             super.onAllCleared(pkg);
-                            XExecutor.getUIThreadHandler()
-                                    .post(() -> Toast.makeText(getApplicationContext(),
-                                            R.string.clear_process_complete, Toast.LENGTH_LONG).show());
-
                             if (!isDestroyed()) {
-                                runOnUiThreadChecked(() -> startLoading());
+                                runOnUiThreadChecked(() -> {
+                                    Toast.makeText(getApplicationContext(),
+                                            R.string.clear_process_complete, Toast.LENGTH_LONG).show();
+                                    startLoading();
+                                });
                             }
                         }
 

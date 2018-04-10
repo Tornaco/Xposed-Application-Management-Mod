@@ -3,7 +3,6 @@ package github.tornaco.xposedmoduletest.ui;
 import android.support.annotation.StringRes;
 
 import dev.nick.eventbus.Event;
-import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 
 /**
@@ -11,7 +10,8 @@ import github.tornaco.xposedmoduletest.provider.AppSettings;
  * Email: Tornaco@163.com
  */
 
-public abstract class ActivityLifeCycleDashboardFragment extends DashboardFragment {
+public abstract class ActivityLifeCycleDashboardFragment
+        extends AppCustomDashboardFragment {
 
     public void onActivityResume() {
     }

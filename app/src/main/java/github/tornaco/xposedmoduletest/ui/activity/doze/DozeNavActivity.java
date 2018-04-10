@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.nick.tiles.tile.Category;
-import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
+import github.tornaco.xposedmoduletest.ui.AppCustomDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.tiles.doze.DisableMotionTile;
@@ -19,7 +19,6 @@ import github.tornaco.xposedmoduletest.ui.tiles.doze.DozeEnterTile;
 import github.tornaco.xposedmoduletest.ui.tiles.doze.DozeWhitelistTile;
 import github.tornaco.xposedmoduletest.ui.tiles.doze.ForceDozeTile;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 public class DozeNavActivity extends CommonPackageInfoListActivity
@@ -101,7 +100,7 @@ public class DozeNavActivity extends CommonPackageInfoListActivity
         return super.onOptionsItemSelected(item);
     }
 
-    public static class Dashboards extends DashboardFragment {
+    public static class Dashboards extends AppCustomDashboardFragment {
 
         public void reload() {
             buildUI(getActivity());

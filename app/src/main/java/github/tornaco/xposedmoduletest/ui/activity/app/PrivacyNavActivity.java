@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.SwitchCompat;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,7 @@ import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
+import github.tornaco.xposedmoduletest.ui.AppCustomDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.tiles.PrivacyAndroidId;
@@ -72,9 +74,14 @@ public class PrivacyNavActivity extends CommonPackageInfoListActivity
     private Dashboards mDash;
 
     @RequiresPermission(Manifest.permission.READ_PHONE_STATE)
+    @RequiresPermission.OnDenied("onPermissionDenied")
     void setupViews() {
         mDash = new Dashboards();
         replaceV4(R.id.container, mDash, null, false);
+    }
+
+    void onPermissionDenied() {
+        Toast.makeText(getActivity(), R.string.title_privacy_perm_denied, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -125,17 +132,14 @@ public class PrivacyNavActivity extends CommonPackageInfoListActivity
     }
 
     public void reload() {
-        getUIThreadHandler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (!isDestroyed()) {
-                    mDash.reload();
-                }
+        getUIThreadHandler().postDelayed(() -> {
+            if (!isDestroyed()) {
+                mDash.reload();
             }
         }, 500);
     }
 
-    public static class Dashboards extends DashboardFragment {
+    public static class Dashboards extends AppCustomDashboardFragment {
 
         public void reload() {
             buildUI(getActivity());

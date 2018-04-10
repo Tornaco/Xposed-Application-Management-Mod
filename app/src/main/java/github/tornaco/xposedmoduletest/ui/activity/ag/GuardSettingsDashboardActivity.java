@@ -8,6 +8,7 @@ import java.util.List;
 import dev.nick.tiles.tile.Category;
 import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.ui.AppCustomDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.ag.Secure;
 import github.tornaco.xposedmoduletest.ui.tiles.ag.Verifier;
@@ -27,7 +28,7 @@ public class GuardSettingsDashboardActivity extends BaseActivity {
         replaceV4(R.id.container, new Dashboards(), null, false);
     }
 
-    public static class Dashboards extends DashboardFragment {
+    public static class Dashboards extends AppCustomDashboardFragment {
         @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);

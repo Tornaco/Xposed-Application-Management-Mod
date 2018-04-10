@@ -17,7 +17,7 @@
     android:id="@+id/category"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dip"
+    android:layout_marginBottom="@dimen/dashboard_category_bot_margin"
     android:background="?torTileContainerBackgroundColor"
     android:elevation="@dimen/dashboard_category_elevation"
     android:orientation="vertical"
