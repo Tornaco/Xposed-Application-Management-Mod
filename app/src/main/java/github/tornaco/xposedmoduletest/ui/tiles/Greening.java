@@ -25,15 +25,11 @@ public class Greening extends QuickTile {
             protected int getImageViewBackgroundRes() {
                 return R.drawable.tile_bg_green;
             }
+
             @Override
             public void onClick(View v) {
                 super.onClick(v);
                 context.startActivity(new Intent(context, ExtraOpsSettingActivity.class));
-            }
-
-            @Override
-            protected boolean useStaticTintColor() {
-                return true;
             }
         };
     }

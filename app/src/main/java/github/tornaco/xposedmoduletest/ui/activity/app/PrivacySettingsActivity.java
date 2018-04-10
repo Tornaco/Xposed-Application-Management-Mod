@@ -17,10 +17,10 @@ import android.widget.TextView;
 import java.util.List;
 
 import dev.nick.tiles.tile.Category;
-import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.ui.AppCustomDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.PrivacyAndroidId;
 import github.tornaco.xposedmoduletest.ui.tiles.PrivacyApps;
@@ -50,7 +50,7 @@ public class PrivacySettingsActivity extends WithWithCustomTabActivity {
         PrivacySettingsActivityPermissionRequester.setupViewsChecked(this);
     }
 
-    public static class Dashboards extends DashboardFragment {
+    public static class Dashboards extends AppCustomDashboardFragment {
         @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);

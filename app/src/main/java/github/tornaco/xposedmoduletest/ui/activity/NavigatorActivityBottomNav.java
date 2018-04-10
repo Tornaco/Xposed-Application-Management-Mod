@@ -102,6 +102,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.MokeSystemDead;
 import github.tornaco.xposedmoduletest.ui.tiles.app.NoShift;
 import github.tornaco.xposedmoduletest.ui.tiles.app.OpenMarket;
 import github.tornaco.xposedmoduletest.ui.tiles.app.OpenSource;
+import github.tornaco.xposedmoduletest.ui.tiles.app.PStyleIcon;
 import github.tornaco.xposedmoduletest.ui.tiles.app.PowerSave;
 import github.tornaco.xposedmoduletest.ui.tiles.app.PrivacyPolicy;
 import github.tornaco.xposedmoduletest.ui.tiles.app.Restore;
@@ -1235,6 +1236,7 @@ public class NavigatorActivityBottomNav
             theme.addTile(new ShowTileDivider(getActivity()));
             theme.addTile(new IconPack(getActivity()));
             theme.addTile(new NoShift(getActivity()));
+            theme.addTile(new PStyleIcon(getActivity()));
             theme.addTile(new GcmIndicator(getActivity()));
 
             Category others = new Category();

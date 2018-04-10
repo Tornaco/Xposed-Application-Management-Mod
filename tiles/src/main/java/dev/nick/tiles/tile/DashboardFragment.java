@@ -7,7 +7,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +17,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import dev.nick.tiles.R;
 
@@ -29,12 +29,14 @@ public class DashboardFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                buildUI(getActivity());
-            }
-        });
+
+        Objects.requireNonNull(getActivity())
+                .runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        buildUI(getActivity());
+                    }
+                });
     }
 
     @Override
@@ -68,12 +70,17 @@ public class DashboardFragment extends Fragment {
         return getResources().getInteger(R.integer.dashboard_num_columns);
     }
 
+    protected boolean androidPStyleIcon() {
+        return getResources().getBoolean(R.bool.dashboard_android_p_icon);
+    }
+
     protected void buildUI(Context context) {
         if (!isAdded()) {
             throw new IllegalStateException("Fragment not added yet.");
         }
 
-        long start = System.currentTimeMillis();
+        boolean androidPStyledIcon = androidPStyleIcon();
+
         final Resources res = getResources();
 
         mDashboard.removeAllViews();
@@ -127,6 +134,8 @@ public class DashboardFragment extends Fragment {
             for (int i = 0; i < tilesCount; i++) {
                 Tile tile = category.getTile(i);
                 TileView tileView = tile.tileView;
+                tileView.setEnabledAndroidPStyledIcon(androidPStyledIcon);
+
                 updateTileView(context, res, category, tile, tileView.getImageView(),
                         tileView.getTitleTextView(), tileView.getSummaryTextView());
 

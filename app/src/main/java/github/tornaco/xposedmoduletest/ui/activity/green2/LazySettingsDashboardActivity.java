@@ -6,8 +6,8 @@ import android.support.annotation.Nullable;
 import java.util.List;
 
 import dev.nick.tiles.tile.Category;
-import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.ui.AppCustomDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.green.General;
 
@@ -26,7 +26,7 @@ public class LazySettingsDashboardActivity extends BaseActivity {
         replaceV4(R.id.container, new Dashboards(), null, false);
     }
 
-    public static class Dashboards extends DashboardFragment {
+    public static class Dashboards extends AppCustomDashboardFragment {
         @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);

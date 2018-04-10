@@ -11,11 +11,11 @@ import android.view.View;
 import java.util.List;
 
 import dev.nick.tiles.tile.Category;
-import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.android.common.util.ColorUtil;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.provider.XSettings;
+import github.tornaco.xposedmoduletest.ui.AppCustomDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.PermControlTemplate;
 import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppBlurSetting;
@@ -106,7 +106,7 @@ public class PerAppSettingsDashboardActivity extends WithWithCustomTabActivity {
                 .retrieveAppSettingsForPackage(pkg);
     }
 
-    public static class Dashboards extends DashboardFragment {
+    public static class Dashboards extends AppCustomDashboardFragment {
 
         private String mPkg;
 
