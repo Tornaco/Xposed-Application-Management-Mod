@@ -567,7 +567,7 @@
     <string name="title_tile_restore">还原</string>
     <string name="title_tile_backup">备份</string>
     <string name="title_open_info">开源信息</string>
-    <string name="summary_style_settings">主题、图标包、卡片</string>
-    <string name="summary_backup_restore">应用管理的数据处理</string>
+    <string name="summary_style_settings">主题、图标包、卡片。</string>
+    <string name="summary_backup_restore">应用管理的数据处理。</string>
 
 </resources>
