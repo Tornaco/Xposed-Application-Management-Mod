@@ -314,14 +314,11 @@ public class BaseActivity extends AppCompatActivity implements View {
 
     public void runOnUiThreadChecked(final Runnable runnable) {
         if (isDestroyed()) return;
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    runnable.run();
-                } catch (Throwable e) {
-                    Logger.e("runOnUiThreadChecked: " + e);
-                }
+        runOnUiThread(() -> {
+            try {
+                runnable.run();
+            } catch (Throwable e) {
+                Logger.e("runOnUiThreadChecked: " + e);
             }
         });
     }
