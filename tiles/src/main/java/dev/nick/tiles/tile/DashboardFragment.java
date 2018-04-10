@@ -24,7 +24,7 @@ import dev.nick.tiles.R;
 public class DashboardFragment extends Fragment {
 
     private LayoutInflater mLayoutInflater;
-    private ViewGroup mDashboard;
+    protected ViewGroup mDashboard;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -92,8 +92,7 @@ public class DashboardFragment extends Fragment {
         for (int n = 0; n < count; n++) {
             final Category category = categories.get(n);
 
-            View categoryView = mLayoutInflater.inflate(R.layout.dashboard_category, mDashboard,
-                    false);
+            View categoryView = mLayoutInflater.inflate(R.layout.dashboard_category, mDashboard, false);
 
             TextView categoryLabel = categoryView.findViewById(R.id.category_title);
             if (category.getTitle(res) != null)
