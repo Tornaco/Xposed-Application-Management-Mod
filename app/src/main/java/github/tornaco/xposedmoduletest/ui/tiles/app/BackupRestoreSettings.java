@@ -13,21 +13,20 @@ import github.tornaco.xposedmoduletest.ui.activity.BackupRestoreSettingsActivity
  * Email: Tornaco@163.com
  */
 
-public class Restore extends QuickTile {
+public class BackupRestoreSettings extends QuickTile {
 
-    public Restore(final Context context) {
+    public BackupRestoreSettings(final Context context) {
         super(context);
 
-        this.titleRes = R.string.title_restore;
-        this.summaryRes = R.string.summary_title_restore;
-        this.iconRes = R.drawable.ic_import_export_black_24dp;
+        this.titleRes = R.string.title_backup_restore;
+        this.summaryRes = R.string.summary_backup_restore;
+        this.iconRes = R.drawable.ic_settings_backup_restore_black_24dp;
 
         this.tileView = new QuickTileView(context, this) {
             @Override
             public void onClick(View v) {
                 super.onClick(v);
-                BackupRestoreSettingsActivity ad = (BackupRestoreSettingsActivity) context;
-                ad.onRequestRestore();
+                BackupRestoreSettingsActivity.start(context);
             }
         };
     }

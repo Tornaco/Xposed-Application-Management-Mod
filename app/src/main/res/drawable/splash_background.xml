@@ -6,6 +6,11 @@
     <item>
         <bitmap
             android:gravity="center"
-            android:src="@mipmap/ic_logo_round" />
+            android:src="@drawable/apm_logo" />
+    </item>
+    <item>
+        <bitmap
+            android:gravity="bottom"
+            android:src="@drawable/apm_text" />
     </item>
 </layer-list>

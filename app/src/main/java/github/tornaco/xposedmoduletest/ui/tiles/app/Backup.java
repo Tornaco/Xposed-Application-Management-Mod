@@ -6,7 +6,7 @@ import android.view.View;
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.ui.activity.NavigatorActivityBottomNav;
+import github.tornaco.xposedmoduletest.ui.activity.BackupRestoreSettingsActivity;
 
 /**
  * Created by guohao4 on 2017/11/16.
@@ -26,7 +26,7 @@ public class Backup extends QuickTile {
             @Override
             public void onClick(View v) {
                 super.onClick(v);
-                NavigatorActivityBottomNav ad = (NavigatorActivityBottomNav) context;
+                BackupRestoreSettingsActivity ad = (BackupRestoreSettingsActivity) context;
                 ad.onRequestBackup();
             }
         };

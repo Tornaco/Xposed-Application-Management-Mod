@@ -31,9 +31,9 @@ import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 public abstract class DataBackup {
 
     public interface BackupRestoreListener extends FileUtil.ProgressListener {
-        void onFail(int errNum, Throwable e);
+        void onDataBackupFail(int errNum, Throwable e);
 
-        void onSuccess();
+        void onDataBackupSuccess();
     }
 
     public static void performBackup(File dir, BackupRestoreListener listener) {
@@ -41,7 +41,7 @@ public abstract class DataBackup {
         XAppGuardManager ag = XAppGuardManager.get();
         XAshmanManager ash = XAshmanManager.get();
         if (!ag.isServiceAvailable() || !ash.isServiceAvailable()) {
-            listener.onFail(-1, new NullPointerException("Service not available"));
+            listener.onDataBackupFail(-1, new NullPointerException("Service not available"));
             return;
         }
 
@@ -54,7 +54,7 @@ public abstract class DataBackup {
             tmpDir = new File(tmpPath);
             Files.createParentDirs(tmpDir);
         } catch (IOException e) {
-            listener.onFail(0, e);
+            listener.onDataBackupFail(0, e);
             return;
         }
 
@@ -77,13 +77,13 @@ public abstract class DataBackup {
             String name = "Backup" + DateUtils.formatForFileName(startTimeMills) + ".zip";
             ZipUtils.zip(tmpDir.getPath(), dir.getPath(), name);
         } catch (Exception e) {
-            listener.onFail(2, e);
+            listener.onDataBackupFail(2, e);
             return;
         } finally {
             FileUtil.deleteDir(tmpDir);
         }
 
-        listener.onSuccess();
+        listener.onDataBackupSuccess();
     }
 
     private static void appendStringArray(File file, String[] data, BackupRestoreListener listener) {
@@ -98,7 +98,7 @@ public abstract class DataBackup {
             Closer.closeQuietly(printWriter);
             Closer.closeQuietly(os);
         } catch (IOException e) {
-            listener.onFail(1, e);
+            listener.onDataBackupFail(1, e);
         }
 
     }
@@ -108,12 +108,12 @@ public abstract class DataBackup {
         XAppGuardManager ag = XAppGuardManager.get();
         XAshmanManager ash = XAshmanManager.get();
         if (!ag.isServiceAvailable() || !ash.isServiceAvailable()) {
-            listener.onFail(-1, new NullPointerException("Service not available"));
+            listener.onDataBackupFail(-1, new NullPointerException("Service not available"));
             return;
         }
 
         if (!zipFile.exists()) {
-            listener.onFail(-2, new NullPointerException("Zip not exist"));
+            listener.onDataBackupFail(-2, new NullPointerException("Zip not exist"));
             return;
         }
 
@@ -124,7 +124,7 @@ public abstract class DataBackup {
             tmpDir = new File(tmpPath);
             Files.createParentDirs(tmpDir);
         } catch (IOException e) {
-            listener.onFail(0, e);
+            listener.onDataBackupFail(0, e);
             return;
         }
 
@@ -263,10 +263,10 @@ public abstract class DataBackup {
             }
 
         } catch (Exception e) {
-            listener.onFail(1, e);
+            listener.onDataBackupFail(1, e);
         } finally {
             FileUtil.deleteDir(tmpDir);
-            listener.onSuccess();
+            listener.onDataBackupSuccess();
         }
     }
 

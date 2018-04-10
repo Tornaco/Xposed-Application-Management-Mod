@@ -1,14 +1,16 @@
-package github.tornaco.xposedmoduletest.ui.activity.app;
+package github.tornaco.xposedmoduletest.ui.activity;
 
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.widget.Toast;
 
 import com.nononsenseapps.filepicker.FilePickerActivity;
@@ -20,33 +22,41 @@ import java.io.File;
 import java.util.List;
 
 import dev.nick.tiles.tile.Category;
-import dev.nick.tiles.tile.DashboardFragment;
 import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.backup.DataBackup;
-import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
-import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlack;
-import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlackNotification;
+import github.tornaco.xposedmoduletest.ui.AppCustomDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.tiles.app.Backup;
-import github.tornaco.xposedmoduletest.ui.tiles.app.IconPack;
-import github.tornaco.xposedmoduletest.ui.tiles.app.PowerSave;
 import github.tornaco.xposedmoduletest.ui.tiles.app.Restore;
 import github.tornaco.xposedmoduletest.ui.tiles.app.RestoreDefault;
-import github.tornaco.xposedmoduletest.ui.tiles.app.ShowTileDivider;
-import github.tornaco.xposedmoduletest.ui.tiles.app.ThemeChooser;
-import github.tornaco.xposedmoduletest.ui.tiles.app.WhiteSystemApp;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import lombok.Synchronized;
 
 /**
- * Created by guohao4 on 2017/11/2.
+ * Created by guohao4 on 2017/9/7.
  * Email: Tornaco@163.com
  */
 @RuntimePermissions
-public class SettingsDashboardActivity extends WithWithCustomTabActivity
-        implements DataBackup.BackupRestoreListener {
+public class BackupRestoreSettingsActivity extends BaseActivity implements
+        DataBackup.BackupRestoreListener {
 
+    public static void start(Context context) {
+        Intent starter = new Intent(context, BackupRestoreSettingsActivity.class);
+        starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(starter);
+    }
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.container_with_appbar_template);
+        setupToolbar();
+        showHomeAsUp();
+        replaceV4(R.id.container, onCreateSettingsFragment(), null, false);
+    }
+
+    // Settings block.
     private ProgressDialog mProgressDialog;
 
     @Synchronized
@@ -71,32 +81,22 @@ public class SettingsDashboardActivity extends WithWithCustomTabActivity
     @RequiresPermission({Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE})
     void performBackup(final File dir) {
-        XExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                DataBackup.performBackup(dir, SettingsDashboardActivity.this);
-            }
-        });
+        XExecutor.execute(() -> DataBackup.performBackup(dir, BackupRestoreSettingsActivity.this));
     }
 
     @RequiresPermission({Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE})
     void performRestore(final File zipFile) {
-        XExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                DataBackup.performRestore(getContext(), zipFile, SettingsDashboardActivity.this);
-            }
-        });
+        XExecutor.execute(() -> DataBackup.performRestore(getContext(), zipFile, BackupRestoreSettingsActivity.this));
     }
 
     public void onRequestBackup() {
-        SettingsDashboardActivityPermissionRequester.onRequestBackupInternalChecked(this);
+        BackupRestoreSettingsActivityPermissionRequester.onRequestBackupInternalChecked(this);
     }
 
 
     public void onRequestRestore() {
-        SettingsDashboardActivityPermissionRequester.onRequestRestoreInternalChecked(this);
+        BackupRestoreSettingsActivityPermissionRequester.onRequestRestoreInternalChecked(this);
     }
 
     @RequiresPermission({Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -153,101 +153,69 @@ public class SettingsDashboardActivity extends WithWithCustomTabActivity
     }
 
     private void onRestoreFilePicked(File file) {
-        SettingsDashboardActivityPermissionRequester.performRestoreChecked(file, this);
+        BackupRestoreSettingsActivityPermissionRequester.performRestoreChecked(file, this);
     }
 
     private void onBackupDirPicked(File file) {
-        SettingsDashboardActivityPermissionRequester.performBackupChecked(file, this);
+        BackupRestoreSettingsActivityPermissionRequester.performBackupChecked(file, this);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        SettingsDashboardActivityPermissionRequester.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.container_with_appbar_template);
-        setupToolbar();
-        showHomeAsUp();
-        replaceV4(R.id.container, new SettingsNavFragment(), null, false);
+        BackupRestoreSettingsActivityPermissionRequester.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
     public void onDataBackupFail(int errNum, final Throwable e) {
-        runOnUiThreadChecked(new Runnable() {
-            @Override
-            public void run() {
-                cancelProgressDialog();
-                Toast.makeText(getActivity(),
-                        getString(R.string.title_export_or_import_fail) + "\n" +
-                                Logger.getStackTraceString(e), Toast.LENGTH_SHORT).show();
-            }
+        runOnUiThreadChecked(() -> {
+            cancelProgressDialog();
+            Toast.makeText(getActivity(),
+                    getString(R.string.title_export_or_import_fail) + "\n" +
+                            Logger.getStackTraceString(e), Toast.LENGTH_SHORT).show();
         });
         Logger.e("Fail backup: " + Logger.getStackTraceString(e));
     }
 
     @Override
     public void onDataBackupSuccess() {
-        runOnUiThreadChecked(new Runnable() {
-            @Override
-            public void run() {
-                cancelProgressDialog();
-                Toast.makeText(getActivity(), R.string.title_backup_restore_success, Toast.LENGTH_SHORT).show();
-            }
+        runOnUiThreadChecked(() -> {
+            cancelProgressDialog();
+            Toast.makeText(getActivity(), R.string.title_backup_restore_success, Toast.LENGTH_SHORT).show();
         });
     }
 
     @Override
     public void onProgress(float progress) {
         if (progress == 0f) {
-            runOnUiThreadChecked(new Runnable() {
-                @Override
-                public void run() {
-                    showProgressDialog();
-                }
-            });
+            runOnUiThreadChecked(this::showProgressDialog);
         }
     }
 
-    public static class SettingsNavFragment extends DashboardFragment {
+    protected Fragment onCreateSettingsFragment() {
+        return new SettingsNavFragment();
+    }
+
+    public static class SettingsNavFragment
+            extends AppCustomDashboardFragment {
+
         @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
 
-            Category system = new Category();
-            system.titleRes = R.string.title_opt;
-            system.addTile(new PowerSave(getActivity()));
+            Category restore = new Category();
+            restore.titleRes = R.string.title_tile_restore;
 
-            Category systemProtect = new Category();
-            systemProtect.titleRes = R.string.title_app_settings;
-            systemProtect.addTile(new WhiteSystemApp(getActivity()));
-            systemProtect.addTile(new AutoBlack(getActivity()));
-            systemProtect.addTile(new AutoBlackNotification(getActivity()));
+            restore.addTile(new RestoreDefault(getActivity()));
+            restore.addTile(new Restore(getActivity()));
 
-            Category data = new Category();
-            data.titleRes = R.string.title_data;
-            data.addTile(new RestoreDefault(getActivity()));
-            data.addTile(new Restore(getActivity()));
-            Category dataHook = new Category();
-            dataHook.addTile(new Backup(getActivity()));
+            Category backup = new Category();
+            backup.titleRes = R.string.title_tile_backup;
+            backup.addTile(new Backup(getActivity()));
 
-            Category theme = new Category();
-            theme.titleRes = R.string.title_style;
-            theme.addTile(new ThemeChooser(getActivity()));
-            theme.addTile(new ShowTileDivider(getActivity()));
-            theme.addTile(new IconPack(getActivity()));
-
-            categories.add(system);
-            categories.add(systemProtect);
-            categories.add(data);
-            categories.add(dataHook);
-            categories.add(theme);
+            categories.add(restore);
+            categories.add(backup);
         }
     }
-
-
 }
