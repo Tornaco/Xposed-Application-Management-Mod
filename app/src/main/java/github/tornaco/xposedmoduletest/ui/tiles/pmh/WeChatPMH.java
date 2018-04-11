@@ -19,6 +19,12 @@ public class WeChatPMH extends QuickTile {
         this.titleRes = R.string.title_push_message_handler_wechat;
         this.iconRes = R.drawable.ic_stat_weixin;
         this.tileView = new SwitchTileView(context) {
+
+            @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_green;
+            }
+
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);

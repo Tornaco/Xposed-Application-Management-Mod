@@ -12,4 +12,8 @@ public interface PushNotificationHandler {
     String getTag();
 
     void onSettingsChanged(String tag);
+
+    void onTopPackageChanged(String who);
+
+    String getTargetPackageName();
 }

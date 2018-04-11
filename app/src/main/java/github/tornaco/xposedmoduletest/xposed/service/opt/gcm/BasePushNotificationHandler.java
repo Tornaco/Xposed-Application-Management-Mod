@@ -16,6 +16,8 @@ import lombok.Setter;
 abstract class BasePushNotificationHandler implements PushNotificationHandler {
     private Context context;
 
+    private int badge;
+
     BasePushNotificationHandler(Context context) {
         this.context = context;
         readSettings(getTag());
@@ -26,6 +28,7 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
     @Override
     public void onSettingsChanged(String tag) {
         readSettings(tag);
+
         XposedLog.verbose("onSettingsChanged: %s enabled: %s, showContentEnabled:%s",
                 getClass(),
                 isEnabled(),
@@ -33,11 +36,17 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
     }
 
     private void readSettings(String tag) {
-        if (tag == null || getTag().equals(tag)) {
-            setEnabled(SettingsProvider.get().getBoolean(getTag(), false));
-            // FIXME any means all, should be specific.
-            setShowContentEnabled(SettingsProvider.get().getBoolean("any" + "_show_content", false));
-        }
+        setEnabled(SettingsProvider.get().getBoolean(getTag(), false));
+        // FIXME any means all, should be specific.
+        setShowContentEnabled(SettingsProvider.get().getBoolean("any" + "_show_content", false));
+    }
 
+    @Override
+    public void onTopPackageChanged(String who) {
+        if (getTargetPackageName().equals(who)) {
+            XposedLog.verbose("onTopPackageChanged: %s", getClass());
+            // Reset badge.
+            setBadge(0);
+        }
     }
 }

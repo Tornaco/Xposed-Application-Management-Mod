@@ -5209,6 +5209,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         } finally {
             mTopPackageListenerCallbacks.finishBroadcast();
         }
+
+        // Also notifiy the pmh.
+        try {
+            for (PushNotificationHandler h : mPushNotificationHandlers) {
+                h.onTopPackageChanged(to);
+            }
+        } catch (Throwable e){
+            XposedLog.wtf("Fail broadcast onTopPackageChanged to PushNotificationHandler : " + e);
+        }
     }
 
     @Override
