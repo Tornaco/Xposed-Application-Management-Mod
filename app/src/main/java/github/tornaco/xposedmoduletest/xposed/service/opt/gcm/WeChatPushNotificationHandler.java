@@ -69,12 +69,6 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
             return false;
         }
 
-        if (BuildConfig.DEBUG) {
-            XposedLog.verbose("WeChatPushNotificationHandler@ intent: "
-                    + intent + "extra: " + intent.getExtras()
-                    + ObjectToStringUtil.intentToString(intent));
-        }
-
         postNotification(resolveWeChatPushIntent(intent));
 
         return false;
