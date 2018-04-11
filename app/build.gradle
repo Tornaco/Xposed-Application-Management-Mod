@@ -11,7 +11,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion as int
         targetSdkVersion rootProject.ext.compileSdkVersion as int
         versionCode 4098
-        versionName "EXTRA-4.9.8.1"
+        versionName "EXTRA-4.9.8"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
