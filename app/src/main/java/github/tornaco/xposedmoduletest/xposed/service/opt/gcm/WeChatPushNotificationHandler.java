@@ -85,6 +85,11 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
         return "wechat";
     }
 
+    @Override
+    public String getTargetPackageName() {
+        return WECHAT_PKG_NAME;
+    }
+
     private static final PushMessage DUMMY_MSG = PushMessage.builder()
             .title("微信")
             .message("你收到了一条新消息")
@@ -99,8 +104,10 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
             String alert = intent.getStringExtra(WECHAT_INTENT_KEY_ALERT);
             String badge = intent.getStringExtra(WECHAT_INTENT_KEY_BADGE);
             String from = intent.getStringExtra(WECHAT_INTENT_KEY_FROM);
+            // Increase message count.
+            setBadge(getBadge() + 1);
             return PushMessage.builder()
-                    .title("微信")
+                    .title(String.format("微信%s条消息", getBadge()))
                     .message(alert)
                     .from(MessageIdWrapper.id(from))
                     .build();
@@ -120,14 +127,15 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
         }
 
         launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), 0x1, launchIntent,
+                PendingIntent.FLAG_CANCEL_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(),
                 NOTIFICATION_CHANNEL_ID_WECHAT);
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         Notification n = builder
-                .setContentIntent(PendingIntent.getActivity(getContext(), 0x1, launchIntent,
-                        PendingIntent.FLAG_CANCEL_CURRENT))
+                .setContentIntent(pendingIntent)
                 .setContentTitle(pushMessage.getTitle())
                 .setContentText(pushMessage.getMessage())
                 .setAutoCancel(true)
@@ -136,6 +144,9 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
                 .setVibrate(new long[]{100, 100})
                 .setSound(defaultSoundUri)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
+                //.setFullScreenIntent(pendingIntent, false)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setPriority(Notification.PRIORITY_HIGH)
                 .build();
 
         if (OSUtil.isMOrAbove()) {
