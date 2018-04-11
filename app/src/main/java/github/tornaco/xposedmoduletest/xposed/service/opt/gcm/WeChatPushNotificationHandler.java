@@ -69,12 +69,6 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
             return false;
         }
 
-        if (BuildConfig.DEBUG) {
-            XposedLog.verbose("WeChatPushNotificationHandler@ intent: "
-                    + intent + "extra: " + intent.getExtras()
-                    + ObjectToStringUtil.intentToString(intent));
-        }
-
         postNotification(resolveWeChatPushIntent(intent));
 
         return false;
@@ -109,7 +103,7 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
             return PushMessage.builder()
                     .title(String.format("微信%s条消息", getBadge()))
                     .message(alert)
-                    .from(MessageIdWrapper.id(from))
+                    .from(MessageIdWrapper.id(WECHAT_PKG_NAME)) // Do not split for diff sender...
                     .build();
         } catch (Throwable e) {
             XposedLog.wtf("Fail resolveWeChatPushIntent: " + Log.getStackTraceString(e));
@@ -133,12 +127,18 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(),
                 NOTIFICATION_CHANNEL_ID_WECHAT);
 
+        android.support.v4.app.NotificationCompat.BigTextStyle style =
+                new android.support.v4.app.NotificationCompat.BigTextStyle();
+        style.bigText(pushMessage.getMessage());
+        style.setBigContentTitle(pushMessage.getTitle());
+
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         Notification n = builder
                 .setContentIntent(pendingIntent)
                 .setContentTitle(pushMessage.getTitle())
                 .setContentText(pushMessage.getMessage())
                 .setAutoCancel(true)
+                .setStyle(style)
                 .setSmallIcon(android.R.drawable.stat_sys_warning)
                 //.setLargeIcon(new AppResource(getContext()).loadBitmapFromAPMApp("ic_stat_large_wechat"))
                 .setVibrate(new long[]{100, 100})

@@ -33,6 +33,10 @@
         <item>com.tencent.mobileqq/com.tencent.av.ui.VideoInviteLock</item>
         <item>com.tencent.mobileqq/.activity.QQLSActivity</item>
 
+        <!--Shortcut stub.-->
+        <item>github.tornaco.xposedmoduletest/.ui.activity.stub.LockScreenStubActivity</item>
+        <item>github.tornaco.xposedmoduletest/.ui.activity.stub.ClearStubActivity</item>
+
         <!--PACKAGES-->
         <item>com.tencent.mm</item>
         <item>com.tencent.mobileqq</item>

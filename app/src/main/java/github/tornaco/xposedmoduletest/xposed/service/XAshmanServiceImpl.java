@@ -149,6 +149,7 @@ import github.tornaco.xposedmoduletest.xposed.service.shell.AshShellCommand;
 import github.tornaco.xposedmoduletest.xposed.submodules.InputManagerInjectInputSubModule;
 import github.tornaco.xposedmoduletest.xposed.submodules.SubModuleManager;
 import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
+import github.tornaco.xposedmoduletest.xposed.util.ObjectToStringUtil;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XStopWatch;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -1526,6 +1527,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         if (GCMFCMHelper.isGcmOrFcmIntent(intent)) {
             final String targetPkg = intent.getPackage();
             if (targetPkg != null) {
+
+                if (BuildConfig.DEBUG) {
+                    XposedLog.verbose("PushNotificationHandler@ intent: "
+                            + intent + "extra: " + intent.getExtras()
+                            + ObjectToStringUtil.intentToString(intent));
+                }
 
                 boolean isPMHEnabled = isPushMessageHandleEnabled();
                 if (!isPMHEnabled) {
@@ -5223,7 +5230,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             for (PushNotificationHandler h : mPushNotificationHandlers) {
                 h.onTopPackageChanged(to);
             }
-        } catch (Throwable e){
+        } catch (Throwable e) {
             XposedLog.wtf("Fail broadcast onTopPackageChanged to PushNotificationHandler : " + e);
         }
     }
