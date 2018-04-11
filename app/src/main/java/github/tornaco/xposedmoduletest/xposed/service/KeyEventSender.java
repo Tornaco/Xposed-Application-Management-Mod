@@ -33,11 +33,12 @@ class KeyEventSender {
 
     private static boolean injectKey(int code) {
         int flags = KeyEvent.FLAG_FROM_SYSTEM;
+        int scancode = 12;
         final long eventTime = SystemClock.uptimeMillis();
         KeyEvent down = new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_DOWN, code, 0,
-                0, KeyCharacterMap.VIRTUAL_KEYBOARD, 0, flags, InputDevice.SOURCE_UNKNOWN);
+                0, KeyCharacterMap.VIRTUAL_KEYBOARD, scancode, flags, InputDevice.SOURCE_UNKNOWN);
         KeyEvent up = new KeyEvent(eventTime + 10, eventTime + 10, KeyEvent.ACTION_UP, code, 0,
-                0, KeyCharacterMap.VIRTUAL_KEYBOARD, 0, flags, InputDevice.SOURCE_UNKNOWN);
+                0, KeyCharacterMap.VIRTUAL_KEYBOARD, scancode, flags, InputDevice.SOURCE_UNKNOWN);
         return injectInputEvent(down, 0) && injectInputEvent(up, 0);
     }
 

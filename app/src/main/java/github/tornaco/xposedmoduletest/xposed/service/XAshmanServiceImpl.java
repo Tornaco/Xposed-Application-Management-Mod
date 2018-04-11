@@ -45,6 +45,7 @@ import android.os.Process;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -158,6 +159,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import static android.content.Context.KEYGUARD_SERVICE;
+import static android.content.Context.POWER_SERVICE;
 import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_NONE;
 import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_ON_DATA;
 import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_ON_WIFI;
@@ -3130,7 +3132,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     public void injectPowerEvent() throws RemoteException {
-        mainHandler.post(new ErrorCatchRunnable(() -> KeyEventSender.injectPowerKey(), "injectPowerEvent"));
+        mainHandler.post(new ErrorCatchRunnable(new Runnable() {
+            @Override
+            public void run() {
+                PowerManager powerManager = (PowerManager) getContext().getSystemService(POWER_SERVICE);
+                powerManager.goToSleep(SystemClock.uptimeMillis());
+            }
+        }, "goToSleep"));
     }
 
     @Override
