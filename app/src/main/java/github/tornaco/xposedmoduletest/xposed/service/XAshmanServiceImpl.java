@@ -138,6 +138,8 @@ import github.tornaco.xposedmoduletest.xposed.service.doze.PowerWhitelistBackend
 import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.GCMFCMHelper;
+import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.PushNotificationHandler;
+import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.WeChatPushNotificationHandler;
 import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.service.rule.Rule;
@@ -1160,6 +1162,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.wtf("Fail load settings from SettingsProvider:" + Log.getStackTraceString(e));
         }
 
+        try {
+            mIsPushMessageHandleEnabled.set(SettingsProvider.get().getBoolean("PUSH_MESSAGE_HANDLE", false));
+            XposedLog.boot("mIsPushMessageHandleEnabled: " + String.valueOf(mIsPushMessageHandleEnabled));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail load settings from SettingsProvider:" + Log.getStackTraceString(e));
+        }
+
     }
 
     @Override
@@ -1484,6 +1493,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
     }
 
+    // Notification handlers for GCM.
+    private final Set<PushNotificationHandler> mPushNotificationHandlers = new HashSet<>();
+
+    private void registerPushNotificationHandler(PushNotificationHandler handler) {
+        mPushNotificationHandlers.add(handler);
+        XposedLog.verbose("registerPushNotificationHandler: " + handler);
+    }
+
     @Override
     @CommonBringUpApi
     public boolean checkBroadcastIntentSending(IApplicationThread caller, Intent intent) {
@@ -1494,10 +1511,31 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             XposedLog.verbose("checkBroadcastIntentSending: %s, callingUid %s", intent, callingUid);
         }
 
+        // Run this in lazy handler.
+        // Note. please make sure all calling of pmh in same handler.
+        mLazyHandler.post(new ErrorCatchRunnable(() -> checkBroadcastIntentSendingInternal(intent), "checkBroadcastIntentSendingInternal"));
+
+        return true;
+    }
+
+    private void checkBroadcastIntentSendingInternal(Intent intent) {
+
         // Enhance for GCM/FCM.
         if (GCMFCMHelper.isGcmOrFcmIntent(intent)) {
             final String targetPkg = intent.getPackage();
             if (targetPkg != null) {
+
+                boolean isPMHEnabled = isPushMessageHandleEnabled();
+                if (!isPMHEnabled) {
+                    XposedLog.verbose("checkBroadcastIntentSendingInternal PMH not enabled");
+                    return;
+                }
+
+                // Notification handlers.
+                for (PushNotificationHandler handler : mPushNotificationHandlers) {
+                    handler.handleIncomingIntent(targetPkg, intent);
+                }
+
                 @StartRuleCheck
                 boolean shouldBeEnhanced =
                         isStartRuleEnabled() && RepoProxy.getProxy()
@@ -1520,8 +1558,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                 }
             }
         }
-
-        return true;
     }
 
     // ALLOW GCMENHANCE *
@@ -3591,6 +3627,56 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETSTARTRULEENABLED, enabled).sendToTarget();
     }
 
+    @Override
+    @BinderCall
+    public boolean isPushMessageHandlerEnabled(String handlerTag) {
+        return SettingsProvider.get().getBoolean(handlerTag, false);
+    }
+
+    @Override
+    @BinderCall
+    public void setPushMessageHandlerEnabled(String handlerTag, boolean enabled) throws RemoteException {
+        SettingsProvider.get().putBoolean(handlerTag, enabled);
+        notifyPushMessageHandlerSettingsChanged(handlerTag);
+    }
+
+    @Override
+    @BinderCall
+    public boolean isPushMessageHandlerShowContentEnabled(String handlerTag) throws RemoteException {
+        return SettingsProvider.get().getBoolean(handlerTag + "_show_content", false);
+    }
+
+    @Override
+    @BinderCall
+    public void setPushMessageHandlerShowContentEnabled(String handlerTag, boolean enabled) throws RemoteException {
+        SettingsProvider.get().putBoolean(handlerTag + "_show_content", enabled);
+        notifyPushMessageHandlerSettingsChanged(handlerTag);
+    }
+
+    private AtomicBoolean mIsPushMessageHandleEnabled = new AtomicBoolean(false);
+
+    @Override
+    @BinderCall
+    public boolean isPushMessageHandleEnabled() {
+        return mIsPushMessageHandleEnabled.get();
+    }
+
+    @Override
+    @BinderCall
+    public void setPushMessageHandleEnabled(boolean enabled) throws RemoteException {
+        SettingsProvider.get().putBoolean("PUSH_MESSAGE_HANDLE", enabled);
+        mIsPushMessageHandleEnabled.set(enabled);
+        notifyPushMessageHandlerSettingsChanged(null);
+    }
+
+    private void notifyPushMessageHandlerSettingsChanged(String handlerTag) {
+        mLazyHandler.post(new ErrorCatchRunnable(() -> {
+            for (PushNotificationHandler h : mPushNotificationHandlers) {
+                h.onSettingsChanged(handlerTag);
+            }
+        }, "notifyPushMessageHandlerSettingsChanged"));
+    }
+
     private void cacheGCMPackages() {
         XposedLog.verbose("cacheGCMPackages...");
         try {
@@ -5529,6 +5615,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         cachePackages();
 
         mAppGuardService.retrieveSettings();
+
+
+        // Init push handlers.
+        // Register here to make sure we can read settings correctly.
+        registerPushNotificationHandler(new WeChatPushNotificationHandler(getContext()));
     }
 
     private void construct() {

@@ -29,6 +29,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 import github.tornaco.xposedmoduletest.xposed.bean.OpsSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
+import github.tornaco.xposedmoduletest.xposed.repo.SettingsProvider;
 import github.tornaco.xposedmoduletest.xposed.service.am.AMSProxy;
 import github.tornaco.xposedmoduletest.xposed.service.am.UsageStatsServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
@@ -206,6 +207,35 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
 
     @Override
     public void setStartRuleEnabled(boolean enabled) throws RemoteException {
+    }
+
+    @Override
+    public boolean isPushMessageHandlerEnabled(String handlerTag) throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public void setPushMessageHandlerEnabled(String handlerTag, boolean enabled) throws RemoteException {
+
+    }
+
+    @Override
+    public boolean isPushMessageHandlerShowContentEnabled(String handlerTag) throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public void setPushMessageHandlerShowContentEnabled(String handlerTag, boolean enabled) throws RemoteException {
+
+    }
+
+    @Override
+    public boolean isPushMessageHandleEnabled() throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public void setPushMessageHandleEnabled(boolean enabled) throws RemoteException {
 
     }
 

@@ -569,5 +569,12 @@
     <string name="title_open_info">开源信息</string>
     <string name="summary_style_settings">主题、图标包、卡片。</string>
     <string name="summary_backup_restore">应用管理的数据处理。</string>
+    <string name="title_push_message_handler">GCM待收</string>
+    <string name="title_push_message_available_handlers">可用的代收器</string>
+    <string name="summary_pmh">帮你代收GCM消息，在系统级别进行通知提示，无需启动对应的应用，适用于某些使用GCM来唤醒自己的应用。</string>
+    <string name="title_push_message_handlers">代收器</string>
+    <string name="title_push_message_handler_show_content">显示消息内容</string>
+    <string name="summary_push_message_handler_show_content">如果某消息采用明文推送，则显示其消息内容，否则将以‘你收到新消息’代替。</string>
+    <string name="title_push_message_handler_wechat">微信</string>
 
 </resources>

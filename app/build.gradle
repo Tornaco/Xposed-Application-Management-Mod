@@ -4,7 +4,7 @@ apply plugin: 'org.greenrobot.greendao' // apply plugin
 android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion as int
-    // buildToolsVersion rootProject.ext.buildToolsVersion as String
+    buildToolsVersion rootProject.ext.buildToolsVersion as String
 
     defaultConfig {
         applicationId "github.tornaco.xposedmoduletest"
@@ -32,7 +32,7 @@ android {
             signingConfig signingConfigs.release
         }
         debug {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             // signingConfig signingConfigs.release
         }
@@ -48,7 +48,6 @@ android {
         targetCompatibility 1.8
         sourceCompatibility 1.8
     }
-    buildToolsVersion '27.0.3'
 }
 
 greendao {

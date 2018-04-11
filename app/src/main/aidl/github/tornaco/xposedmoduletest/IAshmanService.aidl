@@ -404,4 +404,15 @@ interface IAshmanService {
 
      boolean isStartRuleEnabled();
      void setStartRuleEnabled(boolean enabled);
+
+     // Push message handlers.
+     boolean isPushMessageHandlerEnabled(String handlerTag);
+     void setPushMessageHandlerEnabled(String handlerTag, boolean enabled);
+
+     boolean isPushMessageHandlerShowContentEnabled(String handlerTag);
+     void setPushMessageHandlerShowContentEnabled(String handlerTag, boolean enabled);
+
+     // AIO toggle.
+     boolean isPushMessageHandleEnabled();
+     void setPushMessageHandleEnabled(boolean enabled);
 }
