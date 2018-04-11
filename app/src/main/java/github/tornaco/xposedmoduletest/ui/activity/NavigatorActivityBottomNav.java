@@ -67,6 +67,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.LockKill;
 import github.tornaco.xposedmoduletest.ui.tiles.NFManager;
 import github.tornaco.xposedmoduletest.ui.tiles.PermControl;
 import github.tornaco.xposedmoduletest.ui.tiles.Privacy;
+import github.tornaco.xposedmoduletest.ui.tiles.PushMessageHandler;
 import github.tornaco.xposedmoduletest.ui.tiles.RFKill;
 import github.tornaco.xposedmoduletest.ui.tiles.Resident;
 import github.tornaco.xposedmoduletest.ui.tiles.RunningServices;
@@ -989,7 +990,8 @@ public class NavigatorActivityBottomNav
 
             Category exp = new Category();
             exp.moreDrawableRes = R.drawable.ic_help_black_24dp;
-            exp.onMoreButtonClickListener = v -> Toast.makeText(getActivity(), R.string.category_help_exp, Toast.LENGTH_SHORT).show();
+            exp.onMoreButtonClickListener = v -> Toast.makeText(getActivity(),
+                    R.string.category_help_exp, Toast.LENGTH_SHORT).show();
             exp.titleRes = R.string.title_exp;
 
             // L do not support doze.
@@ -997,9 +999,12 @@ public class NavigatorActivityBottomNav
                 exp.addTile(new Doze(getActivity()));
             }
 
-
             if ((XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_LAZY))) {
                 exp.addTile(new Lazy(getActivity()));
+            }
+
+            if (XApp.isGMSSupported()) {
+                exp.addTile(new PushMessageHandler(getActivity()));
             }
 
             if (sec.getTilesCount() > 0) categories.add(sec);
@@ -1062,13 +1067,15 @@ public class NavigatorActivityBottomNav
 
             Category others = new Category();
             others.titleRes = R.string.title_others;
-            others.addTile(new GcmMessagesSubscriber(getActivity()));
+            if (XApp.isGMSSupported()) {
+                others.addTile(new GcmMessagesSubscriber(getActivity()));
+            }
 
             categories.add(system);
             categories.add(policy);
             categories.add(data);
             categories.add(theme);
-            categories.add(others);
+            if (others.getTilesCount() > 0) categories.add(others);
         }
     }
 

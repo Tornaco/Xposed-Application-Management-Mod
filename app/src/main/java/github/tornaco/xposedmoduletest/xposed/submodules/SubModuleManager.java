@@ -9,6 +9,7 @@ import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
+import github.tornaco.xposedmoduletest.xposed.submodules.debug.WindowSubModule;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Synchronized;
 
@@ -179,6 +180,8 @@ public class SubModuleManager {
         if (BuildConfig.DEBUG) {
             addToSubsChecked(new ViewTouchEventSubModule());
             addToSubsChecked(new ViewGroupDebugDrawSubModule());
+
+            addToSubsChecked(new WindowSubModule());
         }
     }
 

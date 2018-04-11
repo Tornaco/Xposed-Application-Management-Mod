@@ -2,6 +2,8 @@ package github.tornaco.xposedmoduletest.xposed.service;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
@@ -20,12 +22,45 @@ import static android.content.Context.CONTEXT_IGNORE_SECURITY;
  */
 @AllArgsConstructor
 @Getter
-class AppResource {
+public class AppResource {
 
     private Context context;
 
+    public Bitmap loadBitmapFromAPMApp(String resName) {
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("loadBitmapFromAPMApp, resName: " + resName);
+        }
+        try {
+            Context appContext = getAPMAppContext();
+            if (appContext != null) {
+                Resources res = appContext.getResources();
+                if (XposedLog.isVerboseLoggable()) {
+                    XposedLog.verbose("loadBitmapFromAPMApp, res: " + res);
+                }
+                if (res != null) {
+                    int id = res.getIdentifier(resName, "drawable", BuildConfig.APPLICATION_ID);
+                    if (XposedLog.isVerboseLoggable()) {
+                        XposedLog.verbose("loadBitmapFromAPMApp, id: " + id);
+                    }
+                    if (id > 0) {
+                        Bitmap bitmap = BitmapFactory.decodeResource(res, id);
+                        if (XposedLog.isVerboseLoggable()) {
+                            XposedLog.verbose("loadBitmapFromAPMApp, bitmap: " + bitmap);
+                        }
+                        if (bitmap != null) {
+                            return bitmap;
+                        }
+                    }
+                }
+            }
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadBitmapFromAPMApp: " + Log.getStackTraceString(e));
+        }
+        return null;
+    }
+
     @RequiresApi(Build.VERSION_CODES.M)
-    Icon loadIconFromAPMApp(String resName) {
+    public Icon loadIconFromAPMApp(String resName) {
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("loadIconFromAPMApp, resName: " + resName);
         }

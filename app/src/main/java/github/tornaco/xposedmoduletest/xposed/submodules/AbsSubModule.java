@@ -79,12 +79,12 @@ abstract class AbsSubModule implements SubModule {
         XposedLog.boot(String.format(format, args));
     }
 
-    static SubModuleStatus unhooksToStatus(Set unHooks) {
+    public static SubModuleStatus unhooksToStatus(Set unHooks) {
         if (unHooks == null || unHooks.size() == 0) return SubModuleStatus.ERROR;
         return SubModuleStatus.READY;
     }
 
-    static SubModuleStatus unhookToStatus(XC_MethodHook.Unhook unHooks) {
+    public static SubModuleStatus unhookToStatus(XC_MethodHook.Unhook unHooks) {
         if (unHooks == null) return SubModuleStatus.ERROR;
         return SubModuleStatus.READY;
     }

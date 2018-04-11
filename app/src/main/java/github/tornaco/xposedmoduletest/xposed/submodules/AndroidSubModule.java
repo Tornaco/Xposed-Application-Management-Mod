@@ -13,7 +13,7 @@ import de.robv.android.xposed.XposedHelpers;
  * Email: Tornaco@163.com
  */
 
-abstract class AndroidSubModule extends AbsSubModule {
+public abstract class AndroidSubModule extends AbsSubModule {
     @Override
     public Set<String> getInterestedPackages() {
         return Sets.newHashSet("android");

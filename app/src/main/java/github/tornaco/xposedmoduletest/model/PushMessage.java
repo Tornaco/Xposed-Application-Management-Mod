@@ -2,12 +2,13 @@ package github.tornaco.xposedmoduletest.model;
 
 import android.support.annotation.Nullable;
 
-import org.newstand.logger.Logger;
-
 import java.util.UUID;
 
 import github.tornaco.xposedmoduletest.util.GsonUtil;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Created by guohao4 on 2018/1/29.
@@ -17,6 +18,9 @@ import lombok.Data;
 // Sample:
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PushMessage {
     public static final int IMPORTANCE_MAX = 0;
 
@@ -31,11 +35,12 @@ public class PushMessage {
     private int type;
     private String[] payload;
     private long timeMills;
+    private int from;
     private String messageId;
     private int importance;
     private boolean isTest;
 
-    public static void dumpDemo() {
+    public static PushMessage makeDummy() {
         PushMessage p = new PushMessage();
         p.setImportance(0);
         p.setMessage("Hello world!");
@@ -46,8 +51,7 @@ public class PushMessage {
         p.setTitle("New message");
         p.setType(0);
 
-        Logger.d("PushMessage demo: " + p);
-        Logger.d(p.toJson());
+        return p;
     }
 
     public String toJson() {
@@ -59,7 +63,6 @@ public class PushMessage {
         try {
             return GsonUtil.getGson().fromJson(js, PushMessage.class);
         } catch (Throwable e) {
-            Logger.e("Fail fromJson: " + e);
             return null;
         }
     }

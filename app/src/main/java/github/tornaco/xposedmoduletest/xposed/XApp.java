@@ -51,6 +51,8 @@ public class XApp extends MultiDexApplication {
         return xApp;
     }
 
+    private static boolean sGMSSupported = false;
+
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         MultiDex.install(this);
@@ -60,6 +62,7 @@ public class XApp extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         xApp = this;
+        sGMSSupported = GMSUtil.checkPlayServices(this);
         initLogger();
         EmojiManager.install(new SimpleEmojiProvider());
         cacheRunningServices();
@@ -70,6 +73,10 @@ public class XApp extends MultiDexApplication {
         if (BuildConfig.DEBUG) {
             forDev();
         }
+    }
+
+    public static boolean isGMSSupported() {
+        return sGMSSupported;
     }
 
     private void registerLifeCycleCallback() {
@@ -85,8 +92,7 @@ public class XApp extends MultiDexApplication {
                             cacheInstalledApps();
 
                             // Only test on debug build.
-                            if (BuildConfig.DEBUG
-                                    && GMSUtil.checkPlayServices(activity.getApplicationContext())) {
+                            if (BuildConfig.DEBUG && sGMSSupported) {
                                 // Start IntentService to register this application with GCM.
                                 Intent intent = new Intent(activity.getApplicationContext(), XRegistrationIntentService.class);
                                 startService(intent);
@@ -98,21 +104,11 @@ public class XApp extends MultiDexApplication {
     }
 
     private void cacheInstalledApps() {
-        XExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                BlackHole.eat(InstalledAppsLoadingCache.getInstance().getInstalledAppsCache());
-            }
-        });
+        XExecutor.execute(() -> BlackHole.eat(InstalledAppsLoadingCache.getInstance().getInstalledAppsCache()));
     }
 
     private void cacheRunningServices() {
-        XExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                BlackHole.eat(RunningServicesLoadingCache.getInstance().getRunningServiceCache());
-            }
-        });
+        XExecutor.execute(() -> BlackHole.eat(RunningServicesLoadingCache.getInstance().getRunningServiceCache()));
     }
 
     private void initLogger() {
@@ -147,6 +143,6 @@ public class XApp extends MultiDexApplication {
     }
 
     private void forDev() {
-        PushMessage.dumpDemo();
+        PushMessage.makeDummy();
     }
 }

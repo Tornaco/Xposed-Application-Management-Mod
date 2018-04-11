@@ -1,0 +1,6 @@
+ Xposed  : X-APM-S-VERBOSE-WeChatPushNotificationHandler@ intent:
+ Intent { act=com.google.android.c2dm.intent.RECEIVE flg=0x10000000 pkg=com.tencent.mm (has extras) }extra:
+ Bundle[mParcelledData.dataSize=796]Intent { act=com.google.android.c2dm.intent.RECEIVE flg=0x10000000 pkg=com.tencent.mm
+ extras={google.sent_time=1523412737039, google.ttl=1209601, encryted_alert=, username=Snake7, cmd=104, seq=2147473958, uin=2N~::} }62,
+ from=54613699898, time=1523412736, alert=Nick : 你号？?, badge=2, sound=,
+ google.message_id=0:1523412737042848%c5fe9776f9fd7ecd, msgType=1, dyeinfo P0x8⌈@  XbWdfb5f9a139d927dr 'Y~}Xj

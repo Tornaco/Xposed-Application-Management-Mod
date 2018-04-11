@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
-import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.support.annotation.Nullable;
 
@@ -1868,6 +1867,60 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.setStartRuleEnabled(enabled);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public boolean isPushMessageHandlerEnabled(String handlerTag) {
+        ensureService();
+        try {
+            return mService.isPushMessageHandlerEnabled(handlerTag);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void setPushMessageHandlerEnabled(String handlerTag, boolean enabled) {
+        ensureService();
+        try {
+            mService.setPushMessageHandlerEnabled(handlerTag, enabled);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public boolean isPushMessageHandlerShowContentEnabled(String handlerTag) {
+        ensureService();
+        try {
+            return mService.isPushMessageHandlerShowContentEnabled(handlerTag);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void setPushMessageHandlerShowContentEnabled(String handlerTag, boolean enabled) {
+        ensureService();
+        try {
+            mService.setPushMessageHandlerShowContentEnabled(handlerTag, enabled);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public boolean isPushMessageHandleEnabled() {
+        ensureService();
+        try {
+            return mService.isPushMessageHandleEnabled();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void setPushMessageHandleEnabled(boolean enabled) {
+        ensureService();
+        try {
+            mService.setPushMessageHandleEnabled(enabled);
         } catch (Exception e) {
 
         }
