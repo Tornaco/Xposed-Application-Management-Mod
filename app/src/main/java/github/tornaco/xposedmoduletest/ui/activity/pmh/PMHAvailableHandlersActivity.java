@@ -11,7 +11,10 @@ import dev.nick.tiles.tile.Category;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.AppCustomDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
+import github.tornaco.xposedmoduletest.ui.tiles.pmh.TGPMH;
+import github.tornaco.xposedmoduletest.ui.tiles.pmh.TGPMHShowContentSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.WeChatPMH;
+import github.tornaco.xposedmoduletest.ui.tiles.pmh.WeChatPMHShowContentSettings;
 
 /**
  * Created by guohao4 on 2017/11/2.
@@ -39,10 +42,16 @@ public class PMHAvailableHandlersActivity extends BaseActivity {
         @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
-            Category personal = new Category();
-            personal.addTile(new WeChatPMH(getActivity()));
+            Category wechat = new Category();
+            wechat.addTile(new WeChatPMH(getActivity()));
+            wechat.addTile(new WeChatPMHShowContentSettings(getActivity()));
 
-            categories.add(personal);
+            Category tg = new Category();
+            tg.addTile(new TGPMH(getActivity()));
+            tg.addTile(new TGPMHShowContentSettings(getActivity()));
+
+            categories.add(wechat);
+            categories.add(tg);
         }
     }
 

@@ -40,6 +40,12 @@ public class PushMessage {
     private int importance;
     private boolean isTest;
 
+    // Notification settings.
+    private String channelId;
+    private String channelName;
+    private String largeIconResName;
+    private String smallIconResName;
+
     public static PushMessage makeDummy() {
         PushMessage p = new PushMessage();
         p.setImportance(0);

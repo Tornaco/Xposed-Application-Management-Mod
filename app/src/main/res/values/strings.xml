@@ -461,7 +461,7 @@
     <string name="learn_redemption_mode">用户手册</string>
     <string name="title_show_tile_divider">显示卡片分割线</string>
     <string name="title_power_save">节电</string>
-    <string name="power_save">尽可能减少应用管理对系统资源与电量的消耗，并且会关闭 关联启动记录 权限访问记录。建议如果你觉得耗电异常，可以尝试开启该开关，当你需要排查应用时，再临时关闭本开关，用以查看相关记录。</string>
+    <string name="power_save">尽可能减少应用管理对系统资源与电量的消耗，并且会关闭 关联启动记录 权限访问记录。建议如果你觉得耗电异常，可以尝试开启该开关，当你需要排查应用时，再临时关闭本开关，用以查看相关记录。\n</string>
     <string name="title_system">系统</string>
     <string name="title_opt">优化</string>
     <string name="title_selinux_mode">Selinux状态</string>
@@ -574,7 +574,10 @@
     <string name="summary_pmh">帮你代收GCM消息，在系统级别进行通知提示，无需启动对应的应用，适用于某些使用GCM来唤醒自己的应用。\n\n使用之前请务必阅读新手手册，了解其原理和隐私协议。</string>
     <string name="title_push_message_handlers">代收器</string>
     <string name="title_push_message_handler_show_content">显示消息内容</string>
-    <string name="summary_push_message_handler_show_content">如果某消息采用明文推送，则显示其消息内容，否则将以‘你收到新消息’代替。</string>
+    <string name="summarywechat__push_message_handler_show_content">显示其消息内容，否则将以‘你收到新消息’代替。\n</string>
     <string name="title_push_message_handler_wechat">微信</string>
+    <string name="title_push_message_handler_demo">支持其他APP</string>
+    <string name="title_push_message_handler_tg">Telegram</string>
+    <string name="summary_tg_push_message_handler_show_content">Telegram消息被加密，不支持直接显示。</string>
 
 </resources>
