@@ -406,6 +406,8 @@ public class NeedLockActivity<T> extends WithSearchActivity<T> {
                         mUserTheme.getThemeColor()), android.graphics.PorterDuff.Mode.MULTIPLY);
             }
 
+            patternPatternLockView.setInStealthMode(LockStorage.checkSP(getContext()));
+
             patternPatternLockView.setDrawableVibrateEnabled(AppSettings.isDrawVibrateEnabled(getContext()));
             patternPatternLockView.addPatternLockListener(new PatternLockViewListenerAdapter() {
                 @Override

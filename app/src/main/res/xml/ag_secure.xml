@@ -10,6 +10,11 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:key="sp_enabled"
+            android:title="@string/title_use_sp" />
+
+        <SwitchPreference
+            android:defaultValue="false"
             android:key="fp_enabled"
             android:title="@string/title_use_fp" />
 
