@@ -13,7 +13,9 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import github.tornaco.xposedmoduletest.model.PushMessage;
 import github.tornaco.xposedmoduletest.util.OSUtil;
@@ -39,6 +41,8 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
 
     private Map<String, Integer> mBadgeMap = new HashMap<>();
 
+    private Set<Integer> mPendingCancelNotifications = new HashSet<>();
+
     BasePushNotificationHandler(Context context) {
         this.context = context;
         readSettings(getTag());
@@ -47,6 +51,10 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
     @Setter
     @Getter
     private boolean enabled, showContentEnabled;
+
+    @Getter
+    @Setter
+    private String topPackage;
 
     @Override
     public void onSettingsChanged(String tag) {
@@ -65,10 +73,13 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
 
     @Override
     public void onTopPackageChanged(String who) {
+        setTopPackage(who);
         if (getTargetPackageName().equals(who)) {
             XposedLog.verbose("onTopPackageChanged: %s", getClass());
             // Reset badge.
             clearBadge();
+
+            cancelPendingCancelNotifications();
         }
     }
 
@@ -104,6 +115,32 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
             res = res + count;
         }
         return res;
+    }
+
+    protected boolean isTargetPackageRunningOnTop() {
+        return getTargetPackageName().equals(getTopPackage());
+    }
+
+    private void addToPendingCancelNotifications(int id) {
+        mPendingCancelNotifications.add(id);
+    }
+
+    private void clearPendingCancelNotifications() {
+        mPendingCancelNotifications.clear();
+    }
+
+    private void cancelPendingCancelNotifications() {
+        try {
+            Set<Integer> temp = new HashSet<>(mPendingCancelNotifications);
+
+            NotificationManagerCompat nm = NotificationManagerCompat.from(getContext());
+            for (Integer id : temp) {
+                nm.cancel(id);
+            }
+            clearPendingCancelNotifications();
+        } catch (Throwable e) {
+            // We tried...
+        }
     }
 
     protected Intent getLaunchIntent() {
@@ -160,6 +197,8 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
         if (OSUtil.isMOrAbove()) {
             n.setSmallIcon(new AppResource(getContext()).loadIconFromAPMApp(pushMessage.getSmallIconResName()));
         }
+
+        addToPendingCancelNotifications(pushMessage.getFrom());
 
         NotificationManagerCompat.from(getContext())
                 .notify(pushMessage.getFrom(), n);

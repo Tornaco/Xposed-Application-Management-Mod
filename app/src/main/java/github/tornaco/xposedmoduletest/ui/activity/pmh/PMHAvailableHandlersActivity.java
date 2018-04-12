@@ -15,6 +15,9 @@ import github.tornaco.xposedmoduletest.ui.tiles.pmh.TGPMH;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.TGPMHShowContentSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.WeChatPMH;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.WeChatPMHShowContentSettings;
+import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.TGPushNotificationHandler;
+import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.WeChatPushNotificationHandler;
+import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
  * Created by guohao4 on 2017/11/2.
@@ -42,16 +45,23 @@ public class PMHAvailableHandlersActivity extends BaseActivity {
         @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
+
+            // WeChat.
             Category wechat = new Category();
-            wechat.addTile(new WeChatPMH(getActivity()));
-            wechat.addTile(new WeChatPMHShowContentSettings(getActivity()));
+            if (PkgUtil.isPkgInstalled(getActivity(), WeChatPushNotificationHandler.WECHAT_PKG_NAME)) {
+                wechat.addTile(new WeChatPMH(getActivity()));
+                wechat.addTile(new WeChatPMHShowContentSettings(getActivity()));
+            }
 
+            // TG.
             Category tg = new Category();
-            tg.addTile(new TGPMH(getActivity()));
-            tg.addTile(new TGPMHShowContentSettings(getActivity()));
+            if (PkgUtil.isPkgInstalled(getActivity(), TGPushNotificationHandler.TG_PKG_NAME)) {
+                tg.addTile(new TGPMH(getActivity()));
+                tg.addTile(new TGPMHShowContentSettings(getActivity()));
+            }
 
-            categories.add(wechat);
-            categories.add(tg);
+            if (wechat.getTilesCount() > 0) categories.add(wechat);
+            if (tg.getTilesCount() > 0) categories.add(tg);
         }
     }
 
