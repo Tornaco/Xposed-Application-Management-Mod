@@ -94,7 +94,7 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
                 .channelId(NOTIFICATION_CHANNEL_ID_WECHAT)
                 .channelName(NOTIFICATION_CHANNEL_NAME_WECHAT)
                 .smallIconResName("ic_stat_weixin")
-                .largeIconResName("ic_stat_weixin")
+                .largeIconResName("ic_stat_large_wechat")
                 .title(String.format("%s条消息", getBadgeFrom(from)))
                 .message(alert)
                 // Diff sender with diff id.
@@ -108,7 +108,7 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
                 .channelId(NOTIFICATION_CHANNEL_ID_WECHAT)
                 .channelName(NOTIFICATION_CHANNEL_NAME_WECHAT)
                 .smallIconResName("ic_stat_weixin")
-                .largeIconResName("ic_stat_weixin")
+                .largeIconResName("ic_stat_large_wechat")
                 .title("微信")
                 .message(String.format("%s个联系人发来%s条消息", getFromCount(), getAllBadge()))
                 .from(MessageIdWrapper.id(WECHAT_PKG_NAME)) // Do not split for diff sender...
@@ -122,7 +122,7 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
                 .channelId(NOTIFICATION_CHANNEL_ID_WECHAT)
                 .channelName(NOTIFICATION_CHANNEL_NAME_WECHAT)
                 .smallIconResName("ic_stat_weixin")
-                .largeIconResName("ic_stat_weixin")
+                .largeIconResName("ic_stat_large_wechat")
                 .message("你收到了一条新消息")
                 .title("微信")
                 .from(MessageIdWrapper.id(WECHAT_PKG_NAME)) // Do not split for diff sender...
