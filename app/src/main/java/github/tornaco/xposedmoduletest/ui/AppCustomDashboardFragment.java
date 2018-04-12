@@ -36,7 +36,7 @@ public class AppCustomDashboardFragment extends DashboardFragment {
     protected void onUIBuilt() {
         super.onUIBuilt();
         // Dump icons.
-        if (true && BuildConfig.DEBUG) {
+        if (false && BuildConfig.DEBUG) {
             ViewGroup parent = mDashboard;
             XExecutor.execute(() -> {
                 try {
