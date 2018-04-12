@@ -195,6 +195,9 @@ public class VerifyDisplayerActivity extends BaseActivity {
         final PatternLockView patternLockView = findViewById(R.id.pattern_lock_view);
         patternLockView.setTactileFeedbackEnabled(false);
         patternLockView.setEnableHapticFeedback(false);
+
+        patternLockView.setInStealthMode(LockStorage.checkSP(getActivity()));
+
         patternLockView.setDrawableVibrateEnabled(AppSettings.isDrawVibrateEnabled(this));
         patternLockView.addPatternLockListener(new PatternLockViewListenerAdapter() {
             @Override

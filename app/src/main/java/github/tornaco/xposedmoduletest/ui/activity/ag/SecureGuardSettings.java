@@ -82,6 +82,18 @@ public class SecureGuardSettings extends GuardSettingsActivity {
                 verifySettings = XAppGuardManager.get().getVerifySettings();
                 if (verifySettings == null) verifySettings = new VerifySettings();
 
+                final boolean _sp = LockStorage.checkSP(getActivity());
+                SwitchPreference spPref = (SwitchPreference) findPreference("sp_enabled");
+                spPref.setChecked(_sp);
+                spPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        boolean v = (boolean) newValue;
+                        LockStorage.setSP(getActivity(), v);
+                        return true;
+                    }
+                });
+
                 final boolean verifyOnHome = verifySettings.isVerifyOnAppSwitch();
                 SwitchPreference homePref = (SwitchPreference) findPreference("ver_on_home");
                 homePref.setChecked(verifyOnHome);

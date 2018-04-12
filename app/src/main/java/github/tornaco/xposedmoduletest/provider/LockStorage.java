@@ -25,6 +25,7 @@ public class LockStorage {
     private static final String PATTERN_SEC = "key_pattern_enc";
     private static final String PIN_SEC = "key_pin_enc";
     private static final String PREFER = "key_prefer_unlock_method";
+    private static final String SP = "key_sp";
 
     private LockStorage() {
     }
@@ -41,6 +42,19 @@ public class LockStorage {
                 .putString(PREFER, method.name())
                 .apply();
     }
+
+    public static void setSP(Context context, boolean sp) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(SP, sp)
+                .apply();
+    }
+
+    public static boolean checkSP(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(SP, false);
+    }
+
 
     public static boolean iaPatternSet(Context context) {
         return !TextUtils.isEmpty(getPattern(context));
