@@ -4,7 +4,7 @@ import android.content.Context;
 import android.widget.RelativeLayout;
 
 import dev.nick.tiles.tile.QuickTile;
-import dev.nick.tiles.tile.SwitchTileView;
+import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
 
 /**
@@ -18,19 +18,11 @@ public class TGPMHShowContentSettings extends QuickTile {
         super(context);
         this.titleRes = R.string.title_push_message_handler_show_content;
         this.summaryRes = R.string.summary_tg_push_message_handler_show_content;
-        this.tileView = new SwitchTileView(context) {
+        this.tileView = new QuickTileView(context, this) {
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);
-                setEnabled(false);
                 container.setEnabled(false);
-                setChecked(false);
-            }
-
-            @Override
-            protected void onCheckChanged(boolean checked) {
-                super.onCheckChanged(checked);
-                setChecked(false);
             }
         };
     }

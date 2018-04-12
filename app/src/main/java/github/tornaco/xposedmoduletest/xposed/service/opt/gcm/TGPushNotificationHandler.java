@@ -81,7 +81,7 @@ public class TGPushNotificationHandler extends BasePushNotificationHandler {
                 .channelId(NOTIFICATION_CHANNEL_ID_WECHAT)
                 .channelName(NOTIFICATION_CHANNEL_NAME_WECHAT)
                 .smallIconResName("ic_stat_tg")
-                .largeIconResName("ic_stat_tg")
+                .largeIconResName("ic_stat_large_tg")
                 .title("Telegram")
                 .message(String.format("%s个联系人发来%s条消息", getFromCount(), getAllBadge()))
                 .from(NOTIFICATION_ID_TG) // Do not split for diff sender...
@@ -95,7 +95,7 @@ public class TGPushNotificationHandler extends BasePushNotificationHandler {
                 .channelId(NOTIFICATION_CHANNEL_ID_WECHAT)
                 .channelName(NOTIFICATION_CHANNEL_NAME_WECHAT)
                 .smallIconResName("ic_stat_tg")
-                .largeIconResName("ic_stat_tg")
+                .largeIconResName("ic_stat_large_tg")
                 .message("你收到了一条新消息")
                 .title("Telegram")
                 .from(NOTIFICATION_ID_TG) // Do not split for diff sender...
