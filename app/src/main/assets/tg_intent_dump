@@ -1,0 +1,6 @@
+04-11 15:13:39.055 13220 13320 I Xposed  : X-APM-S-VERBOSE-PushNotificationHandler@ intent:
+Intent { act=com.google.android.c2dm.intent.RECEIVE flg=0x10000000 pkg=org.telegram.messenger (has extras) }
+extra: Bundle[mParcelledData.dataSize=904]Intent { act=com.google.android.c2dm.intent.RECEIVE flg=0x10000000 pkg=org.telegram.messenger
+ extras={google.sent_time=1523499218029, google.ttl=2419200,
+  p=OiYh9QSXE0w5vr3eOQ0ge_pn4JiWFAzcAtyx88CguLGdqdNKQAljxISjbSdxfwOHKo9Bzb3IAj3F_KZCR86SIxwasgseoqXyz-_GeypkBSuFsfVGDfcSyVDex1_EmqNHul-ypnZkOrYFjYw8h_bL1moGLnY700mOWvOq-wIkqObkikVPPfCbs-LU_1Nw3sAtO5NlAN0KoB8LXQ5GCZp3W-Uwg80dIMrlMStr2AKFoSrzVGVou7mIjvro2KS0mfG9F8cik7zpi5DAl0aPe0lPWs6zcC9_TIpthO3I_meZgsjGZXp-H9m7sA,
+   from=760348033671, google.message_id=0:1523499218032576%8eeb79b0f9fd7ecd} }

@@ -140,6 +140,7 @@ import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerSer
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.GCMFCMHelper;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.PushNotificationHandler;
+import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.TGPushNotificationHandler;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.WeChatPushNotificationHandler;
 import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
@@ -5644,6 +5645,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         // Init push handlers.
         // Register here to make sure we can read settings correctly.
         registerPushNotificationHandler(new WeChatPushNotificationHandler(getContext()));
+        registerPushNotificationHandler(new TGPushNotificationHandler(getContext()));
     }
 
     private void construct() {

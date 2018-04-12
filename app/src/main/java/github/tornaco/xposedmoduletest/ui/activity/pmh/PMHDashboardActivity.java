@@ -16,7 +16,6 @@ import github.tornaco.xposedmoduletest.ui.AppCustomDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.PMHHnaldersEnabler;
-import github.tornaco.xposedmoduletest.ui.tiles.pmh.PMHShowContentSettings;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
@@ -117,10 +116,8 @@ public class PMHDashboardActivity extends CommonPackageInfoListActivity
 
             Category settings = new Category();
             settings.titleRes = R.string.configure;
-            settings.addTile(new PMHShowContentSettings(getActivity()));
 
             categories.add(list);
-            categories.add(settings);
         }
     }
 

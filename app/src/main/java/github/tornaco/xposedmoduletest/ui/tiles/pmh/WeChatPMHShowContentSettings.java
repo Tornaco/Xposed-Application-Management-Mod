@@ -13,26 +13,25 @@ import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
  * Email: Tornaco@163.com
  */
 
-public class PMHShowContentSettings extends QuickTile {
+public class WeChatPMHShowContentSettings extends QuickTile {
 
-    public PMHShowContentSettings(final Context context) {
+    public WeChatPMHShowContentSettings(final Context context) {
         super(context);
         this.titleRes = R.string.title_push_message_handler_show_content;
-        this.summaryRes = R.string.summary_push_message_handler_show_content;
-        this.iconRes = R.drawable.ic_remove_red_eye_black_24dp;
+        this.summaryRes = R.string.summarywechat__push_message_handler_show_content;
         this.tileView = new SwitchTileView(context) {
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);
                 setChecked(XAshmanManager.get().isServiceAvailable()
-                        && XAshmanManager.get().isPushMessageHandlerShowContentEnabled("any"));
+                        && XAshmanManager.get().isPushMessageHandlerShowContentEnabled("wechat"));
             }
 
             @Override
             protected void onCheckChanged(boolean checked) {
                 super.onCheckChanged(checked);
                 if (XAshmanManager.get().isServiceAvailable()) {
-                    XAshmanManager.get().setPushMessageHandlerShowContentEnabled("any", checked);
+                    XAshmanManager.get().setPushMessageHandlerShowContentEnabled("wechat", checked);
                 }
             }
         };
