@@ -13,7 +13,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 public class TGPushNotificationHandler extends BasePushNotificationHandler {
 
-    private static final String TG_PKG_NAME = "org.telegram.messenger";
+    public static final String TG_PKG_NAME = "org.telegram.messenger";
 
     private static final String NOTIFICATION_CHANNEL_ID_WECHAT = "dev.tornaco.notification.channel.id.X-APM-TG";
     private static final String NOTIFICATION_CHANNEL_NAME_WECHAT = "Telegram";
@@ -40,9 +40,16 @@ public class TGPushNotificationHandler extends BasePushNotificationHandler {
             return false;
         }
 
+        if (isTargetPackageRunningOnTop()) {
+            // Reset all when package is in front.
+            XposedLog.verbose("TGPushNotificationHandler target is running on top");
+            clearBadge();
+            return true;
+        }
+
         postNotification(resolvePushIntent(intent));
 
-        return false;
+        return true;
     }
 
     @Override
@@ -83,7 +90,7 @@ public class TGPushNotificationHandler extends BasePushNotificationHandler {
                 .smallIconResName("ic_stat_tg")
                 .largeIconResName("ic_stat_large_tg")
                 .title("Telegram")
-                .message(String.format("%s个联系人发来%s条消息", getFromCount(), getAllBadge()))
+                .message(String.format("你收到了%s条新消息", getAllBadge()))
                 .from(NOTIFICATION_ID_TG) // Do not split for diff sender...
                 .build();
     }

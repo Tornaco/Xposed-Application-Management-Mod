@@ -17,7 +17,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
 
-    private static final String WECHAT_PKG_NAME = "com.tencent.mm";
+    public static final String WECHAT_PKG_NAME = "com.tencent.mm";
 
     private static final String NOTIFICATION_CHANNEL_ID_WECHAT = "dev.tornaco.notification.channel.id.X-APM-WECHAT";
     private static final String NOTIFICATION_CHANNEL_NAME_WECHAT = "WeChat";
@@ -42,6 +42,13 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
         }
         if (!WECHAT_PKG_NAME.equals(targetPackage)) {
             return false;
+        }
+
+        if (isTargetPackageRunningOnTop()) {
+            // Reset all when package is in front.
+            XposedLog.verbose("WeChatPushNotificationHandler target is running on top");
+            clearBadge();
+            return true;
         }
 
         postNotification(resolveWeChatPushIntent(intent));
