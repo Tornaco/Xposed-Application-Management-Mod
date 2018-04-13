@@ -1,7 +1,9 @@
 package github.tornaco.xposedmoduletest.xposed.service.opt.gcm;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.Log;
 
 import github.tornaco.xposedmoduletest.model.PushMessage;
@@ -107,5 +109,24 @@ public class TGPushNotificationHandler extends BasePushNotificationHandler {
                 .title("Telegram")
                 .from(NOTIFICATION_ID_TG) // Do not split for diff sender...
                 .build();
+    }
+
+    private void registerMessageReceiver() {
+        IntentFilter filter = new IntentFilter(GCMFCMHelper.ACTION_GCM);
+        filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                XposedLog.verbose("TGPushNotificationHandler received: " + intent);
+            }
+        };
+        Intent intent = getContext().registerReceiver(receiver, filter);
+        XposedLog.verbose("TGPushNotificationHandler registerMessageReceiver: " + intent);
+    }
+
+    @Override
+    public void systemReady() {
+        super.systemReady();
+        registerMessageReceiver();
     }
 }

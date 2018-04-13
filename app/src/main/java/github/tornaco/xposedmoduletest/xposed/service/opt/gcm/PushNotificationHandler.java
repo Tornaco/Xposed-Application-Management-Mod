@@ -16,4 +16,6 @@ public interface PushNotificationHandler {
     void onTopPackageChanged(String who);
 
     String getTargetPackageName();
+
+    void systemReady();
 }
