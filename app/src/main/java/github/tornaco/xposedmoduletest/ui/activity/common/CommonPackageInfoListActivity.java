@@ -422,7 +422,7 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
                 new Consumer<CommonPackageInfo>() {
                     @Override
                     public void accept(CommonPackageInfo info) {
-                        if (info.getAppName().toLowerCase().contains(query.toLowerCase())) {
+                        if (info.getAppName().toLowerCase().contains(query.toLowerCase()) || info.getPkgName().toLowerCase().contains(query.toLowerCase())) {
                             res.add(info);
                         }
                     }

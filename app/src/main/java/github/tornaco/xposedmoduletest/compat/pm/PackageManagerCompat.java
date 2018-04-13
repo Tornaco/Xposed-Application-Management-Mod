@@ -7,10 +7,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
-
+import android.content.DialogInterface;
 import com.google.common.base.Preconditions;
 import com.jaredrummler.android.shell.CommandResult;
 import com.jaredrummler.android.shell.Shell;
+
+import android.provider.Settings;
 
 import org.newstand.logger.Logger;
 
@@ -49,11 +51,20 @@ public class PackageManagerCompat {
                 .setMessage(String.format("Version code: %s \nVersion name: %s \nApk path: %s \nPackageName: %s",
                         versionCode, versionName, appPath, pkg))
                 .setCancelable(true)
+                .setPositiveButton("转到系统设置", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        Uri uri = Uri.fromParts("package", pkg, null);
+                        intent.setData(uri);
+                        context.startActivity(intent);
+                    }
+                })
                 .show();
     }
 
     public static void unInstallUserAppWithIntent(Context context, String pkg) {
         Uri packageURI = Uri.parse("package:" + pkg);
+
         Intent uninstallIntent = new Intent(Intent.ACTION_DELETE, packageURI);
         uninstallIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(uninstallIntent);
