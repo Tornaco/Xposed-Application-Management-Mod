@@ -54,6 +54,7 @@ public class SecureGuardSettings extends GuardSettingsActivity {
                                 PatternSetupActivity.start(getActivity());
                             }
                             dialog.dismiss();
+                            getActivity().finish();
                         }
                     })
                     .show();
