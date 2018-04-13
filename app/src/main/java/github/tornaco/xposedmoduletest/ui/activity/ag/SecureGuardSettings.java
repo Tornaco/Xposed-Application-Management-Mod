@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -40,8 +41,8 @@ public class SecureGuardSettings extends GuardSettingsActivity {
         private VerifySettings verifySettings = null;
 
         private void onRequestSetupSecurePassport() {
-            final int[] selection = {0};
-            String[] choice = new String[]{"PIN", "PATTERN"};
+            final int[] selection = {-1};
+            String[] choice = new String[]{"数字密码", "图案密码"};
             new AlertDialog.Builder(getActivity())
                     .setSingleChoiceItems(choice, selection[0], new DialogInterface.OnClickListener() {
                         @Override
@@ -65,7 +66,16 @@ public class SecureGuardSettings extends GuardSettingsActivity {
 
             Preference lockSettingsPref = findPreference("verify_method");
             LockStorage.LockMethod lockMethod = LockStorage.getLockMethod(getActivity());
-            lockSettingsPref.setSummary(lockMethod.name().toUpperCase());
+
+            switch (lockMethod) {
+                case Pin:
+                    lockSettingsPref.setSummary("数字密码");
+                    break;
+                case Pattern:
+                    lockSettingsPref.setSummary("图案密码");
+                    break;
+            }
+
             lockSettingsPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
@@ -85,6 +95,10 @@ public class SecureGuardSettings extends GuardSettingsActivity {
                 final boolean _sp = LockStorage.checkSP(getActivity());
                 SwitchPreference spPref = (SwitchPreference) findPreference("sp_enabled");
                 spPref.setChecked(_sp);
+
+
+                if (lockMethod != LockStorage.LockMethod.Pattern)
+                    ((PreferenceCategory) findPreference("ags")).removePreference(spPref);
                 spPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
