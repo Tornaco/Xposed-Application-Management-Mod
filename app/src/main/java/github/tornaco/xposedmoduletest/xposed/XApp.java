@@ -23,6 +23,7 @@ import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.cache.InstalledAppsLoadingCache;
 import github.tornaco.xposedmoduletest.cache.RunningServicesLoadingCache;
 import github.tornaco.xposedmoduletest.model.PushMessage;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.service.XRegistrationIntentService;
 import github.tornaco.xposedmoduletest.ui.activity.NavigatorActivityBottomNav;
@@ -62,7 +63,8 @@ public class XApp extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         xApp = this;
-        sGMSSupported = GMSUtil.checkPlayServices(this);
+        // Give user a chance to force use GMS features.
+        setGMSSupported(AppSettings.isForceHasGMS(this) || GMSUtil.checkPlayServices(this));
         initLogger();
         EmojiManager.install(new SimpleEmojiProvider());
         cacheRunningServices();
@@ -77,6 +79,10 @@ public class XApp extends MultiDexApplication {
 
     public static boolean isGMSSupported() {
         return sGMSSupported;
+    }
+
+    public static void setGMSSupported(boolean supported) {
+        sGMSSupported = supported;
     }
 
     private void registerLifeCycleCallback() {

@@ -210,6 +210,18 @@ public class AppSettings extends Observable {
                 .apply();
     }
 
+    public static boolean isForceHasGMS(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(AppKey.FORCE_HAS_GMS, false);
+    }
+
+    public static void setForceHasGMS(Context context, boolean p) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(AppKey.FORCE_HAS_GMS, p)
+                .apply();
+    }
+
     public static boolean isPStyleIcon(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(AppKey.P_STYLE_ICON, true);
