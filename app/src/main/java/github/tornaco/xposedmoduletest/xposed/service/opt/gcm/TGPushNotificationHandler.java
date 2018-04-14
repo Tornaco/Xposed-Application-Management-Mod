@@ -127,6 +127,6 @@ public class TGPushNotificationHandler extends BasePushNotificationHandler {
     @Override
     public void systemReady() {
         super.systemReady();
-        registerMessageReceiver();
+        // registerMessageReceiver();
     }
 }
