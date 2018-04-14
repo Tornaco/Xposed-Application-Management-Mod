@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.ui.tiles.app;
 import android.content.Context;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import dev.nick.tiles.tile.QuickTile;
@@ -10,6 +11,7 @@ import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
+import github.tornaco.xposedmoduletest.xposed.XApp;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildHostInfo;
 import github.tornaco.xposedmoduletest.xposed.XAppGithubCommitSha;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -53,9 +55,23 @@ public class AppVersion extends QuickTile {
                         + "\n提交：" + XAppGithubCommitSha.LATEST_SHA
                         + "\n框架层序列号：" + (XAshmanManager.get().isServiceAvailable()
                         ? XAshmanManager.get().getBuildSerial() : "UNKNOWN")
-                        + "\n应用层序列号：" + BuildFingerprintBuildHostInfo.BUILD_FINGER_PRINT;
+                        + "\n应用层序列号：" + BuildFingerprintBuildHostInfo.BUILD_FINGER_PRINT
+                        + "\n该设备支持GMS：" + XApp.isGMSSupported();
                 new AlertDialog.Builder(context)
                         .setMessage(m)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .setNegativeButton("GMS判断错误？", (dialog, which) -> {
+                            Switch gmsSwitch = new Switch(context);
+                            gmsSwitch.setText("强制设置是否支持GMS");
+                            gmsSwitch.setChecked(XApp.isGMSSupported());
+                            gmsSwitch.setOnClickListener(v1 -> {
+                                XApp.setGMSSupported(gmsSwitch.isChecked());
+                                AppSettings.setForceHasGMS(context, gmsSwitch.isChecked());
+                            });
+                            new AlertDialog.Builder(context)
+                                    .setView(gmsSwitch)
+                                    .show();
+                        })
                         .show();
                 return true;
             }

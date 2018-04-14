@@ -183,6 +183,12 @@ public class SubModuleManager {
 
             addToSubsChecked(new WindowSubModule());
         }
+
+        // Modules to hook intent result code for GCM.
+        if (BuildConfig.DEBUG) {
+            //addToSubsChecked(new ActivityThreadSubModule());
+            addToSubsChecked(new AMSActivityIntentResolverSubModule());
+        }
     }
 
     @Synchronized

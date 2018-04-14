@@ -229,4 +229,9 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
             }
         }
     }
+
+    @Override
+    public void systemReady() {
+
+    }
 }

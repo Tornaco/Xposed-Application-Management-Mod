@@ -3703,6 +3703,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             0);
             if (list != null) {
                 for (ResolveInfo r : list) {
+                    if (BuildConfig.DEBUG) {
+                        XposedLog.verbose("cacheGCMPackages-FCM: r: " + r);
+                    }
+
                     String pkg = r.activityInfo == null ? null : r.activityInfo.packageName;
                     if (pkg != null) {
                         mGCMSupportPackages.add(pkg);
@@ -3718,6 +3722,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             0);
             if (list != null) {
                 for (ResolveInfo r : list) {
+
+                    if (BuildConfig.DEBUG) {
+                        XposedLog.verbose("cacheGCMPackages-GCM: r: " + r);
+                    }
+
                     String pkg = r.activityInfo == null ? null : r.activityInfo.packageName;
                     if (pkg != null) {
                         mGCMSupportPackages.add(pkg);
