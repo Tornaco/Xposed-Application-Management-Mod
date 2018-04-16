@@ -178,6 +178,7 @@ import static github.tornaco.xposedmoduletest.xposed.bean.DozeEvent.FAIL_RETRY_T
 public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private static final String SYSTEM_UI_PKG = "com.android.systemui";
+    private static final String SYSTEM_UI_PKG_HTC = "com.htc.lockscreen";
 
     private static final String TAG_LK = "LOCK-KILL-";
 
@@ -5135,8 +5136,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     // PLUGIN API END.
 
+    // Fix #126, From the log we found that the caller is "com.htc.lockscreen", so
+    // we think it is OK for htc...
     private boolean isSystemUIPackage(String pkgName) {
-        return pkgName != null && (pkgName.equals(SYSTEM_UI_PKG));
+        return pkgName != null && (pkgName.equals(SYSTEM_UI_PKG) || pkgName.equals(SYSTEM_UI_PKG_HTC));
     }
 
     private void postNotifyTopPackageChanged(final String from, final String to) {

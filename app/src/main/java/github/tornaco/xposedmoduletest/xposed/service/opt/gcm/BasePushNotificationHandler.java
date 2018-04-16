@@ -9,14 +9,18 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Environment;
+import android.os.UserHandle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.model.PushMessage;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.repo.SettingsProvider;
@@ -178,7 +182,16 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
         style.bigText(pushMessage.getMessage());
         style.setBigContentTitle(pushMessage.getTitle());
 
-        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Uri curSoundUri =
+                getCustomRingtoneUri();
+        if (curSoundUri == null) {
+            curSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        }
+
+        if (BuildConfig.DEBUG){
+            XposedLog.verbose("BasePushNotificationHandler, curSoundUri: %s", curSoundUri);
+        }
+
         Notification n = builder
                 .setContentIntent(pendingIntent)
                 .setContentTitle(pushMessage.getTitle())
@@ -188,9 +201,8 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
                 .setSmallIcon(android.R.drawable.stat_sys_warning)
                 .setLargeIcon(new AppResource(getContext()).loadBitmapFromAPMApp(pushMessage.getLargeIconResName()))
                 .setVibrate(new long[]{200, 200})
-                .setSound(defaultSoundUri)
+                .setSound(curSoundUri)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
-                .setDefaults(Notification.DEFAULT_ALL)
                 .setPriority(Notification.PRIORITY_HIGH)
                 .build();
 
@@ -202,6 +214,23 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
 
         NotificationManagerCompat.from(getContext())
                 .notify(pushMessage.getFrom(), n);
+    }
+
+    private Uri getCustomRingtoneUri() {
+        Environment.UserEnvironment userEnvironment = new Environment.UserEnvironment(UserHandle.USER_SYSTEM);
+        File customFile = new File(userEnvironment.getExternalStorageDirectory().getPath()
+                + File.separator + Environment.DIRECTORY_NOTIFICATIONS
+                + File.separator + "apm_custom_ringtone_" + getTargetPackageName() + ".ogg");
+        if (BuildConfig.DEBUG) {
+            XposedLog.verbose("BasePushNotificationHandler getCustomRingtoneUri from %s", customFile);
+        }
+        if (customFile.exists()) {
+            return Uri.fromFile(customFile);
+        }
+        if (BuildConfig.DEBUG) {
+            XposedLog.verbose("BasePushNotificationHandler getCustomRingtoneUri, file not exist! ");
+        }
+        return null;
     }
 
     private void createWeChatNotificationChannelForO(String channelId, String channelName) {
