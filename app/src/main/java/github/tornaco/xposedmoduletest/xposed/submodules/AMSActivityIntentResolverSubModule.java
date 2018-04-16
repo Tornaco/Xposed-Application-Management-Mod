@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageParser;
 import android.content.pm.ResolveInfo;
@@ -155,6 +156,7 @@ class AMSActivityIntentResolverSubModule extends AndroidSubModule {
                                 if (BuildConfig.DEBUG) {
                                     XposedLog.verbose("BroadcastRecord TG perform receive TG: %s, code %s, ARG@%s",
                                             param.thisObject, resultCode, intent);
+                                    param.args[3] = Activity.RESULT_OK;
                                 }
                             }
                         }

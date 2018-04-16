@@ -34,6 +34,7 @@
     <string name="title_setup_code_invalid">密码不符合规范</string>
     <string name="title_setup_code_mismatch">两次输入不一致</string>
     <string name="title_help">新手手册</string>
+    <string name="title_help_available_pmh">帮助</string>
     <string name="title_donate">捐赠</string>
     <string name="title_show_system_app">显示系统应用</string>
     <string name="first_run_title">XXXXX？!</string>

@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import java.util.List;
 
@@ -11,6 +13,7 @@ import dev.nick.tiles.tile.Category;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.AppCustomDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
+import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.TGPMH;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.TGPMHShowContentSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.WeChatPMH;
@@ -24,7 +27,7 @@ import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
  * Email: Tornaco@163.com
  */
 
-public class PMHAvailableHandlersActivity extends BaseActivity {
+public class PMHAvailableHandlersActivity extends WithWithCustomTabActivity {
 
     public static void start(Context context) {
         Intent starter = new Intent(context, PMHAvailableHandlersActivity.class);
@@ -39,6 +42,22 @@ public class PMHAvailableHandlersActivity extends BaseActivity {
         setupToolbar();
         showHomeAsUp();
         replaceV4(R.id.container, new Dashboards(), null, false);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.available_pmh, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        // WTF? like a shit...
+        String url = "https://github.com/Tornaco/X-APM/wiki/GCM%E6%B6%88%E6%81%AF%E4%BB%A3%E6%94%B6#%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B6%88%E6%81%AF%E9%80%9A%E7%9F%A5%E8%A1%8C%E4%B8%BA";
+
+        navigateToWebPage(url);
+        return true;
     }
 
     public static class Dashboards extends AppCustomDashboardFragment {
