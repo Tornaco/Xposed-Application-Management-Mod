@@ -2,6 +2,7 @@ package github.tornaco.apigen.service.github;
 
 import java.util.List;
 
+import github.tornaco.apigen.service.github.bean.Contributor;
 import github.tornaco.apigen.service.github.bean.GitLog;
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -19,12 +20,18 @@ public class GitHubService {
     // https://api.github.com/
     // https://api.github.com/repos/Tornaco/SB
     // https://api.github.com/repos/Tornaco/SB/commits{/sha}
+    // https://api.github.com/repos/Tornaco/X-APM/contributors
     private static final String API_URL = "https://api.github.com";
 
 
     public interface GitHub {
         @GET("/repos/{owner}/{repo}/commits")
         Call<List<GitLog>> commits(
+                @Path("owner") String owner,
+                @Path("repo") String repo);
+
+        @GET("/repos/{owner}/{repo}/contributors")
+        Call<List<Contributor>> contributors(
                 @Path("owner") String owner,
                 @Path("repo") String repo);
 

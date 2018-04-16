@@ -1925,4 +1925,40 @@ public class XAshmanManager {
 
         }
     }
+
+    public boolean isPushMessageHandlerNotificationSoundEnabled(String handlerTag) {
+        ensureService();
+        try {
+            return mService.isPushMessageHandlerNotificationSoundEnabled(handlerTag);
+        } catch (Exception e) {
+            return true;
+        }
+    }
+
+    public void setPushMessageHandlerNotificationSoundEnabled(String handlerTag, boolean enabled) {
+        ensureService();
+        try {
+            mService.setPushMessageHandlerNotificationSoundEnabled(handlerTag, enabled);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public boolean isPushMessageHandlerNotificationVibrateEnabled(String handlerTag) {
+        ensureService();
+        try {
+            return mService.isPushMessageHandlerNotificationVibrateEnabled(handlerTag);
+        } catch (Exception e) {
+            return true;
+        }
+    }
+
+    public void setPushMessageHandlerNotificationVibrateEnabled(String handlerTag, boolean enabled) {
+        ensureService();
+        try {
+            mService.setPushMessageHandlerNotificationVibrateEnabled(handlerTag, enabled);
+        } catch (Exception e) {
+
+        }
+    }
 }

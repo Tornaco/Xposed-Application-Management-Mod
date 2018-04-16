@@ -227,192 +227,198 @@ interface IAshmanService {
 
     // APP GUARD SERVICE API.
 
-     boolean isAppLockEnabled();
-     void setAppLockEnabled(boolean enabled);
+    boolean isAppLockEnabled();
+    void setAppLockEnabled(boolean enabled);
 
-     boolean isBlurEnabled();
-     boolean isBlurEnabledForPackage(String packageName);
-     void setBlurEnabled(boolean enabled);
+    boolean isBlurEnabled();
+    boolean isBlurEnabledForPackage(String packageName);
+    void setBlurEnabled(boolean enabled);
 
-     int getBlurRadius();
-     void setBlurRadius(int r);
+    int getBlurRadius();
+    void setBlurRadius(int r);
 
-     boolean isUninstallInterruptEnabled();
-     void setUninstallInterruptEnabled(boolean enabled);
+    boolean isUninstallInterruptEnabled();
+    void setUninstallInterruptEnabled(boolean enabled);
 
-     void setVerifySettings(in VerifySettings settings);
+    void setVerifySettings(in VerifySettings settings);
 
-     VerifySettings getVerifySettings();
+    VerifySettings getVerifySettings();
 
-     void setResult(int transactionID, int res);
+    void setResult(int transactionID, int res);
 
-     boolean isTransactionValid(int transactionID);
+    boolean isTransactionValid(int transactionID);
 
-        // For test only.
-     void mockCrash();
+    // For test only.
+    void mockCrash();
 
-     void setVerifierPackage(String pkg);
+    void setVerifierPackage(String pkg);
 
-     void injectHomeEvent();
+    void injectHomeEvent();
 
-     void setDebug(boolean debug);
+    void setDebug(boolean debug);
 
-     boolean isDebug();
+    boolean isDebug();
 
-     void onActivityPackageResume(String pkg);
+    void onActivityPackageResume(String pkg);
 
-     boolean isInterruptFPEventVBEnabled(int event);
-     void setInterruptFPEventVBEnabled(int event, boolean enabled);
+    boolean isInterruptFPEventVBEnabled(int event);
+    void setInterruptFPEventVBEnabled(int event, boolean enabled);
 
-     void addOrRemoveComponentReplacement(in ComponentName from, in ComponentName to, boolean add);
-     Map getComponentReplacements();
+    void addOrRemoveComponentReplacement(in ComponentName from, in ComponentName to, boolean add);
+    Map getComponentReplacements();
 
-     // void forceReloadPackages();
+    // void forceReloadPackages();
 
-     String[] getLockApps(boolean lock);
-     void addOrRemoveLockApps(in String[] packages, boolean add);
+    String[] getLockApps(boolean lock);
+    void addOrRemoveLockApps(in String[] packages, boolean add);
 
-     String[] getBlurApps(boolean lock);
-     void addOrRemoveBlurApps(in String[] packages, boolean blur);
+    String[] getBlurApps(boolean lock);
+    void addOrRemoveBlurApps(in String[] packages, boolean blur);
 
-     String[] getUPApps(boolean lock);
-     void addOrRemoveUPApps(in String[] packages, boolean add);
+    String[] getUPApps(boolean lock);
+    void addOrRemoveUPApps(in String[] packages, boolean add);
 
-     // void restoreDefaultSettings();
+    // void restoreDefaultSettings();
 
-     // void onTaskRemoving(String pkg);
+    // void onTaskRemoving(String pkg);
 
-        // APPGUARD API END.
+    // APPGUARD API END.
 
-     AppSettings retrieveAppSettingsForPackage(String pkg);
-     void applyAppSettingsForPackage(String pkg, in AppSettings settings);
+    AppSettings retrieveAppSettingsForPackage(String pkg);
+    void applyAppSettingsForPackage(String pkg, in AppSettings settings);
 
-     void backupTo(String dir);
-     void restoreFrom(String dir);
+    void backupTo(String dir);
+    void restoreFrom(String dir);
 
-     String[] getRawPermSettings(int page, int countInPage);
+    String[] getRawPermSettings(int page, int countInPage);
 
-     void setAppInstalledAutoApplyTemplate(in AppSettings settings);
-     AppSettings getAppInstalledAutoApplyTemplate();
+    void setAppInstalledAutoApplyTemplate(in AppSettings settings);
+    AppSettings getAppInstalledAutoApplyTemplate();
 
-     List<OpLog> getOpLogForPackage(String packageName);
-     List<OpLog> getOpLogForOp(int code);
-     void clearOpLogForPackage(String packageName);
-     void clearOpLogForOp(int cod);
+    List<OpLog> getOpLogForPackage(String packageName);
+    List<OpLog> getOpLogForOp(int code);
+    void clearOpLogForPackage(String packageName);
+    void clearOpLogForOp(int cod);
 
-     String getUserName();
-     Bitmap getUserIcon();
+    String getUserName();
+    Bitmap getUserIcon();
 
-     void addPendingDisableApps(String pkg);
+    void addPendingDisableApps(String pkg);
 
-     // Doze list api.
-     void addPowerSaveWhitelistApp(String pkg);
-     void removePowerSaveWhitelistApp(String pkg);
-     String[] getFullPowerWhitelist();
-     String[] getSystemPowerWhitelist();
-     String[] getUserPowerWhitelist();
+    // Doze list api.
+    void addPowerSaveWhitelistApp(String pkg);
+    void removePowerSaveWhitelistApp(String pkg);
+    String[] getFullPowerWhitelist();
+    String[] getSystemPowerWhitelist();
+    String[] getUserPowerWhitelist();
 
-     // Memory api.
-     MemoryInfo getMemoryInfo();
+    // Memory api.
+    MemoryInfo getMemoryInfo();
 
-     // Keyguard api.
-     void enableKeyguard(boolean enabled);
+    // Keyguard api.
+    void enableKeyguard(boolean enabled);
 
-     void exitKeyguardSecurely(in IBooleanCallback1 result);
+    void exitKeyguardSecurely(in IBooleanCallback1 result);
 
-     void dismissKeyguardLw();
+    void dismissKeyguardLw();
 
-     boolean isKeyguardLocked();
+    boolean isKeyguardLocked();
 
-     int getRunningProcessCount();
+    int getRunningProcessCount();
 
-     boolean hasModuleError();
+    boolean hasModuleError();
 
-     void setAppOpsTemplate(in OpsSettings opsSettings);
-     OpsSettings getAppOpsTemplate(in OpsSettings opsSettings);
+    void setAppOpsTemplate(in OpsSettings opsSettings);
+    OpsSettings getAppOpsTemplate(in OpsSettings opsSettings);
 
-     // New API since 4.4.6
-     void addPendingDisableAppsTR(String pkg);
+    // New API since 4.4.6
+    void addPendingDisableAppsTR(String pkg);
 
-     // New API since 4.4.8
-     void setResidentEnabled(boolean enable);
-     boolean isResidentEnabled();
-     boolean isResidentEnabledForPackage(String who);
-     void addOrRemoveResidentApps(String app, boolean add);
-     String[] getResidentApps(boolean resident);
+    // New API since 4.4.8
+    void setResidentEnabled(boolean enable);
+    boolean isResidentEnabled();
+    boolean isResidentEnabledForPackage(String who);
+    void addOrRemoveResidentApps(String app, boolean add);
+    String[] getResidentApps(boolean resident);
 
-     boolean isPanicHomeEnabled();
-     void setPanicHomeEnabled(boolean enable);
-     boolean isPanicLockEnabled();
-     void setPanicLockEnabled(boolean enable);
+    boolean isPanicHomeEnabled();
+    void setPanicHomeEnabled(boolean enable);
+    boolean isPanicLockEnabled();
+    void setPanicLockEnabled(boolean enable);
 
-     // DPM API
-     void lockNow();
+    // DPM API
+    void lockNow();
 
-     boolean isInRedemptionMode();
-     void leaveRedemptionMode();
-     void enterRedemptionMode();
+    boolean isInRedemptionMode();
+    void leaveRedemptionMode();
+    void enterRedemptionMode();
 
-     boolean isSELinuxEnabled();
-     boolean isSELinuxEnforced();
-     void setSelinuxEnforce(boolean enforce);
+    boolean isSELinuxEnabled();
+    boolean isSELinuxEnforced();
+    void setSelinuxEnforce(boolean enforce);
 
-     boolean isPowerSaveModeEnabled();
-     void setPowerSaveModeEnabled(boolean enable);
+    boolean isPowerSaveModeEnabled();
+    void setPowerSaveModeEnabled(boolean enable);
 
-     String[] getStartRules();
-     boolean addOrRemoveStartRules(String rule, boolean add);
+    String[] getStartRules();
+    boolean addOrRemoveStartRules(String rule, boolean add);
 
-     boolean hasSystemError();
-     void cleanUpSystemErrorTraces();
+    boolean hasSystemError();
+    void cleanUpSystemErrorTraces();
 
-     void addAppLockWhiteListActivity(in String[] activities);
+    void addAppLockWhiteListActivity(in String[] activities);
 
 
-     boolean isAutoAddBlackNotificationEnabled();
-     void setAutoAddBlackNotificationEnabled(boolean value);
+    boolean isAutoAddBlackNotificationEnabled();
+    void setAutoAddBlackNotificationEnabled(boolean value);
 
-     boolean isOptFeatureEnabled(String tag);
-     void setOptFeatureEnabled(String tag, boolean enable);
+    boolean isOptFeatureEnabled(String tag);
+    void setOptFeatureEnabled(String tag, boolean enable);
 
-     // Config/Manigest
-     int getRecentTaskExcludeSetting(in ComponentName c);
-     void setRecentTaskExcludeSetting(in ComponentName c, int setting);
+    // Config/Manigest
+    int getRecentTaskExcludeSetting(in ComponentName c);
+    void setRecentTaskExcludeSetting(in ComponentName c, int setting);
 
-     int getAppConfigOverlayIntSetting(String appPackageName, String tag);
-     void setAppConfigOverlayIntSetting(String appPackageName, String tag, int value);
+    int getAppConfigOverlayIntSetting(String appPackageName, String tag);
+    void setAppConfigOverlayIntSetting(String appPackageName, String tag, int value);
 
-     void injectPowerEvent();
+    void injectPowerEvent();
 
-     String getServiceStarter(in ComponentName service);
+    String getServiceStarter(in ComponentName service);
 
-     boolean isInactiveAppInsteadOfKillPreferred();
-     void setInactiveAppInsteadOfKillPreferred(boolean prefer);
+    boolean isInactiveAppInsteadOfKillPreferred();
+    void setInactiveAppInsteadOfKillPreferred(boolean prefer);
 
-     void mockSystemDead(long delay);
+    void mockSystemDead(long delay);
 
-     void clearModuleSettings(String moduleVar);
+    void clearModuleSettings(String moduleVar);
 
-     // Doze motion.
-     boolean isDisableMotionEnabled();
-     void setDisableMotionEnabled(boolean enable);
+    // Doze motion.
+    boolean isDisableMotionEnabled();
+    void setDisableMotionEnabled(boolean enable);
 
-     boolean isGCMSupportPackage(String pkg);
+    boolean isGCMSupportPackage(String pkg);
 
-     boolean isShowAppProcessUpdateNotificationEnabled();
-     void setShowAppProcessUpdateNotificationEnabled(boolean enabled);
+    boolean isShowAppProcessUpdateNotificationEnabled();
+    void setShowAppProcessUpdateNotificationEnabled(boolean enabled);
 
-     boolean isStartRuleEnabled();
-     void setStartRuleEnabled(boolean enabled);
+    boolean isStartRuleEnabled();
+    void setStartRuleEnabled(boolean enabled);
 
-     // Push message handlers.
-     boolean isPushMessageHandlerEnabled(String handlerTag);
-     void setPushMessageHandlerEnabled(String handlerTag, boolean enabled);
+    // Push message handlers.
+    boolean isPushMessageHandlerEnabled(String handlerTag);
+    void setPushMessageHandlerEnabled(String handlerTag, boolean enabled);
 
-     boolean isPushMessageHandlerShowContentEnabled(String handlerTag);
-     void setPushMessageHandlerShowContentEnabled(String handlerTag, boolean enabled);
+    boolean isPushMessageHandlerShowContentEnabled(String handlerTag);
+    void setPushMessageHandlerShowContentEnabled(String handlerTag, boolean enabled);
 
-     // AIO toggle.
-     boolean isPushMessageHandleEnabled();
-     void setPushMessageHandleEnabled(boolean enabled);
+    boolean isPushMessageHandlerNotificationSoundEnabled(String handlerTag);
+    void setPushMessageHandlerNotificationSoundEnabled(String handlerTag, boolean enabled);
+
+    boolean isPushMessageHandlerNotificationVibrateEnabled(String handlerTag);
+    void setPushMessageHandlerNotificationVibrateEnabled(String handlerTag, boolean enabled);
+
+    // AIO toggle.
+    boolean isPushMessageHandleEnabled();
+    void setPushMessageHandleEnabled(boolean enabled);
 }

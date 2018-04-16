@@ -12,12 +12,13 @@ import java.util.List;
 import dev.nick.tiles.tile.Category;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.AppCustomDashboardFragment;
-import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.TGPMH;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.TGPMHShowContentSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.WeChatPMH;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.WeChatPMHShowContentSettings;
+import github.tornaco.xposedmoduletest.ui.tiles.pmh.WeChatPMHSoundSettings;
+import github.tornaco.xposedmoduletest.ui.tiles.pmh.WeChatPMHVibrateSettings;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.TGPushNotificationHandler;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.WeChatPushNotificationHandler;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -70,6 +71,8 @@ public class PMHAvailableHandlersActivity extends WithWithCustomTabActivity {
             if (PkgUtil.isPkgInstalled(getActivity(), WeChatPushNotificationHandler.WECHAT_PKG_NAME)) {
                 wechat.addTile(new WeChatPMH(getActivity()));
                 wechat.addTile(new WeChatPMHShowContentSettings(getActivity()));
+                wechat.addTile(new WeChatPMHSoundSettings(getActivity()));
+                wechat.addTile(new WeChatPMHVibrateSettings(getActivity()));
             }
 
             // TG.

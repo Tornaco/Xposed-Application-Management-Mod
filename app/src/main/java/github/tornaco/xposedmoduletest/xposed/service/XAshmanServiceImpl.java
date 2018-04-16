@@ -3670,6 +3670,28 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         notifyPushMessageHandlerSettingsChanged(handlerTag);
     }
 
+    @Override
+    public boolean isPushMessageHandlerNotificationSoundEnabled(String handlerTag) throws RemoteException {
+        return SettingsProvider.get().getBoolean(handlerTag + "_notification_sound", false);
+    }
+
+    @Override
+    public void setPushMessageHandlerNotificationSoundEnabled(String handlerTag, boolean enabled) throws RemoteException {
+        SettingsProvider.get().putBoolean(handlerTag + "_notification_sound", enabled);
+        notifyPushMessageHandlerSettingsChanged(handlerTag);
+    }
+
+    @Override
+    public boolean isPushMessageHandlerNotificationVibrateEnabled(String handlerTag) throws RemoteException {
+        return SettingsProvider.get().getBoolean(handlerTag + "_notification_vibrate", false);
+    }
+
+    @Override
+    public void setPushMessageHandlerNotificationVibrateEnabled(String handlerTag, boolean enabled) throws RemoteException {
+        SettingsProvider.get().putBoolean(handlerTag + "_notification_vibrate", enabled);
+        notifyPushMessageHandlerSettingsChanged(handlerTag);
+    }
+
     private AtomicBoolean mIsPushMessageHandleEnabled = new AtomicBoolean(false);
 
     @Override
