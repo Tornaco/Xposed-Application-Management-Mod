@@ -96,11 +96,10 @@ public interface ComponentReplacementsLoader {
                 cr.setCompFromPackageName(from.getPackageName());
                 cr.setCompFromClassName(from.getClassName());
                 cr.setAppPackageName(from.getPackageName());
+                cr.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(context, from.getPackageName())));
 
                 if (!PkgUtil.isPkgInstalled(context, from.getPackageName()))
                     cr.setAppName("[*源 未安装]");
-
-                cr.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(context, from.getPackageName())));
 
                 // Inflate to.
                 Object v = replacements.get(k);
