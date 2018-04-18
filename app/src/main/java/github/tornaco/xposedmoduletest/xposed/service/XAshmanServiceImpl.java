@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.xposed.service;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
 import android.app.AlertDialog;
@@ -178,6 +179,7 @@ import static github.tornaco.xposedmoduletest.xposed.bean.DozeEvent.FAIL_RETRY_T
 public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private static final String SYSTEM_UI_PKG = "com.android.systemui";
+    private static final String SYSTEM_UI_PKG_HTC = "com.htc.lockscreen";
 
     private static final String TAG_LK = "LOCK-KILL-";
 
@@ -319,7 +321,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                         XposedLog.verbose("mClearProcessBroadcast, receive");
                         clearProcess(new IProcessClearListenerAdapter() {
                             @Override
-                            public boolean doNotClearWhenIntervative() throws RemoteException {
+                            public boolean doNotClearWhenIntervative() {
                                 return false;
                             }
 
@@ -329,7 +331,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                 mLazyHandler.post(mClearCompleteActionRunnable);
                             }
                         });
-                    } catch (RemoteException e) {
+                    } catch (Exception e) {
                         XposedLog.wtf("Fail call clearProcess: " + Log.getStackTraceString(e));
                     }
                 }
@@ -1167,7 +1169,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         }
 
         try {
-            mIsPushMessageHandleEnabled.set(SettingsProvider.get().getBoolean("PUSH_MESSAGE_HANDLE", false));
+            mIsPushMessageHandleEnabled.set(SettingsProvider.get().getBoolean(PUSH_MESSAGE_HANDLER_ENABLE_TAG, false));
             XposedLog.boot("mIsPushMessageHandleEnabled: " + String.valueOf(mIsPushMessageHandleEnabled));
         } catch (Throwable e) {
             XposedLog.wtf("Fail load settings from SettingsProvider:" + Log.getStackTraceString(e));
@@ -1178,7 +1180,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @Deprecated
     public boolean checkService(Intent service, String callingPackage, int callingPid, int callingUid,
-                                boolean callingFromFg) throws RemoteException {
+                                boolean callingFromFg) {
         return true;
     }
 
@@ -1522,6 +1524,32 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         return true;
     }
 
+    @Override
+    public int onHookBroadcastPerformResult(Intent intent, int resultCode) {
+        // Check if PMH is enabled.
+        if (!isPushMessageHandleEnabled()) {
+            return resultCode;
+        }
+        // Check if GCM intent.
+        if (!GCMFCMHelper.isGcmOrFcmIntent(intent)) {
+            return resultCode;
+        }
+        // Check if PMH for this pkg is enabled.
+        String pkgName = intent.getPackage();
+        if (TextUtils.isEmpty(pkgName)) {
+            return resultCode;
+        }
+        if (!isPushMessageHandlerEnabled(pkgName)) {
+            return resultCode;
+        }
+
+        // Hooked!
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("onHookBroadcastPerformResult, returning OK for %s", pkgName);
+        }
+        return Activity.RESULT_OK;
+    }
+
     private void checkBroadcastIntentSendingInternal(Intent intent) {
 
         // Enhance for GCM/FCM.
@@ -1742,7 +1770,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public boolean hasNotificationForPackage(String pkg) throws RemoteException {
+    public boolean hasNotificationForPackage(String pkg) {
         long iden = Binder.clearCallingIdentity();
         try {
             return hasNotificationForPackageInternal(pkg);
@@ -1779,7 +1807,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public String packageForTaskId(int taskId) throws RemoteException {
+    public String packageForTaskId(int taskId) {
         ComponentName c = mTaskIdMap.get(taskId);
         return c == null ? null : c.getPackageName();
     }
@@ -2344,8 +2372,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public boolean checkBroadcastDeliver(Intent intent, String callerPackage, int callingPid, int callingUid)
-            throws RemoteException {
+    public boolean checkBroadcastDeliver(Intent intent, String callerPackage, int callingPid, int callingUid) {
         if (DEBUG_BROADCAST) {
             XposedLog.verbose("checkBroadcastDeliver: " + intent);
         }
@@ -2491,10 +2518,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return false;
         }
 
-        if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
-            return false;
-        }
-        return true;
+        return !PkgUtil.isDefaultSmsApp(getContext(), pkg);
     }
 
     private boolean shouldTRKPackage(String pkg) {
@@ -2513,15 +2537,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             return false;
         }
 
-        if (PkgUtil.isDefaultSmsApp(getContext(), pkg)) {
-            return false;
-        }
-        return true;
+        return !PkgUtil.isDefaultSmsApp(getContext(), pkg);
     }
 
     @Override
     @BinderCall
-    public List<BlockRecord2> getBlockRecords() throws RemoteException {
+    public List<BlockRecord2> getBlockRecords() {
         enforceCallingPermissions();
         synchronized (mBlockRecords) {
             return Lists.newArrayList(mBlockRecords.values());
@@ -2530,7 +2551,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void clearBlockRecords() throws RemoteException {
+    public void clearBlockRecords() {
         enforceCallingPermissions();
         mainHandler.removeMessages(AshManHandlerMessages.MSG_CLEARBLOCKRECORDS);
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_CLEARBLOCKRECORDS).sendToTarget();
@@ -2538,7 +2559,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void setComponentEnabledSetting(ComponentName componentName, int newState, int flags) throws RemoteException {
+    public void setComponentEnabledSetting(ComponentName componentName, int newState, int flags) {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETCOMPONENTENABLEDSETTING,
                 newState, flags, componentName).sendToTarget();
@@ -2546,7 +2567,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public int getComponentEnabledSetting(ComponentName componentName) throws RemoteException {
+    public int getComponentEnabledSetting(ComponentName componentName) {
         enforceCallingPermissions();
         long id = Binder.clearCallingIdentity();
         try {
@@ -2558,7 +2579,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public int getApplicationEnabledSetting(final String packageName) throws RemoteException {
+    public int getApplicationEnabledSetting(final String packageName) {
         enforceCallingPermissions();
         long id = Binder.clearCallingIdentity();
         try {
@@ -2571,14 +2592,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setApplicationEnabledSetting(String packageName, int newState, int flags, boolean tmp) throws RemoteException {
+    public void setApplicationEnabledSetting(String packageName, int newState, int flags, boolean tmp) {
         enforceCallingPermissions();
         Pair<String, Boolean> extra = new Pair<>(packageName, tmp);
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETAPPLICATIONENABLEDSETTING, newState, flags, extra).sendToTarget();
     }
 
     @Override
-    public void watch(IAshmanWatcher w) throws RemoteException {
+    public void watch(IAshmanWatcher w) {
         enforceCallingPermissions();
         Preconditions.checkNotNull(w, "IAshmanWatcher is null");
         AshManHandler.WatcherClient watcherClient = new AshManHandler.WatcherClient(w);
@@ -2587,7 +2608,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void unWatch(IAshmanWatcher w) throws RemoteException {
+    public void unWatch(IAshmanWatcher w) {
         enforceCallingPermissions();
         Preconditions.checkNotNull(w, "IAshmanWatcher is null");
         AshManHandler.WatcherClient watcherClient = new AshManHandler.WatcherClient(w);
@@ -2596,13 +2617,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void setNetworkPolicyUidPolicy(int uid, int policy) throws RemoteException {
+    public void setNetworkPolicyUidPolicy(int uid, int policy) {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETNETWORKPOLICYUIDPOLICY, uid, policy).sendToTarget();
     }
 
     @Override
-    public void restart() throws RemoteException {
+    public void restart() {
         enforceCallingPermissions();
         mLazyHandler.post(new Runnable() {
             @Override
@@ -2614,7 +2635,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void setCompSettingBlockEnabled(boolean enabled) throws RemoteException {
+    public void setCompSettingBlockEnabled(boolean enabled) {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETCOMPSETTINGBLOCKENABLED, enabled)
                 .sendToTarget();
@@ -2632,7 +2653,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public String[] getWhiteListApps(int filterOptions) throws RemoteException {
+    public String[] getWhiteListApps(int filterOptions) {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getWhiteListApps: " + filterOptions);
         enforceCallingPermissions();
         Object[] data = WHITE_LIST.toArray(); // FIXME, no sync protect?
@@ -2640,7 +2661,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public String[] getInstalledApps(int filterOptions) throws RemoteException {
+    public String[] getInstalledApps(int filterOptions) {
         Collection<String> packages = mPackagesCache.keySet();
         if (packages.size() == 0) {
             return new String[0];
@@ -2677,7 +2698,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public String[] getBootBlockApps(boolean block) throws RemoteException {
+    public String[] getBootBlockApps(boolean block) {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getBootBlockApps: " + block);
         enforceCallingPermissions();
         if (!block) {
@@ -2741,7 +2762,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void addOrRemoveBootBlockApps(String[] packages, int op) throws RemoteException {
+    public void addOrRemoveBootBlockApps(String[] packages, int op) {
         if (XposedLog.isVerboseLoggable())
             XposedLog.verbose("addOrRemoveBootBlockApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
@@ -2750,7 +2771,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public String[] getStartBlockApps(boolean block) throws RemoteException {
+    public String[] getStartBlockApps(boolean block) {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getStartBlockApps: " + block);
         enforceCallingPermissions();
         if (!block) {
@@ -2801,7 +2822,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void addOrRemoveStartBlockApps(String[] packages, int op) throws RemoteException {
+    public void addOrRemoveStartBlockApps(String[] packages, int op) {
         if (XposedLog.isVerboseLoggable())
             XposedLog.verbose("addOrRemoveStartBlockApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
@@ -2810,7 +2831,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public String[] getLKApps(boolean kill) throws RemoteException {
+    public String[] getLKApps(boolean kill) {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getLKApps: " + kill);
         enforceCallingPermissions();
         if (!kill) {
@@ -2855,7 +2876,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void addOrRemoveLKApps(String[] packages, int op) throws RemoteException {
+    public void addOrRemoveLKApps(String[] packages, int op) {
         if (XposedLog.isVerboseLoggable())
             XposedLog.verbose("addOrRemoveLKApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
@@ -2867,7 +2888,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public String[] getRFKApps(boolean kill) throws RemoteException {
+    public String[] getRFKApps(boolean kill) {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getRFKApps: " + kill);
         enforceCallingPermissions();
         if (!kill) {
@@ -2918,7 +2939,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void addOrRemoveRFKApps(String[] packages, int op) throws RemoteException {
+    public void addOrRemoveRFKApps(String[] packages, int op) {
         if (XposedLog.isVerboseLoggable())
             XposedLog.verbose("addOrRemoveRFKApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
@@ -2927,7 +2948,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public String[] getGreeningApps(boolean greening) throws RemoteException {
+    public String[] getGreeningApps(boolean greening) {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getGreeningApps: " + greening);
         enforceCallingPermissions();
         if (!greening) {
@@ -2978,7 +2999,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void addOrRemoveGreeningApps(String[] packages, int op) throws RemoteException {
+    public void addOrRemoveGreeningApps(String[] packages, int op) {
         if (XposedLog.isVerboseLoggable())
             XposedLog.verbose("addOrRemoveGreeningApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
@@ -2988,7 +3009,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall(restrict = "any")
-    public boolean isPackageGreening(String packageName) throws RemoteException {
+    public boolean isPackageGreening(String packageName) {
         if (packageName == null) return false;
         long id = Binder.clearCallingIdentity();
         try {
@@ -3004,7 +3025,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall(restrict = "any")
-    public boolean isUidGreening(int uid) throws RemoteException {
+    public boolean isUidGreening(int uid) {
         if (PkgUtil.isSystemOrPhoneOrShell(uid)) return false;
 
         long id = Binder.clearCallingIdentity();
@@ -3027,8 +3048,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     @BinderCall
     @Deprecated
-    public void unInstallPackage(final String pkg, final IPackageUninstallCallback callback)
-            throws RemoteException {
+    public void unInstallPackage(final String pkg, final IPackageUninstallCallback callback) {
         enforceCallingPermissions();
     }
 
@@ -3039,7 +3059,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setLockKillDoNotKillAudioEnabled(boolean enabled) throws RemoteException {
+    public void setLockKillDoNotKillAudioEnabled(boolean enabled) {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETLOCKKILLDONOTKILLAUDIOENABLED, enabled)
                 .sendToTarget();
@@ -3052,7 +3072,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setControlMode(int mode) throws RemoteException {
+    public void setControlMode(int mode) {
         if (mode != XAshmanManager.ControlMode.BLACK_LIST && mode != XAshmanManager.ControlMode.WHITE_LIST) {
             throw new IllegalArgumentException("Bad mode:" + mode);
         }
@@ -3062,36 +3082,36 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public String getBuildSerial() throws RemoteException {
+    public String getBuildSerial() {
         return BuildFingerprintBuildHostInfo.BUILD_FINGER_PRINT;
     }
 
     @Override
     @BinderCall(restrict = "any")
-    public boolean isAutoAddBlackEnabled() throws RemoteException {
+    public boolean isAutoAddBlackEnabled() {
         return mAutoAddToBlackListForNewApp.get();
     }
 
     @Override
     @BinderCall(restrict = "any")
-    public boolean isAutoAddBlackNotificationEnabled() throws RemoteException {
+    public boolean isAutoAddBlackNotificationEnabled() {
         return mAutoAddNotificationToBlackListForNewApp.get();
     }
 
     @Override
-    public void setAutoAddBlackNotificationEnabled(boolean value) throws RemoteException {
+    public void setAutoAddBlackNotificationEnabled(boolean value) {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETAUTOADDBLACKNOTIFICATIONENABLED, value)
                 .sendToTarget();
     }
 
     @Override
-    public boolean isOptFeatureEnabled(String tag) throws RemoteException {
+    public boolean isOptFeatureEnabled(String tag) {
         return SettingsProvider.get().getBoolean("OPT_FEATURE_" + tag, false);
     }
 
     @Override
-    public void setOptFeatureEnabled(String tag, boolean enable) throws RemoteException {
+    public void setOptFeatureEnabled(String tag, boolean enable) {
         SettingsProvider.get().putBoolean("OPT_FEATURE_" + tag, enable);
     }
 
@@ -3123,23 +3143,23 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setRecentTaskExcludeSetting(ComponentName c, int setting) throws RemoteException {
+    public void setRecentTaskExcludeSetting(ComponentName c, int setting) {
         SettingsProvider.get().putInt("RECENT_EXCLUDE_" + c.getPackageName(), setting);
     }
 
     @Override
-    public int getAppConfigOverlayIntSetting(String appPackageName, String tag) throws RemoteException {
+    public int getAppConfigOverlayIntSetting(String appPackageName, String tag) {
         return SettingsProvider.get().getInt("CONFIG_OVERLAY_" + tag + "_" + appPackageName,
                 XAshmanManager.ConfigOverlays.NONE);// Invalid.
     }
 
     @Override
-    public void setAppConfigOverlayIntSetting(String appPackageName, String tag, int value) throws RemoteException {
+    public void setAppConfigOverlayIntSetting(String appPackageName, String tag, int value) {
         SettingsProvider.get().putInt("CONFIG_OVERLAY_" + tag + "_" + appPackageName, value);
     }
 
     @Override
-    public void injectPowerEvent() throws RemoteException {
+    public void injectPowerEvent() {
         mainHandler.post(new ErrorCatchRunnable(new Runnable() {
             @Override
             public void run() {
@@ -3150,7 +3170,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setAutoAddBlackEnable(boolean enable) throws RemoteException {
+    public void setAutoAddBlackEnable(boolean enable) {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETAUTOADDBLACKENABLE, enable)
                 .sendToTarget();
@@ -3624,7 +3644,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setShowAppProcessUpdateNotificationEnabled(boolean enabled) throws RemoteException {
+    public void setShowAppProcessUpdateNotificationEnabled(boolean enabled) {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETSHOWAPPPROCESSUPDATENOTIFICATIONENABLED, enabled).sendToTarget();
         if (!enabled) {
@@ -3638,35 +3658,80 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setStartRuleEnabled(boolean enabled) throws RemoteException {
+    public void setStartRuleEnabled(boolean enabled) {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETSTARTRULEENABLED, enabled).sendToTarget();
     }
 
-    @Override
-    @BinderCall
-    public boolean isPushMessageHandlerEnabled(String handlerTag) {
-        return SettingsProvider.get().getBoolean(handlerTag, false);
+    private static final String PUSH_MESSAGE_HANDLER_PKG_ENABLE_STATE_TAG = "pmh_enabled_";
+    private static final String PUSH_MESSAGE_HANDLER_ENABLE_TAG = "pmh_enabled";
+    private static final String PUSH_MESSAGE_HANDLER_SHOW_CONTENT_TAG = "pmh_show_content_";
+    private static final String PUSH_MESSAGE_HANDLER_SOUND_TAG = "pmh_sound_";
+    private static final String PUSH_MESSAGE_HANDLER_VIBRATE_TAG = "pmh_vibrate_";
+
+    private static String getPushMessageHandlerPkgEnableStateKeyForPackage(String pkg) {
+        return PUSH_MESSAGE_HANDLER_PKG_ENABLE_STATE_TAG + pkg;
+    }
+
+    private static String getPushMessageHandlerShowContentKeyForPackage(String pkg) {
+        return PUSH_MESSAGE_HANDLER_SHOW_CONTENT_TAG + pkg;
+    }
+
+    private static String getPushMessageHandlerSoundKeyForPackage(String pkg) {
+        return PUSH_MESSAGE_HANDLER_SOUND_TAG + pkg;
+    }
+
+    private static String getPushMessageHandlerVibrateKeyForPackage(String pkg) {
+        return PUSH_MESSAGE_HANDLER_VIBRATE_TAG + pkg;
     }
 
     @Override
     @BinderCall
-    public void setPushMessageHandlerEnabled(String handlerTag, boolean enabled) throws RemoteException {
-        SettingsProvider.get().putBoolean(handlerTag, enabled);
-        notifyPushMessageHandlerSettingsChanged(handlerTag);
+    public boolean isPushMessageHandlerEnabled(String pkg) {
+        if (pkg == null) return false;
+        return SettingsProvider.get().getBoolean(getPushMessageHandlerPkgEnableStateKeyForPackage(pkg), false);
     }
 
     @Override
     @BinderCall
-    public boolean isPushMessageHandlerShowContentEnabled(String handlerTag) throws RemoteException {
-        return SettingsProvider.get().getBoolean(handlerTag + "_show_content", false);
+    public void setPushMessageHandlerEnabled(String pkg, boolean enabled) {
+        SettingsProvider.get().putBoolean(getPushMessageHandlerPkgEnableStateKeyForPackage(pkg), enabled);
+        notifyPushMessageHandlerSettingsChanged(pkg);
     }
 
     @Override
     @BinderCall
-    public void setPushMessageHandlerShowContentEnabled(String handlerTag, boolean enabled) throws RemoteException {
-        SettingsProvider.get().putBoolean(handlerTag + "_show_content", enabled);
-        notifyPushMessageHandlerSettingsChanged(handlerTag);
+    public boolean isPushMessageHandlerShowContentEnabled(String pkg) {
+        return SettingsProvider.get().getBoolean(getPushMessageHandlerShowContentKeyForPackage(pkg), false);
+    }
+
+    @Override
+    @BinderCall
+    public void setPushMessageHandlerShowContentEnabled(String pkg, boolean enabled) {
+        SettingsProvider.get().putBoolean(getPushMessageHandlerShowContentKeyForPackage(pkg), enabled);
+        notifyPushMessageHandlerSettingsChanged(pkg);
+    }
+
+    @Override
+    public boolean isPushMessageHandlerNotificationSoundEnabled(String pkg) {
+        return SettingsProvider.get().getBoolean(getPushMessageHandlerSoundKeyForPackage(pkg), false);
+    }
+
+    @Override
+    public void setPushMessageHandlerNotificationSoundEnabled(String pkg, boolean enabled) {
+        SettingsProvider.get().putBoolean(getPushMessageHandlerSoundKeyForPackage(pkg), enabled);
+        notifyPushMessageHandlerSettingsChanged(pkg);
+    }
+
+    @Override
+    public boolean isPushMessageHandlerNotificationVibrateEnabled(String pkg) {
+        return SettingsProvider.get().getBoolean(getPushMessageHandlerVibrateKeyForPackage(pkg), false);
+    }
+
+    @Override
+    public void setPushMessageHandlerNotificationVibrateEnabled(String pkg, boolean enabled) {
+        SettingsProvider.get().putBoolean(getPushMessageHandlerVibrateKeyForPackage(pkg), enabled);
+        notifyPushMessageHandlerSettingsChanged(pkg);
     }
 
     private AtomicBoolean mIsPushMessageHandleEnabled = new AtomicBoolean(false);
@@ -3679,16 +3744,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void setPushMessageHandleEnabled(boolean enabled) throws RemoteException {
-        SettingsProvider.get().putBoolean("PUSH_MESSAGE_HANDLE", enabled);
+    public void setPushMessageHandleEnabled(boolean enabled) {
+        SettingsProvider.get().putBoolean(PUSH_MESSAGE_HANDLER_ENABLE_TAG, enabled);
         mIsPushMessageHandleEnabled.set(enabled);
         notifyPushMessageHandlerSettingsChanged(null);
     }
 
-    private void notifyPushMessageHandlerSettingsChanged(String handlerTag) {
+    private void notifyPushMessageHandlerSettingsChanged(String pkg) {
         mLazyHandler.post(new ErrorCatchRunnable(() -> {
             for (PushNotificationHandler h : mPushNotificationHandlers) {
-                h.onSettingsChanged(handlerTag);
+                h.onSettingsChanged(pkg);
             }
         }, "notifyPushMessageHandlerSettingsChanged"));
     }
@@ -3703,6 +3768,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             0);
             if (list != null) {
                 for (ResolveInfo r : list) {
+                    if (BuildConfig.DEBUG) {
+                        XposedLog.verbose("cacheGCMPackages-FCM: r: " + r);
+                    }
+
                     String pkg = r.activityInfo == null ? null : r.activityInfo.packageName;
                     if (pkg != null) {
                         mGCMSupportPackages.add(pkg);
@@ -3718,6 +3787,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             0);
             if (list != null) {
                 for (ResolveInfo r : list) {
+
+                    if (BuildConfig.DEBUG) {
+                        XposedLog.verbose("cacheGCMPackages-GCM: r: " + r);
+                    }
+
                     String pkg = r.activityInfo == null ? null : r.activityInfo.packageName;
                     if (pkg != null) {
                         mGCMSupportPackages.add(pkg);
@@ -3859,13 +3933,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setPermissionControlEnabled(boolean enabled) throws RemoteException {
+    public void setPermissionControlEnabled(boolean enabled) {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETPERMISSIONCONTROLENABLED, enabled).sendToTarget();
     }
 
     @Override
-    public boolean isPermissionControlEnabled() throws RemoteException {
+    public boolean isPermissionControlEnabled() {
         enforceCallingPermissions();
         // return mPermissionControlEnabled.get();
         // FIXME.
@@ -3913,7 +3987,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall(restrict = "any")
-    public int getPermissionControlBlockModeForUid(int code, int uid, boolean log, String[] payload) throws RemoteException {
+    public int getPermissionControlBlockModeForUid(int code, int uid, boolean log, String[] payload) {
         if (DEBUG_OP) {
             XposedLog.verbose("getPermissionControlBlockModeForUid code %s pkg %s", code, uid);
         }
@@ -3926,8 +4000,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setPermissionControlBlockModeForPkg(int code, String pkg, int mode)
-            throws RemoteException {
+    public void setPermissionControlBlockModeForPkg(int code, String pkg, int mode) {
         enforceCallingPermissions();
 
         if (XposedLog.isVerboseLoggable())
@@ -3973,7 +4046,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setUserDefinedAndroidId(String id) throws RemoteException {
+    public void setUserDefinedAndroidId(String id) {
         enforceCallingPermissions();
         XposedLog.verbose("setUserDefinedAndroidId: " + id);
         // Create an random ID.
@@ -3984,7 +4057,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setUserDefinedDeviceId(String id) throws RemoteException {
+    public void setUserDefinedDeviceId(String id) {
         enforceCallingPermissions();
         XposedLog.verbose("setUserDefinedDeviceId: " + id);
         // Create an random ID.
@@ -3995,7 +4068,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setUserDefinedLine1Number(String id) throws RemoteException {
+    public void setUserDefinedLine1Number(String id) {
         enforceCallingPermissions();
         XposedLog.verbose("setUserDefinedLine1Number: " + id);
         // Create an random ID.
@@ -4007,7 +4080,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @SuppressLint("HardwareIds")
     @Override
-    public String getAndroidId() throws RemoteException {
+    public String getAndroidId() {
         long id = Binder.clearCallingIdentity();
         try {
             return Settings.Secure.getString(getContext().getContentResolver(),
@@ -4022,7 +4095,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @SuppressLint({"MissingPermission", "HardwareIds"})
     @Override
-    public String getDeviceId() throws RemoteException {
+    public String getDeviceId() {
         enforceCallingPermissions();
         try {
             TelephonyManager tm = (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
@@ -4038,7 +4111,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @SuppressLint({"MissingPermission", "HardwareIds"})
     @Override
-    public String getLine1Number() throws RemoteException {
+    public String getLine1Number() {
         enforceCallingPermissions();
         try {
             TelephonyManager tm = (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
@@ -4053,7 +4126,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public String getUserDefinedLine1Number() throws RemoteException {
+    public String getUserDefinedLine1Number() {
         long id = Binder.clearCallingIdentity();
         try {
             return mUserDefinedLine1Number.getData();
@@ -4063,7 +4136,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public String getUserDefinedDeviceId() throws RemoteException {
+    public String getUserDefinedDeviceId() {
         long id = Binder.clearCallingIdentity();
         try {
             return mUserDefinedDeviceId.getData();
@@ -4084,7 +4157,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public String[] getPrivacyList(boolean priv) throws RemoteException {
+    public String[] getPrivacyList(boolean priv) {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getPrivacyList: " + priv);
         enforceCallingPermissions();
         if (!priv) {
@@ -4136,7 +4209,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall(restrict = "any")
-    public boolean isPackageInPrivacyList(String pkg) throws RemoteException {
+    public boolean isPackageInPrivacyList(String pkg) {
         if (pkg == null) return false;
         long id = Binder.clearCallingIdentity();
         try {
@@ -4158,13 +4231,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public int getPrivacyAppsCount() throws RemoteException {
+    public int getPrivacyAppsCount() {
         return RepoProxy.getProxy().getPrivacy().size();
     }
 
     @Override
     @BinderCall
-    public void addOrRemoveFromPrivacyList(String pkg, int op) throws RemoteException {
+    public void addOrRemoveFromPrivacyList(String pkg, int op) {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("addOrRemoveFromPrivacyList: " + pkg);
         enforceCallingPermissions();
         long id = Binder.clearCallingIdentity();
@@ -4185,19 +4258,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setShowFocusedActivityInfoEnabled(boolean enabled) throws RemoteException {
+    public void setShowFocusedActivityInfoEnabled(boolean enabled) {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETSHOWFOCUSEDACTIVITYINFOENABLED, enabled).sendToTarget();
     }
 
     @Override
-    public void restoreDefaultSettings() throws RemoteException {
+    public void restoreDefaultSettings() {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_RESTOREDEFAULTSETTINGS).sendToTarget();
     }
 
     @Override
-    public List<ActivityManager.RunningServiceInfo> getRunningServices(int max) throws RemoteException {
+    public List<ActivityManager.RunningServiceInfo> getRunningServices(int max) {
         ActivityManager activityManager = (ActivityManager) getContext()
                 .getSystemService(Context.ACTIVITY_SERVICE);
         if (activityManager != null) {
@@ -4215,7 +4288,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public List<ActivityManager.RunningAppProcessInfo> getRunningAppProcesses() throws RemoteException {
+    public List<ActivityManager.RunningAppProcessInfo> getRunningAppProcesses() {
         ActivityManager activityManager = (ActivityManager) getContext()
                 .getSystemService(Context.ACTIVITY_SERVICE);
         final long id = Binder.clearCallingIdentity();
@@ -4233,17 +4306,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void writeSystemSettings(final String key, final String value) throws RemoteException {
+    public void writeSystemSettings(final String key, final String value) {
         enforceCallingPermissions();
     }
 
     @Override
-    public String getSystemSettings(String key) throws RemoteException {
+    public String getSystemSettings(String key) {
         return Settings.Global.getString(getContext().getContentResolver(), key);
     }
 
     @Override
-    public long[] getProcessPss(int[] pids) throws RemoteException {
+    public long[] getProcessPss(int[] pids) {
         long id = Binder.clearCallingIdentity();
         try {
             return ActivityManagerNative.getDefault().getProcessPss(pids);
@@ -4262,8 +4335,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public boolean onApplicationUncaughtException(String packageName, String thread, String exception, String trace)
-            throws RemoteException {
+    public boolean onApplicationUncaughtException(String packageName, String thread, String exception, String trace) {
 
         XposedLog.verbose("uncaughtException on currentPackage@%s, thread@%s, throwable@%s", packageName, thread, exception);
         XposedLog.verbose("***** FATAL EXCEPTION TRACE DUMP APM-S*****\n%s", trace);
@@ -4283,12 +4355,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public boolean isAppCrashDumpEnabled() throws RemoteException {
+    public boolean isAppCrashDumpEnabled() {
         return mShowAppCrashDumpEnabled.get();
     }
 
     @Override
-    public void setAppCrashDumpEnabled(boolean enabled) throws RemoteException {
+    public void setAppCrashDumpEnabled(boolean enabled) {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETAPPCRASHDUMPENABLED, enabled).sendToTarget();
     }
@@ -4296,14 +4368,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private RemoteCallbackList<ITopPackageChangeListener> mTopPackageListenerCallbacks;
 
     @Override
-    public void registerOnTopPackageChangeListener(ITopPackageChangeListener listener) throws RemoteException {
+    public void registerOnTopPackageChangeListener(ITopPackageChangeListener listener) {
         XposedLog.verbose("registerOnTopPackageChangeListener: " + listener);
         Preconditions.checkNotNull(listener);
         mTopPackageListenerCallbacks.register(listener);
     }
 
     @Override
-    public void unRegisterOnTopPackageChangeListener(ITopPackageChangeListener listener) throws RemoteException {
+    public void unRegisterOnTopPackageChangeListener(ITopPackageChangeListener listener) {
         XposedLog.verbose(XposedLog.TAG_LAZY + "unRegisterOnTopPackageChangeListener: " + listener);
         Preconditions.checkNotNull(listener);
         mTopPackageListenerCallbacks.unregister(listener);
@@ -4315,19 +4387,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public boolean isLazyModeEnabledForPackage(String pkg) throws RemoteException {
+    public boolean isLazyModeEnabledForPackage(String pkg) {
         return isLazyModeEnabled() && isPackageLazyByUser(pkg);
     }
 
     @Override
-    public void setLazyModeEnabled(boolean enabled) throws RemoteException {
+    public void setLazyModeEnabled(boolean enabled) {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETLAZYMODEENABLED, enabled)
                 .sendToTarget();
     }
 
     @Override
-    public String[] getLazyApps(boolean lazy) throws RemoteException {
+    public String[] getLazyApps(boolean lazy) {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getLazyApps: " + lazy);
         enforceCallingPermissions();
         if (!lazy) {
@@ -4379,7 +4451,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void addOrRemoveLazyApps(String[] packages, int op) throws RemoteException {
+    public void addOrRemoveLazyApps(String[] packages, int op) {
         if (XposedLog.isVerboseLoggable())
             XposedLog.verbose("addOrRemoveLazyApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
@@ -4389,7 +4461,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void setLPBKEnabled(boolean enabled) throws RemoteException {
+    public void setLPBKEnabled(boolean enabled) {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETLPBKENABLED, enabled)
                 .sendToTarget();
@@ -4487,7 +4559,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void addOrRemoveAppFocusAction(String pkg, String[] actions, boolean add) throws RemoteException {
+    public void addOrRemoveAppFocusAction(String pkg, String[] actions, boolean add) {
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("addOrRemoveAppFocusAction: %s %s %s", pkg, Arrays.toString(actions), String.valueOf(add));
         }
@@ -4500,13 +4572,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public String[] getAppFocusActionPackages() throws RemoteException {
+    public String[] getAppFocusActionPackages() {
         Set<String> allSet = RepoProxy.getProxy().getAppFocused().keySet();
         return convertObjectArrayToStringArray(allSet.toArray());
     }
 
     @Override
-    public String[] getAppFocusActions(String pkg) throws RemoteException {
+    public String[] getAppFocusActions(String pkg) {
         String v = RepoProxy.getProxy().getAppFocused().get(pkg);
         if (v == null) return new String[0];
         try {
@@ -4519,7 +4591,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void addOrRemoveAppUnFocusAction(String pkg, String[] actions, boolean add) throws RemoteException {
+    public void addOrRemoveAppUnFocusAction(String pkg, String[] actions, boolean add) {
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("addOrRemoveAppUnFocusAction: %s %s %s", pkg, Arrays.toString(actions), String.valueOf(add));
         }
@@ -4533,14 +4605,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public String[] getAppUnFocusActionPackages() throws RemoteException {
+    public String[] getAppUnFocusActionPackages() {
         Set<String> allSet = RepoProxy.getProxy().getAppUnFocused().keySet();
         return convertObjectArrayToStringArray(allSet.toArray());
     }
 
     @Override
     @BinderCall
-    public String[] getAppUnFocusActions(String pkg) throws RemoteException {
+    public String[] getAppUnFocusActions(String pkg) {
         String v = RepoProxy.getProxy().getAppUnFocused().get(pkg);
         if (v == null) return new String[0];
         try {
@@ -4553,7 +4625,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void setDozeEnabled(boolean enable) throws RemoteException {
+    public void setDozeEnabled(boolean enable) {
         enforceCallingPermissions();
 
         if (mDozeHandler != null) {
@@ -4606,7 +4678,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setForceDozeEnabled(boolean enable) throws RemoteException {
+    public void setForceDozeEnabled(boolean enable) {
         enforceCallingPermissions();
         if (mDozeHandler != null) {
             mDozeHandler.obtainMessage(DozeHandlerMessages.MSG_SETFORCEDOZEENABLED, enable).sendToTarget();
@@ -4624,7 +4696,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public long getLastDozeEnterTimeMills() throws RemoteException {
+    public long getLastDozeEnterTimeMills() {
         synchronized (mDozeLock) {
             return mLastDozeEvent.getResult() == DozeEvent.RESULT_SUCCESS ?
                     mLastDozeEvent.getEnterTimeMills() : -1;
@@ -4633,19 +4705,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public DozeEvent getLastDozeEvent() throws RemoteException {
+    public DozeEvent getLastDozeEvent() {
         return mLastDozeEvent.duplicate();
     }
 
     @Override
     @BinderCall
-    public long getDozeDelayMills() throws RemoteException {
+    public long getDozeDelayMills() {
         return mDozeDelay;
     }
 
     @Override
     @BinderCall
-    public void setDozeDelayMills(long delayMills) throws RemoteException {
+    public void setDozeDelayMills(long delayMills) {
         if (delayMills < 0) {
             throw new IllegalArgumentException("Doze delayMills should be positive");
         }
@@ -4658,7 +4730,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void setDoNotKillSBNEnabled(boolean enable, String module) throws RemoteException {
+    public void setDoNotKillSBNEnabled(boolean enable, String module) {
         enforceCallingPermissions();
         Pair<Boolean, String> data = new Pair<>(enable, module);
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETDONOTKILLSBNENABLED, data)
@@ -4675,7 +4747,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void setTaskRemoveKillEnabled(boolean enable) throws RemoteException {
+    public void setTaskRemoveKillEnabled(boolean enable) {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETTASKREMOVEKILLENABLED, enable)
                 .sendToTarget();
@@ -4688,7 +4760,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public String[] getTRKApps(boolean kill) throws RemoteException {
+    public String[] getTRKApps(boolean kill) {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getTRKApps: " + kill);
         enforceCallingPermissions();
         if (!kill) {
@@ -4739,7 +4811,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void addOrRemoveTRKApps(String[] packages, int op) throws RemoteException {
+    public void addOrRemoveTRKApps(String[] packages, int op) {
         if (XposedLog.isVerboseLoggable())
             XposedLog.verbose("addOrRemoveTRKApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
@@ -4749,7 +4821,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public List<DozeEvent> getDozeEventHistory() throws RemoteException {
+    public List<DozeEvent> getDozeEventHistory() {
         enforceCallingPermissions();
         synchronized (mDozeHistory) {
             List<DozeEvent> events = new ArrayList<>(mDozeHistory.size());
@@ -4760,34 +4832,34 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setPrivacyEnabled(boolean enable) throws RemoteException {
+    public void setPrivacyEnabled(boolean enable) {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETPRIVACYENABLED, enable).sendToTarget();
     }
 
     @Override
-    public boolean isPrivacyEnabled() throws RemoteException {
+    public boolean isPrivacyEnabled() {
         return mPrivacyEnabled.get();
     }
 
     // PLUGIN API START.
     @Override
-    public String[] getPluginApps() throws RemoteException {
+    public String[] getPluginApps() {
         return new String[0];
     }
 
     @Override
-    public boolean isAppInPluginList(String pkg) throws RemoteException {
+    public boolean isAppInPluginList(String pkg) {
         return false;
     }
 
     @Override
-    public void addOrRemovePluginApp(String appPackageName, boolean add) throws RemoteException {
+    public void addOrRemovePluginApp(String appPackageName, boolean add) {
 
     }
 
     @Override
-    public boolean isAppLockEnabled() throws RemoteException {
+    public boolean isAppLockEnabled() {
         return mAppGuardService.isAppLockEnabled();
     }
 
@@ -4797,13 +4869,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public boolean isBlurEnabled() throws RemoteException {
+    public boolean isBlurEnabled() {
         return mAppGuardService.isBlurEnabled();
     }
 
     @Override
     @BinderCall
-    public boolean isBlurEnabledForPackage(String packageName) throws RemoteException {
+    public boolean isBlurEnabledForPackage(String packageName) {
         return mAppGuardService.isBlurForPkg(packageName);
     }
 
@@ -4813,17 +4885,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public int getBlurRadius() throws RemoteException {
+    public int getBlurRadius() {
         return mAppGuardService.getBlurRadius();
     }
 
     @Override
-    public void setBlurRadius(int r) throws RemoteException {
+    public void setBlurRadius(int r) {
         mAppGuardService.setBlurRadius(r);
     }
 
     @Override
-    public boolean isUninstallInterruptEnabled() throws RemoteException {
+    public boolean isUninstallInterruptEnabled() {
         return mAppGuardService.isUninstallInterruptEnabled();
     }
 
@@ -4848,7 +4920,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public boolean isTransactionValid(int transactionID) throws RemoteException {
+    public boolean isTransactionValid(int transactionID) {
         return mAppGuardService.isTransactionValid(transactionID);
     }
 
@@ -4878,7 +4950,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void onActivityPackageResume(String pkg) throws RemoteException {
+    public void onActivityPackageResume(String pkg) {
         mAppGuardService.onActivityPackageResume(pkg);
     }
 
@@ -4934,7 +5006,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public AppSettings retrieveAppSettingsForPackage(String pkg) throws RemoteException {
+    public AppSettings retrieveAppSettingsForPackage(String pkg) {
 
         int mode = getPermissionControlBlockModeForPkg(
                 AppOpsManagerCompat.OP_WAKE_LOCK, pkg, false, null
@@ -5036,7 +5108,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
   at android.os.Looper.loop(Looper.java:154)
   at android.os.HandlerThread.run(HandlerThread.java:61)
      */
-    private void applyOpsSettingsForPackage(String pkg) throws RemoteException {
+    private void applyOpsSettingsForPackage(String pkg) {
         XposedLog.verbose("applyOpsSettingsForPackage: " + pkg);
         try {
             for (int i = 0; i < AppOpsManagerCompat._NUM_OP; i++) {
@@ -5052,7 +5124,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void backupTo(String dir) throws RemoteException {
+    public void backupTo(String dir) {
         long ident = Binder.clearCallingIdentity();
         try {
             RepoProxy.getProxy().backupTo(dir);
@@ -5065,19 +5137,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void restoreFrom(String dir) throws RemoteException {
+    public void restoreFrom(String dir) {
         // No impl yet.
     }
 
     @Override
     @BinderCall
-    public String[] getRawPermSettings(int page, int countInPage) throws RemoteException {
+    public String[] getRawPermSettings(int page, int countInPage) {
         return convertObjectArrayToStringArray(RepoProxy.getProxy().getPerms().getAll().toArray());
     }
 
     @Override
     @BinderCall
-    public void setAppInstalledAutoApplyTemplate(AppSettings settings) throws RemoteException {
+    public void setAppInstalledAutoApplyTemplate(AppSettings settings) {
         SettingsProvider.get().putString("AppInstalledAutoApplyTemplate", settings.toJson());
         if (BuildConfig.DEBUG) {
             AppSettings test = AppSettings.fromJson(SettingsProvider.get().getString("AppInstalledAutoApplyTemplate", null));
@@ -5087,7 +5159,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public AppSettings getAppInstalledAutoApplyTemplate() throws RemoteException {
+    public AppSettings getAppInstalledAutoApplyTemplate() {
         AppSettings as = AppSettings.fromJson(SettingsProvider.get()
                 .getString("AppInstalledAutoApplyTemplate", null));
         if (as == null) as = AppSettings.builder()
@@ -5102,7 +5174,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void setAppOpsTemplate(OpsSettings opsSettings) throws RemoteException {
+    public void setAppOpsTemplate(OpsSettings opsSettings) {
         SettingsProvider.get().putString("AppOpsTemplate", opsSettings.toJson());
         if (BuildConfig.DEBUG) {
             OpsSettings test = OpsSettings.fromJson(SettingsProvider.get().getString("AppOpsTemplate", null));
@@ -5112,22 +5184,24 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public OpsSettings getAppOpsTemplate(OpsSettings opsSettings) throws RemoteException {
+    public OpsSettings getAppOpsTemplate(OpsSettings opsSettings) {
         OpsSettings os = OpsSettings.fromJson(SettingsProvider.get().getString("AppOpsTemplate", null));
         if (os == null) os = new OpsSettings(AppOpsManagerCompat.getDefaultModes());
         return os;
     }
 
     @Override
-    public void addPendingDisableAppsTR(String pkg) throws RemoteException {
+    public void addPendingDisableAppsTR(String pkg) {
         XposedLog.verbose("addPendingDisableAppsTR: " + pkg);
         RepoProxy.getProxy().getPending_disable_apps_tr().add(pkg);
     }
 
     // PLUGIN API END.
 
+    // Fix #126, From the log we found that the caller is "com.htc.lockscreen", so
+    // we think it is OK for htc...
     private boolean isSystemUIPackage(String pkgName) {
-        return pkgName != null && (pkgName.equals(SYSTEM_UI_PKG));
+        return pkgName != null && (pkgName.equals(SYSTEM_UI_PKG) || pkgName.equals(SYSTEM_UI_PKG_HTC));
     }
 
     private void postNotifyTopPackageChanged(final String from, final String to) {
@@ -5288,25 +5362,25 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public boolean isResidentEnabled() throws RemoteException {
+    public boolean isResidentEnabled() {
         return mResidentEnabled.get();
     }
 
     @Override
     @BinderCall
-    public boolean isResidentEnabledForPackage(String who) throws RemoteException {
+    public boolean isResidentEnabledForPackage(String who) {
         return resident(who);
     }
 
     @Override
     @BinderCall
-    public void setResidentEnabled(boolean enable) throws RemoteException {
+    public void setResidentEnabled(boolean enable) {
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETRESIDENTENABLED, enable).sendToTarget();
     }
 
     @Override
     @BinderCall
-    public void addOrRemoveResidentApps(String app, boolean add) throws RemoteException {
+    public void addOrRemoveResidentApps(String app, boolean add) {
         if (XposedLog.isVerboseLoggable())
             XposedLog.verbose("addOrRemoveResidentApps: " + app);
         enforceCallingPermissions();
@@ -5317,7 +5391,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public String[] getResidentApps(boolean resident) throws RemoteException {
+    public String[] getResidentApps(boolean resident) {
         if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getResidentApps: " + resident);
         enforceCallingPermissions();
         if (!resident) {
@@ -5393,7 +5467,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void lockNow() throws RemoteException {
+    public void lockNow() {
         if (mDevicePolicyManagerService != null) {
             wrapCallingIdetUnCaught(new Runnable() {
                 @Override
@@ -5409,32 +5483,32 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public boolean isInRedemptionMode() throws RemoteException {
+    public boolean isInRedemptionMode() {
         return RepoProxy.hasFileIndicator(SubModuleManager.REDEMPTION);
     }
 
     @Override
-    public void leaveRedemptionMode() throws RemoteException {
+    public void leaveRedemptionMode() {
         RepoProxy.deleteFileIndicator(SubModuleManager.REDEMPTION);
     }
 
     @Override
-    public void enterRedemptionMode() throws RemoteException {
+    public void enterRedemptionMode() {
         RepoProxy.createFileIndicator(SubModuleManager.REDEMPTION);
     }
 
     @Override
-    public boolean isSELinuxEnabled() throws RemoteException {
+    public boolean isSELinuxEnabled() {
         return SELinuxHelper.isSELinuxEnabled();
     }
 
     @Override
-    public boolean isSELinuxEnforced() throws RemoteException {
+    public boolean isSELinuxEnforced() {
         return SELinuxHelper.isSELinuxEnforced();
     }
 
     @Override
-    public void setSelinuxEnforce(boolean enforce) throws RemoteException {
+    public void setSelinuxEnforce(boolean enforce) {
     }
 
     @Override
@@ -5443,18 +5517,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setPowerSaveModeEnabled(boolean enable) throws RemoteException {
+    public void setPowerSaveModeEnabled(boolean enable) {
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETPOWERSAVEMODEENABLED, enable).sendToTarget();
     }
 
     @Override
-    public String[] getStartRules() throws RemoteException {
+    public String[] getStartRules() {
         return convertObjectArrayToStringArray(RepoProxy.getProxy().getStart_rules().getAll().toArray());
     }
 
     @Override
     public boolean addOrRemoveStartRules(String rule,
-                                         final boolean add) throws RemoteException {
+                                         final boolean add) {
         XposedLog.verbose("addOrRemoveStartRules: " + rule + ", " + add);
         RuleParser p = RuleParser.Factory.newParser();
         Rule r = p.parse(rule);
@@ -5470,7 +5544,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public boolean hasSystemError() throws RemoteException {
+    public boolean hasSystemError() {
         final Holder<Boolean> res = new Holder<>();
         wrapCallingIdetUnCaught(new ErrorCatchRunnable(new Runnable() {
             @Override
@@ -5482,7 +5556,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void cleanUpSystemErrorTraces() throws RemoteException {
+    public void cleanUpSystemErrorTraces() {
         wrapCallingIdetUnCaught(new ErrorCatchRunnable(new Runnable() {
             @Override
             public void run() {
@@ -5644,8 +5718,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
         // Init push handlers.
         // Register here to make sure we can read settings correctly.
-        registerPushNotificationHandler(new WeChatPushNotificationHandler(getContext()));
-        registerPushNotificationHandler(new TGPushNotificationHandler(getContext()));
+        registerPushNotificationHandler(new WeChatPushNotificationHandler(getContext(), this));
+        registerPushNotificationHandler(new TGPushNotificationHandler(getContext(), this));
     }
 
     private void construct() {
@@ -5840,7 +5914,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void clearProcess(IProcessClearListener listener) throws RemoteException {
+    public void clearProcess(IProcessClearListener listener) {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_CLEARPROCESS, listener)
                 .sendToTarget();
@@ -5848,20 +5922,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void setLockKillDelay(long delay) throws RemoteException {
+    public void setLockKillDelay(long delay) {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETLOCKKILLDELAY, delay).sendToTarget();
     }
 
     @Override
     @BinderCall
-    public long getLockKillDelay() throws RemoteException {
+    public long getLockKillDelay() {
         enforceCallingPermissions();
         return mLockKillDelay;
     }
 
     @Override
-    public void setWhiteSysAppEnabled(boolean enabled) throws RemoteException {
+    public void setWhiteSysAppEnabled(boolean enabled) {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETWHITESYSAPPENABLED, enabled)
                 .sendToTarget();
@@ -5920,7 +5994,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void setRFKillEnabled(boolean enabled) throws RemoteException {
+    public void setRFKillEnabled(boolean enabled) {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETRFKILLENABLED, enabled)
                 .sendToTarget();
@@ -5934,7 +6008,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setGreeningEnabled(boolean enabled) throws RemoteException {
+    public void setGreeningEnabled(boolean enabled) {
         enforceCallingPermissions();
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETGREENINGENABLED, enabled)
                 .sendToTarget();
@@ -6147,7 +6221,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public String getServiceStarter(ComponentName service) throws RemoteException {
+    public String getServiceStarter(ComponentName service) {
         if (service == null) return null;
         String key = service.flattenToString();
         Integer uid = mServiceStartRecords.get(key);
@@ -6163,13 +6237,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setInactiveAppInsteadOfKillPreferred(boolean prefer) throws RemoteException {
+    public void setInactiveAppInsteadOfKillPreferred(boolean prefer) {
         SettingsProvider.get().putBoolean("INACTIVE_INSTEAD_OF_KILL", prefer);
         mInactiveInsteadOfKillAppInstead.set(prefer);
     }
 
     @Override
-    public void mockSystemDead(long delay) throws RemoteException {
+    public void mockSystemDead(long delay) {
         enforceCallingPermissions();
         mainHandler.postDelayed(new Runnable() {
             @Override
@@ -6180,7 +6254,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void clearModuleSettings(String moduleVar) throws RemoteException {
+    public void clearModuleSettings(String moduleVar) {
         enforceCallingPermissions();
 
         if (moduleVar.equals(XAppBuildVar.APP_BLUR)) {
@@ -6237,7 +6311,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setDisableMotionEnabled(boolean enable) throws RemoteException {
+    public void setDisableMotionEnabled(boolean enable) {
         enforceCallingPermissions();
         if (mDozeHandler != null) {
             mDozeHandler.obtainMessage(DozeHandlerMessages.MSG_SETDISABLEMOTIONENABLED, enable).sendToTarget();
@@ -6269,7 +6343,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public String getUserName() throws RemoteException {
+    public String getUserName() {
         long ident = Binder.clearCallingIdentity();
         try {
             UserManager um = (UserManager) getContext().getSystemService(Context.USER_SERVICE);
@@ -6286,7 +6360,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     }
 
     @Override
-    public Bitmap getUserIcon() throws RemoteException {
+    public Bitmap getUserIcon() {
         long ident = Binder.clearCallingIdentity();
         try {
             UserManager um = (UserManager) getContext().getSystemService(Context.USER_SERVICE);
@@ -6304,14 +6378,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void addPendingDisableApps(String pkg) throws RemoteException {
+    public void addPendingDisableApps(String pkg) {
         XposedLog.verbose("addPendingDisableApps: " + pkg);
         RepoProxy.getProxy().getPending_disable_apps().add(pkg);
     }
 
     @BinderCall
     @Override
-    public void addPowerSaveWhitelistApp(String pkg) throws RemoteException {
+    public void addPowerSaveWhitelistApp(String pkg) {
         mDeviceIdleController.addPowerSaveWhitelistAppInternal(pkg);
         RepoProxy.getProxy().getDoze_whitelist_adding().add(pkg);
         RepoProxy.getProxy().getDoze_whitelist_removal().remove(pkg);
@@ -6319,7 +6393,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @BinderCall
     @Override
-    public void removePowerSaveWhitelistApp(String pkg) throws RemoteException {
+    public void removePowerSaveWhitelistApp(String pkg) {
         mDeviceIdleController.removePowerSaveWhitelistAppInternal(pkg);
         RepoProxy.getProxy().getDoze_whitelist_removal().add(pkg);
         RepoProxy.getProxy().getDoze_whitelist_adding().remove(pkg);
@@ -6327,19 +6401,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @BinderCall
     @Override
-    public String[] getFullPowerWhitelist() throws RemoteException {
+    public String[] getFullPowerWhitelist() {
         return mDeviceIdleController.getFullPowerWhitelistInternal();
     }
 
     @BinderCall
     @Override
-    public String[] getUserPowerWhitelist() throws RemoteException {
+    public String[] getUserPowerWhitelist() {
         return mDeviceIdleController.getUserPowerWhitelistInternal();
     }
 
     @Override
     @BinderCall
-    public ActivityManager.MemoryInfo getMemoryInfo() throws RemoteException {
+    public ActivityManager.MemoryInfo getMemoryInfo() {
         long ident = Binder.clearCallingIdentity();
         try {
             ActivityManager.MemoryInfo m = new ActivityManager.MemoryInfo();
@@ -6364,7 +6438,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public void enableKeyguard(final boolean enabled) throws RemoteException {
+    public void enableKeyguard(final boolean enabled) {
         if (mPhoneWindowManagerProxy != null) {
             wrapCallingIdetUnCaught(new ErrorCatchRunnable(new Runnable() {
                 @Override
@@ -6377,7 +6451,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @BinderCall
     @Override
-    public void exitKeyguardSecurely(final IBooleanCallback1 result) throws RemoteException {
+    public void exitKeyguardSecurely(final IBooleanCallback1 result) {
         XposedLog.verbose("exitKeyguardSecurely: " + mPhoneWindowManagerProxy);
         if (mPhoneWindowManagerProxy != null) {
             wrapCallingIdetUnCaught(new ErrorCatchRunnable(new Runnable() {
@@ -6403,7 +6477,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @BinderCall
     @Override
-    public void dismissKeyguardLw() throws RemoteException {
+    public void dismissKeyguardLw() {
         if (mPhoneWindowManagerProxy != null) {
             wrapCallingIdetUnCaught(new ErrorCatchRunnable(new Runnable() {
                 @Override
@@ -6416,7 +6490,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @BinderCall
     @Override
-    public boolean isKeyguardLocked() throws RemoteException {
+    public boolean isKeyguardLocked() {
         if (mPhoneWindowManagerProxy != null) {
             return mPhoneWindowManagerProxy.isKeyguardLocked();
         }
@@ -6425,13 +6499,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall
-    public int getRunningProcessCount() throws RemoteException {
+    public int getRunningProcessCount() {
         return PkgUtil.getRunningAppsCount(getContext());
     }
 
     @BinderCall
     @Override
-    public String[] getSystemPowerWhitelist() throws RemoteException {
+    public String[] getSystemPowerWhitelist() {
         return mDeviceIdleController.getSystemPowerWhitelistInternal();
     }
 
@@ -7465,8 +7539,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                                                     String.valueOf(PkgUtil.loadNameByPkgName(getContext(), finalPkgName)));
                                         }
 
-                                    } catch (RemoteException e) {
-                                        e.rethrowAsRuntimeException();
+                                    } catch (Exception e) {
+                                        XposedLog.verbose("Fail applyOpsSettingsForPackage/showNewAppRestrictedNotification: "
+                                                + Log.getStackTraceString(e));
                                     }
                                 }, "applyOpsSettingsForPackage"), 8000);
                             }

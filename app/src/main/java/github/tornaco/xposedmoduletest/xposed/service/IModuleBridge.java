@@ -65,6 +65,9 @@ public interface IModuleBridge {
     );
 
     @CommonBringUpApi
+    int onHookBroadcastPerformResult(Intent intent, int resultCode);
+
+    @CommonBringUpApi
     void notifyTaskCreated(int taskId, ComponentName componentName);
 
     @CommonBringUpApi

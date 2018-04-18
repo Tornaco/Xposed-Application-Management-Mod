@@ -16,7 +16,6 @@ import org.newstand.logger.Logger;
 import java.util.List;
 
 import github.tornaco.android.common.Collections;
-import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.BlurPackageLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;

@@ -2,7 +2,6 @@ package github.tornaco.xposedmoduletest.ui.activity.comp;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;

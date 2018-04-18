@@ -9,18 +9,22 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Environment;
+import android.os.UserHandle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.model.PushMessage;
 import github.tornaco.xposedmoduletest.util.OSUtil;
-import github.tornaco.xposedmoduletest.xposed.repo.SettingsProvider;
 import github.tornaco.xposedmoduletest.xposed.service.AppResource;
+import github.tornaco.xposedmoduletest.xposed.service.XAshmanServiceImpl;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,38 +41,48 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
     @Getter
     private Context context;
 
+    @Setter
+    @Getter
+    private XAshmanServiceImpl service;
+
     private Intent launchIntent;
 
     private Map<String, Integer> mBadgeMap = new HashMap<>();
 
     private Set<Integer> mPendingCancelNotifications = new HashSet<>();
 
-    BasePushNotificationHandler(Context context) {
+    BasePushNotificationHandler(Context context, XAshmanServiceImpl service) {
         this.context = context;
-        readSettings(getTag());
+        setService(service);
+        readSettings();
     }
 
     @Setter
     @Getter
-    private boolean enabled, showContentEnabled;
+    private boolean enabled, showContentEnabled, notificationSoundEnabled, notificationVibrateEnabled;
 
     @Getter
     @Setter
     private String topPackage;
 
     @Override
-    public void onSettingsChanged(String tag) {
-        readSettings(tag);
+    public void onSettingsChanged(String pkg) {
+        readSettings();
 
-        XposedLog.verbose("onSettingsChanged: %s enabled: %s, showContentEnabled:%s",
+        XposedLog.verbose("onSettingsChanged: %s enabled: %s, showContentEnabled:%s, " +
+                        "notificationSoundEnabled:%s, notificationVibrateEnabled:%s",
                 getClass(),
                 isEnabled(),
-                isShowContentEnabled());
+                isShowContentEnabled(),
+                isNotificationSoundEnabled(),
+                isNotificationVibrateEnabled());
     }
 
-    private void readSettings(String tag) {
-        setEnabled(SettingsProvider.get().getBoolean(getTag(), false));
-        setShowContentEnabled(SettingsProvider.get().getBoolean(getTag() + "_show_content", false));
+    private void readSettings() {
+        setEnabled(getService().isPushMessageHandlerEnabled(getTargetPackageName()));
+        setShowContentEnabled(getService().isPushMessageHandlerShowContentEnabled(getTargetPackageName()));
+        setNotificationSoundEnabled(getService().isPushMessageHandlerNotificationSoundEnabled(getTargetPackageName()));
+        setNotificationVibrateEnabled(getService().isPushMessageHandlerNotificationVibrateEnabled(getTargetPackageName()));
     }
 
     @Override
@@ -178,7 +192,16 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
         style.bigText(pushMessage.getMessage());
         style.setBigContentTitle(pushMessage.getTitle());
 
-        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Uri curSoundUri =
+                getCustomRingtoneUri();
+        if (curSoundUri == null) {
+            curSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        }
+
+        if (BuildConfig.DEBUG) {
+            XposedLog.verbose("BasePushNotificationHandler, curSoundUri: %s", curSoundUri);
+        }
+
         Notification n = builder
                 .setContentIntent(pendingIntent)
                 .setContentTitle(pushMessage.getTitle())
@@ -187,10 +210,9 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
                 .setStyle(style)
                 .setSmallIcon(android.R.drawable.stat_sys_warning)
                 .setLargeIcon(new AppResource(getContext()).loadBitmapFromAPMApp(pushMessage.getLargeIconResName()))
-                .setVibrate(new long[]{200, 200})
-                .setSound(defaultSoundUri)
+                .setVibrate(isNotificationVibrateEnabled() ? new long[]{200, 200} : new long[]{0})
+                .setSound(isNotificationSoundEnabled() ? curSoundUri : null)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
-                .setDefaults(Notification.DEFAULT_ALL)
                 .setPriority(Notification.PRIORITY_HIGH)
                 .build();
 
@@ -202,6 +224,23 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
 
         NotificationManagerCompat.from(getContext())
                 .notify(pushMessage.getFrom(), n);
+    }
+
+    private Uri getCustomRingtoneUri() {
+        Environment.UserEnvironment userEnvironment = new Environment.UserEnvironment(UserHandle.USER_SYSTEM);
+        File customFile = new File(userEnvironment.getExternalStorageDirectory().getPath()
+                + File.separator + Environment.DIRECTORY_NOTIFICATIONS
+                + File.separator + "apm_custom_ringtone_" + getTargetPackageName() + ".ogg");
+        if (BuildConfig.DEBUG) {
+            XposedLog.verbose("BasePushNotificationHandler getCustomRingtoneUri from %s", customFile);
+        }
+        if (customFile.exists()) {
+            return Uri.fromFile(customFile);
+        }
+        if (BuildConfig.DEBUG) {
+            XposedLog.verbose("BasePushNotificationHandler getCustomRingtoneUri, file not exist! ");
+        }
+        return null;
     }
 
     private void createWeChatNotificationChannelForO(String channelId, String channelName) {
@@ -228,5 +267,10 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
                 notificationManager.createNotificationChannel(notificationChannel);
             }
         }
+    }
+
+    @Override
+    public void systemReady() {
+
     }
 }

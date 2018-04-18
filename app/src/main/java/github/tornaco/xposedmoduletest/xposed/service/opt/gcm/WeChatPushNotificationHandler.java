@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import github.tornaco.xposedmoduletest.model.PushMessage;
+import github.tornaco.xposedmoduletest.xposed.service.XAshmanServiceImpl;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -26,8 +27,8 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
     private static final String WECHAT_INTENT_KEY_BADGE = "badge";
     private static final String WECHAT_INTENT_KEY_FROM = "from";
 
-    public WeChatPushNotificationHandler(Context context) {
-        super(context);
+    public WeChatPushNotificationHandler(Context context, XAshmanServiceImpl service) {
+        super(context, service);
     }
 
     // Example. Assets/wechat_intent_dump
@@ -54,11 +55,6 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
         postNotification(resolveWeChatPushIntent(intent));
 
         return false;
-    }
-
-    @Override
-    public String getTag() {
-        return "wechat";
     }
 
     @Override

@@ -1,10 +1,13 @@
 package github.tornaco.xposedmoduletest.xposed.service.opt.gcm;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.Log;
 
 import github.tornaco.xposedmoduletest.model.PushMessage;
+import github.tornaco.xposedmoduletest.xposed.service.XAshmanServiceImpl;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -22,8 +25,8 @@ public class TGPushNotificationHandler extends BasePushNotificationHandler {
 
     private static final int NOTIFICATION_ID_TG = 12000;
 
-    public TGPushNotificationHandler(Context context) {
-        super(context);
+    public TGPushNotificationHandler(Context context, XAshmanServiceImpl service) {
+        super(context, service);
     }
 
     // Example. Assets/tg_intent_dump
@@ -50,11 +53,6 @@ public class TGPushNotificationHandler extends BasePushNotificationHandler {
         postNotification(resolvePushIntent(intent));
 
         return true;
-    }
-
-    @Override
-    public String getTag() {
-        return "tg";
     }
 
     @Override
@@ -107,5 +105,24 @@ public class TGPushNotificationHandler extends BasePushNotificationHandler {
                 .title("Telegram")
                 .from(NOTIFICATION_ID_TG) // Do not split for diff sender...
                 .build();
+    }
+
+    private void registerMessageReceiver() {
+        IntentFilter filter = new IntentFilter(GCMFCMHelper.ACTION_GCM);
+        filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                XposedLog.verbose("TGPushNotificationHandler received: " + intent);
+            }
+        };
+        Intent intent = getContext().registerReceiver(receiver, filter);
+        XposedLog.verbose("TGPushNotificationHandler registerMessageReceiver: " + intent);
+    }
+
+    @Override
+    public void systemReady() {
+        super.systemReady();
+        // registerMessageReceiver();
     }
 }

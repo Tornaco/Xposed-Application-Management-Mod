@@ -19,7 +19,7 @@ public class PMHHnaldersEnabler extends QuickTile {
         super(context);
         this.titleRes = R.string.title_push_message_available_handlers;
         this.iconRes = R.drawable.ic_screen_lock_portrait_black_24dp;
-        this.tileView = new QuickTileView(context,this) {
+        this.tileView = new QuickTileView(context, this) {
             @Override
             public void onClick(View v) {
                 super.onClick(v);

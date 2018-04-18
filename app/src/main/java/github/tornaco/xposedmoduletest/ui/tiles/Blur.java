@@ -30,6 +30,7 @@ public class Blur extends QuickTile {
             protected int getImageViewBackgroundRes() {
                 return R.drawable.tile_bg_teal;
             }
+
             @Override
             public void onClick(View v) {
                 super.onClick(v);

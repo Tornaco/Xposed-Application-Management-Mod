@@ -6,6 +6,7 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +26,7 @@ import javax.lang.model.util.ElementFilter;
 import github.tornaco.apigen.common.Logger;
 import github.tornaco.apigen.common.SettingsProvider;
 import github.tornaco.apigen.service.github.GitHubService;
+import github.tornaco.apigen.service.github.bean.Contributor;
 import github.tornaco.apigen.service.github.bean.GitLog;
 
 import static github.tornaco.apigen.SourceFiles.writeSourceFile;
@@ -145,7 +147,9 @@ public class GithubCommitShaCompiler extends AbstractProcessor {
                 .addField(String.class, "LATEST_SHA", Modifier.STATIC, Modifier.FINAL, Modifier.PUBLIC)
                 .addStaticBlock(CodeBlock.of("LATEST_SHA = $S;\n", sha))
                 .addField(String.class, "LATEST_SHA_DATE", Modifier.STATIC, Modifier.FINAL, Modifier.PUBLIC)
-                .addStaticBlock(CodeBlock.of("LATEST_SHA_DATE = $S;\n", date));
+                .addStaticBlock(CodeBlock.of("LATEST_SHA_DATE = $S;\n", date))
+                .addField(String.class, "CONTRIBUTORS", Modifier.STATIC, Modifier.FINAL, Modifier.PUBLIC)
+                .addStaticBlock(CodeBlock.of("CONTRIBUTORS = $S;\n", retrieveAndFormatLatestContributors(user, repo)));
 
         // Add type params.
         if (isFinal) subClass.addModifiers(FINAL);
@@ -155,6 +159,27 @@ public class GithubCommitShaCompiler extends AbstractProcessor {
                 .skipJavaLangImports(true)
                 .build();
         return javaFile.toString();
+    }
+
+    private String retrieveAndFormatLatestContributors(String user, String repo) {
+        List<Contributor> contributors = retrieveLatestContributors(user, repo);
+        StringBuilder sb = new StringBuilder();
+        for (Contributor c : contributors) {
+            sb.append(c.getLogin()).append("\t");
+        }
+        return sb.toString();
+    }
+
+    private List<Contributor> retrieveLatestContributors(String user, String repo) {
+        try {
+            GitHubService.GitHub gitHubService = GitHubService.GitHub.Factory.create();
+            //noinspection ConstantConditions
+            return gitHubService.contributors(user, repo)
+                    .execute().body();
+        } catch (Throwable e) {
+            Logger.debug("FAIL retrieve contributors:" + e.getLocalizedMessage());
+            return new ArrayList<>(0);
+        }
     }
 
     private GitLog retrieveLatestFirstGitLog(String user, String repo) {

@@ -9,11 +9,11 @@ import android.content.Intent;
 public interface PushNotificationHandler {
     boolean handleIncomingIntent(String targetPackage, Intent intent);
 
-    String getTag();
-
-    void onSettingsChanged(String tag);
+    void onSettingsChanged(String pkg);
 
     void onTopPackageChanged(String who);
 
     String getTargetPackageName();
+
+    void systemReady();
 }
