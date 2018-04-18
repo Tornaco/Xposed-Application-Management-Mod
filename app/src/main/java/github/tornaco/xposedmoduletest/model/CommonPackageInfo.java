@@ -49,6 +49,6 @@ public class CommonPackageInfo {
 
     @Override
     public String toString() {
-        return getAppName();
+        return getAppName() + " [" + getPkgName() + "]";
     }
 }
