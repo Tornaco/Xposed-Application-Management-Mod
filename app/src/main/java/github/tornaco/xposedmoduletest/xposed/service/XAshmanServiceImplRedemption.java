@@ -29,7 +29,6 @@ import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 import github.tornaco.xposedmoduletest.xposed.bean.OpsSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
-import github.tornaco.xposedmoduletest.xposed.repo.SettingsProvider;
 import github.tornaco.xposedmoduletest.xposed.service.am.AMSProxy;
 import github.tornaco.xposedmoduletest.xposed.service.am.UsageStatsServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
@@ -44,6 +43,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
+// Empty impl for redemption mode.
 public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
 
     @Override
@@ -324,6 +324,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     @Override
     public boolean checkBroadcastIntentSending(IApplicationThread caller, Intent intent) {
         return throwNoImpl();
+    }
+
+    @Override
+    public int onHookBroadcastPerformResult(Intent intent, int resultCode) {
+        return 0;
     }
 
     @Override

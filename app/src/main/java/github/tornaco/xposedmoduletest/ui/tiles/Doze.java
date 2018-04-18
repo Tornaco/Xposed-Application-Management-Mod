@@ -30,6 +30,7 @@ public class Doze extends QuickTile {
             protected int getImageViewBackgroundRes() {
                 return R.drawable.tile_bg_pink;
             }
+
             @Override
             public void onClick(View v) {
                 super.onClick(v);

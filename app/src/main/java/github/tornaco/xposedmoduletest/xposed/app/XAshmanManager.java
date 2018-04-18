@@ -1872,37 +1872,37 @@ public class XAshmanManager {
         }
     }
 
-    public boolean isPushMessageHandlerEnabled(String handlerTag) {
+    public boolean isPushMessageHandlerEnabled(String pkg) {
         ensureService();
         try {
-            return mService.isPushMessageHandlerEnabled(handlerTag);
+            return mService.isPushMessageHandlerEnabled(pkg);
         } catch (Exception e) {
             return false;
         }
     }
 
-    public void setPushMessageHandlerEnabled(String handlerTag, boolean enabled) {
+    public void setPushMessageHandlerEnabled(String pkg, boolean enabled) {
         ensureService();
         try {
-            mService.setPushMessageHandlerEnabled(handlerTag, enabled);
+            mService.setPushMessageHandlerEnabled(pkg, enabled);
         } catch (Exception e) {
 
         }
     }
 
-    public boolean isPushMessageHandlerShowContentEnabled(String handlerTag) {
+    public boolean isPushMessageHandlerShowContentEnabled(String pkg) {
         ensureService();
         try {
-            return mService.isPushMessageHandlerShowContentEnabled(handlerTag);
+            return mService.isPushMessageHandlerShowContentEnabled(pkg);
         } catch (Exception e) {
             return false;
         }
     }
 
-    public void setPushMessageHandlerShowContentEnabled(String handlerTag, boolean enabled) {
+    public void setPushMessageHandlerShowContentEnabled(String pkg, boolean enabled) {
         ensureService();
         try {
-            mService.setPushMessageHandlerShowContentEnabled(handlerTag, enabled);
+            mService.setPushMessageHandlerShowContentEnabled(pkg, enabled);
         } catch (Exception e) {
 
         }
@@ -1926,37 +1926,37 @@ public class XAshmanManager {
         }
     }
 
-    public boolean isPushMessageHandlerNotificationSoundEnabled(String handlerTag) {
+    public boolean isPushMessageHandlerNotificationSoundEnabled(String pkg) {
         ensureService();
         try {
-            return mService.isPushMessageHandlerNotificationSoundEnabled(handlerTag);
+            return mService.isPushMessageHandlerNotificationSoundEnabled(pkg);
         } catch (Exception e) {
             return true;
         }
     }
 
-    public void setPushMessageHandlerNotificationSoundEnabled(String handlerTag, boolean enabled) {
+    public void setPushMessageHandlerNotificationSoundEnabled(String pkg, boolean enabled) {
         ensureService();
         try {
-            mService.setPushMessageHandlerNotificationSoundEnabled(handlerTag, enabled);
+            mService.setPushMessageHandlerNotificationSoundEnabled(pkg, enabled);
         } catch (Exception e) {
 
         }
     }
 
-    public boolean isPushMessageHandlerNotificationVibrateEnabled(String handlerTag) {
+    public boolean isPushMessageHandlerNotificationVibrateEnabled(String pkg) {
         ensureService();
         try {
-            return mService.isPushMessageHandlerNotificationVibrateEnabled(handlerTag);
+            return mService.isPushMessageHandlerNotificationVibrateEnabled(pkg);
         } catch (Exception e) {
             return true;
         }
     }
 
-    public void setPushMessageHandlerNotificationVibrateEnabled(String handlerTag, boolean enabled) {
+    public void setPushMessageHandlerNotificationVibrateEnabled(String pkg, boolean enabled) {
         ensureService();
         try {
-            mService.setPushMessageHandlerNotificationVibrateEnabled(handlerTag, enabled);
+            mService.setPushMessageHandlerNotificationVibrateEnabled(pkg, enabled);
         } catch (Exception e) {
 
         }

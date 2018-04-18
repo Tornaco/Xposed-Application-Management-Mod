@@ -406,17 +406,17 @@ interface IAshmanService {
     void setStartRuleEnabled(boolean enabled);
 
     // Push message handlers.
-    boolean isPushMessageHandlerEnabled(String handlerTag);
-    void setPushMessageHandlerEnabled(String handlerTag, boolean enabled);
+    boolean isPushMessageHandlerEnabled(String pkg);
+    void setPushMessageHandlerEnabled(String pkg, boolean enabled);
 
-    boolean isPushMessageHandlerShowContentEnabled(String handlerTag);
-    void setPushMessageHandlerShowContentEnabled(String handlerTag, boolean enabled);
+    boolean isPushMessageHandlerShowContentEnabled(String pkg);
+    void setPushMessageHandlerShowContentEnabled(String pkg, boolean enabled);
 
-    boolean isPushMessageHandlerNotificationSoundEnabled(String handlerTag);
-    void setPushMessageHandlerNotificationSoundEnabled(String handlerTag, boolean enabled);
+    boolean isPushMessageHandlerNotificationSoundEnabled(String pkg);
+    void setPushMessageHandlerNotificationSoundEnabled(String pkg, boolean enabled);
 
-    boolean isPushMessageHandlerNotificationVibrateEnabled(String handlerTag);
-    void setPushMessageHandlerNotificationVibrateEnabled(String handlerTag, boolean enabled);
+    boolean isPushMessageHandlerNotificationVibrateEnabled(String pkg);
+    void setPushMessageHandlerNotificationVibrateEnabled(String pkg, boolean enabled);
 
     // AIO toggle.
     boolean isPushMessageHandleEnabled();

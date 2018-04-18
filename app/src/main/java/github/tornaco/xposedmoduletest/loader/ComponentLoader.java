@@ -121,7 +121,7 @@ public interface ComponentLoader {
 
 
                 if (BuildConfig.DEBUG) {
-                    Logger.d("loadInstalledApps: " + packageInfo +", gcm support: " + packageInfo.isGCMSupport());
+                    Logger.d("loadInstalledApps: " + packageInfo + ", gcm support: " + packageInfo.isGCMSupport());
                 }
             }
 

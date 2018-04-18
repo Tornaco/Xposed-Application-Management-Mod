@@ -30,6 +30,7 @@ public class AppGuard extends QuickTile {
             protected int getImageViewBackgroundRes() {
                 return R.drawable.tile_bg_red;
             }
+
             @Override
             public void onClick(View v) {
                 super.onClick(v);

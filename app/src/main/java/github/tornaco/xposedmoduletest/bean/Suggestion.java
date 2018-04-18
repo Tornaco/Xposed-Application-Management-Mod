@@ -3,7 +3,6 @@ package github.tornaco.xposedmoduletest.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.DrawableRes;
-import android.view.View;
 
 import github.tornaco.xposedmoduletest.ui.adapter.suggest.SuggestionsAdapter;
 import lombok.AllArgsConstructor;

@@ -37,6 +37,7 @@ public class Resident extends QuickTile {
             protected int getImageViewBackgroundRes() {
                 return R.drawable.tile_bg_orange;
             }
+
             @Override
             public void onClick(View v) {
                 super.onClick(v);

@@ -30,6 +30,7 @@ public class RFKill extends QuickTile {
             protected int getImageViewBackgroundRes() {
                 return R.drawable.tile_bg_green;
             }
+
             @Override
             public void onClick(View v) {
                 super.onClick(v);

@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.util.Log;
 
 import github.tornaco.xposedmoduletest.model.PushMessage;
+import github.tornaco.xposedmoduletest.xposed.service.XAshmanServiceImpl;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -24,8 +25,8 @@ public class TGPushNotificationHandler extends BasePushNotificationHandler {
 
     private static final int NOTIFICATION_ID_TG = 12000;
 
-    public TGPushNotificationHandler(Context context) {
-        super(context);
+    public TGPushNotificationHandler(Context context, XAshmanServiceImpl service) {
+        super(context, service);
     }
 
     // Example. Assets/tg_intent_dump
@@ -52,11 +53,6 @@ public class TGPushNotificationHandler extends BasePushNotificationHandler {
         postNotification(resolvePushIntent(intent));
 
         return true;
-    }
-
-    @Override
-    public String getTag() {
-        return "tg";
     }
 
     @Override
