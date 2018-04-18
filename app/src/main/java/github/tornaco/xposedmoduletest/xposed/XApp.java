@@ -36,7 +36,7 @@ import github.tornaco.xposedmoduletest.util.XExecutor;
  * Created by guohao4 on 2017/10/17.
  * Email: Tornaco@163.com
  */
-@GithubCommitSha
+@GithubCommitSha(user = "Tornaco")
 @BuildHostInfo
 @BuildVar
 public class XApp extends MultiDexApplication {

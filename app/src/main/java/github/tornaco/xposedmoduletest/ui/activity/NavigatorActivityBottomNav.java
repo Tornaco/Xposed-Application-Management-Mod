@@ -85,6 +85,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.BackupRestoreSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CleanUpSystemErrorTrace;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CrashDump;
 import github.tornaco.xposedmoduletest.ui.tiles.app.GcmMessagesSubscriber;
+import github.tornaco.xposedmoduletest.ui.tiles.app.GitContributors;
 import github.tornaco.xposedmoduletest.ui.tiles.app.InactiveInsteadOfKillApp;
 import github.tornaco.xposedmoduletest.ui.tiles.app.MokeCrash;
 import github.tornaco.xposedmoduletest.ui.tiles.app.MokeSystemDead;
@@ -1061,6 +1062,7 @@ public class NavigatorActivityBottomNav
             open.titleRes = R.string.title_open_info;
             open.addTile(new PrivacyPolicy(getActivity()));
             open.addTile(new OpenSource(getActivity()));
+            open.addTile(new GitContributors(getActivity()));
             open.addTile(new Talkers(getActivity()));
 
             boolean isPlayVersion = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.PLAY);

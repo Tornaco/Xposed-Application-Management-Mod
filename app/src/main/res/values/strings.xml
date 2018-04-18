@@ -586,5 +586,6 @@
     <string name="title_push_message_handler_vibrate">震动</string>
     <string name="title_gcm_diag">Diagnostics</string>
     <string name="error_activity_not_found">未安装该应用</string>
+    <string name="title_git_contributors">代码贡献人员</string>
 
 </resources>
