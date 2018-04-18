@@ -150,13 +150,11 @@ class AMSActivityIntentResolverSubModule extends AndroidSubModule {
                             Intent intent = (Intent) param.args[2];
                             int resultCode = (int) param.args[3];
 
-                            param.args[3] = resultCode;
-
-                            if (intent != null && TGPushNotificationHandler.TG_PKG_NAME.equals(intent.getPackage())) {
+                            int hookedCode = getBridge().onHookBroadcastPerformResult(intent, resultCode);
+                            if (isValidResultCode(hookedCode) && resultCode != hookedCode) {
+                                param.args[3] = hookedCode;
                                 if (BuildConfig.DEBUG) {
-                                    XposedLog.verbose("BroadcastRecord TG perform receive TG: %s, code %s, ARG@%s",
-                                            param.thisObject, resultCode, intent);
-                                    param.args[3] = Activity.RESULT_OK;
+                                    XposedLog.verbose("BroadcastRecord perform receive hooked res code to: " + hookedCode);
                                 }
                             }
                         }
@@ -168,5 +166,10 @@ class AMSActivityIntentResolverSubModule extends AndroidSubModule {
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }
+    }
+
+    // Only accept ok or canceled.
+    private static boolean isValidResultCode(int code) {
+        return code == Activity.RESULT_OK || code == Activity.RESULT_CANCELED;
     }
 }

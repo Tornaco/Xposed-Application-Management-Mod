@@ -25,6 +25,7 @@ public class CompReplacement extends QuickTile {
             protected int getImageViewBackgroundRes() {
                 return R.drawable.tile_bg_blue_grey;
             }
+
             @Override
             public void onClick(View v) {
                 super.onClick(v);

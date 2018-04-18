@@ -1,7 +1,6 @@
 package github.tornaco.xposedmoduletest.ui.tiles.app;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Toast;

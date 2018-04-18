@@ -19,8 +19,8 @@ import java.util.List;
 import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.remote.Contributions;
 import github.tornaco.xposedmoduletest.model.Contribution;
+import github.tornaco.xposedmoduletest.remote.Contributions;
 
 
 /**

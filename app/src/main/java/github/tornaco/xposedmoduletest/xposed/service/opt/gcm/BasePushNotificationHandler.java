@@ -23,8 +23,8 @@ import java.util.Set;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.model.PushMessage;
 import github.tornaco.xposedmoduletest.util.OSUtil;
-import github.tornaco.xposedmoduletest.xposed.repo.SettingsProvider;
 import github.tornaco.xposedmoduletest.xposed.service.AppResource;
+import github.tornaco.xposedmoduletest.xposed.service.XAshmanServiceImpl;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,15 +41,20 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
     @Getter
     private Context context;
 
+    @Setter
+    @Getter
+    private XAshmanServiceImpl service;
+
     private Intent launchIntent;
 
     private Map<String, Integer> mBadgeMap = new HashMap<>();
 
     private Set<Integer> mPendingCancelNotifications = new HashSet<>();
 
-    BasePushNotificationHandler(Context context) {
+    BasePushNotificationHandler(Context context, XAshmanServiceImpl service) {
         this.context = context;
-        readSettings(getTag());
+        setService(service);
+        readSettings();
     }
 
     @Setter
@@ -61,8 +66,8 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
     private String topPackage;
 
     @Override
-    public void onSettingsChanged(String tag) {
-        readSettings(tag);
+    public void onSettingsChanged(String pkg) {
+        readSettings();
 
         XposedLog.verbose("onSettingsChanged: %s enabled: %s, showContentEnabled:%s, " +
                         "notificationSoundEnabled:%s, notificationVibrateEnabled:%s",
@@ -73,11 +78,11 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
                 isNotificationVibrateEnabled());
     }
 
-    private void readSettings(String tag) {
-        setEnabled(SettingsProvider.get().getBoolean(getTag(), false));
-        setShowContentEnabled(SettingsProvider.get().getBoolean(getTag() + "_show_content", false));
-        setNotificationSoundEnabled(SettingsProvider.get().getBoolean(getTag() + "_notification_sound", true));
-        setNotificationVibrateEnabled(SettingsProvider.get().getBoolean(getTag() + "_notification_vibrate", true));
+    private void readSettings() {
+        setEnabled(getService().isPushMessageHandlerEnabled(getTargetPackageName()));
+        setShowContentEnabled(getService().isPushMessageHandlerShowContentEnabled(getTargetPackageName()));
+        setNotificationSoundEnabled(getService().isPushMessageHandlerNotificationSoundEnabled(getTargetPackageName()));
+        setNotificationVibrateEnabled(getService().isPushMessageHandlerNotificationVibrateEnabled(getTargetPackageName()));
     }
 
     @Override
