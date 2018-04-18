@@ -96,6 +96,10 @@ public interface ComponentReplacementsLoader {
                 cr.setCompFromPackageName(from.getPackageName());
                 cr.setCompFromClassName(from.getClassName());
                 cr.setAppPackageName(from.getPackageName());
+
+                if (!PkgUtil.isPkgInstalled(context, from.getPackageName()))
+                    cr.setAppName("[*源 未安装]");
+
                 cr.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(context, from.getPackageName())));
 
                 // Inflate to.
@@ -105,6 +109,10 @@ public interface ComponentReplacementsLoader {
                     cr.setCompToPackageName(to.getPackageName());
                     cr.setCompToClassName(to.getClassName());
                 }
+
+                if (!PkgUtil.isPkgInstalled(context, to.getPackageName()))
+                    cr.setAppName(cr.getAppName()+" [*目标 未安装]");
+
                 res.add(cr);
             }
             return res;

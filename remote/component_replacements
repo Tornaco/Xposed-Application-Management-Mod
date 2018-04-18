@@ -1,28 +1,142 @@
-[
-        {
-            "appName":"百度外卖",
-            "appPackageName":"com.baidu.lbs.waimai",
-            "compFromClassName":"com.baidu.lbs.waimai.SplashActivity",
-            "compFromPackageName":"com.baidu.lbs.waimai",
-            "compToClassName":"com.baidu.lbs.waimai.WaimaiActivity",
-            "compToPackageName":"com.baidu.lbs.waimai"
-        },
-
-        {
-            "appName":"今日头条",
-            "appPackageName":"com.ss.android.article.news",
-            "compFromClassName":"com.ss.android.article.news.activity.SplashBadgeActivity",
-            "compFromPackageName":"com.ss.android.article.news",
-            "compToClassName":"com.ss.android.article.news.activity.MainActivity",
-            "compToPackageName":"com.ss.android.article.news"
-        },
-
-        {
-            "appName":"微博",
-            "appPackageName":"com.sina.weibo",
-            "compFromClassName":"com.sina.weibo.SplashActivity",
-            "compFromPackageName":"com.sina.weibo",
-            "compToClassName":"com.sina.weibo.MainTabActivity",
-            "compToPackageName":"com.sina.weibo"
-        }
+[{
+		"appName": "百度外卖",
+		"appPackageName": "com.baidu.lbs.waimai",
+		"compFromClassName": "com.baidu.lbs.waimai.SplashActivity",
+		"compFromPackageName": "com.baidu.lbs.waimai",
+		"compToClassName": "com.baidu.lbs.waimai.WaimaiActivity",
+		"compToPackageName": "com.baidu.lbs.waimai"
+	}, {
+		"appName": "今日头条",
+		"appPackageName": "com.ss.android.article.news",
+		"compFromClassName": "com.ss.android.article.news.activity.SplashBadgeActivity",
+		"compFromPackageName": "com.ss.android.article.news",
+		"compToClassName": "com.ss.android.article.news.activity.MainActivity",
+		"compToPackageName": "com.ss.android.article.news"
+	}, {
+		"appName": "微博",
+		"appPackageName": "com.sina.weibo",
+		"compFromClassName": "com.sina.weibo.SplashActivity",
+		"compFromPackageName": "com.sina.weibo",
+		"compToClassName": "com.sina.weibo.MainTabActivity",
+		"compToPackageName": "com.sina.weibo"
+	}, {
+		"appName": "百度网盘",
+		"appPackageName": "com.baidu.netdisk",
+		"compFromClassName": "com.baidu.netdisk.ui.Navigate",
+		"compFromPackageName": "com.baidu.netdisk",
+		"compToClassName": "com.baidu.netdisk.ui.MainActivity",
+		"compToPackageName": "com.baidu.netdisk"
+	}, {
+		"appName": "哔哩哔哩",
+		"appPackageName": "tv.danmaku.bili",
+		"compFromClassName": "tv.danmaku.bili.ui.splash.SplashActivity",
+		"compFromPackageName": "tv.danmaku.bili",
+		"compToClassName": "tv.danmaku.bili.MainActivityV2",
+		"compToPackageName": "tv.danmaku.bili"
+	}, {
+		"appName": "中国工商银行",
+		"appPackageName": "com.icbc",
+		"compFromClassName": "com.icbc.activity.init.LoadingAdvActivity",
+		"compFromPackageName": "com.icbc",
+		"compToClassName": "com.icbc.activity.main.MainActivity",
+		"compToPackageName": "com.icbc"
+	}, {
+		"appName": "哈罗单车",
+		"appPackageName": "com.jingyao.easybike",
+		"compFromClassName": "com.jingyao.easybike.presentation.ui.activity.SplashActivity",
+		"compFromPackageName": "com.jingyao.easybike",
+		"compToClassName": "com.jingyao.easybike.presentation.ui.activity.MainActivity",
+		"compToPackageName": "com.jingyao.easybike"
+	}, {
+		"appName": "和包支付",
+		"appPackageName": "com.cmcc.hebao",
+		"compFromClassName": "com.cmcc.wallet.LoadingActivity",
+		"compFromPackageName": "com.cmcc.hebao",
+		"compToClassName": "com.cmcc.wallet.mocam.activity.home.WalletHomeActivity",
+		"compToPackageName": "com.cmcc.hebao"
+	}, {
+		"appName": "手机营业厅",
+		"appPackageName": "com.sinovatech.unicom.ui",
+		"compFromClassName": "com.sinovatech.unicom.ui.WelcomeClient",
+		"compFromPackageName": "com.sinovatech.unicom.ui",
+		"compToClassName": "com.sinovatech.unicom.basic.ui.MainActivity",
+		"compToPackageName": "com.sinovatech.unicom.ui"
+	}, {
+		"appName": "Village",
+		"appPackageName": "com.downloading.main.baiduyundownload",
+		"compFromClassName": "com.downloading.main.baiduyundownload.splash",
+		"compFromPackageName": "com.downloading.main.baiduyundownload",
+		"compToClassName": "com.downloading.main.baiduyundownload.home",
+		"compToPackageName": "com.downloading.main.baiduyundownload"
+	}, {
+		"appName": "温州银行",
+		"appPackageName": "cn.wzbank.mobilebank",
+		"compFromClassName": "cn.wzbank.mobilebank.SplashScreenActivity",
+		"compFromPackageName": "cn.wzbank.mobilebank",
+		"compToClassName": "cn.wzbank.mobilebank.HomepageActivity",
+		"compToPackageName": "cn.wzbank.mobilebank"
+	}, {
+		"appName": "闲鱼",
+		"appPackageName": "com.taobao.idlefish",
+		"compFromClassName": "com.taobao.fleamarket.home.activity.AdvertActivity",
+		"compFromPackageName": "com.taobao.idlefish",
+		"compToClassName": "com.taobao.fleamarket.home.activity.MainActivity",
+		"compToPackageName": "com.taobao.idlefish"
+	}, {
+		"appName": "掌上公交",
+		"appPackageName": "com.mygolbs.mybus",
+		"compFromClassName": "com.mygolbs.mybus.LoginActivity",
+		"compFromPackageName": "com.mygolbs.mybus",
+		"compToClassName": "com.mygolbs.mybus.MainTabHostActivity",
+		"compToPackageName": "com.mygolbs.mybus"
+	}, {
+		"appName": "追书神器@Suwen",
+		"appPackageName": "com.ushaqi.zhuishushenqi",
+		"compFromClassName": "com.ushaqi.zhuishushenqi.ui.SplashActivity",
+		"compFromPackageName": "com.ushaqi.zhuishushenqi",
+		"compToClassName": "com.ushaqi.zhuishushenqi.ui.home.HomeActivity",
+		"compToPackageName": "com.ushaqi.zhuishushenqi"
+	}, {
+		"appName": "腾讯视频@彼岸—群纪委书记",
+		"appPackageName": "com.tencent.qqlive",
+		"compFromClassName": "com.tencent.qqlive.ona.activity.WelcomeActivity",
+		"compFromPackageName": "com.tencent.qqlive",
+		"compToClassName": "com.tencent.qqlive.ona.activity.HomeActivity",
+		"compToPackageName": "com.tencent.qqlive"
+	}, {
+		"appName": "浙江移动手机营业厅@猛将",
+		"appPackageName": "com.example.businesshall",
+		"compFromClassName": "com.businesshall.activity.NewLogoActivity",
+		"compFromPackageName": "com.example.businesshall",
+		"compToClassName": "com.businesshall.enterance.NewMainActivity",
+		"compToPackageName": "com.example.businesshall"
+	}, {
+		"appName": "重庆移动",
+		"appPackageName": "com.cqmc.client",
+		"compFromClassName": "com.cqmc.client.splashModule.ui.activity.SplashActivity",
+		"compFromPackageName": "com.cqmc.client",
+		"compToClassName": "com.cqmc.client.mainModule.ui.activity.HomeActivity",
+		"compToPackageName": "com.cqmc.client"
+	}, {
+		"appName": "网易云音乐",
+		"appPackageName": "com.netease.cloudmusic",
+		"compFromClassName": "com.netease.cloudmusic.activity.LoadingActivity",
+		"compFromPackageName": "com.netease.cloudmusic",
+		"compToClassName": "com.netease.cloudmusic.activity.MainActivity",
+		"compToPackageName": "com.netease.cloudmusic"
+	}, {
+		"appName": "斗鱼直播",
+		"appPackageName": "air.tv.douyu.android",
+		"compFromClassName": "tv.douyu.view.activity.SplashActivity",
+		"compFromPackageName": "air.tv.douyu.android",
+		"compToClassName": "tv.douyu.view.activity.MainActivity",
+		"compToPackageName": "air.tv.douyu.android"
+	}, {
+		"appName": "网易云音乐",
+		"appPackageName": "com.netease.cloudmusic",
+		"compFromClassName": "com.netease.cloudmusic.activity.LoadingAdActivity",
+		"compFromPackageName": "com.netease.cloudmusic",
+		"compToClassName": "com.netease.cloudmusic.activity.MainActivity",
+		"compToPackageName": "com.netease.cloudmusic"
+	}
 ]
