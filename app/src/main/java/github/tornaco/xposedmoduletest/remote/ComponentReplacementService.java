@@ -15,7 +15,7 @@ import retrofit2.http.GET;
 
 public interface ComponentReplacementService {
 
-    String API_URL = "https://raw.githubusercontent.com/Tornaco/XAppGuard/master/remote/";
+    String API_URL = "https://raw.githubusercontent.com/Tornaco/X-APM/master/remote/";
 
     @GET("component_replacements")
     Call<List<ComponentReplacement>> get();
