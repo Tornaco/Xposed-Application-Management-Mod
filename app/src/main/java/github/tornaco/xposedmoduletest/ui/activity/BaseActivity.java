@@ -4,8 +4,10 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,6 +21,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import org.newstand.logger.Logger;
 
@@ -321,5 +324,13 @@ public class BaseActivity extends AppCompatActivity implements View {
                 Logger.e("runOnUiThreadChecked: " + e);
             }
         });
+    }
+
+    public void startActivityChecked(Intent intent) {
+        try {
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(getContext(), R.string.error_activity_not_found, Toast.LENGTH_SHORT).show();
+        }
     }
 }
