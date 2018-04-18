@@ -210,7 +210,7 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
                 .setStyle(style)
                 .setSmallIcon(android.R.drawable.stat_sys_warning)
                 .setLargeIcon(new AppResource(getContext()).loadBitmapFromAPMApp(pushMessage.getLargeIconResName()))
-                .setVibrate(isNotificationVibrateEnabled() ? new long[]{200, 200} : new long[]{0})
+                .setVibrate(isNotificationVibrateEnabled() ? new long[]{200, 200, 100, 100} : new long[]{0})
                 .setSound(isNotificationSoundEnabled() ? curSoundUri : null)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
                 .setPriority(Notification.PRIORITY_HIGH)
@@ -262,7 +262,7 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
             notificationChannel.enableLights(true);
             notificationChannel.setLightColor(Color.GREEN);
             notificationChannel.enableVibration(true);
-            notificationChannel.setVibrationPattern(new long[]{200, 200});
+            notificationChannel.setVibrationPattern(new long[]{200, 200, 100, 100});
             if (notificationManager != null) {
                 notificationManager.createNotificationChannel(notificationChannel);
             }
