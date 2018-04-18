@@ -165,7 +165,7 @@ public class GithubCommitShaCompiler extends AbstractProcessor {
         List<Contributor> contributors = retrieveLatestContributors(user, repo);
         StringBuilder sb = new StringBuilder();
         for (Contributor c : contributors) {
-            sb.append(c.getLogin()).append("\t");
+            sb.append(c.getLogin()).append(" ");
         }
         return sb.toString();
     }

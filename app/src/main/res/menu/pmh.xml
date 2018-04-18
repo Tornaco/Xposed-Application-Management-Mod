@@ -10,4 +10,10 @@
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
 
+
+    <item
+        android:id="@+id/action_gcm_diag"
+        android:icon="@drawable/ic_developer_board_black_24dp"
+        android:title="@string/title_gcm_diag"
+        app:showAsAction="ifRoom" />
 </menu>

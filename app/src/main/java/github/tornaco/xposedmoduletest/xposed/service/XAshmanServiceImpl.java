@@ -7393,6 +7393,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             }
             if (applicationInfo != null && applicationInfo.packageName != null) {
                 removeFromRunningProcessPackages(applicationInfo.packageName);
+
+                // Notify package manager that this app is dead.
+                PkgUtil.onAppBringDown(applicationInfo.packageName, "onRemoveProcessLocked");
             }
         }
 
