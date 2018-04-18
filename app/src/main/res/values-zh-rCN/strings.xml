@@ -227,6 +227,8 @@
     <string name="summary_control_mode_w">白名单</string>
     <string name="title_comp_replacement_found">新规则被你复制</string>
     <string name="message_comp_replacement_found">检测到你的剪贴板里复制了一份新的可用规则，你想要导入这个规则吗？</string>
+    <string name="title_from_no_install">[*源 未安装]</string>
+    <string name="title_to_no_install">[*目标 未安装]</string>
     <string name="title_export_comp_replacements">导出我的规则</string>
     <string name="title_import_comp_replacements">从文件导入</string>
     <string name="title_import_fail_invalid_file">无效文件</string>

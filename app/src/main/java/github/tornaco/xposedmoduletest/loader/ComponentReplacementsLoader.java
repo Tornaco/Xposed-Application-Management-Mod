@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import github.tornaco.android.common.Consumer;
+import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.ComponentReplacement;
 import github.tornaco.xposedmoduletest.bean.ComponentReplacementList;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
@@ -99,7 +100,7 @@ public interface ComponentReplacementsLoader {
                 cr.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(context, from.getPackageName())));
 
                 if (!PkgUtil.isPkgInstalled(context, from.getPackageName()))
-                    cr.setAppName("[*源 未安装]");
+                    cr.setAppName(context.getString(R.string.title_from_no_install));
 
                 // Inflate to.
                 Object v = replacements.get(k);
@@ -110,7 +111,7 @@ public interface ComponentReplacementsLoader {
                 }
 
                 if (!PkgUtil.isPkgInstalled(context, to.getPackageName()))
-                    cr.setAppName(cr.getAppName()+" [*目标 未安装]");
+                    cr.setAppName(cr.getAppName() + " " + context.getString(R.string.title_to_no_install));
 
                 res.add(cr);
             }
