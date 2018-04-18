@@ -22,3 +22,7 @@
 
 ## 4. 编译
 依赖```hiddenapi```，```Xposed-Framework```，更详细的[编译步骤](https://github.com/Tornaco/X-APM/tree/master/build_var_controls)。
+
+
+## 5. 软件设计思路
+开发者可以查看本应用的[设计细节](https://github.com/Tornaco/X-APM/blob/master/FUNC_DESIGN.md)。
