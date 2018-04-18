@@ -204,12 +204,9 @@ public class NavigatorActivityBottomNav
 
     private void loadAppLockConfig() {
         if (XAshmanManager.get().isServiceAvailable()) {
-            XExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    String[] whitelist = getResources().getStringArray(R.array.app_lock_white_list_activity);
-                    XAshmanManager.get().addAppLockWhiteListActivity(whitelist);
-                }
+            XExecutor.execute(() -> {
+                String[] whitelist = getResources().getStringArray(R.array.app_lock_white_list_activity);
+                XAshmanManager.get().addAppLockWhiteListActivity(whitelist);
             });
         }
     }
@@ -329,28 +326,17 @@ public class NavigatorActivityBottomNav
                     .setTitle(R.string.title_redemption_mode)
                     .setMessage(R.string.message_redemption_mode)
                     .setCancelable(false)
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finishAffinity();
-                        }
-                    })
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> finishAffinity())
                     .setNeutralButton(R.string.learn_redemption_mode,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    finish();
-                                    navigateToWebPage(getString(R.string.app_wiki_url));
-                                }
+                            (dialog, which) -> {
+                                finish();
+                                navigateToWebPage(getString(R.string.app_wiki_url));
                             })
                     .setNegativeButton(R.string.leave_redemption_mode,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    XAshmanManager.get().leaveRedemptionMode();
-                                    finishAffinity();
-                                    Toast.makeText(getContext(), R.string.redemption_need_restart, Toast.LENGTH_SHORT).show();
-                                }
+                            (dialog, which) -> {
+                                XAshmanManager.get().leaveRedemptionMode();
+                                finishAffinity();
+                                Toast.makeText(getContext(), R.string.redemption_need_restart, Toast.LENGTH_SHORT).show();
                             })
                     .create()
                     .show();
@@ -366,25 +352,12 @@ public class NavigatorActivityBottomNav
                         .setTitle(R.string.title_app_dev_say)
                         .setMessage(getString(R.string.message_first_run))
                         .setCancelable(false)
-                        .setNeutralButton(R.string.no_remind, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                AppSettings.setFirstRun(getApplicationContext());
-                                showUpdateLog();
-                            }
+                        .setNeutralButton(R.string.no_remind, (dialog, which) -> {
+                            AppSettings.setFirstRun(getApplicationContext());
+                            showUpdateLog();
                         })
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                showUpdateLog();
-                            }
-                        })
-                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                finish();
-                            }
-                        })
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> showUpdateLog())
+                        .setNegativeButton(android.R.string.cancel, (dialog, which) -> finish())
                         .show();
             }
         } catch (Throwable e) {
@@ -397,12 +370,7 @@ public class NavigatorActivityBottomNav
         bottomSheet.showWithSheetView(LayoutInflater.from(getActivity())
                 .inflate(R.layout.update_log_sheet_layout, bottomSheet, false));
         bottomSheet.findViewById(R.id.update_log_close_button)
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        bottomSheet.dismissSheet();
-                    }
-                });
+                .setOnClickListener(v -> bottomSheet.dismissSheet());
     }
 
     @Override
@@ -577,13 +545,10 @@ public class NavigatorActivityBottomNav
                         }
                     });
 
+            // Hide it... Move it to settings/data.
+            findView(rootView, R.id.button).setVisibility(View.GONE);
             findView(rootView, R.id.button)
-                    .setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            onRequestUninstalledAPM();
-                        }
-                    });
+                    .setOnClickListener(v -> onRequestUninstalledAPM());
 
             // Setup title.
             TextView statusTitle = findView(rootView, android.R.id.title);
@@ -764,15 +729,12 @@ public class NavigatorActivityBottomNav
             new AlertDialog.Builder(getActivity())
                     .setTitle(R.string.title_uninstall_apm)
                     .setMessage(getString(R.string.message_uninstall_apm))
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (XAshmanManager.get().isServiceAvailable()) {
-                                XAshmanManager.get().restoreDefaultSettings();
-                                Toast.makeText(getContext(), R.string.summary_restore_done, Toast.LENGTH_SHORT).show();
-                            }
-                            PackageManagerCompat.unInstallUserAppWithIntent(getContext(), BuildConfig.APPLICATION_ID);
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                        if (XAshmanManager.get().isServiceAvailable()) {
+                            XAshmanManager.get().restoreDefaultSettings();
+                            Toast.makeText(getContext(), R.string.summary_restore_done, Toast.LENGTH_SHORT).show();
                         }
+                        PackageManagerCompat.unInstallUserAppWithIntent(getContext(), BuildConfig.APPLICATION_ID);
                     })
                     .setNegativeButton(android.R.string.cancel, null)
                     .show();
@@ -793,36 +755,33 @@ public class NavigatorActivityBottomNav
             }
 
             if (serviceAvailable) {
-                XExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            final boolean hasModuleError = XAshmanManager.get().hasModuleError();
-                            final boolean hasSystemError = XAshmanManager.get().hasSystemError();
-                            Logger.d("hasModuleError %s hasSystemError %s", hasModuleError, hasSystemError);
-                            BaseActivity baseActivity = (BaseActivity) getActivity();
-                            if (baseActivity != null) {
-                                baseActivity.runOnUiThreadChecked(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (hasModuleError || hasSystemError) {
-                                            ViewGroup header = findView(rootView, R.id.header1);
-                                            header.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.amber));
-                                            // Setup Icon.
-                                            ImageView imageView = findView(rootView, R.id.icon1);
-                                            imageView.setImageResource(R.drawable.ic_error_black_24dp);
-                                        }
-
-                                        String summary = getString(R.string.title_device_status_summary,
-                                                (hasModuleError ? getString(R.string.title_device_status_summary_compat_ng) : getString(R.string.title_device_status_summary_good)),
-                                                hasSystemError ? getString(R.string.title_device_status_summary_system_ng) : getString(R.string.title_device_status_summary_good));
-                                        summaryView.setText(summary);
+                XExecutor.execute(() -> {
+                    try {
+                        final boolean hasModuleError = XAshmanManager.get().hasModuleError();
+                        final boolean hasSystemError = XAshmanManager.get().hasSystemError();
+                        Logger.d("hasModuleError %s hasSystemError %s", hasModuleError, hasSystemError);
+                        BaseActivity baseActivity = (BaseActivity) getActivity();
+                        if (baseActivity != null) {
+                            baseActivity.runOnUiThreadChecked(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (hasModuleError || hasSystemError) {
+                                        ViewGroup header = findView(rootView, R.id.header1);
+                                        header.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.amber));
+                                        // Setup Icon.
+                                        ImageView imageView = findView(rootView, R.id.icon1);
+                                        imageView.setImageResource(R.drawable.ic_error_black_24dp);
                                     }
-                                });
-                            }
-                        } catch (Throwable ignored) {
-                            Logger.e("setupDeviceStatus: " + ignored);
+
+                                    String summary = getString(R.string.title_device_status_summary,
+                                            (hasModuleError ? getString(R.string.title_device_status_summary_compat_ng) : getString(R.string.title_device_status_summary_good)),
+                                            hasSystemError ? getString(R.string.title_device_status_summary_system_ng) : getString(R.string.title_device_status_summary_good));
+                                    summaryView.setText(summary);
+                                }
+                            });
                         }
+                    } catch (Throwable ignored) {
+                        Logger.e("setupDeviceStatus: " + ignored);
                     }
                 });
             }
@@ -850,36 +809,28 @@ public class NavigatorActivityBottomNav
         }
 
         private PopupMenu.OnMenuItemClickListener onCreateOnMenuItemClickListener() {
-            return new PopupMenu.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    if (item.getItemId() == R.id.action_soft_restart) {
-                        executeCommandAsync("stop;start");
-                    }
-                    if (item.getItemId() == R.id.action_restart_rec) {
-                        executeCommandAsync("reboot recovery");
-                    }
-                    if (item.getItemId() == R.id.action_restart_bl) {
-                        executeCommandAsync("reboot bootloader");
-                    }
-                    if (item.getItemId() == R.id.action_start_test) {
-                        NavigatorActivityBottomNav.start(getActivity());
-                    }
-                    if (item.getItemId() == R.id.action_running_services) {
-                        startActivity(new Intent(getActivity(), RunningServicesActivity.class));
-                    }
-                    return false;
+            return item -> {
+                if (item.getItemId() == R.id.action_soft_restart) {
+                    executeCommandAsync("stop;start");
                 }
+                if (item.getItemId() == R.id.action_restart_rec) {
+                    executeCommandAsync("reboot recovery");
+                }
+                if (item.getItemId() == R.id.action_restart_bl) {
+                    executeCommandAsync("reboot bootloader");
+                }
+                if (item.getItemId() == R.id.action_start_test) {
+                    NavigatorActivityBottomNav.start(getActivity());
+                }
+                if (item.getItemId() == R.id.action_running_services) {
+                    startActivity(new Intent(getActivity(), RunningServicesActivity.class));
+                }
+                return false;
             };
         }
 
         void executeCommandAsync(final String cmd) {
-            XExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    Shell.SU.run(cmd);
-                }
-            });
+            XExecutor.execute(() -> Shell.SU.run(cmd));
         }
 
         public int getCardPopupMenuRes() {

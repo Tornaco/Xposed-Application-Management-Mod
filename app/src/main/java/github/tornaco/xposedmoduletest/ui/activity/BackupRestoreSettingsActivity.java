@@ -11,6 +11,7 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
 import com.nononsenseapps.filepicker.FilePickerActivity;
@@ -24,13 +25,17 @@ import java.util.List;
 import dev.nick.tiles.tile.Category;
 import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.backup.DataBackup;
+import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.ui.AppCustomDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.tiles.app.Backup;
 import github.tornaco.xposedmoduletest.ui.tiles.app.Restore;
 import github.tornaco.xposedmoduletest.ui.tiles.app.RestoreDefault;
+import github.tornaco.xposedmoduletest.ui.tiles.app.UnInstallAPM;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import lombok.Synchronized;
 
 /**
@@ -193,6 +198,21 @@ public class BackupRestoreSettingsActivity extends BaseActivity implements
         }
     }
 
+    public void onRequestUninstalledAPM() {
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.title_uninstall_apm)
+                .setMessage(getString(R.string.message_uninstall_apm))
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    if (XAshmanManager.get().isServiceAvailable()) {
+                        XAshmanManager.get().restoreDefaultSettings();
+                        Toast.makeText(getContext(), R.string.summary_restore_done, Toast.LENGTH_SHORT).show();
+                    }
+                    PackageManagerCompat.unInstallUserAppWithIntent(getContext(), BuildConfig.APPLICATION_ID);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
     protected Fragment onCreateSettingsFragment() {
         return new SettingsNavFragment();
     }
@@ -207,6 +227,7 @@ public class BackupRestoreSettingsActivity extends BaseActivity implements
             Category restore = new Category();
             restore.titleRes = R.string.title_tile_restore;
 
+            restore.addTile(new UnInstallAPM(getActivity()));
             restore.addTile(new RestoreDefault(getActivity()));
             restore.addTile(new Restore(getActivity()));
 

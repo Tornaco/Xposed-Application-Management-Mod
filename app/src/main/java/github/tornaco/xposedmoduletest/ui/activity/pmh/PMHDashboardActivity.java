@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.ui.activity.pmh;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.SwitchCompat;
@@ -101,6 +102,12 @@ public class PMHDashboardActivity extends CommonPackageInfoListActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_gcm_diag) {
+            Intent intent = new Intent();
+            intent.setComponent(ComponentName.unflattenFromString("com.google.android.gms/com.google.android.gms.gcm.GcmDiagnostics"));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivityChecked(intent);
+        }
         return super.onOptionsItemSelected(item);
     }
 
