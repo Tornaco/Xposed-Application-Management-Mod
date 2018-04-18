@@ -54,7 +54,7 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
 
     @Setter
     @Getter
-    private boolean enabled, showContentEnabled;
+    private boolean enabled, showContentEnabled, notificationSoundEnabled, notificationVibrateEnabled;
 
     @Getter
     @Setter
@@ -64,15 +64,20 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
     public void onSettingsChanged(String tag) {
         readSettings(tag);
 
-        XposedLog.verbose("onSettingsChanged: %s enabled: %s, showContentEnabled:%s",
+        XposedLog.verbose("onSettingsChanged: %s enabled: %s, showContentEnabled:%s, " +
+                        "notificationSoundEnabled:%s, notificationVibrateEnabled:%s",
                 getClass(),
                 isEnabled(),
-                isShowContentEnabled());
+                isShowContentEnabled(),
+                isNotificationSoundEnabled(),
+                isNotificationVibrateEnabled());
     }
 
     private void readSettings(String tag) {
         setEnabled(SettingsProvider.get().getBoolean(getTag(), false));
         setShowContentEnabled(SettingsProvider.get().getBoolean(getTag() + "_show_content", false));
+        setNotificationSoundEnabled(SettingsProvider.get().getBoolean(getTag() + "_notification_sound", true));
+        setNotificationVibrateEnabled(SettingsProvider.get().getBoolean(getTag() + "_notification_vibrate", true));
     }
 
     @Override
@@ -188,7 +193,7 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
             curSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         }
 
-        if (BuildConfig.DEBUG){
+        if (BuildConfig.DEBUG) {
             XposedLog.verbose("BasePushNotificationHandler, curSoundUri: %s", curSoundUri);
         }
 
@@ -200,8 +205,8 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
                 .setStyle(style)
                 .setSmallIcon(android.R.drawable.stat_sys_warning)
                 .setLargeIcon(new AppResource(getContext()).loadBitmapFromAPMApp(pushMessage.getLargeIconResName()))
-                .setVibrate(new long[]{200, 200})
-                .setSound(curSoundUri)
+                .setVibrate(isNotificationVibrateEnabled() ? new long[]{200, 200} : new long[]{0})
+                .setSound(isNotificationSoundEnabled() ? curSoundUri : null)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
                 .setPriority(Notification.PRIORITY_HIGH)
                 .build();

@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 public @interface GithubCommitSha {
     String user() default "Tornaco";
 
-    String repo() default "XAppGuard";
+    String repo() default "X-APM";
 
     String UNKNOWN = "unknown";
 }

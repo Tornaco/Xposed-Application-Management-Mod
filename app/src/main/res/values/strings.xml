@@ -581,5 +581,8 @@
     <string name="title_push_message_handler_demo">支持其他APP</string>
     <string name="title_push_message_handler_tg">Telegram</string>
     <string name="summary_tg_push_message_handler_show_content">Telegram消息被加密，不支持直接显示。</string>
+    <string name="title_push_message_handler_sound">通知铃音</string>
+    <string name="summarywechat__push_message_handler_sound">如何自定义铃音请查看上方帮助信息。</string>
+    <string name="title_push_message_handler_vibrate">震动</string>
 
 </resources>

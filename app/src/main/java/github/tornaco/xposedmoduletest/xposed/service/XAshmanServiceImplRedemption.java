@@ -230,6 +230,26 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public boolean isPushMessageHandlerNotificationSoundEnabled(String handlerTag) throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public void setPushMessageHandlerNotificationSoundEnabled(String handlerTag, boolean enabled) throws RemoteException {
+
+    }
+
+    @Override
+    public boolean isPushMessageHandlerNotificationVibrateEnabled(String handlerTag) throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public void setPushMessageHandlerNotificationVibrateEnabled(String handlerTag, boolean enabled) throws RemoteException {
+
+    }
+
+    @Override
     public boolean isPushMessageHandleEnabled() throws RemoteException {
         return false;
     }
