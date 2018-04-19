@@ -39,7 +39,7 @@
     <string name="title_show_system_app">显示系统应用</string>
     <string name="first_run_title">XXXXX？!</string>
     <string name="message_first_run">本应用开发目的是为了尽可能的阻止不常用的APP对系统资源的消耗，常用的APP不要进行任何干涉，否则可能造成使用上的困扰，浪费许多时间和精力，甚至影响自己的生活，造成蝴蝶效应（爱折腾，愿意主动动手解决问题的朋友例外），因此你并不需要用到所有功能。\n\n新版本对Play版本以及捐赠过的朋友提供了一些额外的小功能，如果你已经捐赠过，请前往 捐赠 勾选我己经捐赠即可。Play版本无需进行此项设定即可使用所有功能。</string>
-    <string name="title_use_sp">隐藏手势图案</string>
+    <string name="title_hide_pattern">隐藏手势图案</string>
     <string name="title_use_fp">使用指纹</string>
     <string name="title_ver_on_home">应用切换时重新验证</string>
     <string name="summary_always_need_verify">默认机制是当屏幕熄灭重新点亮时，之前验证过的应用才会需要重新验证，如果启用了此选项，将会每次都需要验证</string>
@@ -591,5 +591,6 @@
     <string name="title_push_message_handler_notification_by_app">应用层发出通知</string>
     <string name="summarywechat__push_message_handler_notification_by_app">选择由应用层还是系统层发出通知，如果选择由应用层发出通知需要启动一个后台服务。</string>
     <string name="title_push_message_handler_notification_settings_oreo">铃声和振动设置</string>
+    <string name="lock_method_pin">数字密码</string>
 
 </resources>
