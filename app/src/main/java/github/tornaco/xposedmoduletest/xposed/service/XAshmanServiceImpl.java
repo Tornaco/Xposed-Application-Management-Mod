@@ -1565,15 +1565,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                             + ObjectToStringUtil.intentToString(intent));
                 }
 
-                boolean isPMHEnabled = isPushMessageHandleEnabled();
-                if (!isPMHEnabled) {
+                // Notify handlers and go!
+                if (isPushMessageHandleEnabled()) {
                     XposedLog.verbose("checkBroadcastIntentSendingInternal PMH not enabled");
-                    return;
-                }
 
-                // Notification handlers.
-                for (PushNotificationHandler handler : mPushNotificationHandlers) {
-                    handler.handleIncomingIntent(targetPkg, intent);
+                    // Notification handlers.
+                    for (PushNotificationHandler handler : mPushNotificationHandlers) {
+                        handler.handleIncomingIntent(targetPkg, intent);
+                    }
                 }
 
                 @StartRuleCheck
