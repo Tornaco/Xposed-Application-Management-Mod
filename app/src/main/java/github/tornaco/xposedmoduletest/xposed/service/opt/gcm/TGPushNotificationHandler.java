@@ -25,8 +25,8 @@ public class TGPushNotificationHandler extends BasePushNotificationHandler {
 
     private static final int NOTIFICATION_ID_TG = 12000;
 
-    public TGPushNotificationHandler(Context context, XAshmanServiceImpl service) {
-        super(context, service);
+    public TGPushNotificationHandler(Context context, NotificationHandlerSettingsRetriever retriever) {
+        super(context, retriever);
     }
 
     // Example. Assets/tg_intent_dump

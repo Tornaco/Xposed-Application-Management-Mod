@@ -279,7 +279,7 @@
     <string name="summary_restore_done">已经为你恢复了 应用管理 的默认设置</string>
     <string name="summary_restore_fail">无法删除数据，请手动删除！！！</string>
     <string name="message_running_services_fail">无法启动设置，请检查模块激活状态。</string>
-    <string name="title_running_services">正在运行的服务</string>
+    <string name="title_running_services">正在运行</string>
     <string name="title_activity_user_giude">用户向导</string>
     <string name="message_user_giude1">这是一份不得不写的声明，请仔细阅读。\n\n1. 关于应用管理数据，为了实现开机自启动限制，我们必须把某些数据存放到系统某个目录下，我们提供了删除数据的功能，如果你介意请退出！\n\n2. 关于内存占用，应用管理本身无需后台运行，你随时可以杀死。前台运行占用部分运行内存，如果你介意请退出！\n\n3. 关于稳定性，ROM众多，可能你的设备并不兼容，会导致一些使用上的问题，如果你介意，请退出！\n\n4. 关于bug，非常感谢所有朋友的bug反馈，本人会利用闲暇时间进行维护。\n\n本程序提供的高级功能，例如组件编辑，绿化等，使用不当可能会导致应用闪退等，请使用前仔细看好说明。\n\n最后感谢支持与理解！！！</string>
     <string name="user_notice_no">与我期望的不同</string>
@@ -587,5 +587,9 @@
     <string name="summarywechat__push_message_handler_sound">如何自定义铃音请查看上方帮助信息。</string>
     <string name="title_push_message_handler_vibrate">震动</string>
     <string name="title_gcm_diag">Diagnostics</string>
+    <string name="title_push_message_notification_service">推送通知服务</string>
+    <string name="title_push_message_handler_notification_by_app">应用层发出通知</string>
+    <string name="summarywechat__push_message_handler_notification_by_app">选择由应用层还是系统层发出通知，如果选择由应用层发出通知需要启动一个后台服务。</string>
+    <string name="title_push_message_handler_notification_settings_oreo">铃声和振动设置</string>
 
 </resources>
