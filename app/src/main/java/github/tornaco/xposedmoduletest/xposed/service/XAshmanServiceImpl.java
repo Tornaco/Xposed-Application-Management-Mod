@@ -140,6 +140,7 @@ import github.tornaco.xposedmoduletest.xposed.service.doze.PowerWhitelistBackend
 import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.GCMFCMHelper;
+import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.NotificationHandlerSettingsRetriever;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.PushNotificationHandler;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.TGPushNotificationHandler;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.WeChatPushNotificationHandler;
@@ -176,7 +177,8 @@ import static github.tornaco.xposedmoduletest.xposed.bean.DozeEvent.FAIL_RETRY_T
  */
 
 // TODO This file is really too long, please make sub-modules.
-public class XAshmanServiceImpl extends XAshmanServiceAbs {
+public class XAshmanServiceImpl extends XAshmanServiceAbs
+        implements NotificationHandlerSettingsRetriever {
 
     private static final String SYSTEM_UI_PKG = "com.android.systemui";
     private static final String SYSTEM_UI_PKG_HTC = "com.htc.lockscreen";
@@ -3668,6 +3670,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private static final String PUSH_MESSAGE_HANDLER_SHOW_CONTENT_TAG = "pmh_show_content_";
     private static final String PUSH_MESSAGE_HANDLER_SOUND_TAG = "pmh_sound_";
     private static final String PUSH_MESSAGE_HANDLER_VIBRATE_TAG = "pmh_vibrate_";
+    private static final String PUSH_MESSAGE_HANDLER_NOTIFICATION_BY_APP = "pmh_notification_by_app_";
 
     private static String getPushMessageHandlerPkgEnableStateKeyForPackage(String pkg) {
         return PUSH_MESSAGE_HANDLER_PKG_ENABLE_STATE_TAG + pkg;
@@ -3683,6 +3686,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private static String getPushMessageHandlerVibrateKeyForPackage(String pkg) {
         return PUSH_MESSAGE_HANDLER_VIBRATE_TAG + pkg;
+    }
+
+    private static String getPushMessageHandlerNotificationPostByAppKeyForPackage(String pkg) {
+        return PUSH_MESSAGE_HANDLER_NOTIFICATION_BY_APP + pkg;
     }
 
     @Override
@@ -3731,6 +3738,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     @Override
     public void setPushMessageHandlerNotificationVibrateEnabled(String pkg, boolean enabled) {
         SettingsProvider.get().putBoolean(getPushMessageHandlerVibrateKeyForPackage(pkg), enabled);
+        notifyPushMessageHandlerSettingsChanged(pkg);
+    }
+
+    @Override
+    public boolean isPushMessageHandlerMessageNotificationByAppEnabled(String pkg) {
+        return SettingsProvider.get().getBoolean(getPushMessageHandlerNotificationPostByAppKeyForPackage(pkg), false);
+    }
+
+    @Override
+    public void setPushMessageHandlerMessageNotificationByAppEnabled(String pkg, boolean enabled) {
+        SettingsProvider.get().putBoolean(getPushMessageHandlerNotificationPostByAppKeyForPackage(pkg), enabled);
         notifyPushMessageHandlerSettingsChanged(pkg);
     }
 
@@ -4224,7 +4242,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall(restrict = "any")
-    public boolean isUidInPrivacyList(int uid) throws RemoteException {
+    public boolean isUidInPrivacyList(int uid) {
         // FIXME Too slow.
         return isPackageInPrivacyList(PkgUtil.pkgForUid(getContext(), uid));
     }
@@ -7016,7 +7034,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             FutureTask<String[]> futureTask = new FutureTask<>(new SignalCallable<String[]>() {
 
                 @Override
-                public String[] call() throws Exception {
+                public String[] call() {
 
                     PowerManager power = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
                     ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);

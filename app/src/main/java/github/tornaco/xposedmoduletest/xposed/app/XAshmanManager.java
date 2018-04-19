@@ -1961,4 +1961,22 @@ public class XAshmanManager {
 
         }
     }
+
+    public boolean isPushMessageHandlerMessageNotificationByAppEnabled(String pkg) {
+        ensureService();
+        try {
+            return mService.isPushMessageHandlerMessageNotificationByAppEnabled(pkg);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void setPushMessageHandlerMessageNotificationByAppEnabled(String pkg, boolean enabled) {
+        ensureService();
+        try {
+            mService.setPushMessageHandlerMessageNotificationByAppEnabled(pkg, enabled);
+        } catch (Exception e) {
+
+        }
+    }
 }

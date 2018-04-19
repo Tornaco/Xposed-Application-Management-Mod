@@ -450,6 +450,13 @@
         <service
             android:name=".service.XRegistrationIntentService"
             android:exported="false" />
+
+        <service android:name=".service.PushMessageNotificationService"
+            android:label="@string/title_push_message_notification_service">
+            <intent-filter>
+                <action android:name="github.tornaco.xposedmoduletest.action.StartPushMessageNotificationService" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

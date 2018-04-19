@@ -13,6 +13,7 @@ import android.os.Environment;
 import android.os.UserHandle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.util.Log;
 
 import java.io.File;
 import java.util.HashMap;
@@ -24,7 +25,6 @@ import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.model.PushMessage;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.service.AppResource;
-import github.tornaco.xposedmoduletest.xposed.service.XAshmanServiceImpl;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,7 +35,8 @@ import lombok.Setter;
  */
 
 @SuppressWarnings("WeakerAccess")
-abstract class BasePushNotificationHandler implements PushNotificationHandler {
+// Both used at App and Framework.
+public abstract class BasePushNotificationHandler implements PushNotificationHandler {
 
     @Setter
     @Getter
@@ -43,7 +44,7 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
 
     @Setter
     @Getter
-    private XAshmanServiceImpl service;
+    private NotificationHandlerSettingsRetriever notificationHandlerSettingsRetriever;
 
     private Intent launchIntent;
 
@@ -51,15 +52,16 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
 
     private Set<Integer> mPendingCancelNotifications = new HashSet<>();
 
-    BasePushNotificationHandler(Context context, XAshmanServiceImpl service) {
+    public BasePushNotificationHandler(Context context,
+                                       NotificationHandlerSettingsRetriever notificationHandlerSettingsRetriever) {
         this.context = context;
-        setService(service);
+        setNotificationHandlerSettingsRetriever(notificationHandlerSettingsRetriever);
         readSettings();
     }
 
     @Setter
     @Getter
-    private boolean enabled, showContentEnabled, notificationSoundEnabled, notificationVibrateEnabled;
+    private boolean enabled, showContentEnabled, notificationSoundEnabled, notificationVibrateEnabled, notificationPostByAppEnabled;
 
     @Getter
     @Setter
@@ -69,27 +71,28 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
     public void onSettingsChanged(String pkg) {
         readSettings();
 
-        XposedLog.verbose("onSettingsChanged: %s enabled: %s, showContentEnabled:%s, " +
-                        "notificationSoundEnabled:%s, notificationVibrateEnabled:%s",
+        Log.d(XposedLog.TAG, String.format("onSettingsChanged: %s enabled: %s, showContentEnabled:%s, "
+                        + "notificationSoundEnabled:%s, notificationVibrateEnabled:%s",
                 getClass(),
                 isEnabled(),
                 isShowContentEnabled(),
                 isNotificationSoundEnabled(),
-                isNotificationVibrateEnabled());
+                isNotificationVibrateEnabled()));
     }
 
     private void readSettings() {
-        setEnabled(getService().isPushMessageHandlerEnabled(getTargetPackageName()));
-        setShowContentEnabled(getService().isPushMessageHandlerShowContentEnabled(getTargetPackageName()));
-        setNotificationSoundEnabled(getService().isPushMessageHandlerNotificationSoundEnabled(getTargetPackageName()));
-        setNotificationVibrateEnabled(getService().isPushMessageHandlerNotificationVibrateEnabled(getTargetPackageName()));
+        setEnabled(getNotificationHandlerSettingsRetriever().isPushMessageHandlerEnabled(getTargetPackageName()));
+        setShowContentEnabled(getNotificationHandlerSettingsRetriever().isPushMessageHandlerShowContentEnabled(getTargetPackageName()));
+        setNotificationSoundEnabled(getNotificationHandlerSettingsRetriever().isPushMessageHandlerNotificationSoundEnabled(getTargetPackageName()));
+        setNotificationVibrateEnabled(getNotificationHandlerSettingsRetriever().isPushMessageHandlerNotificationVibrateEnabled(getTargetPackageName()));
+        setNotificationPostByAppEnabled(getNotificationHandlerSettingsRetriever().isPushMessageHandlerMessageNotificationByAppEnabled(getTargetPackageName()));
     }
 
     @Override
     public void onTopPackageChanged(String who) {
         setTopPackage(who);
         if (getTargetPackageName().equals(who)) {
-            XposedLog.verbose("onTopPackageChanged: %s", getClass());
+            Log.d(XposedLog.TAG, String.format("onTopPackageChanged: %s", getClass()));
             // Reset badge.
             clearBadge();
 
@@ -166,18 +169,18 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
         synchronized (this) {
             if (launchIntent == null) {
                 launchIntent = getContext().getPackageManager().getLaunchIntentForPackage(getTargetPackageName());
-                XposedLog.verbose("BasePushNotificationHandler, launchIntent=" + launchIntent);
+                Log.d(XposedLog.TAG, "BasePushNotificationHandler, launchIntent=" + launchIntent);
             }
         }
     }
 
-    protected void postNotification(PushMessage pushMessage) {
+    public void postNotification(PushMessage pushMessage) {
 
         createWeChatNotificationChannelForO(pushMessage.getChannelId(), pushMessage.getChannelName());
 
         Intent launchIntent = getLaunchIntent();
         if (launchIntent == null) {
-            XposedLog.wtf("Fail retrieve launch intent when postNotification!");
+            Log.e(XposedLog.TAG, "Fail retrieve launch intent when postNotification!");
             return;
         }
 
@@ -199,7 +202,7 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
         }
 
         if (BuildConfig.DEBUG) {
-            XposedLog.verbose("BasePushNotificationHandler, curSoundUri: %s", curSoundUri);
+            Log.d(XposedLog.TAG, String.format("BasePushNotificationHandler, curSoundUri: %s", curSoundUri));
         }
 
         Notification n = builder
@@ -232,13 +235,13 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
                 + File.separator + Environment.DIRECTORY_NOTIFICATIONS
                 + File.separator + "apm_custom_ringtone_" + getTargetPackageName() + ".ogg");
         if (BuildConfig.DEBUG) {
-            XposedLog.verbose("BasePushNotificationHandler getCustomRingtoneUri from %s", customFile);
+            Log.d(XposedLog.TAG, String.format("BasePushNotificationHandler getCustomRingtoneUri from %s", customFile));
         }
         if (customFile.exists()) {
             return Uri.fromFile(customFile);
         }
         if (BuildConfig.DEBUG) {
-            XposedLog.verbose("BasePushNotificationHandler getCustomRingtoneUri, file not exist! ");
+            Log.d(XposedLog.TAG, "BasePushNotificationHandler getCustomRingtoneUri, file not exist! ");
         }
         return null;
     }
@@ -253,6 +256,7 @@ abstract class BasePushNotificationHandler implements PushNotificationHandler {
                 nc = notificationManager.getNotificationChannel(channelId);
             }
             if (nc != null) {
+                // Setup.
                 return;
             }
             NotificationChannel notificationChannel;

@@ -418,6 +418,10 @@ interface IAshmanService {
     boolean isPushMessageHandlerNotificationVibrateEnabled(String pkg);
     void setPushMessageHandlerNotificationVibrateEnabled(String pkg, boolean enabled);
 
+    // Whether send notification from App or FW.
+    boolean isPushMessageHandlerMessageNotificationByAppEnabled(String pkg);
+    void setPushMessageHandlerMessageNotificationByAppEnabled(String pkg, boolean enabled);
+
     // AIO toggle.
     boolean isPushMessageHandleEnabled();
     void setPushMessageHandleEnabled(boolean enabled);

@@ -250,6 +250,16 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public boolean isPushMessageHandlerMessageNotificationByAppEnabled(String pkg) throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public void setPushMessageHandlerMessageNotificationByAppEnabled(String pkg, boolean enabled) throws RemoteException {
+
+    }
+
+    @Override
     public boolean isPushMessageHandleEnabled() throws RemoteException {
         return false;
     }

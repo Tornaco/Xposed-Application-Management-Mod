@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
  * Email: Tornaco@163.com
  */
 @AllArgsConstructor
+// Both at App for FW.
 public class ErrorCatchRunnable implements Runnable {
 
     private Runnable action;
@@ -20,7 +21,7 @@ public class ErrorCatchRunnable implements Runnable {
         try {
             action.run();
         } catch (Throwable e) {
-            XposedLog.wtf("Error@" + actionName + "\n" + Log.getStackTraceString(e));
+            Log.e(XposedLog.TAG, "Error@" + actionName + "\n" + Log.getStackTraceString(e));
         }
     }
 }
