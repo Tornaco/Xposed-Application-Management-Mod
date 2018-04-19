@@ -3,12 +3,10 @@ package github.tornaco.xposedmoduletest.ui.activity.ag;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Fragment;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.PreferenceCategory;
 import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -31,6 +29,9 @@ import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 
 @RuntimePermissions
 public class SecureGuardSettings extends GuardSettingsActivity {
+
+    private static final String CATEGORY_KEY_LOCK = "category_lock";
+
     @Override
     protected Fragment onCreateSettingsFragment() {
         return new SecureSettingsFragment();
@@ -41,21 +42,24 @@ public class SecureGuardSettings extends GuardSettingsActivity {
         private VerifySettings verifySettings = null;
 
         private void onRequestSetupSecurePassport() {
-            final int[] selection = {-1};
-            String[] choice = new String[]{"数字密码", "图案密码"};
+            if (getActivity() == null) return;
+
+            final int[] selection = {0};
+            String[] choice = new String[LockStorage.LockMethod.values().length];
+            for (int i = 0; i < choice.length; i++) {
+                choice[i] = getString(LockStorage.LockMethod.values()[i].getNameRes());
+            }
+
+            LockStorage.LockMethod currentLockMethod = LockStorage.getLockMethod(getActivity());
             new AlertDialog.Builder(getActivity())
-                    .setSingleChoiceItems(choice, selection[0], new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            selection[0] = which;
-                            if (selection[0] == 0) {
-                                PinSetupActivity.start(getActivity());
-                            } else {
-                                PatternSetupActivity.start(getActivity());
-                            }
-                            dialog.dismiss();
-                            getActivity().finish();
+                    .setSingleChoiceItems(choice, currentLockMethod.ordinal(), (dialog, which) -> {
+                        selection[0] = which;
+                        if (selection[0] == 0) {
+                            PinSetupActivity.start(getActivity());
+                        } else {
+                            PatternSetupActivity.start(getActivity());
                         }
+                        dialog.dismiss();
                     })
                     .show();
         }
@@ -64,25 +68,17 @@ public class SecureGuardSettings extends GuardSettingsActivity {
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.ag_secure);
+        }
 
+        private void bindAndUpdatePrefs() {
             Preference lockSettingsPref = findPreference("verify_method");
-            LockStorage.LockMethod lockMethod = LockStorage.getLockMethod(getActivity());
+            LockStorage.LockMethod currentLockMethod = LockStorage.getLockMethod(getActivity());
 
-            switch (lockMethod) {
-                case Pin:
-                    lockSettingsPref.setSummary("数字密码");
-                    break;
-                case Pattern:
-                    lockSettingsPref.setSummary("图案密码");
-                    break;
-            }
+            lockSettingsPref.setSummary(currentLockMethod.getNameRes());
 
-            lockSettingsPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    onRequestSetupSecurePassport();
-                    return true;
-                }
+            lockSettingsPref.setOnPreferenceClickListener(preference -> {
+                onRequestSetupSecurePassport();
+                return true;
             });
 
             SwitchPreference workaround = (SwitchPreference) findPreference(AppKey.APPLOCK_WORKAROUND);
@@ -93,86 +89,72 @@ public class SecureGuardSettings extends GuardSettingsActivity {
                 verifySettings = XAppGuardManager.get().getVerifySettings();
                 if (verifySettings == null) verifySettings = new VerifySettings();
 
-                final boolean _sp = LockStorage.checkSP(getActivity());
-                SwitchPreference spPref = (SwitchPreference) findPreference("sp_enabled");
-                spPref.setChecked(_sp);
+                final boolean hidePatternEnabled = LockStorage.isShowPatternEnabled(getActivity());
+                SwitchPreference hidePattern = (SwitchPreference) findPreference(LockStorage.KEY_HIDE_PATTERN);
+                hidePattern.setChecked(hidePatternEnabled);
+                hidePattern.setEnabled(currentLockMethod == LockStorage.LockMethod.Pattern);
 
-
-                if (lockMethod != LockStorage.LockMethod.Pattern)
-                    ((PreferenceCategory) findPreference("ags")).removePreference(spPref);
-                spPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        boolean v = (boolean) newValue;
-                        LockStorage.setSP(getActivity(), v);
-                        return true;
-                    }
+                hidePattern.setOnPreferenceChangeListener((preference, newValue) -> {
+                    boolean v = (boolean) newValue;
+                    LockStorage.setHidePatternEnabled(getActivity(), v);
+                    return true;
                 });
 
                 final boolean verifyOnHome = verifySettings.isVerifyOnAppSwitch();
                 SwitchPreference homePref = (SwitchPreference) findPreference("ver_on_home");
                 homePref.setChecked(verifyOnHome);
-                homePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        boolean v = (boolean) newValue;
-                        verifySettings.setVerifyOnAppSwitch(v);
-                        XAppGuardManager.get().setVerifySettings(verifySettings);
-                        return true;
-                    }
+                homePref.setOnPreferenceChangeListener((preference, newValue) -> {
+                    boolean v = (boolean) newValue;
+                    verifySettings.setVerifyOnAppSwitch(v);
+                    XAppGuardManager.get().setVerifySettings(verifySettings);
+                    return true;
                 });
 
                 boolean verifyOnScreen = verifySettings != null && verifySettings.isVerifyOnScreenOff();
                 SwitchPreference screenPref = (SwitchPreference) findPreference("ver_on_screenoff");
                 screenPref.setChecked(verifyOnScreen);
-                screenPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        boolean v = (boolean) newValue;
-                        verifySettings.setVerifyOnScreenOff(v);
-                        XAppGuardManager.get().setVerifySettings(verifySettings);
-                        return true;
-                    }
+                screenPref.setOnPreferenceChangeListener((preference, newValue) -> {
+                    boolean v = (boolean) newValue;
+                    verifySettings.setVerifyOnScreenOff(v);
+                    XAppGuardManager.get().setVerifySettings(verifySettings);
+                    return true;
                 });
 
                 boolean verifyOnTaskRemoved = verifySettings != null && verifySettings.isVerifyOnTaskRemoved();
                 SwitchPreference taskPref = (SwitchPreference) findPreference("ver_on_task_removed");
                 taskPref.setChecked(verifyOnTaskRemoved);
-                taskPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        boolean v = (boolean) newValue;
-                        verifySettings.setVerifyOnTaskRemoved(v);
-                        XAppGuardManager.get().setVerifySettings(verifySettings);
-                        return true;
-                    }
+                taskPref.setOnPreferenceChangeListener((preference, newValue) -> {
+                    boolean v = (boolean) newValue;
+                    verifySettings.setVerifyOnTaskRemoved(v);
+                    XAppGuardManager.get().setVerifySettings(verifySettings);
+                    return true;
                 });
 
 
                 SwitchPreference photoPref = (SwitchPreference) findPreference(XKey.TAKE_PHOTO_ENABLED);
                 if (photoPref != null) {
-                    photoPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                        @Override
-                        public boolean onPreferenceChange(Preference preference, Object newValue) {
-                            SecureGuardSettingsPermissionRequester
-                                    .requestCameraPermissionChecked((SecureGuardSettings) getActivity());
-                            return true;
-                        }
+                    photoPref.setOnPreferenceChangeListener((preference, newValue) -> {
+                        SecureGuardSettingsPermissionRequester
+                                .requestCameraPermissionChecked((SecureGuardSettings) getActivity());
+                        return true;
                     });
                 }
 
                 findPreference("key_view_photos")
-                        .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                            @Override
-                            public boolean onPreferenceClick(Preference preference) {
-                                startActivity(new Intent(getActivity(), PhotoViewerActivity.class));
-                                return true;
-                            }
+                        .setOnPreferenceClickListener(preference -> {
+                            startActivity(new Intent(getActivity(), PhotoViewerActivity.class));
+                            return true;
                         });
 
             } else {
                 getPreferenceScreen().setEnabled(false);
             }
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            bindAndUpdatePrefs();
         }
     }
 
