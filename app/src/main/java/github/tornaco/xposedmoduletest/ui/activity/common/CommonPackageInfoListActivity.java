@@ -10,6 +10,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.common.collect.Lists;
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
@@ -29,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import github.tornaco.android.common.Collections;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
@@ -312,6 +315,17 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
     }
 
     protected void setupSummaryView() {
+        try {
+            setupSummaryViewInternal();
+        } catch (Exception e) {
+            if (BuildConfig.DEBUG) {
+                Toast.makeText(getActivity(), Log.getStackTraceString(e), Toast.LENGTH_SHORT).show();
+            }
+            Logger.e("Fail setupSummaryView: " + e);
+        }
+    }
+
+    private void setupSummaryViewInternal() {
         String who = getClass().getSimpleName();
         boolean showInfo = AppSettings.isShowInfoEnabled(this, who);
         TextView textView = findViewById(R.id.summary);
@@ -320,7 +334,7 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
         } else {
             @StringRes
             int strId = getSummaryRes();
-            if (strId != 0) {
+            if (strId != 0 && strId != -1) {
                 textView.setVisibility(View.VISIBLE);
                 textView.setText(strId);
             } else {

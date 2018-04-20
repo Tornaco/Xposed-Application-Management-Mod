@@ -1979,4 +1979,13 @@ public class XAshmanManager {
 
         }
     }
+
+    public boolean isHandlingPushMessageIntent(String packageName) {
+        ensureService();
+        try {
+            return mService.isHandlingPushMessageIntent(packageName);
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
