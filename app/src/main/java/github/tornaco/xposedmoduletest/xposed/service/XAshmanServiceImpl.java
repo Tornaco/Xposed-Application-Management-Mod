@@ -3767,6 +3767,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         notifyPushMessageHandlerSettingsChanged(null);
     }
 
+    @Override
+    public boolean isHandlingPushMessageIntent(String packageName) throws RemoteException {
+        enforceCallingPermissions();
+        return GCMFCMHelper.isHandlingGcmIntent(packageName);
+    }
+
     private void notifyPushMessageHandlerSettingsChanged(String pkg) {
         mLazyHandler.post(new ErrorCatchRunnable(() -> {
             for (PushNotificationHandler h : mPushNotificationHandlers) {

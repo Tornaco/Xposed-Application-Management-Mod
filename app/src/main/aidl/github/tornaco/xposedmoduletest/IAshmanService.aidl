@@ -425,4 +425,6 @@ interface IAshmanService {
     // AIO toggle.
     boolean isPushMessageHandleEnabled();
     void setPushMessageHandleEnabled(boolean enabled);
+
+    boolean isHandlingPushMessageIntent(String packageName);
 }

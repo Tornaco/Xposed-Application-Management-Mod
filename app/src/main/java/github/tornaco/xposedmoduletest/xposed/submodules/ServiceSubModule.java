@@ -169,14 +169,15 @@ class ServiceSubModule extends AndroidSubModule {
                                     @Override
                                     public void onChange(String from, String to) throws RemoteException {
                                         if (!hostPackage.equals(to)) {
+                                            // When he is handling GCM or has SBN.
                                             boolean skip =
-                                                    XAshmanManager.get().isDoNotKillSBNEnabled(XAppBuildVar.APP_GREEN)
-                                                            && !XAshmanManager.get()
-                                                            .hasNotificationForPackage(hostPackage);
+                                                    XAshmanManager.get().isHandlingPushMessageIntent(hostPackage) // HAS GCM.
+                                                            || (XAshmanManager.get().isDoNotKillSBNEnabled(XAppBuildVar.APP_GREEN) // CHECK LAZY SBN SETTING.
+                                                            && !XAshmanManager.get().hasNotificationForPackage(hostPackage)); // HAS SBN.
                                             if (!skip) {
                                                 h.obtainMessage(0, this).sendToTarget();
                                             } else {
-                                                Log.d(XposedLog.TAG_LAZY, "Lazy skipped for SBN");
+                                                Log.d(XposedLog.TAG_LAZY, "Lazy skipped for SBN/GCM");
                                             }
                                         }
                                     }
