@@ -592,5 +592,7 @@
     <string name="summarywechat__push_message_handler_notification_by_app">选择由应用层还是系统层发出通知，如果选择由应用层发出通知需要启动一个后台服务。</string>
     <string name="title_push_message_handler_notification_settings_oreo">铃声和振动设置</string>
     <string name="lock_method_pin">数字密码</string>
+    <string name="error_notification_channel_activity_not_found">请再收到任意一次通知后再继续设置</string>
+    <string name="filter_merged_process">已合并</string>
 
 </resources>

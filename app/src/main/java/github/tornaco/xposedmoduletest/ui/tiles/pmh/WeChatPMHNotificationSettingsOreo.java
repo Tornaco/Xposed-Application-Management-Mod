@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.ui.tiles.pmh;
 
 import android.content.Context;
 import android.view.View;
+import android.widget.Toast;
 
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
@@ -25,8 +26,11 @@ public class WeChatPMHNotificationSettingsOreo extends QuickTile {
             public void onClick(View v) {
                 super.onClick(v);
                 if (OSUtil.isOOrAbove()) {
-                    WeChatPushNotificationHandler.launchNotificationChannelSettingsForOreo(context,
-                            !XAshmanManager.get().isPushMessageHandlerMessageNotificationByAppEnabled(WeChatPushNotificationHandler.WECHAT_PKG_NAME));
+                    if (!WeChatPushNotificationHandler.launchNotificationChannelSettingsForOreo(context,
+                            !XAshmanManager.get()
+                                    .isPushMessageHandlerMessageNotificationByAppEnabled(WeChatPushNotificationHandler.WECHAT_PKG_NAME))) {
+                        Toast.makeText(context, R.string.error_notification_channel_activity_not_found, Toast.LENGTH_LONG).show();
+                    }
                 }
             }
         };

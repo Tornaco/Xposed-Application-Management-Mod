@@ -2,7 +2,6 @@ package github.tornaco.xposedmoduletest.ui.activity.common;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
@@ -16,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import github.tornaco.android.common.Collections;
-import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
@@ -219,21 +218,23 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
             if (getDefaultFilterSpinnerSelection() > 0) {
                 spinner.setSelection(getDefaultFilterSpinnerSelection());
             }
+
             showFilterSpinnerIntro(spinner);
 
             // Setup sort.
             View sortView = filterContainer.findViewById(R.id.filter_se);
             if (enableSortSelection()) {
-                sortView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        selectSortOption();
-                    }
-                });
+                sortView.setOnClickListener(v -> selectSortOption());
             } else {
                 sortView.setVisibility(View.GONE);
             }
 
+            RelativeLayout filterActionContainer = filterContainer.findViewById(R.id.filter_action_container);
+            if (!onBindFilterAction(filterActionContainer)) {
+                filterActionContainer.setVisibility(View.GONE);
+            } else {
+                filterActionContainer.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -319,7 +320,7 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
         } else {
             @StringRes
             int strId = getSummaryRes();
-            if (strId > 0) {
+            if (strId != 0) {
                 textView.setVisibility(View.VISIBLE);
                 textView.setText(strId);
             } else {
@@ -419,18 +420,20 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
     public ArrayList<CommonPackageInfo> findItem(final String query, int page) {
         final ArrayList<CommonPackageInfo> res = new ArrayList<>();
         Collections.consumeRemaining(getCommonPackageInfoAdapter().getCommonPackageInfos(),
-                new Consumer<CommonPackageInfo>() {
-                    @Override
-                    public void accept(CommonPackageInfo info) {
-                        if (info.getAppName().toLowerCase().contains(query.toLowerCase()) || info.getPkgName().toLowerCase().contains(query.toLowerCase())) {
-                            res.add(info);
-                        }
+                info -> {
+                    if (info.getAppName().toLowerCase().contains(query.toLowerCase())
+                            || info.getPkgName().toLowerCase().contains(query.toLowerCase())) {
+                        res.add(info);
                     }
                 });
         return res;
     }
 
     protected boolean enableSortSelection() {
+        return false;
+    }
+
+    protected boolean onBindFilterAction(RelativeLayout container) {
         return false;
     }
 
@@ -456,19 +459,11 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.select_sort)
                 .setSingleChoiceItems(names, currentIndex,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                SortOption op = all.get(which);
-                                setSortBy(op.getOption());
-                            }
+                        (dialog, which) -> {
+                            SortOption op = all.get(which);
+                            setSortBy(op.getOption());
                         })
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        onSortByChanged();
-                    }
-                })
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> onSortByChanged())
                 .create().show();
     }
 
@@ -489,6 +484,7 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
         private int option;
     }
 
+    // FIXME Extract out of this activity.
     @Getter
     @AllArgsConstructor
     @ToString
@@ -505,6 +501,9 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
         public static final int OPTION_DEFAULT_OP = 0x8;
         public static final int OPTION_ALL_OP = 0x9;
 
+        public static final int OPTION_BACKGROUND_PROCESS = 0x10;
+        public static final int OPTION_RUNNING_PROCESS = 0x11;
+        public static final int OPTION_MERGED_PROCESS = 0x12;
 
         private int titleRes;
         private int option;
