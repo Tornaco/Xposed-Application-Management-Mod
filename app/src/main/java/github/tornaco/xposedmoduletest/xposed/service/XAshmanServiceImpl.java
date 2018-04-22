@@ -3768,9 +3768,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
-    public boolean isHandlingPushMessageIntent(String packageName) throws RemoteException {
+    public boolean isHandlingPushMessageIntent(String packageName) {
         enforceCallingPermissions();
         return GCMFCMHelper.isHandlingGcmIntent(packageName);
+    }
+
+    @Override
+    @BinderCall(restrict = "any")
+    public boolean showToast(String message) {
+        mLazyHandler.post(new ErrorCatchRunnable(() -> Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show(), "showToast  @BinderCall"));
+        return true;
     }
 
     private void notifyPushMessageHandlerSettingsChanged(String pkg) {

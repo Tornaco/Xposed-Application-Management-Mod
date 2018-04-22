@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.support.annotation.Nullable;
 
@@ -1986,6 +1987,15 @@ public class XAshmanManager {
             return mService.isHandlingPushMessageIntent(packageName);
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    public boolean showToast(String message) {
+        ensureService();
+        try {
+            return mService.showToast(message);
+        } catch (Exception e) {
+            return true;
         }
     }
 }
