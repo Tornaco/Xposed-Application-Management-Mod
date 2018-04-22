@@ -427,4 +427,7 @@ interface IAshmanService {
     void setPushMessageHandleEnabled(boolean enabled);
 
     boolean isHandlingPushMessageIntent(String packageName);
+
+    // Provide an API to show toast anywhere!!!
+    boolean showToast(String message);
 }
