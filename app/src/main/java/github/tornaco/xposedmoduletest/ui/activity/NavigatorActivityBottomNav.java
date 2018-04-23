@@ -536,13 +536,10 @@ public class NavigatorActivityBottomNav
         private void setupView() {
 
             findView(rootView, R.id.card)
-                    .setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (BuildConfig.DEBUG) {
-                                // Only show power for debug mode.
-                                showPowerPopMenu(v);
-                            }
+                    .setOnClickListener(v -> {
+                        if (BuildConfig.DEBUG) {
+                            // Only show power for debug mode.
+                            showPowerPopMenu(v);
                         }
                     });
 
@@ -614,19 +611,16 @@ public class NavigatorActivityBottomNav
                         getString(R.string.suggestion_summary_user_guide),
                         getString(R.string.suggestion_action_user_guide),
                         R.drawable.ic_book_black_24dp,
-                        new SuggestionsAdapter.OnExpandableGroupActionClickListener() {
-                            @Override
-                            public boolean onActionClick(ExpandableGroup group, int flatPosition, int childIndex) {
-                                WithWithCustomTabActivity customTabActivity = (WithWithCustomTabActivity) getActivity();
-                                if (customTabActivity != null) {
-                                    customTabActivity.navigateToWebPage(getString(R.string.app_wiki_url));
-                                    if (!BuildConfig.DEBUG) {
-                                        AppSettings.setGuideRead(getContext(), true);  // Keep this for debug.
-                                    }
+                        (group, flatPosition, childIndex) -> {
+                            WithWithCustomTabActivity customTabActivity = (WithWithCustomTabActivity) getActivity();
+                            if (customTabActivity != null) {
+                                customTabActivity.navigateToWebPage(getString(R.string.app_wiki_url));
+                                if (!BuildConfig.DEBUG) {
+                                    AppSettings.setGuideRead(getContext(), true);  // Keep this for debug.
                                 }
-                                // Keep this for debug.
-                                return !BuildConfig.DEBUG;
                             }
+                            // Keep this for debug.
+                            return !BuildConfig.DEBUG;
                         });
                 suggestionList.add(suggestion);
             }
@@ -638,20 +632,17 @@ public class NavigatorActivityBottomNav
                         getString(R.string.suggestion_summary_active),
                         getString(R.string.suggestion_action_active),
                         R.drawable.ic_extension_black_24dp,
-                        new SuggestionsAdapter.OnExpandableGroupActionClickListener() {
-                            @Override
-                            public boolean onActionClick(ExpandableGroup group, int flatPosition, int childIndex) {
-                                try {
-                                    Intent xposedIntent = new Intent();
-                                    xposedIntent.setClassName("de.robv.android.xposed.installer", "de.robv.android.xposed.installer.WelcomeActivity");
-                                    xposedIntent.setPackage("de.robv.android.xposed.installer");
-                                    xposedIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    startActivity(xposedIntent);
-                                } catch (Throwable e) {
-                                    Toast.makeText(getActivity(), R.string.fail_launch_xposed_installer, Toast.LENGTH_LONG).show();
-                                }
-                                return false;
+                        (group, flatPosition, childIndex) -> {
+                            try {
+                                Intent xposedIntent = new Intent();
+                                xposedIntent.setClassName("de.robv.android.xposed.installer", "de.robv.android.xposed.installer.WelcomeActivity");
+                                xposedIntent.setPackage("de.robv.android.xposed.installer");
+                                xposedIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(xposedIntent);
+                            } catch (Throwable e) {
+                                Toast.makeText(getActivity(), R.string.fail_launch_xposed_installer, Toast.LENGTH_LONG).show();
                             }
+                            return false;
                         });
                 suggestionList.add(suggestion);
             }
@@ -668,12 +659,9 @@ public class NavigatorActivityBottomNav
                                         EmojiUtil.DOG)),
                         getString(R.string.suggestion_action_donate),
                         R.drawable.ic_payment_black_24dp,
-                        new SuggestionsAdapter.OnExpandableGroupActionClickListener() {
-                            @Override
-                            public boolean onActionClick(ExpandableGroup group, int flatPosition, int childIndex) {
-                                DonateActivity.start(getActivity());
-                                return false;
-                            }
+                        (group, flatPosition, childIndex) -> {
+                            DonateActivity.start(getActivity());
+                            return false;
                         });
                 suggestionList.add(suggestion);
             }
@@ -685,12 +673,9 @@ public class NavigatorActivityBottomNav
                         getString(R.string.suggestion_summary_turn_off_debug_mode),
                         getString(R.string.suggestion_action_turn_off_debug_mode),
                         R.drawable.ic_developer_mode_black_24dp,
-                        new SuggestionsAdapter.OnExpandableGroupActionClickListener() {
-                            @Override
-                            public boolean onActionClick(ExpandableGroup group, int flatPosition, int childIndex) {
-                                XAppGuardManager.get().setDebug(false);
-                                return true;
-                            }
+                        (group, flatPosition, childIndex) -> {
+                            XAppGuardManager.get().setDebug(false);
+                            return true;
                         });
                 suggestionList.add(suggestion);
             }
@@ -702,12 +687,9 @@ public class NavigatorActivityBottomNav
                         getString(R.string.suggestion_summary_turn_on_power_save),
                         getString(R.string.suggestion_action_turn_on_power_save),
                         R.drawable.ic_power_black_24dp,
-                        new SuggestionsAdapter.OnExpandableGroupActionClickListener() {
-                            @Override
-                            public boolean onActionClick(ExpandableGroup group, int flatPosition, int childIndex) {
-                                XAshmanManager.get().setPowerSaveModeEnabled(true);
-                                return true;
-                            }
+                        (group, flatPosition, childIndex) -> {
+                            XAshmanManager.get().setPowerSaveModeEnabled(true);
+                            return true;
                         });
                 suggestionList.add(suggestion);
             }

@@ -7,7 +7,6 @@ import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -109,29 +108,24 @@ public class NeedLockActivity<T> extends WithSearchActivity<T> {
     private void showPasswordSetupTips() {
         showTips(R.string.summary_setup_passcode_none_set,
                 true, getString(R.string.title_setup_passcode_now),
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        onRequestSetupSecurePassport();
-                    }
-                });
+                () -> onRequestSetupSecurePassport());
     }
 
     private void onRequestSetupSecurePassport() {
         final int[] selection = {0};
-        String[] choice = new String[]{"PIN", "PATTERN"};
+        String[] choice = new String[LockStorage.LockMethod.values().length];
+        for (int i = 0; i < choice.length; i++) {
+            choice[i] = getString(LockStorage.LockMethod.values()[i].getNameRes());
+        }
         new AlertDialog.Builder(getActivity())
-                .setSingleChoiceItems(choice, selection[0], new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        selection[0] = which;
-                        if (selection[0] == 0) {
-                            PinSetupActivity.start(getActivity());
-                        } else {
-                            PatternSetupActivity.start(getActivity());
-                        }
-                        dialog.dismiss();
+                .setSingleChoiceItems(choice, selection[0], (dialog, which) -> {
+                    selection[0] = which;
+                    if (selection[0] == 0) {
+                        PinSetupActivity.start(getActivity());
+                    } else {
+                        PatternSetupActivity.start(getActivity());
                     }
+                    dialog.dismiss();
                 })
                 .show();
     }
@@ -195,7 +189,7 @@ public class NeedLockActivity<T> extends WithSearchActivity<T> {
 
             mRootView.requestFocus();
 
-            setupLabel();
+            setupLabel(getLockLabel());
             setupFP();
             setupLockView();
 
@@ -272,9 +266,9 @@ public class NeedLockActivity<T> extends WithSearchActivity<T> {
             this.mTakePhoto = XSettings.takenPhotoEnabled(activity);
         }
 
-        private void setupLabel() {
+        private void setupLabel(String label) {
             TextView textView = mRootView.findViewById(R.id.label);
-            textView.setText(getLockLabel());
+            textView.setText(label);
         }
 
         private void setupCamera() {
@@ -406,7 +400,7 @@ public class NeedLockActivity<T> extends WithSearchActivity<T> {
                         mUserTheme.getThemeColor()), android.graphics.PorterDuff.Mode.MULTIPLY);
             }
 
-            patternPatternLockView.setInStealthMode(LockStorage.checkSP(getContext()));
+            patternPatternLockView.setInStealthMode(LockStorage.isShowPatternEnabled(getContext()));
 
             patternPatternLockView.setDrawableVibrateEnabled(AppSettings.isDrawVibrateEnabled(getContext()));
             patternPatternLockView.addPatternLockListener(new PatternLockViewListenerAdapter() {
@@ -428,6 +422,7 @@ public class NeedLockActivity<T> extends WithSearchActivity<T> {
                                     patternPatternLockView.setViewMode(com.andrognito.patternlockview.PatternLockView.PatternViewMode.WRONG);
                                     patternPatternLockView.clearPattern();
                                     takePhoto();
+                                    setupLabel(getString(R.string.title_wrong_pwd));
                                 }
                             });
                 }
@@ -494,22 +489,16 @@ public class NeedLockActivity<T> extends WithSearchActivity<T> {
 
             mRootView = LayoutInflater.from(activity)
                     .inflate(R.layout.verify_displayer_pin, null, false);
-            mRootView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // Hook click.
-                }
+            mRootView.setOnClickListener(v -> {
+                // Hook click.
             });
-            mRootView.findViewById(R.id.appbar).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+            mRootView.findViewById(R.id.appbar).setOnClickListener(v -> {
 
-                }
             });
 
             mRootView.requestFocus();
 
-            setupLabel();
+            setupLabel(getLockLabel());
             setupFP();
             setupLockView();
 
@@ -586,9 +575,9 @@ public class NeedLockActivity<T> extends WithSearchActivity<T> {
             this.mTakePhoto = XSettings.takenPhotoEnabled(activity);
         }
 
-        private void setupLabel() {
+        private void setupLabel(String label) {
             TextView textView = mRootView.findViewById(R.id.label);
-            textView.setText(getLockLabel());
+            textView.setText(label);
         }
 
         private void setupCamera() {
@@ -737,6 +726,7 @@ public class NeedLockActivity<T> extends WithSearchActivity<T> {
                                 public void onMisMatch() {
                                     pinLockView.resetPinLockView();
                                     takePhoto();
+                                    setupLabel(getString(R.string.title_wrong_pwd));
                                 }
                             });
                 }

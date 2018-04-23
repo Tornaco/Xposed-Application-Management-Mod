@@ -138,8 +138,10 @@ import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerP
 import github.tornaco.xposedmoduletest.xposed.service.doze.DozeStateRetriever;
 import github.tornaco.xposedmoduletest.xposed.service.doze.PowerWhitelistBackend;
 import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerServiceProxy;
+import github.tornaco.xposedmoduletest.xposed.service.multipleapps.MultipleAppsManager;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.GCMFCMHelper;
+import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.NotificationHandlerSettingsRetriever;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.PushNotificationHandler;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.TGPushNotificationHandler;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.WeChatPushNotificationHandler;
@@ -176,7 +178,8 @@ import static github.tornaco.xposedmoduletest.xposed.bean.DozeEvent.FAIL_RETRY_T
  */
 
 // TODO This file is really too long, please make sub-modules.
-public class XAshmanServiceImpl extends XAshmanServiceAbs {
+public class XAshmanServiceImpl extends XAshmanServiceAbs
+        implements NotificationHandlerSettingsRetriever {
 
     private static final String SYSTEM_UI_PKG = "com.android.systemui";
     private static final String SYSTEM_UI_PKG_HTC = "com.htc.lockscreen";
@@ -1563,15 +1566,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
                             + ObjectToStringUtil.intentToString(intent));
                 }
 
-                boolean isPMHEnabled = isPushMessageHandleEnabled();
-                if (!isPMHEnabled) {
+                // Notify handlers and go!
+                if (isPushMessageHandleEnabled()) {
                     XposedLog.verbose("checkBroadcastIntentSendingInternal PMH not enabled");
-                    return;
-                }
 
-                // Notification handlers.
-                for (PushNotificationHandler handler : mPushNotificationHandlers) {
-                    handler.handleIncomingIntent(targetPkg, intent);
+                    // Notification handlers.
+                    for (PushNotificationHandler handler : mPushNotificationHandlers) {
+                        handler.handleIncomingIntent(targetPkg, intent);
+                    }
                 }
 
                 @StartRuleCheck
@@ -3583,6 +3585,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         // Disable layout debug incase our logic make the system dead in loop.
         if (BuildConfig.DEBUG) {
             SystemProperties.set(View.DEBUG_LAYOUT_PROPERTY, String.valueOf(false));
+
+            MultipleAppsManager multipleAppsManager = new MultipleAppsManager(getContext());
+            multipleAppsManager.onStart();
         }
     }
 
@@ -3668,6 +3673,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
     private static final String PUSH_MESSAGE_HANDLER_SHOW_CONTENT_TAG = "pmh_show_content_";
     private static final String PUSH_MESSAGE_HANDLER_SOUND_TAG = "pmh_sound_";
     private static final String PUSH_MESSAGE_HANDLER_VIBRATE_TAG = "pmh_vibrate_";
+    private static final String PUSH_MESSAGE_HANDLER_NOTIFICATION_BY_APP = "pmh_notification_by_app_";
 
     private static String getPushMessageHandlerPkgEnableStateKeyForPackage(String pkg) {
         return PUSH_MESSAGE_HANDLER_PKG_ENABLE_STATE_TAG + pkg;
@@ -3683,6 +3689,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     private static String getPushMessageHandlerVibrateKeyForPackage(String pkg) {
         return PUSH_MESSAGE_HANDLER_VIBRATE_TAG + pkg;
+    }
+
+    private static String getPushMessageHandlerNotificationPostByAppKeyForPackage(String pkg) {
+        return PUSH_MESSAGE_HANDLER_NOTIFICATION_BY_APP + pkg;
     }
 
     @Override
@@ -3734,6 +3744,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         notifyPushMessageHandlerSettingsChanged(pkg);
     }
 
+    @Override
+    public boolean isPushMessageHandlerMessageNotificationByAppEnabled(String pkg) {
+        return SettingsProvider.get().getBoolean(getPushMessageHandlerNotificationPostByAppKeyForPackage(pkg), false);
+    }
+
+    @Override
+    public void setPushMessageHandlerMessageNotificationByAppEnabled(String pkg, boolean enabled) {
+        SettingsProvider.get().putBoolean(getPushMessageHandlerNotificationPostByAppKeyForPackage(pkg), enabled);
+        notifyPushMessageHandlerSettingsChanged(pkg);
+    }
+
     private AtomicBoolean mIsPushMessageHandleEnabled = new AtomicBoolean(false);
 
     @Override
@@ -3748,6 +3769,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
         SettingsProvider.get().putBoolean(PUSH_MESSAGE_HANDLER_ENABLE_TAG, enabled);
         mIsPushMessageHandleEnabled.set(enabled);
         notifyPushMessageHandlerSettingsChanged(null);
+    }
+
+    @Override
+    public boolean isHandlingPushMessageIntent(String packageName) {
+        enforceCallingPermissions();
+        return GCMFCMHelper.isHandlingGcmIntent(packageName);
+    }
+
+    @Override
+    @BinderCall(restrict = "any")
+    public boolean showToast(String message) {
+        mLazyHandler.post(new ErrorCatchRunnable(() -> Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show(), "showToast  @BinderCall"));
+        return true;
     }
 
     private void notifyPushMessageHandlerSettingsChanged(String pkg) {
@@ -4224,7 +4258,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
 
     @Override
     @BinderCall(restrict = "any")
-    public boolean isUidInPrivacyList(int uid) throws RemoteException {
+    public boolean isUidInPrivacyList(int uid) {
         // FIXME Too slow.
         return isPackageInPrivacyList(PkgUtil.pkgForUid(getContext(), uid));
     }
@@ -7016,7 +7050,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs {
             FutureTask<String[]> futureTask = new FutureTask<>(new SignalCallable<String[]>() {
 
                 @Override
-                public String[] call() throws Exception {
+                public String[] call() {
 
                     PowerManager power = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
                     ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);

@@ -24,7 +24,8 @@ import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapte
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 
-public class BlurAppNavActivity extends CommonPackageInfoListActivity implements SwitchBar.OnSwitchChangeListener, AdapterView.OnItemSelectedListener {
+public class BlurAppNavActivity extends CommonPackageInfoListActivity implements SwitchBar.OnSwitchChangeListener,
+        AdapterView.OnItemSelectedListener {
 
     private List<FilterOption> mFilterOptions;
 

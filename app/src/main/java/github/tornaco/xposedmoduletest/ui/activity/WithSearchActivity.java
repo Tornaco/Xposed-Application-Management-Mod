@@ -17,6 +17,7 @@ import com.shahroz.svlibrary.widgets.SearchViewResults;
 import java.util.ArrayList;
 
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.xposed.service.ErrorCatchRunnable;
 
 /**
  * Created by guohao4 on 2017/12/26.
@@ -31,6 +32,7 @@ public class WithSearchActivity<T> extends BaseActivity
     private boolean mSearchViewAdded = false;
     protected MaterialSearchView<T> mSearchView;
     private WindowManager mWindowManager;
+
     private boolean searchActive = false;
 
     @Override
@@ -46,30 +48,25 @@ public class WithSearchActivity<T> extends BaseActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
             // Delay adding SearchView until Toolbar has finished loading
-            toolbar.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (!mSearchViewAdded && mWindowManager != null) {
-                        mWindowManager.addView(mSearchView,
-                                MaterialSearchView.getSearchViewLayoutParams(getActivity()));
-                        mSearchViewAdded = true;
-                    }
+            toolbar.post(new ErrorCatchRunnable(() -> {
+                if (!mSearchViewAdded && mWindowManager != null) {
+                    mWindowManager.addView(mSearchView,
+                            MaterialSearchView.getSearchViewLayoutParams(getActivity()));
+                    mSearchViewAdded = true;
                 }
-            });
+            }, "adding SearchView"));
         }
     }
 
     protected void openKeyboard() {
-        getUIThreadHandler().postDelayed(new Runnable() {
-            public void run() {
-                mSearchView.getSearchView().dispatchTouchEvent(
-                        MotionEvent.obtain(SystemClock.uptimeMillis(),
-                                SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, 0, 0, 0));
-                mSearchView.getSearchView().dispatchTouchEvent(
-                        MotionEvent.obtain(SystemClock.uptimeMillis(),
-                                SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, 0, 0, 0));
-            }
-        }, 200);
+        getUIThreadHandler().postDelayed(new ErrorCatchRunnable(() -> {
+            mSearchView.getSearchView().dispatchTouchEvent(
+                    MotionEvent.obtain(SystemClock.uptimeMillis(),
+                            SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, 0, 0, 0));
+            mSearchView.getSearchView().dispatchTouchEvent(
+                    MotionEvent.obtain(SystemClock.uptimeMillis(),
+                            SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, 0, 0, 0));
+        }, "openKeyboard"), 200);
     }
 
     @Override

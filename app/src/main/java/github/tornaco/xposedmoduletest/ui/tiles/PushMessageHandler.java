@@ -23,7 +23,7 @@ public class PushMessageHandler extends QuickTile {
             this.summaryRes = XAshmanManager.get().isPushMessageHandleEnabled() ?
                     R.string.summary_func_enabled : 0;
         }
-        this.iconRes = R.drawable.ic_chat_bubble_black_24dp;
+        this.iconRes = R.drawable.ic_notifications_active_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override
             protected int getImageViewBackgroundRes() {

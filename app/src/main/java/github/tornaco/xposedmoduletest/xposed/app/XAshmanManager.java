@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.support.annotation.Nullable;
 
@@ -1959,6 +1960,42 @@ public class XAshmanManager {
             mService.setPushMessageHandlerNotificationVibrateEnabled(pkg, enabled);
         } catch (Exception e) {
 
+        }
+    }
+
+    public boolean isPushMessageHandlerMessageNotificationByAppEnabled(String pkg) {
+        ensureService();
+        try {
+            return mService.isPushMessageHandlerMessageNotificationByAppEnabled(pkg);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void setPushMessageHandlerMessageNotificationByAppEnabled(String pkg, boolean enabled) {
+        ensureService();
+        try {
+            mService.setPushMessageHandlerMessageNotificationByAppEnabled(pkg, enabled);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public boolean isHandlingPushMessageIntent(String packageName) {
+        ensureService();
+        try {
+            return mService.isHandlingPushMessageIntent(packageName);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean showToast(String message) {
+        ensureService();
+        try {
+            return mService.showToast(message);
+        } catch (Exception e) {
+            return true;
         }
     }
 }

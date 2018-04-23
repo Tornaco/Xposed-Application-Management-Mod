@@ -108,6 +108,6 @@ public abstract class CommonPackageInfoListPickerActivity
 
     @Override
     protected int getSummaryRes() {
-        return -1;
+        return 0;
     }
 }

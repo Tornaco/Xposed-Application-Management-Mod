@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="@string/title_password" android:key="ags">
+    <PreferenceCategory
+        android:key="category_lock"
+        android:title="@string/title_password">
         <Preference
             android:key="verify_method"
             android:persistent="false"
@@ -10,8 +12,8 @@
 
         <SwitchPreference
             android:defaultValue="false"
-            android:key="sp_enabled"
-            android:title="@string/title_use_sp" />
+            android:key="key_hide_pattern"
+            android:title="@string/title_hide_pattern" />
 
         <SwitchPreference
             android:defaultValue="false"

@@ -4,10 +4,14 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.support.annotation.StringRes;
 import android.text.TextUtils;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import github.tornaco.xposedmoduletest.R;
+import lombok.Getter;
 
 /**
  * Created by guohao4 on 2017/11/15.
@@ -17,15 +21,25 @@ import java.util.concurrent.Executors;
 public class LockStorage {
 
     public enum LockMethod {
-        Pin, Pattern
+        Pin(R.string.lock_method_pin), Pattern(R.string.lock_method_pattern);
+
+        @Getter
+        @StringRes
+        private int nameRes;
+
+        LockMethod(int nameRes) {
+            this.nameRes = nameRes;
+        }
     }
 
     private static ExecutorService checkService = Executors.newCachedThreadPool();
 
-    private static final String PATTERN_SEC = "key_pattern_enc";
-    private static final String PIN_SEC = "key_pin_enc";
-    private static final String PREFER = "key_prefer_unlock_method";
-    private static final String SP = "key_sp";
+    private static final String KEY_PATTERN_SEC = "key_pattern_enc";
+    private static final String KEY_PIN_SEC = "key_pin_enc";
+    private static final String KEY_PREFER = "key_prefer_unlock_method";
+
+    // Used by secure settings.
+    public static final String KEY_HIDE_PATTERN = "key_hide_pattern";
 
     private LockStorage() {
     }
@@ -33,26 +47,26 @@ public class LockStorage {
     public static LockMethod getLockMethod(Context context) {
         return LockMethod.valueOf(PreferenceManager
                 .getDefaultSharedPreferences(context)
-                .getString(PREFER, LockMethod.Pattern.name()));
+                .getString(KEY_PREFER, LockMethod.Pattern.name()));
     }
 
     public static void setLockMethod(Context context, LockMethod method) {
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit()
-                .putString(PREFER, method.name())
+                .putString(KEY_PREFER, method.name())
                 .apply();
     }
 
-    public static void setSP(Context context, boolean sp) {
+    public static void setHidePatternEnabled(Context context, boolean sp) {
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit()
-                .putBoolean(SP, sp)
+                .putBoolean(KEY_HIDE_PATTERN, sp)
                 .apply();
     }
 
-    public static boolean checkSP(Context context) {
+    public static boolean isShowPatternEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(SP, false);
+                .getBoolean(KEY_HIDE_PATTERN, false);
     }
 
 
@@ -66,12 +80,12 @@ public class LockStorage {
 
     private static String getPattern(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getString(PATTERN_SEC, null);
+                .getString(KEY_PATTERN_SEC, null);
     }
 
     private static String getPin(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getString(PIN_SEC, null);
+                .getString(KEY_PIN_SEC, null);
     }
 
     public static AsyncTask checkPatternAsync(final Context context, String input,
@@ -128,13 +142,13 @@ public class LockStorage {
 
     public static void setPattern(Context context, String code) {
         PreferenceManager.getDefaultSharedPreferences(context)
-                .edit().putString(PATTERN_SEC, code)
+                .edit().putString(KEY_PATTERN_SEC, code)
                 .apply();
     }
 
     public static void setPin(Context context, String code) {
         PreferenceManager.getDefaultSharedPreferences(context)
-                .edit().putString(PIN_SEC, code)
+                .edit().putString(KEY_PIN_SEC, code)
                 .apply();
     }
 

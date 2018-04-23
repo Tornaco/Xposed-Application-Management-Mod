@@ -50,5 +50,17 @@
         android:tint="@color/grey"
         android:visibility="gone" />
 
+    <RelativeLayout
+        android:id="@+id/filter_action_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin_middle"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:scaleType="center"
+        android:visibility="gone" />
+
 
 </RelativeLayout>

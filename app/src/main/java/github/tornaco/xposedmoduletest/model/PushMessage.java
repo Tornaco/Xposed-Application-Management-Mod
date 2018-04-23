@@ -1,5 +1,7 @@
 package github.tornaco.xposedmoduletest.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 
 import java.util.UUID;
@@ -21,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PushMessage {
+public class PushMessage implements Parcelable {
     public static final int IMPORTANCE_MAX = 0;
 
 
@@ -45,6 +47,38 @@ public class PushMessage {
     private String channelName;
     private String largeIconResName;
     private String smallIconResName;
+
+    // Host.
+    private String targetPackageName;
+
+    protected PushMessage(Parcel in) {
+        title = in.readString();
+        message = in.readString();
+        type = in.readInt();
+        payload = in.readStringArray();
+        timeMills = in.readLong();
+        from = in.readInt();
+        messageId = in.readString();
+        importance = in.readInt();
+        isTest = in.readByte() != 0;
+        channelId = in.readString();
+        channelName = in.readString();
+        largeIconResName = in.readString();
+        smallIconResName = in.readString();
+        targetPackageName = in.readString();
+    }
+
+    public static final Creator<PushMessage> CREATOR = new Creator<PushMessage>() {
+        @Override
+        public PushMessage createFromParcel(Parcel in) {
+            return new PushMessage(in);
+        }
+
+        @Override
+        public PushMessage[] newArray(int size) {
+            return new PushMessage[size];
+        }
+    };
 
     public static PushMessage makeDummy() {
         PushMessage p = new PushMessage();
@@ -71,5 +105,28 @@ public class PushMessage {
         } catch (Throwable e) {
             return null;
         }
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(title);
+        dest.writeString(message);
+        dest.writeInt(type);
+        dest.writeStringArray(payload);
+        dest.writeLong(timeMills);
+        dest.writeInt(from);
+        dest.writeString(messageId);
+        dest.writeInt(importance);
+        dest.writeByte((byte) (isTest ? 1 : 0));
+        dest.writeString(channelId);
+        dest.writeString(channelName);
+        dest.writeString(largeIconResName);
+        dest.writeString(smallIconResName);
+        dest.writeString(targetPackageName);
     }
 }

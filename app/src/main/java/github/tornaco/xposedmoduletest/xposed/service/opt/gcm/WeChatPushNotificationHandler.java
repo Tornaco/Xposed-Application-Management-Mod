@@ -2,6 +2,9 @@ package github.tornaco.xposedmoduletest.xposed.service.opt.gcm;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
+import android.provider.Settings;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import java.util.HashMap;
@@ -9,7 +12,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import github.tornaco.xposedmoduletest.model.PushMessage;
-import github.tornaco.xposedmoduletest.xposed.service.XAshmanServiceImpl;
+import github.tornaco.xposedmoduletest.service.PushMessageNotificationService;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -27,8 +30,23 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
     private static final String WECHAT_INTENT_KEY_BADGE = "badge";
     private static final String WECHAT_INTENT_KEY_FROM = "from";
 
-    public WeChatPushNotificationHandler(Context context, XAshmanServiceImpl service) {
-        super(context, service);
+    public WeChatPushNotificationHandler(Context context, NotificationHandlerSettingsRetriever retriever) {
+        super(context, retriever);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static boolean launchNotificationChannelSettingsForOreo(Context context,
+                                                                   boolean android/*App layer or FW layer*/) {
+        try {
+            Intent intent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+                    .putExtra(Settings.EXTRA_APP_PACKAGE, android ? "android" : context.getPackageName())
+                    .putExtra(Settings.EXTRA_CHANNEL_ID, NOTIFICATION_CHANNEL_ID_WECHAT)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     // Example. Assets/wechat_intent_dump
@@ -52,7 +70,12 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
             return true;
         }
 
-        postNotification(resolveWeChatPushIntent(intent));
+        if (isNotificationPostByAppEnabled() && PushMessageNotificationService.start(getContext(), resolveWeChatPushIntent(intent))) {
+            XposedLog.verbose("WeChatPushNotificationHandler posted by app!");
+        } else {
+            postNotification(resolveWeChatPushIntent(intent));
+        }
+
 
         return false;
     }
@@ -102,6 +125,7 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
                 .message(alert)
                 // Diff sender with diff id.
                 .from(MessageIdWrapper.id(from))
+                .targetPackageName(getTargetPackageName())
                 .build();
     }
 
@@ -115,6 +139,7 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
                 .title("微信")
                 .message(String.format("%s个联系人发来%s条消息", getFromCount(), getAllBadge()))
                 .from(MessageIdWrapper.id(WECHAT_PKG_NAME)) // Do not split for diff sender...
+                .targetPackageName(getTargetPackageName())
                 .build();
     }
 
@@ -129,6 +154,7 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
                 .message("你收到了一条新消息")
                 .title("微信")
                 .from(MessageIdWrapper.id(WECHAT_PKG_NAME)) // Do not split for diff sender...
+                .targetPackageName(getTargetPackageName())
                 .build();
     }
 

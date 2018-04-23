@@ -11,7 +11,7 @@
     <string name="title_view_photos">查看闯入者</string>
     <string name="title_take_photo">闯入抓拍</string>
     <string name="title_dev_mode">调试模式</string>
-    <string name="title_exp">实验功能</string>
+    <string name="title_exp">实验室</string>
     <string name="title_advance">高级</string>
     <string name="summary_dev_mode">激活日志输出，启用某些实验性能，耗电会增加，非开发者无需启用此项设置。</string>
     <string name="summary_take_photo">当密码输入错误时，尝试保存一张前置摄像头的照片，注意，能否保存成功一定程度上取决于你设备的相机预览开启速度以及输入者手速。</string>
@@ -39,7 +39,7 @@
     <string name="title_show_system_app">显示系统应用</string>
     <string name="first_run_title">XXXXX？!</string>
     <string name="message_first_run">本应用开发目的是为了尽可能的阻止不常用的APP对系统资源的消耗，常用的APP不要进行任何干涉，否则可能造成使用上的困扰，浪费许多时间和精力，甚至影响自己的生活，造成蝴蝶效应（爱折腾，愿意主动动手解决问题的朋友例外），因此你并不需要用到所有功能。\n\n新版本对Play版本以及捐赠过的朋友提供了一些额外的小功能，如果你已经捐赠过，请前往 捐赠 勾选我己经捐赠即可。Play版本无需进行此项设定即可使用所有功能。</string>
-    <string name="title_use_sp">隐藏手势图案</string>
+    <string name="title_hide_pattern">隐藏手势图案</string>
     <string name="title_use_fp">使用指纹</string>
     <string name="title_ver_on_home">应用切换时重新验证</string>
     <string name="summary_always_need_verify">默认机制是当屏幕熄灭重新点亮时，之前验证过的应用才会需要重新验证，如果启用了此选项，将会每次都需要验证</string>
@@ -279,7 +279,7 @@
     <string name="summary_restore_done">已经为你恢复了 应用管理 的默认设置</string>
     <string name="summary_restore_fail">无法删除数据，请手动删除！！！</string>
     <string name="message_running_services_fail">无法启动设置，请检查模块激活状态。</string>
-    <string name="title_running_services">正在运行的服务</string>
+    <string name="title_running_services">正在运行</string>
     <string name="title_activity_user_giude">用户向导</string>
     <string name="message_user_giude1">这是一份不得不写的声明，请仔细阅读。\n\n1. 关于应用管理数据，为了实现开机自启动限制，我们必须把某些数据存放到系统某个目录下，我们提供了删除数据的功能，如果你介意请退出！\n\n2. 关于内存占用，应用管理本身无需后台运行，你随时可以杀死。前台运行占用部分运行内存，如果你介意请退出！\n\n3. 关于稳定性，ROM众多，可能你的设备并不兼容，会导致一些使用上的问题，如果你介意，请退出！\n\n4. 关于bug，非常感谢所有朋友的bug反馈，本人会利用闲暇时间进行维护。\n\n本程序提供的高级功能，例如组件编辑，绿化等，使用不当可能会导致应用闪退等，请使用前仔细看好说明。\n\n最后感谢支持与理解！！！</string>
     <string name="user_notice_no">与我期望的不同</string>
@@ -587,5 +587,12 @@
     <string name="summarywechat__push_message_handler_sound">如何自定义铃音请查看上方帮助信息。</string>
     <string name="title_push_message_handler_vibrate">震动</string>
     <string name="title_gcm_diag">Diagnostics</string>
+    <string name="title_push_message_notification_service">推送通知服务</string>
+    <string name="title_push_message_handler_notification_by_app">应用层发出通知</string>
+    <string name="summarywechat__push_message_handler_notification_by_app">选择由应用层还是系统层发出通知，如果选择由应用层发出通知需要启动一个后台服务。</string>
+    <string name="title_push_message_handler_notification_settings_oreo">铃声和振动设置</string>
+    <string name="lock_method_pin">数字密码</string>
+    <string name="error_notification_channel_activity_not_found">请再收到任意一次通知后再继续设置</string>
+    <string name="filter_merged_process">已合并</string>
 
 </resources>
