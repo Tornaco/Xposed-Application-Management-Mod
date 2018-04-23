@@ -99,8 +99,9 @@ public interface ComponentReplacementsLoader {
                 cr.setAppPackageName(from.getPackageName());
                 cr.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(context, from.getPackageName())));
 
-                if (!PkgUtil.isPkgInstalled(context, from.getPackageName()))
+                if (!PkgUtil.isPkgInstalled(context, from.getPackageName())) {
                     cr.setAppName(context.getString(R.string.title_from_no_install));
+                }
 
                 // Inflate to.
                 Object v = replacements.get(k);
@@ -108,10 +109,11 @@ public interface ComponentReplacementsLoader {
                 if (to != null) {
                     cr.setCompToPackageName(to.getPackageName());
                     cr.setCompToClassName(to.getClassName());
-                }
 
-                if (!PkgUtil.isPkgInstalled(context, to.getPackageName()))
-                    cr.setAppName(cr.getAppName() + " " + context.getString(R.string.title_to_no_install));
+                    if (!PkgUtil.isPkgInstalled(context, to.getPackageName())) {
+                        cr.setAppName(cr.getAppName() + " " + context.getString(R.string.title_to_no_install));
+                    }
+                }
 
                 res.add(cr);
             }
