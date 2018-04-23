@@ -138,6 +138,7 @@ import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerP
 import github.tornaco.xposedmoduletest.xposed.service.doze.DozeStateRetriever;
 import github.tornaco.xposedmoduletest.xposed.service.doze.PowerWhitelistBackend;
 import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerServiceProxy;
+import github.tornaco.xposedmoduletest.xposed.service.multipleapps.MultipleAppsManager;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.GCMFCMHelper;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.NotificationHandlerSettingsRetriever;
@@ -3584,6 +3585,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         // Disable layout debug incase our logic make the system dead in loop.
         if (BuildConfig.DEBUG) {
             SystemProperties.set(View.DEBUG_LAYOUT_PROPERTY, String.valueOf(false));
+
+            MultipleAppsManager multipleAppsManager = new MultipleAppsManager(getContext());
+            multipleAppsManager.onStart();
         }
     }
 
