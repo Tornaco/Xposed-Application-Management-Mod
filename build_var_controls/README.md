@@ -48,6 +48,4 @@ play 是否是Play版本
 
 ### 执行gradle命令进行编译
 
-Windows环境 ```./gradlew app:assembleRelease```
-
-Linux环境 ```./gradle app:assembleRelease```
+```./gradlew app:assembleRelease```

@@ -18,6 +18,7 @@ import org.newstand.logger.Logger;
 
 import java.io.File;
 
+import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
@@ -51,7 +52,7 @@ public class PackageManagerCompat {
                 .setMessage(String.format("Version code: %s \nVersion name: %s \nApk path: %s \nPackageName: %s",
                         versionCode, versionName, appPath, pkg))
                 .setCancelable(true)
-                .setPositiveButton("转到系统设置", new DialogInterface.OnClickListener() {
+                .setPositiveButton(context.getString(R.string.title_goto_system_settings), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                         Uri uri = Uri.fromParts("package", pkg, null);
