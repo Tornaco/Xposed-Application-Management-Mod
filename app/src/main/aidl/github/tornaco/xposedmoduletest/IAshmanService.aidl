@@ -430,4 +430,14 @@ interface IAshmanService {
 
     // Provide an API to show toast anywhere!!!
     boolean showToast(String message);
+
+    List<BlockRecord2> getStartRecordsForPackage(String pkg);
+    void clearStartRecordsForPackage(String pkg);
+
+    // Multiple Apps.
+    // Debug only!!!
+    void createMultipleProfile();
+    boolean installAppToMultipleAppsUser(String pkgName);
+    void startActivityAsUser(in Intent intent, int userId);
+    void launchMultipleAppsForPackage(String packageName);
 }

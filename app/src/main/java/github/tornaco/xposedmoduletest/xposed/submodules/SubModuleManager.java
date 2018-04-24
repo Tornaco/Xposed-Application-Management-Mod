@@ -10,6 +10,7 @@ import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.submodules.debug.DisplayListCanvasSubModule;
+import github.tornaco.xposedmoduletest.xposed.submodules.debug.UserManagerServiceSubModule;
 import github.tornaco.xposedmoduletest.xposed.submodules.debug.WindowSubModule;
 import github.tornaco.xposedmoduletest.xposed.submodules.debug.Z2ForceFixSubModule;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -186,6 +187,7 @@ public class SubModuleManager {
             addToSubsChecked(new WindowSubModule());
             addToSubsChecked(new DisplayListCanvasSubModule());
             addToSubsChecked(new Z2ForceFixSubModule());
+            addToSubsChecked(new UserManagerServiceSubModule());
         }
 
         // Modules to hook intent result code for GCM.

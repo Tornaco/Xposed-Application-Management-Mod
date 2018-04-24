@@ -122,7 +122,7 @@ class OpsCache {
         if (list.size() > MAX_OP_LOG_ENTRY_SIZE) { // MAX 3, CURRENT 4, REMOVE 3.
 //            list.remove(list.size() - 1);
             list.clear();
-            XposedLog.verbose("trimListInNecessary, done");
+            XposedLog.verbose("OpsCache trimListInNecessary, done");
         }
     }
 }

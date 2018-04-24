@@ -7,6 +7,7 @@ import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -159,6 +160,19 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 }
             });
 
+    private static final String ACTION_DISABLE_DEBUG_MODE = "github.tornaco.broadcast.action.disable_debug_mode";
+
+    private BroadcastReceiver mDebugModeReceiver =
+            new ProtectedBroadcastReceiver(new BroadcastReceiver() {
+
+                public void onReceive(Context context, Intent intent) {
+                    if (ACTION_DISABLE_DEBUG_MODE.equals(intent.getAction())) {
+                        // Disable!
+                        XAppGuardManager.get().setDebug(false);
+                    }
+                }
+            });
+
     private PackageManager mPackageManager;
     private PowerManager mPowerManager;
 
@@ -270,6 +284,10 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
         intentFilter.addDataScheme("package");
         getContext().registerReceiver(mPackageReceiver, intentFilter);
+
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(ACTION_DISABLE_DEBUG_MODE);
+        getContext().registerReceiver(mDebugModeReceiver, intentFilter);
     }
 
     private void cacheUIDForUs() {
@@ -1277,6 +1295,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             boolean isDevMode = mDebugEnabled.get();
             try {
                 if (isDevMode) {
+                    Intent disableBroadcastIntent = new Intent(ACTION_DISABLE_DEBUG_MODE);
+                    PendingIntent disableIntent = PendingIntent.getBroadcast(getContext(), 0, disableBroadcastIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
                     NotificationCompat.Builder builder
                             = new NotificationCompat.Builder(getContext(), NOTIFICATION_CHANNEL_ID_DEBUG);
                     Notification n = builder
@@ -1284,6 +1305,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                             .setContentTitle("应用管理")
                             .setContentText("调试模式已经打开。")
                             .setSmallIcon(android.R.drawable.stat_sys_warning)
+                            .addAction(0, "关闭", disableIntent)
                             .build();
 
                     if (OSUtil.isMOrAbove()) {

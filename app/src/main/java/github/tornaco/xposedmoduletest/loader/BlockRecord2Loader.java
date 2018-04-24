@@ -3,7 +3,6 @@ package github.tornaco.xposedmoduletest.loader;
 import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -29,16 +28,13 @@ public interface BlockRecord2Loader {
         @Override
         public List<BlockRecord2> loadAll(String pkg) {
             if (XAshmanManager.get().isServiceAvailable()) {
-                List<BlockRecord2> all = XAshmanManager.get().getBlockRecords();
+                List<BlockRecord2> res = pkg == null
+                        ? XAshmanManager.get().getBlockRecords()
+                        : XAshmanManager.get().getStartRecordsForPackage(pkg);
 
-                java.util.Collections.sort(all, new Comparator<BlockRecord2>() {
-                    @Override
-                    public int compare(BlockRecord2 o1, BlockRecord2 o2) {
-                        return o1.getTimeWhen() > o2.getTimeWhen() ? -1 : 1;
-                    }
-                });
+                java.util.Collections.sort(res, (o1, o2) -> o1.getTimeWhen() > o2.getTimeWhen() ? -1 : 1);
 
-                return all;
+                return res;
             }
             return new ArrayList<>();
         }

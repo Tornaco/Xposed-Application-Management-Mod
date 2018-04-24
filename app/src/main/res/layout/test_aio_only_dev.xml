@@ -5,8 +5,21 @@
     android:orientation="vertical">
 
     <Button
-        android:id="@+id/test_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:id="@+id/test_btn_create_ma_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create MA user" />
+
+    <Button
+        android:id="@+id/test_btn_install_apm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Install APM" />
+
+    <Button
+        android:id="@+id/test_btn_launch_apm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Launch APM" />
 
 </LinearLayout>

@@ -1,10 +1,14 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
+import android.content.pm.UserInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.UserHandle;
+import android.os.UserManager;
 import android.util.Log;
 
 import java.lang.reflect.Method;
+import java.util.Set;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -14,6 +18,7 @@ import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 import github.tornaco.xposedmoduletest.xposed.service.VerifyListener;
+import github.tornaco.xposedmoduletest.xposed.service.multipleapps.MultipleAppsManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -37,6 +42,11 @@ class LauncherAppServiceSubModule extends AndroidSubModule {
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         hookStartShortcut(lpparam);
         hookVerifyCallingPackage(lpparam);
+
+        // For debug.
+        if (BuildConfig.DEBUG) {
+            hookIsEnabledProfileOf(lpparam);
+        }
     }
 
     private void hookVerifyCallingPackage(XC_LoadPackage.LoadPackageParam lpparam) {
@@ -113,14 +123,11 @@ class LauncherAppServiceSubModule extends AndroidSubModule {
                         return;
                     }
 
-                    getBridge().verify(op, pkgName, null, 0, 0, new VerifyListener() {
-                        @Override
-                        public void onVerifyRes(String pkg, int uid, int pid, int res) {
-                            if (res == XAppVerifyMode.MODE_ALLOWED) try {
-                                XposedBridge.invokeOriginalMethod(finalStartShortcutMethod, param.thisObject, param.args);
-                            } catch (Exception e) {
-                                XposedLog.wtf("Error@" + Log.getStackTraceString(e));
-                            }
+                    getBridge().verify(op, pkgName, null, 0, 0, (pkg, uid, pid, res) -> {
+                        if (res == XAppVerifyMode.MODE_ALLOWED) try {
+                            XposedBridge.invokeOriginalMethod(finalStartShortcutMethod, param.thisObject, param.args);
+                        } catch (Exception e) {
+                            XposedLog.wtf("Error@" + Log.getStackTraceString(e));
                         }
                     });
                     param.setResult(true);
@@ -130,6 +137,35 @@ class LauncherAppServiceSubModule extends AndroidSubModule {
             setStatus(unhookToStatus((XC_MethodHook.Unhook) unHooks));
         } catch (Exception e) {
             XposedLog.verbose("LauncherAppServiceSubModule Fail hookStartShortcut: " + Log.getStackTraceString(e));
+            setStatus(SubModuleStatus.ERROR);
+            setErrorMessage(Log.getStackTraceString(e));
+        }
+    }
+
+    private void hookIsEnabledProfileOf(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedLog.verbose("LauncherAppServiceSubModule hookIsEnabledProfileOf...");
+        try {
+            Class clz = XposedHelpers.findClass("com.android.server.pm.LauncherAppsService$LauncherAppsImpl",
+                    lpparam.classLoader);
+
+
+            Set unHooks = XposedBridge.hookAllMethods(clz, "isEnabledProfileOf", new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
+                    super.beforeHookedMethod(param);
+                    UserHandle userHandle = (UserHandle) param.args[0];
+                    UserManager um = (UserManager) XposedHelpers.getObjectField(param.thisObject, "mUm");
+                    UserInfo userInfo = um.getUserInfo(userHandle.getIdentifier());
+                    if (MultipleAppsManager.MULTIPLE_APPS_USER_NAME.equals(userInfo.name)) {
+                        param.setResult(true);
+                        XposedLog.verbose("LauncherAppServiceSubModule. isEnabledProfileOf MA!!!!");
+                    }
+                }
+            });
+            XposedLog.verbose("LauncherAppServiceSubModule hookIsEnabledProfileOf OK:" + unHooks);
+            setStatus(unhooksToStatus(unHooks));
+        } catch (Exception e) {
+            XposedLog.verbose("LauncherAppServiceSubModule Fail hookIsEnabledProfileOf: " + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }
