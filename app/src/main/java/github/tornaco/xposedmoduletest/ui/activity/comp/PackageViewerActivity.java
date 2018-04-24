@@ -493,6 +493,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
     @Override
     protected boolean onBindFilterAction(RelativeLayout container) {
         CheckBox showSystemAppsCheckBox = new CheckBox(getActivity());
+        showSystemAppsCheckBox.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
         showSystemAppsCheckBox.setText(R.string.title_show_system_app);
         showSystemAppsCheckBox.setSoundEffectsEnabled(false);
         showSystemAppsCheckBox.setChecked(mShowSystemApp);

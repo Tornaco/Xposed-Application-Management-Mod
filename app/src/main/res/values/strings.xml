@@ -36,7 +36,7 @@
     <string name="title_help">User manual</string>
     <string name="title_help_available_pmh">Help</string>
     <string name="title_donate">Donate</string>
-    <string name="title_show_system_app">Show system apps</string>
+    <string name="title_show_system_app">System apps</string>
     <string name="first_run_title">Tips</string>
     <string name="message_first_run">The purpose of this application development is to prevent as much as possible the consumption of system resources by the infrequent APPs. The commonly used APPs do not interfere in any way. Otherwise, they may cause problems in use, waste a lot of time and effort, and even affect their own lives. The effect (except for friends who are willing to take the initiative to solve the problem), so you do not need to use all the features. \n\nThe new version provides some additional minor features for the Play version and donated friends. If you have already donated, go to 'Donate' and check 'I have donated'. Play Edition does not require this setting to use all features.</string>
     <string name="title_hide_pattern">Hide pattern</string>
