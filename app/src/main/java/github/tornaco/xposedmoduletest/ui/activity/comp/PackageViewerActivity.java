@@ -9,6 +9,7 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -492,13 +493,20 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
 
     @Override
     protected boolean onBindFilterAction(RelativeLayout container) {
-        CheckBox showSystemAppsCheckBox = new CheckBox(getActivity());
-        showSystemAppsCheckBox.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+        CheckBox showSystemAppsCheckBox;
+        try {
+            showSystemAppsCheckBox = (CheckBox) LayoutInflater.from(getActivity())
+                    .inflate(R.layout.checkbox_text_align_end, container, false);
+        } catch (Throwable e) {
+            showSystemAppsCheckBox = new CheckBox(getActivity());
+        }
         showSystemAppsCheckBox.setText(R.string.title_show_system_app);
+        showSystemAppsCheckBox.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
         showSystemAppsCheckBox.setSoundEffectsEnabled(false);
         showSystemAppsCheckBox.setChecked(mShowSystemApp);
+        CheckBox finalShowSystemAppsCheckBox = showSystemAppsCheckBox;
         showSystemAppsCheckBox.setOnClickListener(v -> {
-            mShowSystemApp = showSystemAppsCheckBox.isChecked();
+            mShowSystemApp = finalShowSystemAppsCheckBox.isChecked();
             startLoading();
         });
         container.removeAllViews();

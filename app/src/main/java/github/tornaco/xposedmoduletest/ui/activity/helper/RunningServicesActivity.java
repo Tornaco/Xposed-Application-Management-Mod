@@ -1,9 +1,11 @@
 package github.tornaco.xposedmoduletest.ui.activity.helper;
 
 import android.os.RemoteException;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.RelativeLayout;
@@ -21,6 +23,7 @@ import java.util.List;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.cache.RunningServicesLoadingCache;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.xposed.app.IProcessClearListenerAdapter;
@@ -159,6 +162,26 @@ public class RunningServicesActivity
     private boolean mShowSystemApps = false;
 
     @Override
+    protected void onInitFilterSpinner(ViewGroup filterContainer) {
+        // Read option first.
+        mFilterOption = AppSettings.getFilterOptions(getContext(), getClass().getName(), FilterOption.OPTION_ALL_APPS);
+        // Fix.
+        if (mFilterOption > FilterOption.OPTION_RUNNING_PROCESS) { // No more larger than this!!!
+            mFilterOption = FilterOption.OPTION_MERGED_PROCESS;
+            AppSettings.setFilterOptions(getContext(), getClass().getName(), mFilterOption);
+        }
+        Logger.i("onInitFilterSpinner: %s", mFilterOption);
+
+        super.onInitFilterSpinner(filterContainer);
+    }
+
+    @Override
+    protected int getDefaultFilterSpinnerSelection(SpinnerAdapter adapter) {
+        FilterSpinnerAdapter filterSpinnerAdapter = (FilterSpinnerAdapter) adapter;
+        return filterSpinnerAdapter.getIndex(mFilterOption);
+    }
+
+    @Override
     protected SpinnerAdapter onCreateSpinnerAdapter(Spinner spinner) {
         List<FilterOption> options = Lists.newArrayList(
                 new FilterOption(R.string.filter_merged_process, FilterOption.OPTION_MERGED_PROCESS),
@@ -179,6 +202,8 @@ public class RunningServicesActivity
         Logger.d("onItemSelected: " + mFilterOptions.get(position));
         mFilterOption = mFilterOptions.get(position).getOption();
         mFilterOptionIndex = position;
+        // Save options.
+        AppSettings.setFilterOptions(getContext(), getClass().getName(), mFilterOption);
         startLoading();
     }
 
@@ -189,12 +214,20 @@ public class RunningServicesActivity
 
     @Override
     protected boolean onBindFilterAction(RelativeLayout container) {
-        CheckBox showSystemAppsCheckBox = new CheckBox(getActivity());
+        CheckBox showSystemAppsCheckBox;
+        try {
+            showSystemAppsCheckBox = (CheckBox) LayoutInflater.from(getActivity())
+                    .inflate(R.layout.checkbox_text_align_end, container, false);
+        } catch (Throwable e) {
+            showSystemAppsCheckBox = new CheckBox(getActivity());
+        }
         showSystemAppsCheckBox.setText(R.string.title_show_system_app);
+        showSystemAppsCheckBox.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
         showSystemAppsCheckBox.setSoundEffectsEnabled(false);
         showSystemAppsCheckBox.setChecked(mShowSystemApps);
+        CheckBox finalShowSystemAppsCheckBox = showSystemAppsCheckBox;
         showSystemAppsCheckBox.setOnClickListener(v -> {
-            mShowSystemApps = showSystemAppsCheckBox.isChecked();
+            mShowSystemApps = finalShowSystemAppsCheckBox.isChecked();
             startLoading();
         });
         container.removeAllViews();
