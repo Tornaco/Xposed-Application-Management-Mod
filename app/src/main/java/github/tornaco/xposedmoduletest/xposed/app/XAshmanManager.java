@@ -2015,4 +2015,22 @@ public class XAshmanManager {
 
         }
     }
+
+    public boolean isWakeupOnNotificationEnabled() {
+        ensureService();
+        try {
+            return mService.isWakeupOnNotificationEnabled();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void setWakeupOnNotificationEnabled(boolean enable) {
+        ensureService();
+        try {
+            mService.setWakeupOnNotificationEnabled(enable);
+        } catch (Exception e) {
+
+        }
+    }
 }

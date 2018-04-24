@@ -31,6 +31,10 @@ public class CommonPackageInfo {
     private Object args;
     private boolean isGCMSupport;
 
+    // Extra info.
+    private boolean isIME, isLauncher;
+    private boolean isTencent, isBaidu;
+
     public boolean isAllExtraPermDisabled() {
         return !isServiceOpAllowed() && !isAlarmOpAllowed() && !isWakelockOpAllowed();
     }

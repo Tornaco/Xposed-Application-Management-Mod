@@ -110,12 +110,7 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
     protected void initView() {
         fab = findViewById(R.id.fab);
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onFabClick();
-            }
-        });
+        fab.setOnClickListener(v -> onFabClick());
 
         if (hasRecyclerView()) {
             recyclerView = findViewById(R.id.recycler_view);
@@ -136,13 +131,7 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
             }
 
 
-            swipeRefreshLayout.setOnRefreshListener(
-                    new SwipeRefreshLayout.OnRefreshListener() {
-                        @Override
-                        public void onRefresh() {
-                            startLoading();
-                        }
-                    });
+            swipeRefreshLayout.setOnRefreshListener(this::startLoading);
 
             recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
@@ -156,21 +145,18 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
             });
         }
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                SwitchBar switchBar = findViewById(R.id.switchbar);
-                if (switchBar != null) {
-                    onInitSwitchBar(switchBar);
+        runOnUiThread(() -> {
+            SwitchBar switchBar = findViewById(R.id.switchbar);
+            if (switchBar != null) {
+                onInitSwitchBar(switchBar);
 
-                    if (switchBar.isShowing()) {
-                        showSwitchBarIntro(switchBar);
-                    }
+                if (switchBar.isShowing()) {
+                    showSwitchBarIntro(switchBar);
                 }
-
-                ViewGroup filterContainer = findViewById(R.id.apps_filter_spinner_container);
-                onInitFilterSpinner(filterContainer);
             }
+
+            ViewGroup filterContainer = findViewById(R.id.apps_filter_spinner_container);
+            onInitFilterSpinner(filterContainer);
         });
 
         setupSummaryView();
@@ -218,8 +204,10 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
             filterContainer.setVisibility(View.VISIBLE);
             spinner.setAdapter(adapter);
             spinner.setOnItemSelectedListener(onCreateSpinnerItemSelectListener());
-            if (getDefaultFilterSpinnerSelection() > 0) {
-                spinner.setSelection(getDefaultFilterSpinnerSelection());
+
+            int defSelection = getDefaultFilterSpinnerSelection(adapter);
+            if (defSelection > 0) {
+                spinner.setSelection(defSelection);
             }
 
             showFilterSpinnerIntro(spinner);
@@ -241,7 +229,7 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
         }
     }
 
-    protected int getDefaultFilterSpinnerSelection() {
+    protected int getDefaultFilterSpinnerSelection(SpinnerAdapter adapter) {
         return -1;
     }
 
@@ -510,14 +498,19 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
         public static final int OPTION_SYSTEM_APPS = 0x4;
         public static final int OPTION_SYSTEM_CORE_APPS = 0x5;
         public static final int OPTION_3RD_APPS = 0x6;
+        public static final int OPTION_IME_APPS = 0x7;
+        public static final int OPTION_GCM_APPS = 0x8;
+        public static final int OPTION_TENCENT_APPS = 0x9;
+        public static final int OPTION_BAIDU_APPS = 0x10;
+        public static final int OPTION_LAUNCHER_APPS = 0x11;
 
-        public static final int OPTION_EXT_OP = 0x7;
-        public static final int OPTION_DEFAULT_OP = 0x8;
-        public static final int OPTION_ALL_OP = 0x9;
+        public static final int OPTION_EXT_OP = 0x100;
+        public static final int OPTION_DEFAULT_OP = 0x101;
+        public static final int OPTION_ALL_OP = 0x102;
 
-        public static final int OPTION_BACKGROUND_PROCESS = 0x10;
-        public static final int OPTION_RUNNING_PROCESS = 0x11;
-        public static final int OPTION_MERGED_PROCESS = 0x12;
+        public static final int OPTION_BACKGROUND_PROCESS = 0x1000;
+        public static final int OPTION_RUNNING_PROCESS = 0x1001;
+        public static final int OPTION_MERGED_PROCESS = 0x1002;
 
         private int titleRes;
         private int option;
@@ -546,6 +539,14 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
         @Override
         public CharSequence getItem(int position) {
             return getFilterString(filterOptions.get(position));
+        }
+
+        public int getIndex(int option) {
+            for (int i = 0; i < filterOptions.size(); i++) {
+                FilterOption o = filterOptions.get(i);
+                if (option == o.option) return i;
+            }
+            return 0; // Default is 0;
         }
 
         private CharSequence getFilterString(FilterOption filter) {

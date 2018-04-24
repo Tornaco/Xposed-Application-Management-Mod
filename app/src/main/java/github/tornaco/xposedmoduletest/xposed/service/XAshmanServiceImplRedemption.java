@@ -131,6 +131,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public void onNotificationPosted() {
+
+    }
+
+    @Override
     public void setRecentTaskExcludeSetting(ComponentName c, int setting) throws RemoteException {
 
     }
@@ -286,6 +291,16 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
 
     @Override
     public void clearStartRecordsForPackage(String pkg) throws RemoteException {
+
+    }
+
+    @Override
+    public boolean isWakeupOnNotificationEnabled() throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public void setWakeupOnNotificationEnabled(boolean enable) throws RemoteException {
 
     }
 

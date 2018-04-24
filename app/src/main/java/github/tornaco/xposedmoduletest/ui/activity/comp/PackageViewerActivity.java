@@ -12,10 +12,14 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.Toast;
@@ -40,6 +44,7 @@ import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.loader.ComponentLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.model.SenseAction;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.ShortcutStubActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.AppConfigManifestDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.PerAppSettingsDashboardActivity;
@@ -126,12 +131,9 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                 return false;
             }
         };
-        adapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                CommonPackageInfo info = getCommonPackageInfoAdapter().getCommonPackageInfos().get(position);
-                showPopMenu(info, info.isDisabled(), view);
-            }
+        adapter.setOnItemClickListener((parent, view, position, id) -> {
+            CommonPackageInfo info = getCommonPackageInfoAdapter().getCommonPackageInfos().get(position);
+            showPopMenu(info, info.isDisabled(), view);
         });
         return adapter;
     }
@@ -447,20 +449,43 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
         return super.onOptionsItemSelected(item);
     }
 
-    private List<FilterOption> mFilterOptions;
-
+    private List<FilterOption> mFilterOptions = Lists.newArrayList(
+            new FilterOption(R.string.filter_installed_apps, FilterOption.OPTION_ALL_APPS),
+            new FilterOption(R.string.filter_enabled_apps, FilterOption.OPTION_ENABLED_APPS),
+            new FilterOption(R.string.filter_disabled_apps, FilterOption.OPTION_DISABLED_APPS),
+            new FilterOption(R.string.filter_system_apps, FilterOption.OPTION_SYSTEM_APPS),
+            new FilterOption(R.string.filter_third_party_apps, FilterOption.OPTION_3RD_APPS),
+            new FilterOption(R.string.filter_ime_apps, FilterOption.OPTION_IME_APPS),
+            new FilterOption(R.string.filter_launcher_apps, FilterOption.OPTION_LAUNCHER_APPS),
+            new FilterOption(R.string.filter_gcm_apps, FilterOption.OPTION_GCM_APPS),
+            new FilterOption(R.string.filter_tencent_apps, FilterOption.OPTION_TENCENT_APPS),
+            new FilterOption(R.string.filter_baidu_apps, FilterOption.OPTION_BAIDU_APPS)
+    );
 
     private int mFilterOption = FilterOption.OPTION_ALL_APPS;
 
     @Override
+    protected void onInitFilterSpinner(ViewGroup filterContainer) {
+        // Read option first.
+        mFilterOption = AppSettings.getFilterOptions(getContext(), getClass().getName(), FilterOption.OPTION_ALL_APPS);
+        // Fix.
+        if (mFilterOption > FilterOption.OPTION_LAUNCHER_APPS) { // No more larger than this!!!
+            mFilterOption = FilterOption.OPTION_ALL_APPS;
+            AppSettings.setFilterOptions(getContext(), getClass().getName(), mFilterOption);
+        }
+        Logger.i("onInitFilterSpinner: %s", mFilterOption);
+        super.onInitFilterSpinner(filterContainer);
+    }
+
+    @Override
+    protected int getDefaultFilterSpinnerSelection(SpinnerAdapter adapter) {
+        FilterSpinnerAdapter filterSpinnerAdapter = (FilterSpinnerAdapter) adapter;
+        return filterSpinnerAdapter.getIndex(mFilterOption);
+    }
+
+    @Override
     protected SpinnerAdapter onCreateSpinnerAdapter(Spinner spinner) {
-        List<FilterOption> options = Lists.newArrayList(
-                new FilterOption(R.string.filter_installed_apps, FilterOption.OPTION_ALL_APPS),
-                new FilterOption(R.string.filter_enabled_apps, FilterOption.OPTION_ENABLED_APPS),
-                new FilterOption(R.string.filter_disabled_apps, FilterOption.OPTION_DISABLED_APPS)
-        );
-        mFilterOptions = options;
-        return new FilterSpinnerAdapter(getActivity(), options);
+        return new FilterSpinnerAdapter(getActivity(), mFilterOptions);
     }
 
     @Override
@@ -472,11 +497,36 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         Logger.d("onItemSelected: " + mFilterOptions.get(position));
         mFilterOption = mFilterOptions.get(position).getOption();
+        // Save options.
+        AppSettings.setFilterOptions(getContext(), getClass().getName(), mFilterOption);
         startLoading();
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+
+    @Override
+    protected boolean onBindFilterAction(RelativeLayout container) {
+        CheckBox showSystemAppsCheckBox;
+        try {
+            showSystemAppsCheckBox = (CheckBox) LayoutInflater.from(getActivity())
+                    .inflate(R.layout.checkbox_text_align_end, container, false);
+        } catch (Throwable e) {
+            showSystemAppsCheckBox = new CheckBox(getActivity());
+        }
+        showSystemAppsCheckBox.setText(R.string.title_show_system_app);
+        showSystemAppsCheckBox.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+        showSystemAppsCheckBox.setSoundEffectsEnabled(false);
+        showSystemAppsCheckBox.setChecked(mShowSystemApp);
+        CheckBox finalShowSystemAppsCheckBox = showSystemAppsCheckBox;
+        showSystemAppsCheckBox.setOnClickListener(v -> {
+            mShowSystemApp = finalShowSystemAppsCheckBox.isChecked();
+            startLoading();
+        });
+        container.removeAllViews();
+        container.addView(showSystemAppsCheckBox, generateCenterParams());
+        return true;
     }
 }

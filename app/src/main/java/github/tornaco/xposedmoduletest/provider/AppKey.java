@@ -26,4 +26,5 @@ public interface AppKey {
     String GCM_INDICATOR = "gcm_indicator";
     String P_STYLE_ICON = "p_style_icon";
     String FORCE_HAS_GMS = "force_has_gms";
+    String FILTER_OPTIONS = "filter_options_";
 }

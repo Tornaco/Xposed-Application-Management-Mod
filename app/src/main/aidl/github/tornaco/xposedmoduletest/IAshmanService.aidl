@@ -434,6 +434,9 @@ interface IAshmanService {
     List<BlockRecord2> getStartRecordsForPackage(String pkg);
     void clearStartRecordsForPackage(String pkg);
 
+    boolean isWakeupOnNotificationEnabled();
+    void setWakeupOnNotificationEnabled(boolean enable);
+
     // Multiple Apps.
     // Debug only!!!
     void createMultipleProfile();

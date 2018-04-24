@@ -21,6 +21,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import org.newstand.logger.Logger;
@@ -332,5 +334,18 @@ public class BaseActivity extends AppCompatActivity implements View {
         } catch (ActivityNotFoundException e) {
             Toast.makeText(getContext(), R.string.error_activity_not_found, Toast.LENGTH_SHORT).show();
         }
+    }
+
+
+    protected RelativeLayout.LayoutParams generateCenterParams() {
+        return generateCenterParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+    }
+
+    protected RelativeLayout.LayoutParams generateCenterParams(int w, int h) {
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(w, h);
+        params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        params.addRule(RelativeLayout.CENTER_VERTICAL);
+        return params;
     }
 }
