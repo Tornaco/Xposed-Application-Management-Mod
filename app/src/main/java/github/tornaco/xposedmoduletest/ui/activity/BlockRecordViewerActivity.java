@@ -32,6 +32,7 @@ public class BlockRecordViewerActivity extends WithRecyclerView {
     public static void start(Context context, String pkg) {
         Intent intent = new Intent(context, BlockRecordViewerActivity.class);
         intent.putExtra(EXTRA_PKG, pkg);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
 
@@ -65,8 +66,8 @@ public class BlockRecordViewerActivity extends WithRecyclerView {
     }
 
     protected void initView() {
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        swipeRefreshLayout = findViewById(R.id.swipe);
         swipeRefreshLayout.setColorSchemeColors(getResources().getIntArray(R.array.polluted_waves));
 
         lockKillAppListAdapter = onCreateAdapter();
@@ -76,18 +77,22 @@ public class BlockRecordViewerActivity extends WithRecyclerView {
         recyclerView.setAdapter(lockKillAppListAdapter);
 
 
-        swipeRefreshLayout.setOnRefreshListener(
-                new SwipeRefreshLayout.OnRefreshListener() {
-                    @Override
-                    public void onRefresh() {
-                        startLoading();
-                    }
-                });
+        swipeRefreshLayout.setOnRefreshListener(this::startLoading);
     }
 
 
     protected BlockRecord2ListAdapter onCreateAdapter() {
-        return new BlockRecord2ListAdapter(this);
+        return new BlockRecord2ListAdapter(this) {
+            @Override
+            protected void onListItemClick(BlockRecord2 blockRecord) {
+                super.onListItemClick(blockRecord);
+                String pkg = blockRecord.getPkgName();
+                // Only start detailed when this page is not detailed.
+                if (pkg != null && mTargetPkgName == null) {
+                    BlockRecordViewerActivity.start(getContext(), pkg);
+                }
+            }
+        };
     }
 
     protected void startLoading() {
@@ -96,18 +101,12 @@ public class BlockRecordViewerActivity extends WithRecyclerView {
         mTargetPkgName = intent.getStringExtra(EXTRA_PKG);
 
         swipeRefreshLayout.setRefreshing(true);
-        XExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                final List<BlockRecord2> res = performLoading();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        swipeRefreshLayout.setRefreshing(false);
-                        lockKillAppListAdapter.update(res);
-                    }
-                });
-            }
+        XExecutor.execute(() -> {
+            final List<BlockRecord2> res = performLoading();
+            runOnUiThread(() -> {
+                swipeRefreshLayout.setRefreshing(false);
+                lockKillAppListAdapter.update(res);
+            });
         });
     }
 

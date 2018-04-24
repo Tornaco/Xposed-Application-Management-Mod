@@ -53,6 +53,7 @@ import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.activity.helper.RunningServicesActivity;
 import github.tornaco.xposedmoduletest.ui.activity.stub.ClearStubActivity;
 import github.tornaco.xposedmoduletest.ui.activity.stub.LockScreenStubActivity;
+import github.tornaco.xposedmoduletest.ui.activity.test.TestAIOActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.suggest.SuggestionsAdapter;
 import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
@@ -803,10 +804,7 @@ public class NavigatorActivityBottomNav
                     executeCommandAsync("reboot bootloader");
                 }
                 if (item.getItemId() == R.id.action_start_test) {
-                    NavigatorActivityBottomNav.start(getActivity());
-                }
-                if (item.getItemId() == R.id.action_running_services) {
-                    startActivity(new Intent(getActivity(), RunningServicesActivity.class));
+                    TestAIOActivity.start(getActivity());
                 }
                 return false;
             };

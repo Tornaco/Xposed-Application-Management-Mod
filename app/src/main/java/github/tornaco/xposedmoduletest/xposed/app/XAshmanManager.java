@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
-import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.support.annotation.Nullable;
 
@@ -1996,6 +1995,24 @@ public class XAshmanManager {
             return mService.showToast(message);
         } catch (Exception e) {
             return true;
+        }
+    }
+
+    public List<BlockRecord2> getStartRecordsForPackage(String pkg) {
+        ensureService();
+        try {
+            return mService.getStartRecordsForPackage(pkg);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public void clearStartRecordsForPackage(String pkg) {
+        ensureService();
+        try {
+            mService.clearStartRecordsForPackage(pkg);
+        } catch (Exception e) {
+
         }
     }
 }
