@@ -18,6 +18,7 @@ import github.tornaco.xposedmoduletest.ui.adapter.BlockRecord2ListAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
+import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 public class BlockRecordViewerActivity extends WithRecyclerView {
 
@@ -78,6 +79,11 @@ public class BlockRecordViewerActivity extends WithRecyclerView {
 
 
         swipeRefreshLayout.setOnRefreshListener(this::startLoading);
+
+        // Setup title.
+        if (mTargetPkgName != null) {
+            setTitle(getTitle() + "\t" + PkgUtil.loadNameByPkgName(getContext(), mTargetPkgName));
+        }
     }
 
 

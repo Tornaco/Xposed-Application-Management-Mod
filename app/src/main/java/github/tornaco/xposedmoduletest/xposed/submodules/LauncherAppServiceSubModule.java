@@ -42,7 +42,11 @@ class LauncherAppServiceSubModule extends AndroidSubModule {
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         hookStartShortcut(lpparam);
         hookVerifyCallingPackage(lpparam);
-        hookIsEnabledProfileOf(lpparam);
+
+        // For debug.
+        if (BuildConfig.DEBUG) {
+            hookIsEnabledProfileOf(lpparam);
+        }
     }
 
     private void hookVerifyCallingPackage(XC_LoadPackage.LoadPackageParam lpparam) {
@@ -119,14 +123,11 @@ class LauncherAppServiceSubModule extends AndroidSubModule {
                         return;
                     }
 
-                    getBridge().verify(op, pkgName, null, 0, 0, new VerifyListener() {
-                        @Override
-                        public void onVerifyRes(String pkg, int uid, int pid, int res) {
-                            if (res == XAppVerifyMode.MODE_ALLOWED) try {
-                                XposedBridge.invokeOriginalMethod(finalStartShortcutMethod, param.thisObject, param.args);
-                            } catch (Exception e) {
-                                XposedLog.wtf("Error@" + Log.getStackTraceString(e));
-                            }
+                    getBridge().verify(op, pkgName, null, 0, 0, (pkg, uid, pid, res) -> {
+                        if (res == XAppVerifyMode.MODE_ALLOWED) try {
+                            XposedBridge.invokeOriginalMethod(finalStartShortcutMethod, param.thisObject, param.args);
+                        } catch (Exception e) {
+                            XposedLog.wtf("Error@" + Log.getStackTraceString(e));
                         }
                     });
                     param.setResult(true);
