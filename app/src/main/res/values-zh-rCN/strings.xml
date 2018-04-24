@@ -8,6 +8,7 @@
     <string name="input_password">%1$s 已锁定</string>
     <string name="dump_module">模块运行状态</string>
     <string name="title_settings">设置</string>
+    <string name="title_copy_list">复制列表</string>
     <string name="title_view_photos">查看闯入者</string>
     <string name="title_take_photo">闯入抓拍</string>
     <string name="title_dev_mode">调试模式</string>
@@ -301,14 +302,16 @@
     <string name="action_gps_off">关闭GPS</string>
     <string name="action_bt_on">打开蓝牙</string>
     <string name="action_bt_off">关闭蓝牙</string>
-    <string name="action_wifi_on">打开WLAN</string>
+    <string name="action_wifi_on">打开WIFI</string>
     <string name="action_wifi_off">关闭WIFI</string>
     <string name="action_data_on">打开移动数据</string>
     <string name="action_data_off">关闭移动数据</string>
     <string name="action_crash">FC（意外停止）</string>
+    <string name="title_goto_system_settings">转到系统设置</string>
     <string name="title_action_exe_by_sort">将按照选中顺序执行</string>
     <string name="summary_long_press_back">如果应用重定义了长按事件则无效</string>
     <string name="title_style">外观</string>
+    <string name="title_copyed">已复制</string>
     <string name="theme_name_dark">深色</string>
     <string name="theme_name_def">浅色</string>
     <string name="title_theme_need_restart_app">主题设置将在下次进入应用时生效</string>

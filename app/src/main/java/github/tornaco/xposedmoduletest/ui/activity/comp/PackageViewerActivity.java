@@ -2,6 +2,9 @@ package github.tornaco.xposedmoduletest.ui.activity.comp;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -429,6 +432,19 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
         }
         if (item.getItemId() == R.id.action_settings) {
             CompSettingsDashboardActivity.start(getActivity());
+        }
+        if (item.getItemId() == R.id.action_copy_list) {
+            ClipboardManager cmb = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            if (cmb != null) {
+                String list = "";
+                final List<? extends CommonPackageInfo> res = performLoading();
+                for (CommonPackageInfo app : res) {
+                    list += app.toString() + "\n";
+                }
+                list = list.substring(0, list.length() - 1);
+                cmb.setPrimaryClip(ClipData.newPlainText("app_list", list));
+                Toast.makeText(getContext(), getString(R.string.title_copyed), Toast.LENGTH_SHORT).show();
+            }
         }
         return super.onOptionsItemSelected(item);
     }
