@@ -27,4 +27,9 @@
         android:title="@string/title_settings"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/action_copy_list"
+        android:title="@string/title_copy_list"
+        app:showAsAction="never" />
+
 </menu>
