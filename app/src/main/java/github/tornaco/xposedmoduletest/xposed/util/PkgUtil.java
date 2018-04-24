@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.util;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.ComponentName;
@@ -9,6 +10,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.pm.ServiceInfo;
 import android.content.pm.Signature;
 import android.content.res.Resources;
 import android.os.Binder;
@@ -278,6 +280,29 @@ public class PkgUtil {
         homeIntent.setPackage(packageName);
         ResolveInfo ri = pkgManager.resolveActivity(homeIntent, 0);
         return !(ri == null || ri.activityInfo == null);
+    }
+
+    public static boolean isInputMethodApp(Context context, String pkgName) {
+
+        PackageManager pm = context.getPackageManager();
+        boolean isIme = false;
+        PackageInfo pkgInfo;
+        try {
+            pkgInfo = pm.getPackageInfo(pkgName, PackageManager.GET_SERVICES);
+            if (pkgInfo != null) {
+                ServiceInfo[] servicesInfos = pkgInfo.services;
+                if (null != servicesInfos) {
+                    for (ServiceInfo sInfo : servicesInfos) {
+                        if (null != sInfo.permission && sInfo.permission.equals(Manifest.permission.BIND_INPUT_METHOD)) {
+                            isIme = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return isIme;
     }
 
     // Fix dead lock issue when call this along with xxx framework patch.

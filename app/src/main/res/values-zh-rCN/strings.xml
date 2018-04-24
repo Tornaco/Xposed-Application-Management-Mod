@@ -595,5 +595,9 @@
     <string name="error_notification_channel_activity_not_found">请再收到任意一次通知后再继续设置</string>
     <string name="filter_merged_process">已合并</string>
     <string name="title_notification">通知</string>
-
+    <string name="title_wakeup_on_notification_post">通知亮屏</string>
+    <string name="filter_ime_apps">输入法</string>
+    <string name="filter_gcm_apps">支持GCM</string>
+    <string name="filter_tencent_apps">腾讯类</string>
+    <string name="filter_baidu_apps">百度类</string>
 </resources>

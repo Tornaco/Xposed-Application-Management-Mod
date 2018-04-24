@@ -4,7 +4,6 @@ import android.os.RemoteException;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.RelativeLayout;
@@ -203,15 +202,4 @@ public class RunningServicesActivity
         return true;
     }
 
-    protected RelativeLayout.LayoutParams generateCenterParams() {
-        return generateCenterParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-    }
-
-    protected RelativeLayout.LayoutParams generateCenterParams(int w, int h) {
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(w, h);
-        params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        params.addRule(RelativeLayout.CENTER_VERTICAL);
-        return params;
-    }
 }
