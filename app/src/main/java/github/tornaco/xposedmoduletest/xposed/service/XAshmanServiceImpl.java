@@ -216,7 +216,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private final ExecutorService mWorkingService = Executors.newCachedThreadPool();
     private final ExecutorService mLoggingService = Executors.newSingleThreadExecutor();
 
+    // For debug, also for user.
     private final OpsCache mOpsCache = OpsCache.singleInstance();
+    private final StartRecordCache mStartRecordCache = StartRecordCache.singleInstance();
 
     private final Map<String, Integer> mPackagesCache = new HashMap<>();
 
@@ -3388,9 +3390,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                     .timeWhen(System.currentTimeMillis())
                     .block(!serviceEvent.allowed)
                     .build();
-            if (XposedLog.isVerboseLoggable())
+            if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("SVC BlockRecord2: " + blockRecord2);
+            }
             addBlockRecord(blockRecord2);
+
+            // Add to cache.
+            mStartRecordCache.addStartRecordForPackage(serviceEvent.pkg, blockRecord2);
         };
 
         mLoggingService.execute(new ErrorCatchRunnable(r, "logServiceBlockEventToMemory"));
@@ -3430,9 +3436,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                     .timeWhen(System.currentTimeMillis())
                     .block(!broadcastEvent.allowed)
                     .build();
-            if (XposedLog.isVerboseLoggable())
+            if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("BRD BlockRecord2: " + blockRecord2);
+            }
             addBlockRecord(blockRecord2);
+
+            // Add to cache.
+            mStartRecordCache.addStartRecordForPackage(receiverPkgName, blockRecord2);
         };
         mLoggingService.execute(new ErrorCatchRunnable(r, "logBroadcastBlockEventToMemory"));
     }
@@ -3586,8 +3596,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         if (BuildConfig.DEBUG) {
             SystemProperties.set(View.DEBUG_LAYOUT_PROPERTY, String.valueOf(false));
 
-            MultipleAppsManager multipleAppsManager = new MultipleAppsManager(getContext());
-            multipleAppsManager.onStart();
+            MultipleAppsManager multipleAppsManager = MultipleAppsManager.getInstance();
+            multipleAppsManager.onCreate(getContext());
         }
     }
 
@@ -3782,6 +3792,50 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     public boolean showToast(String message) {
         mLazyHandler.post(new ErrorCatchRunnable(() -> Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show(), "showToast  @BinderCall"));
         return true;
+    }
+
+    @Override
+    public List<BlockRecord2> getStartRecordsForPackage(String pkg) throws RemoteException {
+        enforceCallingPermissions();
+        return mStartRecordCache.getStartRecordsForPackage(pkg);
+    }
+
+    @Override
+    public void clearStartRecordsForPackage(String pkg) throws RemoteException {
+        enforceCallingPermissions();
+        mStartRecordCache.clearStartRecordsForPackage(pkg);
+    }
+
+    @Override
+    public void createMultipleProfile() throws RemoteException {
+        enforceCallingPermissions();
+        enforceDebugBuild();
+        wrapCallingIdetUnCaught(() -> MultipleAppsManager.getInstance().createMultipleProfileIfNeed());
+    }
+
+    @Override
+    public boolean installAppToMultipleAppsUser(String pkgName) throws RemoteException {
+        enforceCallingPermissions();
+        enforceDebugBuild();
+        wrapCallingIdetUnCaught(() -> MultipleAppsManager.getInstance().installAppToMultipleAppsUser(pkgName));
+        return true;
+    }
+
+    @Override
+    public void startActivityAsUser(Intent intent, int userId) throws RemoteException {
+        enforceCallingPermissions();
+        enforceDebugBuild();
+        wrapCallingIdetUnCaught(() -> getContext().startActivityAsUser(intent, UserHandle.of(userId)));
+    }
+
+    @Override
+    public void launchMultipleAppsForPackage(String packageName) throws RemoteException {
+        enforceCallingPermissions();
+        enforceDebugBuild();
+        wrapCallingIdetUnCaught(() -> {
+            PackageManager pm = getContext().getPackageManager();
+            Intent launcher = pm.getLaunchIntentForPackage(packageName);
+        });
     }
 
     private void notifyPushMessageHandlerSettingsChanged(String pkg) {
@@ -6233,6 +6287,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
         throw new SecurityException("Package of uid:" + callingUID
                 + ", does not require permission to interact with XIntentFirewallService");
+    }
+
+    protected static void enforceDebugBuild() {
+        if (!BuildConfig.DEBUG) {
+            throw new SecurityException("User build does not require permission to interact with X-APM-S");
+        }
     }
 
     private void addBlockRecord(BlockRecord2 blockRecord2) {

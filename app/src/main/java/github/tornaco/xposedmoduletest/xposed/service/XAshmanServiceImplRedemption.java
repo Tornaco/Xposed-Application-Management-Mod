@@ -280,6 +280,36 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public List<BlockRecord2> getStartRecordsForPackage(String pkg) throws RemoteException {
+        return null;
+    }
+
+    @Override
+    public void clearStartRecordsForPackage(String pkg) throws RemoteException {
+
+    }
+
+    @Override
+    public void createMultipleProfile() throws RemoteException {
+
+    }
+
+    @Override
+    public boolean installAppToMultipleAppsUser(String pkgName) throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public void startActivityAsUser(Intent intent, int userId) throws RemoteException {
+
+    }
+
+    @Override
+    public void launchMultipleAppsForPackage(String packageName) throws RemoteException {
+
+    }
+
+    @Override
     public void leaveRedemptionMode() throws RemoteException {
         RepoProxy.deleteFileIndicator(SubModuleManager.REDEMPTION);
     }

@@ -88,6 +88,12 @@ public class BlockRecord2ListAdapter extends RecyclerView.Adapter<BlockRecord2Li
                 .fallback(R.mipmap.ic_launcher_round)
                 .transition(withCrossFade())
                 .into(holder.getAppIconView());
+
+        holder.itemView.setOnClickListener(v -> onListItemClick(blockRecord));
+    }
+
+    protected void onListItemClick(BlockRecord2 blockRecord) {
+        // Noop.
     }
 
     @Override
