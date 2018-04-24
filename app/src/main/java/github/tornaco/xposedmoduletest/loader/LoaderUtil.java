@@ -70,7 +70,7 @@ public class LoaderUtil {
         }
 
         if ((flag & FLAG_INCLUDE_LAUNCHER_INFO) != 0) {
-            p.setLauncher(PkgUtil.isLauncherApp(context, pkg));
+            p.setLauncher(PkgUtil.isHomeApp(context, pkg));
             Logger.i("FLAG_INCLUDE_LAUNCHER_INFO");
         }
 
