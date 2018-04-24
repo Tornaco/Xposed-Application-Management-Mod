@@ -15,6 +15,7 @@ import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.DetailedToast;
 import github.tornaco.xposedmoduletest.ui.tiles.app.ForegroundNotificationOptActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.IconToast;
+import github.tornaco.xposedmoduletest.ui.tiles.app.WakeupOnNotificationPosted;
 import github.tornaco.xposedmoduletest.ui.tiles.smartsense.LongPressBackKey;
 import github.tornaco.xposedmoduletest.ui.tiles.smartsense.PanicLock;
 
@@ -57,13 +58,19 @@ public class SmartSenseDashboardActivity extends BaseActivity {
             // app.addTile(new AppFocusAction(getActivity()));
             app.addTile(new DetailedToast(getActivity()));
             app.addTile(new IconToast(getActivity()));
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
                 app.addTile(new ForegroundNotificationOptActivity(getActivity()));
             }
 
+            Category notification = new Category();
+            notification.titleRes = R.string.title_notification;
+            notification.addTile(new WakeupOnNotificationPosted(getActivity()));
+
             categories.add(keys);
             categories.add(panic);
             categories.add(app);
+            categories.add(notification);
         }
     }
 

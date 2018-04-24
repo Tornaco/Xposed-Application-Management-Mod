@@ -42,6 +42,18 @@ public class AppSettings extends Observable {
                 .apply();
     }
 
+    public static int getFilterOptions(Context context, String which, int defOptions) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(AppKey.FILTER_OPTIONS + which, defOptions);
+    }
+
+    public static void setFilterOptions(Context context, String which, int options) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putInt(AppKey.FILTER_OPTIONS + which, options)
+                .apply();
+    }
+
     public static boolean isDrawVibrateEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(AppKey.DRAW_VIBRATE, false);
