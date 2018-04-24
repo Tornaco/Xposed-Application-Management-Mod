@@ -594,5 +594,6 @@
     <string name="lock_method_pin">数字密码</string>
     <string name="error_notification_channel_activity_not_found">请再收到任意一次通知后再继续设置</string>
     <string name="filter_merged_process">已合并</string>
+    <string name="title_notification">通知</string>
 
 </resources>

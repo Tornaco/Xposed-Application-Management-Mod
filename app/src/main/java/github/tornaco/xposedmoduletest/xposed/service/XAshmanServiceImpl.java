@@ -269,6 +269,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private final AtomicBoolean mLongPressBackKillEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mCompSettingBlockEnabled = new AtomicBoolean(false);
 
+    private final AtomicBoolean mWakeupOnNotificationPosted = new AtomicBoolean(BuildConfig.DEBUG);
+
 
     private final Holder<String> mUserDefinedDeviceId = new Holder<>();
     private final Holder<String> mUserDefinedAndroidId = new Holder<>();
@@ -1159,6 +1161,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             boolean powerSave = (boolean) SystemSettings.APM_POWER_SAVE_B.readFromSystemSettings(getContext());
             mPowerSaveModeEnabled.set(powerSave);
             XposedLog.boot("powerSave: " + String.valueOf(powerSave));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            boolean wakeupOnNotificationPosted = (boolean) SystemSettings.WAKE_UP_ON_NOTIFICATION_POSTED_ENABLED_B
+                    .readFromSystemSettings(getContext());
+            mWakeupOnNotificationPosted.set(wakeupOnNotificationPosted);
+            XposedLog.boot("wakeupOnNotificationPosted: " + String.valueOf(wakeupOnNotificationPosted));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -3126,12 +3137,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    @InternalCall
     public void onStartProcessLocked(ApplicationInfo applicationInfo) {
         mLazyHandler.obtainMessage(AshManLZHandlerMessages.MSG_ONSTARTPROCESSLOCKED, applicationInfo)
                 .sendToTarget();
     }
 
     @Override
+    @InternalCall
     public void onRemoveProcessLocked(ApplicationInfo applicationInfo,
                                       boolean callerWillRestart,
                                       boolean allowRestart,
@@ -3144,6 +3157,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 .build();
         mLazyHandler.obtainMessage(AshManLZHandlerMessages.MSG_ONREMOVEPROCESSLOCKED, typePack)
                 .sendToTarget();
+    }
+
+    @Override
+    @InternalCall
+    public void onNotificationPosted() {
+        boolean isLightScreenEnabled = isWakeupOnNotificationEnabled();
+        if (isLightScreenEnabled) {
+            PowerManager pm = (PowerManager) getContext().getSystemService(POWER_SERVICE);
+            if (pm != null && !pm.isInteractive()) {
+                pm.wakeUp(SystemClock.uptimeMillis());
+            }
+        }
     }
 
     @Override
@@ -3795,26 +3820,38 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
-    public List<BlockRecord2> getStartRecordsForPackage(String pkg) throws RemoteException {
+    public List<BlockRecord2> getStartRecordsForPackage(String pkg) {
         enforceCallingPermissions();
         return mStartRecordCache.getStartRecordsForPackage(pkg);
     }
 
     @Override
-    public void clearStartRecordsForPackage(String pkg) throws RemoteException {
+    public void clearStartRecordsForPackage(String pkg) {
         enforceCallingPermissions();
         mStartRecordCache.clearStartRecordsForPackage(pkg);
     }
 
     @Override
-    public void createMultipleProfile() throws RemoteException {
+    public boolean isWakeupOnNotificationEnabled() {
+        enforceCallingPermissions();
+        return mWakeupOnNotificationPosted.get();
+    }
+
+    @Override
+    public void setWakeupOnNotificationEnabled(boolean enable) {
+        enforceCallingPermissions();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETWAKEUPONNOTIFICATIONENABLED, enable).sendToTarget();
+    }
+
+    @Override
+    public void createMultipleProfile() {
         enforceCallingPermissions();
         enforceDebugBuild();
         wrapCallingIdetUnCaught(() -> MultipleAppsManager.getInstance().createMultipleProfileIfNeed());
     }
 
     @Override
-    public boolean installAppToMultipleAppsUser(String pkgName) throws RemoteException {
+    public boolean installAppToMultipleAppsUser(String pkgName) {
         enforceCallingPermissions();
         enforceDebugBuild();
         wrapCallingIdetUnCaught(() -> MultipleAppsManager.getInstance().installAppToMultipleAppsUser(pkgName));
@@ -3822,14 +3859,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
-    public void startActivityAsUser(Intent intent, int userId) throws RemoteException {
+    public void startActivityAsUser(Intent intent, int userId) {
         enforceCallingPermissions();
         enforceDebugBuild();
         wrapCallingIdetUnCaught(() -> getContext().startActivityAsUser(intent, UserHandle.of(userId)));
     }
 
     @Override
-    public void launchMultipleAppsForPackage(String packageName) throws RemoteException {
+    public void launchMultipleAppsForPackage(String packageName) {
         enforceCallingPermissions();
         enforceDebugBuild();
         wrapCallingIdetUnCaught(() -> {
@@ -6771,6 +6808,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 case AshManHandlerMessages.MSG_SETPOWERSAVEMODEENABLED:
                     HandlerImpl.this.setPowerSaveModeEnabled((Boolean) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_SETWAKEUPONNOTIFICATIONENABLED:
+                    HandlerImpl.this.setWakeupOnNotificationEnabled((Boolean) msg.obj);
+                    break;
             }
         }
 
@@ -6883,6 +6923,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         public void setAutoAddBlackNotificationEnabled(boolean value) {
             if (mAutoAddNotificationToBlackListForNewApp.compareAndSet(!value, value)) {
                 SystemSettings.AUTO_BLACK_NOTIFICATION_FOR_NEW_INSTALLED_APP_B.writeToSystemSettings(getContext(), value);
+            }
+        }
+
+        @Override
+        public void setWakeupOnNotificationEnabled(boolean enable) {
+            if (mWakeupOnNotificationPosted.compareAndSet(!enable, enable)) {
+                SystemSettings.WAKE_UP_ON_NOTIFICATION_POSTED_ENABLED_B.writeToSystemSettings(getContext(), enable);
             }
         }
 

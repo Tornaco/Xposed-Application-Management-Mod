@@ -162,6 +162,8 @@ interface AshManHandler {
 
     void setAppCrashDumpEnabled(boolean enabled);
 
+    void setWakeupOnNotificationEnabled(boolean enable);
+
     @Getter
     class WatcherClient implements IBinder.DeathRecipient {
 

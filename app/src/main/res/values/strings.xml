@@ -599,5 +599,7 @@
     <string name="filter_background_process">已缓存</string>
     <string name="filter_running_process">正在运行</string>
     <string name="filter_merged_process">ALL</string>
+    <string name="title_notification">通知</string>
+    <string name="title_wakeup_on_notification_post">通知亮屏</string>
 
 </resources>

@@ -162,5 +162,8 @@ public interface IModuleBridge {
     void onStartProcessLocked(ApplicationInfo applicationInfo);
 
     void onRemoveProcessLocked(ApplicationInfo applicationInfo, boolean callerWillRestart, boolean allowRestart, String reason);
+
+    // Notification listener.
+    void onNotificationPosted();
     // API For ASH END.
 }
