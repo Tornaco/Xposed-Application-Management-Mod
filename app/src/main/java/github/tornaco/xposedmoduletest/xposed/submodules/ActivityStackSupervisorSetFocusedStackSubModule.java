@@ -1,7 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import android.content.Intent;
-import android.os.Build;
 import android.util.Log;
 
 import java.util.Set;
@@ -19,13 +18,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 // Hook hookReportActivityVisibleLocked settings.
 // Only for Oreo.
-//  void setFocusStackUnchecked(String reason, ActivityStack focusCandidate)
 class ActivityStackSupervisorSetFocusedStackSubModule extends AndroidSubModule {
-
-    @Override
-    public int needMinSdk() {
-        return Build.VERSION_CODES.O;
-    }
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {

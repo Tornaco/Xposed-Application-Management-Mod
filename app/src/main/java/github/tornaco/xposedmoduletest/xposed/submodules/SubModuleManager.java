@@ -107,7 +107,6 @@ public class SubModuleManager {
         addToSubsChecked(new AMSStartProcessLockedSubModule());
         addToSubsChecked(new AMSRemoveProcessLockedSubModule());
 
-        addToSubsChecked(new AMSSetFocusedActivitySubModule());
         addToSubsChecked(new ActivityStackSupervisorSetFocusedStackSubModule());
 
         addToSubsChecked(new AMSRetrieveSettingsSubModule());
@@ -146,7 +145,6 @@ public class SubModuleManager {
         addToSubsChecked(new ActivityStartSubModuleDelegate());
         addToSubsChecked(new LauncherAppServiceSubModule());
 
-        addToSubsChecked(new AMSSetFocusedActivitySubModule());
         addToSubsChecked(new ActivityStackSupervisorSetFocusedStackSubModule());
 
         // APPGUARD MODULES END.

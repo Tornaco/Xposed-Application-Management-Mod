@@ -6,6 +6,7 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import de.robv.android.xposed.XposedHelpers;
@@ -49,7 +50,8 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
 
     @SuppressWarnings("unchecked")
     // Checked N M
-    public List<Object> getServiceRecords(int uid, String packageName) {
+    public List<Object> getServiceRecords(int uid, String[] packageNames) {
+        if (packageNames == null || packageNames.length == 0) return new ArrayList<>(0);
 
         ServiceMapProxy serviceMapProxy = getServiceMapProxy(uid);
         if (serviceMapProxy == null) {
@@ -76,7 +78,8 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
                 XposedLog.verbose("ActiveServicesProxy getServiceRecords, pkg: " + pkg);
             }
             // Dose someone explicitly called start?
-            if (pkg != null && pkg.equals(packageName) && serviceRecordProxy.isStartRequested()) {
+            List<String> candidates = Arrays.asList(packageNames);
+            if (pkg != null && candidates.contains(pkg) && serviceRecordProxy.isStartRequested()) {
                 res.add(serviceRecordObject);
                 if (BuildConfig.DEBUG) {
                     XposedLog.verbose("ActiveServicesProxy getServiceRecords, adding: " + serviceRecordObject);
@@ -86,9 +89,19 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
         return res;
     }
 
-    // Checked N M
     public void stopServicesForPackageUid(int uid, String packageName, StopServiceConfirm confirmer) {
-        List<Object> serviceRecords = getServiceRecords(uid, packageName);
+        stopServicesForPackageUid(uid, new String[]{packageName}, confirmer);
+    }
+
+    // Checked N M
+    public void stopServicesForPackageUid(int uid, String[] packageNames, StopServiceConfirm confirmer) {
+        if (BuildConfig.DEBUG) {
+            XposedLog.wtf("ActiveServicesProxy stopServicesForPackageUid: " + Arrays.toString(packageNames));
+
+        }
+
+        List<Object> serviceRecords = getServiceRecords(uid, packageNames);
+
         if (serviceRecords != null) {
 
             ServiceMapProxy serviceMapProxy = getServiceMapProxy(uid);
