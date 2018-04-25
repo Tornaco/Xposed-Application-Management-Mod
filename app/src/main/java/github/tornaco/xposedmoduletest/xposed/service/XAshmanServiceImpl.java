@@ -1851,7 +1851,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         ArrayList<StatusBarNotification> sbns = mNotificationService.getStatusBarNotifications();
         if (sbns == null || sbns.size() == 0) return false;
 
-        if (XposedLog.isVerboseLoggable()) {
+        if (BuildConfig.DEBUG) {
             for (StatusBarNotification sbn : sbns) {
                 XposedLog.verbose("StatusBarNotification: " + sbn + ", from pkg: " + sbn.getPackageName());
             }
@@ -1864,6 +1864,28 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         return false;
+    }
+
+    // No-null
+    private Set<String> getStatusBarNotificationsPackagesInternal() {
+        if (mNotificationService == null) {
+            XposedLog.wtf("getStatusBarNotificationsPackagesInternal called when nms is null");
+            return new HashSet<>(0);
+        }
+        ArrayList<StatusBarNotification> sbns = mNotificationService.getStatusBarNotifications();
+        if (sbns == null || sbns.size() == 0) return new HashSet<>(0);
+
+        if (BuildConfig.DEBUG) {
+            for (StatusBarNotification sbn : sbns) {
+                XposedLog.verbose("getStatusBarNotificationsPackagesInternal, StatusBarNotification: " + sbn + ", from pkg: " + sbn.getPackageName());
+            }
+        }
+
+        Set<String> res = new HashSet<>();
+        for (StatusBarNotification sbn : sbns) {
+            res.add(sbn.getPackageName());
+        }
+        return res;
     }
 
     private void dumpNotifications() {
@@ -5437,6 +5459,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     private ErrorCatchRunnable mLazyServiceLoopedKiller =
             new ErrorCatchRunnable(() -> {
+                // Check lazy settings again.
+                if (!isLazyModeEnabled()) {
+                    XposedLog.wtf("LAZY mLazyServiceLoopedKiller posted while lazy mode is not enabled.");
+                    return;
+                }
                 // Get lazy apps.
                 Set<String> packagesLazy = RepoProxy.getProxy().getLazy().getAll();
                 if (packagesLazy != null && packagesLazy.size() > 0) {
@@ -5462,6 +5489,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             Set<String> packagesToStop = new HashSet<>(targetServicePkgs.length);
 
+            Set<String> notifications = getStatusBarNotificationsPackagesInternal();
+
+            if (BuildConfig.DEBUG) {
+                XposedLog.verbose("LAZY, has notifications:" + Arrays.toString(notifications.toArray()));
+            }
+
             for (String p : targetServicePkgs) {
                 // If current top package is that we want to kill, skip it.
                 if (isPackageRunningOnTop(p)) {
@@ -5471,7 +5504,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
                 // Check if has notification.
                 if (isDoNotKillSBNEnabled(XAppBuildVar.APP_GREEN)
-                        && hasNotificationForPackageInternal(p)) {
+                        && notifications.contains(p)) {
                     XposedLog.verbose("LAZY, package has SBN, do not kill");
                     continue;
                 }
