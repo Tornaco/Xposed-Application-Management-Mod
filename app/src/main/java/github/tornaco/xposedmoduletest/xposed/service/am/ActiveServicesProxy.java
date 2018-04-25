@@ -27,37 +27,39 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
         try {
             return (SparseArray) XposedHelpers.getObjectField(getHost(), "mServiceMap");
         } catch (Exception e) {
-            XposedLog.wtf("Fail getMServiceMapField: " + Log.getStackTraceString(e));
+            XposedLog.wtf("ActiveServicesProxy Fail getMServiceMapField: " + Log.getStackTraceString(e));
             return null;
         }
     }
 
+    // Checked N M
     private ServiceMapProxy getServiceMapProxy(int uid) {
         SparseArray mServiceMap = getMServiceMapField();
         if (mServiceMap == null) {
-            XposedLog.wtf("getServiceMapProxy, mServiceMap is null");
+            XposedLog.wtf("ActiveServicesProxy getServiceMapProxy, mServiceMap is null");
             return null;
         }
         Object servicesObject = mServiceMap.get(UserHandle.getUserId(uid));
         if (servicesObject == null) {
-            XposedLog.wtf("getServiceMapProxy, servicesObject is null");
+            XposedLog.wtf("ActiveServicesProxy getServiceMapProxy, servicesObject is null");
             return null;
         }
         return new ServiceMapProxy(servicesObject);
     }
 
     @SuppressWarnings("unchecked")
+    // Checked N M
     public List<Object> getServiceRecords(int uid, String packageName) {
 
         ServiceMapProxy serviceMapProxy = getServiceMapProxy(uid);
         if (serviceMapProxy == null) {
-            XposedLog.wtf("mServicesByName, serviceMapProxy is null");
+            XposedLog.wtf("ActiveServicesProxy getServiceRecords, serviceMapProxy is null");
             return new ArrayList<>(0);
         }
 
         ArrayMap mServicesByName = serviceMapProxy.getMServicesByNameField();
         if (mServicesByName == null) {
-            XposedLog.wtf("mServicesByName, servicesObject is null");
+            XposedLog.wtf("ActiveServicesProxy getServiceRecords, servicesObject is null");
             return new ArrayList<>(0);
         }
         // Copy to make thread safe.
@@ -65,48 +67,59 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
         List<Object> res = new ArrayList<>();
         for (int i = mServicesByNameSafe.size() - 1; i >= 0; i--) {
             if (BuildConfig.DEBUG) {
-                XposedLog.verbose("getServiceRecords: " + mServicesByNameSafe.valueAt(i));
+                XposedLog.verbose("ActiveServicesProxy getServiceRecords: " + mServicesByNameSafe.valueAt(i));
             }
             Object serviceRecordObject = mServicesByNameSafe.valueAt(i);
             ServiceRecordProxy serviceRecordProxy = new ServiceRecordProxy(serviceRecordObject);
             String pkg = serviceRecordProxy.getPackageName();
             if (BuildConfig.DEBUG) {
-                XposedLog.verbose("getServiceRecords, pkg: " + pkg);
+                XposedLog.verbose("ActiveServicesProxy getServiceRecords, pkg: " + pkg);
             }
-            if (pkg != null && pkg.equals(packageName)) {
+            // Dose someone explicitly called start?
+            if (pkg != null && pkg.equals(packageName) && serviceRecordProxy.isStartRequested()) {
                 res.add(serviceRecordObject);
                 if (BuildConfig.DEBUG) {
-                    XposedLog.verbose("getServiceRecords, adding: " + serviceRecordObject);
+                    XposedLog.verbose("ActiveServicesProxy getServiceRecords, adding: " + serviceRecordObject);
                 }
             }
         }
         return res;
     }
 
-    public void stopServicesForPackageUid(int uid, String packageName) {
+    // Checked N M
+    public void stopServicesForPackageUid(int uid, String packageName, StopServiceConfirm confirmer) {
         List<Object> serviceRecords = getServiceRecords(uid, packageName);
         if (serviceRecords != null) {
 
             ServiceMapProxy serviceMapProxy = getServiceMapProxy(uid);
             if (serviceMapProxy == null) {
-                XposedLog.wtf("stopServicesForPackageUid, serviceMapProxy is null");
+                XposedLog.wtf("ActiveServicesProxy stopServicesForPackageUid, serviceMapProxy is null");
                 return;
             }
 
             for (int i = serviceRecords.size() - 1; i >= 0; i--) {
+
                 Object serviceRecordObject = serviceRecords.get(i);
+
                 ServiceRecordProxy serviceRecordProxy = new ServiceRecordProxy(serviceRecordObject);
+
+                // Check if confirm to stop it!
+                if (confirmer != null && !confirmer.confirmToStop(serviceRecordProxy)) {
+                    XposedLog.wtf("ActiveServicesProxy stopServicesForPackageUid, not confirmed: " + serviceRecordProxy);
+                    continue;
+                }
+
                 serviceRecordProxy.setDelayed(false);
 
                 serviceMapProxy.ensureNotStartingBackground(serviceRecordObject);
 
                 stopServiceLocked(serviceRecordObject);
-                XposedLog.verbose("stopServicesForPackageUid: " + serviceRecordObject);
+                XposedLog.verbose("ActiveServicesProxy stopServicesForPackageUid, stopped: " + serviceRecordObject);
             }
         }
     }
 
-    public void stopServiceLocked(Object serviceRecordObj) {
+    private void stopServiceLocked(Object serviceRecordObj) {
         invokeMethod("stopServiceLocked", serviceRecordObj);
     }
 
@@ -116,17 +129,23 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
             super(host);
         }
 
+        // Checked N M
         android.util.ArrayMap getMServicesByNameField() {
             try {
                 return (ArrayMap) XposedHelpers.getObjectField(getHost(), "mServicesByName");
             } catch (Exception e) {
-                XposedLog.wtf("Fail getMServicesByNameField: " + Log.getStackTraceString(e));
+                XposedLog.wtf("ActiveServicesProxy Fail getMServicesByNameField: " + Log.getStackTraceString(e));
                 return null;
             }
         }
 
-        public void ensureNotStartingBackground(Object serviceRecordObj) {
+        // Checked N M
+        void ensureNotStartingBackground(Object serviceRecordObj) {
             invokeMethod("ensureNotStartingBackground", serviceRecordObj);
         }
+    }
+
+    public interface StopServiceConfirm {
+        boolean confirmToStop(ServiceRecordProxy proxy);
     }
 }

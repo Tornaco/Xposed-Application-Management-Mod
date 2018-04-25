@@ -50,7 +50,7 @@ public class RepoProxy {
     private SetRepo<String>
             boots,
             starts,
-            start_rules,
+            start_rules, lazy_rules,
             ifw_service, ifw_broadcast, ifw_activity,
             lks, rfks, trks,
             perms, privacy, greens,
@@ -156,6 +156,7 @@ public class RepoProxy {
         lock_white_list_activity = new StringSetRepo(new File(dir, "lock_white_list_activity"), h, io);
         uninstall = new StringSetRepo(new File(dir, "uninstall"), h, io);
         lazy = new StringSetRepo(new File(dir, "lazy"), h, io);
+        lazy_rules = new StringSetRepo(new File(dir, "lazy_rules"), h, io);
         pending_disable_apps = new StringSetRepo(new File(dir, "pending_disable_apps"), h, io);
         pending_disable_apps_tr = new StringSetRepo(new File(dir, "pending_disable_apps_tr"), h, io);
         resident = new StringSetRepo(new File(dir, "resident"), h, io);
@@ -378,6 +379,10 @@ public class RepoProxy {
         return start_rules == null ? STRING_SET_NULL_HACK : start_rules;
     }
 
+    public SetRepo<String> getLazy_rules() {
+        return lazy_rules == null ? STRING_SET_NULL_HACK : lazy_rules;
+    }
+
     public SetRepo<String> getIfw_activity() {
         return ifw_activity == null ? STRING_SET_NULL_HACK : ifw_activity;
     }
@@ -552,6 +557,8 @@ public class RepoProxy {
         getDoze_whitelist_removal().removeAll();
 
         getStart_rules().removeAll();
+        getLazy_rules().removeAll();
+
         getIfw_activity().removeAll();
         getIfw_broadcast().removeAll();
         getIfw_service().removeAll();
