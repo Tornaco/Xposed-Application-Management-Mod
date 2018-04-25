@@ -5380,7 +5380,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     // KEEP A *
     // KEEP A xx/.yy
     // KEEP A xx/xx.yy
-    private static String[] constructStopServiceKeepRule(String packageName, ComponentName componentName) {
+    private static String[] constructStopServiceKeepRule(String packageName,
+                                                         ComponentName componentName) {
         if (packageName == null || componentName == null) return null;
         String shortName = componentName.flattenToShortString();
         String name = componentName.flattenToString();
