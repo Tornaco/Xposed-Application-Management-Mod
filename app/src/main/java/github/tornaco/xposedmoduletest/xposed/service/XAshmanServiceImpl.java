@@ -1851,7 +1851,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         ArrayList<StatusBarNotification> sbns = mNotificationService.getStatusBarNotifications();
         if (sbns == null || sbns.size() == 0) return false;
 
-        if (XposedLog.isVerboseLoggable()) {
+        if (BuildConfig.DEBUG) {
             for (StatusBarNotification sbn : sbns) {
                 XposedLog.verbose("StatusBarNotification: " + sbn + ", from pkg: " + sbn.getPackageName());
             }
@@ -1864,6 +1864,28 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         return false;
+    }
+
+    // No-null
+    private Set<String> getStatusBarNotificationsPackagesInternal() {
+        if (mNotificationService == null) {
+            XposedLog.wtf("getStatusBarNotificationsPackagesInternal called when nms is null");
+            return new HashSet<>(0);
+        }
+        ArrayList<StatusBarNotification> sbns = mNotificationService.getStatusBarNotifications();
+        if (sbns == null || sbns.size() == 0) return new HashSet<>(0);
+
+        if (BuildConfig.DEBUG) {
+            for (StatusBarNotification sbn : sbns) {
+                XposedLog.verbose("getStatusBarNotificationsPackagesInternal, StatusBarNotification: " + sbn + ", from pkg: " + sbn.getPackageName());
+            }
+        }
+
+        Set<String> res = new HashSet<>();
+        for (StatusBarNotification sbn : sbns) {
+            res.add(sbn.getPackageName());
+        }
+        return res;
     }
 
     private void dumpNotifications() {
@@ -2448,14 +2470,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         if (isInWhiteList(pkgName)) {
             if (DEBUG_COMP && XposedLog.isVerboseLoggable()) {
-                XposedLog.verbose("It is targetServicePkg while list, allow component setting.");
+                XposedLog.verbose("It is from white list, allow component setting.");
             }
             return true;
         }
 
         if (isWhiteSysAppEnabled() && isInSystemAppList(pkgName)) {
             if (DEBUG_COMP && XposedLog.isVerboseLoggable()) {
-                XposedLog.verbose("It is targetServicePkg system app list, allow component setting.");
+                XposedLog.verbose("It is from system app list, allow component setting.");
             }
             return true;
         }
@@ -3239,7 +3261,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         // Disabled case.
         if (!isStartBlockEnabled()) return CheckResult.BROADCAST_CHECK_DISABLED;
 
-        // Broadcast targetServicePkg/to same app is allowed.
+        // Broadcast from/to same app is allowed.
         if (callerUid == receiverUid && PkgUtil.isSystemOrPhoneOrShell(callerUid)) {
             return CheckResult.SAME_CALLER;
         }
@@ -5392,10 +5414,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         // Kill services by ActiveServices!
-        Runnable lazyKill = new LazyServiceKiller(from);
-        ErrorCatchRunnable ecr = new ErrorCatchRunnable(lazyKill, "lazyKill");
-        // Kill all service after 3s.
-        mLazyHandler.postDelayed(ecr, 3 * 1000);
+//        Runnable lazyKill = new LazyServiceKiller(new String[]{from});
+//        ErrorCatchRunnable ecr = new ErrorCatchRunnable(lazyKill, "lazyKill");
+
+        // Kill all service after 12s.
+        mLazyHandler.removeCallbacks(mLazyServiceLoopedKiller);
+        mLazyHandler.postDelayed(mLazyServiceLoopedKiller, 12 * 1000);
     }
 
 
@@ -5411,7 +5435,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         // Check rules.
         @LazyRuleCheck
         String[] ruleKeep = constructStopServiceKeepRule(proxy.getPackageName(), proxy.getName());
-        if (BuildConfig.DEBUG){
+        if (BuildConfig.DEBUG) {
             XposedLog.verbose("constructStopServiceKeepRule: " + Arrays.toString(ruleKeep));
         }
         return !RepoProxy.getProxy().getLazy_rules().has(ruleKeep);
@@ -5433,49 +5457,95 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         };
     }
 
+    private ErrorCatchRunnable mLazyServiceLoopedKiller =
+            new ErrorCatchRunnable(() -> {
+                // Check lazy settings again.
+                if (!isLazyModeEnabled()) {
+                    XposedLog.wtf("LAZY mLazyServiceLoopedKiller posted while lazy mode is not enabled.");
+                    return;
+                }
+                // Get lazy apps.
+                Set<String> packagesLazy = RepoProxy.getProxy().getLazy().getAll();
+                if (packagesLazy != null && packagesLazy.size() > 0) {
+                    if (BuildConfig.DEBUG) {
+                        XposedLog.verbose("LAZY LazyServiceLoopedKiller, checking: " + Arrays.toString(packagesLazy.toArray()));
+                    }
+                    new LazyServiceKiller(convertObjectArrayToStringArray(packagesLazy.toArray())).run();
+                }
+            }, "LazyServiceLoopedKiller");
+
     @Getter
     @AllArgsConstructor
     private class LazyServiceKiller implements Runnable {
 
-        private String targetServicePkg;
+        private String[] targetServicePkgs;
 
         @Override
         public void run() {
 
             if (BuildConfig.DEBUG) {
-                XposedLog.verbose("LAZY, checking if need clean up service:" + targetServicePkg);
+                XposedLog.verbose("LAZY, checking if need clean up service:" + Arrays.toString(targetServicePkgs));
             }
 
-            // If current top package is that we want to kill, skip it.
-            if (isPackageRunningOnTop(targetServicePkg)) {
-                XposedLog.wtf("LAZY, package is still running on top, won't kill it's services");
-                return;
+            Set<String> packagesToStop = new HashSet<>(targetServicePkgs.length);
+
+            Set<String> notifications = getStatusBarNotificationsPackagesInternal();
+
+            if (BuildConfig.DEBUG) {
+                XposedLog.verbose("LAZY, has notifications:" + Arrays.toString(notifications.toArray()));
             }
 
-            // Check if has notification.
-            if (isDoNotKillSBNEnabled(XAppBuildVar.APP_GREEN)
-                    && hasNotificationForPackageInternal(targetServicePkg)) {
-                XposedLog.verbose("LAZY, package has SBN, do not kill");
-                return;
+            for (String p : targetServicePkgs) {
+                // If current top package is that we want to kill, skip it.
+                if (isPackageRunningOnTop(p)) {
+                    XposedLog.wtf("LAZY, package is still running on top, won't kill it's services");
+                    continue;
+                }
+
+                // Check if has notification.
+                if (isDoNotKillSBNEnabled(XAppBuildVar.APP_GREEN)
+                        && notifications.contains(p)) {
+                    XposedLog.verbose("LAZY, package has SBN, do not kill");
+                    continue;
+                }
+
+                if (isHandlingPushMessageIntent(p)) {
+                    XposedLog.verbose("LAZY, package isHandlingPushMessageIntent, do not kill");
+                    continue;
+                }
+
+                // This package services need to be stop.
+                packagesToStop.add(p);
             }
 
-            if (isHandlingPushMessageIntent(targetServicePkg)) {
-                XposedLog.verbose("LAZY, package isHandlingPushMessageIntent, do not kill");
+            if (packagesToStop.size() == 0) {
+                XposedLog.verbose("LAZY, no candidate package to kill");
                 return;
             }
 
             // Invoke ActiveServices.
             if (mActiveServicesProxy != null) {
-                int uid = PkgUtil.uidForPkg(getContext(), targetServicePkg);
-                if (uid > 0) {
-                    mActiveServicesProxy.stopServicesForPackageUid(uid, targetServicePkg, mStopServiceConfirmed);
-                } else {
-                    XposedLog.wtf("LAZY, package uid is NOT valid!!!");
+
+                String[] packagesToStopArray = convertObjectArrayToStringArray(packagesToStop.toArray());
+
+                if (BuildConfig.DEBUG) {
+                    XposedLog.verbose("LAZY, candidate package to kill: " + Arrays.toString(packagesToStopArray));
+                }
+
+                if (packagesToStopArray != null && packagesToStopArray.length > 0) {
+
+                    // FIXME Use first uid for package may cause MU err.
+                    int uid = PkgUtil.uidForPkg(getContext(), packagesToStopArray[0]);
+                    XposedLog.verbose("LAZY, candidate package to kill for UID: " + uid);
+                    if (uid > 0) {
+                        mActiveServicesProxy.stopServicesForPackageUid(uid, packagesToStopArray, mStopServiceConfirmed);
+                    } else {
+                        XposedLog.wtf("LAZY, package uid is NOT valid!!!");
+                    }
                 }
             } else {
                 XposedLog.wtf("LAZY, mActiveServicesProxy is null !!!");
             }
-
         }
     }
 
@@ -6220,7 +6290,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         super.dump(fd, fout, args);
         // For secure and CTS.
         if (getContext().checkCallingOrSelfPermission(Manifest.permission.DUMP) != PackageManager.PERMISSION_GRANTED) {
-            fout.println("Permission denial: can not dump Ashman service targetServicePkg pid= " + Binder.getCallingPid()
+            fout.println("Permission denial: can not dump Ashman service from pid= " + Binder.getCallingPid()
                     + ", uid= " + Binder.getCallingUid());
             return;
         }
@@ -7031,7 +7101,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                     RepoProxy.getProxy().getPrivacy().remove(BuildConfig.APPLICATION_ID);
                     RepoProxy.getProxy().getWhite_list_hooks_dynamic().reloadAsync();
                 } catch (Throwable e) {
-                    XposedLog.wtf("Fail remove owner package targetServicePkg repo: " + Log.getStackTraceString(e));
+                    XposedLog.wtf("Fail remove owner package from repo: " + Log.getStackTraceString(e));
                 }
             });
         }
@@ -7791,7 +7861,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
                     replacing = intent.getBooleanExtra(Intent.EXTRA_REPLACING, false);
 
-                    // We will remove targetServicePkg cache and black list when this app is uninstall.
+                    // We will remove from cache and black list when this app is uninstall.
                     if (!replacing) try {
                         uid = intent.getIntExtra(Intent.EXTRA_UID, -1);
                         if (uid > 0) {
@@ -7800,7 +7870,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                             if (needRem != null) {
                                 int removed = mPackagesCache.remove(needRem);
                             }
-                            XposedLog.debug("Package uninstalled, remove targetServicePkg cache: " + needRem);
+                            XposedLog.debug("Package uninstalled, remove from cache: " + needRem);
                         }
 
                         XAshmanManager x = XAshmanManager.get();

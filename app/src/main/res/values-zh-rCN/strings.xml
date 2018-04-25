@@ -290,7 +290,7 @@
     <string name="title_crash_moke">模拟崩溃</string>
     <string name="summary_crash_moke">点击后，应用管理会进行闪退。</string>
     <string name="summary_exp">实验功能</string>
-    <string name="summary_app_lazy">乖巧模式下的应用在前台运行时不受限制，当应用回到后台几秒后，主动停止服务（如果期间收到了FCM/GCM消息，会保留1分钟的时间）。\n\n注意，该模式与绿化会冲突，如果你对该应用绿化了服务，那么该应用前台是依然无法启动任何服务。</string>
+    <string name="summary_app_lazy">乖巧模式下的应用在前台运行时不受限制，当应用回到后台12秒后，主动停止服务（如果期间收到了FCM/GCM消息，会保留1分钟的时间）。\n\n注意，该模式与绿化会冲突，如果你对该应用绿化了服务，那么该应用前台是依然无法启动任何服务。</string>
     <string name="title_app_lazy">乖巧模式</string>
     <string name="title_draw_vibrate">绘图过程震动</string>
     <string name="title_keys">按键</string>

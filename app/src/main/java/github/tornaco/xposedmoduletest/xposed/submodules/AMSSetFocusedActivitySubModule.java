@@ -18,12 +18,14 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // Hook hookSetFocusedActivityLocked settings.
+// See {@#ActivityStackSupervisorSetFocusedStackSubModule}
+@Deprecated
 class AMSSetFocusedActivitySubModule extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-        // This only works on N and below.
-        if (!OSUtil.isOOrAbove()) {
+        // This only works on N and M.
+        if (!(OSUtil.isOOrAbove() || OSUtil.isLOrBelow())) {
             hookSetFocusedActivityLocked(lpparam);
         }
     }
