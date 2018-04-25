@@ -5409,7 +5409,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 .sendToTarget();
 
 
-        if (!isLazyModeEnabled() || !isPackageLazyByUser(from)) {
+        if (!isLazyModeEnabled()) {
             return;
         }
 
