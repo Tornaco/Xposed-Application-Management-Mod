@@ -5361,6 +5361,36 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         return pkg != null && pkg.equals(mTopPackage.getData());
     }
 
+    private final ActiveServicesProxy.StopServiceConfirm mStopServiceConfirmed
+            = proxy -> {
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("LAZY StopServiceConfirm: " + proxy);
+        }
+        // Check rules.
+        @LazyRuleCheck
+        String[] ruleKeep = constructStopServiceKeepRule(proxy.getPackageName(), proxy.getName());
+        if (RepoProxy.getProxy().getLazy_rules().has(ruleKeep)) {
+            // Do not stop!
+            return false;
+        }
+        return true;
+    };
+
+    // TODO Consider make a cache.
+    // KEEP A *
+    // KEEP A xx/.yy
+    // KEEP A xx/xx.yy
+    private static String[] constructStopServiceKeepRule(String packageName, ComponentName componentName) {
+        if (packageName == null || componentName == null) return null;
+        String shortName = componentName.flattenToShortString();
+        String name = componentName.flattenToString();
+        return new String[]{
+                String.format("KEEP %s *", packageName),
+                String.format("KEEP %s %s", packageName, shortName),
+                String.format("KEEP %s %s", packageName, name),
+        };
+    }
+
     @Getter
     @AllArgsConstructor
     private class LazyServiceKiller implements Runnable {
@@ -5380,12 +5410,23 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 return;
             }
 
+            // Check if has notification.
+            if (isDoNotKillSBNEnabled(XAppBuildVar.APP_GREEN)
+                    && hasNotificationForPackageInternal(targetServicePkg)) {
+                XposedLog.verbose("LAZY, package has SBN, do not kill");
+                return;
+            }
+
+            if (isHandlingPushMessageIntent(targetServicePkg)) {
+                XposedLog.verbose("LAZY, package isHandlingPushMessageIntent, do not kill");
+                return;
+            }
 
             // Invoke ActiveServices.
             if (mActiveServicesProxy != null) {
                 int uid = PkgUtil.uidForPkg(getContext(), targetServicePkg);
                 if (uid > 0) {
-                    mActiveServicesProxy.stopServicesForPackageUid(uid, targetServicePkg);
+                    mActiveServicesProxy.stopServicesForPackageUid(uid, targetServicePkg, mStopServiceConfirmed);
                 } else {
                     XposedLog.wtf("LAZY, package uid is NOT valid!!!");
                 }

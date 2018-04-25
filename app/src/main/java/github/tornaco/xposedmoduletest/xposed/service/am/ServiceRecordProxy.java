@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.service.am;
 
+import android.content.ComponentName;
 import android.util.Log;
 
 import de.robv.android.xposed.XposedHelpers;
@@ -12,15 +13,35 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 public class ServiceRecordProxy extends InvokeTargetProxy<Object> {
 
-    public ServiceRecordProxy(Object host) {
+    private String mPackageName;
+    private ComponentName mName;
+
+    ServiceRecordProxy(Object host) {
         super(host);
     }
 
     public String getPackageName() {
+        if (mPackageName != null) {
+            return mPackageName;
+        }
         try {
-            return (String) XposedHelpers.getObjectField(getHost(), "packageName");
+            mPackageName = (String) XposedHelpers.getObjectField(getHost(), "packageName");
+            return mPackageName;
         } catch (Exception e) {
             XposedLog.wtf("ServiceRecordProxy Fail getPackageName: " + Log.getStackTraceString(e));
+            return null;
+        }
+    }
+
+    public ComponentName getName() {
+        if (mName != null) {
+            return mName;
+        }
+        try {
+            mName = (ComponentName) XposedHelpers.getObjectField(getHost(), "name");
+            return mName;
+        } catch (Exception e) {
+            XposedLog.wtf("ServiceRecordProxy Fail getName: " + Log.getStackTraceString(e));
             return null;
         }
     }
@@ -34,7 +55,12 @@ public class ServiceRecordProxy extends InvokeTargetProxy<Object> {
             return XposedHelpers.getBooleanField(getHost(), "startRequested");
         } catch (Exception e) {
             XposedLog.wtf("ServiceRecordProxy Fail get isStartRequested: " + Log.getStackTraceString(e));
-            return false; // Default???
+            return true; // Default???
         }
+    }
+
+    @Override
+    public String toString() {
+        return getHost() == null ? "NULL" : getHost().toString();
     }
 }

@@ -42,6 +42,8 @@ public class LoaderUtil {
         CommonPackageInfo cached = LoaderCache.getInstance().get(key);
         if (cached != null) {
             Logger.i("Using cache package info.");
+            // Reset selection state.
+            cached.setChecked(false);
             return cached;
         }
 
