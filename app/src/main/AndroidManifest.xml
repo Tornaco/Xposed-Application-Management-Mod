@@ -105,6 +105,10 @@
             android:label="@string/title_app_lazy"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
+            android:name=".ui.activity.lazy.LazyRuleNavActivity"
+            android:label="@string/title_app_lazy_rule"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
             android:name=".ui.activity.lazy.LazyAppPickerActivity"
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />

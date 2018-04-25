@@ -39,6 +39,8 @@ interface AshManHandler {
 
     void setLazyModeEnabled(boolean enabled);
 
+    void setLazyRuleEnabled(boolean enabled);
+
     void setRFKillEnabled(boolean enabled);
 
     void setLPBKEnabled(boolean enabled);

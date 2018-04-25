@@ -437,6 +437,13 @@ interface IAshmanService {
     boolean isWakeupOnNotificationEnabled();
     void setWakeupOnNotificationEnabled(boolean enable);
 
+    // Lazy rule.
+    boolean addOrRemoveLazyRules(String rule, boolean add);
+    String[] getLazyRules();
+
+    boolean isLazyRuleEnabled();
+    void setLazyRuleEnabled(boolean enable);
+
     // Multiple Apps.
     // Debug only!!!
     void createMultipleProfile();

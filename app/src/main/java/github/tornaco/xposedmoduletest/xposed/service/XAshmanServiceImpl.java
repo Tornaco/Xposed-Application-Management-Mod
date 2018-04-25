@@ -249,6 +249,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private final AtomicBoolean mDataHasBeenMigrated = new AtomicBoolean(false);
     private final AtomicBoolean mShowAppCrashDumpEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mLazyEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mLazyRuleEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mDozeEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mForeDozeEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mDisableMotionEnabled = new AtomicBoolean(false);
@@ -271,7 +272,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private final AtomicBoolean mCompSettingBlockEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mWakeupOnNotificationPosted = new AtomicBoolean(BuildConfig.DEBUG);
-
 
     private final Holder<String> mUserDefinedDeviceId = new Holder<>();
     private final Holder<String> mUserDefinedAndroidId = new Holder<>();
@@ -1019,6 +1019,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             boolean lazy = (boolean) SystemSettings.LAZY_ENABLED_B.readFromSystemSettings(getContext());
             mLazyEnabled.set(lazy);
             XposedLog.boot("lazy: " + String.valueOf(lazy));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            boolean lazyRule = (boolean) SystemSettings.APM_LAZY_RULE_B.readFromSystemSettings(getContext());
+            mLazyRuleEnabled.set(lazyRule);
+            XposedLog.boot("lazyRule: " + String.valueOf(lazyRule));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -3852,6 +3860,40 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    public boolean addOrRemoveLazyRules(String rule, boolean add) {
+        XposedLog.verbose("addOrRemoveLazyRules: " + rule + ", " + add);
+        RuleParser p = RuleParser.Factory.newParser();
+        Rule r = p.parse(rule);
+        XposedLog.verbose("addOrRemoveLazyRules: " + r);
+        if (r == null) return false;
+        String rulePattern = r.toInternalPattern();
+        if (add) {
+            RepoProxy.getProxy().getLazy_rules().add(rulePattern);
+            return true;
+        } else {
+            return RepoProxy.getProxy().getLazy_rules().remove(rulePattern);
+        }
+    }
+
+    @Override
+    public String[] getLazyRules() {
+        enforceCallingPermissions();
+        return convertObjectArrayToStringArray(RepoProxy.getProxy().getLazy_rules().getAll().toArray());
+    }
+
+    @Override
+    public boolean isLazyRuleEnabled() {
+        enforceCallingPermissions();
+        return mLazyRuleEnabled.get();
+    }
+
+    @Override
+    public void setLazyRuleEnabled(boolean enable) {
+        enforceCallingPermissions();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETLAZYRULEENABLED, enable).sendToTarget();
+    }
+
+    @Override
     public void createMultipleProfile() {
         enforceCallingPermissions();
         enforceDebugBuild();
@@ -5369,11 +5411,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         // Check rules.
         @LazyRuleCheck
         String[] ruleKeep = constructStopServiceKeepRule(proxy.getPackageName(), proxy.getName());
-        if (RepoProxy.getProxy().getLazy_rules().has(ruleKeep)) {
-            // Do not stop!
-            return false;
+        if (BuildConfig.DEBUG){
+            XposedLog.verbose("constructStopServiceKeepRule: " + Arrays.toString(ruleKeep));
         }
-        return true;
+        return !RepoProxy.getProxy().getLazy_rules().has(ruleKeep);
     };
 
     // TODO Consider make a cache.
@@ -6812,6 +6853,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 case AshManHandlerMessages.MSG_SETLAZYMODEENABLED:
                     HandlerImpl.this.setLazyModeEnabled((Boolean) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_SETLAZYRULEENABLED:
+                    HandlerImpl.this.setLazyRuleEnabled((Boolean) msg.obj);
+                    break;
                 case AshManHandlerMessages.MSG_SETLPBKENABLED:
                     HandlerImpl.this.setLPBKEnabled((Boolean) msg.obj);
                     break;
@@ -6896,6 +6940,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         public void setStartRuleEnabled(boolean enabled) {
             if (mStartRuleEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.APM_START_RULE_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setLazyRuleEnabled(boolean enabled) {
+            if (mLazyRuleEnabled.compareAndSet(!enabled, enabled)) {
+                SystemSettings.APM_LAZY_RULE_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 
