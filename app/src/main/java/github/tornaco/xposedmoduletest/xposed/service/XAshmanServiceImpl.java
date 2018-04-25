@@ -5409,19 +5409,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 .sendToTarget();
 
 
-        if (!isLazyModeEnabled()) {
+        if (!isLazyModeEnabled() || !isPackageLazyByUser(from)) {
             return;
         }
 
         // Kill services by ActiveServices!
-//        Runnable lazyKill = new LazyServiceKiller(new String[]{from});
-//        ErrorCatchRunnable ecr = new ErrorCatchRunnable(lazyKill, "lazyKill");
 
+        Runnable lazyKill = new LazyServiceKiller(new String[]{from});
+        ErrorCatchRunnable ecr = new ErrorCatchRunnable(lazyKill, "lazyKill");
         // Kill all service after 12s.
-        mLazyHandler.removeCallbacks(mLazyServiceLoopedKiller);
-        mLazyHandler.postDelayed(mLazyServiceLoopedKiller, 12 * 1000);
+        mLazyHandler.postDelayed(ecr, 12 * 1000);
     }
-
 
     private boolean isPackageRunningOnTop(String pkg) {
         return pkg != null && pkg.equals(mTopPackage.getData());
@@ -5457,6 +5455,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         };
     }
 
+    // Too noisy!
     private ErrorCatchRunnable mLazyServiceLoopedKiller =
             new ErrorCatchRunnable(() -> {
                 // Check lazy settings again.
@@ -5495,6 +5494,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 XposedLog.verbose("LAZY, has notifications:" + Arrays.toString(notifications.toArray()));
             }
 
+            // Filt.
             for (String p : targetServicePkgs) {
                 // If current top package is that we want to kill, skip it.
                 if (isPackageRunningOnTop(p)) {
