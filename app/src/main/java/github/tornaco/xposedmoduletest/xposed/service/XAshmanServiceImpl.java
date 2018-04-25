@@ -2448,14 +2448,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         if (isInWhiteList(pkgName)) {
             if (DEBUG_COMP && XposedLog.isVerboseLoggable()) {
-                XposedLog.verbose("It is targetServicePkgs while list, allow component setting.");
+                XposedLog.verbose("It is from white list, allow component setting.");
             }
             return true;
         }
 
         if (isWhiteSysAppEnabled() && isInSystemAppList(pkgName)) {
             if (DEBUG_COMP && XposedLog.isVerboseLoggable()) {
-                XposedLog.verbose("It is targetServicePkgs system app list, allow component setting.");
+                XposedLog.verbose("It is from system app list, allow component setting.");
             }
             return true;
         }
@@ -3239,7 +3239,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         // Disabled case.
         if (!isStartBlockEnabled()) return CheckResult.BROADCAST_CHECK_DISABLED;
 
-        // Broadcast targetServicePkgs/to same app is allowed.
+        // Broadcast from/to same app is allowed.
         if (callerUid == receiverUid && PkgUtil.isSystemOrPhoneOrShell(callerUid)) {
             return CheckResult.SAME_CALLER;
         }
@@ -6257,7 +6257,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         super.dump(fd, fout, args);
         // For secure and CTS.
         if (getContext().checkCallingOrSelfPermission(Manifest.permission.DUMP) != PackageManager.PERMISSION_GRANTED) {
-            fout.println("Permission denial: can not dump Ashman service targetServicePkgs pid= " + Binder.getCallingPid()
+            fout.println("Permission denial: can not dump Ashman service from pid= " + Binder.getCallingPid()
                     + ", uid= " + Binder.getCallingUid());
             return;
         }
@@ -7068,7 +7068,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                     RepoProxy.getProxy().getPrivacy().remove(BuildConfig.APPLICATION_ID);
                     RepoProxy.getProxy().getWhite_list_hooks_dynamic().reloadAsync();
                 } catch (Throwable e) {
-                    XposedLog.wtf("Fail remove owner package targetServicePkgs repo: " + Log.getStackTraceString(e));
+                    XposedLog.wtf("Fail remove owner package from repo: " + Log.getStackTraceString(e));
                 }
             });
         }
@@ -7828,7 +7828,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
                     replacing = intent.getBooleanExtra(Intent.EXTRA_REPLACING, false);
 
-                    // We will remove targetServicePkgs cache and black list when this app is uninstall.
+                    // We will remove from cache and black list when this app is uninstall.
                     if (!replacing) try {
                         uid = intent.getIntExtra(Intent.EXTRA_UID, -1);
                         if (uid > 0) {
@@ -7837,7 +7837,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                             if (needRem != null) {
                                 int removed = mPackagesCache.remove(needRem);
                             }
-                            XposedLog.debug("Package uninstalled, remove targetServicePkgs cache: " + needRem);
+                            XposedLog.debug("Package uninstalled, remove from cache: " + needRem);
                         }
 
                         XAshmanManager x = XAshmanManager.get();
