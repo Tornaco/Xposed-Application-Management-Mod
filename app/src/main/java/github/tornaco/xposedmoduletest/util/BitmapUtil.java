@@ -104,4 +104,13 @@ public abstract class BitmapUtil {
                 - padding, original.getHeight() - scaled.getHeight() - padding, null);
         return res;
     }
+
+    public static Bitmap createScaledBitmap(Bitmap in, int newWidth, int newHeight) {
+        try {
+            return Bitmap.createScaledBitmap(
+                    in, newWidth, newHeight, false);
+        } catch (Exception e) {
+            return in;
+        }
+    }
 }

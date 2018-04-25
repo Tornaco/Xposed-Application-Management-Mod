@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -23,6 +24,7 @@ import java.util.Set;
 
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.model.PushMessage;
+import github.tornaco.xposedmoduletest.util.BitmapUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.service.AppResource;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -220,7 +222,18 @@ public abstract class BasePushNotificationHandler implements PushNotificationHan
                 .build();
 
         if (OSUtil.isMOrAbove()) {
-            n.setSmallIcon(new AppResource(getContext()).loadIconFromAPMApp(pushMessage.getSmallIconResName()));
+            // Now our icon is too small, so we scale to larger!!!
+            AppResource.Transform<Bitmap> scaleUp = in -> {
+                if (in == null) return null;
+                int width = in.getWidth();
+                int newWidth = (int) (width * 1.5);
+                if (BuildConfig.DEBUG) {
+                    XposedLog.verbose("BasePushNotificationHandler, create scaled bitmap for small icon");
+                }
+                //noinspection SuspiciousNameCombination
+                return BitmapUtil.createScaledBitmap(in, newWidth, newWidth);
+            };
+            n.setSmallIcon(new AppResource(getContext()).loadIconFromAPMApp(pushMessage.getSmallIconResName(), scaleUp));
         }
 
         addToPendingCancelNotifications(pushMessage.getFrom());
