@@ -65,7 +65,8 @@ public class SubModuleManager {
     private SubModuleManager() {
         addToSubsChecked(new PMSClearDataSubModule());
 
-        addToSubsChecked(new ServiceSubModule());
+        // Instead we make a ActiveService module for this feature.
+        // addToSubsChecked(new ServiceSubModule());
 
         addToSubsChecked(new AlarmManagerSubModule());
         addToSubsChecked(new WakelockSubModule());

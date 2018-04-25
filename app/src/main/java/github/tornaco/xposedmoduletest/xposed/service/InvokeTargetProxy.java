@@ -22,15 +22,35 @@ public class InvokeTargetProxy<T> {
     @SuppressWarnings({"ConstantConditions", "unchecked", "SameParameterValue", "UnusedReturnValue"})
     protected <X> X invokeMethod(String methodName, Object... args) {
         if (host == null) {
-            XposedLog.wtf("invokeMethod while host is null- " + getClass());
+            XposedLog.wtf("InvokeTargetProxy invokeMethod while host is null- " + getClass());
             return null;
         }
         try {
             Object res = XposedHelpers.callMethod(host, methodName, args);
             return (X) res;
         } catch (Throwable e) {
-            XposedLog.wtf("invokeMethod fail: " + "method: " + methodName + " class" + getClass() + e);
+            XposedLog.wtf("InvokeTargetProxy invokeMethod fail: " + "method: " + methodName + " class: " + getClass() + "\n" + e);
             return null;
+        }
+    }
+
+    protected boolean setObjectField(String name, Object value) {
+        try {
+            XposedHelpers.setObjectField(getHost(), name, value);
+            return true;
+        } catch (Exception e) {
+            XposedLog.wtf("InvokeTargetProxy setObjectField fail: " + "name: " + name + " class: " + getClass() + "\n" + e);
+            return false;
+        }
+    }
+
+    protected boolean setBooleanField(String name, boolean value) {
+        try {
+            XposedHelpers.setBooleanField(getHost(), name, value);
+            return true;
+        } catch (Exception e) {
+            XposedLog.wtf("InvokeTargetProxy setBooleanField fail: " + "name: " + name + " class: " + getClass() + "\n" + e);
+            return false;
         }
     }
 }

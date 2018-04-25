@@ -9,6 +9,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import github.tornaco.xposedmoduletest.xposed.service.am.ActiveServicesProxy;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -22,6 +23,7 @@ class ActiveServiceSubModule extends AndroidSubModule {
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         hookRestartService(lpparam);
+        hookActiveServicesConstructor(lpparam);
     }
 
     private void hookRestartService(XC_LoadPackage.LoadPackageParam lpparam) {
@@ -48,6 +50,30 @@ class ActiveServiceSubModule extends AndroidSubModule {
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
             XposedLog.verbose("Fail hookRestartService: " + Log.getStackTraceString(e));
+            setStatus(SubModuleStatus.ERROR);
+            setErrorMessage(Log.getStackTraceString(e));
+        }
+    }
+
+    private void hookActiveServicesConstructor(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedLog.verbose("hookActiveServicesConstructor...");
+        try {
+            Class cla = XposedHelpers.findClass("com.android.server.am.ActiveServices",
+                    lpparam.classLoader);
+            Set unHooks = XposedBridge.hookAllConstructors(cla, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    super.afterHookedMethod(param);
+                    XposedLog.verbose("ActiveServices construct");
+                    Object activeServicesObj = param.thisObject;
+                    ActiveServicesProxy activeServicesProxy = new ActiveServicesProxy(activeServicesObj);
+                    getBridge().attachActiveServices(activeServicesProxy);
+                }
+            });
+            XposedLog.verbose("hookActiveServicesConstructor OK:" + unHooks);
+            setStatus(unhooksToStatus(unHooks));
+        } catch (Exception e) {
+            XposedLog.verbose("Fail hookActiveServicesConstructor: " + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }
