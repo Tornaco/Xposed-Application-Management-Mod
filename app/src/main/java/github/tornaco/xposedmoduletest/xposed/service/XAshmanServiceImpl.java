@@ -128,6 +128,7 @@ import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.repo.SetRepo;
 import github.tornaco.xposedmoduletest.xposed.repo.SettingsProvider;
 import github.tornaco.xposedmoduletest.xposed.service.am.AMSProxy;
+import github.tornaco.xposedmoduletest.xposed.service.am.ActiveServicesProxy;
 import github.tornaco.xposedmoduletest.xposed.service.am.AppIdler;
 import github.tornaco.xposedmoduletest.xposed.service.am.InactiveAppIdler;
 import github.tornaco.xposedmoduletest.xposed.service.am.KillAppIdler;
@@ -293,6 +294,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private boolean mIsNotificationPostReady = false;
 
     private AMSProxy mAmsProxy;
+    private ActiveServicesProxy mActiveServicesProxy;
 
     // App idler.
     private AppIdler mKillIdler, mInactiveIdler;
@@ -1743,6 +1745,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     public void attachAMS(AMSProxy proxy) {
         mAmsProxy = proxy;
         XposedLog.boot("attachAMS, proxy: " + proxy);
+    }
+
+    @Override
+    public void attachActiveServices(ActiveServicesProxy proxy) {
+        mActiveServicesProxy = proxy;
+        XposedLog.boot("attachActiveServices, proxy: " + proxy);
     }
 
     @Override
@@ -5341,11 +5349,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             return;
         }
 
-        // Try retrieve running services.
-//        Runnable lazyKill = new LazyServiceKiller(from);
-//        ErrorCatchRunnable ecr = new ErrorCatchRunnable(lazyKill, "lazyKill");
-//        // Kill all service after 3s.
-//        mLazyHandler.postDelayed(ecr, 3 * 1000);
+        // Kill services by ActiveServices!
+        Runnable lazyKill = new LazyServiceKiller(from);
+        ErrorCatchRunnable ecr = new ErrorCatchRunnable(lazyKill, "lazyKill");
+        // Kill all service after 3s.
+        mLazyHandler.postDelayed(ecr, 3 * 1000);
     }
 
 
@@ -5372,38 +5380,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 return;
             }
 
-            final PackageManager pm = getContext().getPackageManager();
-            ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
-            if (am != null && pm != null) {
-                List<ActivityManager.RunningServiceInfo> runningServices = am.getRunningServices(99);
 
-                if (!Collections.isNullOrEmpty(runningServices)) {
-                    Collections.consumeRemaining(runningServices,
-                            new Consumer<ActivityManager.RunningServiceInfo>() {
-                                @Override
-                                public void accept(ActivityManager.RunningServiceInfo runningServiceInfo) {
-                                    if (runningServiceInfo.service == null
-                                            || !runningServiceInfo.started) return;
-                                    String pkgNameOfThisService = runningServiceInfo.service.getPackageName();
-                                    if (targetServicePkg.equals(pkgNameOfThisService)) {
-                                        ComponentName c = runningServiceInfo.service;
-                                        if (XposedLog.isVerboseLoggable()) {
-                                            XposedLog.verbose("LAZY Kill service %s for lazy pkg %s", c, targetServicePkg);
-                                        }
-                                        Intent intent = new Intent();
-                                        intent.setComponent(c);
-                                        IActivityManager iActivityManager = getActivityManager();
-                                        try {
-                                            int res = iActivityManager.stopService(null, intent, intent.getType(),
-                                                    UserHandle.USER_CURRENT);
-                                            XposedLog.verbose("LAZY Kill service %s res %s", c, res);
-                                        } catch (Exception e) {
-                                            XposedLog.wtf("LAZY Fail kill service:" + Log.getStackTraceString(e));
-                                        }
-                                    }
-                                }
-                            });
+            // Invoke ActiveServices.
+            if (mActiveServicesProxy != null) {
+                int uid = PkgUtil.uidForPkg(getContext(), targetServicePkg);
+                if (uid > 0) {
+                    mActiveServicesProxy.stopServicesForPackageUid(uid, targetServicePkg);
+                } else {
+                    XposedLog.wtf("LAZY, package uid is NOT valid!!!");
                 }
+            } else {
+                XposedLog.wtf("LAZY, mActiveServicesProxy is null !!!");
             }
 
         }
