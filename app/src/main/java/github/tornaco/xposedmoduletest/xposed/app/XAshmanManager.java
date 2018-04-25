@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.ServiceManager;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.google.common.base.Optional;
 
@@ -128,13 +129,9 @@ public class XAshmanManager {
         mService = IAshmanService.Stub.asInterface(ServiceManager.getService(SERVICE_NAME));
     }
 
-    public Optional<XAshmanManager> optional() {
-        return Optional.fromNullable(get());
-    }
-
     private void ensureService() {
         if (mService == null) {
-            Logger.e("Service is not available");
+            Logger.e("Service is not available@\n" + Log.getStackTraceString(new Throwable()));
         }
     }
 
@@ -1650,6 +1647,42 @@ public class XAshmanManager {
             return mService.addOrRemoveStartRules(rule, add);
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    public boolean addOrRemoveLazyRules(String rule, boolean add) {
+        ensureService();
+        try {
+            return mService.addOrRemoveLazyRules(rule, add);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public String[] getLazyRules() {
+        ensureService();
+        try {
+            return mService.getLazyRules();
+        } catch (Exception e) {
+            return ArrayUtil.newEmptyStringArray();
+        }
+    }
+
+    public boolean isLazyRuleEnabled() {
+        ensureService();
+        try {
+            return mService.isLazyRuleEnabled();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void setLazyRuleEnabled(boolean enable) {
+        ensureService();
+        try {
+            mService.setLazyRuleEnabled(enable);
+        } catch (Exception e) {
+
         }
     }
 
