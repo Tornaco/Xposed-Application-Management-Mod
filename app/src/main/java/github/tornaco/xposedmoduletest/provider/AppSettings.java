@@ -235,8 +235,15 @@ public class AppSettings extends Observable {
     }
 
     public static boolean isPStyleIcon(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(AppKey.P_STYLE_ICON, true);
+        try {
+            return PreferenceManager.getDefaultSharedPreferences(context)
+                    .getBoolean(AppKey.P_STYLE_ICON, true);
+        } catch (Exception e) {
+            PreferenceManager.getDefaultSharedPreferences(context)
+                    .edit().remove(AppKey.P_STYLE_ICON)
+                    .apply();
+            return true;
+        }
     }
 
     public static boolean isNewBuild(Context context) {
