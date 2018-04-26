@@ -16,6 +16,7 @@ import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.TGPMH;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.TGPMHShowContentSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.WeChatPMH;
+import github.tornaco.xposedmoduletest.ui.tiles.pmh.WeChatPMHMockMessage;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.WeChatPMHNotificationPostByApp;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.WeChatPMHNotificationSettingsOreo;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.WeChatPMHShowContentSettings;
@@ -81,6 +82,7 @@ public class PMHAvailableHandlersActivity extends WithWithCustomTabActivity {
                     wechat.addTile(new WeChatPMHSoundSettings(getActivity()));
                     wechat.addTile(new WeChatPMHVibrateSettings(getActivity()));
                 }
+                wechat.addTile(new WeChatPMHMockMessage(getActivity()));
             }
 
             // TG.

@@ -7,6 +7,9 @@ import android.content.Intent;
  * God bless no bug!
  */
 public interface PushNotificationHandler {
+
+    String KEY_MOCK_MESSAGE = "MOCK_MESSAGE_APM";
+
     boolean handleIncomingIntent(String targetPackage, Intent intent);
 
     void onSettingsChanged(String pkg);

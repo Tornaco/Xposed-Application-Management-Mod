@@ -45,6 +45,8 @@ public class LoaderUtil {
             // Reset selection state.
             CommonPackageInfo dup = CommonPackageInfo.duplicate(cached);
             dup.setChecked(false);
+            // Force read GCM state.
+            dup.setGCMSupport(XAshmanManager.get().isServiceAvailable() && XAshmanManager.get().isGCMSupportPackage(pkg));
             inflateEnableState(dup);
             return dup;
         }
@@ -54,7 +56,7 @@ public class LoaderUtil {
         p.setAppName(name);
         p.setPkgName(pkg);
 
-        p.setInstalledTime(PkgUtil.loadInstalledTimeByPkgName(context, pkg));
+        // p.setInstalledTime(PkgUtil.loadInstalledTimeByPkgName(context, pkg));
         p.setAppLevel(XAshmanManager.get().getAppLevel(pkg));
         p.setSystemApp(PkgUtil.isSystemApp(context, pkg));
 

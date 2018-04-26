@@ -90,6 +90,12 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
 
         try {
 
+            // If this is a test.
+            boolean isTestMessage = intent.hasExtra(KEY_MOCK_MESSAGE);
+            if (isTestMessage) {
+                return createAlertMessage("X-APM", intent.getStringExtra(KEY_MOCK_MESSAGE));
+            }
+
             String from = intent.getStringExtra(WECHAT_INTENT_KEY_FROM);
 
             if (from == null) {
