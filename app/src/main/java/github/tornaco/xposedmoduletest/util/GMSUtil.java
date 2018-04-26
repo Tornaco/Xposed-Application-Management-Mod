@@ -19,19 +19,24 @@ public class GMSUtil {
      * the Google Play Store or enable it in the device's system settings.
      */
     public static boolean checkPlayServices(Context context) {
-        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
-        int resultCode = apiAvailability.isGooglePlayServicesAvailable(context);
-        if (resultCode != ConnectionResult.SUCCESS) {
+        try {
+            GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+            int resultCode = apiAvailability.isGooglePlayServicesAvailable(context);
+            if (resultCode != ConnectionResult.SUCCESS) {
 //            if (apiAvailability.isUserResolvableError(resultCode)) {
 //                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
 //                        .show();
 //            } else {
 //                Logger.d("GSM This device is not supported.");
 //            }
-            Logger.d("GSM This device is not supported.");
+                Logger.d("GSM This device is not supported.");
+                return false;
+            }
+            Logger.d("GSM This device is supported.");
+            return true;
+        } catch (Throwable e) {
+            // We tried...
             return false;
         }
-        Logger.d("GSM This device is supported.");
-        return true;
     }
 }
