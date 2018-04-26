@@ -1,6 +1,5 @@
 package github.tornaco.xposedmoduletest.ui.adapter.common;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
@@ -41,7 +40,6 @@ public class CommonPackageInfoViewerAdapter extends CommonPackageInfoAdapter {
         return false;
     }
 
-    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(final CommonViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
@@ -49,7 +47,7 @@ public class CommonPackageInfoViewerAdapter extends CommonPackageInfoAdapter {
         final CommonPackageInfo packageInfo = commonPackageInfos.get(position);
         boolean disabled = packageInfo.isDisabled();
         if (disabled) {
-            holder.getLineOneTextView().setText(packageInfo.getAppName() + "\t*已冻结*");
+            holder.getLineOneTextView().setText(getContext().getString(R.string.title_app_disabled, packageInfo.getAppName()));
             holder.getLineOneTextView().setTextColor(Color.RED);
         } else {
             holder.getLineOneTextView().setText(packageInfo.getAppName());
