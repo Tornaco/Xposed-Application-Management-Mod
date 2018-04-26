@@ -30,6 +30,7 @@ import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapte
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoViewerChooserAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
  * Created by guohao4 on 2017/11/18.
@@ -181,7 +182,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 CommonPackageInfo info = getCommonPackageInfoAdapter().getCommonPackageInfos().get(position);
-                showExtraPermSettinDialog(info);
+                showExtraPermSettingDialog(info);
             }
         });
         return adapter;
@@ -212,11 +213,11 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
     }
 
 
-    private void showExtraPermSettinDialog(final CommonPackageInfo packageInfo) {
+    private void showExtraPermSettingDialog(final CommonPackageInfo packageInfo) {
 
         final String[] items = {"服务", "唤醒锁", "唤醒定时器"};
         new AlertDialog.Builder(getActivity()).setCancelable(false)
-                .setTitle("绿化设置")
+                .setTitle("绿化\t"+ PkgUtil.loadNameByPkgName(getContext(), packageInfo.getPkgName()))
                 .setMultiChoiceItems(items, new boolean[]{
                                 packageInfo.isServiceOpAllowed(),
                                 packageInfo.isWakelockOpAllowed(),

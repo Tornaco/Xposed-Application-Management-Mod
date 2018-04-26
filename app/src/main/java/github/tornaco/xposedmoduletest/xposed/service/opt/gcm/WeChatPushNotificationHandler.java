@@ -70,7 +70,8 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
             return true;
         }
 
-        if (isNotificationPostByAppEnabled() && PushMessageNotificationService.start(getContext(), resolveWeChatPushIntent(intent))) {
+        if (isNotificationPostByAppEnabled() && PushMessageNotificationService.start(getContext(),
+                resolveWeChatPushIntent(intent))) {
             XposedLog.verbose("WeChatPushNotificationHandler posted by app!");
         } else {
             postNotification(resolveWeChatPushIntent(intent));

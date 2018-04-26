@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.ui.activity.uninstall;
 
 import android.support.v7.widget.SwitchCompat;
+import android.view.View;
 
 import java.util.List;
 
@@ -53,7 +54,13 @@ public class UnstallProAppNavActivity extends CommonPackageInfoListActivity impl
 
     @Override
     protected CommonPackageInfoAdapter onCreateAdapter() {
-        return new CommonPackageInfoAdapter(this);
+        return new CommonPackageInfoAdapter(this){
+            @Override
+            protected void onItemClickNoneChoiceMode(CommonPackageInfo commonPackageInfo, View view) {
+                super.onItemClickNoneChoiceMode(commonPackageInfo, view);
+                showCommonItemPopMenu(commonPackageInfo, view);
+            }
+        };
     }
 
     @Override

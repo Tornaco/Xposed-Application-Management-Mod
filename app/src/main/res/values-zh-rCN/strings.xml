@@ -325,7 +325,7 @@
     <string name="message_import_old_comp_replacements">从3.0.6版本开始，为了提升兼容性与适用性，移花接木不再使用ContentProvider做数据通信，如果你刚刚完成从3.0.6之前的版本升级，点击导入按钮，将其导入到现用的数据库中吧。</string>
     <string name="title_import">导入</string>
     <string name="title_backup">数据备份</string>
-    <string name="summary_title_backup">备份本应用的 自启，关联，锁屏清理，返回强退，划卡强退，模糊，应用锁，阻止卸载，乖巧，隐匿，权限管理 名单设置到外部存储根目录，为了安全起见其他数据（各个功能开关，防火墙设置，组件控制，绿化）暂时不支持备份。移花接木由于比较麻烦，时间有限，后续支持直接再此处备份，当前版本请前往移花接木，单独导出进行备份。</string>
+    <string name="summary_title_backup">备份本应用的 自启，关联，锁屏清理，返回强退，划卡强退，模糊，应用锁，阻止卸载，乖巧，隐匿，权限管理 名单设置到外部存储根目录，为了安全起见其他数据（各个功能开关，防火墙设置，组件控制，绿化）暂时不支持备份。移花接木由于比较麻烦，时间有限，后续支持直接再此处备份，当前版本请前往移花接木，单独导出进行备份。\n</string>
     <string name="title_backup_restore_success">完成</string>
     <string name="title_restore">从备份恢复</string>
     <string name="summary_title_restore">选择一个备份文件进行数据恢复。</string>
@@ -592,10 +592,10 @@
     <string name="title_gcm_diag">Diagnostics</string>
     <string name="title_push_message_notification_service">推送通知服务</string>
     <string name="title_push_message_handler_notification_by_app">应用层发出通知</string>
-    <string name="summarywechat__push_message_handler_notification_by_app">选择由应用层还是系统层发出通知，如果选择由应用层发出通知需要启动一个后台服务。</string>
+    <string name="summarywechat__push_message_handler_notification_by_app">不推荐启用，默认系统发出通知，如果选择由应用发出通知需要启动一个后台服务。</string>
     <string name="title_push_message_handler_notification_settings_oreo">铃声和振动设置</string>
     <string name="lock_method_pin">数字密码</string>
-    <string name="error_notification_channel_activity_not_found">请再收到任意一次通知后再继续设置</string>
+    <string name="error_notification_channel_activity_not_found">请收到任意一次通知后再进行设置</string>
     <string name="filter_merged_process">已合并</string>
     <string name="title_notification">通知</string>
     <string name="title_wakeup_on_notification_post">通知亮屏</string>
