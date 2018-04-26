@@ -23,6 +23,11 @@ public class AutoBlackNotification extends QuickTile {
         this.tileView = new SwitchTileView(context) {
 
             @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_blue;
+            }
+
+            @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);
                 setChecked(XAshmanManager.get().isServiceAvailable() &&

@@ -31,7 +31,7 @@ public class Lazy extends QuickTile {
         this.tileView = new QuickTileView(context, this) {
             @Override
             protected int getImageViewBackgroundRes() {
-                return R.drawable.tile_bg_teal;
+                return R.drawable.tile_bg_orange;
             }
 
             @Override

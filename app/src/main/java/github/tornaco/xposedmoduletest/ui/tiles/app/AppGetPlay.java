@@ -25,6 +25,11 @@ public class AppGetPlay extends QuickTile {
                 super.onClick(v);
                 GetPlayVersionActivity.start(context);
             }
+
+            @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_green;
+            }
         };
     }
 }

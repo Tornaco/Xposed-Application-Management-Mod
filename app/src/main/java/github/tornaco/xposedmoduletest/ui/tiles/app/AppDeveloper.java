@@ -18,6 +18,11 @@ public class AppDeveloper extends QuickTile {
         this.titleRes = R.string.title_developer;
         this.summary = "Tornaco/tornaco@163.com";
         this.iconRes = R.drawable.ic_account_circle_black_24dp;
-        this.tileView = new QuickTileView(context, this);
+        this.tileView = new QuickTileView(context, this) {
+            @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_indigo;
+            }
+        };
     }
 }

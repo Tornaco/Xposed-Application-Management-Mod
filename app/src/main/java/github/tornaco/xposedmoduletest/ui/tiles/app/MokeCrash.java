@@ -25,6 +25,11 @@ public class MokeCrash extends QuickTile {
                 super.onClick(v);
                 throw new IllegalStateException("=== Crash test by user ===");
             }
+
+            @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_red;
+            }
         };
     }
 }

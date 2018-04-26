@@ -26,6 +26,11 @@ public class AutoBlack extends QuickTile {
         this.tileView = new SwitchTileView(context) {
 
             @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_blue;
+            }
+
+            @Override
             public void onClick(View v) {
                 InstalledAppTemplateSettingsDashboardActivity.start(context, XAshmanManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME);
             }

@@ -33,6 +33,11 @@ public class AppDevMode extends QuickTile {
             }
 
             @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_indigo;
+            }
+
+            @Override
             protected void onCheckChanged(boolean checked) {
                 super.onCheckChanged(checked);
                 if (XAppGuardManager.get().isServiceAvailable()) {
