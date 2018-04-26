@@ -450,4 +450,7 @@ interface IAshmanService {
     boolean installAppToMultipleAppsUser(String pkgName);
     void startActivityAsUser(in Intent intent, int userId);
     void launchMultipleAppsForPackage(String packageName);
+
+    // Mock GCM Message.
+    void mockPushMessageReceived(String pkg, String message);
 }

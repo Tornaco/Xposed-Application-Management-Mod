@@ -11,8 +11,6 @@ import android.os.ServiceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.google.common.base.Optional;
-
 import org.newstand.logger.Logger;
 
 import java.util.ArrayList;
@@ -2062,6 +2060,15 @@ public class XAshmanManager {
         ensureService();
         try {
             mService.setWakeupOnNotificationEnabled(enable);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public void mockPushMessageReceived(String pkg, String message) {
+        ensureService();
+        try {
+            mService.mockPushMessageReceived(pkg, message);
         } catch (Exception e) {
 
         }

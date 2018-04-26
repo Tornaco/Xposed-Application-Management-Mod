@@ -3952,6 +3952,22 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         });
     }
 
+    @Override
+    public void mockPushMessageReceived(String pkg, String message) {
+        enforceCallingPermissions();
+
+        mLazyHandler.post(new ErrorCatchRunnable(() -> {
+            // Find target and invoke.
+            for (PushNotificationHandler ph : mPushNotificationHandlers) {
+                if (ph.getTargetPackageName().equals(pkg)) {
+                    Intent dummy = new Intent();
+                    dummy.putExtra(PushNotificationHandler.KEY_MOCK_MESSAGE, message);
+                    ph.handleIncomingIntent(pkg, dummy);
+                }
+            }
+        }, "mockPushMessageReceived"));
+    }
+
     private void notifyPushMessageHandlerSettingsChanged(String pkg) {
         mLazyHandler.post(new ErrorCatchRunnable(() -> {
             for (PushNotificationHandler h : mPushNotificationHandlers) {

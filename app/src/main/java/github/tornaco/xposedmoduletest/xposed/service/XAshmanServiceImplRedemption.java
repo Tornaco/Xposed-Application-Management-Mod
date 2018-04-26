@@ -346,6 +346,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public void mockPushMessageReceived(String pkg, String message) throws RemoteException {
+
+    }
+
+    @Override
     public void leaveRedemptionMode() {
         RepoProxy.deleteFileIndicator(SubModuleManager.REDEMPTION);
     }
