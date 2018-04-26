@@ -184,11 +184,17 @@ public class CommonPackageInfoAdapter
                     commonPackageInfo.setChecked(!commonPackageInfo.isChecked());
                     holder.getCheckableImageView().setChecked(commonPackageInfo.isChecked());
                     onItemCheckChanged();
+                } else {
+                    onItemClickNoneChoiceMode(commonPackageInfo);
                 }
             });
         }
 
         holder.itemView.setOnLongClickListener(v -> onItemLongClick(v, holder.getAdapterPosition()));
+    }
+
+    protected void onItemClickNoneChoiceMode(CommonPackageInfo commonPackageInfo) {
+
     }
 
     @Getter

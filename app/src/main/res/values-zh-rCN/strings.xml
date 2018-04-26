@@ -605,4 +605,5 @@
     <string name="filter_baidu_apps">百度类</string>
     <string name="title_app_lazy_rule">乖巧规则</string>
     <string name="summary_lazy_rules">可以控制保留某些服务。</string>
+    <string name="title_app_disabled">%1$s 已冻结</string>
 </resources>
