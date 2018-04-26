@@ -337,8 +337,8 @@ public class PkgUtil {
         return processes == null ? 0 : processes.size();
     }
 
-    public static void onAppLaunched(String who, String reason) {
-        XposedLog.verbose("onAppLaunched: " + who + ", reason: " + reason);
+    public static void onAppLaunching(String who, String reason) {
+        XposedLog.verbose("onAppLaunching: " + who + ", reason: " + reason);
         sRunningApps.add(who);
     }
 

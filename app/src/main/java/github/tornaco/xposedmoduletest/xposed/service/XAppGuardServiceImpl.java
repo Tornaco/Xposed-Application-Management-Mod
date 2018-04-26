@@ -568,7 +568,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @BinderCall(restrict = "hooks")
     public void onPackageMoveToFront(Intent who) {
-        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("onPackageMoveToFront: " + who);
         onActivityPackageResume(PkgUtil.packageNameOf(who));
     }
 
@@ -1166,7 +1165,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             if (XposedLog.isVerboseLoggable()) XposedLog.verbose("setResult: " + res);
 
             if (res == XAppVerifyMode.MODE_ALLOWED) {
-                PkgUtil.onAppLaunched(transaction.pkg, "setResult verify");
                 mVerifiedPackages.add(transaction.pkg);
             }
             transaction.listener.onVerifyRes(transaction.pkg, transaction.uid, transaction.pid, res);
@@ -1328,7 +1326,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
          * @param who Only Keep the switched package.
          */
         private void onAppSwitchedTo(String who) {
-            XposedLog.verbose("onAppSwitchedTo: " + who);
+            XposedLog.verbose("AppGuard onAppSwitchedTo: " + who);
             if (mVerifySettings != null) {
                 boolean clearOnAppSwitch = mVerifySettings.isVerifyOnAppSwitch();
                 if (clearOnAppSwitch) {
