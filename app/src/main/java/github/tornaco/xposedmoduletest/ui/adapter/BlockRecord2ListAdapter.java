@@ -79,6 +79,16 @@ public class BlockRecord2ListAdapter extends RecyclerView.Adapter<BlockRecord2Li
                         blockRecord.getReason(),
                         PkgUtil.loadNameByPkgName(context, blockRecord.getCallerPkgName())));
 
+        onBindItemImageView(blockRecord, holder.getAppIconView());
+
+        holder.itemView.setOnClickListener(v -> onListItemClick(blockRecord));
+    }
+
+    protected void onListItemClick(BlockRecord2 blockRecord) {
+        // Noop.
+    }
+
+    protected void onBindItemImageView(BlockRecord2 blockRecord, ImageView imageView) {
         CommonPackageInfo c = new CommonPackageInfo();
         c.setPkgName(blockRecord.getPkgName());
         GlideApp.with(context)
@@ -87,13 +97,7 @@ public class BlockRecord2ListAdapter extends RecyclerView.Adapter<BlockRecord2Li
                 .error(R.mipmap.ic_launcher_round)
                 .fallback(R.mipmap.ic_launcher_round)
                 .transition(withCrossFade())
-                .into(holder.getAppIconView());
-
-        holder.itemView.setOnClickListener(v -> onListItemClick(blockRecord));
-    }
-
-    protected void onListItemClick(BlockRecord2 blockRecord) {
-        // Noop.
+                .into(imageView);
     }
 
     @Override

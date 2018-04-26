@@ -402,8 +402,7 @@ public class NavigatorActivityBottomNav
             ActivityLifeCycleDashboardFragment current = getCardController().getCurrent();
             boolean two = AppSettings.show2ColumnsIn(getActivity(), current.getClass().getSimpleName());
             AppSettings.setShow2ColumnsIn(getContext(), current.getClass().getSimpleName(), !two);
-            Toast.makeText(getContext(), "Duang~~~~~~~", Toast.LENGTH_SHORT).show();
-            finish();
+            Toast.makeText(getContext(), R.string.title_theme_need_restart_app, Toast.LENGTH_SHORT).show();
         }
         return super.onOptionsItemSelected(item);
     }

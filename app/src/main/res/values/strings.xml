@@ -611,5 +611,6 @@
     <string name="filter_launcher_apps">启动器</string>
     <string name="title_app_lazy_rule">乖巧规则</string>
     <string name="summary_lazy_rules">可以控制保留某些服务。</string>
+    <string name="title_app_disabled">%1$s DISABLED</string>
 
 </resources>

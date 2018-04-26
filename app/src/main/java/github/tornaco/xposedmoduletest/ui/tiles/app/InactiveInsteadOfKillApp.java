@@ -22,6 +22,12 @@ public class InactiveInsteadOfKillApp extends QuickTile {
         this.summaryRes = R.string.summary_inactive_instead_of_kill;
         this.iconRes = R.drawable.ic_motorcycle_black_24dp;
         this.tileView = new SwitchTileView(context) {
+
+            @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_red;
+            }
+
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);

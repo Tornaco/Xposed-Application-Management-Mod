@@ -26,6 +26,11 @@ public class AppDonate extends QuickTile {
                 super.onClick(v);
                 context.startActivity(new Intent(context, DonateActivity.class));
             }
+
+            @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_orange;
+            }
         };
     }
 }

@@ -30,6 +30,11 @@ public class MokeSystemDead extends QuickTile {
                     Toast.makeText(context, R.string.summary_system_dead_moke, Toast.LENGTH_LONG).show();
                 }
             }
+
+            @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_amber;
+            }
         };
     }
 }

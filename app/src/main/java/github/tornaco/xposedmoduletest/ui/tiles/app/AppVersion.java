@@ -33,6 +33,12 @@ public class AppVersion extends QuickTile {
         this.summary = BuildConfig.VERSION_NAME + "-" + BuildConfig.BUILD_TYPE.toUpperCase();
         this.iconRes = R.drawable.ic_info_black_24dp;
         this.tileView = new QuickTileView(context, this) {
+
+            @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_brown;
+            }
+
             @Override
             public void onClick(View v) {
                 super.onClick(v);
