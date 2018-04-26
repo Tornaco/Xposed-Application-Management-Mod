@@ -43,9 +43,10 @@ public class LoaderUtil {
         if (cached != null) {
             Logger.i("Using cache package info.");
             // Reset selection state.
-            cached.setChecked(false);
-            inflateEnableState(cached);
-            return cached;
+            CommonPackageInfo dup = CommonPackageInfo.duplicate(cached);
+            dup.setChecked(false);
+            inflateEnableState(dup);
+            return dup;
         }
 
         String name = String.valueOf(PkgUtil.loadNameByPkgName(context, pkg));

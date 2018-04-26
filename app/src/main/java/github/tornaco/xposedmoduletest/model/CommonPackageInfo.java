@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CommonPackageInfo {
+public class CommonPackageInfo implements Cloneable {
 
     private String pkgName;
     private String appName;
@@ -49,6 +49,14 @@ public class CommonPackageInfo {
         if (isAlarmOpAllowed()) d++;
         if (isWakelockOpAllowed()) d++;
         return d;
+    }
+
+    public static CommonPackageInfo duplicate(CommonPackageInfo commonPackageInfo) {
+        try {
+            return (CommonPackageInfo) commonPackageInfo.clone();
+        } catch (CloneNotSupportedException e) {
+            return commonPackageInfo;
+        }
     }
 
     @Override

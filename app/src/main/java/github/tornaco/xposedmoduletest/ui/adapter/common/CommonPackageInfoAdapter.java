@@ -53,6 +53,8 @@ public class CommonPackageInfoAdapter
     @Setter
     private int highlightColor, normalColor;
 
+    private int mDefaultTextColor;
+
     @Setter
     @Getter
     private boolean choiceMode;
@@ -70,8 +72,11 @@ public class CommonPackageInfoAdapter
         TypedValue typedValue = new TypedValue();
         context.getTheme().resolveAttribute(R.attr.torCardBackgroundColor, typedValue, true);
         int resId = typedValue.resourceId;
-
         this.normalColor = ContextCompat.getColor(context, resId);
+
+        context.getTheme().resolveAttribute(R.attr.torListItemTitleTextColor, typedValue, true);
+        resId = typedValue.resourceId;
+        this.mDefaultTextColor = ContextCompat.getColor(context, resId);
 
         setChoiceMode(false);
 
@@ -155,7 +160,14 @@ public class CommonPackageInfoAdapter
 
         holder.getExtraIndicator().setVisibility(View.INVISIBLE);
 
-        holder.getLineOneTextView().setText(packageInfo.getAppName());
+        boolean disabled = packageInfo.isDisabled();
+        if (disabled) {
+            holder.getLineOneTextView().setText(getContext().getString(R.string.title_app_disabled, packageInfo.getAppName()));
+            holder.getLineOneTextView().setTextColor(Color.RED);
+        } else {
+            holder.getLineOneTextView().setText(packageInfo.getAppName());
+            holder.getLineOneTextView().setTextColor(mDefaultTextColor);
+        }
 
         holder.getCheckableImageView().setChecked(false, false);
 
