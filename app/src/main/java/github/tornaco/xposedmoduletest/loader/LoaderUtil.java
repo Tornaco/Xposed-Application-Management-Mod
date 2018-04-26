@@ -44,6 +44,7 @@ public class LoaderUtil {
             Logger.i("Using cache package info.");
             // Reset selection state.
             cached.setChecked(false);
+            inflateEnableState(cached);
             return cached;
         }
 
@@ -58,12 +59,7 @@ public class LoaderUtil {
 
         p.setGCMSupport(XAshmanManager.get().isServiceAvailable() && XAshmanManager.get().isGCMSupportPackage(pkg));
 
-        if (XAshmanManager.get().isServiceAvailable()) {
-            int state = XAshmanManager.get().getApplicationEnabledSetting(pkg);
-            boolean disabled = state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                    && state != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
-            p.setDisabled(disabled);
-        }
+        inflateEnableState(p);
 
         if ((flag & FLAG_INCLUDE_IME_INFO) != 0) {
             // Check if it is IME.
@@ -89,6 +85,15 @@ public class LoaderUtil {
         LoaderCache.getInstance().put(key, p);
 
         return p;
+    }
+
+    private static void inflateEnableState(CommonPackageInfo p) {
+        if (XAshmanManager.get().isServiceAvailable()) {
+            int state = XAshmanManager.get().getApplicationEnabledSetting(p.getPkgName());
+            boolean disabled = state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                    && state != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
+            p.setDisabled(disabled);
+        }
     }
 
     private static String constructKeyForPackageAndFlags(String pkg, int flag) {
