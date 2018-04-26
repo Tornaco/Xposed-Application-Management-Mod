@@ -7,18 +7,23 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.BlockRecord2Loader;
+import github.tornaco.xposedmoduletest.loader.GlideApp;
+import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.adapter.BlockRecord2ListAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
+
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 public class BlockRecordViewerActivity extends WithRecyclerView {
 
@@ -47,6 +52,12 @@ public class BlockRecordViewerActivity extends WithRecyclerView {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutRes());
         showHomeAsUp();
+
+        // Resolve intent.
+        // Reslove intent.
+        Intent intent = getIntent();
+        mTargetPkgName = intent.getStringExtra(EXTRA_PKG);
+
         initView();
         startLoading();
     }
@@ -86,6 +97,9 @@ public class BlockRecordViewerActivity extends WithRecyclerView {
         }
     }
 
+    protected boolean isDetailViewerRequest() {
+        return mTargetPkgName != null;
+    }
 
     protected BlockRecord2ListAdapter onCreateAdapter() {
         return new BlockRecord2ListAdapter(this) {
@@ -98,14 +112,23 @@ public class BlockRecordViewerActivity extends WithRecyclerView {
                     BlockRecordViewerActivity.start(getContext(), pkg);
                 }
             }
+
+            @Override
+            protected void onBindItemImageView(BlockRecord2 blockRecord2, ImageView imageView) {
+                CommonPackageInfo c = new CommonPackageInfo();
+                c.setPkgName(isDetailViewerRequest() ? blockRecord2.getCallerPkgName() : blockRecord2.getPkgName());
+                GlideApp.with(getActivity())
+                        .load(c)
+                        .placeholder(0)
+                        .error(R.mipmap.ic_launcher_round)
+                        .fallback(R.mipmap.ic_launcher_round)
+                        .transition(withCrossFade())
+                        .into(imageView);
+            }
         };
     }
 
     protected void startLoading() {
-        // Reslove intent.
-        Intent intent = getIntent();
-        mTargetPkgName = intent.getStringExtra(EXTRA_PKG);
-
         swipeRefreshLayout.setRefreshing(true);
         XExecutor.execute(() -> {
             final List<BlockRecord2> res = performLoading();
