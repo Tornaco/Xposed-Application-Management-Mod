@@ -1702,11 +1702,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public boolean onEarlyVerifyConfirm(String pkg, String reason) {
-        boolean confirm = mAppGuardService.onEarlyVerifyConfirm(pkg, reason);
-        if (!confirm) {
-            PkgUtil.onAppLaunched(pkg, "onEarlyVerifyConfirm");
-        }
-        return confirm;
+        return mAppGuardService.onEarlyVerifyConfirm(pkg, reason);
     }
 
     @Override
@@ -1719,6 +1715,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         if (BuildConfig.DEBUG) {
             XposedLog.verbose("reportActivityLaunching: %s %s", reason, intent);
         }
+        PkgUtil.onAppLaunching(PkgUtil.packageNameOf(intent), reason);
         onPackageMoveToFront(intent);
     }
 
@@ -7774,7 +7771,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             String from = mTopPackage.getData();
             if (who != null && !who.equals(from)) {
                 mTopPackage.setData(who);
-                PkgUtil.onAppLaunched(who, "onPackageMoveToFront");
                 postNotifyTopPackageChanged(from, who);
             }
         }
