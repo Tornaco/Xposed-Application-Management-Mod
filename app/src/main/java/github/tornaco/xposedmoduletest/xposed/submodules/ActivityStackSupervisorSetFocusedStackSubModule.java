@@ -18,6 +18,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 // Hook hookReportActivityVisibleLocked settings.
 // Only for Oreo.
+@Deprecated
 class ActivityStackSupervisorSetFocusedStackSubModule extends AndroidSubModule {
 
     @Override

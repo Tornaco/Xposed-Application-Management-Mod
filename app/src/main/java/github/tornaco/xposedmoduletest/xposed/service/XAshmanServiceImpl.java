@@ -1715,6 +1715,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    public void reportActivityLaunching(Intent intent, String reason) {
+        if (BuildConfig.DEBUG) {
+            XposedLog.verbose("reportActivityLaunching: %s %s", reason, intent);
+        }
+        onPackageMoveToFront(intent);
+    }
+
+    @Override
     public Intent checkIntent(Intent from) {
         return mAppGuardService.checkIntent(from);
     }

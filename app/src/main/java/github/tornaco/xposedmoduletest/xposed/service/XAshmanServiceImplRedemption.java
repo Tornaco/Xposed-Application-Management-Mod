@@ -458,6 +458,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public void reportActivityLaunching(Intent intent, String reason) {
+
+    }
+
+    @Override
     public Intent checkIntent(Intent from) {
         return throwNoImpl();
     }

@@ -49,6 +49,8 @@ public interface IModuleBridge {
     void shutdown();
 
     @CommonBringUpApi
+    @Deprecated
+    // Use report activity launch instead.
     void onPackageMoveToFront(Intent who);
 
     @CommonBringUpApi
@@ -87,6 +89,8 @@ public interface IModuleBridge {
 
     void verify(Bundle options, String pkg, ComponentName componentName,
                 int uid, int pid, VerifyListener listener);
+
+    void reportActivityLaunching(Intent intent, String reason);
 
     Intent checkIntent(Intent from);
 
