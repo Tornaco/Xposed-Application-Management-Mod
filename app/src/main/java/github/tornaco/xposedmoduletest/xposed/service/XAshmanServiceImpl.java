@@ -1715,6 +1715,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    public void reportActivityLaunching(Intent intent, String reason) {
+        if (BuildConfig.DEBUG) {
+            XposedLog.verbose("reportActivityLaunching: %s %s", reason, intent);
+        }
+        onPackageMoveToFront(intent);
+    }
+
+    @Override
     public Intent checkIntent(Intent from) {
         return mAppGuardService.checkIntent(from);
     }
@@ -6131,45 +6139,46 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     @InternalCall
     @CommonBringUpApi
-    public void onPackageMoveToFront(final Intent who) {
+    public void onPackageMoveToFront(final Intent intent) {
         if (BuildConfig.DEBUG) {
-            XposedLog.verbose("onPackageMoveToFront: " + who);
+            XposedLog.verbose("onPackageMoveToFront: " + intent);
         }
-        if (who == null) return;
+        if (intent == null) return;
 
         // Check if this is a verifier.
         // Ignore this event for verifier.
-        ComponentName componentName = who.getComponent();
+        ComponentName componentName = intent.getComponent();
         if (componentName != null && XAshmanManager.VERIFIER_CLASS_NAME.equals(componentName.getClassName())) {
             XposedLog.verbose("Ignore onPackageMoveToFront for verifier...");
             return;
         }
 
-        mAppGuardService.onPackageMoveToFront(who);
+        // Notify app lock service.
+        mAppGuardService.onPackageMoveToFront(intent);
 
-        onPackageMoveToFront(PkgUtil.packageNameOf(who));
-
-        if (mIsSystemReady && showFocusedActivityInfoEnabled()) {
-            mLazyHandler.removeCallbacks(toastRunnable);
-            if (who != null) {
-                mFocusedCompName = who.getComponent();
-                mLazyHandler.post(toastRunnable);
-            }
-        }
+        onPackageMoveToFrontInternal(intent);
     }
 
     private static final long PKG_MOVE_TO_FRONT_EVENT_DELAY = 256;
 
-    private void onPackageMoveToFront(final String who) {
-        if (who == null) return;
-
+    private void onPackageMoveToFrontInternal(final Intent intent) {
         // Update top imd right now.
-        mTopPackageImd.setData(who);
+        String packageName = PkgUtil.packageNameOf(intent);
 
-        mLazyHandler.removeMessages(AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONT);
-        mLazyHandler.sendMessageDelayed(mLazyHandler.obtainMessage(
-                AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONT, who)
-                , PKG_MOVE_TO_FRONT_EVENT_DELAY);
+        if (packageName != null) {
+            mTopPackageImd.setData(packageName);
+
+            mLazyHandler.removeMessages(AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONT);
+            mLazyHandler.sendMessageDelayed(mLazyHandler.obtainMessage(
+                    AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONT, packageName), PKG_MOVE_TO_FRONT_EVENT_DELAY);
+        }
+
+        // For debug.
+        if (mIsSystemReady && showFocusedActivityInfoEnabled()) {
+            mLazyHandler.removeCallbacks(toastRunnable);
+            mFocusedCompName = intent.getComponent();
+            mLazyHandler.post(toastRunnable);
+        }
     }
 
     @Override

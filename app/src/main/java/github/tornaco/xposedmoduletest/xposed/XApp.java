@@ -75,6 +75,8 @@ public class XApp extends MultiDexApplication {
         if (BuildConfig.DEBUG) {
             forDev();
         }
+
+        Logger.w("reportActivityLaunching");
     }
 
     public static boolean isGMSSupported() {
