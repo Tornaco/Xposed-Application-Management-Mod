@@ -90,6 +90,7 @@ public interface IModuleBridge {
     void verify(Bundle options, String pkg, ComponentName componentName,
                 int uid, int pid, VerifyListener listener);
 
+    @CommonBringUpApi
     void reportActivityLaunching(Intent intent, String reason);
 
     Intent checkIntent(Intent from);

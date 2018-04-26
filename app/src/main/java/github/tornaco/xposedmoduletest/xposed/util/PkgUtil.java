@@ -260,6 +260,8 @@ public class PkgUtil {
 
     public static String packageNameOf(Intent intent) {
         if (intent == null) return null;
+        String packageName = intent.getPackage();
+        if (packageName != null) return packageName;
         if (intent.getComponent() == null) return null;
         return intent.getComponent().getPackageName();
     }
