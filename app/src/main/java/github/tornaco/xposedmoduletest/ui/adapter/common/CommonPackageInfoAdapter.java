@@ -18,6 +18,8 @@ import android.widget.TextView;
 
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 
+import org.newstand.logger.Logger;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -187,8 +189,8 @@ public class CommonPackageInfoAdapter
             holder.itemView.setBackgroundColor(normalColor);
         }
 
+        final CommonPackageInfo commonPackageInfo = getCommonPackageInfos().get(position);
         if (isChoiceMode()) {
-            final CommonPackageInfo commonPackageInfo = getCommonPackageInfos().get(position);
             holder.getCheckableImageView().setChecked(commonPackageInfo.isChecked(), false);
 
             holder.itemView.setOnClickListener(v -> {
@@ -197,16 +199,18 @@ public class CommonPackageInfoAdapter
                     holder.getCheckableImageView().setChecked(commonPackageInfo.isChecked());
                     onItemCheckChanged();
                 } else {
-                    onItemClickNoneChoiceMode(commonPackageInfo);
+                    onItemClickNoneChoiceMode(commonPackageInfo, v);
                 }
             });
+        } else {
+            holder.itemView.setOnClickListener(v -> onItemClickNoneChoiceMode(commonPackageInfo, v));
         }
 
         holder.itemView.setOnLongClickListener(v -> onItemLongClick(v, holder.getAdapterPosition()));
     }
 
-    protected void onItemClickNoneChoiceMode(CommonPackageInfo commonPackageInfo) {
-
+    protected void onItemClickNoneChoiceMode(CommonPackageInfo commonPackageInfo, View view) {
+        Logger.d("onItemClickNoneChoiceMode");
     }
 
     @Getter

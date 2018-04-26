@@ -23,7 +23,6 @@ public class CommonPackageInfoPickerAdapter extends CommonPackageInfoAdapter {
         return R.layout.app_list_item_2;
     }
 
-
     @Override
     public void onBindViewHolder(CommonViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);

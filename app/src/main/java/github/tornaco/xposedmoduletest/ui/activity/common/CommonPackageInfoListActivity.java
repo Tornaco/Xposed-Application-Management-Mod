@@ -9,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
@@ -33,12 +34,18 @@ import java.util.List;
 import github.tornaco.android.common.Collections;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.compat.os.PowerManagerCompat;
+import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.NeedLockActivity;
+import github.tornaco.xposedmoduletest.ui.activity.app.AppConfigManifestDashboardActivity;
+import github.tornaco.xposedmoduletest.ui.activity.app.PerAppSettingsDashboardActivity;
+import github.tornaco.xposedmoduletest.ui.activity.comp.ComponentEditorActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -335,6 +342,83 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
     abstract int getSummaryRes();
 
     protected abstract CommonPackageInfoAdapter onCreateAdapter();
+
+    public void showCommonItemPopMenu(final CommonPackageInfo packageInfo, View anchor) {
+        PopupMenu popupMenu = new PopupMenu(getActivity(), anchor);
+        popupMenu.inflate(R.menu.common_item_pop);
+        popupMenu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.action_comp_edit:
+                    ComponentEditorActivity.start(getActivity(), packageInfo.getPkgName());
+                    break;
+                case R.id.action_comp_uninstall:
+                    onRequestUnInstallApp(packageInfo);
+                    break;
+                case R.id.action_comp_details:
+                    PackageManagerCompat.showAppDetails(getActivity(), packageInfo.getPkgName());
+                    break;
+
+                case R.id.action_app_settings:
+                    onRequestAppSettings(packageInfo.getPkgName());
+                    break;
+                case R.id.action_config_setting:
+                    onRequestConfigSettings(packageInfo.getPkgName());
+                    break;
+
+            }
+            return true;
+        });
+        popupMenu.show();
+    }
+
+    private void onRequestConfigSettings(String pkgName) {
+        AppConfigManifestDashboardActivity.start(getContext(), pkgName);
+    }
+
+    private void onRequestUnInstallApp(final CommonPackageInfo packageInfo) {
+        new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.title_uninstall_app)
+                        + "\t"
+                        + PkgUtil.loadNameByPkgName(getContext(), packageInfo.getPkgName()))
+                .setMessage(getString(R.string.message_uninstall_app))
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> doUnInstallApp(packageInfo))
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void doUnInstallApp(CommonPackageInfo packageInfo) {
+        if (!PkgUtil.isSystemApp(getContext(), packageInfo.getPkgName())) {
+            PackageManagerCompat.unInstallUserAppWithIntent(getContext(), packageInfo.getPkgName());
+        } else {
+            PackageManagerCompat.unInstallSystemApp(getActivity(),
+                    packageInfo.getPkgName(), new PackageManagerCompat.UnInstallCallback() {
+                        @Override
+                        public void onSuccess() {
+                            showTips(R.string.tips_uninstall_sys_app_success,
+                                    true,
+                                    getString(R.string.title_restart_android),
+                                    PowerManagerCompat::restartAndroid);
+                        }
+
+                        @Override
+                        public void onFail(int err) {
+                            showTips(getString(R.string.tips_uninstall_sys_app_fail) + err,
+                                    true,
+                                    null,
+                                    null);
+                        }
+
+                        @Override
+                        public void maybeSuccess() {
+                            runOnUiThread(() -> startLoading());
+                        }
+                    });
+        }
+    }
+
+    private void onRequestAppSettings(String pkgName) {
+        PerAppSettingsDashboardActivity.start(getActivity(), pkgName);
+    }
 
     protected void startLoading() {
         if (!hasRecyclerView()) return;
