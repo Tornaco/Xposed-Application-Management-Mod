@@ -343,6 +343,7 @@ public final class AppOpsManagerCompat {
     public static final int OP_SET_ALARM = 75;
     public static final int OP_START_SERVICE = 76;
     public static final int OP_EXECUTE_SHELL_COMMAND = 77;
+    public static final int OP_FC_DIALOG = 78;
 
     public static final int[] EXTRA_OPS = new int[]{
             OP_READ_INSTALLED_APPS,
@@ -354,6 +355,7 @@ public final class AppOpsManagerCompat {
             OP_START_SERVICE,
             OP_WAKE_LOCK,
             OP_EXECUTE_SHELL_COMMAND,
+            OP_FC_DIALOG,
     };
 
     public static final int CATEGORY_EXTRA = 0x1;
@@ -362,7 +364,7 @@ public final class AppOpsManagerCompat {
     /**
      * @hide
      */
-    public static final int _NUM_OP = 78;
+    public static final int _NUM_OP = 79;
     public static final int _NUM_OP_DEF = 70;
 
     /**
@@ -630,6 +632,7 @@ public final class AppOpsManagerCompat {
             R.drawable.ic_access_alarm_black_24dp, //   ALARM
             R.drawable.ic_room_service_black_24dp, // OP_START_SERVICE
             R.drawable.ic_room_service_black_24dp, // SHELL
+            R.drawable.ic_adb_black_24dp, // FC
     };
 
 
@@ -718,6 +721,7 @@ public final class AppOpsManagerCompat {
             "OP_SET_ALARM",
             "OP_START_SERVICE",
             "OP_EXECUTE_SHELL_COMMAND",
+            "OP_FC_DIALOG",
     };
 
     /**
@@ -798,6 +802,7 @@ public final class AppOpsManagerCompat {
             Manifest.permission.ANSWER_PHONE_CALLS,
 
             // EXTRAS.
+            null,
             null,
             null,
             null,
@@ -891,6 +896,7 @@ public final class AppOpsManagerCompat {
             AppOpsManager.MODE_ALLOWED,
             AppOpsManager.MODE_ALLOWED,
             AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_ALLOWED,
     };
 
     private static final Set<Integer> sLoggableOpSet = Sets.newHashSet(
@@ -902,7 +908,8 @@ public final class AppOpsManagerCompat {
             OP_GET_LINE1_NUMBER,
             OP_SET_ALARM,
             OP_START_SERVICE,
-            OP_WAKE_LOCK
+            OP_WAKE_LOCK,
+            OP_FC_DIALOG
     );
 
     /**

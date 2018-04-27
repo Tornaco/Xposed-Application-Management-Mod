@@ -4572,8 +4572,23 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                         .build())
                 .sendToTarget();
 
+        int uid = Binder.getCallingUid();
+
+        String opPackageName = PkgUtil.pkgForUid(getContext(), uid);
+
+        // Check op, if allow to show FC dialog.
+        int mode = getPermissionControlBlockModeForPkg(
+                AppOpsManagerCompat.OP_FC_DIALOG, opPackageName == null ? packageName : opPackageName,
+                true, new String[]{exception});
+
+        XposedLog.verbose("uncaughtException on opPackageName:%s, packageName@%s, uid: %s, mode: %s",
+                opPackageName,
+                packageName,
+                uid,
+                mode);
+
         // Do not interrupt app crash.
-        return false;
+        return mode == AppOpsManagerCompat.MODE_IGNORED;
     }
 
     @Override
