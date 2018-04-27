@@ -571,7 +571,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         onActivityPackageResume(PkgUtil.packageNameOf(who));
     }
 
-
     @BinderCall(restrict = "anyone")
     public void onActivityPackageResume(String pkg) {
         if (mServiceHandler == null) return;
@@ -616,16 +615,15 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     // FIXME Below is a good way to receive screen broadcast, try it.
 
     public boolean checkBroadcastIntent(IApplicationThread caller, Intent intent) {
-        // Do not debug because ash alreay do it.
-//        int callingUid = Binder.getCallingUid();
-//        if (PkgUtil.isSystemCall(callingUid)) {
-//            if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())
-//                    || Intent.ACTION_USER_PRESENT.equals(intent.getAction())) {
-//                mScreenReceiver.onReceive(getContext(), intent);
-//            }
-//        }
-        if (BuildConfig.DEBUG && Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
-            XposedLog.verbose("ACTION_USER_SWITCHED");
+        if (intent != null) {
+            if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())
+                    || Intent.ACTION_USER_PRESENT.equals(intent.getAction())) {
+                // Make sure we received the intent.
+                mScreenReceiver.onReceive(getContext(), intent);
+            }
+            if (BuildConfig.DEBUG && Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
+                XposedLog.verbose("ACTION_USER_SWITCHED");
+            }
         }
         return true;
     }
@@ -1230,7 +1228,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
         public void onUserPresent() {
             String pkg = mTopActivityPkg.getData();
-            XposedLog.verbose("onUserPresent: " + pkg);
+            XposedLog.verbose("onUserPresent@AppGuard: " + pkg);
             if (pkg == null) {
                 return;
             }
