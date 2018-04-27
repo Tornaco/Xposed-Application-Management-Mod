@@ -101,6 +101,7 @@ class RuntimeInitSubModule extends AndroidSubModule {
                                 return;
                             }
 
+                            Log.d(XposedLog.TAG, "uncaughtException, reporting to X-APM-S: " + Binder.getCallingUid());
                             // Now report to ash man.
                             XAshmanManager xAshmanManager = XAshmanManager.get();
                             if (xAshmanManager.isServiceAvailable()) {
@@ -114,6 +115,7 @@ class RuntimeInitSubModule extends AndroidSubModule {
                                         xAshmanManager.onApplicationUncaughtException(currentPackage,
                                                 t.getName(), e.getClass().getName(), trace);
                                 if (shouldInterruptCrash) {
+                                    Log.d(XposedLog.TAG, "uncaughtException, result interrupted!!!");
                                     param.setResult(null);
                                 }
                             }
