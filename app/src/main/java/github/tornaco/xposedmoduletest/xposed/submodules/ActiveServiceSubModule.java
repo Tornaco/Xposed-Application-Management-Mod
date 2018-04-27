@@ -66,9 +66,9 @@ class ActiveServiceSubModule extends AndroidSubModule {
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
                     XposedLog.boot("ActiveServices construct: " + Arrays.toString(param.args));
-                    Object activeServicesObj = param.thisObject;
-                    ActiveServicesProxy activeServicesProxy = new ActiveServicesProxy(activeServicesObj);
-                    getBridge().attachActiveServices(activeServicesProxy);
+//                    Object activeServicesObj = param.thisObject;
+//                    ActiveServicesProxy activeServicesProxy = new ActiveServicesProxy(activeServicesObj);
+//                    getBridge().attachActiveServices(activeServicesProxy);
                 }
             });
             XposedLog.verbose("hookActiveServicesConstructor OK:" + unHooks);
