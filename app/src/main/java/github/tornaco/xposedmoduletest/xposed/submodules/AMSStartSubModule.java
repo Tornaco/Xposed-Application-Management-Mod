@@ -10,6 +10,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.xposed.service.am.AMSProxy;
+import github.tornaco.xposedmoduletest.xposed.service.am.ActiveServicesProxy;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -40,6 +41,10 @@ class AMSStartSubModule extends AndroidSubModule {
                     // Construct proxy.
                     AMSProxy proxy = new AMSProxy(param.thisObject);
                     getBridge().attachAMS(proxy);
+
+                    Object mServices = XposedHelpers.getObjectField(param.thisObject, "mServices");
+                    ActiveServicesProxy activeServicesProxy = new ActiveServicesProxy(mServices);
+                    getBridge().attachActiveServices(activeServicesProxy);
                 }
             });
             XposedLog.verbose("hookAMSStart OK:" + unHooks);
