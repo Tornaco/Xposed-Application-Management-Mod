@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.xposed.service.am;
 
 import android.content.pm.ApplicationInfo;
 
+import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.service.InvokeTargetProxy;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -29,5 +30,10 @@ public class AMSProxy extends InvokeTargetProxy<Object> {
             return invokeMethod("addAppLocked", applicationInfo, null, isolated, abiOverride);
         }
         return invokeMethod("addAppLocked", applicationInfo, isolated, abiOverride);
+    }
+
+    public ActiveServicesProxy newActiveServicesProxy() {
+        Object mServices = XposedHelpers.getObjectField(getHost(), "mServices");
+        return new ActiveServicesProxy(mServices);
     }
 }

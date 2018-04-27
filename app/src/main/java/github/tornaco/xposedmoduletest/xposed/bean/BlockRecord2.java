@@ -25,6 +25,7 @@ public class BlockRecord2 implements Parcelable {
     private long howManyTimesAllowed;
     private String reason;
     private boolean block; // Is this request blocked or allowed.
+    private int type;
 
     protected BlockRecord2(Parcel in) {
         pkgName = in.readString();
@@ -35,6 +36,7 @@ public class BlockRecord2 implements Parcelable {
         howManyTimesAllowed = in.readLong();
         reason = in.readString();
         block = in.readByte() != 0;
+        type = in.readInt();
     }
 
     public static final Creator<BlockRecord2> CREATOR = new Creator<BlockRecord2>() {
@@ -64,5 +66,6 @@ public class BlockRecord2 implements Parcelable {
         dest.writeLong(howManyTimesAllowed);
         dest.writeString(reason);
         dest.writeByte((byte) (block ? 1 : 0));
+        dest.writeInt(type);
     }
 }
