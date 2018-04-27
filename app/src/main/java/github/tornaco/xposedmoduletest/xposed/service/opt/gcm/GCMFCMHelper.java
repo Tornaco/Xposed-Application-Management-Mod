@@ -17,7 +17,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 public class GCMFCMHelper {
 
-    private static final long GCM_INTENT_HANDLE_INTERVAL = 60 * 1000;
+    private static final long GCM_INTENT_HANDLE_INTERVAL = 24 * 1000;
 
     // Some apps received GCM event, give it a little while to handle it.
     private static final Set<String> sGcmPendingApps = new HashSet<>();
