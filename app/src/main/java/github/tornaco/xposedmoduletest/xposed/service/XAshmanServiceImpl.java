@@ -1712,9 +1712,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public void reportActivityLaunching(Intent intent, String reason) {
-        if (BuildConfig.DEBUG) {
-            XposedLog.verbose("reportActivityLaunching: %s %s", reason, intent);
-        }
+        XposedLog.verbose("reportActivityLaunching: %s %s", reason, intent);
         PkgUtil.onAppLaunching(PkgUtil.packageNameOf(intent), reason);
         onPackageMoveToFront(intent);
     }
@@ -2163,6 +2161,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             return CheckResult.SYSTEM_APP;
         }
 
+        // Check Op first for this package.
+        String shortString = componentName.flattenToShortString();
+        int mode = getPermissionControlBlockModeForPkg(
+                AppOpsManagerCompat.OP_START_SERVICE, servicePkgName, true, new String[]{shortString});
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("checkService, get op mode for service: %s, mode: %s", shortString, mode);
+        }
+        if (mode == AppOpsManagerCompat.MODE_IGNORED) {
+            return CheckResult.DENIED_OP_DENIED;
+        }
+
         // First check the user rules.
         boolean checkRule = isStartRuleEnabled();
         if (checkRule) {
@@ -2171,23 +2180,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             if (ruleCheckRes != null) {
                 return ruleCheckRes;
             }
-        }
 
-        boolean hasGcmIntent = GCMFCMHelper.isHandlingGcmIntent(servicePkgName);
-        if (hasGcmIntent) {
-            return CheckResult.HAS_GCM_INTENT;
+            // Start rule enabled, may be has GCM intent.
+            boolean hasGcmIntent = GCMFCMHelper.isHandlingGcmIntent(servicePkgName);
+            if (hasGcmIntent) {
+                return CheckResult.HAS_GCM_INTENT;
+            }
         }
 
         if (PkgUtil.justBringDown(servicePkgName)) {
             return CheckResult.JUST_BRING_DOWN;
-        }
-
-        // Check Op first for this package.
-        String shortString = componentName.flattenToShortString();
-        int mode = getPermissionControlBlockModeForPkg(
-                AppOpsManagerCompat.OP_START_SERVICE, servicePkgName, true, new String[]{shortString});
-        if (mode == AppOpsManagerCompat.MODE_IGNORED) {
-            return CheckResult.DENIED_OP_DENIED;
         }
 
         Integer serviceUidInt = mPackagesCache.get(servicePkgName);
@@ -3311,17 +3313,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             CheckResult ruleCheckRes = getStartCheckResultInRules(intent, callerPackageName, receiverPkgName);
             if (ruleCheckRes != null) {
                 return ruleCheckRes;
+            } else {
+                // May be has GCM intent?
+                boolean hasGcmIntent = GCMFCMHelper.isHandlingGcmIntent(receiverPkgName);
+                if (hasGcmIntent) {
+                    return CheckResult.HAS_GCM_INTENT;
+                }
             }
         }
 
         boolean isOnTop = isPackageRunningOnTop(receiverPkgName);
         if (isOnTop) {
             return CheckResult.APP_RUNNING_TOP;
-        }
-
-        boolean hasGcmIntent = GCMFCMHelper.isHandlingGcmIntent(receiverPkgName);
-        if (hasGcmIntent) {
-            return CheckResult.HAS_GCM_INTENT;
         }
 
         // Lazy but not running on top.
@@ -3413,11 +3416,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         if (isWhiteSysAppEnabled() && isInSystemAppList(receiverPkgName)) {
             return CheckResult.SYSTEM_APP;
-        }
-
-        boolean hasGcmIntent = GCMFCMHelper.isHandlingGcmIntent(receiverPkgName);
-        if (hasGcmIntent) {
-            return CheckResult.HAS_GCM_INTENT;
         }
 
         if (PkgUtil.isHomeApp(getContext(), receiverPkgName)) {
@@ -4179,7 +4177,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     private int getPermissionControlBlockModeForPkgInternal(int code, String pkg) {
-        if (DEBUG_OP) {
+        if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("getPermissionControlBlockModeForPkg code %s pkg %s", code, pkg);
         }
 
@@ -4192,7 +4190,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         long id = Binder.clearCallingIdentity();
         String pattern = constructPatternForPermission(code, pkg);
-        if (DEBUG_OP) {
+        if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("getPermissionControlBlockModeForPkg pattern %s", pattern);
         }
         try {
@@ -5448,6 +5446,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 new Pair<>(from, to))
                 .sendToTarget();
 
+        XposedLog.verbose("LAZY postNotifyTopPackageChanged before checking " + from + "->" + to);
 
         if (!isLazyModeEnabled() || !isPackageLazyByUser(from)) {
             return;
@@ -5458,7 +5457,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         Runnable lazyKill = new LazyServiceKiller(new String[]{from});
         ErrorCatchRunnable ecr = new ErrorCatchRunnable(lazyKill, "lazyKill");
         // Kill all service after 12s.
-        mLazyHandler.postDelayed(ecr, 12 * 1000);
+        mLazyHandler.postDelayed(ecr, 3 * 1000);
+        XposedLog.verbose("LAZY post lazy!!! " + from);
     }
 
     private boolean isPackageRunningOnTop(String pkg) {
@@ -5522,9 +5522,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 // Get lazy apps.
                 Set<String> packagesLazy = RepoProxy.getProxy().getLazy().getAll();
                 if (packagesLazy != null && packagesLazy.size() > 0) {
-                    if (BuildConfig.DEBUG) {
-                        XposedLog.verbose("LAZY LazyServiceLoopedKiller, checking: " + Arrays.toString(packagesLazy.toArray()));
-                    }
+                    XposedLog.verbose("LAZY LazyServiceLoopedKiller, checking: " + Arrays.toString(packagesLazy.toArray()));
                     new LazyServiceKiller(convertObjectArrayToStringArray(packagesLazy.toArray())).run();
                 }
             }, "LazyServiceLoopedKiller");
@@ -5538,36 +5536,32 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         @Override
         public void run() {
 
-            if (BuildConfig.DEBUG) {
-                XposedLog.verbose("LAZY, checking if need clean up service:" + Arrays.toString(targetServicePkgs));
-            }
+            XposedLog.verbose("LAZY, checking if need clean up service:" + Arrays.toString(targetServicePkgs));
 
             Set<String> packagesToStop = new HashSet<>(targetServicePkgs.length);
 
             Set<String> notifications = getStatusBarNotificationsPackagesInternal();
 
-            if (BuildConfig.DEBUG) {
-                XposedLog.verbose("LAZY, has notifications:" + Arrays.toString(notifications.toArray()));
-            }
+            XposedLog.verbose("LAZY, has notifications:" + Arrays.toString(notifications.toArray()));
 
             // Filt.
             for (String p : targetServicePkgs) {
                 // If current top package is that we want to kill, skip it.
                 if (isPackageRunningOnTop(p)) {
-                    XposedLog.wtf("LAZY, package is still running on top, won't kill it's services");
+                    XposedLog.wtf("LAZY, package is still running on top, won't kill it's services: " + p);
                     continue;
                 }
 
                 // Check if has notification.
                 if (isDoNotKillSBNEnabled(XAppBuildVar.APP_GREEN)
                         && notifications.contains(p)) {
-                    XposedLog.verbose("LAZY, package has SBN, do not kill");
+                    XposedLog.verbose("LAZY, package has SBN, do not kill: " + p);
                     continue;
                 }
 
                 if (isHandlingPushMessageIntent(p)) {
-                    XposedLog.verbose("LAZY, package isHandlingPushMessageIntent, do not kill");
-                    continue;
+                    XposedLog.verbose("LAZY, package isHandlingPushMessageIntent, do not kill??? : " + p);
+                   // continue;
                 }
 
                 // This package services need to be stop.
@@ -5584,9 +5578,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
                 String[] packagesToStopArray = convertObjectArrayToStringArray(packagesToStop.toArray());
 
-                if (BuildConfig.DEBUG) {
-                    XposedLog.verbose("LAZY, candidate package to kill: " + Arrays.toString(packagesToStopArray));
-                }
+                XposedLog.verbose("LAZY, candidate package to kill: " + Arrays.toString(packagesToStopArray));
 
                 if (packagesToStopArray != null && packagesToStopArray.length > 0) {
 

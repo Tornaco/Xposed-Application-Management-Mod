@@ -5,6 +5,7 @@ import android.util.ArrayMap;
 import android.util.Log;
 import android.util.SparseArray;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -95,10 +96,7 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
 
     // Checked N M
     public void stopServicesForPackageUid(int uid, String[] packageNames, StopServiceConfirm confirmer) {
-        if (BuildConfig.DEBUG) {
-            XposedLog.wtf("ActiveServicesProxy stopServicesForPackageUid: " + Arrays.toString(packageNames));
-
-        }
+        XposedLog.verbose("ActiveServicesProxy stopServicesForPackageUid: " + Arrays.toString(packageNames));
 
         List<Object> serviceRecords = getServiceRecords(uid, packageNames);
 
@@ -133,6 +131,15 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
     }
 
     private void stopServiceLocked(Object serviceRecordObj) {
+
+        if (XposedLog.isVerboseLoggable()){
+            // Dump all methods.
+            Class c = getHost().getClass();
+            for (Method m : c.getDeclaredMethods()){
+                XposedLog.verbose("DUMP ActiveServices method: " + m);
+            }
+        }
+
         invokeMethod("stopServiceLocked", serviceRecordObj);
     }
 
