@@ -171,8 +171,8 @@ class ServiceSubModule extends AndroidSubModule {
                                         if (!hostPackage.equals(to)) {
                                             // When he is handling GCM or has SBN.
                                             boolean skip =
-                                                    XAshmanManager.get().isHandlingPushMessageIntent(hostPackage) // HAS GCM.
-                                                            || (XAshmanManager.get().isDoNotKillSBNEnabled(XAppBuildVar.APP_GREEN) // CHECK LAZY SBN SETTING.
+                                                    // XAshmanManager.get().isHandlingPushMessageIntent(hostPackage) // HAS GCM.
+                                                    (XAshmanManager.get().isDoNotKillSBNEnabled(XAppBuildVar.APP_GREEN) // CHECK LAZY SBN SETTING.
                                                             && !XAshmanManager.get().hasNotificationForPackage(hostPackage)); // HAS SBN.
                                             if (!skip) {
                                                 h.obtainMessage(0, this).sendToTarget();

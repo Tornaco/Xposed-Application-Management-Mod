@@ -160,6 +160,9 @@ public class SubModuleManager {
         addToSubsChecked(new PackageParserSubModule());
         addToSubsChecked(new AMSCreateRecentTaskInfoFromTaskRecordSubModule());
 
+        // For HUAWEI.
+        addToSubsChecked(new ServiceSubModule());
+
         // Submodules for debug purpose.
         if (BuildConfig.DEBUG) {
             addToSubsChecked(new ActivitySubModule());
