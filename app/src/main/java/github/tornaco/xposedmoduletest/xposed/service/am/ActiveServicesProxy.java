@@ -133,11 +133,11 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
     private void stopServiceLocked(Object serviceRecordObj) {
 
         if (XposedLog.isVerboseLoggable()){
-            XposedLog.verbose("DUMP Host: " + serviceRecordObj);
-            XposedLog.verbose("DUMP Host class: " + serviceRecordObj.getClass());
+            XposedLog.verbose("DUMP Host: " + getHost());
+            XposedLog.verbose("DUMP Host class: " + getHost().getClass());
             // Dump all methods.
             Class c = getHost().getClass();
-            for (Method m : c.getDeclaredMethods()){
+            for (Method m : c.getMethods()){
                 XposedLog.verbose("DUMP ActiveServices method: " + m);
             }
         }

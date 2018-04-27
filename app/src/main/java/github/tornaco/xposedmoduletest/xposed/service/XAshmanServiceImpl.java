@@ -98,6 +98,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import de.robv.android.xposed.SELinuxHelper;
+import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.android.common.Holder;
@@ -1765,6 +1766,26 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         mActiveServicesProxy = proxy;
         XposedLog.boot("attachActiveServices, proxy: " + proxy);
         XposedLog.boot("attachActiveServices, proxy: " + proxy.getHost());
+
+        workaroundForHwActiveServices(proxy);
+    }
+
+    private void workaroundForHwActiveServices(ActiveServicesProxy proxy) {
+       try{
+           XposedLog.wtf("workaroundForHwActiveServices??? " + proxy.getHost().getClass().getName());
+           // Fix for HUAWEI
+           String HWActiveServiceClassName = "com.android.server.am.HwActiveServices";
+           if (proxy.getHost().getClass().getName().contains(HWActiveServiceClassName)) {
+               XposedLog.wtf("workaroundForHwActiveServices!!!!!!!!!!");
+               Object realService = XposedHelpers.callMethod(proxy.getHost(), "getInstance");
+               XposedLog.wtf("workaroundForHwActiveServices, real one: " + realService);
+               if (realService != null) {
+                   proxy.setHost(realService);
+               }
+           }
+       } catch (Throwable e){
+           XposedLog.wtf("Fail workaroundForHwActiveServices: " + Log.getStackTraceString(e));
+       }
     }
 
     @Override
@@ -5578,6 +5599,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             // Invoke ActiveServices.
             if (mActiveServicesProxy != null) {
+
+                workaroundForHwActiveServices(mActiveServicesProxy);
 
                 if (XposedLog.isVerboseLoggable()) {
                     XposedLog.verbose("DUMP LAZY, mActiveServicesProxy host: " + mActiveServicesProxy.getHost());

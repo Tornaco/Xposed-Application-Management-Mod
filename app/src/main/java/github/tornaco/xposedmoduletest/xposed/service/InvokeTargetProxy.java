@@ -4,6 +4,7 @@ import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Created by guohao4 on 2018/1/23.
@@ -17,6 +18,7 @@ public class InvokeTargetProxy<T> {
         String value();
     }
 
+    @Setter
     private T host;
 
     @SuppressWarnings({"ConstantConditions", "unchecked", "SameParameterValue", "UnusedReturnValue"})
