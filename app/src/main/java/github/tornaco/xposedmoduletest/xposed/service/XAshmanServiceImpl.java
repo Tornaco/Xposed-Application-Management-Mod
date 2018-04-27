@@ -5548,20 +5548,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             for (String p : targetServicePkgs) {
                 // If current top package is that we want to kill, skip it.
                 if (isPackageRunningOnTop(p)) {
-                    XposedLog.wtf("LAZY, package is still running on top, won't kill it's services");
+                    XposedLog.wtf("LAZY, package is still running on top, won't kill it's services: " + p);
                     continue;
                 }
 
                 // Check if has notification.
                 if (isDoNotKillSBNEnabled(XAppBuildVar.APP_GREEN)
                         && notifications.contains(p)) {
-                    XposedLog.verbose("LAZY, package has SBN, do not kill");
+                    XposedLog.verbose("LAZY, package has SBN, do not kill: " + p);
                     continue;
                 }
 
                 if (isHandlingPushMessageIntent(p)) {
-                    XposedLog.verbose("LAZY, package isHandlingPushMessageIntent, do not kill");
-                    continue;
+                    XposedLog.verbose("LAZY, package isHandlingPushMessageIntent, do not kill??? : " + p);
+                   // continue;
                 }
 
                 // This package services need to be stop.

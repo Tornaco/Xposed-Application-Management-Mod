@@ -96,7 +96,7 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
 
     // Checked N M
     public void stopServicesForPackageUid(int uid, String[] packageNames, StopServiceConfirm confirmer) {
-        XposedLog.wtf("ActiveServicesProxy stopServicesForPackageUid: " + Arrays.toString(packageNames));
+        XposedLog.verbose("ActiveServicesProxy stopServicesForPackageUid: " + Arrays.toString(packageNames));
 
         List<Object> serviceRecords = getServiceRecords(uid, packageNames);
 
