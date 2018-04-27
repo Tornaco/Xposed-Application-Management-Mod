@@ -5451,6 +5451,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("LAZY StopServiceConfirm: " + proxy);
         }
+
+        // Rule not enabled, always stop it.
+        if (!isLazyRuleEnabled()) {
+            XposedLog.verbose("LAZY StopServiceConfirm, lazy rule not enabled");
+            return true;
+        }
+
         // Check rules.
         @LazyRuleCheck
         String[] ruleKeep = constructStopServiceKeepRule(proxy.getPackageName(), proxy.getName());
