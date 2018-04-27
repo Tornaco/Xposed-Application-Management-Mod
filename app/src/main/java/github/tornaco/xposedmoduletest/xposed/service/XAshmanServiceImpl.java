@@ -2190,12 +2190,24 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             return CheckResult.DENIED_OP_DENIED;
         }
 
+        Integer serviceUidInt = mPackagesCache.get(servicePkgName);
+        int serviceUid = serviceUidInt == null ? -1 : serviceUidInt;
+        boolean isSameCaller = serviceUid == callerUid;
+
+        // Early check.
+        if (isSameCaller && PkgUtil.isSystemOrPhoneOrShell(serviceUid)) {
+            return CheckResult.SAME_CALLER;
+        }
+
         // Lazy but not running on top.
         // Retrieve imd top package ensure our top pkg correct.
         boolean isLazy = isLazyModeEnabled()
                 && isPackageLazyByUser(servicePkgName);
+        // Lazy, and not on top.
         if (isLazy && !servicePkgName.equals(mTopPackageImd.getData())) {
-            return CheckResult.DENIED_LAZY;
+            @LazyRuleCheck
+            boolean keepForLazy = isSameCaller && !confirmToStopLazyService(servicePkgName, componentName);
+            return keepForLazy ? CheckResult.ALLOWED_LAZY_KEEPED : CheckResult.DENIED_LAZY;
         }
 
         // if (!isSystemReady()) return CheckResult.SYSTEM_NOT_READY;
@@ -2207,14 +2219,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 && isPackageGreeningByUser(servicePkgName);
         if (isGreeningApp) {
             return CheckResult.DENIED_GREEN_APP;
-        }
-
-        Integer serviceUidInt = mPackagesCache.get(servicePkgName);
-        int serviceUid = serviceUidInt == null ? -1 : serviceUidInt;
-
-        // Early check.
-        if (serviceUid == callerUid && PkgUtil.isSystemOrPhoneOrShell(serviceUid)) {
-            return CheckResult.SAME_CALLER;
         }
 
         // Same app for system-core/media/phone is allowed.
@@ -5452,20 +5456,29 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             XposedLog.verbose("LAZY StopServiceConfirm: " + proxy);
         }
 
+        return confirmToStopLazyService(proxy.getPackageName(), proxy.getName());
+    };
+
+    private boolean confirmToStopLazyService(String packageName, ComponentName name) {
         // Rule not enabled, always stop it.
         if (!isLazyRuleEnabled()) {
-            XposedLog.verbose("LAZY StopServiceConfirm, lazy rule not enabled");
+            XposedLog.verbose("LAZY confirmToStopLazyService, lazy rule not enabled");
+            return true;
+        }
+
+        if (packageName == null || name == null) {
+            XposedLog.verbose("LAZY confirmToStopLazyService, pkg or name is null");
             return true;
         }
 
         // Check rules.
         @LazyRuleCheck
-        String[] ruleKeep = constructStopServiceKeepRule(proxy.getPackageName(), proxy.getName());
+        String[] ruleKeep = constructStopServiceKeepRule(packageName, name);
         if (BuildConfig.DEBUG) {
             XposedLog.verbose("constructStopServiceKeepRule: " + Arrays.toString(ruleKeep));
         }
         return !RepoProxy.getProxy().getLazy_rules().has(ruleKeep);
-    };
+    }
 
     // TODO Consider make a cache.
     // KEEP A *
@@ -8270,6 +8283,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         public static final CheckResult DENIED_IFW = new CheckResult(false, "DENIED_IFW", true);
         public static final CheckResult JUST_BRING_DOWN = new CheckResult(false, "JUST_BRING_DOWN", true);
         public static final CheckResult DENIED_LAZY = new CheckResult(false, "DENIED_LAZY", true);
+        public static final CheckResult ALLOWED_LAZY_KEEPED = new CheckResult(true, "ALLOWED_LAZY_KEEPED", true);
         public static final CheckResult DENIED_GREEN_APP = new CheckResult(false, "DENIED_GREEN_APP", true);
         public static final CheckResult DENIED_IN_RULE = new CheckResult(false, "DENIED_IN_RULE", true);
         public static final CheckResult ALLOWED_IN_RULE = new CheckResult(true, "ALLOWED_IN_RULE", true);
