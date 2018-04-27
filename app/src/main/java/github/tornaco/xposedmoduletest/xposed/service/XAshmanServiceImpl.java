@@ -5561,7 +5561,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
                 if (isHandlingPushMessageIntent(p)) {
                     XposedLog.verbose("LAZY, package isHandlingPushMessageIntent, do not kill??? : " + p);
-                   // continue;
+                    // continue;
                 }
 
                 // This package services need to be stop.
@@ -5575,6 +5575,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             // Invoke ActiveServices.
             if (mActiveServicesProxy != null) {
+
+                if (XposedLog.isVerboseLoggable()) {
+                    XposedLog.verbose("DUMP LAZY, mActiveServicesProxy host: " + mActiveServicesProxy.getHost());
+                    if (mAmsProxy != null)
+                        XposedLog.verbose("DUMP LAZY, ActiveServices in AMS: " + mAmsProxy.newActiveServicesProxy().getHost());
+                }
 
                 String[] packagesToStopArray = convertObjectArrayToStringArray(packagesToStop.toArray());
 
