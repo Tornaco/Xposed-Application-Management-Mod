@@ -1753,15 +1753,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    @CommonBringUpApi
     public void attachAMS(AMSProxy proxy) {
         mAmsProxy = proxy;
         XposedLog.boot("attachAMS, proxy: " + proxy);
     }
 
     @Override
+    @CommonBringUpApi
     public void attachActiveServices(ActiveServicesProxy proxy) {
         mActiveServicesProxy = proxy;
         XposedLog.boot("attachActiveServices, proxy: " + proxy);
+        XposedLog.boot("attachActiveServices, proxy: " + proxy.getHost());
     }
 
     @Override
