@@ -137,7 +137,7 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
             XposedLog.verbose("DUMP Host class: " + getHost().getClass());
             // Dump all methods.
             Class c = getHost().getClass();
-            for (Method m : c.getMethods()){
+            for (Method m : c.getDeclaredMethods()){
                 XposedLog.verbose("DUMP ActiveServices method: " + m);
             }
         }
