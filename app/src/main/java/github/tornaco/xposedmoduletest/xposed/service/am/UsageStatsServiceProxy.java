@@ -1,5 +1,8 @@
 package github.tornaco.xposedmoduletest.xposed.service.am;
 
+import android.os.Handler;
+
+import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.xposed.service.InvokeTargetProxy;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -10,12 +13,27 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 @InvokeTargetProxy.Target("UsageStatsService")
 public class UsageStatsServiceProxy extends InvokeTargetProxy<Object> {
 
+    private Handler ussHandler;
+
     public UsageStatsServiceProxy(Object host) {
         super(host);
-        XposedLog.boot("UsageStatsServiceProxy init, host: " + host);
     }
 
-    public void setAppIdle(String pkg, boolean idle, int userId) {
-        invokeMethod("setAppIdle", pkg, idle, userId);
+    public Handler getUssHandler() {
+        ensureHandler();
+        return ussHandler;
+    }
+
+    private void ensureHandler() {
+        if (this.ussHandler == null) try {
+            this.ussHandler = (Handler) XposedHelpers.getObjectField(getHost(), "mHandler"); // Main looper!!! Same as USS.
+            XposedLog.verbose("UsageStatsServiceProxy ensureHandler, host: " + getHost() + ", handler: " + ussHandler);
+        } catch (Throwable e) {
+            XposedLog.wtf("UsageStatsServiceProxy ensureHandler fail get main handler.");
+        }
+    }
+
+    public void setAppIdle(String packageName, boolean idle, int userId) {
+        invokeMethod("setAppIdle", packageName, idle, userId);
     }
 }
