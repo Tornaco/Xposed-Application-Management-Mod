@@ -128,7 +128,7 @@ public class SubModuleManager {
         // Task id manage.
         addToSubsChecked(new TaskChangeNotificationControllerSubModule());
 
-        // APPGUARD MODULES.
+        // AppGuard MODULES.
         addToSubsChecked(new FPSubModule());
 
         // Blur
@@ -161,6 +161,7 @@ public class SubModuleManager {
         addToSubsChecked(new AMSCreateRecentTaskInfoFromTaskRecordSubModule());
 
         // For HUAWEI.
+        // EMUI has make HwActiveServices instead of ActiveServices...
         addToSubsChecked(new ServiceSubModule());
 
         // Submodules for debug purpose.

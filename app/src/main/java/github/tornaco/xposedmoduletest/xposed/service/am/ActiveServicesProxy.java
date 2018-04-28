@@ -12,6 +12,7 @@ import java.util.List;
 
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.xposed.service.ErrorCatchRunnable;
 import github.tornaco.xposedmoduletest.xposed.service.InvokeTargetProxy;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -90,12 +91,12 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
         return res;
     }
 
-    public void stopServicesForPackageUid(int uid, String packageName, StopServiceConfirm confirmer) {
-        stopServicesForPackageUid(uid, new String[]{packageName}, confirmer);
+    public void stopServicesForPackageUid(int uid, String packageName, ServiceStopper serviceStopper) {
+        stopServicesForPackageUid(uid, new String[]{packageName}, serviceStopper);
     }
 
     // Checked N M
-    public void stopServicesForPackageUid(int uid, String[] packageNames, StopServiceConfirm confirmer) {
+    public void stopServicesForPackageUid(int uid, String[] packageNames, ServiceStopper serviceStopper) {
         XposedLog.verbose("ActiveServicesProxy stopServicesForPackageUid: " + Arrays.toString(packageNames));
 
         List<Object> serviceRecords = getServiceRecords(uid, packageNames);
@@ -114,35 +115,42 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
 
                 ServiceRecordProxy serviceRecordProxy = new ServiceRecordProxy(serviceRecordObject);
 
-                // Check if confirm to stop it!
-                if (confirmer != null && !confirmer.confirmToStop(serviceRecordProxy)) {
-                    XposedLog.wtf("ActiveServicesProxy stopServicesForPackageUid, not confirmed: " + serviceRecordProxy);
-                    continue;
+                // This error can be ignored.
+                new ErrorCatchRunnable(() -> {
+                    serviceRecordProxy.setDelayed(false);
+                    serviceMapProxy.ensureNotStartingBackground(serviceRecordObject);
+                }, "LAZY setDelayed and ensureNotStartingBackground").run();
+
+                boolean stopped = serviceStopper.stopService(serviceRecordProxy);
+
+                if (XposedLog.isVerboseLoggable()) {
+                    XposedLog.verbose("ActiveServicesProxy stopServicesForPackageUid, stopped: " + serviceRecordObject + ", res: " + stopped);
                 }
-
-                serviceRecordProxy.setDelayed(false);
-
-                serviceMapProxy.ensureNotStartingBackground(serviceRecordObject);
-
-                stopServiceLocked(serviceRecordObject);
-                XposedLog.verbose("ActiveServicesProxy stopServicesForPackageUid, stopped: " + serviceRecordObject);
             }
         }
     }
 
-    private void stopServiceLocked(Object serviceRecordObj) {
+    public boolean stopServiceLocked(Object serviceRecordObj) {
 
-        if (XposedLog.isVerboseLoggable()){
+        if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("DUMP Host: " + getHost());
             XposedLog.verbose("DUMP Host class: " + getHost().getClass());
             // Dump all methods.
             Class c = getHost().getClass();
-            for (Method m : c.getDeclaredMethods()){
+            for (Method m : c.getDeclaredMethods()) {
                 XposedLog.verbose("DUMP ActiveServices method: " + m);
             }
         }
 
-        invokeMethod("stopServiceLocked", serviceRecordObj);
+        boolean stopped;
+        try {
+            XposedHelpers.callMethod(getHost(), "stopServiceLocked", serviceRecordObj);
+            stopped = true;
+        } catch (Throwable e) {
+            stopped = false;
+            XposedLog.wtf("Fail stopServiceLocked: " + Log.getStackTraceString(e));
+        }
+        return stopped;
     }
 
     class ServiceMapProxy extends InvokeTargetProxy<Object> {
@@ -161,13 +169,12 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
             }
         }
 
-        // Checked N M
+        // Checked N M O.
+        // https://github.com/LineageOS/android_frameworks_base/blob/cm-14.0/services/core/java/com/android/server/am/ActiveServices.java
         void ensureNotStartingBackground(Object serviceRecordObj) {
+            invokeMethod("ensureNotStartingBackgroundLocked", serviceRecordObj);
+            // Try twice.
             invokeMethod("ensureNotStartingBackground", serviceRecordObj);
         }
-    }
-
-    public interface StopServiceConfirm {
-        boolean confirmToStop(ServiceRecordProxy proxy);
     }
 }

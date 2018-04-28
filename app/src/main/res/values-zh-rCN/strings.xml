@@ -290,7 +290,7 @@
     <string name="title_crash_moke">模拟崩溃</string>
     <string name="summary_crash_moke">点击后，应用管理会进行闪退。</string>
     <string name="summary_exp">实验功能</string>
-    <string name="summary_app_lazy">乖巧模式下的应用在前台运行时不受限制，当应用回到后台12秒后，主动停止服务（如果期间收到了FCM/GCM消息，会保留1分钟的时间）。\n\n注意，该模式与绿化会冲突，如果你对该应用绿化了服务，那么该应用前台是依然无法启动任何服务。</string>
+    <string name="summary_app_lazy">乖巧模式下的应用在前台运行时不受限制，当应用回到后台3秒后，主动停止服务（如果期间收到了FCM/GCM消息，会保留30秒的时间）。\n\n注意，该模式与绿化会冲突，如果你对该应用绿化了服务，那么该应用前台是依然无法启动任何服务。</string>
     <string name="title_app_lazy">乖巧模式</string>
     <string name="title_draw_vibrate">绘图过程震动</string>
     <string name="title_keys">按键</string>
@@ -334,7 +334,7 @@
     <string name="title_battery">电池</string>
     <string name="title_state">状态</string>
     <string name="title_last_doze">打盹记录</string>
-    <string name="summary_last_doze">上次灭屏后，由应用管理催使系统尽快进入打盹模式的时间是 %1$s，此次打盹持续时间 %2$s，点击查看更早的记录。</string>
+    <string name="summary_last_doze">上次灭屏后，由应用管理催使系统尽快进入打盹模式的时间是 %1$s，此次打盹持续时间 %2$s，点击查看更早的记录。\n</string>
     <string name="summary_last_doze_unknown">暂无</string>
     <string name="summary_delay_unknown">未知</string>
     <string name="summary_delay_mills">%1$s毫秒</string>
@@ -607,4 +607,9 @@
     <string name="summary_lazy_rules">可以控制保留某些服务。</string>
     <string name="title_app_disabled">%1$s 已冻结</string>
     <string name="title_push_message_handler_notification_mock_message">模拟一条消息</string>
+    <string name="title_lazy_solution_app">方案A</string>
+    <string name="title_lazy_solution_fw">方案B</string>
+    <string name="title_lazy_solutions">方案·可同时启用</string>
+    <string name="summary_lazy_solution_app">适用于EMUI等第三方ROM，由注入App的监听器管理服务。新增或者移除乖巧应用需要完全重启设备。</string>
+    <string name="summary_lazy_solution_fw">适用于AOSP ROM，由注入系统框架层的应用管理核心来控制。新增或者移除乖巧应用无需重启。</string>
 </resources>

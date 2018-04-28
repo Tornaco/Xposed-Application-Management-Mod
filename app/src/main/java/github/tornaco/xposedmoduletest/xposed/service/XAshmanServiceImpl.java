@@ -8,7 +8,6 @@ import android.app.ActivityManagerNative;
 import android.app.AlertDialog;
 import android.app.AppOpsManager;
 import android.app.IActivityManager;
-import android.app.IAppTask;
 import android.app.IApplicationThread;
 import android.app.KeyguardManager;
 import android.app.Notification;
@@ -107,6 +106,7 @@ import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IBooleanCallback1;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
+import github.tornaco.xposedmoduletest.IServiceControl;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.ui.widget.ClickableToastManager;
@@ -131,8 +131,11 @@ import github.tornaco.xposedmoduletest.xposed.repo.SettingsProvider;
 import github.tornaco.xposedmoduletest.xposed.service.am.AMSProxy;
 import github.tornaco.xposedmoduletest.xposed.service.am.ActiveServicesProxy;
 import github.tornaco.xposedmoduletest.xposed.service.am.AppIdler;
+import github.tornaco.xposedmoduletest.xposed.service.am.AppServiceController;
 import github.tornaco.xposedmoduletest.xposed.service.am.InactiveAppIdler;
 import github.tornaco.xposedmoduletest.xposed.service.am.KillAppIdler;
+import github.tornaco.xposedmoduletest.xposed.service.am.ServiceRecordProxy;
+import github.tornaco.xposedmoduletest.xposed.service.am.ServiceStopper;
 import github.tornaco.xposedmoduletest.xposed.service.am.UsageStatsServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.bandwidth.BandwidthCommandCompat;
 import github.tornaco.xposedmoduletest.xposed.service.doze.BatterState;
@@ -252,6 +255,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private final AtomicBoolean mShowAppCrashDumpEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mLazyEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mLazyRuleEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mLazySolutionApp = new AtomicBoolean(false);
+    private final AtomicBoolean mLazySolutionFW = new AtomicBoolean(false);
     private final AtomicBoolean mDozeEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mForeDozeEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mDisableMotionEnabled = new AtomicBoolean(false);
@@ -1029,6 +1034,22 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             boolean lazyRule = (boolean) SystemSettings.APM_LAZY_RULE_B.readFromSystemSettings(getContext());
             mLazyRuleEnabled.set(lazyRule);
             XposedLog.boot("lazyRule: " + String.valueOf(lazyRule));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            boolean lazySolutionApp = (boolean) SystemSettings.APM_LAZY_SOLUTION_APP_B.readFromSystemSettings(getContext());
+            mLazySolutionApp.set(lazySolutionApp);
+            XposedLog.boot("lazySolutionApp: " + String.valueOf(lazySolutionApp));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            boolean lazySolutionFW = (boolean) SystemSettings.APM_LAZY_SOLUTION_FW_B.readFromSystemSettings(getContext());
+            mLazySolutionFW.set(lazySolutionFW);
+            XposedLog.boot("mLazySolutionFW: " + String.valueOf(lazySolutionFW));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
@@ -2231,7 +2252,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         boolean isLazy = isLazyModeEnabled()
                 && isPackageLazyByUser(servicePkgName);
         // Lazy, and not on top.
-        if (isLazy && !servicePkgName.equals(mTopPackageImd.getData())) {
+        // !servicePkgName.equals(mTopPackageImd.getData()).
+        if (isLazy && !isPackageRunningOnTop(servicePkgName)) {
             @LazyRuleCheck
             boolean keepForLazy = isSameCaller && !confirmToStopLazyService(servicePkgName, componentName);
             return keepForLazy ? CheckResult.ALLOWED_LAZY_KEEPED : CheckResult.DENIED_LAZY;
@@ -3356,7 +3378,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         // Retrieve imd top package ensure our top pkg correct.
         boolean isLazy = isLazyModeEnabled()
                 && isPackageLazyByUser(receiverPkgName);
-        if (isLazy && !receiverPkgName.equals(mTopPackageImd.getData())) {
+        // receiverPkgName.equals(mTopPackageImd.getData()).
+        if (isLazy && !isPackageRunningOnTop(receiverPkgName)) {
             return CheckResult.DENIED_LAZY;
         }
 
@@ -3993,6 +4016,54 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 }
             }
         }, "mockPushMessageReceived"));
+    }
+
+    // App service controler.
+
+    private AppServiceController mAppServiceController = new AppServiceController();
+
+    @Override
+    @BinderCall(restrict = "any")
+    public void registerController(IServiceControl control) {
+        new ErrorCatchRunnable(() -> mAppServiceController.registerController(control), "mAppServiceController registerController").run();
+    }
+
+    @Override
+    @BinderCall(restrict = "any")
+    public void unRegisterController(IServiceControl control) {
+        new ErrorCatchRunnable(() -> mAppServiceController.unRegisterController(control), "mAppServiceController unRegisterController").run();
+    }
+
+    @Override
+    @BinderCall(restrict = "any")
+    public void stopService(Intent serviceIntent) {
+        mainHandler.post(new ErrorCatchRunnable(() -> stopServiceInternal(serviceIntent), "(Binder call)stopService"));
+    }
+
+    @Override
+    public void setAppServiceLazyControlSolution(int solutionFlags, boolean enable) {
+        enforceCallingPermissions();
+        XposedLog.verbose("LAZY setAppServiceLazyControlSolution: " + XAshmanManager.AppServiceControlSolutions.decode(solutionFlags));
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETAPPSERVICELAZYCONTROLSOLUTION, solutionFlags, solutionFlags, enable).sendToTarget();
+    }
+
+    @Override
+    public boolean isAppServiceLazyControlSolutionEnable(int solutionFlags) {
+        enforceCallingPermissions();
+        if (solutionFlags == XAshmanManager.AppServiceControlSolutions.FLAG_APP) {
+            return mLazySolutionApp.get();
+        }
+        if (solutionFlags == XAshmanManager.AppServiceControlSolutions.FLAG_FW) {
+            return mLazySolutionFW.get();
+        }
+        return false;
+    }
+
+    private void stopServiceInternal(Intent serviceIntent) {
+        if (serviceIntent != null) {
+            getContext().stopService(serviceIntent);
+            XposedLog.verbose("stopServiceInternal, Stopped service " + serviceIntent);
+        }
     }
 
     private void notifyPushMessageHandlerSettingsChanged(String pkg) {
@@ -5463,14 +5534,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private boolean isSystemUIPackage(String pkgName) {
         // Should we check caller?
         if (!BuildConfig.DEBUG) {
-            return true;// Always true for user build.
+            // return true;// Always true for user build.
         }
 
         return pkgName != null
-                && (pkgName.equals(SYSTEM_UI_PKG) || pkgName.equals(SYSTEM_UI_PKG_HTC) || SYSTEM_UI_PKG_HUAWEI.equals(pkgName));
+                && (pkgName.equals(SYSTEM_UI_PKG)
+                || pkgName.equals(SYSTEM_UI_PKG_HTC)
+                || pkgName.equals(SYSTEM_UI_PKG_HUAWEI));
     }
 
     private void postNotifyTopPackageChanged(final String from, final String to) {
+
         if (from == null || to == null) return;
         mLazyHandler.removeMessages(AshManLZHandlerMessages.MSG_NOTIFYTOPPACKAGECHANGED);
         mLazyHandler.obtainMessage(AshManLZHandlerMessages.MSG_NOTIFYTOPPACKAGECHANGED,
@@ -5493,17 +5567,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     private boolean isPackageRunningOnTop(String pkg) {
-        return pkg != null && pkg.equals(mTopPackage.getData());
+        return pkg != null && pkg.equals(mTopPackageImd.getData());
     }
-
-    private final ActiveServicesProxy.StopServiceConfirm mStopServiceConfirmed
-            = proxy -> {
-        if (XposedLog.isVerboseLoggable()) {
-            XposedLog.verbose("LAZY StopServiceConfirm: " + proxy);
-        }
-
-        return confirmToStopLazyService(proxy.getPackageName(), proxy.getName());
-    };
 
     private boolean confirmToStopLazyService(String packageName, ComponentName name) {
         // Rule not enabled, always stop it.
@@ -5512,9 +5577,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             return true;
         }
 
+        // Do not stop if we even don't know who it is.
         if (packageName == null || name == null) {
             XposedLog.verbose("LAZY confirmToStopLazyService, pkg or name is null");
-            return true;
+            return false;
+        }
+
+        // Check if on top again.
+        if (isPackageRunningOnTop(packageName)) {
+            XposedLog.verbose("LAZY confirmToStopLazyService, pkg still on top!!!");
+            return false;
         }
 
         // Check rules.
@@ -5566,14 +5638,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         @Override
         public void run() {
-
-            XposedLog.verbose("LAZY, checking if need clean up service:" + Arrays.toString(targetServicePkgs));
+            if (XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose("LAZY, checking if need clean up service:" + Arrays.toString(targetServicePkgs));
+            }
 
             Set<String> packagesToStop = new HashSet<>(targetServicePkgs.length);
 
             Set<String> notifications = getStatusBarNotificationsPackagesInternal();
 
-            XposedLog.verbose("LAZY, has notifications:" + Arrays.toString(notifications.toArray()));
+            if (XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose("LAZY, has notifications:" + Arrays.toString(notifications.toArray()));
+            }
 
             // Filt.
             for (String p : targetServicePkgs) {
@@ -5625,7 +5700,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                     int uid = PkgUtil.uidForPkg(getContext(), packagesToStopArray[0]);
                     XposedLog.verbose("LAZY, candidate package to kill for UID: " + uid);
                     if (uid > 0) {
-                        mActiveServicesProxy.stopServicesForPackageUid(uid, packagesToStopArray, mStopServiceConfirmed);
+                        mActiveServicesProxy.stopServicesForPackageUid(uid, packagesToStopArray, mServiceStopperProxy);
                     } else {
                         XposedLog.wtf("LAZY, package uid is NOT valid!!!");
                     }
@@ -5635,6 +5710,42 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             }
         }
     }
+
+    private ServiceStopper mServiceStopperProxy = new ServiceStopper() {
+
+        @Override
+        public boolean stopService(ServiceRecordProxy serviceRecordProxy) {
+
+            boolean confirm = confirmToStopLazyService(serviceRecordProxy.getPackageName(), serviceRecordProxy.getName());
+            if (!confirm) {
+                if (XposedLog.isVerboseLoggable()) {
+                    XposedLog.verbose("LAZY stopService, skip for no confirm: " + serviceRecordProxy.getName());
+                }
+                return false;
+            }
+
+            // Let's do stop.
+            if (XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose("LAZY mServiceStopperProxy stopping service: " + serviceRecordProxy);
+            }
+
+            // First stop by ActiveServices.
+            if (isAppServiceLazyControlSolutionEnable(XAshmanManager.AppServiceControlSolutions.FLAG_FW)) {
+                boolean stopped = mActiveServicesProxy.stopServiceLocked(serviceRecordProxy.getHost());
+                if (XposedLog.isVerboseLoggable()) {
+                    XposedLog.verbose("LAZY stopService, ActiveServices stop res: " + stopped);
+                }
+            }
+
+            // Stop with context.
+            if (isAppServiceLazyControlSolutionEnable(XAshmanManager.AppServiceControlSolutions.FLAG_APP)) {
+                XposedLog.verbose("LAZY stopService, ActiveServices stop with control");
+                mAppServiceController.stopAppService(serviceRecordProxy.getName());
+            }
+
+            return true;
+        }
+    };
 
     private void notifyTopPackageChanged(final String from, final String to) {
         try {
@@ -6245,11 +6356,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         String packageName = PkgUtil.packageNameOf(intent);
 
         if (packageName != null) {
-            mTopPackageImd.setData(packageName);
-
             mLazyHandler.removeMessages(AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONT);
-            mLazyHandler.sendMessageDelayed(mLazyHandler.obtainMessage(
-                    AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONT, packageName), PKG_MOVE_TO_FRONT_EVENT_DELAY);
+            mLazyHandler.removeMessages(AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONTDELAYUPDATE);
+
+            // Post to callbacks imd.
+            mLazyHandler.obtainMessage(
+                    AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONT, packageName).sendToTarget();
+
+            mLazyHandler
+                    .sendMessageDelayed(
+                            mLazyHandler.obtainMessage(AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONTDELAYUPDATE, packageName),
+                            PKG_MOVE_TO_FRONT_EVENT_DELAY);
         }
 
         // For debug.
@@ -7042,6 +7159,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 case AshManHandlerMessages.MSG_SETWAKEUPONNOTIFICATIONENABLED:
                     HandlerImpl.this.setWakeupOnNotificationEnabled((Boolean) msg.obj);
                     break;
+                case AshManHandlerMessages.MSG_SETAPPSERVICELAZYCONTROLSOLUTION:
+                    HandlerImpl.this.setAppServiceLazyControlSolution(msg.arg1, (Boolean) msg.obj);
+                    break;
             }
         }
 
@@ -7105,6 +7225,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         public void setLazyRuleEnabled(boolean enabled) {
             if (mLazyRuleEnabled.compareAndSet(!enabled, enabled)) {
                 SystemSettings.APM_LAZY_RULE_B.writeToSystemSettings(getContext(), enabled);
+            }
+        }
+
+        @Override
+        public void setAppServiceLazyControlSolution(int solutionFlags, boolean enabled) {
+            if (solutionFlags == XAshmanManager.AppServiceControlSolutions.FLAG_FW) {
+                mLazySolutionFW.set(enabled);
+                SystemSettings.APM_LAZY_SOLUTION_FW_B.writeToSystemSettings(getContext(), solutionFlags);
+            }
+
+            if (solutionFlags == XAshmanManager.AppServiceControlSolutions.FLAG_APP) {
+                mLazySolutionApp.set(enabled);
+                SystemSettings.APM_LAZY_SOLUTION_APP_B.writeToSystemSettings(getContext(), solutionFlags);
             }
         }
 
@@ -7742,7 +7875,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     // This is updated with a short delay to give a short time for us to handle back event.
-    private final Holder<String> mTopPackage = new Holder<>();
+    private final Holder<String> mTopPackageDelay = new Holder<>();
     // This is updated no delay.
     private final Holder<String> mTopPackageImd = new Holder<>();
 
@@ -7781,80 +7914,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         @Override
         @Deprecated
         public void onActivityDestroy(Intent intent) {
-            boolean isMainIntent = PkgUtil.isMainIntent(intent);
 
-            final String packageName = PkgUtil.packageNameOf(intent);
-            if (packageName == null) return;
-
-
-            if (XposedLog.isVerboseLoggable())
-                XposedLog.verbose("onActivityDestroy, packageName: " + packageName
-                        + ", isMainIntent: " + isMainIntent + ", topPkg: " + getTopPackage());
-
-            if (!shouldRFKPackage(packageName)) {
-                if (XposedLog.isVerboseLoggable()) XposedLog.verbose("PackageRFKill not enabled");
-                return;
-            }
-
-            IActivityManager activityManager = getActivityManager();
-            if (activityManager == null) {
-                return;
-            }
-
-            try {
-                List tasks = activityManager.getAppTasks(packageName);
-                XposedLog.wtf("AppTask: " + tasks.size());
-
-                if (BuildConfig.DEBUG) {
-                    Collections.consumeRemaining(tasks, new Consumer() {
-                        @Override
-                        public void accept(Object o) {
-                            try {
-                                IAppTask appTask = (IAppTask) o;
-                                XposedLog.verbose("AppTask: " + appTask.getTaskInfo().baseIntent);
-                            } catch (Exception e) {
-                                XposedLog.wtf("Fail getTaskInfo for apptask: " + Log.getStackTraceString(e));
-                            }
-                        }
-                    });
-                }
-
-            } catch (Exception e) {
-                XposedLog.wtf("Fail getAppTask: " + Log.getStackTraceString(e));
-            }
-
-            boolean maybeRootActivityFinish = !packageName.equals(getTopPackage());
-
-            if (maybeRootActivityFinish) {
-                postDelayed(new ErrorCatchRunnable(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            if (XposedLog.isVerboseLoggable())
-                                XposedLog.verbose("Killing maybeRootActivityFinish: " + packageName);
-
-                            if (packageName.equals(getTopPackage())) {
-                                if (XposedLog.isVerboseLoggable())
-                                    XposedLog.verbose("Top package is now him, let it go~");
-                                return;
-                            }
-
-                            getAppIdler().setAppIdle(packageName);
-                        } catch (Throwable e) {
-                            XposedLog.wtf("Fail rf kill in runnable: " + Log.getStackTraceString(e));
-                        }
-                    }
-                }, "maybeRootActivityFinish"), 666);
-            }
         }
 
         @Override
         public void onPackageMoveToFront(String who) {
-            String from = mTopPackage.getData();
+            String from = mTopPackageImd.getData();
             if (who != null && !who.equals(from)) {
-                mTopPackage.setData(who);
+                mTopPackageImd.setData(who);
                 postNotifyTopPackageChanged(from, who);
             }
+        }
+
+        @Override
+        public void onPackageMoveToFrontDelayUpdate(String who) {
+            mTopPackageDelay.setData(who);
         }
 
         @Override
@@ -7997,7 +8071,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             int keyCode = keyEvent.getKeyCode();
             int action = keyEvent.getAction();
 
-            String currentPkg = getTopPackage();
+            String currentPkg = getTopPackageDelay();
 
             if (BuildConfig.DEBUG) {
                 XposedLog.verbose(XposedLog.PREFIX_KEY + "onKeyEvent: %s %s, current package: %s",
@@ -8058,12 +8132,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         private AtomicInteger mPowerKeyPressTimes = new AtomicInteger(0);
 
-        private Runnable mClearPowerkeyRunnable = new Runnable() {
-            @Override
-            public void run() {
-                resetPowerKeyTimes();
-            }
-        };
+        private Runnable mClearPowerkeyRunnable = this::resetPowerKeyTimes;
 
         private void resetPowerKeyTimes() {
             XposedLog.verbose("resetPowerKeyTimes");
@@ -8138,14 +8207,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 return;
             }
 
-//            boolean doNotKillAppWithSBNEnabled = isDoNotKillSBNEnabled();
-//            XposedLog.verbose("maybeBackLongPressed, doNotKillAppWithSBNEnabled: " + doNotKillAppWithSBNEnabled);
-//            if (doNotKillAppWithSBNEnabled && hasNotificationForPackageInternal(targetPackage)) {
-//                XposedLog.verbose("maybeBackLongPressed has SBN for this package");
-//                return;
-//            }
-
-            boolean mayBeKillThisPackage = getTopPackage() != null && getTopPackage().equals(targetPackage);
+            boolean mayBeKillThisPackage = getTopPackageDelay() != null && getTopPackageDelay().equals(targetPackage);
             if (mayBeKillThisPackage) {
                 XposedLog.verbose(XposedLog.PREFIX_KEY + "mayBeKillThisPackage after long back: " + targetPackage);
                 getAppIdler().setAppIdle(targetPackage);
@@ -8154,7 +8216,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         @Override
         public void maybeBackPressed(String targetPackage) {
-            String current = getTopPackage();
+            String current = getTopPackageDelay();
             XposedLog.verbose("maybeBackPressed target: %s, current: %s", targetPackage, current);
             if (targetPackage != null && !targetPackage.equals(current)) {
                 onBackPressed(targetPackage);
@@ -8176,39 +8238,28 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 return;
             }
 
-            boolean killPackageWhenBackPressed = !packageName.equals(getTopPackage());
+            boolean killPackageWhenBackPressed = !packageName.equals(getTopPackageDelay());
 
             if (killPackageWhenBackPressed) {
-                postDelayed(new ErrorCatchRunnable(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            XposedLog.verbose(XposedLog.PREFIX_KEY + "Killing killPackageWhenBackPressed: " + packageName);
+                postDelayed(new ErrorCatchRunnable(() -> {
+                    try {
+                        XposedLog.verbose(XposedLog.PREFIX_KEY + "Killing killPackageWhenBackPressed: " + packageName);
 
-                            if (packageName.equals(getTopPackage())) {
-                                XposedLog.verbose(XposedLog.PREFIX_KEY + "Top package is now him, let it go~");
-                                return;
-                            }
-
-//                            boolean doNotKillAppWithSBNEnabled = isDoNotKillSBNEnabled();
-//                            XposedLog.verbose("killPackageWhenBackPressed, doNotKillAppWithSBNEnabled: "
-//                                    + doNotKillAppWithSBNEnabled);
-//                            if (doNotKillAppWithSBNEnabled && hasNotificationForPackageInternal(packageName)) {
-//                                XposedLog.verbose("killPackageWhenBackPressed has SBN for this package");
-//                                return;
-//                            }
-
-                            getAppIdler().setAppIdle(packageName);
-                        } catch (Throwable e) {
-                            XposedLog.wtf(XposedLog.PREFIX_KEY + "Fail rf kill in runnable: " + Log.getStackTraceString(e));
+                        if (packageName.equals(getTopPackageDelay())) {
+                            XposedLog.verbose(XposedLog.PREFIX_KEY + "Top package is now him, let it go~");
+                            return;
                         }
+
+                        getAppIdler().setAppIdle(packageName);
+                    } catch (Throwable e) {
+                        XposedLog.wtf(XposedLog.PREFIX_KEY + "Fail rf kill in runnable: " + Log.getStackTraceString(e));
                     }
                 }, "killPackageWhenBackPressed"), 666);
             }
         }
 
-        private String getTopPackage() {
-            return mTopPackage.getData();
+        private String getTopPackageDelay() {
+            return mTopPackageDelay.getData();
         }
 
         @Override
@@ -8222,6 +8273,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                     break;
                 case AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONT:
                     LazyHandler.this.onPackageMoveToFront((String) msg.obj);
+                    break;
+                case AshManLZHandlerMessages.MSG_ONPACKAGEMOVETOFRONTDELAYUPDATE:
+                    LazyHandler.this.onPackageMoveToFrontDelayUpdate((String) msg.obj);
                     break;
                 case AshManLZHandlerMessages.MSG_ONCOMPSETTING:
                     LazyHandler.this.onCompSetting((String) msg.obj, msg.arg1 == 1);

@@ -41,6 +41,8 @@ interface AshManHandler {
 
     void setLazyRuleEnabled(boolean enabled);
 
+    void setAppServiceLazyControlSolution(int solutionFlags, boolean enabled);
+
     void setRFKillEnabled(boolean enabled);
 
     void setLPBKEnabled(boolean enabled);

@@ -21,6 +21,7 @@ import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IBooleanCallback1;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
+import github.tornaco.xposedmoduletest.IServiceControl;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.util.ArrayUtil;
@@ -90,6 +91,23 @@ public class XAshmanManager {
         int NONE = 0;
         int EXCLUDE = 1;
         int INCLUDE = 2;
+    }
+
+    public interface AppServiceControlSolutions {
+
+        int FLAG_APP = 0x00000001;
+        int FLAG_FW = 0x00000002;
+
+        static String decode(int flags) {
+            StringBuilder sb = new StringBuilder();
+            if (flags == FLAG_APP) {
+                sb.append("FLAG_APP");
+            }
+            if (flags == FLAG_FW) {
+                sb.append("FLAG_FW");
+            }
+            return sb.toString();
+        }
     }
 
     public interface ConfigOverlays {
@@ -2071,6 +2089,42 @@ public class XAshmanManager {
             mService.mockPushMessageReceived(pkg, message);
         } catch (Exception e) {
 
+        }
+    }
+
+    public void registerController(IServiceControl control) {
+        ensureService();
+        try {
+            mService.registerController(control);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public void unRegisterController(IServiceControl control) {
+        ensureService();
+        try {
+            mService.unRegisterController(control);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public void setAppServiceLazyControlSolution(int solutionFlags, boolean enable) {
+        ensureService();
+        try {
+            mService.setAppServiceLazyControlSolution(solutionFlags, enable);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public boolean isAppServiceLazyControlSolutionEnable(int solutionFlags) {
+        ensureService();
+        try {
+            return mService.isAppServiceLazyControlSolutionEnable(solutionFlags);
+        } catch (Exception e) {
+            return false;
         }
     }
 }
