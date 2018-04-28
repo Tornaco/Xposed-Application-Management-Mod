@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 import android.content.pm.ApplicationInfo;
 import android.util.Log;
 
+import java.util.Arrays;
 import java.util.Set;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -33,8 +34,8 @@ class AMSStartProcessLockedSubModule extends AndroidSubModule {
             Set unHooks = XposedBridge.hookAllMethods(ams, "startProcessLocked",
                     new XC_MethodHook() {
                         @Override
-                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                            super.afterHookedMethod(param);
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            super.beforeHookedMethod(param);
                             Object processRecord = param.args[0];
                             // We only hook the method with ProcessRecord param class.
                             if (processRecord instanceof String) return;
@@ -50,15 +51,22 @@ class AMSStartProcessLockedSubModule extends AndroidSubModule {
                                 return;
                             }
                             if (BuildConfig.DEBUG) {
-                                XposedLog.verbose("startProcessLocked in ams, processRecord: " + processRecord);
+                                XposedLog.verbose("startProcessLocked in ams, processRecord: "
+                                        + Arrays.toString(param.args));
                             }
                             if (processRecord != null) {
                                 ApplicationInfo info = (ApplicationInfo) XposedHelpers.getObjectField(processRecord, "info");
-                                if (BuildConfig.DEBUG) {
-                                    XposedLog.verbose("startProcessLocked in ams, info: " + info);
-                                }
+                                String hostType = (String) param.args[1];
+                                String hostName = (String) param.args[2];
+                                XposedLog.verbose("startProcessLocked in ams, info: %s, type: %s, name: %s", info, hostType, hostName);
                                 if (info != null) {
-                                    getBridge().onStartProcessLocked(info);
+                                    boolean res = getBridge().checkStartProcess(info, hostType, hostName);
+                                    if (!res) {
+                                        XposedLog.verbose("startProcessLocked BLOCKED!!!, info: " + info);
+                                        param.setResult(null);
+                                    } else {
+                                        getBridge().onStartProcessLocked(info);
+                                    }
                                 }
                             }
                         }

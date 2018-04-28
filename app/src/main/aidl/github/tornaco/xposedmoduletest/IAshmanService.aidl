@@ -5,6 +5,7 @@ import github.tornaco.xposedmoduletest.IProcessClearListener;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
+import github.tornaco.xposedmoduletest.IServiceControl;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 
@@ -453,4 +454,11 @@ interface IAshmanService {
 
     // Mock GCM Message.
     void mockPushMessageReceived(String pkg, String message);
+
+    // App service control for LAZY mode.
+    void registerController(in IServiceControl control);
+    void unRegisterController(in IServiceControl control);
+    void stopService(in Intent serviceIntent);
+    void setAppServiceLazyControlSolution(int solutionFlag, boolean enable);
+    boolean isAppServiceLazyControlSolutionEnable(int solutionFlag);
 }

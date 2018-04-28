@@ -10,7 +10,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.service.am.ActiveServicesProxy;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -66,7 +65,7 @@ class ActiveServiceSubModule extends AndroidSubModule {
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
                     XposedLog.boot("ActiveServices construct: " + Arrays.toString(param.args));
-//                    Object activeServicesObj = param.thisObject;
+                    Object activeServicesObj = param.thisObject;
 //                    ActiveServicesProxy activeServicesProxy = new ActiveServicesProxy(activeServicesObj);
 //                    getBridge().attachActiveServices(activeServicesProxy);
                 }

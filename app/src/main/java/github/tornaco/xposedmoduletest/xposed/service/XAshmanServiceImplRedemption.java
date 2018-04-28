@@ -20,6 +20,7 @@ import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IBooleanCallback1;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
+import github.tornaco.xposedmoduletest.IServiceControl;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
@@ -119,6 +120,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     @Override
     public int getRecentTaskExcludeSetting(ComponentName c) {
         return XAshmanManager.ExcludeRecentSetting.NONE;
+    }
+
+    @Override
+    public boolean checkStartProcess(ApplicationInfo applicationInfo, String hostType, String hostName) {
+        return true; // ALLOW
     }
 
     @Override
@@ -348,6 +354,31 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     @Override
     public void mockPushMessageReceived(String pkg, String message) throws RemoteException {
 
+    }
+
+    @Override
+    public void registerController(IServiceControl control) throws RemoteException {
+
+    }
+
+    @Override
+    public void unRegisterController(IServiceControl control) throws RemoteException {
+
+    }
+
+    @Override
+    public void stopService(Intent serviceIntent) throws RemoteException {
+
+    }
+
+    @Override
+    public void setAppServiceLazyControlSolution(int solutionFlags, boolean enabled) throws RemoteException {
+
+    }
+
+    @Override
+    public boolean isAppServiceLazyControlSolutionEnable(int solutionFlags) throws RemoteException {
+        return false;
     }
 
     @Override

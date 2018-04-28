@@ -50,7 +50,7 @@ public interface IModuleBridge {
 
     @CommonBringUpApi
     @Deprecated
-    // Use report activity launch instead.
+        // Use report activity launch instead.
     void onPackageMoveToFront(Intent who);
 
     @CommonBringUpApi
@@ -166,6 +166,8 @@ public interface IModuleBridge {
     boolean isPanicLockEnabled() throws RemoteException;
 
     int getRecentTaskExcludeSetting(ComponentName c) throws RemoteException;
+
+    boolean checkStartProcess(ApplicationInfo applicationInfo, String hostType, String hostName);
 
     void onStartProcessLocked(ApplicationInfo applicationInfo);
 
