@@ -20,7 +20,7 @@ public class LazySolutionApp extends QuickTile {
 
         this.titleRes = R.string.title_lazy_solution_app;
         this.summaryRes = R.string.summary_lazy_solution_app;
-        this.iconRes = R.drawable.ic_build_white_24dp;
+        this.iconRes = R.drawable.ic_looks_one_black_24dp;
 
         this.tileView = new SwitchTileView(context) {
             @Override
