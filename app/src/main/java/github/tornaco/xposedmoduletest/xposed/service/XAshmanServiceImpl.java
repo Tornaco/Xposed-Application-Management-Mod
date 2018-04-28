@@ -158,6 +158,7 @@ import github.tornaco.xposedmoduletest.xposed.service.rule.RuleParser;
 import github.tornaco.xposedmoduletest.xposed.service.shell.AshShellCommand;
 import github.tornaco.xposedmoduletest.xposed.submodules.InputManagerInjectInputSubModule;
 import github.tornaco.xposedmoduletest.xposed.submodules.SubModuleManager;
+import github.tornaco.xposedmoduletest.xposed.submodules.debug.TestXposedMethod;
 import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import github.tornaco.xposedmoduletest.xposed.util.ObjectToStringUtil;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -2126,7 +2127,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         // Check GCM intent.
-        if (GCMFCMHelper.isHandlingGcmIntent(processPackage)){
+        if (GCMFCMHelper.isHandlingGcmIntent(processPackage)) {
             return CheckResult.HAS_GCM_INTENT;
         }
 
@@ -2166,15 +2167,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         // Saving res record.
         logServiceBlockEventToMemory(ServiceEvent.builder()
-                        .service("Service")
-                        .why(res.why)
-                        .allowed(res.res)
-                        .appName(null)
-                        .pkg(appPkg)
-                        .why(res.getWhy())
-                        .callerUid(callerUid)
-                        .when(System.currentTimeMillis())
-                        .build());
+                .service("Service")
+                .why(res.why)
+                .allowed(res.res)
+                .appName(null)
+                .pkg(appPkg)
+                .why(res.getWhy())
+                .callerUid(callerUid)
+                .when(System.currentTimeMillis())
+                .build());
 
         if (DEBUG_SERVICE) {
             if (XposedLog.isVerboseLoggable()) {
@@ -3373,6 +3374,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     public void forceReloadPackages() {
         mainHandler.removeMessages(AshManHandlerMessages.MSG_FORCERELOADPACKAGES);
         mainHandler.sendEmptyMessage(AshManHandlerMessages.MSG_FORCERELOADPACKAGES);
+
+        if (BuildConfig.DEBUG) {
+            new TestXposedMethod().main();
+        }
     }
 
     private CheckResult checkBroadcastDetailed(Intent action, int receiverUid, int callerUid) {
@@ -3784,6 +3789,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             MultipleAppsManager multipleAppsManager = MultipleAppsManager.getInstance();
             multipleAppsManager.onCreate(getContext());
+
+            // Say hello!
+            new TestXposedMethod().main();
         }
     }
 
@@ -5798,15 +5806,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             }
 
             // First stop by ActiveServices.
-            if (isAppServiceLazyControlSolutionEnable(XAshmanManager.AppServiceControlSolutions.FLAG_FW)) {
-                boolean stopped = mActiveServicesProxy.stopServiceLocked(serviceRecordProxy.getHost());
-                if (XposedLog.isVerboseLoggable()) {
-                    XposedLog.verbose("LAZY stopService, ActiveServices stop res: " + stopped);
-                }
+            // Now always do it for user build.
+            boolean stopped = mActiveServicesProxy.stopServiceLocked(serviceRecordProxy.getHost());
+            if (XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose("LAZY stopService, ActiveServices stop res: " + stopped);
             }
 
             // Stop with context.
-            if (isAppServiceLazyControlSolutionEnable(XAshmanManager.AppServiceControlSolutions.FLAG_APP)) {
+            if (BuildConfig.DEBUG && isAppServiceLazyControlSolutionEnable(XAshmanManager.AppServiceControlSolutions.FLAG_APP)) {
                 XposedLog.verbose("LAZY stopService, ActiveServices stop with control");
                 mAppServiceController.stopAppService(serviceRecordProxy.getName());
             }

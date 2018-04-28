@@ -131,26 +131,35 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
     }
 
     public boolean stopServiceLocked(Object serviceRecordObj) {
+        return callStopServiceLockChecked(serviceRecordObj);
+    }
 
-        if (XposedLog.isVerboseLoggable()) {
-            XposedLog.verbose("DUMP Host: " + getHost());
-            XposedLog.verbose("DUMP Host class: " + getHost().getClass());
-            // Dump all methods.
-            Class c = getHost().getClass();
-            for (Method m : c.getDeclaredMethods()) {
-                XposedLog.verbose("DUMP ActiveServices method: " + m);
-            }
-        }
+    private static final String HWActiveServiceClassName = "com.android.server.am.HwActiveServices";
+    private static final String stopServiceLockMethodName = "stopServiceLocked";
+    private static Method sCacheStopServiceLockedMethod = null;
 
-        boolean stopped;
+    private boolean callStopServiceLockChecked(Object serviceRecordObj) {
         try {
-            XposedHelpers.callMethod(getHost(), "stopServiceLocked", serviceRecordObj);
-            stopped = true;
+            Method stopMethod = sCacheStopServiceLockedMethod;
+            if (stopMethod == null) {
+                Class paramClz = serviceRecordObj.getClass();
+                if (getHost().getClass().getName().contains(HWActiveServiceClassName)) {
+                    XposedLog.verbose("ActiveServicesProxy fix for HUAWEI: " + getHost().getClass().getSuperclass());
+                    stopMethod = getHost().getClass().getSuperclass().getDeclaredMethod(stopServiceLockMethodName, paramClz);
+                } else {
+                    stopMethod = getHost().getClass().getDeclaredMethod(stopServiceLockMethodName, paramClz);
+                }
+                sCacheStopServiceLockedMethod = stopMethod;
+            }
+            XposedLog.verbose("ActiveServicesProxy callStopServiceLockChecked: " + stopMethod);
+            stopMethod.setAccessible(true);
+            stopMethod.invoke(getHost(), serviceRecordObj);
+            return true;
         } catch (Throwable e) {
-            stopped = false;
-            XposedLog.wtf("Fail stopServiceLocked: " + Log.getStackTraceString(e));
+            XposedLog.wtf("FATAL *** ActiveServicesProxy fail callStopServiceLockChecked: " + Log.getStackTraceString(e));
+            sCacheStopServiceLockedMethod = null;
+            return false;
         }
-        return stopped;
     }
 
     class ServiceMapProxy extends InvokeTargetProxy<Object> {
