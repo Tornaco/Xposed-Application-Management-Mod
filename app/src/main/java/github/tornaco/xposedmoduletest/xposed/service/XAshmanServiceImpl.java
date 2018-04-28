@@ -1791,7 +1791,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         XposedLog.boot("attachActiveServices, proxy: " + proxy);
         XposedLog.boot("attachActiveServices, proxy: " + proxy.getHost());
 
-        workaroundForHwActiveServices(proxy);
+        // workaroundForHwActiveServices(proxy);
     }
 
     private void workaroundForHwActiveServices(ActiveServicesProxy proxy) {
@@ -2095,7 +2095,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private static final String HOST_TYPE_CONTENT_PROVIDER = "content provider";
     private static final String HOST_TYPE_SERVICE = "service";
 
-    private static final Set<String> sProcessCheckType = Sets.newHashSet(HOST_TYPE_BROADCAST, HOST_TYPE_CONTENT_PROVIDER, HOST_TYPE_SERVICE);
+    private static final Set<String> sProcessCheckType = Sets.newHashSet(HOST_TYPE_BROADCAST, HOST_TYPE_CONTENT_PROVIDER);
 
     @InternalCall
     @Override
@@ -2107,7 +2107,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         CheckResult checkResult = checkStartProcessDetailed(applicationInfo, hostType, hostName);
         if (XposedLog.isVerboseLoggable()) {
-            XposedLog.verbose("checkStartProcess: %s %s %s %s", applicationInfo, hostType, hostName, checkResult);
+            XposedLog.verbose("checkStartProcess: callingUid: %s %s %s %s %s",
+                    Binder.getCallingUid(),
+                    applicationInfo,
+                    hostType,
+                    hostName,
+                    checkResult);
         }
         return checkResult.res;
     }
@@ -5758,7 +5763,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             // Invoke ActiveServices.
             if (mActiveServicesProxy != null) {
 
-                workaroundForHwActiveServices(mActiveServicesProxy);
+                // workaroundForHwActiveServices(mActiveServicesProxy);
 
                 if (XposedLog.isVerboseLoggable()) {
                     XposedLog.verbose("DUMP LAZY, mActiveServicesProxy host: " + mActiveServicesProxy.getHost());
