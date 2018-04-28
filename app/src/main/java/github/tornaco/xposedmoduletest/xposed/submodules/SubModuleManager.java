@@ -162,7 +162,7 @@ public class SubModuleManager {
 
         // For HUAWEI.
         // EMUI has make HwActiveServices instead of ActiveServices...
-        addToSubsChecked(new ServiceSubModule());
+        // addToSubsChecked(new ServiceSubModule());
 
         // Submodules for debug purpose.
         if (BuildConfig.DEBUG) {
