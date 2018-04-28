@@ -7300,12 +7300,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         public void setAppServiceLazyControlSolution(int solutionFlags, boolean enabled) {
             if (solutionFlags == XAshmanManager.AppServiceControlSolutions.FLAG_FW) {
                 mLazySolutionFW.set(enabled);
-                SystemSettings.APM_LAZY_SOLUTION_FW_B.writeToSystemSettings(getContext(), solutionFlags);
+                SystemSettings.APM_LAZY_SOLUTION_FW_B.writeToSystemSettings(getContext(), enabled);
             }
 
             if (solutionFlags == XAshmanManager.AppServiceControlSolutions.FLAG_APP) {
                 mLazySolutionApp.set(enabled);
-                SystemSettings.APM_LAZY_SOLUTION_APP_B.writeToSystemSettings(getContext(), solutionFlags);
+                SystemSettings.APM_LAZY_SOLUTION_APP_B.writeToSystemSettings(getContext(), enabled);
             }
         }
 
