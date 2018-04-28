@@ -71,6 +71,7 @@ import android.widget.Toast;
 import com.android.internal.os.Zygote;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 
 import java.io.File;
@@ -2088,6 +2089,74 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
     }
 
+    private static final String HOST_TYPE_ACTIVITY = "activity";
+    private static final String HOST_TYPE_BROADCAST = "broadcast";
+    private static final String HOST_TYPE_CONTENT_PROVIDER = "content provider";
+    private static final String HOST_TYPE_SERVICE = "service";
+
+    private static final Set<String> sProcessCheckType = Sets.newHashSet(HOST_TYPE_BROADCAST, HOST_TYPE_CONTENT_PROVIDER, HOST_TYPE_SERVICE);
+
+    @InternalCall
+    @Override
+    public boolean checkStartProcess(ApplicationInfo applicationInfo, String hostType, String hostName) {
+        // Always allow for activity.
+        if (!sProcessCheckType.contains(hostType)) {
+            return true;
+        }
+
+        CheckResult checkResult = checkStartProcessDetailed(applicationInfo, hostType, hostName);
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("checkStartProcess: %s %s %s %s", applicationInfo, hostType, hostName, checkResult);
+        }
+        return checkResult.res;
+    }
+
+    private CheckResult checkStartProcessDetailed(ApplicationInfo applicationInfo, String hostType, String hostName) {
+        String processPackage = applicationInfo.packageName;
+
+        if (TextUtils.isEmpty(processPackage)) return CheckResult.BAD_ARGS;
+
+        if (isInWhiteList(processPackage)) {
+            return CheckResult.WHITE_LISTED;
+        }
+
+        boolean isSystemApp = isInSystemAppList(processPackage);
+        if (isWhiteSysAppEnabled() && isSystemApp) {
+            return CheckResult.SYSTEM_APP;
+        }
+
+        // Check GCM intent.
+        if (GCMFCMHelper.isHandlingGcmIntent(processPackage)){
+            return CheckResult.HAS_GCM_INTENT;
+        }
+
+        if (PkgUtil.justBringDown(processPackage)) {
+            return CheckResult.JUST_BRING_DOWN;
+        }
+
+        // Disabled case.
+        if (!isStartBlockEnabled()) return CheckResult.SERVICE_CHECK_DISABLED;
+
+        boolean isOnTop = isPackageRunningOnTop(processPackage);
+        if (isOnTop) {
+            return CheckResult.APP_RUNNING_TOP;
+        }
+
+        // If this app is not in good condition, and user choose to block:
+        boolean blockedByUser = isPackageStartBlockByUser(processPackage);
+        // User block!!!
+        if (blockedByUser) {
+            return CheckResult.USER_DENIED;
+        }
+
+        try {
+            // By default, we allow.
+            return CheckResult.ALLOWED_GENERAL;
+        } finally {
+            // Nothing.
+        }
+    }
+
     @Override
     @InternalCall
     public boolean checkService(Intent intent, ComponentName serviceComp, int callerUid) {
@@ -2096,8 +2165,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         CheckResult res = checkServiceDetailed(intent, appPkg, serviceComp, callerUid);
 
         // Saving res record.
-        logServiceBlockEventToMemory(
-                ServiceEvent.builder()
+        logServiceBlockEventToMemory(ServiceEvent.builder()
                         .service("Service")
                         .why(res.why)
                         .allowed(res.res)

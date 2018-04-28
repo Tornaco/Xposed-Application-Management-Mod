@@ -123,6 +123,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public boolean checkStartProcess(ApplicationInfo applicationInfo, String hostType, String hostName) {
+        return true; // ALLOW
+    }
+
+    @Override
     public void onStartProcessLocked(ApplicationInfo applicationInfo) {
 
     }
