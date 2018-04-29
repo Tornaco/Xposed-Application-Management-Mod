@@ -44,9 +44,13 @@ public class XRegistrationIntentService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         Logger.d("GCM Registration onHandleIntent: " + intent);
         try {
+
+            // FIXME Get correct one.
             InstanceID instanceID = InstanceID.getInstance(this);
-            String token = instanceID.getToken(getString(R.string.gcm_defaultSenderId),
-                    GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
+            String token  = "Tornaco";
+//
+//                    = instanceID.getToken(getString(R.string.gcm_defaultSenderId),
+//                    GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
 
             Logger.d("GCM Registration Token: " + token);
 
