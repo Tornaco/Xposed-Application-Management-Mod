@@ -3376,13 +3376,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    @BinderCall
     public void forceReloadPackages() {
         mainHandler.removeMessages(AshManHandlerMessages.MSG_FORCERELOADPACKAGES);
         mainHandler.sendEmptyMessage(AshManHandlerMessages.MSG_FORCERELOADPACKAGES);
-
-        if (BuildConfig.DEBUG) {
-            new TestXposedMethod().main();
-        }
     }
 
     private CheckResult checkBroadcastDetailed(Intent action, int receiverUid, int callerUid) {
@@ -3794,9 +3791,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             MultipleAppsManager multipleAppsManager = MultipleAppsManager.getInstance();
             multipleAppsManager.onCreate(getContext());
-
-            // Say hello!
-            new TestXposedMethod().main();
         }
     }
 
@@ -6801,11 +6795,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     public void mockSystemDead(long delay) {
         enforceCallingPermissions();
-        mainHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                throw new IllegalStateException("Mock system dead by user, bye!");
-            }
+
+        if (BuildConfig.DEBUG) {
+            new TestXposedMethod().main();
+        }
+
+        mainHandler.postDelayed(() -> {
+            throw new IllegalStateException("Mock system dead by user, bye!");
         }, delay);
     }
 

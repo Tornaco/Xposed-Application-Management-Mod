@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -63,12 +62,12 @@ public class PushMessageNotificationService extends Service implements Notificat
 
     private final ITopPackageChangeListener mTopPackageListener = new ITopPackageChangeListener.Stub() {
         @Override
-        public void onChange(String from, String to) throws RemoteException {
+        public void onChange(String from, String to) {
             notifyTopPackageChanged(from, to);
         }
 
         @Override
-        public String hostPackageName() throws RemoteException {
+        public String hostPackageName() {
             return null;
         }
     };
@@ -126,6 +125,7 @@ public class PushMessageNotificationService extends Service implements Notificat
                             return pushMessage.getTargetPackageName();
                         }
                     };
+            handler.setCustomRingtoneEnabled(false);
             mNotificationHandlers.put(pushMessage.getTargetPackageName(), handler);
         }
 

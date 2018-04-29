@@ -29,7 +29,6 @@ import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.jaredrummler.android.shell.Shell;
-import com.thoughtbot.expandablerecyclerview.models.ExpandableGroup;
 
 import org.newstand.logger.Logger;
 
@@ -50,7 +49,6 @@ import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.ActivityLifeCycleDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.FragmentController;
 import github.tornaco.xposedmoduletest.ui.Themes;
-import github.tornaco.xposedmoduletest.ui.activity.helper.RunningServicesActivity;
 import github.tornaco.xposedmoduletest.ui.activity.stub.ClearStubActivity;
 import github.tornaco.xposedmoduletest.ui.activity.stub.LockScreenStubActivity;
 import github.tornaco.xposedmoduletest.ui.activity.test.TestAIOActivity;
@@ -85,7 +83,6 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlackNotification;
 import github.tornaco.xposedmoduletest.ui.tiles.app.BackupRestoreSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CleanUpSystemErrorTrace;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CrashDump;
-import github.tornaco.xposedmoduletest.ui.tiles.app.GcmMessagesSubscriber;
 import github.tornaco.xposedmoduletest.ui.tiles.app.GitContributors;
 import github.tornaco.xposedmoduletest.ui.tiles.app.InactiveInsteadOfKillApp;
 import github.tornaco.xposedmoduletest.ui.tiles.app.MokeCrash;
@@ -999,7 +996,7 @@ public class NavigatorActivityBottomNav
             Category others = new Category();
             others.titleRes = R.string.title_others;
             if (XApp.isGMSSupported()) {
-                others.addTile(new GcmMessagesSubscriber(getActivity()));
+                //   others.addTile(new GcmMessagesSubscriber(getActivity()));
             }
 
             categories.add(system);

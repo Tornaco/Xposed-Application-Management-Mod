@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.robv.android.xposed.XposedHelpers;
+import dev.nick.eventbus.utils.ReflectionUtils;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.service.ErrorCatchRunnable;
 import github.tornaco.xposedmoduletest.xposed.service.InvokeTargetProxy;
@@ -135,6 +136,7 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
     }
 
     private static final String HWActiveServiceClassName = "com.android.server.am.HwActiveServices";
+    private static final String ActiveServiceClassName = "com.android.server.am.ActiveServices";
     private static final String stopServiceLockMethodName = "stopServiceLocked";
     private static Method sCacheStopServiceLockedMethod = null;
 
@@ -143,23 +145,29 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
             Method stopMethod = sCacheStopServiceLockedMethod;
             if (stopMethod == null) {
                 Class paramClz = serviceRecordObj.getClass();
-                if (getHost().getClass().getName().contains(HWActiveServiceClassName)) {
-                    XposedLog.verbose("ActiveServicesProxy fix for HUAWEI: " + getHost().getClass().getSuperclass());
-                    stopMethod = getHost().getClass().getSuperclass().getDeclaredMethod(stopServiceLockMethodName, paramClz);
-                } else {
-                    stopMethod = getHost().getClass().getDeclaredMethod(stopServiceLockMethodName, paramClz);
-                }
+                stopMethod = ReflectionUtils.findMethod(getHost().getClass(), stopServiceLockMethodName, paramClz);
                 sCacheStopServiceLockedMethod = stopMethod;
             }
+
             XposedLog.verbose("ActiveServicesProxy callStopServiceLockChecked: " + stopMethod);
-            stopMethod.setAccessible(true);
-            stopMethod.invoke(getHost(), serviceRecordObj);
+
+            if (stopMethod == null) {
+                XposedLog.wtf("ActiveServicesProxy can not find stop method!!!");
+                return false;
+            }
+
+            ReflectionUtils.makeAccessible(stopMethod);
+            ReflectionUtils.invokeMethod(stopMethod, getHost(), serviceRecordObj);
             return true;
         } catch (Throwable e) {
             XposedLog.wtf("FATAL *** ActiveServicesProxy fail callStopServiceLockChecked: " + Log.getStackTraceString(e));
             sCacheStopServiceLockedMethod = null;
             return false;
         }
+    }
+
+    private static boolean isStandardAndroidActiveServicesClass(Class clazz) {
+        return clazz.getName().contains(ActiveServiceClassName);
     }
 
     class ServiceMapProxy extends InvokeTargetProxy<Object> {
