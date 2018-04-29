@@ -1,8 +1,0 @@
-Thread[ASHMAN-H,5,main]
-java.lang.IllegalStateException: Mock system dead by user, bye!
-	at github.tornaco.xposedmoduletest.xposed.service.XAshmanServiceImpl.lambda$mockSystemDead$29$XAshmanServiceImpl(XAshmanServiceImpl.java:6804)
-	at github.tornaco.xposedmoduletest.xposed.service.XAshmanServiceImpl$$Lambda$32.run(Unknown Source:0)
-	at android.os.Handler.handleCallback(Handler.java:789)
-	at android.os.Handler.dispatchMessage(Handler.java:98)
-	at android.os.Looper.loop(Looper.java:164)
-	at android.os.HandlerThread.run(HandlerThread.java:65)
