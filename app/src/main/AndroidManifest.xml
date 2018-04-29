@@ -430,39 +430,13 @@
             </intent-filter>
         </service>
 
-        <!--GCM-->
-        <!--<receiver-->
-        <!--android:name=".service.XGcmReceiver"-->
-        <!--android:exported="true"-->
-        <!--android:permission="com.google.android.c2dm.permission.SEND">-->
-        <!--<intent-filter>-->
-        <!--<action android:name="com.google.android.c2dm.intent.RECEIVE" />-->
-        <!--<category android:name="com.example.gcm" />-->
-        <!--</intent-filter>-->
-        <!--</receiver>-->
-
-        <!--&lt;!&ndash;Handle notification&ndash;&gt;-->
-        <!--<service-->
-        <!--android:name=".service.GcmIntentService"-->
-        <!--android:exported="false" />-->
-
-        <!--<service-->
-        <!--android:name=".service.XInstanceIDListenerService"-->
-        <!--android:exported="false">-->
-        <!--<intent-filter>-->
-        <!--<action android:name="com.google.android.gms.iid.InstanceID" />-->
-        <!--</intent-filter>-->
-        <!--</service>-->
-        <!--<service-->
-        <!--android:name=".service.XRegistrationIntentService"-->
-        <!--android:exported="false" />-->
-
-        <!--<service android:name=".service.PushMessageNotificationService"-->
-        <!--android:label="@string/title_push_message_notification_service">-->
-        <!--<intent-filter>-->
-        <!--<action android:name="github.tornaco.xposedmoduletest.action.StartPushMessageNotificationService" />-->
-        <!--</intent-filter>-->
-        <!--</service>-->
+        <service
+            android:name=".service.PushMessageNotificationService"
+            android:label="@string/title_push_message_notification_service">
+            <intent-filter>
+                <action android:name="github.tornaco.xposedmoduletest.action.StartPushMessageNotificationService" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

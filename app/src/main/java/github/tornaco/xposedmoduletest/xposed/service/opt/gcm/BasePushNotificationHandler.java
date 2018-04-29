@@ -44,6 +44,11 @@ public abstract class BasePushNotificationHandler implements PushNotificationHan
     @Getter
     private Context context;
 
+    // This is used for app to disable custom tone.
+    @Setter
+    @Getter
+    private boolean customRingtoneEnabled = true;
+
     @Setter
     @Getter
     private NotificationHandlerSettingsRetriever notificationHandlerSettingsRetriever;
@@ -197,8 +202,7 @@ public abstract class BasePushNotificationHandler implements PushNotificationHan
         style.bigText(pushMessage.getMessage());
         style.setBigContentTitle(pushMessage.getTitle());
 
-        Uri curSoundUri =
-                getCustomRingtoneUri();
+        Uri curSoundUri = isCustomRingtoneEnabled() ? getCustomRingtoneUri() : null;
         if (curSoundUri == null) {
             curSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         }
