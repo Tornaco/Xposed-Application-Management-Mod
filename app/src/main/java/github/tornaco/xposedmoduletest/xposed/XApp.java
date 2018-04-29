@@ -3,7 +3,6 @@ package github.tornaco.xposedmoduletest.xposed;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
@@ -25,7 +24,6 @@ import github.tornaco.xposedmoduletest.cache.RunningServicesLoadingCache;
 import github.tornaco.xposedmoduletest.model.PushMessage;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.provider.XSettings;
-import github.tornaco.xposedmoduletest.service.XRegistrationIntentService;
 import github.tornaco.xposedmoduletest.ui.activity.NavigatorActivityBottomNav;
 import github.tornaco.xposedmoduletest.ui.widget.SimpleEmojiProvider;
 import github.tornaco.xposedmoduletest.util.ActvityLifeCycleAdapter;
