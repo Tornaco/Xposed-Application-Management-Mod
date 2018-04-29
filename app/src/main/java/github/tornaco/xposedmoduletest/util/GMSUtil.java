@@ -2,10 +2,9 @@ package github.tornaco.xposedmoduletest.util;
 
 import android.content.Context;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-
 import org.newstand.logger.Logger;
+
+import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
  * Created by Tornaco on 2018/3/23 12:35.
@@ -19,19 +18,12 @@ public class GMSUtil {
      * the Google Play Store or enable it in the device's system settings.
      */
     public static boolean checkPlayServices(Context context) {
-        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
-        int resultCode = apiAvailability.isGooglePlayServicesAvailable(context);
-        if (resultCode != ConnectionResult.SUCCESS) {
-//            if (apiAvailability.isUserResolvableError(resultCode)) {
-//                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
-//                        .show();
-//            } else {
-//                Logger.d("GSM This device is not supported.");
-//            }
-            Logger.d("GSM This device is not supported.");
+        try {
+            boolean support = PkgUtil.isPkgInstalled(context, "com.google.android.gms");
+            Logger.d("GSM This device is supported: " + support);
+            return true;
+        } catch (Throwable e) {
             return false;
         }
-        Logger.d("GSM This device is supported.");
-        return true;
     }
 }

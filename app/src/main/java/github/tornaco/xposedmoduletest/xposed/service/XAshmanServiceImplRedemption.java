@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.service.notification.StatusBarNotification;
 import android.view.KeyEvent;
 
 import java.util.List;
@@ -20,6 +21,7 @@ import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IBooleanCallback1;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
+import github.tornaco.xposedmoduletest.IServiceControl;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
@@ -30,6 +32,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.OpsSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.service.am.AMSProxy;
+import github.tornaco.xposedmoduletest.xposed.service.am.ActiveServicesProxy;
 import github.tornaco.xposedmoduletest.xposed.service.am.UsageStatsServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerServiceProxy;
@@ -75,49 +78,54 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
-    public boolean isInRedemptionMode() throws RemoteException {
+    public boolean isInRedemptionMode() {
         return true; // Yes!!!
     }
 
 
     @Override
-    public boolean hasSystemError() throws RemoteException {
+    public boolean hasSystemError() {
         return true;  // Yes!!!
     }
 
     @Override
-    public void cleanUpSystemErrorTraces() throws RemoteException {
+    public void cleanUpSystemErrorTraces() {
         // Noop.
     }
 
     @Override
-    public void addAppLockWhiteListActivity(String[] activities) throws RemoteException {
+    public void addAppLockWhiteListActivity(String[] activities) {
 
     }
 
     @Override
-    public boolean isAutoAddBlackNotificationEnabled() throws RemoteException {
+    public boolean isAutoAddBlackNotificationEnabled() {
         return false;
     }
 
     @Override
-    public void setAutoAddBlackNotificationEnabled(boolean value) throws RemoteException {
+    public void setAutoAddBlackNotificationEnabled(boolean value) {
 
     }
 
     @Override
-    public boolean isOptFeatureEnabled(String tag) throws RemoteException {
+    public boolean isOptFeatureEnabled(String tag) {
         return false;
     }
 
     @Override
-    public void setOptFeatureEnabled(String tag, boolean enable) throws RemoteException {
+    public void setOptFeatureEnabled(String tag, boolean enable) {
 
     }
 
     @Override
     public int getRecentTaskExcludeSetting(ComponentName c) {
         return XAshmanManager.ExcludeRecentSetting.NONE;
+    }
+
+    @Override
+    public boolean checkStartProcess(ApplicationInfo applicationInfo, String hostType, String hostName) {
+        return true; // ALLOW
     }
 
     @Override
@@ -131,241 +139,296 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
-    public void onNotificationPosted() {
+    public void onNotificationPosted(StatusBarNotification sbn) {
 
     }
 
     @Override
-    public void setRecentTaskExcludeSetting(ComponentName c, int setting) throws RemoteException {
+    public void onNotificationRemoved(StatusBarNotification sbn) {
 
     }
 
     @Override
-    public int getAppConfigOverlayIntSetting(String appPackageName, String tag) throws RemoteException {
+    public void setRecentTaskExcludeSetting(ComponentName c, int setting) {
+
+    }
+
+    @Override
+    public int getAppConfigOverlayIntSetting(String appPackageName, String tag) {
         return XAshmanManager.ConfigOverlays.NONE;
     }
 
     @Override
-    public void setAppConfigOverlayIntSetting(String appPackageName, String tag, int value) throws RemoteException {
+    public void setAppConfigOverlayIntSetting(String appPackageName, String tag, int value) {
 
     }
 
     @Override
-    public void injectPowerEvent() throws RemoteException {
+    public void injectPowerEvent() {
 
     }
 
     @Override
-    public String getServiceStarter(ComponentName service) throws RemoteException {
+    public String getServiceStarter(ComponentName service) {
         return null;
     }
 
     @Override
-    public boolean isInactiveAppInsteadOfKillPreferred() throws RemoteException {
+    public boolean isInactiveAppInsteadOfKillPreferred() {
         return false;
     }
 
     @Override
-    public void setInactiveAppInsteadOfKillPreferred(boolean prefer) throws RemoteException {
+    public void setInactiveAppInsteadOfKillPreferred(boolean prefer) {
 
     }
 
     @Override
-    public void mockSystemDead(long delay) throws RemoteException {
+    public void mockSystemDead(long delay) {
 
     }
 
     @Override
-    public void clearModuleSettings(String moduleVar) throws RemoteException {
+    public void clearModuleSettings(String moduleVar) {
 
     }
 
     @Override
-    public boolean isDisableMotionEnabled() throws RemoteException {
+    public boolean isDisableMotionEnabled() {
         return false;
     }
 
     @Override
-    public void setDisableMotionEnabled(boolean enable) throws RemoteException {
+    public void setDisableMotionEnabled(boolean enable) {
 
     }
 
     @Override
-    public boolean isGCMSupportPackage(String pkg) throws RemoteException {
+    public boolean isGCMSupportPackage(String pkg) {
         return false;
     }
 
     @Override
-    public boolean isShowAppProcessUpdateNotificationEnabled() throws RemoteException {
+    public boolean isShowAppProcessUpdateNotificationEnabled() {
         return false;
     }
 
     @Override
-    public void setShowAppProcessUpdateNotificationEnabled(boolean enabled) throws RemoteException {
+    public void setShowAppProcessUpdateNotificationEnabled(boolean enabled) {
 
     }
 
     @Override
-    public boolean isStartRuleEnabled() throws RemoteException {
+    public boolean isStartRuleEnabled() {
         return false;
     }
 
     @Override
-    public void setStartRuleEnabled(boolean enabled) throws RemoteException {
+    public void setStartRuleEnabled(boolean enabled) {
     }
 
     @Override
-    public boolean isPushMessageHandlerEnabled(String handlerTag) throws RemoteException {
+    public boolean isPushMessageHandlerEnabled(String handlerTag) {
         return false;
     }
 
     @Override
-    public void setPushMessageHandlerEnabled(String handlerTag, boolean enabled) throws RemoteException {
+    public void setPushMessageHandlerEnabled(String handlerTag, boolean enabled) {
 
     }
 
     @Override
-    public boolean isPushMessageHandlerShowContentEnabled(String handlerTag) throws RemoteException {
+    public boolean isPushMessageHandlerShowContentEnabled(String handlerTag) {
         return false;
     }
 
     @Override
-    public void setPushMessageHandlerShowContentEnabled(String handlerTag, boolean enabled) throws RemoteException {
+    public void setPushMessageHandlerShowContentEnabled(String handlerTag, boolean enabled) {
 
     }
 
     @Override
-    public boolean isPushMessageHandlerNotificationSoundEnabled(String handlerTag) throws RemoteException {
+    public boolean isPushMessageHandlerNotificationSoundEnabled(String handlerTag) {
         return false;
     }
 
     @Override
-    public void setPushMessageHandlerNotificationSoundEnabled(String handlerTag, boolean enabled) throws RemoteException {
+    public void setPushMessageHandlerNotificationSoundEnabled(String handlerTag, boolean enabled) {
 
     }
 
     @Override
-    public boolean isPushMessageHandlerNotificationVibrateEnabled(String handlerTag) throws RemoteException {
+    public boolean isPushMessageHandlerNotificationVibrateEnabled(String handlerTag) {
         return false;
     }
 
     @Override
-    public void setPushMessageHandlerNotificationVibrateEnabled(String handlerTag, boolean enabled) throws RemoteException {
+    public void setPushMessageHandlerNotificationVibrateEnabled(String handlerTag, boolean enabled) {
 
     }
 
     @Override
-    public boolean isPushMessageHandlerMessageNotificationByAppEnabled(String pkg) throws RemoteException {
+    public boolean isPushMessageHandlerMessageNotificationByAppEnabled(String pkg) {
         return false;
     }
 
     @Override
-    public void setPushMessageHandlerMessageNotificationByAppEnabled(String pkg, boolean enabled) throws RemoteException {
+    public void setPushMessageHandlerMessageNotificationByAppEnabled(String pkg, boolean enabled) {
 
     }
 
     @Override
-    public boolean isPushMessageHandleEnabled() throws RemoteException {
+    public boolean isPushMessageHandleEnabled() {
         return false;
     }
 
     @Override
-    public void setPushMessageHandleEnabled(boolean enabled) throws RemoteException {
+    public void setPushMessageHandleEnabled(boolean enabled) {
 
     }
 
     @Override
-    public boolean isHandlingPushMessageIntent(String packageName) throws RemoteException {
+    public boolean isHandlingPushMessageIntent(String packageName) {
         return false;
     }
 
     @Override
-    public boolean showToast(String message) throws RemoteException {
+    public boolean showToast(String message) {
         return false;
     }
 
     @Override
-    public List<BlockRecord2> getStartRecordsForPackage(String pkg) throws RemoteException {
+    public List<BlockRecord2> getStartRecordsForPackage(String pkg) {
         return null;
     }
 
     @Override
-    public void clearStartRecordsForPackage(String pkg) throws RemoteException {
+    public void clearStartRecordsForPackage(String pkg) {
 
     }
 
     @Override
-    public boolean isWakeupOnNotificationEnabled() throws RemoteException {
+    public boolean isWakeupOnNotificationEnabled() {
         return false;
     }
 
     @Override
-    public void setWakeupOnNotificationEnabled(boolean enable) throws RemoteException {
+    public void setWakeupOnNotificationEnabled(boolean enable) {
 
     }
 
     @Override
-    public void createMultipleProfile() throws RemoteException {
-
-    }
-
-    @Override
-    public boolean installAppToMultipleAppsUser(String pkgName) throws RemoteException {
+    public boolean addOrRemoveLazyRules(String rule, boolean add) {
         return false;
     }
 
     @Override
-    public void startActivityAsUser(Intent intent, int userId) throws RemoteException {
-
-    }
-
-    @Override
-    public void launchMultipleAppsForPackage(String packageName) throws RemoteException {
-
-    }
-
-    @Override
-    public void leaveRedemptionMode() throws RemoteException {
-        RepoProxy.deleteFileIndicator(SubModuleManager.REDEMPTION);
-    }
-
-    @Override
-    public void enterRedemptionMode() throws RemoteException {
-        RepoProxy.createFileIndicator(SubModuleManager.REDEMPTION);
-    }
-
-    @Override
-    public boolean isSELinuxEnabled() throws RemoteException {
-        return SELinuxHelper.isSELinuxEnabled();
-    }
-
-    @Override
-    public boolean isSELinuxEnforced() throws RemoteException {
-        return SELinuxHelper.isSELinuxEnforced();
-    }
-
-    @Override
-    public void setSelinuxEnforce(boolean enforce) throws RemoteException {
-
-    }
-
-    @Override
-    public boolean isPowerSaveModeEnabled() throws RemoteException {
-        return false;
-    }
-
-    @Override
-    public void setPowerSaveModeEnabled(boolean enable) throws RemoteException {
-
-    }
-
-    @Override
-    public String[] getStartRules() throws RemoteException {
+    public String[] getLazyRules() {
         return new String[0];
     }
 
     @Override
-    public boolean addOrRemoveStartRules(String rule, boolean add) throws RemoteException {
+    public boolean isLazyRuleEnabled() {
+        return false;
+    }
+
+    @Override
+    public void setLazyRuleEnabled(boolean enable) {
+
+    }
+
+    @Override
+    public void createMultipleProfile() {
+
+    }
+
+    @Override
+    public boolean installAppToMultipleAppsUser(String pkgName) {
+        return false;
+    }
+
+    @Override
+    public void startActivityAsUser(Intent intent, int userId) {
+
+    }
+
+    @Override
+    public void launchMultipleAppsForPackage(String packageName) {
+
+    }
+
+    @Override
+    public void mockPushMessageReceived(String pkg, String message) throws RemoteException {
+
+    }
+
+    @Override
+    public void registerController(IServiceControl control) throws RemoteException {
+
+    }
+
+    @Override
+    public void unRegisterController(IServiceControl control) throws RemoteException {
+
+    }
+
+    @Override
+    public void stopService(Intent serviceIntent) throws RemoteException {
+
+    }
+
+    @Override
+    public void setAppServiceLazyControlSolution(int solutionFlags, boolean enabled) throws RemoteException {
+
+    }
+
+    @Override
+    public boolean isAppServiceLazyControlSolutionEnable(int solutionFlags) throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public void leaveRedemptionMode() {
+        RepoProxy.deleteFileIndicator(SubModuleManager.REDEMPTION);
+    }
+
+    @Override
+    public void enterRedemptionMode() {
+        RepoProxy.createFileIndicator(SubModuleManager.REDEMPTION);
+    }
+
+    @Override
+    public boolean isSELinuxEnabled() {
+        return SELinuxHelper.isSELinuxEnabled();
+    }
+
+    @Override
+    public boolean isSELinuxEnforced() {
+        return SELinuxHelper.isSELinuxEnforced();
+    }
+
+    @Override
+    public void setSelinuxEnforce(boolean enforce) {
+
+    }
+
+    @Override
+    public boolean isPowerSaveModeEnabled() {
+        return false;
+    }
+
+    @Override
+    public void setPowerSaveModeEnabled(boolean enable) {
+
+    }
+
+    @Override
+    public String[] getStartRules() {
+        return new String[0];
+    }
+
+    @Override
+    public boolean addOrRemoveStartRules(String rule, boolean add) {
         return false;
     }
 
@@ -437,6 +500,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public void reportActivityLaunching(Intent intent, String reason) {
+
+    }
+
+    @Override
     public Intent checkIntent(Intent from) {
         return throwNoImpl();
     }
@@ -504,19 +572,24 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public void attachActiveServices(ActiveServicesProxy proxy) {
+
+    }
+
+    @Override
     public boolean checkService(Intent service, String callingPackage, int callingPid,
-                                int callingUid, boolean callingFromFg) throws RemoteException {
+                                int callingUid, boolean callingFromFg) {
         return false;
     }
 
     @Override
-    public boolean checkRestartService(String packageName, ComponentName componentName) throws RemoteException {
+    public boolean checkRestartService(String packageName, ComponentName componentName) {
         return false;
     }
 
     @Override
     public boolean checkBroadcastDeliver(Intent intent, String callerPackage,
-                                         int callingPid, int callingUid) throws RemoteException {
+                                         int callingPid, int callingUid) {
         return false;
     }
 
@@ -566,962 +639,962 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
-    public void clearProcess(IProcessClearListener listener) throws RemoteException {
+    public void clearProcess(IProcessClearListener listener) {
 
     }
 
     @Override
-    public void setLockKillDelay(long delay) throws RemoteException {
+    public void setLockKillDelay(long delay) {
 
     }
 
     @Override
-    public long getLockKillDelay() throws RemoteException {
+    public long getLockKillDelay() {
         return 0;
     }
 
     @Override
-    public void setWhiteSysAppEnabled(boolean enabled) throws RemoteException {
+    public void setWhiteSysAppEnabled(boolean enabled) {
 
     }
 
     @Override
-    public boolean isWhiteSysAppEnabled() throws RemoteException {
+    public boolean isWhiteSysAppEnabled() {
         return false;
     }
 
     @Override
-    public void setBootBlockEnabled(boolean enabled) throws RemoteException {
+    public void setBootBlockEnabled(boolean enabled) {
 
     }
 
     @Override
-    public boolean isBlockBlockEnabled() throws RemoteException {
+    public boolean isBlockBlockEnabled() {
         return false;
     }
 
     @Override
-    public void setStartBlockEnabled(boolean enabled) throws RemoteException {
+    public void setStartBlockEnabled(boolean enabled) {
 
     }
 
     @Override
-    public boolean isStartBlockEnabled() throws RemoteException {
+    public boolean isStartBlockEnabled() {
         return false;
     }
 
     @Override
-    public void setLockKillEnabled(boolean enabled) throws RemoteException {
+    public void setLockKillEnabled(boolean enabled) {
 
     }
 
     @Override
-    public boolean isLockKillEnabled() throws RemoteException {
+    public boolean isLockKillEnabled() {
         return false;
     }
 
     @Override
-    public void setRFKillEnabled(boolean enabled) throws RemoteException {
+    public void setRFKillEnabled(boolean enabled) {
 
     }
 
     @Override
-    public boolean isRFKillEnabled() throws RemoteException {
+    public boolean isRFKillEnabled() {
         return false;
     }
 
     @Override
-    public void setGreeningEnabled(boolean enabled) throws RemoteException {
+    public void setGreeningEnabled(boolean enabled) {
 
     }
 
     @Override
-    public boolean isGreeningEnabled() throws RemoteException {
+    public boolean isGreeningEnabled() {
         return false;
     }
 
     @Override
-    public boolean checkService(Intent intent, ComponentName servicePkgName, int callerUid) throws RemoteException {
+    public boolean checkService(Intent intent, ComponentName servicePkgName, int callerUid) {
         return false;
     }
 
     @Override
-    public boolean checkBroadcast(Intent action, int receiverUid, int callerUid) throws RemoteException {
+    public boolean checkBroadcast(Intent action, int receiverUid, int callerUid) {
         return false;
     }
 
     @Override
-    public List<BlockRecord2> getBlockRecords() throws RemoteException {
+    public List<BlockRecord2> getBlockRecords() {
         return null;
     }
 
     @Override
-    public void clearBlockRecords() throws RemoteException {
+    public void clearBlockRecords() {
 
     }
 
     @Override
-    public void setComponentEnabledSetting(ComponentName componentName, int newState, int flags) throws RemoteException {
+    public void setComponentEnabledSetting(ComponentName componentName, int newState, int flags) {
 
     }
 
     @Override
-    public int getComponentEnabledSetting(ComponentName componentName) throws RemoteException {
+    public int getComponentEnabledSetting(ComponentName componentName) {
         return 0;
     }
 
     @Override
-    public int getApplicationEnabledSetting(String packageName) throws RemoteException {
+    public int getApplicationEnabledSetting(String packageName) {
         return 0;
     }
 
     @Override
-    public void setApplicationEnabledSetting(String packageName, int newState, int flags, boolean tmp) throws RemoteException {
+    public void setApplicationEnabledSetting(String packageName, int newState, int flags, boolean tmp) {
 
     }
 
     @Override
-    public void watch(IAshmanWatcher w) throws RemoteException {
+    public void watch(IAshmanWatcher w) {
 
     }
 
     @Override
-    public void unWatch(IAshmanWatcher w) throws RemoteException {
+    public void unWatch(IAshmanWatcher w) {
 
     }
 
     @Override
-    public void setNetworkPolicyUidPolicy(int uid, int policy) throws RemoteException {
+    public void setNetworkPolicyUidPolicy(int uid, int policy) {
 
     }
 
     @Override
-    public void restrictAppOnData(int uid, boolean restrict) throws RemoteException {
+    public void restrictAppOnData(int uid, boolean restrict) {
 
     }
 
     @Override
-    public void restrictAppOnWifi(int uid, boolean restrict) throws RemoteException {
+    public void restrictAppOnWifi(int uid, boolean restrict) {
 
     }
 
     @Override
-    public boolean isRestrictOnData(int uid) throws RemoteException {
+    public boolean isRestrictOnData(int uid) {
         return false;
     }
 
     @Override
-    public boolean isRestrictOnWifi(int uid) throws RemoteException {
+    public boolean isRestrictOnWifi(int uid) {
         return false;
     }
 
     @Override
-    public void restart() throws RemoteException {
+    public void restart() {
 
     }
 
     @Override
-    public void setCompSettingBlockEnabled(boolean enabled) throws RemoteException {
+    public void setCompSettingBlockEnabled(boolean enabled) {
 
     }
 
     @Override
-    public boolean isCompSettingBlockEnabledEnabled() throws RemoteException {
+    public boolean isCompSettingBlockEnabledEnabled() {
         return false;
     }
 
     @Override
-    public String[] getWhiteListApps(int filterOptions) throws RemoteException {
+    public String[] getWhiteListApps(int filterOptions) {
         return new String[0];
     }
 
     @Override
-    public String[] getInstalledApps(int filterOptions) throws RemoteException {
+    public String[] getInstalledApps(int filterOptions) {
         return new String[0];
     }
 
     @Override
-    public String[] getBootBlockApps(boolean block) throws RemoteException {
+    public String[] getBootBlockApps(boolean block) {
         return new String[0];
     }
 
     @Override
-    public void addOrRemoveBootBlockApps(String[] packages, int op) throws RemoteException {
+    public void addOrRemoveBootBlockApps(String[] packages, int op) {
 
     }
 
     @Override
-    public String[] getStartBlockApps(boolean block) throws RemoteException {
+    public String[] getStartBlockApps(boolean block) {
         return new String[0];
     }
 
     @Override
-    public void addOrRemoveStartBlockApps(String[] packages, int op) throws RemoteException {
+    public void addOrRemoveStartBlockApps(String[] packages, int op) {
 
     }
 
     @Override
-    public String[] getLKApps(boolean kill) throws RemoteException {
+    public String[] getLKApps(boolean kill) {
         return new String[0];
     }
 
     @Override
-    public void addOrRemoveLKApps(String[] packages, int op) throws RemoteException {
+    public void addOrRemoveLKApps(String[] packages, int op) {
 
     }
 
     @Override
-    public String[] getRFKApps(boolean kill) throws RemoteException {
+    public String[] getRFKApps(boolean kill) {
         return new String[0];
     }
 
     @Override
-    public void addOrRemoveRFKApps(String[] packages, int op) throws RemoteException {
+    public void addOrRemoveRFKApps(String[] packages, int op) {
 
     }
 
     @Override
-    public String[] getGreeningApps(boolean greening) throws RemoteException {
+    public String[] getGreeningApps(boolean greening) {
         return new String[0];
     }
 
     @Override
-    public void addOrRemoveGreeningApps(String[] packages, int op) throws RemoteException {
+    public void addOrRemoveGreeningApps(String[] packages, int op) {
 
     }
 
     @Override
-    public boolean isPackageGreening(String packageName) throws RemoteException {
+    public boolean isPackageGreening(String packageName) {
         return false;
     }
 
     @Override
-    public boolean isUidGreening(int uid) throws RemoteException {
+    public boolean isUidGreening(int uid) {
         return false;
     }
 
     @Override
-    public void unInstallPackage(String pkg, IPackageUninstallCallback callback) throws RemoteException {
+    public void unInstallPackage(String pkg, IPackageUninstallCallback callback) {
 
     }
 
     @Override
-    public boolean isLockKillDoNotKillAudioEnabled() throws RemoteException {
+    public boolean isLockKillDoNotKillAudioEnabled() {
         return false;
     }
 
     @Override
-    public void setLockKillDoNotKillAudioEnabled(boolean enabled) throws RemoteException {
+    public void setLockKillDoNotKillAudioEnabled(boolean enabled) {
 
     }
 
     @Override
-    public int getControlMode() throws RemoteException {
+    public int getControlMode() {
         return 0;
     }
 
     @Override
-    public void setControlMode(int mode) throws RemoteException {
+    public void setControlMode(int mode) {
 
     }
 
     @Override
-    public String getBuildSerial() throws RemoteException {
+    public String getBuildSerial() {
         return null;
     }
 
     @Override
-    public boolean isAutoAddBlackEnabled() throws RemoteException {
+    public boolean isAutoAddBlackEnabled() {
         return false;
     }
 
     @Override
-    public void setAutoAddBlackEnable(boolean enable) throws RemoteException {
+    public void setAutoAddBlackEnable(boolean enable) {
 
     }
 
     @Override
-    public void forceReloadPackages() throws RemoteException {
+    public void forceReloadPackages() {
 
     }
 
     @Override
-    public void setPermissionControlEnabled(boolean enabled) throws RemoteException {
+    public void setPermissionControlEnabled(boolean enabled) {
 
     }
 
     @Override
-    public boolean isPermissionControlEnabled() throws RemoteException {
+    public boolean isPermissionControlEnabled() {
         return false;
     }
 
     @Override
-    public int getPermissionControlBlockModeForPkg(int code, String pkg, boolean log, String[] payload) throws RemoteException {
+    public int getPermissionControlBlockModeForPkg(int code, String pkg, boolean log, String[] payload) {
         return 0;
     }
 
     @Override
-    public int getPermissionControlBlockModeForUid(int code, int uid, boolean log, String[] payload) throws RemoteException {
+    public int getPermissionControlBlockModeForUid(int code, int uid, boolean log, String[] payload) {
         return 0;
     }
 
     @Override
-    public void setPermissionControlBlockModeForPkg(int code, String pkg, int mode) throws RemoteException {
+    public void setPermissionControlBlockModeForPkg(int code, String pkg, int mode) {
 
     }
 
     @Override
-    public void setUserDefinedAndroidId(String id) throws RemoteException {
+    public void setUserDefinedAndroidId(String id) {
 
     }
 
     @Override
-    public void setUserDefinedDeviceId(String id) throws RemoteException {
+    public void setUserDefinedDeviceId(String id) {
 
     }
 
     @Override
-    public void setUserDefinedLine1Number(String id) throws RemoteException {
+    public void setUserDefinedLine1Number(String id) {
 
     }
 
     @Override
-    public String getAndroidId() throws RemoteException {
+    public String getAndroidId() {
         return null;
     }
 
     @Override
-    public String getDeviceId() throws RemoteException {
+    public String getDeviceId() {
         return null;
     }
 
     @Override
-    public String getLine1Number() throws RemoteException {
+    public String getLine1Number() {
         return null;
     }
 
     @Override
-    public String getUserDefinedLine1Number() throws RemoteException {
+    public String getUserDefinedLine1Number() {
         return null;
     }
 
     @Override
-    public String getUserDefinedDeviceId() throws RemoteException {
+    public String getUserDefinedDeviceId() {
         return null;
     }
 
     @Override
-    public String getUserDefinedAndroidId() throws RemoteException {
+    public String getUserDefinedAndroidId() {
         return null;
     }
 
     @Override
-    public boolean isPackageInPrivacyList(String pkg) throws RemoteException {
+    public boolean isPackageInPrivacyList(String pkg) {
         return false;
     }
 
     @Override
-    public boolean isUidInPrivacyList(int uid) throws RemoteException {
+    public boolean isUidInPrivacyList(int uid) {
         return false;
     }
 
     @Override
-    public int getPrivacyAppsCount() throws RemoteException {
+    public int getPrivacyAppsCount() {
         return 0;
     }
 
     @Override
-    public String[] getPrivacyList(boolean priv) throws RemoteException {
+    public String[] getPrivacyList(boolean priv) {
         return new String[0];
     }
 
     @Override
-    public void addOrRemoveFromPrivacyList(String pkg, int op) throws RemoteException {
+    public void addOrRemoveFromPrivacyList(String pkg, int op) {
 
     }
 
     @Override
-    public boolean showFocusedActivityInfoEnabled() throws RemoteException {
+    public boolean showFocusedActivityInfoEnabled() {
         return false;
     }
 
     @Override
-    public void setShowFocusedActivityInfoEnabled(boolean enabled) throws RemoteException {
+    public void setShowFocusedActivityInfoEnabled(boolean enabled) {
 
     }
 
     @Override
-    public void restoreDefaultSettings() throws RemoteException {
+    public void restoreDefaultSettings() {
 
     }
 
     @Override
-    public List<ActivityManager.RunningServiceInfo> getRunningServices(int max) throws RemoteException {
+    public List<ActivityManager.RunningServiceInfo> getRunningServices(int max) {
         return null;
     }
 
     @Override
-    public List<ActivityManager.RunningAppProcessInfo> getRunningAppProcesses() throws RemoteException {
+    public List<ActivityManager.RunningAppProcessInfo> getRunningAppProcesses() {
         return null;
     }
 
     @Override
-    public void writeSystemSettings(String key, String value) throws RemoteException {
+    public void writeSystemSettings(String key, String value) {
 
     }
 
     @Override
-    public String getSystemSettings(String key) throws RemoteException {
+    public String getSystemSettings(String key) {
         return null;
     }
 
     @Override
-    public long[] getProcessPss(int[] pids) throws RemoteException {
+    public long[] getProcessPss(int[] pids) {
         return new long[0];
     }
 
     @Override
-    public boolean onApplicationUncaughtException(String packageName, String thread, String exception, String trace) throws RemoteException {
+    public boolean onApplicationUncaughtException(String packageName, String thread, String exception, String trace) {
         return false;
     }
 
     @Override
-    public boolean isAppCrashDumpEnabled() throws RemoteException {
+    public boolean isAppCrashDumpEnabled() {
         return false;
     }
 
     @Override
-    public void setAppCrashDumpEnabled(boolean enabled) throws RemoteException {
+    public void setAppCrashDumpEnabled(boolean enabled) {
 
     }
 
     @Override
-    public void registerOnTopPackageChangeListener(ITopPackageChangeListener listener) throws RemoteException {
+    public void registerOnTopPackageChangeListener(ITopPackageChangeListener listener) {
 
     }
 
     @Override
-    public void unRegisterOnTopPackageChangeListener(ITopPackageChangeListener listener) throws RemoteException {
+    public void unRegisterOnTopPackageChangeListener(ITopPackageChangeListener listener) {
 
     }
 
     @Override
-    public boolean isLazyModeEnabled() throws RemoteException {
+    public boolean isLazyModeEnabled() {
         return false;
     }
 
     @Override
-    public boolean isLazyModeEnabledForPackage(String pkg) throws RemoteException {
+    public boolean isLazyModeEnabledForPackage(String pkg) {
         return false;
     }
 
     @Override
-    public void setLazyModeEnabled(boolean enabled) throws RemoteException {
+    public void setLazyModeEnabled(boolean enabled) {
 
     }
 
     @Override
-    public String[] getLazyApps(boolean lazy) throws RemoteException {
+    public String[] getLazyApps(boolean lazy) {
         return new String[0];
     }
 
     @Override
-    public void addOrRemoveLazyApps(String[] packages, int op) throws RemoteException {
+    public void addOrRemoveLazyApps(String[] packages, int op) {
 
     }
 
     @Override
-    public void setLPBKEnabled(boolean enabled) throws RemoteException {
+    public void setLPBKEnabled(boolean enabled) {
 
     }
 
     @Override
-    public boolean isLPBKEnabled() throws RemoteException {
+    public boolean isLPBKEnabled() {
         return false;
     }
 
     @Override
-    public void onTaskRemoving(int callingUid, int taskId) throws RemoteException {
+    public void onTaskRemoving(int callingUid, int taskId) {
 
     }
 
     @Override
-    public void addOrRemoveAppFocusAction(String pkg, String[] actions, boolean add) throws RemoteException {
+    public void addOrRemoveAppFocusAction(String pkg, String[] actions, boolean add) {
 
     }
 
     @Override
-    public String[] getAppFocusActionPackages() throws RemoteException {
+    public String[] getAppFocusActionPackages() {
         return new String[0];
     }
 
     @Override
-    public String[] getAppFocusActions(String pkg) throws RemoteException {
+    public String[] getAppFocusActions(String pkg) {
         return new String[0];
     }
 
     @Override
-    public void addOrRemoveAppUnFocusAction(String pkg, String[] actions, boolean add) throws RemoteException {
+    public void addOrRemoveAppUnFocusAction(String pkg, String[] actions, boolean add) {
 
     }
 
     @Override
-    public String[] getAppUnFocusActionPackages() throws RemoteException {
+    public String[] getAppUnFocusActionPackages() {
         return new String[0];
     }
 
     @Override
-    public String[] getAppUnFocusActions(String pkg) throws RemoteException {
+    public String[] getAppUnFocusActions(String pkg) {
         return new String[0];
     }
 
     @Override
-    public void setDozeEnabled(boolean enable) throws RemoteException {
+    public void setDozeEnabled(boolean enable) {
 
     }
 
     @Override
-    public boolean isDozeEnabled() throws RemoteException {
+    public boolean isDozeEnabled() {
         return false;
     }
 
     @Override
-    public void setForceDozeEnabled(boolean enable) throws RemoteException {
+    public void setForceDozeEnabled(boolean enable) {
 
     }
 
     @Override
-    public boolean isForceDozeEnabled() throws RemoteException {
+    public boolean isForceDozeEnabled() {
         return false;
     }
 
     @Override
-    public long getLastDozeEnterTimeMills() throws RemoteException {
+    public long getLastDozeEnterTimeMills() {
         return 0;
     }
 
     @Override
-    public DozeEvent getLastDozeEvent() throws RemoteException {
+    public DozeEvent getLastDozeEvent() {
         return null;
     }
 
     @Override
-    public long getDozeDelayMills() throws RemoteException {
+    public long getDozeDelayMills() {
         return 0;
     }
 
     @Override
-    public void setDozeDelayMills(long delayMills) throws RemoteException {
+    public void setDozeDelayMills(long delayMills) {
 
     }
 
     @Override
-    public void setDoNotKillSBNEnabled(boolean enable, String module) throws RemoteException {
+    public void setDoNotKillSBNEnabled(boolean enable, String module) {
 
     }
 
     @Override
-    public boolean isDoNotKillSBNEnabled(String module) throws RemoteException {
+    public boolean isDoNotKillSBNEnabled(String module) {
         return false;
     }
 
     @Override
-    public void setTaskRemoveKillEnabled(boolean enable) throws RemoteException {
+    public void setTaskRemoveKillEnabled(boolean enable) {
 
     }
 
     @Override
-    public boolean isTaskRemoveKillEnabled() throws RemoteException {
+    public boolean isTaskRemoveKillEnabled() {
         return false;
     }
 
     @Override
-    public String[] getTRKApps(boolean kill) throws RemoteException {
+    public String[] getTRKApps(boolean kill) {
         return new String[0];
     }
 
     @Override
-    public void addOrRemoveTRKApps(String[] packages, int op) throws RemoteException {
+    public void addOrRemoveTRKApps(String[] packages, int op) {
 
     }
 
     @Override
-    public List<DozeEvent> getDozeEventHistory() throws RemoteException {
+    public List<DozeEvent> getDozeEventHistory() {
         return null;
     }
 
     @Override
-    public void setPrivacyEnabled(boolean enable) throws RemoteException {
+    public void setPrivacyEnabled(boolean enable) {
 
     }
 
     @Override
-    public boolean isPrivacyEnabled() throws RemoteException {
+    public boolean isPrivacyEnabled() {
         return false;
     }
 
     @Override
-    public String[] getPluginApps() throws RemoteException {
+    public String[] getPluginApps() {
         return new String[0];
     }
 
     @Override
-    public boolean isAppInPluginList(String pkg) throws RemoteException {
+    public boolean isAppInPluginList(String pkg) {
         return false;
     }
 
     @Override
-    public void addOrRemovePluginApp(String appPackageName, boolean add) throws RemoteException {
+    public void addOrRemovePluginApp(String appPackageName, boolean add) {
 
     }
 
     @Override
-    public boolean hasNotificationForPackage(String pkg) throws RemoteException {
+    public boolean hasNotificationForPackage(String pkg) {
         return false;
     }
 
     @Override
-    public int getAppLevel(String pkg) throws RemoteException {
+    public int getAppLevel(String pkg) {
         return 0;
     }
 
     @Override
-    public String packageForTaskId(int taskId) throws RemoteException {
+    public String packageForTaskId(int taskId) {
         return null;
     }
 
     @Override
-    public boolean isAppLockEnabled() throws RemoteException {
+    public boolean isAppLockEnabled() {
         return false;
     }
 
     @Override
-    public void setAppLockEnabled(boolean enabled) throws RemoteException {
+    public void setAppLockEnabled(boolean enabled) {
 
     }
 
     @Override
-    public boolean isBlurEnabled() throws RemoteException {
+    public boolean isBlurEnabled() {
         return false;
     }
 
     @Override
-    public boolean isBlurEnabledForPackage(String packageName) throws RemoteException {
+    public boolean isBlurEnabledForPackage(String packageName) {
         return false;
     }
 
     @Override
-    public void setBlurEnabled(boolean enabled) throws RemoteException {
+    public void setBlurEnabled(boolean enabled) {
 
     }
 
     @Override
-    public int getBlurRadius() throws RemoteException {
+    public int getBlurRadius() {
         return 0;
     }
 
     @Override
-    public void setBlurRadius(int r) throws RemoteException {
+    public void setBlurRadius(int r) {
 
     }
 
     @Override
-    public boolean isUninstallInterruptEnabled() throws RemoteException {
+    public boolean isUninstallInterruptEnabled() {
         return false;
     }
 
     @Override
-    public void setUninstallInterruptEnabled(boolean enabled) throws RemoteException {
+    public void setUninstallInterruptEnabled(boolean enabled) {
 
     }
 
     @Override
-    public void setVerifySettings(VerifySettings settings) throws RemoteException {
+    public void setVerifySettings(VerifySettings settings) {
 
     }
 
     @Override
-    public VerifySettings getVerifySettings() throws RemoteException {
+    public VerifySettings getVerifySettings() {
         return null;
     }
 
     @Override
-    public void setResult(int transactionID, int res) throws RemoteException {
+    public void setResult(int transactionID, int res) {
 
     }
 
     @Override
-    public boolean isTransactionValid(int transactionID) throws RemoteException {
+    public boolean isTransactionValid(int transactionID) {
         return false;
     }
 
     @Override
-    public void mockCrash() throws RemoteException {
+    public void mockCrash() {
 
     }
 
     @Override
-    public void setVerifierPackage(String pkg) throws RemoteException {
+    public void setVerifierPackage(String pkg) {
 
     }
 
     @Override
-    public void injectHomeEvent() throws RemoteException {
+    public void injectHomeEvent() {
 
     }
 
     @Override
-    public void setDebug(boolean debug) throws RemoteException {
+    public void setDebug(boolean debug) {
 
     }
 
     @Override
-    public boolean isDebug() throws RemoteException {
+    public boolean isDebug() {
         return false;
     }
 
     @Override
-    public void onActivityPackageResume(String pkg) throws RemoteException {
+    public void onActivityPackageResume(String pkg) {
 
     }
 
     @Override
-    public boolean isInterruptFPEventVBEnabled(int event) throws RemoteException {
+    public boolean isInterruptFPEventVBEnabled(int event) {
         return false;
     }
 
     @Override
-    public void setInterruptFPEventVBEnabled(int event, boolean enabled) throws RemoteException {
+    public void setInterruptFPEventVBEnabled(int event, boolean enabled) {
 
     }
 
     @Override
-    public void addOrRemoveComponentReplacement(ComponentName from, ComponentName to, boolean add) throws RemoteException {
+    public void addOrRemoveComponentReplacement(ComponentName from, ComponentName to, boolean add) {
 
     }
 
     @Override
-    public Map getComponentReplacements() throws RemoteException {
+    public Map getComponentReplacements() {
         return null;
     }
 
     @Override
-    public String[] getLockApps(boolean lock) throws RemoteException {
+    public String[] getLockApps(boolean lock) {
         return new String[0];
     }
 
     @Override
-    public void addOrRemoveLockApps(String[] packages, boolean add) throws RemoteException {
+    public void addOrRemoveLockApps(String[] packages, boolean add) {
 
     }
 
     @Override
-    public String[] getBlurApps(boolean lock) throws RemoteException {
+    public String[] getBlurApps(boolean lock) {
         return new String[0];
     }
 
     @Override
-    public void addOrRemoveBlurApps(String[] packages, boolean blur) throws RemoteException {
+    public void addOrRemoveBlurApps(String[] packages, boolean blur) {
 
     }
 
     @Override
-    public String[] getUPApps(boolean lock) throws RemoteException {
+    public String[] getUPApps(boolean lock) {
         return new String[0];
     }
 
     @Override
-    public void addOrRemoveUPApps(String[] packages, boolean add) throws RemoteException {
+    public void addOrRemoveUPApps(String[] packages, boolean add) {
 
     }
 
     @Override
-    public AppSettings retrieveAppSettingsForPackage(String pkg) throws RemoteException {
+    public AppSettings retrieveAppSettingsForPackage(String pkg) {
         return null;
     }
 
     @Override
-    public void applyAppSettingsForPackage(String pkg, AppSettings settings) throws RemoteException {
+    public void applyAppSettingsForPackage(String pkg, AppSettings settings) {
 
     }
 
     @Override
-    public void backupTo(String dir) throws RemoteException {
+    public void backupTo(String dir) {
 
     }
 
     @Override
-    public void restoreFrom(String dir) throws RemoteException {
+    public void restoreFrom(String dir) {
 
     }
 
     @Override
-    public String[] getRawPermSettings(int page, int countInPage) throws RemoteException {
+    public String[] getRawPermSettings(int page, int countInPage) {
         return new String[0];
     }
 
     @Override
-    public void setAppInstalledAutoApplyTemplate(AppSettings settings) throws RemoteException {
+    public void setAppInstalledAutoApplyTemplate(AppSettings settings) {
 
     }
 
     @Override
-    public AppSettings getAppInstalledAutoApplyTemplate() throws RemoteException {
+    public AppSettings getAppInstalledAutoApplyTemplate() {
         return null;
     }
 
     @Override
-    public List<OpLog> getOpLogForPackage(String packageName) throws RemoteException {
+    public List<OpLog> getOpLogForPackage(String packageName) {
         return null;
     }
 
     @Override
-    public List<OpLog> getOpLogForOp(int code) throws RemoteException {
+    public List<OpLog> getOpLogForOp(int code) {
         return null;
     }
 
     @Override
-    public void clearOpLogForPackage(String packageName) throws RemoteException {
+    public void clearOpLogForPackage(String packageName) {
 
     }
 
     @Override
-    public void clearOpLogForOp(int cod) throws RemoteException {
+    public void clearOpLogForOp(int cod) {
 
     }
 
     @Override
-    public String getUserName() throws RemoteException {
+    public String getUserName() {
         return null;
     }
 
     @Override
-    public Bitmap getUserIcon() throws RemoteException {
+    public Bitmap getUserIcon() {
         return null;
     }
 
     @Override
-    public void addPendingDisableApps(String pkg) throws RemoteException {
+    public void addPendingDisableApps(String pkg) {
 
     }
 
     @Override
-    public void addPowerSaveWhitelistApp(String pkg) throws RemoteException {
+    public void addPowerSaveWhitelistApp(String pkg) {
 
     }
 
     @Override
-    public void removePowerSaveWhitelistApp(String pkg) throws RemoteException {
+    public void removePowerSaveWhitelistApp(String pkg) {
 
     }
 
     @Override
-    public String[] getFullPowerWhitelist() throws RemoteException {
+    public String[] getFullPowerWhitelist() {
         return new String[0];
     }
 
     @Override
-    public String[] getSystemPowerWhitelist() throws RemoteException {
+    public String[] getSystemPowerWhitelist() {
         return new String[0];
     }
 
     @Override
-    public String[] getUserPowerWhitelist() throws RemoteException {
+    public String[] getUserPowerWhitelist() {
         return new String[0];
     }
 
     @Override
-    public ActivityManager.MemoryInfo getMemoryInfo() throws RemoteException {
+    public ActivityManager.MemoryInfo getMemoryInfo() {
         return null;
     }
 
     @Override
-    public void enableKeyguard(boolean enabled) throws RemoteException {
+    public void enableKeyguard(boolean enabled) {
 
     }
 
     @Override
-    public void exitKeyguardSecurely(IBooleanCallback1 result) throws RemoteException {
+    public void exitKeyguardSecurely(IBooleanCallback1 result) {
 
     }
 
     @Override
-    public void dismissKeyguardLw() throws RemoteException {
+    public void dismissKeyguardLw() {
 
     }
 
     @Override
-    public boolean isKeyguardLocked() throws RemoteException {
+    public boolean isKeyguardLocked() {
         return false;
     }
 
     @Override
-    public int getRunningProcessCount() throws RemoteException {
+    public int getRunningProcessCount() {
         return 0;
     }
 
     @Override
-    public void setAppOpsTemplate(OpsSettings opsSettings) throws RemoteException {
+    public void setAppOpsTemplate(OpsSettings opsSettings) {
 
     }
 
     @Override
-    public OpsSettings getAppOpsTemplate(OpsSettings opsSettings) throws RemoteException {
+    public OpsSettings getAppOpsTemplate(OpsSettings opsSettings) {
         return null;
     }
 
     @Override
-    public void addPendingDisableAppsTR(String pkg) throws RemoteException {
+    public void addPendingDisableAppsTR(String pkg) {
 
     }
 
     @Override
-    public void setResidentEnabled(boolean enable) throws RemoteException {
+    public void setResidentEnabled(boolean enable) {
 
     }
 
     @Override
-    public boolean isResidentEnabled() throws RemoteException {
+    public boolean isResidentEnabled() {
         return false;
     }
 
     @Override
-    public boolean isResidentEnabledForPackage(String who) throws RemoteException {
+    public boolean isResidentEnabledForPackage(String who) {
         return false;
     }
 
     @Override
-    public void addOrRemoveResidentApps(String app, boolean add) throws RemoteException {
+    public void addOrRemoveResidentApps(String app, boolean add) {
 
     }
 
     @Override
-    public String[] getResidentApps(boolean resident) throws RemoteException {
+    public String[] getResidentApps(boolean resident) {
         return new String[0];
     }
 
     @Override
-    public boolean isPanicHomeEnabled() throws RemoteException {
+    public boolean isPanicHomeEnabled() {
         return false;
     }
 
     @Override
-    public void setPanicHomeEnabled(boolean enable) throws RemoteException {
+    public void setPanicHomeEnabled(boolean enable) {
 
     }
 
     @Override
-    public boolean isPanicLockEnabled() throws RemoteException {
+    public boolean isPanicLockEnabled() {
         return false;
     }
 
     @Override
-    public void setPanicLockEnabled(boolean enable) throws RemoteException {
+    public void setPanicLockEnabled(boolean enable) {
 
     }
 
     @Override
-    public void lockNow() throws RemoteException {
+    public void lockNow() {
 
     }
 }

@@ -7,9 +7,11 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.service.notification.StatusBarNotification;
 import android.view.KeyEvent;
 
 import github.tornaco.xposedmoduletest.xposed.service.am.AMSProxy;
+import github.tornaco.xposedmoduletest.xposed.service.am.ActiveServicesProxy;
 import github.tornaco.xposedmoduletest.xposed.service.am.UsageStatsServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerServiceProxy;
@@ -48,6 +50,8 @@ public interface IModuleBridge {
     void shutdown();
 
     @CommonBringUpApi
+    @Deprecated
+        // Use report activity launch instead.
     void onPackageMoveToFront(Intent who);
 
     @CommonBringUpApi
@@ -87,6 +91,9 @@ public interface IModuleBridge {
     void verify(Bundle options, String pkg, ComponentName componentName,
                 int uid, int pid, VerifyListener listener);
 
+    @CommonBringUpApi
+    void reportActivityLaunching(Intent intent, String reason);
+
     Intent checkIntent(Intent from);
 
     long wrapCallingUidForIntent(long from, Intent intent);
@@ -118,6 +125,8 @@ public interface IModuleBridge {
     void attachUsageStatsService(UsageStatsServiceProxy proxy);
 
     void attachAMS(AMSProxy proxy);
+
+    void attachActiveServices(ActiveServicesProxy proxy);
 
     boolean checkService(Intent intent, ComponentName service, int callerUid) throws RemoteException;
 
@@ -159,11 +168,14 @@ public interface IModuleBridge {
 
     int getRecentTaskExcludeSetting(ComponentName c) throws RemoteException;
 
+    boolean checkStartProcess(ApplicationInfo applicationInfo, String hostType, String hostName);
+
     void onStartProcessLocked(ApplicationInfo applicationInfo);
 
     void onRemoveProcessLocked(ApplicationInfo applicationInfo, boolean callerWillRestart, boolean allowRestart, String reason);
 
     // Notification listener.
-    void onNotificationPosted();
+    void onNotificationPosted(StatusBarNotification sbn);
+    void onNotificationRemoved(StatusBarNotification sbn);
     // API For ASH END.
 }

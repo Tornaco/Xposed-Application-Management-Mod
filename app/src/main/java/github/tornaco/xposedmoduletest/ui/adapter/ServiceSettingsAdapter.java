@@ -10,6 +10,7 @@ import android.support.v7.widget.PopupMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 
@@ -82,6 +83,11 @@ public class ServiceSettingsAdapter extends ComponentListAdapter<ServiceInfoSett
     }
 
     @Override
+    protected int getPopupMenuRes() {
+        return R.menu.component_service_item;
+    }
+
+    @Override
     protected PopupMenu.OnMenuItemClickListener onCreateOnMenuItemClickListener(final ServiceInfoSettings settings) {
         return new PopupMenu.OnMenuItemClickListener() {
             @Override
@@ -92,6 +98,18 @@ public class ServiceSettingsAdapter extends ComponentListAdapter<ServiceInfoSett
                         cmb.setPrimaryClip(ClipData.newPlainText("comp_name",
                                 ComponentUtil.getComponentName(settings.getServiceInfo()).flattenToString()));
                     }
+                    return true;
+                }
+
+                if (item.getItemId() == R.id.action_make_lazy_rule_keep) {
+                    ComponentName componentName = ComponentUtil.getComponentName(settings.getServiceInfo());
+                    String rule = String.format("KEEP %s %s", componentName.getPackageName(), componentName.flattenToShortString());
+                    XAshmanManager.get().addOrRemoveLazyRules(rule, true);
+                    ClipboardManager cmb = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                    if (cmb != null) {
+                        cmb.setPrimaryClip(ClipData.newPlainText("lazy_keep_rule", rule));
+                    }
+                    Toast.makeText(getContext(), R.string.title_make_lazy_rule_as_keep_success, Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 return false;

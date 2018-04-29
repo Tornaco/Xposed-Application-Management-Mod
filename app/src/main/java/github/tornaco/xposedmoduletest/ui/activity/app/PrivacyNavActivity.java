@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.SwitchCompat;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -106,7 +107,13 @@ public class PrivacyNavActivity extends CommonPackageInfoListActivity
 
     @Override
     protected CommonPackageInfoAdapter onCreateAdapter() {
-        return new CommonPackageInfoAdapter(this);
+        return new CommonPackageInfoAdapter(this){
+            @Override
+            protected void onItemClickNoneChoiceMode(CommonPackageInfo commonPackageInfo, View view) {
+                super.onItemClickNoneChoiceMode(commonPackageInfo, view);
+                showCommonItemPopMenu(commonPackageInfo, view);
+            }
+        };
     }
 
     @Override

@@ -108,7 +108,13 @@ public class GuardAppNavActivity extends CommonPackageInfoListActivity
 
     @Override
     protected CommonPackageInfoAdapter onCreateAdapter() {
-        return new CommonPackageInfoAdapter(this);
+        return new CommonPackageInfoAdapter(this){
+            @Override
+            protected void onItemClickNoneChoiceMode(CommonPackageInfo commonPackageInfo, View view) {
+                super.onItemClickNoneChoiceMode(commonPackageInfo, view);
+                showCommonItemPopMenu(commonPackageInfo, view);
+            }
+        };
     }
 
     @Override

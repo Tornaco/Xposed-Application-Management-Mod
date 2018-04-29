@@ -216,10 +216,14 @@ public class AppSettings extends Observable {
     }
 
     public static void setPStyleIcon(Context context, boolean p) {
-        PreferenceManager.getDefaultSharedPreferences(context)
-                .edit()
-                .putBoolean(AppKey.P_STYLE_ICON, p)
-                .apply();
+        try {
+            PreferenceManager.getDefaultSharedPreferences(context)
+                    .edit()
+                    .putBoolean(AppKey.P_STYLE_ICON, p)
+                    .apply();
+        } catch (Throwable ignored) {
+            // Fuck it.
+        }
     }
 
     public static boolean isForceHasGMS(Context context) {
@@ -235,8 +239,18 @@ public class AppSettings extends Observable {
     }
 
     public static boolean isPStyleIcon(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(AppKey.P_STYLE_ICON, true);
+        try {
+            return PreferenceManager.getDefaultSharedPreferences(context)
+                    .getBoolean(AppKey.P_STYLE_ICON, true);
+        } catch (Exception e) {
+            try {
+                PreferenceManager.getDefaultSharedPreferences(context)
+                        .edit().remove(AppKey.P_STYLE_ICON)
+                        .apply();
+            } catch (Throwable ignored) {
+            }
+            return true;
+        }
     }
 
     public static boolean isNewBuild(Context context) {

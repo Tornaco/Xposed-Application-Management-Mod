@@ -4,11 +4,11 @@ import android.content.Intent;
 import android.support.v7.widget.SwitchCompat;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import java.util.List;
 
 import github.tornaco.android.common.Collections;
-import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.LazyPackageLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
@@ -23,12 +23,9 @@ public class LazyAppNavActivity extends CommonPackageInfoListActivity implements
     @Override
     protected void onRequestClearItemsInBackground() {
         Collections.consumeRemaining(getCommonPackageInfoAdapter().getCommonPackageInfos(),
-                new Consumer<CommonPackageInfo>() {
-                    @Override
-                    public void accept(CommonPackageInfo commonPackageInfo) {
-                        if (commonPackageInfo.isChecked()) {
-                            XAshmanManager.get().addOrRemoveLazyApps(new String[]{commonPackageInfo.getPkgName()}, XAshmanManager.Op.REMOVE);
-                        }
+                commonPackageInfo -> {
+                    if (commonPackageInfo.isChecked()) {
+                        XAshmanManager.get().addOrRemoveLazyApps(new String[]{commonPackageInfo.getPkgName()}, XAshmanManager.Op.REMOVE);
                     }
                 });
     }
@@ -52,7 +49,13 @@ public class LazyAppNavActivity extends CommonPackageInfoListActivity implements
 
     @Override
     protected CommonPackageInfoAdapter onCreateAdapter() {
-        return new CommonPackageInfoAdapter(this);
+        return new CommonPackageInfoAdapter(this) {
+            @Override
+            protected void onItemClickNoneChoiceMode(CommonPackageInfo commonPackageInfo, View view) {
+                super.onItemClickNoneChoiceMode(commonPackageInfo, view);
+                showCommonItemPopMenu(commonPackageInfo, view);
+            }
+        };
     }
 
     @Override
@@ -75,6 +78,9 @@ public class LazyAppNavActivity extends CommonPackageInfoListActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_settings) {
             startActivity(new Intent(this, LazySettingsDashboardActivity.class));
+        }
+        if (item.getItemId() == R.id.action_rules) {
+            LazyRuleNavActivity.start(getActivity());
         }
         return super.onOptionsItemSelected(item);
     }

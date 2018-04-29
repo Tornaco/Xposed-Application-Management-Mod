@@ -44,7 +44,7 @@ public interface UPPackageLoader {
 
             for (String pkg : packages) {
                 CommonPackageInfo p = LoaderUtil.constructCommonPackageInfo(context, pkg);
-                if (p != null && !p.isDisabled()) out.add(p);
+                if (p != null) out.add(p);
             }
 
             LoaderUtil.commonSort(out);

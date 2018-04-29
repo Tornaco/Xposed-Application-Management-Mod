@@ -18,6 +18,8 @@ import android.widget.TextView;
 
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 
+import org.newstand.logger.Logger;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -53,6 +55,8 @@ public class CommonPackageInfoAdapter
     @Setter
     private int highlightColor, normalColor;
 
+    private int mDefaultTextColor;
+
     @Setter
     @Getter
     private boolean choiceMode;
@@ -70,8 +74,11 @@ public class CommonPackageInfoAdapter
         TypedValue typedValue = new TypedValue();
         context.getTheme().resolveAttribute(R.attr.torCardBackgroundColor, typedValue, true);
         int resId = typedValue.resourceId;
-
         this.normalColor = ContextCompat.getColor(context, resId);
+
+        context.getTheme().resolveAttribute(R.attr.torListItemTitleTextColor, typedValue, true);
+        resId = typedValue.resourceId;
+        this.mDefaultTextColor = ContextCompat.getColor(context, resId);
 
         setChoiceMode(false);
 
@@ -155,7 +162,14 @@ public class CommonPackageInfoAdapter
 
         holder.getExtraIndicator().setVisibility(View.INVISIBLE);
 
-        holder.getLineOneTextView().setText(packageInfo.getAppName());
+        boolean disabled = packageInfo.isDisabled();
+        if (disabled) {
+            holder.getLineOneTextView().setText(getContext().getString(R.string.title_app_disabled, packageInfo.getAppName()));
+            holder.getLineOneTextView().setTextColor(Color.RED);
+        } else {
+            holder.getLineOneTextView().setText(packageInfo.getAppName());
+            holder.getLineOneTextView().setTextColor(mDefaultTextColor);
+        }
 
         holder.getCheckableImageView().setChecked(false, false);
 
@@ -175,8 +189,8 @@ public class CommonPackageInfoAdapter
             holder.itemView.setBackgroundColor(normalColor);
         }
 
+        final CommonPackageInfo commonPackageInfo = getCommonPackageInfos().get(position);
         if (isChoiceMode()) {
-            final CommonPackageInfo commonPackageInfo = getCommonPackageInfos().get(position);
             holder.getCheckableImageView().setChecked(commonPackageInfo.isChecked(), false);
 
             holder.itemView.setOnClickListener(v -> {
@@ -184,11 +198,19 @@ public class CommonPackageInfoAdapter
                     commonPackageInfo.setChecked(!commonPackageInfo.isChecked());
                     holder.getCheckableImageView().setChecked(commonPackageInfo.isChecked());
                     onItemCheckChanged();
+                } else {
+                    onItemClickNoneChoiceMode(commonPackageInfo, v);
                 }
             });
+        } else {
+            holder.itemView.setOnClickListener(v -> onItemClickNoneChoiceMode(commonPackageInfo, v));
         }
 
         holder.itemView.setOnLongClickListener(v -> onItemLongClick(v, holder.getAdapterPosition()));
+    }
+
+    protected void onItemClickNoneChoiceMode(CommonPackageInfo commonPackageInfo, View view) {
+        Logger.d("onItemClickNoneChoiceMode");
     }
 
     @Getter

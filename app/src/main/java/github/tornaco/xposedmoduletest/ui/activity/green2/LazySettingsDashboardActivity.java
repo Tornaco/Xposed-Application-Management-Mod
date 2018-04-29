@@ -6,10 +6,13 @@ import android.support.annotation.Nullable;
 import java.util.List;
 
 import dev.nick.tiles.tile.Category;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.AppCustomDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.green.General;
+import github.tornaco.xposedmoduletest.ui.tiles.green.LazySolutionApp;
+import github.tornaco.xposedmoduletest.ui.tiles.green.LazySolutionFw;
 
 /**
  * Created by guohao4 on 2017/11/2.
@@ -34,7 +37,15 @@ public class LazySettingsDashboardActivity extends BaseActivity {
             personal.titleRes = R.string.title_personal;
             personal.addTile(new General(getActivity()));
 
+            Category solutions = new Category();
+            solutions.titleRes = R.string.title_lazy_solutions;
+            solutions.addTile(new LazySolutionApp(getActivity()));
+            solutions.addTile(new LazySolutionFw(getActivity()));
+
             categories.add(personal);
+            if (BuildConfig.DEBUG) {
+                categories.add(solutions);
+            }
         }
     }
 

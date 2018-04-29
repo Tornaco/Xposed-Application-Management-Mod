@@ -19,6 +19,10 @@ public class OpenSource extends QuickTile {
         this.iconRes = R.drawable.ic_code_white_24dp;
         this.summary = "Github@Tornaco/X-APM";
         this.tileView = new QuickTileView(context, this) {
+            @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_blue_grey;
+            }
         };
     }
 }

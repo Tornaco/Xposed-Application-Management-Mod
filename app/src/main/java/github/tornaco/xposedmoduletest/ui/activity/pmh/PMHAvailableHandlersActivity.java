@@ -16,6 +16,7 @@ import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.TGPMH;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.TGPMHShowContentSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.WeChatPMH;
+import github.tornaco.xposedmoduletest.ui.tiles.pmh.WeChatPMHMockMessage;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.WeChatPMHNotificationPostByApp;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.WeChatPMHNotificationSettingsOreo;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.WeChatPMHShowContentSettings;
@@ -57,11 +58,14 @@ public class PMHAvailableHandlersActivity extends WithWithCustomTabActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        // WTF? like a shit...
-        String url = "https://github.com/Tornaco/X-APM/wiki/GCM%E6%B6%88%E6%81%AF%E4%BB%A3%E6%94%B6#%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B6%88%E6%81%AF%E9%80%9A%E7%9F%A5%E8%A1%8C%E4%B8%BA";
+        if (item.getItemId()==R.id.action_help){
+            // WTF? like a shit...
+            String url = "https://github.com/Tornaco/X-APM/wiki/GCM%E6%B6%88%E6%81%AF%E4%BB%A3%E6%94%B6#%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B6%88%E6%81%AF%E9%80%9A%E7%9F%A5%E8%A1%8C%E4%B8%BA";
+            navigateToWebPage(url);
+            return true;
+        }
 
-        navigateToWebPage(url);
-        return true;
+        return super.onOptionsItemSelected(item);
     }
 
     public static class Dashboards extends AppCustomDashboardFragment {
@@ -81,6 +85,7 @@ public class PMHAvailableHandlersActivity extends WithWithCustomTabActivity {
                     wechat.addTile(new WeChatPMHSoundSettings(getActivity()));
                     wechat.addTile(new WeChatPMHVibrateSettings(getActivity()));
                 }
+                wechat.addTile(new WeChatPMHMockMessage(getActivity()));
             }
 
             // TG.

@@ -22,6 +22,12 @@ public class OpenMarket extends QuickTile {
         boolean isPlayVersion = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.PLAY);
         this.summary = !isPlayVersion ? "其他应用市场" : "Google play";
         this.tileView = new QuickTileView(context, this) {
+
+            @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_green;
+            }
+
             @Override
             public void onClick(View v) {
                 super.onClick(v);

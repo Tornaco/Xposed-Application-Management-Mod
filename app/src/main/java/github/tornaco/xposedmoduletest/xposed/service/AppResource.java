@@ -22,6 +22,7 @@ import static android.content.Context.CONTEXT_IGNORE_SECURITY;
  */
 
 // Both used at App and FW.
+// TODO Consider make a cache.
 @AllArgsConstructor
 @Getter
 public class AppResource {
@@ -63,6 +64,11 @@ public class AppResource {
 
     @RequiresApi(Build.VERSION_CODES.M)
     public Icon loadIconFromAPMApp(String resName) {
+        return loadIconFromAPMApp(resName, null);
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    public Icon loadIconFromAPMApp(String resName, Transform<Bitmap> bitmapTransform) {
         if (BuildConfig.DEBUG) {
             Log.d(XposedLog.TAG, "loadIconFromAPMApp, resName: " + resName);
         }
@@ -79,7 +85,29 @@ public class AppResource {
                         Log.d(XposedLog.TAG, "loadIconFromAPMApp, id: " + id);
                     }
                     if (id > 0) {
-                        Icon ic = Icon.createWithResource(res, id);
+                        Icon ic = null;
+                        // Create with res directly.
+                        if (bitmapTransform == null) {
+                            ic = Icon.createWithResource(res, id);
+                        } else {
+                            // Create bitmap and transform.
+                            try {
+                                Bitmap icb = BitmapFactory.decodeResource(res, id);
+                                if (icb != null) {
+                                    icb = bitmapTransform.onTransform(icb);
+                                    if (icb != null) {
+                                        ic = Icon.createWithBitmap(icb);
+                                    }
+                                }
+                            } catch (Exception e) {
+                                Log.e(XposedLog.TAG, "loadIconFromAPMApp, bitmap transform err: " + e);
+                            } finally {
+                                // Back to res.
+                                if (ic == null) {
+                                    ic = Icon.createWithResource(res, id);
+                                }
+                            }
+                        }
                         if (BuildConfig.DEBUG) {
                             Log.d(XposedLog.TAG, "loadIconFromAPMApp, ic: " + ic);
                         }
@@ -128,5 +156,9 @@ public class AppResource {
             Log.e(XposedLog.TAG, "Fail createPackageContext: " + Log.getStackTraceString(e));
         }
         return new String[0];
+    }
+
+    public interface Transform<T> {
+        T onTransform(T in) throws Exception;
     }
 }

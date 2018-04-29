@@ -260,6 +260,8 @@ public class PkgUtil {
 
     public static String packageNameOf(Intent intent) {
         if (intent == null) return null;
+        String packageName = intent.getPackage();
+        if (packageName != null) return packageName;
         if (intent.getComponent() == null) return null;
         return intent.getComponent().getPackageName();
     }
@@ -335,8 +337,8 @@ public class PkgUtil {
         return processes == null ? 0 : processes.size();
     }
 
-    public static void onAppLaunched(String who, String reason) {
-        XposedLog.verbose("onAppLaunched: " + who + ", reason: " + reason);
+    public static void onAppLaunching(String who, String reason) {
+        XposedLog.verbose("onAppLaunching: " + who + ", reason: " + reason);
         sRunningApps.add(who);
     }
 

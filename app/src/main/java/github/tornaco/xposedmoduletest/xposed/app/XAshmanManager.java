@@ -9,8 +9,7 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.ServiceManager;
 import android.support.annotation.Nullable;
-
-import com.google.common.base.Optional;
+import android.util.Log;
 
 import org.newstand.logger.Logger;
 
@@ -22,6 +21,7 @@ import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IBooleanCallback1;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
+import github.tornaco.xposedmoduletest.IServiceControl;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.util.ArrayUtil;
@@ -93,6 +93,23 @@ public class XAshmanManager {
         int INCLUDE = 2;
     }
 
+    public interface AppServiceControlSolutions {
+
+        int FLAG_APP = 0x00000001;
+        int FLAG_FW = 0x00000002;
+
+        static String decode(int flags) {
+            StringBuilder sb = new StringBuilder();
+            if (flags == FLAG_APP) {
+                sb.append("FLAG_APP");
+            }
+            if (flags == FLAG_FW) {
+                sb.append("FLAG_FW");
+            }
+            return sb.toString();
+        }
+    }
+
     public interface ConfigOverlays {
         int NONE = Integer.MIN_VALUE;
     }
@@ -128,13 +145,9 @@ public class XAshmanManager {
         mService = IAshmanService.Stub.asInterface(ServiceManager.getService(SERVICE_NAME));
     }
 
-    public Optional<XAshmanManager> optional() {
-        return Optional.fromNullable(get());
-    }
-
     private void ensureService() {
         if (mService == null) {
-            Logger.e("Service is not available");
+            Logger.e("Service is not available@\n" + Log.getStackTraceString(new Throwable()));
         }
     }
 
@@ -1653,6 +1666,42 @@ public class XAshmanManager {
         }
     }
 
+    public boolean addOrRemoveLazyRules(String rule, boolean add) {
+        ensureService();
+        try {
+            return mService.addOrRemoveLazyRules(rule, add);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public String[] getLazyRules() {
+        ensureService();
+        try {
+            return mService.getLazyRules();
+        } catch (Exception e) {
+            return ArrayUtil.newEmptyStringArray();
+        }
+    }
+
+    public boolean isLazyRuleEnabled() {
+        ensureService();
+        try {
+            return mService.isLazyRuleEnabled();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void setLazyRuleEnabled(boolean enable) {
+        ensureService();
+        try {
+            mService.setLazyRuleEnabled(enable);
+        } catch (Exception e) {
+
+        }
+    }
+
     public boolean hasSystemError() {
         ensureService();
         try {
@@ -2031,6 +2080,51 @@ public class XAshmanManager {
             mService.setWakeupOnNotificationEnabled(enable);
         } catch (Exception e) {
 
+        }
+    }
+
+    public void mockPushMessageReceived(String pkg, String message) {
+        ensureService();
+        try {
+            mService.mockPushMessageReceived(pkg, message);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public void registerController(IServiceControl control) {
+        ensureService();
+        try {
+            mService.registerController(control);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public void unRegisterController(IServiceControl control) {
+        ensureService();
+        try {
+            mService.unRegisterController(control);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public void setAppServiceLazyControlSolution(int solutionFlags, boolean enable) {
+        ensureService();
+        try {
+            mService.setAppServiceLazyControlSolution(solutionFlags, enable);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public boolean isAppServiceLazyControlSolutionEnable(int solutionFlags) {
+        ensureService();
+        try {
+            return mService.isAppServiceLazyControlSolutionEnable(solutionFlags);
+        } catch (Exception e) {
+            return false;
         }
     }
 }

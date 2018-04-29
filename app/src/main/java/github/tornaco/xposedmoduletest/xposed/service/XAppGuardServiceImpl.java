@@ -343,7 +343,14 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
         // Check if this component is disabled.
         if (getPackageManager() == null) return from;
-        int compState = getPackageManager().getComponentEnabledSetting(fromComp);
+        int compState = PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
+
+        try {
+            compState = getPackageManager().getComponentEnabledSetting(fromComp);
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail getComponentEnabledSetting for: " + fromComp + ", err: " + Log.getStackTraceString(e));
+        }
+
         if (compState == PackageManager.COMPONENT_ENABLED_STATE_DISABLED
                 || compState == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER) {
             XposedLog.wtf("ComponentName is disabled, do not launch:" + fromComp);
@@ -568,10 +575,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @BinderCall(restrict = "hooks")
     public void onPackageMoveToFront(Intent who) {
-        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("onPackageMoveToFront: " + who);
         onActivityPackageResume(PkgUtil.packageNameOf(who));
     }
-
 
     @BinderCall(restrict = "anyone")
     public void onActivityPackageResume(String pkg) {
@@ -617,16 +622,15 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     // FIXME Below is a good way to receive screen broadcast, try it.
 
     public boolean checkBroadcastIntent(IApplicationThread caller, Intent intent) {
-        // Do not debug because ash alreay do it.
-//        int callingUid = Binder.getCallingUid();
-//        if (PkgUtil.isSystemCall(callingUid)) {
-//            if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())
-//                    || Intent.ACTION_USER_PRESENT.equals(intent.getAction())) {
-//                mScreenReceiver.onReceive(getContext(), intent);
-//            }
-//        }
-        if (BuildConfig.DEBUG && Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
-            XposedLog.verbose("ACTION_USER_SWITCHED");
+        if (intent != null) {
+            if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())
+                    || Intent.ACTION_USER_PRESENT.equals(intent.getAction())) {
+                // Make sure we received the intent.
+                mScreenReceiver.onReceive(getContext(), intent);
+            }
+            if (BuildConfig.DEBUG && Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
+                XposedLog.verbose("ACTION_USER_SWITCHED");
+            }
         }
         return true;
     }
@@ -1166,7 +1170,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             if (XposedLog.isVerboseLoggable()) XposedLog.verbose("setResult: " + res);
 
             if (res == XAppVerifyMode.MODE_ALLOWED) {
-                PkgUtil.onAppLaunched(transaction.pkg, "setResult verify");
                 mVerifiedPackages.add(transaction.pkg);
             }
             transaction.listener.onVerifyRes(transaction.pkg, transaction.uid, transaction.pid, res);
@@ -1232,7 +1235,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
         public void onUserPresent() {
             String pkg = mTopActivityPkg.getData();
-            XposedLog.verbose("onUserPresent: " + pkg);
+            XposedLog.verbose("onUserPresent@AppGuard: " + pkg);
             if (pkg == null) {
                 return;
             }
@@ -1328,7 +1331,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
          * @param who Only Keep the switched package.
          */
         private void onAppSwitchedTo(String who) {
-            XposedLog.verbose("onAppSwitchedTo: " + who);
+            XposedLog.verbose("AppGuard onAppSwitchedTo: " + who);
             if (mVerifySettings != null) {
                 boolean clearOnAppSwitch = mVerifySettings.isVerifyOnAppSwitch();
                 if (clearOnAppSwitch) {

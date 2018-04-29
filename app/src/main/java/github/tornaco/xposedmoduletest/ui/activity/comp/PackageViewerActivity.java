@@ -85,7 +85,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
 
     @Override
     protected int getSummaryRes() {
-        return R.string.summary_comp_edit;
+        return 0;
     }
 
     @Override

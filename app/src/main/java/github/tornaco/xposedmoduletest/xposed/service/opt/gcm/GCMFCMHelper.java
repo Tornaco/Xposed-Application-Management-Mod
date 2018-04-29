@@ -1,14 +1,11 @@
 package github.tornaco.xposedmoduletest.xposed.service.opt.gcm;
 
 import android.content.Intent;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Message;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
-import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
+import lombok.Synchronized;
 
 /**
  * Created by Tornaco on 2018/3/20 13:31.
@@ -17,12 +14,10 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 public class GCMFCMHelper {
 
-    private static final long GCM_INTENT_HANDLE_INTERVAL = 60 * 1000;
+    public static final long GCM_INTENT_HANDLE_INTERVAL_MILLS = 30 * 1000;
 
     // Some apps received GCM event, give it a little while to handle it.
-    private static final Set<String> sGcmPendingApps = new HashSet<>();
-
-    private static Handler sInternalHandler;
+    private static final Map<String, GcmEvent> GCM_EVENT_MAP = new HashMap<>();
 
     // com.google.android.c2dm.intent.RECEIVE
     public static final String ACTION_GCM = "com.google.android.c2dm.intent.RECEIVE";
@@ -40,38 +35,29 @@ public class GCMFCMHelper {
         return isFcmIntent(intent) || isGcmIntent(intent);
     }
 
+    @Synchronized
     public static boolean isHandlingGcmIntent(String who) {
-        return sGcmPendingApps.contains(who);
+        final GcmEvent event = GCM_EVENT_MAP.get(who);
+        if (event == null) return false;
+
+        long interval = System.currentTimeMillis() - event.getEventTime();
+        // Handle invalid.
+        if (interval < 0) {
+            // This is bad!!!
+            event.setEventTime(0);
+            return false;
+        }
+        return interval <= GCM_INTENT_HANDLE_INTERVAL_MILLS;
     }
 
+    @Synchronized
     public static void onGcmIntentReceived(String who) {
-        XposedLog.verbose("onGcmIntentReceived: " + who);
-        sGcmPendingApps.add(who);
-        // Give it 10s to handle this.
-        if (sInternalHandler == null) initInternalHandler();
-        sInternalHandler.sendMessageDelayed(sInternalHandler.obtainMessage(0, who), GCM_INTENT_HANDLE_INTERVAL);
-    }
+        GcmEvent event = GCM_EVENT_MAP.get(who);
+        if (event == null) event = new GcmEvent();
 
-    private static void onGcmIntentHandled(String who) {
-        sGcmPendingApps.remove(who);
-        XposedLog.verbose("onGcmIntentHandled: " + who);
-    }
-
-    private static void initInternalHandler() {
-        HandlerThread hr = new HandlerThread("GCMFCMHelperHandler");
-        hr.start();
-        sInternalHandler = new Handler(hr.getLooper()) {
-            @Override
-            public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-                try {
-                    String pkg = (String) msg.obj;
-                    onGcmIntentHandled(pkg);
-                } catch (Exception e) {
-                    XposedLog.wtf("GCMFCMHelperHandler" + e.getLocalizedMessage());
-                }
-            }
-        };
-        XposedLog.verbose("initInternalHandler: " + sInternalHandler);
+        // Update event.
+        event.setEventTime(System.currentTimeMillis());
+        event.setEventPackage(who);
+        GCM_EVENT_MAP.put(who, event);
     }
 }

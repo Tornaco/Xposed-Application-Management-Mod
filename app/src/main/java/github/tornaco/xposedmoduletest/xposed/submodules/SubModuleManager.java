@@ -65,7 +65,8 @@ public class SubModuleManager {
     private SubModuleManager() {
         addToSubsChecked(new PMSClearDataSubModule());
 
-        addToSubsChecked(new ServiceSubModule());
+        // Instead we make a ActiveService module for this feature.
+        // addToSubsChecked(new ServiceSubModule());
 
         addToSubsChecked(new AlarmManagerSubModule());
         addToSubsChecked(new WakelockSubModule());
@@ -106,9 +107,6 @@ public class SubModuleManager {
         addToSubsChecked(new AMSStartProcessLockedSubModule());
         addToSubsChecked(new AMSRemoveProcessLockedSubModule());
 
-        addToSubsChecked(new AMSSetFocusedActivitySubModule());
-        addToSubsChecked(new ActivityStackSupervisorSetFocusedStackSubModule());
-
         addToSubsChecked(new AMSRetrieveSettingsSubModule());
         addToSubsChecked(new AMSShutdownSubModule());
         addToSubsChecked(new AMSSystemReadySubModule());
@@ -130,7 +128,7 @@ public class SubModuleManager {
         // Task id manage.
         addToSubsChecked(new TaskChangeNotificationControllerSubModule());
 
-        // APPGUARD MODULES.
+        // AppGuard MODULES.
         addToSubsChecked(new FPSubModule());
 
         // Blur
@@ -144,9 +142,6 @@ public class SubModuleManager {
         addToSubsChecked(new TaskMoverSubModuleDelegate());
         addToSubsChecked(new ActivityStartSubModuleDelegate());
         addToSubsChecked(new LauncherAppServiceSubModule());
-
-        addToSubsChecked(new AMSSetFocusedActivitySubModule());
-        addToSubsChecked(new ActivityStackSupervisorSetFocusedStackSubModule());
 
         // APPGUARD MODULES END.
 
@@ -164,6 +159,10 @@ public class SubModuleManager {
 
         addToSubsChecked(new PackageParserSubModule());
         addToSubsChecked(new AMSCreateRecentTaskInfoFromTaskRecordSubModule());
+
+        // For HUAWEI.
+        // EMUI has make HwActiveServices instead of ActiveServices...
+        // addToSubsChecked(new ServiceSubModule());
 
         // Submodules for debug purpose.
         if (BuildConfig.DEBUG) {

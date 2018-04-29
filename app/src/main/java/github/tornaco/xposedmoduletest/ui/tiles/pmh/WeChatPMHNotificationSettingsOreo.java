@@ -21,6 +21,7 @@ public class WeChatPMHNotificationSettingsOreo extends QuickTile {
     public WeChatPMHNotificationSettingsOreo(final Context context) {
         super(context);
         this.titleRes = R.string.title_push_message_handler_notification_settings_oreo;
+        this.summaryRes = R.string.error_notification_channel_activity_not_found;
         this.tileView = new QuickTileView(context, this) {
             @Override
             public void onClick(View v) {

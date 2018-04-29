@@ -22,6 +22,12 @@ public class PowerSave extends QuickTile {
         this.summaryRes = R.string.power_save;
         this.iconRes = R.drawable.ic_power_black_24dp;
         this.tileView = new SwitchTileView(context) {
+
+            @Override
+            protected int getImageViewBackgroundRes() {
+                return R.drawable.tile_bg_blue_grey;
+            }
+
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);

@@ -42,7 +42,13 @@ public class LoaderUtil {
         CommonPackageInfo cached = LoaderCache.getInstance().get(key);
         if (cached != null) {
             Logger.i("Using cache package info.");
-            return cached;
+            // Reset selection state.
+            CommonPackageInfo dup = CommonPackageInfo.duplicate(cached);
+            dup.setChecked(false);
+            // Force read GCM state.
+            dup.setGCMSupport(XAshmanManager.get().isServiceAvailable() && XAshmanManager.get().isGCMSupportPackage(pkg));
+            inflateEnableState(dup);
+            return dup;
         }
 
         String name = String.valueOf(PkgUtil.loadNameByPkgName(context, pkg));
@@ -50,18 +56,13 @@ public class LoaderUtil {
         p.setAppName(name);
         p.setPkgName(pkg);
 
-        p.setInstalledTime(PkgUtil.loadInstalledTimeByPkgName(context, pkg));
+        // p.setInstalledTime(PkgUtil.loadInstalledTimeByPkgName(context, pkg));
         p.setAppLevel(XAshmanManager.get().getAppLevel(pkg));
         p.setSystemApp(PkgUtil.isSystemApp(context, pkg));
 
         p.setGCMSupport(XAshmanManager.get().isServiceAvailable() && XAshmanManager.get().isGCMSupportPackage(pkg));
 
-        if (XAshmanManager.get().isServiceAvailable()) {
-            int state = XAshmanManager.get().getApplicationEnabledSetting(pkg);
-            boolean disabled = state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                    && state != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
-            p.setDisabled(disabled);
-        }
+        inflateEnableState(p);
 
         if ((flag & FLAG_INCLUDE_IME_INFO) != 0) {
             // Check if it is IME.
@@ -87,6 +88,15 @@ public class LoaderUtil {
         LoaderCache.getInstance().put(key, p);
 
         return p;
+    }
+
+    private static void inflateEnableState(CommonPackageInfo p) {
+        if (XAshmanManager.get().isServiceAvailable()) {
+            int state = XAshmanManager.get().getApplicationEnabledSetting(p.getPkgName());
+            boolean disabled = state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                    && state != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
+            p.setDisabled(disabled);
+        }
     }
 
     private static String constructKeyForPackageAndFlags(String pkg, int flag) {
