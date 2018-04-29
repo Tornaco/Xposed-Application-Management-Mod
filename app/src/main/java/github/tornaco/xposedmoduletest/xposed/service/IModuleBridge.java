@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.service.notification.StatusBarNotification;
 import android.view.KeyEvent;
 
 import github.tornaco.xposedmoduletest.xposed.service.am.AMSProxy;
@@ -174,6 +175,7 @@ public interface IModuleBridge {
     void onRemoveProcessLocked(ApplicationInfo applicationInfo, boolean callerWillRestart, boolean allowRestart, String reason);
 
     // Notification listener.
-    void onNotificationPosted();
+    void onNotificationPosted(StatusBarNotification sbn);
+    void onNotificationRemoved(StatusBarNotification sbn);
     // API For ASH END.
 }

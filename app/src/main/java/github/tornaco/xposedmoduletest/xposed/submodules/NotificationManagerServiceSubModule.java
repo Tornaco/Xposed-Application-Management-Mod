@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
+import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
 import java.util.Arrays;
@@ -19,6 +20,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // FIXME Have not check M L O yet.
+// https://github.com/LineageOS/android_frameworks_base/blob/cm-12.1/services/core/java/com/android/server/notification/NotificationManagerService.java
 class NotificationManagerServiceSubModule extends AndroidSubModule {
 
     @Override
@@ -27,6 +29,7 @@ class NotificationManagerServiceSubModule extends AndroidSubModule {
 
         // Listen for the notification post.
         hookNotificationListeners(lpparam);
+        hookNotificationListenersRemove(lpparam);
     }
 
     private void hookOnStart(final XC_LoadPackage.LoadPackageParam lpparam) {
@@ -60,21 +63,46 @@ class NotificationManagerServiceSubModule extends AndroidSubModule {
         try {
             Class clz = XposedHelpers.findClass("com.android.server.notification.NotificationManagerService$NotificationListeners",
                     lpparam.classLoader);
-            Set unHooks = XposedBridge.hookAllMethods(clz,
-                    "notifyPosted", new XC_MethodHook() {
-                        @Override
-                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                            super.afterHookedMethod(param);
-                            if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
-                                XposedLog.verbose("NotificationListeners, notifyPosted: " + Arrays.toString(param.args));
-                            }
-                            getBridge().onNotificationPosted();
-                        }
-                    });
+            Set unHooks = XposedBridge.hookAllMethods(clz, "notifyPostedLocked", new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    super.afterHookedMethod(param);
+                    if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
+                        XposedLog.verbose("NotificationListeners, notifyPosted: " + Arrays.toString(param.args));
+                    }
+                    StatusBarNotification statusBarNotification = (StatusBarNotification) param.args[0];
+                    getBridge().onNotificationPosted(statusBarNotification);
+                }
+            });
             logOnBootStage("hookNotificationListeners OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
             logOnBootStage("Fail hookNotificationListeners:" + e);
+            setStatus(SubModuleStatus.ERROR);
+            setErrorMessage(Log.getStackTraceString(e));
+        }
+    }
+
+    private void hookNotificationListenersRemove(final XC_LoadPackage.LoadPackageParam lpparam) {
+        logOnBootStage("hookNotificationListenersRemove...");
+        try {
+            Class clz = XposedHelpers.findClass("com.android.server.notification.NotificationManagerService$NotificationListeners",
+                    lpparam.classLoader);
+            Set unHooks = XposedBridge.hookAllMethods(clz, "notifyRemovedLocked", new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    super.afterHookedMethod(param);
+                    if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
+                        XposedLog.verbose("NotificationListeners, notifyRemoved: " + Arrays.toString(param.args));
+                    }
+                    StatusBarNotification sbn = (StatusBarNotification) param.args[0];
+                    getBridge().onNotificationRemoved(sbn);
+                }
+            });
+            logOnBootStage("hookNotificationListenersRemove OK:" + unHooks);
+            setStatus(unhooksToStatus(unHooks));
+        } catch (Exception e) {
+            logOnBootStage("Fail hookNotificationListenersRemove:" + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

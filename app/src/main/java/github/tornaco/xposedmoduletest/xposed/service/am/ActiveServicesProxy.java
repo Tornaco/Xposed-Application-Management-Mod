@@ -170,7 +170,7 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
         return clazz.getName().contains(ActiveServiceClassName);
     }
 
-    class ServiceMapProxy extends InvokeTargetProxy<Object> {
+    static class ServiceMapProxy extends InvokeTargetProxy<Object> {
 
         ServiceMapProxy(Object host) {
             super(host);
@@ -186,12 +186,15 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
             }
         }
 
+        private static String sEnsureNotNMethodName = "ensureNotStartingBackground";
+        private static String sEnsureNotNLockedMethodName = "ensureNotStartingBackgroundLocked";
+
         // Checked N M O.
         // https://github.com/LineageOS/android_frameworks_base/blob/cm-14.0/services/core/java/com/android/server/am/ActiveServices.java
         void ensureNotStartingBackground(Object serviceRecordObj) {
-            invokeMethod("ensureNotStartingBackgroundLocked", serviceRecordObj);
+            invokeMethod(sEnsureNotNLockedMethodName, serviceRecordObj);
             // Try twice.
-            invokeMethod("ensureNotStartingBackground", serviceRecordObj);
+            invokeMethod(sEnsureNotNMethodName, serviceRecordObj);
         }
     }
 }

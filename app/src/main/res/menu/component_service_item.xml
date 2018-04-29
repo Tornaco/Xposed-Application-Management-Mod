@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="github.tornaco.xposedmoduletest.ui.activity.comp.ComponentEditorActivity">
+    <item
+        android:id="@+id/action_copy_name"
+        android:orderInCategory="100"
+        android:title="@string/title_copy_name"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_make_lazy_rule_keep"
+        android:orderInCategory="100"
+        android:title="@string/title_make_lazy_rule_as_keep"
+        app:showAsAction="never" />
+
+</menu>
+

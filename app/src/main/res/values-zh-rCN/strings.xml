@@ -612,4 +612,6 @@
     <string name="title_lazy_solutions">方案·可同时启用</string>
     <string name="summary_lazy_solution_app">适用于EMUI等第三方ROM，由注入App的监听器管理服务。新增或者移除乖巧应用需要完全重启设备。</string>
     <string name="summary_lazy_solution_fw">适用于AOSP ROM，由注入系统框架层的应用管理核心来控制。新增或者移除乖巧应用无需重启。</string>
+    <string name="title_make_lazy_rule_as_keep">生成并导入到乖巧KEEP规则</string>
+    <string name="title_make_lazy_rule_as_keep_success">已经为你导入到规则，并且复制到了剪贴板:)</string>
 </resources>

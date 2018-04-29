@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.service.notification.StatusBarNotification;
 import android.view.KeyEvent;
 
 import java.util.List;
@@ -138,7 +139,12 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
-    public void onNotificationPosted() {
+    public void onNotificationPosted(StatusBarNotification sbn) {
+
+    }
+
+    @Override
+    public void onNotificationRemoved(StatusBarNotification sbn) {
 
     }
 
