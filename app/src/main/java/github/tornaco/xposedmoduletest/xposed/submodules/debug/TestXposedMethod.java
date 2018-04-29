@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.xposed.submodules.debug;
 import java.lang.reflect.Method;
 
 import de.robv.android.xposed.XposedHelpers;
+import dev.nick.eventbus.utils.ReflectionUtils;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -12,13 +13,30 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 public class TestXposedMethod extends SuperClassTest {
 
     public void main() {
-        Object testXpMethodObj = this;
+        try {
+            Object testXpMethodObj = this;
 
-        for (Method m : getClass().getDeclaredMethods()) {
-            XposedLog.wtf("DEBUG-TEST: " + m);
+            for (Method m : getClass().getDeclaredMethods()) {
+                XposedLog.wtf("DEBUG-TEST: " + m);
+            }
+
+
+            try {
+                XposedHelpers.callMethod(testXpMethodObj, "sayHello");
+            } catch (Throwable e){
+                XposedLog.wtf("DEBUG-TEST 1@: " + e);
+            }
+
+
+            // 2.
+            XposedLog.wtf("*****************************");
+
+            Method hello = ReflectionUtils.findMethod(getClass(), "sayHello");
+            ReflectionUtils.makeAccessible(hello);
+            ReflectionUtils.invokeMethod(hello, testXpMethodObj);
+
+        } catch (Throwable e) {
+            XposedLog.wtf("DEBUG-TEST: " + e);
         }
-
-        XposedHelpers.callMethod(testXpMethodObj, "sayHello");
-
     }
 }

@@ -8,7 +8,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 public class SuperClassTest {
 
-    public void sayHello() {
+    private void sayHello() {
         XposedLog.wtf("DEBUG-TEST Hello I am: " + getClass());
     }
 }

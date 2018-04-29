@@ -149,7 +149,7 @@ dependencies {
     implementation 'com.github.nekocode:Badge:2.0'
 }
 
-apply plugin: 'com.google.gms.google-services'
+// apply plugin: 'com.google.gms.google-services'
 
 
 

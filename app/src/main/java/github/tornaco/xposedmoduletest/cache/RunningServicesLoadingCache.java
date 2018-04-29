@@ -59,7 +59,7 @@ public class RunningServicesLoadingCache {
             .expireAfterAccess(60, TimeUnit.SECONDS)
             .build(new CacheLoader<String, RunningServicesData>() {
                 @Override
-                public RunningServicesData load(@NonNull String key) throws Exception {
+                public RunningServicesData load(@NonNull String key) {
                     try {
                         RunningState state = RunningState.getInstance(XApp.getApp().getApplicationContext());
                         state.updateNow();

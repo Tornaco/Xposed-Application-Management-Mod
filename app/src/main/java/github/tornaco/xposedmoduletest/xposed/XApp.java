@@ -102,8 +102,8 @@ public class XApp extends MultiDexApplication {
                             // Only test on debug build.
                             if (BuildConfig.DEBUG && sGMSSupported) {
                                 // Start IntentService to register this application with GCM.
-                                Intent intent = new Intent(activity.getApplicationContext(), XRegistrationIntentService.class);
-                                startService(intent);
+//                                Intent intent = new Intent(activity.getApplicationContext(), XRegistrationIntentService.class);
+//                                startService(intent);
                             }
 
                         }
