@@ -231,9 +231,6 @@ public abstract class BasePushNotificationHandler implements PushNotificationHan
                 if (in == null) return null;
                 int width = in.getWidth();
                 int newWidth = (int) (width * 1.5);
-                if (BuildConfig.DEBUG) {
-                    XposedLog.verbose("BasePushNotificationHandler, create scaled bitmap for small icon");
-                }
                 //noinspection SuspiciousNameCombination
                 return BitmapUtil.createScaledBitmap(in, newWidth, newWidth);
             };
