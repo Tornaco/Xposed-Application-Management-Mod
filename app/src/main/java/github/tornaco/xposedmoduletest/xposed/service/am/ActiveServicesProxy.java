@@ -15,6 +15,7 @@ import dev.nick.eventbus.utils.ReflectionUtils;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.service.ErrorCatchRunnable;
 import github.tornaco.xposedmoduletest.xposed.service.InvokeTargetProxy;
+import github.tornaco.xposedmoduletest.xposed.util.ClazzDumper;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -32,6 +33,8 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
             return (SparseArray) XposedHelpers.getObjectField(getHost(), "mServiceMap");
         } catch (Exception e) {
             XposedLog.wtf("ActiveServicesProxy Fail getMServiceMapField: " + Log.getStackTraceString(e));
+            new ErrorCatchRunnable(() -> ClazzDumper.dump(getHost().getClass(), ClazzDumper.XPOSED_LOG_PRINTER),
+                    "getMServiceMapField dump class").run();
             return null;
         }
     }
@@ -141,6 +144,12 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
     private static Method sCacheStopServiceLockedMethod = null;
 
     private boolean callStopServiceLockChecked(Object serviceRecordObj) {
+
+        if (BuildConfig.DEBUG) {
+            Class hostClass = getHost().getClass();
+            new ErrorCatchRunnable(() -> ClazzDumper.dump(hostClass, ClazzDumper.XPOSED_LOG_PRINTER), "ClazzDumper.dump for debug.").run();
+        }
+
         try {
             Method stopMethod = sCacheStopServiceLockedMethod;
             if (stopMethod == null) {
@@ -162,12 +171,10 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
         } catch (Throwable e) {
             XposedLog.wtf("FATAL *** ActiveServicesProxy fail callStopServiceLockChecked: " + Log.getStackTraceString(e));
             sCacheStopServiceLockedMethod = null;
+            new ErrorCatchRunnable(() -> ClazzDumper.dump(getHost().getClass(), ClazzDumper.XPOSED_LOG_PRINTER),
+                    "callStopServiceLockChecked dump class").run();
             return false;
         }
-    }
-
-    private static boolean isStandardAndroidActiveServicesClass(Class clazz) {
-        return clazz.getName().contains(ActiveServiceClassName);
     }
 
     static class ServiceMapProxy extends InvokeTargetProxy<Object> {
@@ -182,6 +189,8 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
                 return (ArrayMap) XposedHelpers.getObjectField(getHost(), "mServicesByName");
             } catch (Exception e) {
                 XposedLog.wtf("ActiveServicesProxy Fail getMServicesByNameField: " + Log.getStackTraceString(e));
+                new ErrorCatchRunnable(() -> ClazzDumper.dump(getHost().getClass(), ClazzDumper.XPOSED_LOG_PRINTER),
+                        "getMServicesByNameField dump class").run();
                 return null;
             }
         }
