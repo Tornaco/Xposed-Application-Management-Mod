@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
+import android.widget.Toast;
 
 import com.tencent.bugly.crashreport.BuglyLog;
 import com.tencent.bugly.crashreport.CrashReport;
@@ -29,6 +30,8 @@ import github.tornaco.xposedmoduletest.ui.widget.SimpleEmojiProvider;
 import github.tornaco.xposedmoduletest.util.ActvityLifeCycleAdapter;
 import github.tornaco.xposedmoduletest.util.GMSUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import github.tornaco.xposedmoduletest.xposed.service.XAshmanServiceImpl;
+import github.tornaco.xposedmoduletest.xposed.util.ClazzDumper;
 
 /**
  * Created by guohao4 on 2017/10/17.
@@ -150,5 +153,7 @@ public class XApp extends MultiDexApplication {
 
     private void forDev() {
         PushMessage.makeDummy();
+        ClazzDumper.dump(XAshmanServiceImpl.class, ClazzDumper.ANDROID_UTIL_LOG_PRINTER);
+        Toast.makeText(this, "Hello developer!", Toast.LENGTH_LONG).show();
     }
 }

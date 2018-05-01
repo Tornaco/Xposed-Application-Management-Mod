@@ -102,6 +102,8 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
     // Checked N M
     public void stopServicesForPackageUid(int uid, String[] packageNames, ServiceStopper serviceStopper) {
         XposedLog.verbose("ActiveServicesProxy stopServicesForPackageUid: " + Arrays.toString(packageNames));
+        new ErrorCatchRunnable(() -> ClazzDumper.dump(getHost().getClass(), ClazzDumper.XPOSED_LOG_PRINTER),
+                "stopServicesForPackageUid dump class").run();
 
         List<Object> serviceRecords = getServiceRecords(uid, packageNames);
 
