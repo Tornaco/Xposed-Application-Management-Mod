@@ -24,9 +24,29 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
 
+    // FIELD OF CLASS class com.android.server.am.ActiveServicesManager: final com.android.server.am.ActivityManagerService com.android.server.am.ActiveServicesManager.mAm
+    //FIELD OF CLASS class com.android.server.am.ActiveServicesManager: private com.android.server.am.ActiveServices com.android.server.am.ActiveServicesManager.mMainServices
+    //FIELD OF CLASS class com.android.server.am.ActiveServicesManager: private android.util.SparseArray com.android.server.am.ActiveServicesManager.mServices
+    //FIELD OF CLASS class com.android.server.am.ActiveServicesManager: private static final boolean com.android.server.am.ActiveServicesManager.DEBUG_ALL
+    //FIELD OF CLASS class com.android.server.am.ActiveServicesManager: private static final int com.android.server.am.ActiveServicesManager.MULTI_INSTANCE_ID
+    //FIELD OF CLASS class com.android.server.am.ActiveServicesManager: private static final java.lang.String com.android.server.am.ActiveServicesManager.TAG
     public ActiveServicesProxy(Object host) {
         super(host);
         ClazzDumper.dump(getHost().getClass(), new ClazzDumper.FilePrinter("ActiveServicesProxy"));
+
+        // Check host.
+        try {
+            if (host.getClass().getName().contains("com.android.server.am.ActiveServicesManager")) {
+                XposedLog.wtf("ActiveServicesProxy fix reference for 360OS!!!");
+                Object realHost = XposedHelpers.getObjectField(host, "mMainServices");
+                if (realHost != null) {
+                    setHost(realHost);
+                    XposedLog.wtf("ActiveServicesProxy fix reference for 360OS by: " + realHost);
+                }
+            }
+        } catch (Throwable e) {
+            XposedLog.wtf("ActiveServicesProxy fail fix for 360OS!!: " + Log.getStackTraceString(e));
+        }
     }
 
     private SparseArray getMServiceMapField() {
