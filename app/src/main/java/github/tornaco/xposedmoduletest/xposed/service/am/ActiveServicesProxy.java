@@ -26,6 +26,7 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
 
     public ActiveServicesProxy(Object host) {
         super(host);
+        ClazzDumper.dump(getHost().getClass(), new ClazzDumper.FilePrinter("ActiveServicesProxy"));
     }
 
     private SparseArray getMServiceMapField() {

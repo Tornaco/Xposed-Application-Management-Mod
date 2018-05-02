@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.ui.activity.helper;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
@@ -9,7 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.ui.activity.app.PerAppSettingsDashboardActivity;
+import github.tornaco.xposedmoduletest.cache.RunningServicesLoadingCache;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import lombok.Getter;
 import tornaco.lib.widget.CheckableImageView;
@@ -58,7 +59,11 @@ public class RunningServiceAdapter extends CommonPackageInfoAdapter {
         }
 
         holder.itemView.setOnClickListener(v -> {
-            PerAppSettingsDashboardActivity.start(getContext(), display.getPkgName());
+            // PerAppSettingsDashboardActivity.start(getContext(), display.getPkgName());
+            RunningServicesLoadingCache.getInstance().setMergedItem(display.getMergedItem());
+            Bundle args = RunningServiceDetails.makeServiceDetailsActivityBundle(display.getMergedItem());
+            RunningServicesDetailsActivity.start(getContext(), args);
+
             if (display.isSystemApp()) {
                 Toast.makeText(getContext(), R.string.system_app_need_ne_careful_running_services,
                         Toast.LENGTH_SHORT).show();

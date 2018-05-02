@@ -2098,7 +2098,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private static final String HOST_TYPE_CONTENT_PROVIDER = "content provider";
     private static final String HOST_TYPE_SERVICE = "service";
 
-    private static final Set<String> sProcessCheckType = Sets.newHashSet(HOST_TYPE_BROADCAST, HOST_TYPE_CONTENT_PROVIDER);
+    private static final Set<String> sProcessCheckType = Sets.newHashSet(HOST_TYPE_CONTENT_PROVIDER);
 
     @InternalCall
     @Override
@@ -4883,6 +4883,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
         addOrRemoveFromRepo(packages, RepoProxy.getProxy().getLazy(), op == XAshmanManager.Op.ADD);
+
+        if (op == XAshmanManager.Op.ADD) {
+            // Post a check.
+            for (String p : packages) {
+                postLazyServiceKillerIfNecessary(p, LAZY_KILL_SERVICE_NORMAL_INTERVAL, "Lazy-Added");
+            }
+        }
     }
 
     @Override
@@ -5792,13 +5799,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             // First stop by ActiveServices.
             // Now always do it for user build.
-            boolean stopped = mActiveServicesProxy.stopServiceLocked(serviceRecordProxy.getHost());
-            if (XposedLog.isVerboseLoggable()) {
-                XposedLog.verbose("LAZY stopService, ActiveServices stop res: " + stopped);
+            if (isAppServiceLazyControlSolutionEnable(XAshmanManager.AppServiceControlSolutions.FLAG_FW)) {
+                boolean stopped = mActiveServicesProxy.stopServiceLocked(serviceRecordProxy.getHost());
+                if (XposedLog.isVerboseLoggable()) {
+                    XposedLog.verbose("LAZY stopService, ActiveServices stop res: " + stopped);
+                }
             }
 
             // Stop with context.
-            if (BuildConfig.DEBUG && isAppServiceLazyControlSolutionEnable(XAshmanManager.AppServiceControlSolutions.FLAG_APP)) {
+            if (isAppServiceLazyControlSolutionEnable(XAshmanManager.AppServiceControlSolutions.FLAG_APP)) {
                 XposedLog.verbose("LAZY stopService, ActiveServices stop with control");
                 mAppServiceController.stopAppService(serviceRecordProxy.getName());
             }

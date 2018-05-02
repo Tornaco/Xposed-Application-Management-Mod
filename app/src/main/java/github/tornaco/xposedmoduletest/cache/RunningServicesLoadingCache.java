@@ -20,6 +20,7 @@ import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.XApp;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Created by guohao4 on 2018/3/6.
@@ -27,6 +28,10 @@ import lombok.Getter;
  */
 
 public class RunningServicesLoadingCache {
+
+    @Setter
+    @Getter
+    private RunningState.MergedItem mergedItem;
 
     @AllArgsConstructor
     @Getter
