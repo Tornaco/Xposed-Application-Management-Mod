@@ -8046,7 +8046,30 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             if (who != null && !who.equals(from)) {
                 mTopPackageImd.setData(who);
                 postNotifyTopPackageChanged(from, who);
+
+                // Check if we need to add app process for this host.
+                ErrorCatchRunnable er = new ErrorCatchRunnable(() -> addAppForLazyIfNeeded(who), "LAZY addAppForLazyIfNeeded");
+                er.run();
             }
+        }
+
+        private void addAppForLazyIfNeeded(String who) {
+            if (isLazyModeEnabledForPackage(who)) {
+              if (isLazyRuleEnabled()){
+                  @LazyRuleCheck
+                  boolean hasAddAppRule = RepoProxy.getProxy().getLazy_rules().has(constructAddAppRuleForLazy(who));
+                  if (hasAddAppRule) {
+                      XposedLog.verbose("LAZY, addAppForLazyIfNeeded: " + who);
+                      addApp(who);
+                  }
+              }
+            }
+        }
+
+        // ADDAPP ONLAUNCH com.tencent.mm
+        private String[] constructAddAppRuleForLazy(String who) {
+            String rule = String.format("ADDAPP ONLAUNCH %s", who);
+            return new String[]{rule};
         }
 
         @Override
