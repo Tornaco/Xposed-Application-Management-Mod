@@ -45,7 +45,7 @@ class ServiceSubModule extends AndroidSubModule {
                                 throws Throwable {
                             super.afterHookedMethod(param);
 
-                            Log.d(XposedLog.TAG_LAZY, "attach service: " + Arrays.toString(param.args));
+                            // Log.d(XposedLog.TAG_LAZY, "attach service: " + Arrays.toString(param.args));
 
                             final Service service = (Service) param.thisObject;
 

@@ -14,6 +14,16 @@
         <item>com.android.mms.service</item>
         <item>com.validation</item>
 
+        <!--providers-->
+        <item>com.android.providers.media</item>
+        <item>com.android.providers.calendar</item>
+        <item>com.android.providers.downloads</item>
+        <item>com.android.providers.downloads.ui</item>
+        <item>com.android.providers.settings</item>
+        <item>com.android.providers.telephony</item>
+        <item>com.android.providers.userdictionary</item>
+        <item>com.android.providers.phone</item>
+
         <item>com.zui.incallui</item>
 
         <item>github.tornaco.xposedmoduletest</item>

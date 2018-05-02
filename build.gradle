@@ -38,6 +38,7 @@ ext {
     supportLibraryVersion = '27.0.2'
 
     supportAppCompat = "com.android.support:appcompat-v7:$supportLibraryVersion"
+    supportPreference = "com.android.support:preference-v14:$supportLibraryVersion"
     supportDesign = "com.android.support:design:$supportLibraryVersion"
     supportPelette = "com.android.support:palette-v7:$supportLibraryVersion"
     supportV4CoreUi = "com.android.support:support-core-ui:$supportLibraryVersion"

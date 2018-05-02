@@ -22,6 +22,7 @@ class RunningServiceInfoDisplay extends CommonPackageInfo {
         this.mergedItem = mergedItem;
 
         PackageManager pm = context.getPackageManager();
+
         if (mergedItem.mPackageInfo == null) {
             // Items for background processes don't normally load
             // their labels for performance reasons.  Do it now.

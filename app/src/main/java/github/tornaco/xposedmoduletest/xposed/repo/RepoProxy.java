@@ -121,9 +121,18 @@ public class RepoProxy {
         return new File(getBaseDataDir(), "trace");
     }
 
+    public static File getDebugDumpDir() {
+        return new File(getBaseDataDir(), "dump");
+    }
+
     public static File getSystemErrorTraceDirByVersion() {
         String versionName = String.valueOf(BuildConfig.VERSION_CODE);
         return new File(getSystemErrorTraceDir(), versionName);
+    }
+
+    public static File getDebugDumpDirByVersion() {
+        String versionName = String.valueOf(BuildConfig.VERSION_CODE);
+        return new File(getDebugDumpDir(), versionName);
     }
 
     private static void cleanUpBaseDataDir() {

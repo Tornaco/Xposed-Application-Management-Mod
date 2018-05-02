@@ -79,6 +79,7 @@ dependencies {
     implementation rootProject.ext.supportDesign
     implementation rootProject.ext.supportPelette
     implementation rootProject.ext.supportRecyclerView
+    implementation rootProject.ext.supportPreference
 
 
     implementation 'com.github.Tornaco:Logger:1.1.3'

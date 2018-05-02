@@ -11,7 +11,7 @@
     <string name="running_processes_header_free_prefix" msgid="4620613031737078415">"可用"</string>
     <string name="running_processes_header_used_prefix" msgid="5924288703085123978">"已用"</string>
     <string name="running_processes_header_cached_prefix" msgid="7950853188089434987">"缓存"</string>
-    <string name="running_processes_header_ram" msgid="996092388884426817">"<xliff:g id="RAM_0">%1$s</xliff:g>"</string>
+    <string name="running_processes_header_ram">%1$s</string>
     <string name="runningservicedetails_settings_title" msgid="3224004818524731568">"正在运行的应用"</string>
     <string name="no_services" msgid="7133900764462288263">"无活动服务"</string>
     <string name="runningservicedetails_services_title" msgid="391168243725357375">"服务"</string>
@@ -38,4 +38,11 @@
     <string name="service_started_by_app" msgid="818675099014723551">"由应用启动。"</string>
     <string name="service_client_name" msgid="818675099014723551">"客户端%1$s"</string>
     <string name="service_process_name" msgid="818675099014723551">"进程%1$s"</string>
+
+
+    <!--Colors-->
+    <color name="running_processes_system_ram">#ff384248</color>
+    <color name="running_processes_free_ram">#ffced7db</color>
+
+    <dimen name="settings_side_margin">0dip</dimen>
 </resources>

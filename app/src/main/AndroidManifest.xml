@@ -3,6 +3,7 @@
     package="github.tornaco.xposedmoduletest">
 
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
     <uses-permission android:name="com.fingerprints.service.ACCESS_FINGERPRINT_MANAGER" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -11,13 +12,13 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.READ_LOGS" />
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
     <uses-permission android:name="com.android.launcher.permission.UNINSTALL_SHORTCUT" />
     <uses-permission android:name="android.permission.INSTALL_SHORTCUT" />
     <uses-permission android:name="android.permission.UNINSTALL_SHORTCUT" />
 
     <uses-permission android:name="android.permission.RUN_IN_BACKGROUND" />
+    <uses-permission android:name="android.permission.READ_LOGS" />
 
     <uses-permission android:name="com.android.vending.BILLING" />
 
@@ -206,6 +207,11 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.helper.RunningServicesActivity"
+            android:exported="true"
+            android:label="@string/title_running_services"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.helper.RunningServicesDetailsActivity"
             android:exported="true"
             android:label="@string/title_running_services"
             android:theme="@style/AppThemeLight.NoActionBar" />
