@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.ui.activity.green2;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -37,9 +38,14 @@ public class LazySettingsDashboardActivity extends BaseActivity {
             personal.addTile(new General(getActivity()));
 
             Category solutions = new Category();
+            solutions.moreDrawableRes = R.drawable.ic_help_black_24dp;
+            solutions.onMoreButtonClickListener = v -> {
+                Toast.makeText(getActivity(), R.string.summary_lazy_solution_suggestion, Toast.LENGTH_LONG).show();
+            };
             solutions.titleRes = R.string.title_lazy_solutions;
             solutions.addTile(new LazySolutionApp(getActivity()));
             solutions.addTile(new LazySolutionFw(getActivity()));
+            // solutions.addTile(new LazySolutionSuggestion(getActivity()));
 
             categories.add(personal);
             categories.add(solutions);

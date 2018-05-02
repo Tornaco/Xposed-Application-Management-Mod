@@ -297,9 +297,9 @@ public class RunningServiceDetails extends PreferenceFragment {
                     si.mRunningService.service);
         }
 
-        TextView description = (TextView) root.findViewById(R.id.comp_description);
-        detail.mStopButton = (Button) root.findViewById(R.id.left_button);
-        detail.mReportButton = (Button) root.findViewById(R.id.right_button);
+        TextView description = root.findViewById(R.id.comp_description);
+        detail.mStopButton = root.findViewById(R.id.left_button);
+        detail.mReportButton = root.findViewById(R.id.right_button);
 
         if (false
 //                && isService && mi.mUserId != UserHandle.myUserId()
@@ -365,7 +365,7 @@ public class RunningServiceDetails extends PreferenceFragment {
         detail.mViewHolder = new RunningProcessesView.ViewHolder(root);
         detail.mActiveItem = detail.mViewHolder.bind(mState, pi, mBuilder);
 
-        TextView description = (TextView) root.findViewById(R.id.comp_description);
+        TextView description = root.findViewById(R.id.comp_description);
         if (false
 //                &&pi.mUserId != UserHandle.myUserId()
                 ) {
@@ -543,8 +543,8 @@ public class RunningServiceDetails extends PreferenceFragment {
         Utils.prepareCustomPreferencesList(container, view, view, false);
 
         mRootView = view;
-        mAllDetails = (ViewGroup) view.findViewById(R.id.all_details);
-        mSnippet = (ViewGroup) view.findViewById(R.id.snippet);
+        mAllDetails = view.findViewById(R.id.all_details);
+        mSnippet = view.findViewById(R.id.snippet);
         mSnippetViewHolder = new RunningProcessesView.ViewHolder(mSnippet);
 
         // We want to retrieve the data right now, so any active managed
@@ -607,7 +607,7 @@ public class RunningServiceDetails extends PreferenceFragment {
             int id = getArguments().getInt("id");
             switch (id) {
                 case DIALOG_CONFIRM_STOP: {
-                    final ComponentName comp = (ComponentName) getArguments().getParcelable("comp");
+                    final ComponentName comp = getArguments().getParcelable("comp");
                     if (getOwner().activeDetailForService(comp) == null) {
                         return null;
                     }

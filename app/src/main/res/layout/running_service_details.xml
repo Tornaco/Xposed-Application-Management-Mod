@@ -24,6 +24,8 @@
         android:id="@+id/all_details"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin_middle"
+        android:layout_marginStart="@dimen/activity_horizontal_margin_middle"
         android:orientation="vertical">
 
         <!-- Summary information as per previous screen -->

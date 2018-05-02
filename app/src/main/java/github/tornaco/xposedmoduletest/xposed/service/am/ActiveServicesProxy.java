@@ -96,12 +96,12 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
         return res;
     }
 
-    public void stopServicesForPackageUid(int uid, String packageName, ServiceStopper serviceStopper) {
+    public void stopServicesForPackageUid(int uid, String packageName, ActiveServicesServiceStopper serviceStopper) {
         stopServicesForPackageUid(uid, new String[]{packageName}, serviceStopper);
     }
 
     // Checked N M
-    public void stopServicesForPackageUid(int uid, String[] packageNames, ServiceStopper serviceStopper) {
+    public void stopServicesForPackageUid(int uid, String[] packageNames, ActiveServicesServiceStopper serviceStopper) {
         XposedLog.verbose("ActiveServicesProxy stopServicesForPackageUid: " + Arrays.toString(packageNames));
         new ErrorCatchRunnable(() -> ClazzDumper.dump(getHost().getClass(), ClazzDumper.ANDROID_UTIL_LOG_PRINTER),
                 "stopServicesForPackageUid dump class").run();

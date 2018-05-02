@@ -48,10 +48,10 @@ public class AppServiceController {
         }
     }
 
-    public void stopAppService(ComponentName serviceName) {
-        if (serviceName != null) {
+    public void stopAppService(String servicePackageName, AppServiceControlServiceStopper serviceStopper) {
+        if (servicePackageName != null) {
             if (XposedLog.isVerboseLoggable()) {
-                XposedLog.verbose(XposedLog.TAG_LAZY + "AppServiceController stopAppService: " + serviceName);
+                XposedLog.verbose(XposedLog.TAG_LAZY + "AppServiceController called @stopAppService: " + servicePackageName);
             }
             try {
                 int itemCount = mServiceControls.beginBroadcast();
@@ -59,14 +59,20 @@ public class AppServiceController {
                     try {
                         IServiceControl control = mServiceControls.getBroadcastItem(i);
                         ComponentName controlName = control.getServiceComponent();
+                        String controlPackageName = controlName.getPackageName();
                         if (XposedLog.isVerboseLoggable()) {
-                            XposedLog.verbose(XposedLog.TAG_LAZY + "stopAppService checking: %s target: %s", controlName, serviceName);
+                            XposedLog.verbose(XposedLog.TAG_LAZY + "AppServiceController @stopAppService checking: %s target: %s",
+                                    controlName, servicePackageName);
                         }
-                        if (serviceName.equals(controlName)) {
-                            control.stopService();
-
+                        if (servicePackageName.equals(controlPackageName)) {
+                            if (XposedLog.isVerboseLoggable()) {
+                                XposedLog.verbose(XposedLog.TAG_LAZY + "AppServiceController matched @stopService: %s target: %s",
+                                        controlName, servicePackageName);
+                            }
                             // UnRegister.
-                            unRegisterController(control);
+                            if (serviceStopper.stopService(control)) {
+                                unRegisterController(control);
+                            }
                         }
                     } catch (Throwable ignored) {
                         // We tried...

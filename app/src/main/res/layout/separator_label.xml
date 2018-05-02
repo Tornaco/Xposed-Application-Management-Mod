@@ -16,4 +16,6 @@
 */
 -->
 
-<TextView style="?android:attr/listSeparatorTextViewStyle" />
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    style="?android:attr/listSeparatorTextViewStyle"
+    android:layout_marginStart="@dimen/activity_horizontal_margin_middle" />

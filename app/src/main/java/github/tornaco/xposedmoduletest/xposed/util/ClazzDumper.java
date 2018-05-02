@@ -69,13 +69,13 @@ public class ClazzDumper {
 
         @Override
         public void println(String line) {
-            sb.append(line);
+            sb.append(line).append("\n");
             ANDROID_UTIL_LOG_PRINTER.println(line);
         }
 
         @Override
         public void end() {
-            File traceDir = RepoProxy.getSystemErrorTraceDirByVersion();
+            File traceDir = RepoProxy.getDebugDumpDirByVersion();
             String fileNameFixed = fileName + "-" + DateUtils.formatForFileName(System.currentTimeMillis());
             File f = new File(traceDir, fileNameFixed);
             try {
@@ -96,6 +96,7 @@ public class ClazzDumper {
     }
 
     public static void dump(Class clazz, Printer printer) {
+        printer.start();
         // Dump class header.
         printer.println(String.format("\n**** CLAZZ DUMPER START DUMP OF %s ***", clazz));
         // Dump methods.
@@ -116,5 +117,6 @@ public class ClazzDumper {
         }
         // End.
         printer.println(String.format("**** CLAZZ DUMPER END DUMP OF %s ***\n", clazz));
+        printer.end();
     }
 }

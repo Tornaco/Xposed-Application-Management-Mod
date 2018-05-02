@@ -131,12 +131,13 @@ import github.tornaco.xposedmoduletest.xposed.repo.SetRepo;
 import github.tornaco.xposedmoduletest.xposed.repo.SettingsProvider;
 import github.tornaco.xposedmoduletest.xposed.service.am.AMSProxy;
 import github.tornaco.xposedmoduletest.xposed.service.am.ActiveServicesProxy;
+import github.tornaco.xposedmoduletest.xposed.service.am.ActiveServicesServiceStopper;
 import github.tornaco.xposedmoduletest.xposed.service.am.AppIdler;
+import github.tornaco.xposedmoduletest.xposed.service.am.AppServiceControlServiceStopper;
 import github.tornaco.xposedmoduletest.xposed.service.am.AppServiceController;
 import github.tornaco.xposedmoduletest.xposed.service.am.InactiveAppIdler;
 import github.tornaco.xposedmoduletest.xposed.service.am.KillAppIdler;
 import github.tornaco.xposedmoduletest.xposed.service.am.ServiceRecordProxy;
-import github.tornaco.xposedmoduletest.xposed.service.am.ServiceStopper;
 import github.tornaco.xposedmoduletest.xposed.service.am.UsageStatsServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.bandwidth.BandwidthCommandCompat;
 import github.tornaco.xposedmoduletest.xposed.service.doze.BatterState;
@@ -2330,7 +2331,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 && isPackageLazyByUser(servicePkgName);
         // Lazy, and not on top.
         // !servicePkgName.equals(mTopPackageImd.getData()).
-        if (isLazy && !isPackageRunningOnTop(servicePkgName)) {
+        if (isLazy && !isPackageRunningOnTop(servicePkgName) && !isPackageRunningOnTopDelay(servicePkgName)) {
             @LazyRuleCheck
             boolean keepForLazy = isSameCaller && !confirmToStopLazyService(servicePkgName, componentName);
             return keepForLazy ? CheckResult.ALLOWED_LAZY_KEEPED : CheckResult.DENIED_LAZY;
@@ -3474,7 +3475,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         boolean isLazy = isLazyModeEnabled()
                 && isPackageLazyByUser(receiverPkgName);
         // receiverPkgName.equals(mTopPackageImd.getData()).
-        if (isLazy && !isPackageRunningOnTop(receiverPkgName)) {
+        if (isLazy && !isPackageRunningOnTop(receiverPkgName) && !isPackageRunningOnTopDelay(receiverPkgName)) {
             return CheckResult.DENIED_LAZY;
         }
 
@@ -5681,6 +5682,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         return pkg != null && pkg.equals(mTopPackageImd.getData());
     }
 
+    private boolean isPackageRunningOnTopDelay(String pkg) {
+        return pkg != null && pkg.equals(mTopPackageDelay.getData());
+    }
+
     private boolean confirmToStopLazyService(String packageName, ComponentName name) {
         // Rule not enabled, always stop it.
         if (!isLazyRuleEnabled()) {
@@ -5695,7 +5700,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         // Check if on top again.
-        if (isPackageRunningOnTop(packageName)) {
+        if (isPackageRunningOnTop(packageName) || isPackageRunningOnTopDelay(packageName)) {
             XposedLog.verbose("LAZY confirmToStopLazyService, pkg still on top!!!");
             return false;
         }
@@ -5756,64 +5761,111 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 // return;
             }
 
+            boolean isFwSolution = isAppServiceLazyControlSolutionEnable(XAshmanManager.AppServiceControlSolutions.FLAG_FW);
             // Invoke ActiveServices.
-            if (mActiveServicesProxy != null) {
+            if (isFwSolution) {
+                if (mActiveServicesProxy != null) {
+                    XposedLog.verbose("LAZY, isFwSolution candidate package to kill: " + targetServicePkg);
 
-                if (XposedLog.isVerboseLoggable()) {
-                    XposedLog.verbose("DUMP LAZY, mActiveServicesProxy host: " + mActiveServicesProxy.getHost());
-                    if (mAmsProxy != null)
-                        XposedLog.verbose("DUMP LAZY, ActiveServices in AMS: " + mAmsProxy.newActiveServicesProxy().getHost());
-                }
-
-                XposedLog.verbose("LAZY, candidate package to kill: " + targetServicePkg);
-
-                int uid = PkgUtil.uidForPkg(getContext(), targetServicePkg);
-                if (uid > 0) {
-                    mActiveServicesProxy.stopServicesForPackageUid(uid, new String[]{targetServicePkg}, mServiceStopperProxy);
+                    int uid = PkgUtil.uidForPkg(getContext(), targetServicePkg);
+                    if (uid > 0) {
+                        mActiveServicesProxy.stopServicesForPackageUid(uid, new String[]{targetServicePkg},
+                                mActiveServicesServiceStopperProxy);
+                    } else {
+                        XposedLog.wtf("LAZY, package uid is NOT valid!!!");
+                    }
                 } else {
-                    XposedLog.wtf("LAZY, package uid is NOT valid!!!");
+                    XposedLog.wtf("LAZY, mActiveServicesProxy is null !!!");
                 }
-            } else {
-                XposedLog.wtf("LAZY, mActiveServicesProxy is null !!!");
+            }
+
+            // Invoke App service control.
+            boolean isAppSolution = isAppServiceLazyControlSolutionEnable(XAshmanManager.AppServiceControlSolutions.FLAG_APP);
+            if (isAppSolution) {
+                XposedLog.verbose("LAZY, isAppSolution candidate package to kill: " + targetServicePkg);
+                mAppServiceController.stopAppService(targetServicePkg, mAppServiceControllerServiceStopperProxy);
             }
         }
     }
 
-    private ServiceStopper mServiceStopperProxy = new ServiceStopper() {
+    private ActiveServicesServiceStopper mActiveServicesServiceStopperProxy
+            = new ActiveServicesServiceStopper() {
 
         @Override
         public boolean stopService(ServiceRecordProxy serviceRecordProxy) {
 
+            if (XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose("LAZY mAppServiceControllerServiceStopperProxy now stop: " + serviceRecordProxy.getName());
+            }
+
             boolean confirm = confirmToStopLazyService(serviceRecordProxy.getPackageName(), serviceRecordProxy.getName());
             if (!confirm) {
                 if (XposedLog.isVerboseLoggable()) {
-                    XposedLog.verbose("LAZY stopService, skip for no confirm: " + serviceRecordProxy.getName());
+                    XposedLog.verbose("LAZY mActiveServicesServiceStopperProxy stopService, skip for no confirm: "
+                            + serviceRecordProxy.getName());
                 }
                 return false;
             }
 
             // Let's do stop.
             if (XposedLog.isVerboseLoggable()) {
-                XposedLog.verbose("LAZY mServiceStopperProxy stopping service: " + serviceRecordProxy);
+                XposedLog.verbose("LAZY mActiveServicesServiceStopperProxy stopping service: " + serviceRecordProxy);
             }
 
             // First stop by ActiveServices.
             // Now always do it for user build.
-            if (isAppServiceLazyControlSolutionEnable(XAshmanManager.AppServiceControlSolutions.FLAG_FW)) {
-                boolean stopped = mActiveServicesProxy.stopServiceLocked(serviceRecordProxy.getHost());
-                if (XposedLog.isVerboseLoggable()) {
-                    XposedLog.verbose("LAZY stopService, ActiveServices stop res: " + stopped);
-                }
+            boolean stopped = mActiveServicesProxy.stopServiceLocked(serviceRecordProxy.getHost());
+            if (XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose("LAZY stopService, mActiveServicesServiceStopperProxy stop res: " + stopped);
             }
-
-            // Stop with context.
-            if (isAppServiceLazyControlSolutionEnable(XAshmanManager.AppServiceControlSolutions.FLAG_APP)) {
-                XposedLog.verbose("LAZY stopService, ActiveServices stop with control");
-                mAppServiceController.stopAppService(serviceRecordProxy.getName());
-            }
-
             return true;
         }
+    };
+
+    private final AppServiceControlServiceStopper mAppServiceControllerServiceStopperProxy
+            = control -> {
+
+        ComponentName name = null;
+        try {
+            name = control.getServiceComponent();
+        } catch (RemoteException e) {
+            XposedLog.wtf("LAZY Fail retrieve getServiceComponent: " + Log.getStackTraceString(e));
+            return false;
+        }
+
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("LAZY mAppServiceControllerServiceStopperProxy now stop: " + name);
+        }
+
+        if (name == null) return false;
+
+        boolean confirm = confirmToStopLazyService(name.getPackageName(), name);
+        if (!confirm) {
+            if (XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose("LAZY mAppServiceControllerServiceStopperProxy stopService," +
+                        " skip for no confirm: " + name);
+            }
+            return false;
+        }
+
+        // Let's do stop.
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("LAZY mAppServiceControllerServiceStopperProxy stopping service: " + name);
+        }
+
+        // First stop by ActiveServices.
+        // Now always do it for user build.
+        boolean stopped = true;
+        try {
+            control.stopService();
+        } catch (RemoteException e) {
+            XposedLog.wtf("LAZY Fail call control.stopService(): " + Log.getStackTraceString(e));
+            stopped = false;
+        }
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("LAZY stopService, mAppServiceControllerServiceStopperProxy stop res: " + stopped);
+        }
+        return stopped;
     };
 
     private void notifyTopPackageChanged(final String from, final String to) {
