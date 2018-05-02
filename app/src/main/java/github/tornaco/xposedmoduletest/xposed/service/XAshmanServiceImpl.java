@@ -2099,7 +2099,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private static final String HOST_TYPE_CONTENT_PROVIDER = "content provider";
     private static final String HOST_TYPE_SERVICE = "service";
 
-    private static final Set<String> sProcessCheckType = Sets.newHashSet(HOST_TYPE_CONTENT_PROVIDER);
+    private static final Set<String> sProcessCheckType = Sets.newHashSet(HOST_TYPE_CONTENT_PROVIDER, HOST_TYPE_BROADCAST);
 
     @InternalCall
     @Override
@@ -2110,6 +2110,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         CheckResult checkResult = checkStartProcessDetailed(applicationInfo, hostType, hostName);
+
+        logStartProcessEventToMemory(StartProcessEvent.builder()
+                .allowed(checkResult.res)
+                .caller(Binder.getCallingUid())
+                .hostName(hostName)
+                .hostType(hostType)
+                .when(System.currentTimeMillis())
+                .why(checkResult.why)
+                .packageName(applicationInfo.packageName)
+                .build());
+
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("checkStartProcess: callingUid: %s %s %s %s %s",
                     Binder.getCallingUid(),
@@ -3582,6 +3593,52 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         return Intent.ACTION_BOOT_COMPLETED.equals(action);
     }
 
+    private void logStartProcessEventToMemory(StartProcessEvent startProcessEvent) {
+        if (isPowerSaveModeEnabled()) {
+            return;
+        }
+        Runnable r = () -> {
+            String callerPkg =
+                    PkgUtil.isSystemOrPhoneOrShell(startProcessEvent.caller)
+                            ? "android"
+                            : PkgUtil.pkgForUid(getContext(), startProcessEvent.caller);
+            BlockRecord2 old = getBlockRecord(startProcessEvent.packageName);
+            long blockedTimes = old == null ? 0 : old.getHowManyTimesBlocked();
+            long allowedTimes = old == null ? 0 : old.getHowManyTimesAllowed();
+
+            BlockRecord2 blockRecord2 = BlockRecord2.builder()
+                    .pkgName(startProcessEvent.packageName)
+                    .callerPkgName(callerPkg)
+                    .howManyTimesBlocked(startProcessEvent.allowed ? blockedTimes : blockedTimes + 1)
+                    .howManyTimesAllowed(startProcessEvent.allowed ? allowedTimes + 1 : allowedTimes)
+                    .reason(startProcessEvent.why)
+                    .timeWhen(System.currentTimeMillis())
+                    .block(!startProcessEvent.allowed)
+                    .type(blockRecordTypeFromHostType(startProcessEvent.hostType))
+                    .build();
+
+            if (XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose("PROCESS BlockRecord2: " + blockRecord2);
+            }
+            addBlockRecord(blockRecord2);
+
+            // Add to cache.
+            mStartRecordCache.addStartRecordForPackage(startProcessEvent.packageName, blockRecord2);
+        };
+
+        mLoggingService.execute(new ErrorCatchRunnable(r, "logStartProcessEventToMemory"));
+
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_NOTIFYSTARTBLOCK, startProcessEvent.packageName).sendToTarget();
+    }
+
+    private static int blockRecordTypeFromHostType(String hostType) {
+        if (HOST_TYPE_BROADCAST.equals(hostType)) return BlockRecord2.TYPE_BROADCAST;
+        if (HOST_TYPE_ACTIVITY.equals(hostType)) return BlockRecord2.TYPE_ACTIVITY;
+        if (HOST_TYPE_SERVICE.equals(hostType)) return BlockRecord2.TYPE_SERVICE;
+        if (HOST_TYPE_CONTENT_PROVIDER.equals(hostType)) return BlockRecord2.TYPE_CONTENT_PROVIDER;
+        return BlockRecord2.TYPE_UNKNOWN;
+    }
+
     private void logServiceBlockEventToMemory(final ServiceEvent serviceEvent) {
         if (isPowerSaveModeEnabled()) {
             return;
@@ -3603,6 +3660,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                     .reason(serviceEvent.why)
                     .timeWhen(System.currentTimeMillis())
                     .block(!serviceEvent.allowed)
+                    .type(BlockRecord2.TYPE_SERVICE)
                     .build();
             if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("SVC BlockRecord2: " + blockRecord2);
@@ -3649,6 +3707,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                     .reason(broadcastEvent.why)
                     .timeWhen(System.currentTimeMillis())
                     .block(!broadcastEvent.allowed)
+                    .type(BlockRecord2.TYPE_BROADCAST)
                     .build();
             if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("BRD BlockRecord2: " + blockRecord2);
@@ -4153,6 +4212,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             return mLazySolutionFW.get();
         }
         return false;
+    }
+
+    @Override
+    public void forceIdlePackages(String[] packages) {
+        enforceCallingPermissions();
+        XposedLog.verbose("forceIdlePackages: " + Arrays.toString(packages));
+        wrapCallingIdetUnCaught(new ErrorCatchRunnable(() -> {
+            for (String p : packages) {
+                getAppIdler().setAppIdle(p);
+            }
+        }, "forceStopPackages"));
     }
 
     private void stopServiceInternal(Intent serviceIntent) {
@@ -5660,7 +5730,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         postLazyServiceKillerIfNecessary(from, LAZY_KILL_SERVICE_NORMAL_INTERVAL, "Package-Move-Front");
     }
 
-    private static final long LAZY_KILL_SERVICE_NORMAL_INTERVAL = 3 * 1000;
+    private static final long LAZY_KILL_SERVICE_NORMAL_INTERVAL = 5 * 1000;
     private static final long LAZY_KILL_SERVICE_NOTIFICATION_INTERVAL = LAZY_KILL_SERVICE_NORMAL_INTERVAL;
 
     private void postLazyServiceKillerIfNecessary(String packageName, long intervalToPerform, String reason) {
@@ -5762,10 +5832,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             }
 
             boolean isFwSolution = isAppServiceLazyControlSolutionEnable(XAshmanManager.AppServiceControlSolutions.FLAG_FW);
+
+
             // Invoke ActiveServices.
             if (isFwSolution) {
                 if (mActiveServicesProxy != null) {
                     XposedLog.verbose("LAZY, isFwSolution candidate package to kill: " + targetServicePkg);
+
+                    toastLazyAppTipsIfNeeded(targetServicePkg, "B");
 
                     int uid = PkgUtil.uidForPkg(getContext(), targetServicePkg);
                     if (uid > 0) {
@@ -5783,9 +5857,27 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             boolean isAppSolution = isAppServiceLazyControlSolutionEnable(XAshmanManager.AppServiceControlSolutions.FLAG_APP);
             if (isAppSolution) {
                 XposedLog.verbose("LAZY, isAppSolution candidate package to kill: " + targetServicePkg);
+                toastLazyAppTipsIfNeeded(targetServicePkg, "A");
                 mAppServiceController.stopAppService(targetServicePkg, mAppServiceControllerServiceStopperProxy);
             }
         }
+    }
+
+    private void toastLazyAppTipsIfNeeded(String packageName, String solutionName) {
+        // Check if tips enabled.
+        ErrorCatchRunnable er = new ErrorCatchRunnable(() -> {
+            boolean optLazyTipsEnabled = isOptFeatureEnabled("LAZY_APP_TIPS");
+            if (optLazyTipsEnabled) {
+                Toast.makeText(getContext(),
+                        String.format("即将为 %s 断开服务，本次采用方案%s。",
+                                PkgUtil.loadNameByPkgName(getContext(), packageName),
+                                solutionName),
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+        }, "toastLazyAppTipsIfNeeded");
+        er.run();
+        // Do not bother for error.
     }
 
     private ActiveServicesServiceStopper mActiveServicesServiceStopperProxy
@@ -8055,14 +8147,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         private void addAppForLazyIfNeeded(String who) {
             if (isLazyModeEnabledForPackage(who)) {
-              if (isLazyRuleEnabled()){
-                  @LazyRuleCheck
-                  boolean hasAddAppRule = RepoProxy.getProxy().getLazy_rules().has(constructAddAppRuleForLazy(who));
-                  if (hasAddAppRule) {
-                      XposedLog.verbose("LAZY, addAppForLazyIfNeeded: " + who);
-                      addApp(who);
-                  }
-              }
+                if (isLazyRuleEnabled()) {
+                    @LazyRuleCheck
+                    boolean hasAddAppRule = RepoProxy.getProxy().getLazy_rules().has(constructAddAppRuleForLazy(who));
+                    if (hasAddAppRule) {
+                        XposedLog.verbose("LAZY, addAppForLazyIfNeeded: " + who);
+                        addApp(who);
+                    }
+                }
             }
         }
 
@@ -8455,6 +8547,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                     break;
             }
         }
+    }
+
+
+    @Builder
+    @Getter
+    @ToString
+    private static class StartProcessEvent {
+        private int caller;
+        private String hostType;
+        private String hostName;
+        private String packageName;
+        private boolean allowed;
+        private String why;
+        private long when;
     }
 
     @Builder

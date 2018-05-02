@@ -2127,4 +2127,13 @@ public class XAshmanManager {
             return false;
         }
     }
+
+    public void forceIdlePackages(String[] packages) {
+        ensureService();
+        try {
+            mService.forceIdlePackages(packages);
+        } catch (Exception e) {
+
+        }
+    }
 }

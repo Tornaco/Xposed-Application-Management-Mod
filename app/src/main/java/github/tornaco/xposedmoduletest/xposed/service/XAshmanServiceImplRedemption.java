@@ -388,6 +388,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public void forceIdlePackages(String[] packages) throws RemoteException {
+
+    }
+
+    @Override
     public void leaveRedemptionMode() {
         RepoProxy.deleteFileIndicator(SubModuleManager.REDEMPTION);
     }

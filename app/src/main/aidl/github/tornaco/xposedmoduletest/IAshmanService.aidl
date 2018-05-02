@@ -461,4 +461,7 @@ interface IAshmanService {
     void stopService(in Intent serviceIntent);
     void setAppServiceLazyControlSolution(int solutionFlag, boolean enable);
     boolean isAppServiceLazyControlSolutionEnable(int solutionFlag);
+
+    // Force stop package or force idle?
+    void forceIdlePackages(in String[] packages);
 }

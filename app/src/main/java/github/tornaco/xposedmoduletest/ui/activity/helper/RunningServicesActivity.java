@@ -1,6 +1,5 @@
 package github.tornaco.xposedmoduletest.ui.activity.helper;
 
-import android.os.RemoteException;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,7 +10,6 @@ import android.widget.CheckBox;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
-import android.widget.Toast;
 
 import com.google.common.collect.Lists;
 
@@ -20,13 +18,13 @@ import org.newstand.logger.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
+import github.tornaco.android.common.Collections;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.cache.RunningServicesLoadingCache;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
-import github.tornaco.xposedmoduletest.xposed.app.IProcessClearListenerAdapter;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
@@ -36,58 +34,47 @@ import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
  */
 
 public class RunningServicesActivity
-        extends CommonPackageInfoListActivity implements AdapterView.OnItemSelectedListener {
-
-    private int mClearedPackageNum = 0;
+        extends CommonPackageInfoListActivity
+        implements AdapterView.OnItemSelectedListener {
 
     @Override
     protected void initView() {
         super.initView();
         fab.setImageResource(R.drawable.ic_clear_all_black_24dp);
+        fab.hide();
     }
 
     @Override
-    protected void onFabClick() {
-        super.onFabClick();
-        if (XAshmanManager.get().isServiceAvailable()) {
-            XAshmanManager.get().clearProcess(
-                    new IProcessClearListenerAdapter() {
-                        @Override
-                        public void onPrepareClearing() throws RemoteException {
-                            super.onPrepareClearing();
-                            mClearedPackageNum = 0;
-                        }
-
-                        @Override
-                        public void onClearedPkg(String pkg) throws RemoteException {
-                            super.onClearedPkg(pkg);
-                            mClearedPackageNum++;
-                        }
-
-                        @Override
-                        public void onAllCleared(final String[] pkg) throws RemoteException {
-                            super.onAllCleared(pkg);
-                            if (!isDestroyed()) {
-                                runOnUiThreadChecked(() -> {
-                                    Toast.makeText(getApplicationContext(),
-                                            R.string.clear_process_complete, Toast.LENGTH_LONG).show();
-                                    startLoading();
-                                });
-                            }
-                        }
-
-                        @Override
-                        public boolean doNotClearWhenIntervative() throws RemoteException {
-                            return false;
-                        }
-                    });
-        }
+    protected boolean reloadOnResume() {
+        return false;
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        // mState.resume();
+    protected void onRequestClearItemsInBackground() {
+        super.onRequestClearItemsInBackground();
+        Collections.consumeRemaining(getCommonPackageInfoAdapter().getCommonPackageInfos(),
+                commonPackageInfo -> {
+                    if (commonPackageInfo.isChecked()) {
+                        XAshmanManager.get().forceIdlePackages(new String[]{commonPackageInfo.getPkgName()});
+                        try {
+                            Thread.sleep(200);
+                        } catch (InterruptedException ignored) {
+
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void onEnterChoiceMode() {
+        swipeRefreshLayout.setEnabled(false);
+        fab.show();
+    }
+
+    @Override
+    public void onLeaveChoiceMode() {
+        swipeRefreshLayout.setEnabled(true);
+        fab.hide();
     }
 
     @Override
@@ -146,11 +133,6 @@ public class RunningServicesActivity
         runOnUiThreadChecked(() -> setTitle(getString(filterOption.getTitleRes()) + count));
 
         return displays;
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
     }
 
     // Filter.
