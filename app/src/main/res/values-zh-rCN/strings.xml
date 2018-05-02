@@ -132,7 +132,7 @@
     <string name="app_lock_need_unlock">需要验证密码以继续</string>
     <string name="title_general_settings">基本设置</string>
     <string name="lk_delay">清理延时</string>
-    <string name="block_record_summary">已经阻止%1$s次，允许%2$s次，最近尝试启动%3$s，结果%4$s，原因%5$s，启动者%6$s。</string>
+    <string name="block_record_summary">阻止%1$s次，允许%2$s次\n最近尝试启动于%3$s，类型%4$s，结果%5$s，原因%6$s，启动者%7$s。</string>
     <string name="title_component_editor">组件控制- %1$s</string>
     <string name="tab_text_1">服务</string>
     <string name="tab_text_2">广播</string>
@@ -617,4 +617,6 @@
     <string name="report">报告</string>
     <string name="title_lazy_solution_suggestion">建议</string>
     <string name="summary_lazy_solution_suggestion">能用B就用B，不行再用A，不放心可全用，再不行请提issue。\n注意，A方案修改配置需要重启，不要简单的软重启。\n</string>
+    <string name="title_lazy_toast">乖巧提醒</string>
+    <string name="summary_lazy_toast">当处理某个乖巧应用时，显示Toast作为提醒。</string>
 </resources>

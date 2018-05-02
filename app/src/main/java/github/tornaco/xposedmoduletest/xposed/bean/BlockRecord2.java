@@ -16,6 +16,12 @@ import lombok.ToString;
 @AllArgsConstructor
 public class BlockRecord2 implements Parcelable {
 
+    public static final int TYPE_ACTIVITY = 0x1;
+    public static final int TYPE_SERVICE = 0x2;
+    public static final int TYPE_BROADCAST = 0x3;
+    public static final int TYPE_CONTENT_PROVIDER = 0x4;
+    public static final int TYPE_UNKNOWN = 0;
+
     private String pkgName;
     private String callerPkgName;
     @Deprecated
@@ -25,7 +31,22 @@ public class BlockRecord2 implements Parcelable {
     private long howManyTimesAllowed;
     private String reason;
     private boolean block; // Is this request blocked or allowed.
-    private int type;
+    private int type = TYPE_UNKNOWN;
+
+    public static String decodeType(int type) {
+        switch (type) {
+            case TYPE_ACTIVITY:
+                return "Activity";
+            case TYPE_BROADCAST:
+                return "Broadcast";
+            case TYPE_SERVICE:
+                return "Service";
+            case TYPE_CONTENT_PROVIDER:
+                return "ContentProvider";
+            default:
+                return "Unknown";
+        }
+    }
 
     protected BlockRecord2(Parcel in) {
         pkgName = in.readString();

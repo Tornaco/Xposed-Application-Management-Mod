@@ -13,6 +13,7 @@ import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.green.General;
 import github.tornaco.xposedmoduletest.ui.tiles.green.LazySolutionApp;
 import github.tornaco.xposedmoduletest.ui.tiles.green.LazySolutionFw;
+import github.tornaco.xposedmoduletest.ui.tiles.green.LazyTips;
 
 /**
  * Created by guohao4 on 2017/11/2.
@@ -45,6 +46,7 @@ public class LazySettingsDashboardActivity extends BaseActivity {
             solutions.titleRes = R.string.title_lazy_solutions;
             solutions.addTile(new LazySolutionApp(getActivity()));
             solutions.addTile(new LazySolutionFw(getActivity()));
+            solutions.addTile(new LazyTips(getActivity()));
             // solutions.addTile(new LazySolutionSuggestion(getActivity()));
 
             categories.add(personal);
