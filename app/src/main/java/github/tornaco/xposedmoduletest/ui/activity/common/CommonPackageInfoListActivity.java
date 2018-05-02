@@ -30,6 +30,7 @@ import org.newstand.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import github.tornaco.android.common.Collections;
 import github.tornaco.xposedmoduletest.BuildConfig;
@@ -62,7 +63,7 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
 
     protected FloatingActionButton fab;
 
-    private SwipeRefreshLayout swipeRefreshLayout;
+    protected SwipeRefreshLayout swipeRefreshLayout;
 
     @Getter
     protected CommonPackageInfoAdapter commonPackageInfoAdapter;
@@ -92,12 +93,21 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
         return R.layout.app_list;
     }
 
+    private boolean mHasLoadOnce = false;
+
     @Override
     public void onResume() {
         super.onResume();
         if (hasRecyclerView()) {
+            if (mHasLoadOnce && !reloadOnResume()) {
+                return;
+            }
             startLoading();
         }
+    }
+
+    protected boolean reloadOnResume() {
+        return true;
     }
 
     @SuppressWarnings("unchecked")
@@ -420,9 +430,19 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
         PerAppSettingsDashboardActivity.start(getActivity(), pkgName);
     }
 
+    private AtomicBoolean mIsLoading = new AtomicBoolean(false);
+
     protected void startLoading() {
+        if (mIsLoading.get()) return;
         if (!hasRecyclerView()) return;
+
+        if (BuildConfig.DEBUG) {
+            Logger.w("startloading@" + Logger.getStackTraceString(new Throwable()));
+        }
+
         swipeRefreshLayout.setRefreshing(true);
+        mIsLoading.set(true);
+        mHasLoadOnce = true;
         XExecutor.execute(() -> {
             final List<? extends CommonPackageInfo> res = performLoading();
             runOnUiThread(() -> {
@@ -432,6 +452,7 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
 
                 swipeRefreshLayout.setRefreshing(false);
                 commonPackageInfoAdapter.update(res);
+                mIsLoading.set(false);
             });
         });
     }

@@ -4214,6 +4214,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         return false;
     }
 
+    @Override
+    public void forceIdlePackages(String[] packages) {
+        enforceCallingPermissions();
+        XposedLog.verbose("forceIdlePackages: " + Arrays.toString(packages));
+        wrapCallingIdetUnCaught(new ErrorCatchRunnable(() -> {
+            for (String p : packages) {
+                getAppIdler().setAppIdle(p);
+            }
+        }, "forceStopPackages"));
+    }
+
     private void stopServiceInternal(Intent serviceIntent) {
         if (serviceIntent != null) {
             getContext().stopService(serviceIntent);

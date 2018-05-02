@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.cache.RunningServicesLoadingCache;
+import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import lombok.Getter;
 import tornaco.lib.widget.CheckableImageView;
@@ -57,18 +58,21 @@ public class RunningServiceAdapter extends CommonPackageInfoAdapter {
         if (processItem != null) {
             runningServiceInfoHolder.getProcessNameView().setVisibility(View.GONE);
         }
+    }
 
-        holder.itemView.setOnClickListener(v -> {
-            // PerAppSettingsDashboardActivity.start(getContext(), display.getPkgName());
-            RunningServicesLoadingCache.getInstance().setMergedItem(display.getMergedItem());
-            Bundle args = RunningServiceDetails.makeServiceDetailsActivityBundle(display.getMergedItem());
-            RunningServicesDetailsActivity.start(getContext(), args);
+    @Override
+    protected void onItemClickNoneChoiceMode(CommonPackageInfo commonPackageInfo, View view) {
+        super.onItemClickNoneChoiceMode(commonPackageInfo, view);
+        final RunningServiceInfoDisplay display = (RunningServiceInfoDisplay) commonPackageInfo;
+        // PerAppSettingsDashboardActivity.start(getContext(), display.getPkgName());
+        RunningServicesLoadingCache.getInstance().setMergedItem(display.getMergedItem());
+        Bundle args = RunningServiceDetails.makeServiceDetailsActivityBundle(display.getMergedItem());
+        RunningServicesDetailsActivity.start(getContext(), args);
 
-            if (display.isSystemApp()) {
-                Toast.makeText(getContext(), R.string.system_app_need_ne_careful_running_services,
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
+        if (display.isSystemApp()) {
+            Toast.makeText(getContext(), R.string.system_app_need_ne_careful_running_services,
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -78,12 +82,12 @@ public class RunningServiceAdapter extends CommonPackageInfoAdapter {
 
     @Override
     protected boolean onItemLongClick(View v, int position) {
-        return false;
+        return super.onItemLongClick(v, position);
     }
 
     @Override
     public boolean onBackPressed() {
-        return false;
+        return super.onBackPressed();
     }
 
     private static class RunningServiceInfoHolder extends CommonPackageInfoAdapter.CommonViewHolder {
