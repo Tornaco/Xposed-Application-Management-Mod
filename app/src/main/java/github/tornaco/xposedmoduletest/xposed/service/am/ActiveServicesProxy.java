@@ -33,7 +33,7 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
             return (SparseArray) XposedHelpers.getObjectField(getHost(), "mServiceMap");
         } catch (Exception e) {
             XposedLog.wtf("ActiveServicesProxy Fail getMServiceMapField: " + Log.getStackTraceString(e));
-            new ErrorCatchRunnable(() -> ClazzDumper.dump(getHost().getClass(), ClazzDumper.XPOSED_LOG_PRINTER),
+            new ErrorCatchRunnable(() -> ClazzDumper.dump(getHost().getClass(), ClazzDumper.ANDROID_UTIL_LOG_PRINTER),
                     "getMServiceMapField dump class").run();
             return null;
         }
@@ -102,7 +102,7 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
     // Checked N M
     public void stopServicesForPackageUid(int uid, String[] packageNames, ServiceStopper serviceStopper) {
         XposedLog.verbose("ActiveServicesProxy stopServicesForPackageUid: " + Arrays.toString(packageNames));
-        new ErrorCatchRunnable(() -> ClazzDumper.dump(getHost().getClass(), ClazzDumper.XPOSED_LOG_PRINTER),
+        new ErrorCatchRunnable(() -> ClazzDumper.dump(getHost().getClass(), ClazzDumper.ANDROID_UTIL_LOG_PRINTER),
                 "stopServicesForPackageUid dump class").run();
 
         List<Object> serviceRecords = getServiceRecords(uid, packageNames);
@@ -149,7 +149,7 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
 
         if (BuildConfig.DEBUG) {
             Class hostClass = getHost().getClass();
-            new ErrorCatchRunnable(() -> ClazzDumper.dump(hostClass, ClazzDumper.XPOSED_LOG_PRINTER), "ClazzDumper.dump for debug.").run();
+            new ErrorCatchRunnable(() -> ClazzDumper.dump(hostClass, ClazzDumper.ANDROID_UTIL_LOG_PRINTER), "ClazzDumper.dump for debug.").run();
         }
 
         try {
@@ -173,7 +173,7 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
         } catch (Throwable e) {
             XposedLog.wtf("FATAL *** ActiveServicesProxy fail callStopServiceLockChecked: " + Log.getStackTraceString(e));
             sCacheStopServiceLockedMethod = null;
-            new ErrorCatchRunnable(() -> ClazzDumper.dump(getHost().getClass(), ClazzDumper.XPOSED_LOG_PRINTER),
+            new ErrorCatchRunnable(() -> ClazzDumper.dump(getHost().getClass(), ClazzDumper.ANDROID_UTIL_LOG_PRINTER),
                     "callStopServiceLockChecked dump class").run();
             return false;
         }
@@ -191,7 +191,7 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
                 return (ArrayMap) XposedHelpers.getObjectField(getHost(), "mServicesByName");
             } catch (Exception e) {
                 XposedLog.wtf("ActiveServicesProxy Fail getMServicesByNameField: " + Log.getStackTraceString(e));
-                new ErrorCatchRunnable(() -> ClazzDumper.dump(getHost().getClass(), ClazzDumper.XPOSED_LOG_PRINTER),
+                new ErrorCatchRunnable(() -> ClazzDumper.dump(getHost().getClass(), ClazzDumper.ANDROID_UTIL_LOG_PRINTER),
                         "getMServicesByNameField dump class").run();
                 return null;
             }
