@@ -8,6 +8,8 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import github.tornaco.android.common.util.ColorUtil;
@@ -16,6 +18,7 @@ import github.tornaco.xposedmoduletest.cache.RunningServicesLoadingCache;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
+import github.tornaco.xposedmoduletest.ui.activity.app.PerAppSettingsDashboardActivity;
 
 /**
  * Created by Tornaco on 2018/5/2 15:05.
@@ -29,6 +32,8 @@ public class RunningServicesDetailsActivity extends BaseActivity {
         starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(starter);
     }
+
+    private String mPackageName;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,10 +56,14 @@ public class RunningServicesDetailsActivity extends BaseActivity {
                 }
             }
 
+            if (mergedItem.mPackageInfo != null) {
+                mPackageName = mergedItem.mPackageInfo.packageName;
+            }
+
             setTitle(String.valueOf(mergedItem.mDisplayLabel));
 
             // Apply theme color.
-            if (!mUserTheme.isReverseTheme() && mergedItem.mPackageInfo != null
+            if (false && !mUserTheme.isReverseTheme() && mergedItem.mPackageInfo != null
                     && mergedItem.mPackageInfo.packageName != null) {
                 int color = ContextCompat.getColor(this, XSettings.getThemes(this).getThemeColor());
                 PaletteColorPicker.pickPrimaryColor(this, this::applyColor, mergedItem.mPackageInfo.packageName, color);
@@ -84,5 +93,19 @@ public class RunningServicesDetailsActivity extends BaseActivity {
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.running_services_details, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (mPackageName != null && item.getItemId() == R.id.action_per_app_settings) {
+            PerAppSettingsDashboardActivity.start(getContext(), mPackageName);
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
