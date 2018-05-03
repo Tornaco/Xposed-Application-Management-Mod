@@ -23,12 +23,14 @@ import java.util.Set;
 import github.tornaco.android.common.Collections;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.cache.RunningServicesLoadingCache;
+import github.tornaco.xposedmoduletest.loader.LoaderUtil;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.util.ArrayUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.service.ErrorCatchRunnable;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
@@ -124,7 +126,6 @@ public class RunningServicesActivity
         ArrayList<RunningServiceInfoDisplay> displays = new ArrayList<>();
         for (RunningState.MergedItem m : items) {
 
-
             // Apply filter.
             if (mFilterOption == FilterOption.OPTION_BACKGROUND_PROCESS && !m.mBackground) continue;
             if (mFilterOption == FilterOption.OPTION_RUNNING_PROCESS && m.mBackground) continue;
@@ -141,6 +142,10 @@ public class RunningServicesActivity
         int count = displays.size();
         FilterOption filterOption = mFilterOptions.get(mFilterOptionIndex);
         runOnUiThreadChecked(() -> setTitle(getString(filterOption.getTitleRes()) + count));
+
+        new ErrorCatchRunnable(() -> {
+            LoaderUtil.commonSort(displays);
+        }, "Sort RunningState").run();
 
         return displays;
     }

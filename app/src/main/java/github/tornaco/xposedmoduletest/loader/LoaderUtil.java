@@ -143,7 +143,7 @@ public class LoaderUtil {
         });
     }
 
-    public static void commonSort(List<CommonPackageInfo> commonPackageInfos) {
+    public static void commonSort(List<? extends CommonPackageInfo> commonPackageInfos) {
         final PinyinComparator pinyinComparator = new PinyinComparator();
 
         Collections.sort(commonPackageInfos, (o1, o2) -> {
