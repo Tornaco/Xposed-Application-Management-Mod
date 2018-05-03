@@ -5737,6 +5737,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     private static final long LAZY_KILL_SERVICE_NORMAL_INTERVAL = 5 * 1000;
     private static final long LAZY_KILL_SERVICE_NOTIFICATION_INTERVAL = LAZY_KILL_SERVICE_NORMAL_INTERVAL;
+    private static final long LAZY_KILL_SERVICE_PROCESS_INTERVAL = 2 * LAZY_KILL_SERVICE_NORMAL_INTERVAL;
 
     private void postLazyServiceKillerIfNecessary(String packageName, long intervalToPerform, String reason) {
         XposedLog.verbose("LAZY postLazyServiceKillerIfNecessary %s %s", packageName, reason);
@@ -8115,6 +8116,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             }
             if (applicationInfo != null && applicationInfo.packageName != null) {
                 addToRunningProcessPackages(applicationInfo.packageName);
+
+                // Check lazy settings.
+                postLazyServiceKillerIfNecessary(applicationInfo.packageName, LAZY_KILL_SERVICE_PROCESS_INTERVAL, "Process start");
             }
         }
 
