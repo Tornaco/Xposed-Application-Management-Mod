@@ -620,4 +620,5 @@
     <string name="title_lazy_toast">乖巧提醒</string>
     <string name="summary_lazy_toast">当处理某个乖巧应用时，显示Toast作为提醒。</string>
     <string name="toast_error_retry_later">出错了，请退出重试:(</string>
+    <string name="title_fav">最近使用</string>
 </resources>

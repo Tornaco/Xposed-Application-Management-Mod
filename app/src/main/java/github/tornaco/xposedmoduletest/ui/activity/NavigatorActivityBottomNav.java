@@ -477,6 +477,14 @@ public class NavigatorActivityBottomNav
                 assist.addTile(new ComponentManager(getActivity()));
             }
 
+            Category fav = new Category();
+            fav.titleRes = R.string.title_fav;
+            fav.numColumns = 6;
+            fav.addTile(new AppBoot(getActivity()));
+            fav.addTile(new AppStart(getActivity()));
+            fav.addTile(new Lazy(getActivity()));
+            fav.addTile(new AppGuard(getActivity()));
+
             Category boost = new Category();
             boost.moreDrawableRes = R.drawable.ic_more_vert_black_24dp;
             boost.onMoreButtonClickListener = v -> {
@@ -504,6 +512,7 @@ public class NavigatorActivityBottomNav
                 boost.addTile(new LockKill(getActivity()));
             }
 
+            categories.add(fav);
             categories.add(assist);
             categories.add(boost);
         }

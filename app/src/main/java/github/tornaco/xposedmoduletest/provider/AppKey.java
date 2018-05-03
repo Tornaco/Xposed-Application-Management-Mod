@@ -27,4 +27,5 @@ public interface AppKey {
     String P_STYLE_ICON = "p_style_icon";
     String FORCE_HAS_GMS = "force_has_gms";
     String FILTER_OPTIONS = "filter_options_";
+    String RECENT_TILE = "recent_tile";
 }

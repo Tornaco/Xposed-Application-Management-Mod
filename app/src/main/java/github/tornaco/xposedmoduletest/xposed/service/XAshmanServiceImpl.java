@@ -5875,9 +5875,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             boolean optLazyTipsEnabled = isOptFeatureEnabled("LAZY_APP_TIPS");
             if (optLazyTipsEnabled) {
                 Toast.makeText(getContext(),
-                        String.format("即将为 %s 断开服务，本次采用方案%s。",
-                                PkgUtil.loadNameByPkgName(getContext(), packageName),
-                                solutionName),
+                        String.format("即将为 %s 停止服务。",
+                                PkgUtil.loadNameByPkgName(getContext(), packageName)),
                         Toast.LENGTH_SHORT)
                         .show();
             }

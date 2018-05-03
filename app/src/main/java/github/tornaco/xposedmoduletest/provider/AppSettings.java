@@ -4,7 +4,9 @@ import android.content.Context;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
+import java.util.HashSet;
 import java.util.Observable;
+import java.util.Set;
 
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.WorkaroundFixer;
@@ -285,6 +287,20 @@ public class AppSettings extends Observable {
         context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
                 .edit().putBoolean(AppKey.MAIN_DASH_COLUMN_COUNT + who, show)
                 .apply();
+    }
+
+    private static Set<String> sRecentTiles = new HashSet<>();
+
+    public static void setRecentTile(Context context, Set<String> tileNameSet) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putStringSet(AppKey.RECENT_TILE, tileNameSet)
+                .apply();
+    }
+
+    public static Set<String> getRecentTiles(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getStringSet(AppKey.RECENT_TILE, new HashSet<>(0));
     }
 
 }
