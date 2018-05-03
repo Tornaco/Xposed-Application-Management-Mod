@@ -26,6 +26,8 @@ public class DaoGenerator {
         createComponentReplacement(sch);
         createCongfigurationHook(sch);
 
+        createRecentTile(sch);
+
         new org.greenrobot.greendao.generator.DaoGenerator().generateAll(sch, "../app/src/main/java");
     }
 
@@ -163,6 +165,16 @@ public class DaoGenerator {
             pkgInfo.addBooleanProperty("boolArg" + i);
         }
 
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Entity");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Generated");
+        pkgInfo.addImport("org.greenrobot.greendao.annotation.Id");
+    }
+
+    private static void createRecentTile(Schema sch) {
+        Entity pkgInfo = sch.addEntity("RecentTile");
+        pkgInfo.addIntProperty("id").primaryKey();
+        pkgInfo.addStringProperty("tileKey");
+        pkgInfo.addLongProperty("lastUsed");
         pkgInfo.addImport("org.greenrobot.greendao.annotation.Entity");
         pkgInfo.addImport("org.greenrobot.greendao.annotation.Generated");
         pkgInfo.addImport("org.greenrobot.greendao.annotation.Id");

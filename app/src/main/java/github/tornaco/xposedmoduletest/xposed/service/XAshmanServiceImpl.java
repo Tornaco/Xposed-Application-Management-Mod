@@ -4226,9 +4226,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     private void stopServiceInternal(Intent serviceIntent) {
-        if (serviceIntent != null) {
-            getContext().stopService(serviceIntent);
-            XposedLog.verbose("stopServiceInternal, Stopped service " + serviceIntent);
+        if (serviceIntent != null && mActiveServicesProxy != null) {
+            List<Object> records = mActiveServicesProxy.getServiceRecords(Binder.getCallingUid(), serviceIntent);
+            if (XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose("stopServiceInternal, records service " + Arrays.toString(records.toArray()));
+            }
+            for (Object o : records) {
+                mActiveServicesProxy.stopServiceLocked(o);
+            }
         }
     }
 
@@ -5732,6 +5737,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     private static final long LAZY_KILL_SERVICE_NORMAL_INTERVAL = 5 * 1000;
     private static final long LAZY_KILL_SERVICE_NOTIFICATION_INTERVAL = LAZY_KILL_SERVICE_NORMAL_INTERVAL;
+    private static final long LAZY_KILL_SERVICE_PROCESS_INTERVAL = 2 * LAZY_KILL_SERVICE_NORMAL_INTERVAL;
 
     private void postLazyServiceKillerIfNecessary(String packageName, long intervalToPerform, String reason) {
         XposedLog.verbose("LAZY postLazyServiceKillerIfNecessary %s %s", packageName, reason);
@@ -5869,9 +5875,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             boolean optLazyTipsEnabled = isOptFeatureEnabled("LAZY_APP_TIPS");
             if (optLazyTipsEnabled) {
                 Toast.makeText(getContext(),
-                        String.format("即将为 %s 断开服务，本次采用方案%s。",
-                                PkgUtil.loadNameByPkgName(getContext(), packageName),
-                                solutionName),
+                        String.format("即将为 %s 停止服务。",
+                                PkgUtil.loadNameByPkgName(getContext(), packageName)),
                         Toast.LENGTH_SHORT)
                         .show();
             }
@@ -8110,6 +8115,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             }
             if (applicationInfo != null && applicationInfo.packageName != null) {
                 addToRunningProcessPackages(applicationInfo.packageName);
+
+                // Check lazy settings.
+                postLazyServiceKillerIfNecessary(applicationInfo.packageName, LAZY_KILL_SERVICE_PROCESS_INTERVAL, "Process start");
             }
         }
 

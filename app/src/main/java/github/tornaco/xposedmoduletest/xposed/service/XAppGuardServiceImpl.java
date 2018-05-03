@@ -52,6 +52,7 @@ import github.tornaco.android.common.Consumer;
 import github.tornaco.android.common.Holder;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.util.OSUtil;
+import github.tornaco.xposedmoduletest.xposed.AppGlobals;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -302,6 +303,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                         PackageManager.GET_UNINSTALLED_PACKAGES);
             }
             sClientUID = applicationInfo.uid;
+            AppGlobals.setXAPMCUid(sClientUID);
         } catch (Exception ignored) {
             XposedLog.debug("Can not getSingleton UID for our client:" + ignored);
         }

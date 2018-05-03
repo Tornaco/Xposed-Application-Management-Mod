@@ -184,7 +184,7 @@
     <string name="title_app_recent_blur_radius">模糊半径</string>
     <string name="summary_app_recent_blur_radius">加大模糊算法半径参数可以降低资源消耗，减少算法处理时间，但是会造成生成的图像变更加模糊</string>
     <string name="title_system_app">系统应用</string>
-    <string name="message_saving_changes">保存设置</string>
+    <string name="message_saving_changes">稍等</string>
     <string name="title_common_settings">通用设置</string>
     <string name="title_app_settings">限制设置</string>
     <string name="title_white_system_app">排除系统应用</string>
@@ -610,8 +610,8 @@
     <string name="title_lazy_solution_app">方案A</string>
     <string name="title_lazy_solution_fw">方案B</string>
     <string name="title_lazy_solutions">方案</string>
-    <string name="summary_lazy_solution_app">适用于EMUI等第三方ROM，由注入App的监听器管理服务。新增或者移除乖巧应用需要完全重启设备。</string>
-    <string name="summary_lazy_solution_fw">适用于AOSP ROM，由注入系统框架层的应用管理核心来控制。新增或者移除乖巧应用无需重启。</string>
+    <string name="summary_lazy_solution_app">备选方案，适用于某些定制ROM，由注入App的监听器管理服务。新增或者移除应用需要完全重启设备。</string>
+    <string name="summary_lazy_solution_fw">适用于（类）AOSP ROM，由注入系统框架层的应用管理核心来控制。新增或者移除应用无需重启。</string>
     <string name="title_make_lazy_rule_as_keep">生成并导入到乖巧KEEP规则</string>
     <string name="title_make_lazy_rule_as_keep_success">已经为你导入到规则，并且复制到了剪贴板:)</string>
     <string name="report">报告</string>
@@ -619,4 +619,6 @@
     <string name="summary_lazy_solution_suggestion">能用B就用B，不行再用A，不放心可全用，再不行请提issue。\n注意，A方案修改配置需要重启，不要简单的软重启。\n</string>
     <string name="title_lazy_toast">乖巧提醒</string>
     <string name="summary_lazy_toast">当处理某个乖巧应用时，显示Toast作为提醒。</string>
+    <string name="toast_error_retry_later">出错了，请退出重试:(</string>
+    <string name="title_fav">最近使用</string>
 </resources>

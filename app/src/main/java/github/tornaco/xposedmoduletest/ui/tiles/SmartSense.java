@@ -6,6 +6,8 @@ import android.view.View;
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.bean.RecentTile;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.smartsense.SmartSenseDashboardActivity;
 
 /**
@@ -29,6 +31,8 @@ public class SmartSense extends QuickTile {
             public void onClick(View v) {
                 super.onClick(v);
                 SmartSenseDashboardActivity.start(context);
+                // Save to recent.
+                AppSettings.addRecentTile(context, RecentTile.from(TileManager.getTileKey(SmartSense.class)));
             }
         };
     }

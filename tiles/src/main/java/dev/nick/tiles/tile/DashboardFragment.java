@@ -175,6 +175,7 @@ public class DashboardFragment extends Fragment {
             float newSize = context.getResources().getDimensionPixelSize(R.dimen.dashboard_tile_text_size_small);
             tileTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, newSize);
         }
+
         if (tileIcon != null) {
             if (tile.iconRes > 0) {
                 tileIcon.setImageResource(tile.iconRes);
@@ -196,6 +197,16 @@ public class DashboardFragment extends Fragment {
                 statusTextView.setVisibility(View.VISIBLE);
                 statusTextView.setText(summary);
             } else {
+                statusTextView.setVisibility(View.GONE);
+            }
+        }
+
+        if (column >= 4) {
+            // Hide title, summary.
+            if (tileTextView != null) {
+                tileTextView.setVisibility(View.GONE);
+            }
+            if (statusTextView != null) {
                 statusTextView.setVisibility(View.GONE);
             }
         }

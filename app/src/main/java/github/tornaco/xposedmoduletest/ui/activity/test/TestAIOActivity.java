@@ -9,11 +9,16 @@ import android.os.ServiceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import org.newstand.logger.Logger;
+
+import dev.nick.tiles.tile.Tile;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
+import github.tornaco.xposedmoduletest.ui.tiles.TileManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
@@ -70,5 +75,10 @@ public class TestAIOActivity extends BaseActivity {
                         org.newstand.logger.Logger.e("MultipleAppsManager: " + Log.getStackTraceString(ignored));
                     }
                 });
+
+        Tile tile = TileManager.makeTileByKey("Lazy", getActivity());
+        Logger.d("makeTileByKey: " + tile);
+
+        AppSettings.getRecentTiles(this);
     }
 }

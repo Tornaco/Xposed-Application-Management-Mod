@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.service.am;
 
+import android.content.Intent;
 import android.os.UserHandle;
 import android.util.ArrayMap;
 import android.util.Log;
@@ -111,6 +112,39 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
                 if (BuildConfig.DEBUG) {
                     XposedLog.verbose("ActiveServicesProxy getServiceRecords, adding: " + serviceRecordObject);
                 }
+            }
+        }
+        return res;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Object> getServiceRecords(int uid, Intent intent) {
+        if (intent == null || intent.getComponent() == null) return new ArrayList<>(0);
+
+        ServiceMapProxy serviceMapProxy = getServiceMapProxy(uid);
+        if (serviceMapProxy == null) {
+            XposedLog.wtf("ActiveServicesProxy getServiceRecords, serviceMapProxy is null");
+            return new ArrayList<>(0);
+        }
+
+        ArrayMap mServicesByName = serviceMapProxy.getMServicesByNameField();
+        if (mServicesByName == null) {
+            XposedLog.wtf("ActiveServicesProxy getServiceRecords, servicesObject is null");
+            return new ArrayList<>(0);
+        }
+        // Copy to make thread safe.
+        ArrayMap mServicesByNameSafe = new ArrayMap(mServicesByName);
+        List<Object> res = new ArrayList<>();
+
+        for (int i = mServicesByNameSafe.size() - 1; i >= 0; i--) {
+            if (BuildConfig.DEBUG) {
+                XposedLog.verbose("ActiveServicesProxy getServiceRecords: " + mServicesByNameSafe.valueAt(i));
+            }
+            Object serviceRecordObject = mServicesByNameSafe.valueAt(i);
+            ServiceRecordProxy serviceRecordProxy = new ServiceRecordProxy(serviceRecordObject);
+            if (intent.getComponent().equals(serviceRecordProxy.getName())) {
+                XposedLog.verbose("ActiveServicesProxy add serviceRecordObject: " + serviceRecordObject);
+                res.add(serviceRecordObject);
             }
         }
         return res;
