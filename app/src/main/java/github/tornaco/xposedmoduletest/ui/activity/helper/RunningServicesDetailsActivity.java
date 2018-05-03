@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
+import android.widget.Toast;
 
 import github.tornaco.android.common.util.ColorUtil;
 import github.tornaco.xposedmoduletest.R;
@@ -53,15 +54,14 @@ public class RunningServicesDetailsActivity extends BaseActivity {
             setTitle(String.valueOf(mergedItem.mDisplayLabel));
 
             // Apply theme color.
-            if (false && mergedItem.mPackageInfo != null && mergedItem.mPackageInfo.packageName != null) {
+            if (!mUserTheme.isReverseTheme() && mergedItem.mPackageInfo != null
+                    && mergedItem.mPackageInfo.packageName != null) {
                 int color = ContextCompat.getColor(this, XSettings.getThemes(this).getThemeColor());
-                PaletteColorPicker.pickPrimaryColor(this, new PaletteColorPicker.PickReceiver() {
-                    @Override
-                    public void onColorReady(int color) {
-                        applyColor(color);
-                    }
-                }, mergedItem.mPackageInfo.packageName, color);
+                PaletteColorPicker.pickPrimaryColor(this, this::applyColor, mergedItem.mPackageInfo.packageName, color);
             }
+        } else {
+            onBackPressed();
+            Toast.makeText(getContext(), R.string.toast_error_retry_later, Toast.LENGTH_SHORT).show();
         }
 
         Bundle args = getIntent().getBundleExtra("args");

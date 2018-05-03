@@ -41,6 +41,7 @@ import java.util.Collections;
 
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.cache.RunningServicesLoadingCache;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 public class RunningServiceDetails extends PreferenceFragment {
 
@@ -111,7 +112,7 @@ public class RunningServiceDetails extends PreferenceFragment {
                     return;
                 }
             }
-            getActivity().stopService(new Intent().setComponent(si.mRunningService.service));
+            XAshmanManager.get().stopService(new Intent().setComponent(si.mRunningService.service));
             if (mMergedItem == null) {
                 // If this is gone, we are gone.
                 mState.updateNow();

@@ -4226,9 +4226,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     private void stopServiceInternal(Intent serviceIntent) {
-        if (serviceIntent != null) {
-            getContext().stopService(serviceIntent);
-            XposedLog.verbose("stopServiceInternal, Stopped service " + serviceIntent);
+        if (serviceIntent != null && mActiveServicesProxy != null) {
+            List<Object> records = mActiveServicesProxy.getServiceRecords(Binder.getCallingUid(), serviceIntent);
+            if (XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose("stopServiceInternal, records service " + Arrays.toString(records.toArray()));
+            }
+            for (Object o : records) {
+                mActiveServicesProxy.stopServiceLocked(o);
+            }
         }
     }
 

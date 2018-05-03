@@ -49,8 +49,8 @@ public class PackageManagerCompat {
         String appPath = PkgUtil.pathOf(context, pkg);
         new AlertDialog.Builder(context)
                 .setTitle(appName)
-                .setMessage(String.format("Version code: %s \nVersion name: %s \nApk path: %s \nPackageName: %s",
-                        versionCode, versionName, appPath, pkg))
+                .setMessage(String.format("Version code: %s \nVersion name: %s \nApk path: %s \nPackageName: %s \nuid: %s",
+                        versionCode, versionName, appPath, pkg, PkgUtil.uidForPkg(context,pkg)))
                 .setCancelable(true)
                 .setPositiveButton(context.getString(R.string.title_goto_system_settings), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {

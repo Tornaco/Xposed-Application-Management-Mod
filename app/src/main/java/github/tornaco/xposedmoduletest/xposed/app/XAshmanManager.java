@@ -2136,4 +2136,13 @@ public class XAshmanManager {
 
         }
     }
+
+    public void stopService(Intent serviceIntent) {
+        ensureService();
+        try {
+            mService.stopService(serviceIntent);
+        } catch (Exception e) {
+
+        }
+    }
 }
