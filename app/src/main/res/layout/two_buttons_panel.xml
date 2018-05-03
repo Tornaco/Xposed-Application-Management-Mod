@@ -23,8 +23,6 @@
 
     <Button
         android:id="@+id/left_button"
-        android:theme="@style/ButtonBarService"
-        android:textColor="@color/white"
         android:layout_width="120dip"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
@@ -39,8 +37,6 @@
 
     <Button
         android:id="@+id/right_button"
-        android:theme="@style/ButtonBarService"
-        android:textColor="@color/white"
         android:layout_width="120dip"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
