@@ -33,15 +33,18 @@ import com.jaredrummler.android.shell.Shell;
 import org.newstand.logger.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import dev.nick.eventbus.Event;
 import dev.nick.eventbus.EventBus;
 import dev.nick.eventbus.EventReceiver;
 import dev.nick.tiles.tile.Category;
+import dev.nick.tiles.tile.Tile;
 import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.bean.RecentTile;
 import github.tornaco.xposedmoduletest.bean.Suggestion;
 import github.tornaco.xposedmoduletest.bean.Suggestions;
 import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
@@ -72,6 +75,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.Resident;
 import github.tornaco.xposedmoduletest.ui.tiles.RunningServices;
 import github.tornaco.xposedmoduletest.ui.tiles.SmartSense;
 import github.tornaco.xposedmoduletest.ui.tiles.TRKill;
+import github.tornaco.xposedmoduletest.ui.tiles.TileManager;
 import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppDevMode;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppDeveloper;
@@ -104,6 +108,7 @@ import github.tornaco.xposedmoduletest.xposed.XApp;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.service.ErrorCatchRunnable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -171,12 +176,9 @@ public class NavigatorActivityBottomNav
         public void onReceive(@NonNull final Event event) {
             if (isDestroyed()) return;
 
-            runOnUiThreadChecked(new Runnable() {
-                @Override
-                public void run() {
-                    for (ActivityLifeCycleDashboardFragment f : getCardController().getPages()) {
-                        f.onEvent(event);
-                    }
+            runOnUiThreadChecked(() -> {
+                for (ActivityLifeCycleDashboardFragment f : getCardController().getPages()) {
+                    f.onEvent(event);
                 }
             });
         }
@@ -186,6 +188,7 @@ public class NavigatorActivityBottomNav
             return new int[]{
                     XApp.EVENT_INSTALLED_APPS_CACHE_UPDATE,
                     XApp.EVENT_RUNNING_SERVICE_CACHE_UPDATE,
+                    XApp.EVENT_RECENT_TILE_CHANGED,
             };
         }
     };
@@ -478,12 +481,21 @@ public class NavigatorActivityBottomNav
             }
 
             Category fav = new Category();
+            fav.moreDrawableRes = R.drawable.ic_clear_all_black_24dp;
+            fav.onMoreButtonClickListener = v -> {
+                AppSettings.clearRecentTile(getContext());
+            };
             fav.titleRes = R.string.title_fav;
-            fav.numColumns = 6;
-            fav.addTile(new AppBoot(getActivity()));
-            fav.addTile(new AppStart(getActivity()));
-            fav.addTile(new Lazy(getActivity()));
-            fav.addTile(new AppGuard(getActivity()));
+            fav.numColumns = AppSettings.MAX_RECENT_TILE_COUNT; // MAX
+
+            ErrorCatchRunnable favLoader = new ErrorCatchRunnable(() -> {
+                List<RecentTile> recentTiles = AppSettings.getCachedTiles();
+                for (RecentTile t : recentTiles) {
+                    Tile tile = TileManager.makeTileByKey(t.getTileKey(), getActivity());
+                    fav.addTile(tile);
+                }
+            }, "Load fav");
+            favLoader.run();
 
             Category boost = new Category();
             boost.moreDrawableRes = R.drawable.ic_more_vert_black_24dp;
@@ -512,7 +524,9 @@ public class NavigatorActivityBottomNav
                 boost.addTile(new LockKill(getActivity()));
             }
 
-            categories.add(fav);
+            if (fav.getTilesCount() > 0) {
+                categories.add(fav);
+            }
             categories.add(assist);
             categories.add(boost);
         }
@@ -528,7 +542,8 @@ public class NavigatorActivityBottomNav
         public void onEvent(Event event) {
             super.onEvent(event);
             if (event.getEventType() == XApp.EVENT_RUNNING_SERVICE_CACHE_UPDATE
-                    || event.getEventType() == XApp.EVENT_INSTALLED_APPS_CACHE_UPDATE) {
+                    || event.getEventType() == XApp.EVENT_INSTALLED_APPS_CACHE_UPDATE
+                    || event.getEventType() == XApp.EVENT_RECENT_TILE_CHANGED) {
 
                 BaseActivity activity = (BaseActivity) getActivity();
                 boolean visible = activity != null && activity.isVisible();

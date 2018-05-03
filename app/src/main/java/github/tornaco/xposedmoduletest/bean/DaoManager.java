@@ -78,7 +78,8 @@ public class DaoManager {
             if (oldVersion == 1001) {
             } else if (oldVersion == 1002) {
                 ComponentReplacementDao.createTable(db, true);
-            } else if (oldVersion == 1003) {
+            } else if (oldVersion == 1004) {
+                RecentTileDao.createTable(db, true);
             } else {
                 dropAllTables(db, true);
                 onCreate(db);

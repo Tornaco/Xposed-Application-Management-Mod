@@ -4,12 +4,21 @@ import android.content.Context;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
-import java.util.HashSet;
-import java.util.Observable;
-import java.util.Set;
+import org.newstand.logger.Logger;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Observable;
+
+import dev.nick.eventbus.Event;
+import dev.nick.eventbus.EventBus;
+import github.tornaco.xposedmoduletest.bean.DaoManager;
+import github.tornaco.xposedmoduletest.bean.DaoSession;
+import github.tornaco.xposedmoduletest.bean.RecentTile;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.WorkaroundFixer;
+import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.XApp;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.service.BuildFingerprintBuildHostInfo;
@@ -289,18 +298,87 @@ public class AppSettings extends Observable {
                 .apply();
     }
 
-    private static Set<String> sRecentTiles = new HashSet<>();
-
-    public static void setRecentTile(Context context, Set<String> tileNameSet) {
-        PreferenceManager.getDefaultSharedPreferences(context)
-                .edit()
-                .putStringSet(AppKey.RECENT_TILE, tileNameSet)
-                .apply();
+    // Async method.
+    public static void clearRecentTile(Context context) {
+        XExecutor.execute(() -> {
+            try {
+                DaoSession daoSession = DaoManager.getInstance().getSession(context);
+                if (daoSession != null) {
+                    daoSession.getRecentTileDao().deleteAll();
+                    cacheRecentTiles(context);
+                }
+            } catch (Throwable e) {
+                Logger.e("Fail addRecentTile: " + Logger.getStackTraceString(e));
+            }
+        });
     }
 
-    public static Set<String> getRecentTiles(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getStringSet(AppKey.RECENT_TILE, new HashSet<>(0));
+    // Async method.
+    public static void addRecentTile(Context context, RecentTile tile) {
+        XExecutor.execute(() -> {
+            try {
+                DaoSession daoSession = DaoManager.getInstance().getSession(context);
+                if (daoSession != null) {
+                    daoSession.getRecentTileDao().insertOrReplace(tile);
+                    cacheRecentTiles(context);
+
+                    // Clean up.
+                    daoSession.getRecentTileDao().deleteAll();
+                    List<RecentTile> recentTiles = getCachedTiles();
+                    daoSession.getRecentTileDao().insertOrReplaceInTx(recentTiles);
+                }
+            } catch (Throwable e) {
+                Logger.e("Fail addRecentTile: " + Logger.getStackTraceString(e));
+            }
+        });
+    }
+
+    public static final int MAX_RECENT_TILE_COUNT = 6;
+
+    private static final List<RecentTile> sCachedTiles = new ArrayList<>();
+
+    // Async.
+    public static void cacheRecentTilesAsync(Context context) {
+        XExecutor.execute(() -> {
+            cacheRecentTiles(context);
+        });
+    }
+
+    public static void cacheRecentTiles(Context context) {
+        synchronized (sCachedTiles) {
+            sCachedTiles.clear();
+            List<RecentTile> recentTiles = getRecentTiles(context);
+            if (recentTiles != null) {
+                Logger.d("cacheRecentTiles, got: " + recentTiles.size());
+                for (RecentTile r : recentTiles) {
+                    if (!sCachedTiles.contains(r)) {
+                        sCachedTiles.add(r);
+                    }
+                    if (sCachedTiles.size() >= MAX_RECENT_TILE_COUNT) break;
+                }
+            }
+        }
+        EventBus.from().publish(new Event(XApp.EVENT_RECENT_TILE_CHANGED));
+    }
+
+    public static List<RecentTile> getCachedTiles() {
+        synchronized (sCachedTiles) {
+            return new ArrayList<>(sCachedTiles);
+        }
+    }
+
+    public static List<RecentTile> getRecentTiles(Context context) {
+        try {
+            DaoSession daoSession = DaoManager.getInstance().getSession(context);
+            if (daoSession != null) {
+                List<RecentTile> res = daoSession.getRecentTileDao().loadAll();
+                Collections.reverse(res);
+                return res;
+            }
+        } catch (Throwable e) {
+            Logger.e("Fail getRecentTiles: " + Logger.getStackTraceString(e));
+        }
+        return new ArrayList<>(0);
     }
 
 }

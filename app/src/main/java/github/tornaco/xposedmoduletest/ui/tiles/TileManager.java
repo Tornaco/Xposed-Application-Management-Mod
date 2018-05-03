@@ -42,7 +42,7 @@ public class TileManager {
         CLAZZ_MAP.put(getTileKey(NFManager.class), NFManager.class);
     }
 
-    private static String getTileKey(Class<? extends Tile> clazz) {
+    public static String getTileKey(Class<? extends Tile> clazz) {
         return clazz.getSimpleName();
     }
 

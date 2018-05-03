@@ -3,12 +3,13 @@ package github.tornaco.xposedmoduletest.ui.tiles;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.PopupMenu;
-import android.view.MenuItem;
 import android.view.View;
 
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.bean.RecentTile;
+import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.lazy.LazyAppNavActivity;
 import github.tornaco.xposedmoduletest.ui.activity.lazy.LazyRuleNavActivity;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -38,6 +39,8 @@ public class Lazy extends QuickTile {
             public void onClick(View v) {
                 super.onClick(v);
                 context.startActivity(new Intent(context, LazyAppNavActivity.class));
+                // Save to recent.
+                AppSettings.addRecentTile(context, RecentTile.from(TileManager.getTileKey(Lazy.class)));
             }
 
             @Override
