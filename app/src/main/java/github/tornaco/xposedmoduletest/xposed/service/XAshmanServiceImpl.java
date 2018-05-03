@@ -4444,7 +4444,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     private int getPermissionControlBlockModeForPkgInternal(int code, String pkg) {
-        if (XposedLog.isVerboseLoggable()) {
+        if (DEBUG_OP && XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("getPermissionControlBlockModeForPkg code %s pkg %s", code, pkg);
         }
 
@@ -5738,6 +5738,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private static final long LAZY_KILL_SERVICE_NORMAL_INTERVAL = 5 * 1000;
     private static final long LAZY_KILL_SERVICE_NOTIFICATION_INTERVAL = LAZY_KILL_SERVICE_NORMAL_INTERVAL;
     private static final long LAZY_KILL_SERVICE_PROCESS_INTERVAL = 2 * LAZY_KILL_SERVICE_NORMAL_INTERVAL;
+    private static final long LAZY_CHECK_PACKAGE_PROCESS_DELAY = 500;
 
     private void postLazyServiceKillerIfNecessary(String packageName, long intervalToPerform, String reason) {
         XposedLog.verbose("LAZY postLazyServiceKillerIfNecessary %s %s", packageName, reason);
@@ -8117,7 +8118,24 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 addToRunningProcessPackages(applicationInfo.packageName);
 
                 // Check lazy settings.
-                postLazyServiceKillerIfNecessary(applicationInfo.packageName, LAZY_KILL_SERVICE_PROCESS_INTERVAL, "Process start");
+                // Process add happen before activity report.
+                // So delay check.
+                boolean shouldCheck = isLazyModeEnabled()
+                        && isPackageLazyByUser(applicationInfo.packageName)
+                        && !isPackageRunningOnTop(applicationInfo.packageName);
+
+                if (shouldCheck) {
+                    ErrorCatchRunnable processLazyChecker = new ErrorCatchRunnable(() -> {
+                        if (!isPackageRunningOnTop(applicationInfo.packageName)) {
+                            postLazyServiceKillerIfNecessary(applicationInfo.packageName,
+                                    LAZY_KILL_SERVICE_PROCESS_INTERVAL,
+                                    "Process start background");
+                        } else {
+                            XposedLog.verbose("App is now on top, skip lazy checker.");
+                        }
+                    }, "processLazyChecker");
+                    postDelayed(processLazyChecker, LAZY_CHECK_PACKAGE_PROCESS_DELAY);
+                }
             }
         }
 
