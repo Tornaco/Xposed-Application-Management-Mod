@@ -11,7 +11,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion as int
         targetSdkVersion rootProject.ext.compileSdkVersion as int
         versionCode 5050
-        versionName "MAY-5.0.5-BETA"
+        versionName "MAY-5.0.5"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
