@@ -8,16 +8,10 @@ import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
-import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 // For no-recent feature.
 class PackageParserSubModule extends AndroidSubModule {
-
-    @Override
-    public String needBuildVar() {
-        return XAppBuildVar.DEBUG;
-    }
 
     @Override
     public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {

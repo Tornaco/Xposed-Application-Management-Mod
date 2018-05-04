@@ -1578,6 +1578,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public int onHookBroadcastPerformResult(Intent intent, int resultCode) {
+        if (intent == null) {
+            return resultCode;
+        }
         // Check if PMH is enabled.
         if (!isPushMessageHandleEnabled()) {
             return resultCode;

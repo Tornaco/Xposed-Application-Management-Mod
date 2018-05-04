@@ -65,9 +65,6 @@ public class SubModuleManager {
     private SubModuleManager() {
         addToSubsChecked(new PMSClearDataSubModule());
 
-        // Instead we make a ActiveService module for this feature.
-        // addToSubsChecked(new ServiceSubModule());
-
         addToSubsChecked(new AlarmManagerSubModule());
         addToSubsChecked(new WakelockSubModule());
         addToSubsChecked(new SecureSettingsSubModule());
@@ -85,7 +82,6 @@ public class SubModuleManager {
 
         addToSubsChecked(new PMSGetInstalledPackagesSubModule());
         addToSubsChecked(new PMSSetComponentEnabledSettingSubModule());
-        //addToSubsChecked(new PMSFilterStoppedSubModule());
 
         addToSubsChecked(new ASDSubModule());
         addToSubsChecked(new IFWSubModule());
@@ -146,55 +142,49 @@ public class SubModuleManager {
 
         // APPGUARD MODULES END.
 
-        if (BuildConfig.DEBUG) {
-            // addToSubsChecked(new DebugOnlyTestModuleErrorSubModule());
-        }
-
         addToSubsChecked(new ActivityStackRealStartActivitySubModule());
         addToSubsChecked(new DevicePolicyManagerServiceSubModule());
 
         addToSubsChecked(new PackageInstallerServiceSubModule());
         addToSubsChecked(new RuntimeSubModule());
-        // addToSubsChecked(new UNIXProcessSubModule());
         addToSubsChecked(new AndroidProcessSubModule());
 
-        addToSubsChecked(new PackageParserSubModule());
         addToSubsChecked(new AMSCreateRecentTaskInfoFromTaskRecordSubModule());
 
-        // For HUAWEI.
-        // EMUI has make HwActiveServices instead of ActiveServices...
-        // addToSubsChecked(new ServiceSubModule());
+
+        // Modules to hook intent result code for GCM.
+        // Enabled for PMH.
+        addToSubsChecked(new AMSActivityIntentResolverSubModule());
+
+        // System props.
+        addToSubsChecked(new SystemPropSubModule());
 
         // Submodules for debug purpose.
         if (BuildConfig.DEBUG) {
             addToSubsChecked(new ActivitySubModule());
-        }
 
-        if (BuildConfig.DEBUG) {
             addToSubsChecked(new ResourceManagerApplyConfigSubModule());
             addToSubsChecked(new ResourceSubModule());
-        }
 
-        if (BuildConfig.DEBUG) {
             // Dump broadcast details.
             addToSubsChecked(new BroadcastQueueSubModule());
-        }
 
-        if (BuildConfig.DEBUG) {
+            // View and event.
             addToSubsChecked(new ViewTouchEventSubModule());
             addToSubsChecked(new ViewGroupDebugDrawSubModule());
 
+            // Window.
             addToSubsChecked(new WindowSubModule());
+
+            // Multiple apps.
+            addToSubsChecked(new UserManagerServiceSubModule());
+
+            // Packages.
+            addToSubsChecked(new PackageParserSubModule());
+
+            // Hot fix.
             addToSubsChecked(new DisplayListCanvasSubModule());
             addToSubsChecked(new Z2ForceFixSubModule());
-            addToSubsChecked(new UserManagerServiceSubModule());
-        }
-
-        // Modules to hook intent result code for GCM.
-        // Enabled for PMH.
-        if (BuildConfig.DEBUG) {
-            //addToSubsChecked(new ActivityThreadSubModule());
-            addToSubsChecked(new AMSActivityIntentResolverSubModule());
         }
     }
 
