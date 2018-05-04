@@ -45,6 +45,7 @@
     <string name="title_ver_on_home">Re-verify when app switched</string>
     <string name="summary_always_need_verify">The default mechanism is that applications that have been previously authenticated need to be revalidated when the screen goes out and re-lit. If this option is enabled, it will need to be verified each time.</string>
     <string name="title_reboot_take_effect">Some settings need a reboot to take effect.</string>
+    <string name="title_reboot_take_effect_blur">打开和关闭需要重启设备才可以生效</string>
     <string name="title_passcode_wrong">Wrong password, try again</string>
     <string name="title_delete_success">Deleted!</string>
     <string name="title_theme">Theme</string>
@@ -54,7 +55,7 @@
     <string name="theme_def">DEFAULT</string>
     <string name="title_open_source">Source code</string>
     <string name="title_app_recent_blur">Recent blur</string>
-    <string name="summary_app_recent_blur">Gaussian blur to the recent task card. may affects system performance. \n\nAndroid O and above, need restart after toggle this feature.</string>
+    <string name="summary_app_recent_blur">Gaussian blur to the recent task card. may affects system performance.</string>
     <string name="title_default_verifyer">Default verifier</string>
     <string name="summary_app_recent_blur_all">启用该选项全部任务都会被模糊，否则只有需要验证的任务才会</string>
     <string name="title_app_recent_blur_all">Blur all tasks</string>
