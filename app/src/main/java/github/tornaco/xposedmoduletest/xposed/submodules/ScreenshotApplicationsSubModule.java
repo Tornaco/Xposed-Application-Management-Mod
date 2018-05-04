@@ -5,13 +5,11 @@ import android.app.ActivityManagerNative;
 import android.app.AndroidAppHelper;
 import android.content.ComponentName;
 import android.graphics.Bitmap;
-import android.os.Environment;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Set;
 
@@ -24,6 +22,7 @@ import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.util.XBitmapUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -69,22 +68,15 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
                     try {
                         if ("persist.enable_task_snapshots".equals(param.args[0])) {
 
-                            File systemFile = new File(Environment.getDataDirectory(), "system");
-                            File dir = new File(systemFile, "tor_apm");
-                            if (!dir.exists()) {
-                                dir = new File(systemFile, "tor");
-                            }
-                            File indicatorFile = new File(dir, "blur_indicator");
-                            boolean blurEnabledOreo = indicatorFile.exists();
+                            boolean blurEnabledOreo = RepoProxy.hasFileIndicator("blur_indicator");
 
                             XposedLog.boot("blur_indicator " + blurEnabledOreo);
-                            if (!blurEnabledOreo) return;
 
-                            XposedLog.boot("hookSystemProp_ENABLE_TASK_SNAPSHOTS caller:"
-                                    + AndroidAppHelper.currentPackageName());
-                            if (true) {
+                            if (blurEnabledOreo) {
+                                XposedLog.boot("BLUR hookSystemProp_ENABLE_TASK_SNAPSHOTS caller:"
+                                        + AndroidAppHelper.currentPackageName());
                                 param.setResult(false);
-                                XposedLog.boot("hookSystemProp_ENABLE_TASK_SNAPSHOTS returning false");
+                                XposedLog.boot("BLUR hookSystemProp_ENABLE_TASK_SNAPSHOTS returning false");
                             }
                         }
                     } catch (Throwable e) {
@@ -92,11 +84,11 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
                     }
                 }
             });
-            XposedLog.boot("hookSystemProp_ENABLE_TASK_SNAPSHOTS OK: " + unhooksToStatus(unHooks));
+            XposedLog.boot("BLUR hookSystemProp_ENABLE_TASK_SNAPSHOTS OK: " + unhooksToStatus(unHooks));
             final boolean ENABLE_TASK_SNAPSHOT = ActivityManager.ENABLE_TASK_SNAPSHOTS;
-            XposedLog.boot("hookSystemProp_ENABLE_TASK_SNAPSHOTS AFTER: " + ENABLE_TASK_SNAPSHOT);
+            XposedLog.boot("BLUR hookSystemProp_ENABLE_TASK_SNAPSHOTS AFTER: " + ENABLE_TASK_SNAPSHOT);
         } catch (Exception e) {
-            XposedLog.boot("Fail hookSystemProp_ENABLE_TASK_SNAPSHOTS: " + e);
+            XposedLog.boot("BLUR Fail hookSystemProp_ENABLE_TASK_SNAPSHOTS: " + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }
@@ -123,7 +115,7 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
                                 String caller = AndroidAppHelper.currentPackageName();
                                 int taskId = (int) param.args[0];
                                 String pkg = XAshmanManager.get().packageForTaskId(taskId);
-                                XposedLog.verbose("getTaskThumbnail caller %s task %s", caller, pkg);
+                                XposedLog.verbose("BLUR getTaskThumbnail caller %s task %s", caller, pkg);
 
                                 if (pkg == null) {
                                     return;
@@ -131,7 +123,7 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
 
                                 boolean blur = XAppGuardManager.get().isBlurEnabledForPackage(pkg);
                                 if (!blur) {
-                                    XposedLog.verbose("isBlurEnabledForPackage false");
+                                    XposedLog.verbose("BLUR isBlurEnabledForPackage false");
                                     return;
                                 }
 
@@ -139,16 +131,16 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
                                 int br = XAppGuardManager.get().getBlurRadius();
                                 tt.mainThumbnail = XBitmapUtil.createBlurredBitmap(tt.mainThumbnail, br, XBitmapUtil.BITMAP_SCALE);
                                 param.setResult(tt);
-                                XposedLog.verbose("Thumb replaced!");
+                                XposedLog.verbose("BLUR getTaskThumbnail Thumb replaced!");
                             } catch (Throwable e) {
-                                XposedLog.wtf("Fail replace thumb: " + Log.getStackTraceString(e));
+                                XposedLog.wtf("BLUR Fail replace thumb: " + Log.getStackTraceString(e));
                             }
                         }
                     });
-            XposedLog.boot("hookGetThumbForOreo OK: " + unHooks);
+            XposedLog.boot("BLUR hookGetThumbForOreo OK: " + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XposedLog.boot("Fail hookGetThumbForOreo: " + e);
+            XposedLog.boot("BLUR Fail hookGetThumbForOreo: " + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }
@@ -168,7 +160,7 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
             if (OSUtil.isMIUI()) {
                 try {
                     for (Method m : clz.getDeclaredMethods()) {
-                        XposedLog.boot("WindowManagerService method: " + m);
+                        XposedLog.boot("BLUR WindowManagerService method: " + m);
                     }
                 } catch (Exception ignored) {
 
@@ -183,14 +175,14 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
                             try {
                                 onScreenshotApplicationsNAndBelow(param);
                             } catch (Exception e) {
-                                XposedLog.boot("Fail onScreenshotApplicationsNAndBelow: " + e);
+                                XposedLog.boot("BLUR Fail onScreenshotApplicationsNAndBelow: " + e);
                             }
                         }
                     });
-            XposedLog.boot("hookScreenshotApplicationsForNAndBelow OK: " + unHooks);
+            XposedLog.boot("BLUR hookScreenshotApplicationsForNAndBelow OK: " + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XposedLog.boot("Fail hookScreenshotApplicationsForNAndBelow: " + e);
+            XposedLog.boot("BLUR Fail hookScreenshotApplicationsForNAndBelow: " + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }
@@ -206,19 +198,19 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
             return;
         }
 
-        XposedLog.verbose("onScreenshotApplicationsNAndBelow: " + pkgName);
+        XposedLog.verbose("BLUR onScreenshotApplicationsNAndBelow: " + pkgName);
         if (getBridge().isBlurForPkg(pkgName)
                 && param.getResult() != null) {
             Bitmap res = (Bitmap) param.getResult();
-            XposedLog.verbose("onScreenshotApplicationsNAndBelow. res: " + res);
+            XposedLog.verbose("BLUR onScreenshotApplicationsNAndBelow. res: " + res);
             int radius = getBridge().getBlurRadius();
             float scale = getBridge().getBlurScale();
-            XposedLog.verbose("onScreenshotApplicationsNAndBelow, bluring, r and s: " + radius + "-" + scale);
+            XposedLog.verbose("BLUR onScreenshotApplicationsNAndBelow, bluring, r and s: " + radius + "-" + scale);
             Bitmap blured = (XBitmapUtil.createBlurredBitmap(res, radius, scale));
             if (blured != null)
                 param.setResult(blured);
         } else {
-            XposedLog.verbose("onScreenshotApplicationsNAndBelow, blur is disabled...");
+            XposedLog.verbose("BLUR onScreenshotApplicationsNAndBelow, blur is disabled...");
         }
     }
 }

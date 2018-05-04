@@ -57,11 +57,11 @@ public class ThumbnalDataSubModule extends AbsSubModule {
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             super.afterHookedMethod(param);
                             Object res = param.getResult();
-                            Log.d(XposedLog.TAG, "createFromTaskSnapshot, res: " + res);
-                            ThumbnailDataProxy proxy = new ThumbnailDataProxy(res);
-                            Bitmap in = proxy.getThumbnail();
-                            proxy.setThumbnail(null);
-                            Log.d(XposedLog.TAG, "createFromTaskSnapshot, replaced!");
+                            Log.d(XposedLog.TAG, "BLUR createFromTaskSnapshot, res: " + res);
+//                            ThumbnailDataProxy proxy = new ThumbnailDataProxy(res);
+//                            Bitmap in = proxy.getThumbnail();
+//                            proxy.setThumbnail(null);
+//                            Log.d(XposedLog.TAG, "createFromTaskSnapshot, replaced!");
                         }
                     });
             XposedLog.boot("hookCreateFromTaskSnapshot OK: " + unHooks);
