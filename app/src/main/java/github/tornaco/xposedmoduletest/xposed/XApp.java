@@ -30,6 +30,7 @@ import github.tornaco.xposedmoduletest.ui.widget.SimpleEmojiProvider;
 import github.tornaco.xposedmoduletest.util.ActvityLifeCycleAdapter;
 import github.tornaco.xposedmoduletest.util.GMSUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
+import github.tornaco.xposedmoduletest.xposed.bean.SystemProp;
 import github.tornaco.xposedmoduletest.xposed.service.XAshmanServiceImpl;
 import github.tornaco.xposedmoduletest.xposed.util.ClazzDumper;
 
@@ -157,5 +158,7 @@ public class XApp extends MultiDexApplication {
         PushMessage.makeDummy();
         ClazzDumper.dump(XAshmanServiceImpl.class, ClazzDumper.ANDROID_UTIL_LOG_PRINTER);
         Toast.makeText(this, "Hello developer!", Toast.LENGTH_LONG).show();
+        SystemProp.dumpBuildFields();
+        SystemProp.dumpBuilds();
     }
 }

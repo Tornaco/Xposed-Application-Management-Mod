@@ -124,6 +124,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
 import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 import github.tornaco.xposedmoduletest.xposed.bean.OpsSettings;
+import github.tornaco.xposedmoduletest.xposed.bean.SystemPropProfile;
 import github.tornaco.xposedmoduletest.xposed.bean.TypePack;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
@@ -896,7 +897,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         mIsSafeMode = getContext().getPackageManager().isSafeMode();
     }
 
-    private boolean isSystemReady() {
+    @Override
+    public boolean isSystemReady() {
         return mIsSystemReady;
     }
 
@@ -4223,6 +4225,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    @BinderCall
     public void forceIdlePackages(String[] packages) {
         enforceCallingPermissions();
         XposedLog.verbose("forceIdlePackages: " + Arrays.toString(packages));
@@ -4231,6 +4234,75 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 getAppIdler().setAppIdle(p);
             }
         }, "forceStopPackages"));
+    }
+
+    @Override
+    public boolean isSystemPropEnabled() {
+        return false;
+    }
+
+    @Override
+    public void setSystemPropEnabled(boolean enabled) {
+
+    }
+
+    @Override
+    @BinderCall
+    public void addOrRemoveSystemPropProfile(SystemPropProfile profile, boolean add) {
+        enforceCallingPermissions();
+        XposedLog.verbose("addOrRemoveSystemPropProfile: " + profile);
+        if (validateSystemPropProfile(profile)) {
+            String id = profile.getProfileId();
+            if (add) {
+                String js = profile.toJson();
+                if (js != null) {
+                    RepoProxy.getProxy().getSystemPropProfiles().put(id, js);
+                }
+            } else {
+                RepoProxy.getProxy().getSystemPropProfiles().remove(id);
+            }
+        }
+    }
+
+    private static boolean validateSystemPropProfile(SystemPropProfile profile) {
+        return profile != null && profile.getProfileId() != null && profile.getSystemProp() != null;
+    }
+
+    @Override
+    @BinderCall
+    public Map getSystemPropProfiles() {
+        enforceCallingPermissions();
+        return RepoProxy.getProxy().getSystemPropProfiles().dup();
+    }
+
+    @Override
+    public void setActiveSystemPropProfileId(String profileId) {
+
+    }
+
+    @Override
+    public String getActiveSystemPropProfileId() {
+        return null;
+    }
+
+    @Override
+    public SystemPropProfile getActiveSystemPropProfile() {
+        return null;
+    }
+
+    @Override
+    public void addOrRemoveSystemPropProfileApplyApps(String[] pkgs, boolean add) {
+
+    }
+
+    @Override
+    public String[] getSystemPropProfileApplyApps() {
+        return new String[0];
+    }
+
+    @Override
+    public boolean isSystemPropProfileApplyApp(String packageName) throws RemoteException {
+        return false;
     }
 
     private void stopServiceInternal(Intent serviceIntent) {

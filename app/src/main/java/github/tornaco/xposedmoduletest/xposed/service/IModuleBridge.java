@@ -80,6 +80,8 @@ public interface IModuleBridge {
     @CommonBringUpApi
     ComponentName componentNameForTaskId(int taskId);
 
+    boolean isSystemReady();
+
     // API for AppGuard.
     boolean interruptPackageRemoval(String pkg);
 

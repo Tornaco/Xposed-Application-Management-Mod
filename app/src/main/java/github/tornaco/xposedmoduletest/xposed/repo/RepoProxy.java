@@ -63,7 +63,7 @@ public class RepoProxy {
             pending_disable_apps_tr,
             resident, doze_whitelist_adding, doze_whitelist_removal;
 
-    private MapRepo<String, String> componentReplacement, appFocused, appUnFocused;
+    private MapRepo<String, String> componentReplacement, appFocused, appUnFocused, systemPropProfiles;
 
     private Handler h;
 
@@ -197,6 +197,7 @@ public class RepoProxy {
         appFocused = new StringMapRepo(new File(dir, "app_focused"), h, io);
         appUnFocused = new StringMapRepo(new File(dir, "app_unfocused"), h, io);
         componentReplacement = new StringMapRepo(new File(dir, "component_replacement"), h, io);
+        systemPropProfiles = new StringMapRepo(new File(dir, "system_prop_profiles"), h, io);
     }
 
     private static final SetRepo<String> STRING_SET_NULL_HACK = new SetRepo<String>() {
@@ -496,6 +497,10 @@ public class RepoProxy {
         return componentReplacement == null ? MAP_SET_NULL_HACK : componentReplacement;
     }
 
+    public MapRepo<String, String> getSystemPropProfiles() {
+        return systemPropProfiles == null ? MAP_SET_NULL_HACK : systemPropProfiles;
+    }
+
     public void backupTo(final String dir) throws RemoteException {
         Runnable r = new Runnable() {
             @Override
@@ -575,6 +580,7 @@ public class RepoProxy {
         getAppFocused().clear();
         getAppUnFocused().clear();
         getComponentReplacement().clear();
+        getSystemPropProfiles().clear();
 
         // Reset all settings.
         SettingsProvider.get().reset();
