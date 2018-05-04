@@ -465,6 +465,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public boolean beforeHookBroadcastPerformResult() {
+        return false;
+    }
+
+    @Override
     public void notifyTaskCreated(int taskId, ComponentName componentName) {
         throwNoImpl();
     }

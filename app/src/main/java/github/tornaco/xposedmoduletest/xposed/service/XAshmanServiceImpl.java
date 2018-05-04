@@ -1577,6 +1577,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    public boolean beforeHookBroadcastPerformResult() {
+        return isPushMessageHandleEnabled();
+    }
+
+    @Override
     public int onHookBroadcastPerformResult(Intent intent, int resultCode) {
         if (intent == null) {
             return resultCode;

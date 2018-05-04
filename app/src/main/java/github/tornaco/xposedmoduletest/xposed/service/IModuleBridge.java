@@ -71,6 +71,9 @@ public interface IModuleBridge {
     @CommonBringUpApi
     int onHookBroadcastPerformResult(Intent intent, int resultCode);
 
+    // Check if we need to do this hook?
+    boolean beforeHookBroadcastPerformResult();
+
     @CommonBringUpApi
     void notifyTaskCreated(int taskId, ComponentName componentName);
 

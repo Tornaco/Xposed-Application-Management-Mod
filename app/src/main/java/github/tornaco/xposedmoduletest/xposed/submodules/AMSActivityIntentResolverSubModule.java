@@ -130,7 +130,7 @@ class AMSActivityIntentResolverSubModule extends AndroidSubModule {
         }
     }
 
-    //FIXME  Has not check from other, current is SDK24.
+    // https://github.com/LineageOS/android_frameworks_base/blob/lineage-15.1/services/core/java/com/android/server/am/BroadcastQueue.java
     private void hookBroadcastRecordPerformReceive(XC_LoadPackage.LoadPackageParam lpparam) {
         XposedLog.verbose("hookBroadcastRecordPerformReceive...");
         try {
@@ -143,14 +143,17 @@ class AMSActivityIntentResolverSubModule extends AndroidSubModule {
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
 
-                            Intent intent = (Intent) param.args[2];
-                            int resultCode = (int) param.args[3];
+                            boolean hook = getBridge().beforeHookBroadcastPerformResult();
+                            if (hook) {
+                                Intent intent = (Intent) param.args[2];
+                                int resultCode = (int) param.args[3];
 
-                            int hookedCode = getBridge().onHookBroadcastPerformResult(intent, resultCode);
-                            if (isValidResultCode(hookedCode) && resultCode != hookedCode) {
-                                param.args[3] = hookedCode;
-                                if (BuildConfig.DEBUG) {
-                                    XposedLog.verbose("BroadcastRecord perform receive hooked res code to: " + hookedCode);
+                                int hookedCode = getBridge().onHookBroadcastPerformResult(intent, resultCode);
+                                if (isValidResultCode(hookedCode) && resultCode != hookedCode) {
+                                    param.args[3] = hookedCode;
+                                    if (BuildConfig.DEBUG) {
+                                        XposedLog.verbose("BroadcastRecord perform receive hooked res code to: " + hookedCode);
+                                    }
                                 }
                             }
                         }
