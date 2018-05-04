@@ -25,10 +25,6 @@ class AMSActivityIntentResolverSubModule extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
-//        hookBuildResolveList(lpparam);
-//        hookIsFilterStopped(lpparam);
-//        hookQueryIntentReceiversInternal(lpparam);
-//        hookBroadcastRecord(lpparam);
         hookBroadcastRecordPerformReceive(lpparam);
     }
 
