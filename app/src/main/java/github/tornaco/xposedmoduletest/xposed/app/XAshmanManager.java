@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -14,7 +15,9 @@ import android.util.Log;
 import org.newstand.logger.Logger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanService;
@@ -32,6 +35,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 import github.tornaco.xposedmoduletest.xposed.bean.OpsSettings;
+import github.tornaco.xposedmoduletest.xposed.bean.SystemPropProfile;
 
 /**
  * Created by guohao4 on 2017/11/9.
@@ -2143,6 +2147,93 @@ public class XAshmanManager {
             mService.stopService(serviceIntent);
         } catch (Exception e) {
 
+        }
+    }
+
+    public boolean isSystemPropEnabled() {
+        ensureService();
+        try {
+            return mService.isSystemPropEnabled();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void setSystemPropEnabled(boolean enabled) {
+        ensureService();
+        try {
+            mService.setSystemPropEnabled(enabled);
+        } catch (Exception e) {
+        }
+    }
+
+    public void addOrRemoveSystemPropProfile(SystemPropProfile profile, boolean add) {
+        ensureService();
+        try {
+            mService.addOrRemoveSystemPropProfile(profile, add);
+        } catch (Exception e) {
+        }
+    }
+
+    public Map getSystemPropProfiles() {
+        ensureService();
+        try {
+            return mService.getSystemPropProfiles();
+        } catch (Exception e) {
+            return new HashMap(0);
+        }
+    }
+
+    public void setActiveSystemPropProfileId(String profileId) {
+        ensureService();
+        try {
+            mService.setActiveSystemPropProfileId(profileId);
+        } catch (Exception e) {
+        }
+    }
+
+    public String getActiveSystemPropProfileId() {
+        ensureService();
+        try {
+            return mService.getActiveSystemPropProfileId();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public SystemPropProfile getActiveSystemPropProfile() {
+        ensureService();
+        try {
+            return mService.getActiveSystemPropProfile();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public void addOrRemoveSystemPropProfileApplyApps(String[] pkgs, boolean add) {
+        ensureService();
+        try {
+            mService.addOrRemoveSystemPropProfileApplyApps(pkgs, add);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public String[] getSystemPropProfileApplyApps(boolean apply) {
+        ensureService();
+        try {
+            return mService.getSystemPropProfileApplyApps(apply);
+        } catch (Exception e) {
+            return ArrayUtil.emptyStringArray();
+        }
+    }
+
+    public boolean isSystemPropProfileApplyApp(String packageName) {
+        ensureService();
+        try {
+            return mService.isSystemPropProfileApplyApp(packageName);
+        } catch (RemoteException e) {
+            return false;
         }
     }
 }

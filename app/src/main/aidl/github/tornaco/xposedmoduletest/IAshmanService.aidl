@@ -15,6 +15,8 @@ import github.tornaco.xposedmoduletest.xposed.bean.OpsSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.PackageSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
+import github.tornaco.xposedmoduletest.xposed.bean.SystemPropProfile;
+import github.tornaco.xposedmoduletest.xposed.bean.SystemProp;
 
 import github.tornaco.xposedmoduletest.bean.CongfigurationSetting;
 
@@ -464,4 +466,18 @@ interface IAshmanService {
 
     // Force stop package or force idle?
     void forceIdlePackages(in String[] packages);
+
+    // System prop profiles.
+    boolean isSystemPropEnabled();
+    void setSystemPropEnabled(boolean enabled);
+
+    void addOrRemoveSystemPropProfile(in SystemPropProfile profile, boolean add);
+    Map getSystemPropProfiles();
+
+    void setActiveSystemPropProfileId(String profileId);
+    String getActiveSystemPropProfileId();
+    SystemPropProfile getActiveSystemPropProfile();
+    void addOrRemoveSystemPropProfileApplyApps(in String[] pkgs, boolean add);
+    String[] getSystemPropProfileApplyApps(boolean apply);
+    boolean isSystemPropProfileApplyApp(String packageName);
 }

@@ -29,6 +29,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 import github.tornaco.xposedmoduletest.xposed.bean.OpsSettings;
+import github.tornaco.xposedmoduletest.xposed.bean.SystemPropProfile;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.service.am.AMSProxy;
@@ -49,6 +50,8 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 // Empty impl for redemption mode.
 public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
 
+    private boolean mSystemReady;
+
     @Override
     public void publish() {
         XposedLog.boot("Publishing redemption ashman!!!");
@@ -65,6 +68,7 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     @Override
     public void systemReady() {
         XposedLog.boot("System ready redemption ashman!!!");
+        mSystemReady = true;
     }
 
     @Override
@@ -358,38 +362,88 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
-    public void mockPushMessageReceived(String pkg, String message) throws RemoteException {
+    public void mockPushMessageReceived(String pkg, String message) {
 
     }
 
     @Override
-    public void registerController(IServiceControl control) throws RemoteException {
+    public void registerController(IServiceControl control) {
 
     }
 
     @Override
-    public void unRegisterController(IServiceControl control) throws RemoteException {
+    public void unRegisterController(IServiceControl control) {
 
     }
 
     @Override
-    public void stopService(Intent serviceIntent) throws RemoteException {
+    public void stopService(Intent serviceIntent) {
 
     }
 
     @Override
-    public void setAppServiceLazyControlSolution(int solutionFlags, boolean enabled) throws RemoteException {
+    public void setAppServiceLazyControlSolution(int solutionFlags, boolean enabled) {
 
     }
 
     @Override
-    public boolean isAppServiceLazyControlSolutionEnable(int solutionFlags) throws RemoteException {
+    public boolean isAppServiceLazyControlSolutionEnable(int solutionFlags) {
         return false;
     }
 
     @Override
-    public void forceIdlePackages(String[] packages) throws RemoteException {
+    public void forceIdlePackages(String[] packages) {
 
+    }
+
+    @Override
+    public boolean isSystemPropEnabled() {
+        return false;
+    }
+
+    @Override
+    public void setSystemPropEnabled(boolean enabled) {
+
+    }
+
+    @Override
+    public void addOrRemoveSystemPropProfile(SystemPropProfile profile, boolean add) {
+
+    }
+
+    @Override
+    public Map getSystemPropProfiles() {
+        return null;
+    }
+
+    @Override
+    public void setActiveSystemPropProfileId(String profileId) {
+
+    }
+
+    @Override
+    public String getActiveSystemPropProfileId() {
+        return null;
+    }
+
+    @Override
+    public SystemPropProfile getActiveSystemPropProfile() {
+        return null;
+    }
+
+    @Override
+    public void addOrRemoveSystemPropProfileApplyApps(String[] pkgs, boolean add) {
+
+    }
+
+    @Override
+    public String[] getSystemPropProfileApplyApps(boolean apply) {
+        return new String[0];
+    }
+
+    @Override
+    public boolean isSystemPropProfileApplyApp(String packageName) throws RemoteException {
+        return false;
     }
 
     @Override
@@ -477,6 +531,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     @Override
     public ComponentName componentNameForTaskId(int taskId) {
         return throwNoImpl();
+    }
+
+    @Override
+    public boolean isSystemReady() {
+        return mSystemReady;
     }
 
     @Override

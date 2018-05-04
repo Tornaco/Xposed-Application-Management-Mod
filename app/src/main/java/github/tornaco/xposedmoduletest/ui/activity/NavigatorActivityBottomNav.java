@@ -33,7 +33,6 @@ import com.jaredrummler.android.shell.Shell;
 import org.newstand.logger.Logger;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import dev.nick.eventbus.Event;
@@ -99,6 +98,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.ShowFocusedActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.StyleSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.app.Talkers;
 import github.tornaco.xposedmoduletest.ui.tiles.app.WhiteSystemApp;
+import github.tornaco.xposedmoduletest.ui.tiles.prop.Disguise;
 import github.tornaco.xposedmoduletest.ui.widget.BottomNavigationViewHelper;
 import github.tornaco.xposedmoduletest.ui.widget.ToastManager;
 import github.tornaco.xposedmoduletest.util.EmojiUtil;
@@ -875,6 +875,11 @@ public class NavigatorActivityBottomNav
         @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
+
+            if (getContext() == null) {
+                return;
+            }
+
             Category sec = new Category();
             sec.titleRes = R.string.title_secure;
 
@@ -893,6 +898,10 @@ public class NavigatorActivityBottomNav
                 if (AppSettings.isShowInfoEnabled(getContext(), "show_hidden_features", false)) {
                     sec.addTile(new Resident(getActivity()));
                 }
+            }
+
+            if (AppSettings.isShowInfoEnabled(getContext(), "show_hidden_features2", false)) {
+                sec.addTile(new Disguise(getActivity()));
             }
 
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_PRIVACY)) {

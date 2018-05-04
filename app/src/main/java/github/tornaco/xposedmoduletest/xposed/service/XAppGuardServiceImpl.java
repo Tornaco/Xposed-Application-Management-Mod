@@ -423,7 +423,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         return RepoProxy.getProxy().getComponentReplacement().dup();
     }
 
-
     protected void dump(FileDescriptor fd, final PrintWriter fout, String[] args) {
         // For secure and CTS.
         if (getContext().checkCallingOrSelfPermission(Manifest.permission.DUMP) != PackageManager.PERMISSION_GRANTED) {

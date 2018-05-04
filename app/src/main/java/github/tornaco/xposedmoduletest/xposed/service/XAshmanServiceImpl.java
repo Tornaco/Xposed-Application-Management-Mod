@@ -124,6 +124,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
 import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 import github.tornaco.xposedmoduletest.xposed.bean.OpsSettings;
+import github.tornaco.xposedmoduletest.xposed.bean.SystemPropProfile;
 import github.tornaco.xposedmoduletest.xposed.bean.TypePack;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
@@ -896,7 +897,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         mIsSafeMode = getContext().getPackageManager().isSafeMode();
     }
 
-    private boolean isSystemReady() {
+    @Override
+    public boolean isSystemReady() {
         return mIsSystemReady;
     }
 
@@ -1227,6 +1229,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             XposedLog.wtf("Fail load settings from SettingsProvider:" + Log.getStackTraceString(e));
         }
 
+        try {
+            mIsSystemPropEnabled.set(SettingsProvider.get().getBoolean(SYSTEM_PROP_ENABLED, false));
+            XposedLog.boot("mIsSystemPropEnabled: " + String.valueOf(mIsSystemPropEnabled));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail load settings from SettingsProvider:" + Log.getStackTraceString(e));
+        }
     }
 
     @Override
@@ -3559,6 +3567,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         return isInStringRepo(RepoProxy.getProxy().getLazy(), pkg);
     }
 
+    private boolean isPackagePropApplyByUser(String pkg) {
+        return isInStringRepo(RepoProxy.getProxy().getProps(), pkg);
+    }
+
     private boolean isPackageGreeningByUser(String pkg) {
         return isInStringRepo(RepoProxy.getProxy().getGreens(), pkg);
     }
@@ -4223,6 +4235,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    @BinderCall
     public void forceIdlePackages(String[] packages) {
         enforceCallingPermissions();
         XposedLog.verbose("forceIdlePackages: " + Arrays.toString(packages));
@@ -4231,6 +4244,149 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 getAppIdler().setAppIdle(p);
             }
         }, "forceStopPackages"));
+    }
+
+    private static final String SYSTEM_PROP_ENABLED = "system_prop_enabled";
+    private AtomicBoolean mIsSystemPropEnabled = new AtomicBoolean(false);
+
+    @Override
+    public boolean isSystemPropEnabled() {
+        enforceCallingPermissions();
+        return mIsSystemPropEnabled.get();
+    }
+
+    @Override
+    public void setSystemPropEnabled(boolean enabled) {
+        enforceCallingPermissions();
+        SettingsProvider.get().putBoolean(SYSTEM_PROP_ENABLED, enabled);
+        mIsSystemPropEnabled.set(enabled);
+    }
+
+    @Override
+    @BinderCall
+    public void addOrRemoveSystemPropProfile(SystemPropProfile profile, boolean add) {
+        enforceCallingPermissions();
+        XposedLog.verbose("addOrRemoveSystemPropProfile: " + profile);
+        if (validateSystemPropProfile(profile)) {
+            String id = profile.getProfileId();
+            if (add) {
+                String js = profile.toJson();
+                if (js != null) {
+                    RepoProxy.getProxy().getSystemPropProfiles().put(id, js);
+                }
+            } else {
+                RepoProxy.getProxy().getSystemPropProfiles().remove(id);
+            }
+        }
+    }
+
+    private static boolean validateSystemPropProfile(SystemPropProfile profile) {
+        return profile != null && profile.getProfileId() != null && profile.getSystemProp() != null;
+    }
+
+    @Override
+    @BinderCall
+    public Map getSystemPropProfiles() {
+        enforceCallingPermissions();
+        return RepoProxy.getProxy().getSystemPropProfiles().dup();
+    }
+
+    @Override
+    public void setActiveSystemPropProfileId(String profileId) {
+
+    }
+
+    @Override
+    public String getActiveSystemPropProfileId() {
+        return null;
+    }
+
+    @Override
+    public SystemPropProfile getActiveSystemPropProfile() {
+        return null;
+    }
+
+    @Override
+    public void addOrRemoveSystemPropProfileApplyApps(String[] pkgs, boolean add) {
+        if (XposedLog.isVerboseLoggable())
+            XposedLog.verbose("addOrRemoveSystemPropProfileApplyApps: "
+                    + Arrays.toString(pkgs));
+        if (pkgs == null || pkgs.length == 0) return;
+        enforceCallingPermissions();
+        long id = Binder.clearCallingIdentity();
+        try {
+            for (String p : pkgs) {
+                if (add) {
+                    // Check if this is 3-rd app.
+                    int appLevel = getAppLevel(p);
+                    if (appLevel == XAshmanManager.AppLevel.THIRD_PARTY) {
+                        RepoProxy.getProxy().getProps().add(p);
+                    } else {
+                        XposedLog.wtf("addOrRemoveSystemPropProfileApplyApps skip for no-3rd app: " + p);
+                    }
+                } else {
+                    RepoProxy.getProxy().getProps().remove(p);
+                }
+            }
+        } finally {
+            Binder.restoreCallingIdentity(id);
+        }
+    }
+
+    @Override
+    public String[] getSystemPropProfileApplyApps(boolean apply) {
+        if (XposedLog.isVerboseLoggable())
+            XposedLog.verbose("getSystemPropProfileApplyApps: " + apply);
+        enforceCallingPermissions();
+        if (!apply) {
+            Collection<String> packages = mPackagesCache.keySet();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+
+            final List<String> outList = Lists.newArrayList();
+
+            // Remove those not in blocked list.
+            String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
+            Collections.consumeRemaining(allPackagesArr,
+                    s -> {
+                        if (outList.contains(s)) return;// Kik dup package.
+                        if (isPackagePropApplyByUser(s)) return;
+                        if (isInWhiteList(s)) return;
+                        if (isInSystemAppList(s)) return; // Only for 3-rd.
+                        outList.add(s);
+                    });
+
+            if (outList.size() == 0) {
+                return new String[0];
+            }
+            Object[] objArr = outList.toArray();
+            return convertObjectArrayToStringArray(objArr);
+        } else {
+            Set<String> packages = RepoProxy.getProxy().getProps().getAll();
+            if (packages.size() == 0) {
+                return new String[0];
+            }
+
+            final List<String> noSys = Lists.newArrayList();
+
+            Collections.consumeRemaining(packages, p -> {
+                if (isInSystemAppList(p)) {
+                    return;
+                }
+                noSys.add(p);
+            });
+            return convertObjectArrayToStringArray(noSys.toArray());
+        }
+    }
+
+    @Override
+    @BinderCall(restrict = "any")
+    public boolean isSystemPropProfileApplyApp(String packageName) {
+        int appLevel = getAppLevel(packageName);
+        // 3-rd and in list.
+        return appLevel == XAshmanManager.AppLevel.THIRD_PARTY
+                && isPackagePropApplyByUser(packageName);
     }
 
     private void stopServiceInternal(Intent serviceIntent) {

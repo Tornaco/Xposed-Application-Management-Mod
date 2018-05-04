@@ -53,7 +53,7 @@ public class RepoProxy {
             start_rules, lazy_rules,
             ifw_service, ifw_broadcast, ifw_activity,
             lks, rfks, trks,
-            perms, privacy, greens,
+            perms, privacy, greens, props,
             blurs,
             locks, lock_white_list_activity,
             uninstall,
@@ -63,7 +63,7 @@ public class RepoProxy {
             pending_disable_apps_tr,
             resident, doze_whitelist_adding, doze_whitelist_removal;
 
-    private MapRepo<String, String> componentReplacement, appFocused, appUnFocused;
+    private MapRepo<String, String> componentReplacement, appFocused, appUnFocused, systemPropProfiles;
 
     private Handler h;
 
@@ -159,6 +159,7 @@ public class RepoProxy {
         comps = new StringSetRepo(new File(dir, "comps"), h, io);
         perms = new StringSetRepo(new File(dir, "perms"), h, io);
         privacy = new StringSetRepo(new File(dir, "privacy"), h, io);
+        props = new StringSetRepo(new File(dir, "props"), h, io);
         greens = new StringSetRepo(new File(dir, "greens"), h, io);
         blurs = new StringSetRepo(new File(dir, "blurs"), h, io);
         locks = new StringSetRepo(new File(dir, "locks"), h, io);
@@ -197,6 +198,7 @@ public class RepoProxy {
         appFocused = new StringMapRepo(new File(dir, "app_focused"), h, io);
         appUnFocused = new StringMapRepo(new File(dir, "app_unfocused"), h, io);
         componentReplacement = new StringMapRepo(new File(dir, "component_replacement"), h, io);
+        systemPropProfiles = new StringMapRepo(new File(dir, "system_prop_profiles"), h, io);
     }
 
     private static final SetRepo<String> STRING_SET_NULL_HACK = new SetRepo<String>() {
@@ -424,6 +426,10 @@ public class RepoProxy {
         return privacy == null ? STRING_SET_NULL_HACK : privacy;
     }
 
+    public SetRepo<String> getProps() {
+        return props == null ? STRING_SET_NULL_HACK : props;
+    }
+
     public SetRepo<String> getGreens() {
         return greens == null ? STRING_SET_NULL_HACK : greens;
     }
@@ -496,6 +502,10 @@ public class RepoProxy {
         return componentReplacement == null ? MAP_SET_NULL_HACK : componentReplacement;
     }
 
+    public MapRepo<String, String> getSystemPropProfiles() {
+        return systemPropProfiles == null ? MAP_SET_NULL_HACK : systemPropProfiles;
+    }
+
     public void backupTo(final String dir) throws RemoteException {
         Runnable r = new Runnable() {
             @Override
@@ -550,6 +560,7 @@ public class RepoProxy {
         getTrks().removeAll();
         getPerms().removeAll();
         getPrivacy().removeAll();
+        getProps().removeAll();
         getGreens().removeAll();
         getBlurs().removeAll();
         getComps().removeAll();
@@ -575,6 +586,7 @@ public class RepoProxy {
         getAppFocused().clear();
         getAppUnFocused().clear();
         getComponentReplacement().clear();
+        getSystemPropProfiles().clear();
 
         // Reset all settings.
         SettingsProvider.get().reset();

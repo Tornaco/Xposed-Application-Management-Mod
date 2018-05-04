@@ -31,6 +31,8 @@ public class BlockRecord2 implements Parcelable {
     private long howManyTimesAllowed;
     private String reason;
     private boolean block; // Is this request blocked or allowed.
+
+    @Builder.Default
     private int type = TYPE_UNKNOWN;
 
     public static String decodeType(int type) {

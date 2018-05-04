@@ -622,4 +622,8 @@
     <string name="summary_lazy_toast">当处理某个乖巧应用时，显示Toast作为提醒。</string>
     <string name="toast_error_retry_later">出错了，请退出重试:(</string>
     <string name="title_fav">最近使用</string>
+    <string name="title_prop_apps">Disguise</string>
+    <string name="title_prop_nav">Disguise</string>
+    <string name="summary_prop">XXX</string>
+    <string name="title_prop_apply_apps">伪装的应用</string>
 </resources>
