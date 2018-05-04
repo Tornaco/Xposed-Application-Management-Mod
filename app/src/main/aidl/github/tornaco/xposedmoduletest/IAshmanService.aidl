@@ -478,6 +478,6 @@ interface IAshmanService {
     String getActiveSystemPropProfileId();
     SystemPropProfile getActiveSystemPropProfile();
     void addOrRemoveSystemPropProfileApplyApps(in String[] pkgs, boolean add);
-    String[] getSystemPropProfileApplyApps();
+    String[] getSystemPropProfileApplyApps(boolean apply);
     boolean isSystemPropProfileApplyApp(String packageName);
 }

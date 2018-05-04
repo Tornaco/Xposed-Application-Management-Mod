@@ -182,6 +182,18 @@
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
+            android:name=".ui.activity.prop.PropNavActivity"
+            android:label="@string/title_prop_nav"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.prop.PropAppListNavActivity"
+            android:label="@string/title_prop_apps"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.prop.PropAppListPickerActivity"
+            android:label="@string/title_picker"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
             android:name=".ui.activity.pmh.PMHDashboardActivity"
             android:label="@string/title_push_message_handler"
             android:theme="@style/AppThemeLight.NoActionBar" />

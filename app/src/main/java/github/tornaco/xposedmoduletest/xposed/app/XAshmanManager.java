@@ -2219,10 +2219,10 @@ public class XAshmanManager {
         }
     }
 
-    public String[] getSystemPropProfileApplyApps() {
+    public String[] getSystemPropProfileApplyApps(boolean apply) {
         ensureService();
         try {
-            return mService.getSystemPropProfileApplyApps();
+            return mService.getSystemPropProfileApplyApps(apply);
         } catch (Exception e) {
             return ArrayUtil.emptyStringArray();
         }

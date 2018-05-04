@@ -437,7 +437,7 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
-    public String[] getSystemPropProfileApplyApps() {
+    public String[] getSystemPropProfileApplyApps(boolean apply) {
         return new String[0];
     }
 

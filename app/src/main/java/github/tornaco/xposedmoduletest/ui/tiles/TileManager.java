@@ -11,6 +11,7 @@ import java.util.Map;
 
 import dev.nick.eventbus.utils.ReflectionUtils;
 import dev.nick.tiles.tile.Tile;
+import github.tornaco.xposedmoduletest.ui.tiles.prop.Disguise;
 
 /**
  * Created by Tornaco on 2018/5/3 13:42.
@@ -40,6 +41,10 @@ public class TileManager {
         CLAZZ_MAP.put(getTileKey(Doze.class), Doze.class);
         CLAZZ_MAP.put(getTileKey(PushMessageHandler.class), PushMessageHandler.class);
         CLAZZ_MAP.put(getTileKey(NFManager.class), NFManager.class);
+
+        // Hiddens.
+        CLAZZ_MAP.put(getTileKey(Resident.class), Resident.class);
+        CLAZZ_MAP.put(getTileKey(Disguise.class), Disguise.class);
     }
 
     public static String getTileKey(Class<? extends Tile> clazz) {

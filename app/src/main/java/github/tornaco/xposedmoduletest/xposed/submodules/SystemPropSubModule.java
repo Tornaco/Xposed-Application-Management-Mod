@@ -12,6 +12,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.GlobalWhiteList;
+import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.SystemProp;
 import github.tornaco.xposedmoduletest.xposed.bean.SystemPropProfile;
@@ -23,6 +24,11 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 public class SystemPropSubModule extends AndroidSubModule {
+
+    @Override
+    public String needBuildVar() {
+        return XAppBuildVar.APP_PROP;
+    }
 
     @Override
     public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {

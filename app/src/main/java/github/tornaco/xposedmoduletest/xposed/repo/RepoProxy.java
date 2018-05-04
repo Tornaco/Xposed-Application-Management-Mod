@@ -53,7 +53,7 @@ public class RepoProxy {
             start_rules, lazy_rules,
             ifw_service, ifw_broadcast, ifw_activity,
             lks, rfks, trks,
-            perms, privacy, greens,
+            perms, privacy, greens, props,
             blurs,
             locks, lock_white_list_activity,
             uninstall,
@@ -159,6 +159,7 @@ public class RepoProxy {
         comps = new StringSetRepo(new File(dir, "comps"), h, io);
         perms = new StringSetRepo(new File(dir, "perms"), h, io);
         privacy = new StringSetRepo(new File(dir, "privacy"), h, io);
+        props = new StringSetRepo(new File(dir, "props"), h, io);
         greens = new StringSetRepo(new File(dir, "greens"), h, io);
         blurs = new StringSetRepo(new File(dir, "blurs"), h, io);
         locks = new StringSetRepo(new File(dir, "locks"), h, io);
@@ -425,6 +426,10 @@ public class RepoProxy {
         return privacy == null ? STRING_SET_NULL_HACK : privacy;
     }
 
+    public SetRepo<String> getProps() {
+        return props == null ? STRING_SET_NULL_HACK : props;
+    }
+
     public SetRepo<String> getGreens() {
         return greens == null ? STRING_SET_NULL_HACK : greens;
     }
@@ -555,6 +560,7 @@ public class RepoProxy {
         getTrks().removeAll();
         getPerms().removeAll();
         getPrivacy().removeAll();
+        getProps().removeAll();
         getGreens().removeAll();
         getBlurs().removeAll();
         getComps().removeAll();
