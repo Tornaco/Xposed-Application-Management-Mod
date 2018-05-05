@@ -10,6 +10,7 @@ import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.submodules.debug.DisplayListCanvasSubModule;
+import github.tornaco.xposedmoduletest.xposed.submodules.debug.PointerEventDispatcherSubModule;
 import github.tornaco.xposedmoduletest.xposed.submodules.debug.UserManagerServiceSubModule;
 import github.tornaco.xposedmoduletest.xposed.submodules.debug.WindowSubModule;
 import github.tornaco.xposedmoduletest.xposed.submodules.debug.Z2ForceFixSubModule;
@@ -185,6 +186,8 @@ public class SubModuleManager {
             // Hot fix.
             addToSubsChecked(new DisplayListCanvasSubModule());
             addToSubsChecked(new Z2ForceFixSubModule());
+
+            addToSubsChecked(new PointerEventDispatcherSubModule());
         }
     }
 
