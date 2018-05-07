@@ -632,5 +632,6 @@
     <string name="title_prop_nav">Disguise</string>
     <string name="summary_prop">XXX</string>
     <string name="title_prop_apply_apps">伪装的应用</string>
+    <string name="summary_about_settings">版本、开源信息、捐赠</string>
 
 </resources>

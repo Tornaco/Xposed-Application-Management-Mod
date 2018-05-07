@@ -78,6 +78,7 @@ public class LockScreenStubActivity extends Activity {
                                   Bitmap resource) {
         ShortcutManager shortcutManager = (ShortcutManager) context.getSystemService(Context.SHORTCUT_SERVICE);
 
+        Logger.d("doAddForO");
         if (shortcutManager != null && shortcutManager.isRequestPinShortcutSupported()) {
             Intent shortcutInfoIntent = createIntent(context);
             shortcutInfoIntent.setAction(Intent.ACTION_VIEW);

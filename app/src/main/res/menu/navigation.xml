@@ -27,10 +27,4 @@
         android:title="@string/title_settings"
         app:showAsAction="always|withText" />
 
-    <item
-        android:id="@+id/navigation_about"
-        android:icon="@drawable/ic_info_black_24dp"
-        android:title="@string/title_about"
-        app:showAsAction="always|withText" />
-
 </menu>
