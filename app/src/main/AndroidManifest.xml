@@ -302,6 +302,10 @@
             android:label="@string/title_style_settings"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
+            android:name=".ui.activity.AboutSettingsActivity"
+            android:label="@string/title_about"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
             android:name=".ui.activity.BackupRestoreSettingsActivity"
             android:label="@string/title_backup_restore"
             android:theme="@style/AppThemeLight.NoActionBar" />

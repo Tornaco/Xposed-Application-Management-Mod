@@ -76,27 +76,19 @@ import github.tornaco.xposedmoduletest.ui.tiles.SmartSense;
 import github.tornaco.xposedmoduletest.ui.tiles.TRKill;
 import github.tornaco.xposedmoduletest.ui.tiles.TileManager;
 import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
+import github.tornaco.xposedmoduletest.ui.tiles.app.AboutSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppDevMode;
-import github.tornaco.xposedmoduletest.ui.tiles.app.AppDeveloper;
-import github.tornaco.xposedmoduletest.ui.tiles.app.AppDonate;
-import github.tornaco.xposedmoduletest.ui.tiles.app.AppGetPlay;
-import github.tornaco.xposedmoduletest.ui.tiles.app.AppVersion;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlack;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlackNotification;
 import github.tornaco.xposedmoduletest.ui.tiles.app.BackupRestoreSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CleanUpSystemErrorTrace;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CrashDump;
-import github.tornaco.xposedmoduletest.ui.tiles.app.GitContributors;
 import github.tornaco.xposedmoduletest.ui.tiles.app.InactiveInsteadOfKillApp;
 import github.tornaco.xposedmoduletest.ui.tiles.app.MokeCrash;
 import github.tornaco.xposedmoduletest.ui.tiles.app.MokeSystemDead;
-import github.tornaco.xposedmoduletest.ui.tiles.app.OpenMarket;
-import github.tornaco.xposedmoduletest.ui.tiles.app.OpenSource;
 import github.tornaco.xposedmoduletest.ui.tiles.app.PowerSave;
-import github.tornaco.xposedmoduletest.ui.tiles.app.PrivacyPolicy;
 import github.tornaco.xposedmoduletest.ui.tiles.app.ShowFocusedActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.StyleSettings;
-import github.tornaco.xposedmoduletest.ui.tiles.app.Talkers;
 import github.tornaco.xposedmoduletest.ui.tiles.app.WhiteSystemApp;
 import github.tornaco.xposedmoduletest.ui.tiles.prop.Disguise;
 import github.tornaco.xposedmoduletest.ui.widget.BottomNavigationViewHelper;
@@ -126,7 +118,6 @@ public class NavigatorActivityBottomNav
         int MANAGE = BASE + 1;
         int TOOLS = BASE + 2;
         int SETTINGS = BASE + 3;
-        int ABOUT = BASE + 4;
     }
 
     public static void start(Context context) {
@@ -271,9 +262,6 @@ public class NavigatorActivityBottomNav
                 case R.id.navigation_settings:
                     cardController.setCurrent(INDEXS.SETTINGS);
                     break;
-                case R.id.navigation_about:
-                    cardController.setCurrent(INDEXS.ABOUT);
-                    break;
             }
             ActivityLifeCycleDashboardFragment dashboardFragment = getCardController().getCurrent();
             @StringRes int titleRes = dashboardFragment.getPageTitle();
@@ -303,8 +291,7 @@ public class NavigatorActivityBottomNav
                         new DeviceStatusFragment(),
                         new ManageNavFragment(),
                         new ToolsNavFragment(),
-                        new SettingsNavFragment(),
-                        new AboutNavFragment());
+                        new SettingsNavFragment());
         cardController = new FragmentController<>(getSupportFragmentManager(), cards, R.id.container);
         cardController.setDefaultIndex(0);
         cardController.setCurrent(0);
@@ -1026,66 +1013,15 @@ public class NavigatorActivityBottomNav
             theme.titleRes = R.string.title_style;
             theme.addTile(new StyleSettings(getActivity()));
 
-            Category others = new Category();
-            others.titleRes = R.string.title_others;
-            if (XApp.isGMSSupported()) {
-                //   others.addTile(new GcmMessagesSubscriber(getActivity()));
-            }
+            Category about = new Category();
+            about.titleRes = R.string.title_about;
+            about.addTile(new AboutSettings(getActivity()));
 
             categories.add(system);
             categories.add(policy);
             categories.add(data);
             categories.add(theme);
-            if (others.getTilesCount() > 0) categories.add(others);
-        }
-    }
-
-    public static class AboutNavFragment extends ActivityLifeCycleDashboardFragment {
-        @Override
-        public int getPageTitle() {
-            return R.string.title_about;
-        }
-
-        @Override
-        protected int getLayoutId() {
-            return R.layout.dashboard_with_margin;
-        }
-
-        @Override
-        protected int getNumColumns() {
-            boolean two = AppSettings.show2ColumnsIn(getActivity(), AboutNavFragment.class.getSimpleName());
-            return two ? 2 : 1;
-        }
-
-        @Override
-        protected void onCreateDashCategories(List<Category> categories) {
-            super.onCreateDashCategories(categories);
-
-            Category personal = new Category();
-            personal.titleRes = R.string.title_about;
-            personal.addTile(new AppDeveloper(getActivity()));
-            personal.addTile(new AppVersion(getActivity()));
-            personal.addTile(new OpenMarket(getActivity()));
-
-            Category open = new Category();
-            open.titleRes = R.string.title_open_info;
-            open.addTile(new PrivacyPolicy(getActivity()));
-            open.addTile(new OpenSource(getActivity()));
-            open.addTile(new GitContributors(getActivity()));
-            open.addTile(new Talkers(getActivity()));
-
-            boolean isPlayVersion = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.PLAY);
-
-            categories.add(personal);
-            categories.add(open);
-
-            if (!isPlayVersion) {
-                Category help = new Category();
-                help.titleRes = R.string.title_help_dev;
-                help.addTile(new AppDonate(getActivity()));
-                help.addTile(new AppGetPlay(getActivity()));
-                categories.add(help);
-            }
+            categories.add(about);
         }
     }
 }
