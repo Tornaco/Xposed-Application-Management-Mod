@@ -16,9 +16,9 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
-class KeyEventSender {
+public class KeyEventSender {
 
-    static boolean injectInputEvent(InputEvent event, int mode) {
+    public static boolean injectInputEvent(InputEvent event, int mode) {
         XposedLog.verbose("injectInputEvent: " + event);
         InputManager inputManager = InputManager.getInstance();
         try {
@@ -31,7 +31,7 @@ class KeyEventSender {
         }
     }
 
-    private static boolean injectKey(int code) {
+    public static boolean injectKey(int code) {
         int flags = KeyEvent.FLAG_FROM_SYSTEM;
         int scancode = 12;
         final long eventTime = SystemClock.uptimeMillis();
@@ -42,11 +42,11 @@ class KeyEventSender {
         return injectInputEvent(down, 0) && injectInputEvent(up, 0);
     }
 
-    static boolean injectHomeKey() {
+    public static boolean injectHomeKey() {
         return injectKey(KeyEvent.KEYCODE_HOME);
     }
 
-    static boolean injectPowerKey() {
+    public static boolean injectPowerKey() {
         return injectKey(KeyEvent.KEYCODE_POWER);
     }
 }

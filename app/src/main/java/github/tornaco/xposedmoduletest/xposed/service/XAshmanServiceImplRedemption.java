@@ -153,6 +153,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public void onInputEvent(Object arg) {
+
+    }
+
+    @Override
     public void setRecentTaskExcludeSetting(ComponentName c, int setting) {
 
     }

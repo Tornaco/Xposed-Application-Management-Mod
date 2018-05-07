@@ -61,6 +61,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.SparseBooleanArray;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.WindowManagerPolicy;
@@ -158,6 +159,8 @@ import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.service.rule.Rule;
 import github.tornaco.xposedmoduletest.xposed.service.rule.RuleParser;
 import github.tornaco.xposedmoduletest.xposed.service.shell.AshShellCommand;
+import github.tornaco.xposedmoduletest.xposed.service.wm.SystemGesturesPointerEventListener;
+import github.tornaco.xposedmoduletest.xposed.service.wm.SystemGesturesPointerEventListenerCallbackImpl;
 import github.tornaco.xposedmoduletest.xposed.submodules.InputManagerInjectInputSubModule;
 import github.tornaco.xposedmoduletest.xposed.submodules.SubModuleManager;
 import github.tornaco.xposedmoduletest.xposed.submodules.debug.TestXposedMethod;
@@ -3389,6 +3392,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
     }
 
+    private SystemGesturesPointerEventListener mSystemGesturesPointerEventListener;
+
+    @Override
+    public void onInputEvent(Object arg) {
+        if (false && mSystemGesturesPointerEventListener != null && arg instanceof MotionEvent) {
+            MotionEvent me = (MotionEvent) arg;
+            mSystemGesturesPointerEventListener.onPointerEvent(me);
+        }
+    }
+
     @Override
     public void setRecentTaskExcludeSetting(ComponentName c, int setting) {
         SettingsProvider.get().putInt("RECENT_EXCLUDE_" + c.getPackageName(), setting);
@@ -6595,6 +6608,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         if (getContext() != null) {
             mKillIdler = new KillAppIdler(getContext(), mOnAppIdleListener);
         }
+
+        // Under test.
+        if (false)
+            mSystemGesturesPointerEventListener = new SystemGesturesPointerEventListener(getContext(),
+                    new SystemGesturesPointerEventListenerCallbackImpl(getContext()));
     }
 
     private AppIdler getAppIdler() {

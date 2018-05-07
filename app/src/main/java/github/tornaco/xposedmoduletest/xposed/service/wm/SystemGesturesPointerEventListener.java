@@ -57,8 +57,8 @@ public class SystemGesturesPointerEventListener implements PointerEventListener 
     private GestureDetector mGestureDetector;
     private OverScroller mOverscroller;
 
-    int screenHeight;
-    int screenWidth;
+    private int screenHeight;
+    private int screenWidth;
     private int mDownPointers;
     private boolean mSwipeFireable;
     private boolean mDebugFireable;

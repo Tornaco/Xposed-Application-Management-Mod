@@ -2,8 +2,12 @@ package github.tornaco.xposedmoduletest.xposed.service.wm;
 
 import android.content.Context;
 import android.view.Display;
+import android.view.KeyEvent;
 import android.view.WindowManager;
 
+import java.util.Objects;
+
+import github.tornaco.xposedmoduletest.xposed.service.KeyEventSender;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Getter;
 
@@ -20,21 +24,21 @@ public class SystemGesturesPointerEventListenerCallbackImpl
 
     private Context context;
 
-    SystemGesturesPointerEventListenerCallbackImpl(Context context) {
+    public SystemGesturesPointerEventListenerCallbackImpl(Context context) {
         this.context = context;
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        Display display = wm.getDefaultDisplay();
+        Display display = Objects.requireNonNull(wm).getDefaultDisplay();
         screenWidth = display.getWidth();  // deprecated
         screenHeight = display.getHeight();  // deprecated
     }
 
-    SwipeAreaX getSwipeAreaX(int x) {
+    private SwipeAreaX getSwipeAreaX(int x) {
         if (x <= screenWidth / 4) return SwipeAreaX.LEFT;
         if (x >= screenWidth - screenWidth / 4) return SwipeAreaX.RIGHT;
         return SwipeAreaX.CENTER;
     }
 
-    SwipeAreaY getSwipeAreaY(int y) {
+    private SwipeAreaY getSwipeAreaY(int y) {
         if (y <= screenHeight / 4) return SwipeAreaY.TOP;
         if (screenHeight - y <= 100) return SwipeAreaY.BOTTOM;
         return SwipeAreaY.CENTER;
@@ -54,10 +58,13 @@ public class SystemGesturesPointerEventListenerCallbackImpl
         if (say == SwipeAreaY.BOTTOM) {
             switch (sax) {
                 case LEFT:
+                    KeyEventSender.injectKey(KeyEvent.KEYCODE_BACK);
                     break;
                 case CENTER:
+                    KeyEventSender.injectKey(KeyEvent.KEYCODE_HOME);
                     break;
                 case RIGHT:
+                    KeyEventSender.injectKey(KeyEvent.KEYCODE_APP_SWITCH);
                     break;
             }
         }

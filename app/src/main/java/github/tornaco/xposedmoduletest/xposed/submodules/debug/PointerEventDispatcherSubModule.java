@@ -16,6 +16,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * God bless no bug!
  */
 public class PointerEventDispatcherSubModule extends AndroidSubModule {
+
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         hookOnInputEvent(lpparam);
@@ -32,6 +33,7 @@ public class PointerEventDispatcherSubModule extends AndroidSubModule {
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
                             XposedLog.verbose("PointerEventDispatcher onInputEvent: " + Log.getStackTraceString(new Throwable()));
+                            getBridge().onInputEvent(param.args[0]);
                         }
                     });
             XposedLog.verbose("PointerEventDispatcherSubModule hookOnInputEvent OK:" + unHooks);

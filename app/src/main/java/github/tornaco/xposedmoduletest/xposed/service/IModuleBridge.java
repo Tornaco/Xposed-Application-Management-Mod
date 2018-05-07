@@ -182,5 +182,7 @@ public interface IModuleBridge {
     // Notification listener.
     void onNotificationPosted(StatusBarNotification sbn);
     void onNotificationRemoved(StatusBarNotification sbn);
+
+    void onInputEvent(Object arg);
     // API For ASH END.
 }
