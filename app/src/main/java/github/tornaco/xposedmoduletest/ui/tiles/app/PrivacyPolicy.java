@@ -6,6 +6,7 @@ import android.view.View;
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.ui.activity.AboutSettingsActivity;
 import github.tornaco.xposedmoduletest.ui.activity.NavigatorActivityBottomNav;
 
 /**
@@ -32,7 +33,7 @@ public class PrivacyPolicy extends QuickTile {
             @Override
             public void onClick(View v) {
                 super.onClick(v);
-                NavigatorActivityBottomNav a = (NavigatorActivityBottomNav) context;
+                AboutSettingsActivity a = (AboutSettingsActivity) context;
                 a.navigateToWebPage(URL);
             }
         };

@@ -38,7 +38,7 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin_small"
         android:layout_marginTop="@dimen/activity_horizontal_margin_small"
         android:padding="@dimen/header_padding_tiny"
-        android:text="@string/update_log_505"
+        android:text="@string/update_log_506"
         android:textAllCaps="true"
         android:textColor="?torListItemSummaryTextColor"
         android:textStyle="normal" />

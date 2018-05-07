@@ -1,10 +1,12 @@
 package github.tornaco.xposedmoduletest.ui.tiles.app;
 
 import android.content.Context;
+import android.view.View;
 
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.ui.activity.AboutSettingsActivity;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -22,6 +24,13 @@ public class OpenSource extends QuickTile {
             @Override
             protected int getImageViewBackgroundRes() {
                 return R.drawable.tile_bg_blue_grey;
+            }
+
+            @Override
+            public void onClick(View v) {
+                super.onClick(v);
+                AboutSettingsActivity a = (AboutSettingsActivity) context;
+                a.navigateToWebPage("https://github.com/Tornaco/X-APM");
             }
         };
     }

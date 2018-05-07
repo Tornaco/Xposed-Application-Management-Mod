@@ -28,7 +28,7 @@ import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
  * Created by guohao4 on 2017/9/7.
  * Email: Tornaco@163.com
  */
-public class AboutSettingsActivity extends BaseActivity {
+public class AboutSettingsActivity extends WithWithCustomTabActivity {
 
     public static void start(Context context) {
         Intent starter = new Intent(context, AboutSettingsActivity.class);
