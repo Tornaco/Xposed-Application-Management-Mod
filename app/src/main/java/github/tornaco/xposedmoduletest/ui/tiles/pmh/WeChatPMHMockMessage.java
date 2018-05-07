@@ -33,7 +33,7 @@ public class WeChatPMHMockMessage extends QuickTile {
                 }
                 XAshmanManager.get().mockPushMessageReceived(
                         WeChatPushNotificationHandler.WECHAT_PKG_NAME,
-                        String.format("Hello %s, this is %s-th message!", userName, ++messageCnt));
+                        String.format("Hello %s, this is the %s-st message!", userName, ++messageCnt));
             }
         };
     }
