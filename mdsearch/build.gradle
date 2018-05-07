@@ -28,4 +28,6 @@ dependencies {
     implementation rootProject.ext.supportCardView
     implementation rootProject.ext.supportRecyclerView
     implementation rootProject.ext.supportDesign
+
+    // https://github.com/Shahroz16/material-searchview
 }

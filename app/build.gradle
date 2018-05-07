@@ -148,6 +148,9 @@ dependencies {
 
     // https://github.com/nekocode/Badge
     implementation 'com.github.nekocode:Badge:2.0'
+
+    // https://github.com/PSDev/LicensesDialog
+    implementation 'de.psdev.licensesdialog:licensesdialog:1.8.3'
 }
 
 // apply plugin: 'com.google.gms.google-services'
