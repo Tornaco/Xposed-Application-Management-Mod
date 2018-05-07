@@ -119,7 +119,7 @@
     <string name="app_intro_need_restart">应用更新后需要重新启动设备，否则系统可能无法正常工作。</string>
     <string name="redemption_need_restart">已经退出自救模式，重启生效。</string>
     <string name="title_restart_android">软重启</string>
-    <string name="title_block_viewer">阻止记录</string>
+    <string name="title_block_viewer">启动记录</string>
     <string name="title_restrict">限制</string>
     <string name="done">完成</string>
     <string name="clearing_process_app">正在杀掉%1$s…</string>
