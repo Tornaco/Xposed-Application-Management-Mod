@@ -19,6 +19,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.AppVersion;
 import github.tornaco.xposedmoduletest.ui.tiles.app.GitContributors;
 import github.tornaco.xposedmoduletest.ui.tiles.app.OpenMarket;
 import github.tornaco.xposedmoduletest.ui.tiles.app.OpenSource;
+import github.tornaco.xposedmoduletest.ui.tiles.app.OpenSourceLicenses;
 import github.tornaco.xposedmoduletest.ui.tiles.app.PrivacyPolicy;
 import github.tornaco.xposedmoduletest.ui.tiles.app.Talkers;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
@@ -27,7 +28,7 @@ import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
  * Created by guohao4 on 2017/9/7.
  * Email: Tornaco@163.com
  */
-public class AboutSettingsActivity extends BaseActivity {
+public class AboutSettingsActivity extends WithWithCustomTabActivity {
 
     public static void start(Context context) {
         Intent starter = new Intent(context, AboutSettingsActivity.class);
@@ -79,6 +80,7 @@ public class AboutSettingsActivity extends BaseActivity {
             open.titleRes = R.string.title_open_info;
             open.addTile(new PrivacyPolicy(getActivity()));
             open.addTile(new OpenSource(getActivity()));
+            open.addTile(new OpenSourceLicenses(getActivity()));
             open.addTile(new GitContributors(getActivity()));
             open.addTile(new Talkers(getActivity()));
 

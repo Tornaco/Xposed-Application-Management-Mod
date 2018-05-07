@@ -10,8 +10,8 @@ android {
         applicationId "github.tornaco.xposedmoduletest"
         minSdkVersion rootProject.ext.minSdkVersion as int
         targetSdkVersion rootProject.ext.compileSdkVersion as int
-        versionCode 5050
-        versionName "MAY-5.0.5"
+        versionCode 5060
+        versionName "MAY-5.0.6"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -148,6 +148,9 @@ dependencies {
 
     // https://github.com/nekocode/Badge
     implementation 'com.github.nekocode:Badge:2.0'
+
+    // https://github.com/PSDev/LicensesDialog
+    implementation 'de.psdev.licensesdialog:licensesdialog:1.8.3'
 }
 
 // apply plugin: 'com.google.gms.google-services'

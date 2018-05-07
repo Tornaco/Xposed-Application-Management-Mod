@@ -633,5 +633,6 @@
     <string name="summary_prop">XXX</string>
     <string name="title_prop_apply_apps">伪装的应用</string>
     <string name="summary_about_settings">版本、开源信息、捐赠</string>
+    <string name="title_open_source_lisenses">开放源代码许可</string>
 
 </resources>
