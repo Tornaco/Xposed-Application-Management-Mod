@@ -17,3 +17,4 @@ app_comp_replace
 app_firewall
 app_doze
 debug
+app_package_install_verify

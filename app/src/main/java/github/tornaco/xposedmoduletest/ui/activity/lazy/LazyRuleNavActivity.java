@@ -13,7 +13,6 @@ import java.util.List;
 import github.tornaco.android.common.Collections;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.LazyRuleLoader;
-import github.tornaco.xposedmoduletest.loader.StartRuleLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
@@ -49,7 +48,7 @@ public class LazyRuleNavActivity extends CommonPackageInfoListActivity
     protected void onRequestPick() {
         final EditText e = new EditText(getActivity());
         new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.title_new_start_rule)
+                .setTitle(R.string.title_create_new_rule)
                 .setView(e)
                 .setPositiveButton(android.R.string.ok,
                         (dialog, which) -> {
@@ -58,7 +57,7 @@ public class LazyRuleNavActivity extends CommonPackageInfoListActivity
                             if (added) {
                                 startLoading();
                             } else {
-                                Toast.makeText(getContext(), R.string.start_rule_add_fail, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), R.string.err_rule_add_fail, Toast.LENGTH_SHORT).show();
                             }
                         })
                 .show();

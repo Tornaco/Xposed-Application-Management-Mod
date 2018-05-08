@@ -42,6 +42,7 @@ class AMSBroadcastIntentSubModule extends AndroidSubModule {
                             boolean allow = getBridge().checkBroadcastIntentSending(applicationThread, intent);
                             if (!allow) {
                                 param.setResult(ActivityManager.BROADCAST_SUCCESS);
+                                XposedLog.wtf("broadcastIntent set result to ActivityManager.BROADCAST_SUCCESS");
                             }
                         }
                     });

@@ -16,3 +16,4 @@ app_comp_edit
 app_comp_replace
 app_firewall
 app_doze
+app_package_install_verify

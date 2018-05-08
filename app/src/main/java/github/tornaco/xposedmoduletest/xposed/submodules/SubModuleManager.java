@@ -146,7 +146,6 @@ public class SubModuleManager {
         addToSubsChecked(new ActivityStackRealStartActivitySubModule());
         addToSubsChecked(new DevicePolicyManagerServiceSubModule());
 
-        addToSubsChecked(new PackageInstallerServiceSubModule());
         addToSubsChecked(new RuntimeSubModule());
         addToSubsChecked(new AndroidProcessSubModule());
 
@@ -160,7 +159,11 @@ public class SubModuleManager {
         // System props.
         addToSubsChecked(new SystemPropSubModule());
 
+        addToSubsChecked(new PMSInstallArgsSubModule());
+
         // Submodules for debug purpose.
+        // These module is under test, maybe publish for user
+        // if we got a nice result:)
         if (BuildConfig.DEBUG) {
             addToSubsChecked(new ActivitySubModule());
 
@@ -187,7 +190,12 @@ public class SubModuleManager {
             addToSubsChecked(new DisplayListCanvasSubModule());
             addToSubsChecked(new Z2ForceFixSubModule());
 
+            // Input.
             addToSubsChecked(new PointerEventDispatcherSubModule());
+
+            // Installer
+            addToSubsChecked(new PackageInstallerServiceSubModule());
+            addToSubsChecked(new PackageInstallerSessionSubModule());
         }
     }
 

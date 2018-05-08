@@ -126,6 +126,10 @@
             android:label="@string/title_app_resident"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
+            android:name=".ui.activity.pm.PackageInstallVerifyNavActivity"
+            android:label="@string/title_package_install_verify"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
             android:name=".ui.activity.resdient.ResdientAppPickerActivity"
             android:label="@string/title_picker"
             android:theme="@style/AppThemeLight.NoActionBar" />

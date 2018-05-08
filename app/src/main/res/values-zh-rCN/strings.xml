@@ -483,8 +483,8 @@
     <string name="message_uninstall_app">此操作无法恢复，请确认。</string>
     <string name="title_app_auto_start_rule">关联启动规则</string>
     <string name="summary_start_app_rules">你可以通过制定规则来细化关联启动控制，详细使用方法请参考新手使用手册。\n\n注意：规则的优先级大于其他一切设定（例如，绿化，关联启动列表）。\n\n提示：关闭规则检查或许可以节约设备电量。</string>
-    <string name="title_new_start_rule">新建规则</string>
-    <string name="start_rule_add_fail">无法添加该规则，请检查语法</string>
+    <string name="title_create_new_rule">新建规则</string>
+    <string name="err_rule_add_fail">无法添加该规则，请检查语法</string>
     <string name="title_cleanup_system_error_trace">清空错误日志</string>
     <string name="summary_cleanup_system_error_trace">删除所有的收集到的系统错误日志。</string>
     <string name="res_cleanup_system_error_trace_success">已经清除所有日志</string>
@@ -627,4 +627,6 @@
     <string name="summary_prop">XXX</string>
     <string name="title_prop_apply_apps">伪装的应用</string>
     <string name="summary_about_settings">版本、开源信息、捐赠</string>
+    <string name="title_package_install_verify">APK验证</string>
+    <string name="summary_package_install_verify">当检测到某APK将要被安装时，弹出对话框询问用户是否允许该次安装，每次对话框展示12秒，超时后默认拒绝此次安装。\n\n你可以通过规则指定允许、询问或者拒绝来自某应用/ADB的安装请求，也可以制定超时的行为。</string>
 </resources>

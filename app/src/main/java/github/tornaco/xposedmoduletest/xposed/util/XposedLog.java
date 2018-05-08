@@ -32,6 +32,7 @@ public abstract class XposedLog {
     public static final String PREFIX_USER = "USER-";
     public static final String PREFIX_KEY = "KEY-";
     public static final String PREFIX_DOZE = "DOZE-";
+    public static final String PREFIX_PM = "PM-";
 
     public static final String PREFIX_SERVICE = "SERVICE-";
     public static final String PREFIX_BROADCAST = "BROADCAST-";

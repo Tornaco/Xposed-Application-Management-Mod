@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
-import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -2232,7 +2231,43 @@ public class XAshmanManager {
         ensureService();
         try {
             return mService.isSystemPropProfileApplyApp(packageName);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isPackageInstallVerifyEnabled() {
+        ensureService();
+        try {
+            return mService.isPackageInstallVerifyEnabled();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void setPackageInstallVerifyEnabled(boolean enabled) {
+        ensureService();
+        try {
+            mService.setPackageInstallVerifyEnabled(enabled);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public String[] getPackageInstallerVerifyRules() {
+        ensureService();
+        try {
+            return mService.getPackageInstallerVerifyRules();
+        } catch (Exception e) {
+            return ArrayUtil.emptyStringArray();
+        }
+    }
+
+    public boolean addOrRemovePackageInstallerVerifyRules(String rule, boolean add) {
+        ensureService();
+        try {
+            return mService.addOrRemovePackageInstallerVerifyRules(rule, add);
+        } catch (Exception e) {
             return false;
         }
     }

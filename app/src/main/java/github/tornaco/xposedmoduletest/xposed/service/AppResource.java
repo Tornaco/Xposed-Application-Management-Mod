@@ -158,6 +158,27 @@ public class AppResource {
         return new String[0];
     }
 
+    public String loadStringFromAPMApp(String resName, Object... args) {
+        Context context = getContext();
+        if (context == null) {
+            Log.e(XposedLog.TAG, "Context is null!!!");
+            return null;
+        }
+        try {
+            Context appContext =
+                    context.createPackageContext(BuildConfig.APPLICATION_ID, CONTEXT_IGNORE_SECURITY);
+            Resources res = appContext.getResources();
+            int id = res.getIdentifier(resName, "string", BuildConfig.APPLICATION_ID);
+            Log.d(XposedLog.TAG, "loadStringFromAPMApp get id: " + id + ", for res: " + resName);
+            if (id != 0) {
+                return res.getString(id, args);
+            }
+        } catch (Throwable e) {
+            Log.e(XposedLog.TAG, "Fail createPackageContext: " + Log.getStackTraceString(e));
+        }
+        return null;
+    }
+
     public interface Transform<T> {
         T onTransform(T in) throws Exception;
     }

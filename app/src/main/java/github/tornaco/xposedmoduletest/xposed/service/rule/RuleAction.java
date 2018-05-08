@@ -7,7 +7,7 @@ package github.tornaco.xposedmoduletest.xposed.service.rule;
 
 public enum RuleAction {
 
-    ALLOW, DENY, KEEP, ADDAPP;
+    ALLOW, DENY, KEEP, ADDAPP, ALWAYS;
 
     public static RuleAction from(String action) {
         for (RuleAction a : values()) {
