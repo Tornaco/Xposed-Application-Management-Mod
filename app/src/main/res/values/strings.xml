@@ -635,6 +635,6 @@
     <string name="summary_about_settings">版本、开源信息、捐赠</string>
     <string name="title_open_source_lisenses">开放源代码许可</string>
     <string name="title_package_install_verify">APK验证</string>
-    <string name="summary_package_install_verify">当检测到某APK将要被安装时，弹出对话框询问用户是否允许该次安装，每次对话框展示12秒，超时后默认拒绝此次安装。\n\n你可以通过规则指定允许、询问或者拒绝来自某应用/ADB的安装请求，也可以制定超时的行为。</string>
+    <string name="summary_package_install_verify">当检测到某APK将要被安装时，你可以指定是否允许、拒绝、或者弹出对话框询问用户是否允许该次安装，每次对话框展示12秒，超时后默认拒绝此次安装。\n\n你需要通过规则指定允许、询问或者拒绝来自某应用/ADB的安装请求，也可以制定超时的行为。如果不指定任何规则（默认情况），所有安装将被允许。</string>
 
 </resources>

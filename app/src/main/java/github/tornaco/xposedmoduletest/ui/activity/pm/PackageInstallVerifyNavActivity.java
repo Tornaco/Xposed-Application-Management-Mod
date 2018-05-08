@@ -11,12 +11,10 @@ import android.widget.Toast;
 
 import java.util.List;
 
-import dev.nick.tiles.tile.Category;
 import github.tornaco.android.common.Collections;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.PackageInstallVerifyRuleLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
-import github.tornaco.xposedmoduletest.ui.AppCustomDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
@@ -45,27 +43,6 @@ public class PackageInstallVerifyNavActivity extends CommonPackageInfoListActivi
         switchBar.show();
         switchBar.setChecked(XAshmanManager.get().isPackageInstallVerifyEnabled());
         switchBar.addOnSwitchChangeListener(this);
-    }
-
-    @Override
-    protected void initView() {
-        super.initView();
-        setupViews();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (mDash != null) {
-            mDash.reload();
-        }
-    }
-
-    private Dashboards mDash;
-
-    void setupViews() {
-        mDash = new Dashboards();
-        replaceV4(R.id.container, mDash, null, false);
     }
 
     @Override
@@ -118,23 +95,4 @@ public class PackageInstallVerifyNavActivity extends CommonPackageInfoListActivi
         return super.onOptionsItemSelected(item);
     }
 
-    public void reload() {
-        getUIThreadHandler().postDelayed(() -> {
-            if (!isDestroyed()) {
-                mDash.reload();
-            }
-        }, 500);
-    }
-
-    public static class Dashboards extends AppCustomDashboardFragment {
-
-        public void reload() {
-            buildUI(getActivity());
-        }
-
-        @Override
-        protected void onCreateDashCategories(List<Category> categories) {
-            super.onCreateDashCategories(categories);
-        }
-    }
 }
