@@ -17,6 +17,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.util.OSUtil;
@@ -40,7 +41,8 @@ public class PackageInstallerManager {
     private static final String NOTIFICATION_CHANNEL_ID_PM = "dev.tornaco.notification.channel.id.X-APM-PM";
     private static final AtomicInteger NOTIFICATION_ID_DYNAMIC = new AtomicInteger(99999);
 
-    public static final long PACKAGE_INSTALL_VERIFY_TIMEOUT_MILLS = 12 * 1000;
+    // Make it longer for dev.
+    public static final long PACKAGE_INSTALL_VERIFY_TIMEOUT_MILLS = BuildConfig.DEBUG ? (24 * 1000) : (12 * 1000);
     public static final long PACKAGE_INSTALL_VERIFY_TIMEOUT_S = PACKAGE_INSTALL_VERIFY_TIMEOUT_MILLS / 1000;
 
     @Getter
@@ -274,7 +276,7 @@ public class PackageInstallerManager {
             }
             NotificationChannel notificationChannel;
             notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID_PM,
-                    "应用管理应用安装频道",
+                    "应用管理PM频道",
                     NotificationManager.IMPORTANCE_LOW);
             notificationChannel.enableLights(false);
             notificationChannel.enableVibration(false);

@@ -26,6 +26,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.flipboard.bottomsheet.BottomSheetLayout;
+import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog;
+import com.github.javiersantos.materialstyleddialogs.enums.Style;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.jaredrummler.android.shell.Shell;
@@ -337,17 +339,36 @@ public class NavigatorActivityBottomNav
         try {
             if (AppSettings.isFirstRun(getApplicationContext())) {
 
-                new AlertDialog.Builder(NavigatorActivityBottomNav.this)
+                MaterialStyledDialog dialog = new MaterialStyledDialog.Builder(getActivity())
+                        .setStyle(Style.HEADER_WITH_ICON)
+                        .withIconAnimation(true)
+                        .setIcon(R.drawable.ic_favorite_red_24dp)
                         .setTitle(R.string.title_app_dev_say)
-                        .setMessage(getString(R.string.message_first_run))
+                        .setDescription(getString(R.string.message_first_run))
                         .setCancelable(false)
-                        .setNeutralButton(R.string.no_remind, (dialog, which) -> {
+                        .setNegativeText(android.R.string.cancel)
+                        .onNegative((dialog1, which) -> finish())
+                        .setPositiveText(android.R.string.ok)
+                        .onPositive((dialog12, which) -> showUpdateLog())
+                        .setNeutralText(R.string.no_remind)
+                        .onNeutral((dialog13, which) -> {
                             AppSettings.setFirstRun(getApplicationContext());
                             showUpdateLog();
                         })
-                        .setPositiveButton(android.R.string.ok, (dialog, which) -> showUpdateLog())
-                        .setNegativeButton(android.R.string.cancel, (dialog, which) -> finish())
-                        .show();
+                        .build();
+                dialog.show();
+
+//                new AlertDialog.Builder(NavigatorActivityBottomNav.this)
+//                        .setTitle(R.string.title_app_dev_say)
+//                        .setMessage(getString(R.string.message_first_run))
+//                        .setCancelable(false)
+//                        .setNeutralButton(R.string.no_remind, (dialog, which) -> {
+//                            AppSettings.setFirstRun(getApplicationContext());
+//                            showUpdateLog();
+//                        })
+//                        .setPositiveButton(android.R.string.ok, (dialog, which) -> showUpdateLog())
+//                        .setNegativeButton(android.R.string.cancel, (dialog, which) -> finish())
+//                        .show();
             }
         } catch (Throwable e) {
             Toast.makeText(getActivity(), R.string.init_first_run_fail, Toast.LENGTH_SHORT).show();
