@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageParser;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.pm.Signature;
@@ -23,6 +24,7 @@ import android.os.UserHandle;
 import android.print.PrintManager;
 import android.util.SparseArray;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -583,5 +585,14 @@ public class PkgUtil {
         intent.setPackage(packageName);
         ResolveInfo ri = pkgManager.resolveActivity(intent, 0);
         return ri != null;
+    }
+
+    public static PackageParser.Package getPackageInfo(File sourceFile) {
+        final PackageParser packageParser = new PackageParser();
+        try {
+            return packageParser.parsePackage(sourceFile, 0);
+        } catch (PackageParser.PackageParserException e) {
+            return null;
+        }
     }
 }

@@ -90,7 +90,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.PowerSave;
 import github.tornaco.xposedmoduletest.ui.tiles.app.ShowFocusedActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.StyleSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.app.WhiteSystemApp;
-import github.tornaco.xposedmoduletest.ui.tiles.prop.Disguise;
+import github.tornaco.xposedmoduletest.ui.tiles.prop.PackageInstallVerify;
 import github.tornaco.xposedmoduletest.ui.widget.BottomNavigationViewHelper;
 import github.tornaco.xposedmoduletest.ui.widget.ToastManager;
 import github.tornaco.xposedmoduletest.util.EmojiUtil;
@@ -888,7 +888,7 @@ public class NavigatorActivityBottomNav
             }
 
             if (AppSettings.isShowInfoEnabled(getContext(), "show_hidden_features2", false)) {
-                sec.addTile(new Disguise(getActivity()));
+                sec.addTile(new PackageInstallVerify(getActivity()));
             }
 
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_PRIVACY)) {

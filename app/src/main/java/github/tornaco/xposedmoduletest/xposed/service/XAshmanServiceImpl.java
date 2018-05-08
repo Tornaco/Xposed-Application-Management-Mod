@@ -24,10 +24,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageParser;
+import android.content.pm.PackageUserState;
 import android.content.pm.ResolveInfo;
+import android.content.res.AssetManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
@@ -154,6 +160,9 @@ import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.NotificationHandle
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.PushNotificationHandler;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.TGPushNotificationHandler;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.WeChatPushNotificationHandler;
+import github.tornaco.xposedmoduletest.xposed.service.pm.InstallArgsProxy;
+import github.tornaco.xposedmoduletest.xposed.service.pm.OriginInfoProxy;
+import github.tornaco.xposedmoduletest.xposed.service.pm.PackageInstallerManager;
 import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.service.rule.Rule;
@@ -3403,6 +3412,129 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    @InternalCall
+    public boolean checkInstallApk(Object argsFrom) {
+        // Enabled?
+        boolean featureEnabled = isPackageInstallVerifyEnabled();
+        if (!featureEnabled) {
+            XposedLog.verbose(XposedLog.PREFIX_PM + "checkInstallApk: feature not enabled" + argsFrom);
+            return true;
+        }
+
+        InstallArgsProxy argsProxy = new InstallArgsProxy(argsFrom);
+        Object originObject = argsProxy.getOriginInfoObject();
+        OriginInfoProxy originInfoProxy = new OriginInfoProxy(originObject);
+        XposedLog.verbose(XposedLog.PREFIX_PM + "onCopyApk: " + argsFrom
+                + ", installer: " + argsProxy.getInstallerPackageName()
+                + ", origin: " + originObject
+                + ", file: " + originInfoProxy.getFile());
+
+        PackageParser.Package parsed = PkgUtil.getPackageInfo(originInfoProxy.getFile());
+        if (parsed == null) {
+            return true; // Bad package, skip check.
+        }
+        XposedLog.verbose(XposedLog.PREFIX_PM + "PackageParser.Package: " + parsed);
+        PackageInfo packageInfo = PackageParser.generatePackageInfo(parsed, null, PackageManager.GET_PERMISSIONS, 0, 0, null,
+                new PackageUserState());
+
+        XposedLog.verbose(XposedLog.PREFIX_PM + "generatePackageInfo: " + packageInfo);
+
+        if (packageInfo == null) {
+            return true; // Bad package, skip check.
+        }
+
+        PackageInstallerManager pm = PackageInstallerManager.from(getContext());
+
+        Context pContext = new AppResource(getContext()).getContext();
+        if (pContext == null) {
+            pContext = getContext();
+        }
+        // Retrieve label and icon.
+        Resources pRes = pContext.getResources();
+        AssetManager assetManager = new AssetManager();
+        assetManager.addAssetPath(originInfoProxy.getFile().getAbsolutePath());
+        Resources res = new Resources(assetManager, pRes.getDisplayMetrics(), pRes.getConfiguration());
+
+        // Label.
+        CharSequence label = null;
+        if (packageInfo.applicationInfo != null && packageInfo.applicationInfo.labelRes != 0) {
+            try {
+                label = res.getText(packageInfo.applicationInfo.labelRes);
+            } catch (Throwable ignored) {
+
+            }
+        }
+
+        if (label == null && packageInfo.applicationInfo != null) {
+            label = packageInfo.applicationInfo.nonLocalizedLabel == null ? packageInfo.packageName
+                    : packageInfo.applicationInfo.nonLocalizedLabel;
+        }
+
+        if (label == null && packageInfo.applicationInfo != null) {
+            label = packageInfo.applicationInfo.name;
+        }
+
+        if (label == null) {
+            label = packageInfo.packageName;
+        }
+
+        // Icon.
+        Drawable icon = null;
+        if (packageInfo.applicationInfo != null && packageInfo.applicationInfo.icon != 0) {
+            try {
+                icon = res.getDrawable(packageInfo.applicationInfo.icon);
+            } catch (Throwable ignored) {
+
+            }
+        }
+
+        if (icon == null) {
+            ApplicationInfo appInfo = packageInfo.applicationInfo;
+            if (appInfo != null) {
+                try {
+                    appInfo.sourceDir = originInfoProxy.getFile().getAbsolutePath();
+                    appInfo.publicSourceDir = originInfoProxy.getFile().getAbsolutePath();
+                    icon = appInfo.loadIcon(pContext.getPackageManager());
+                } catch (Throwable e) {
+
+                }
+            }
+        }
+
+        if (icon == null) {
+            icon = getContext().getPackageManager().getDefaultActivityIcon();
+        }
+
+        // Installer.
+        String installerAppLabel =
+                argsProxy.getInstallerPackageName() == null ?
+                        "SHELL"
+                        : String.valueOf(PkgUtil.loadNameByPkgName(getContext(), argsProxy.getInstallerPackageName()));
+
+        PackageInstallerManager.VerifyArgs verifyArgs = PackageInstallerManager.VerifyArgs
+                .builder()
+                .appIcon(icon)
+                .appLabel(String.valueOf(label))
+                .installerAppLabel(installerAppLabel)
+                .build();
+
+        Holder<Boolean> resultHolder = new Holder<>();
+        resultHolder.setData(true); // Default, allow install.
+
+        PackageInstallerManager.VerifyReceiver receiver = (reason, mode) -> {
+            resultHolder.setData(mode == AppOpsManagerCompat.MODE_ALLOWED);
+            XposedLog.verbose(XposedLog.PREFIX_PM + "VerifyReceiver reason: " + reason);
+        };
+
+        pm.verifyIncomingInstallRequest(verifyArgs, receiver, mainHandler);
+
+        XposedLog.verbose(XposedLog.PREFIX_PM + "get verify result: " + resultHolder.getData());
+
+        return resultHolder.getData();
+    }
+
+
+    @Override
     public void setRecentTaskExcludeSetting(ComponentName c, int setting) {
         SettingsProvider.get().putInt("RECENT_EXCLUDE_" + c.getPackageName(), setting);
     }
@@ -4400,6 +4532,40 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         // 3-rd and in list.
         return appLevel == XAshmanManager.AppLevel.THIRD_PARTY
                 && isPackagePropApplyByUser(packageName);
+    }
+
+    @Override
+    public boolean isPackageInstallVerifyEnabled() {
+        enforceCallingPermissions();
+        return isOptFeatureEnabled("package_install_verify");
+    }
+
+    @Override
+    public void setPackageInstallVerifyEnabled(boolean enabled) {
+        enforceCallingPermissions();
+        setOptFeatureEnabled("package_install_verify", enabled);
+    }
+
+    @Override
+    public String[] getPackageInstallerVerifyRules() throws RemoteException {
+        enforceCallingPermissions();
+        return convertObjectArrayToStringArray(RepoProxy.getProxy().getPm_rules().getAll().toArray());
+    }
+
+    @Override
+    public boolean addOrRemovePackageInstallerVerifyRules(String rule, boolean add) throws RemoteException {
+        XposedLog.verbose("addOrRemovePackageInstallerVerifyRules: " + rule + ", " + add);
+        RuleParser p = RuleParser.Factory.newParser();
+        Rule r = p.parse(rule);
+        XposedLog.verbose("addOrRemovePackageInstallerVerifyRules: " + r);
+        if (r == null) return false;
+        String rulePattern = r.toInternalPattern();
+        if (add) {
+            RepoProxy.getProxy().getPm_rules().add(rulePattern);
+            return true;
+        } else {
+            return RepoProxy.getProxy().getPm_rules().remove(rulePattern);
+        }
     }
 
     private void stopServiceInternal(Intent serviceIntent) {

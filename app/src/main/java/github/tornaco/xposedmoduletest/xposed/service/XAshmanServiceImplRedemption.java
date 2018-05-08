@@ -158,6 +158,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public boolean checkInstallApk(Object installArgsObject) {
+        return true; // Yes.
+    }
+
+    @Override
     public void setRecentTaskExcludeSetting(ComponentName c, int setting) {
 
     }
@@ -447,7 +452,27 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
-    public boolean isSystemPropProfileApplyApp(String packageName) throws RemoteException {
+    public boolean isSystemPropProfileApplyApp(String packageName) {
+        return false;
+    }
+
+    @Override
+    public boolean isPackageInstallVerifyEnabled() {
+        return false;
+    }
+
+    @Override
+    public void setPackageInstallVerifyEnabled(boolean enabled) {
+
+    }
+
+    @Override
+    public String[] getPackageInstallerVerifyRules() throws RemoteException {
+        return new String[0];
+    }
+
+    @Override
+    public boolean addOrRemovePackageInstallerVerifyRules(String rule, boolean add) throws RemoteException {
         return false;
     }
 

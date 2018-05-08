@@ -151,6 +151,9 @@ dependencies {
 
     // https://github.com/PSDev/LicensesDialog
     implementation 'de.psdev.licensesdialog:licensesdialog:1.8.3'
+
+    // https://github.com/javiersantos/MaterialStyledDialogs
+    implementation 'com.github.javiersantos:MaterialStyledDialogs:2.1'
 }
 
 // apply plugin: 'com.google.gms.google-services'

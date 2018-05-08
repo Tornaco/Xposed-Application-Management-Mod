@@ -480,4 +480,10 @@ interface IAshmanService {
     void addOrRemoveSystemPropProfileApplyApps(in String[] pkgs, boolean add);
     String[] getSystemPropProfileApplyApps(boolean apply);
     boolean isSystemPropProfileApplyApp(String packageName);
+
+    // PM.
+    boolean isPackageInstallVerifyEnabled();
+    void setPackageInstallVerifyEnabled(boolean enabled);
+    String[] getPackageInstallerVerifyRules();
+    boolean addOrRemovePackageInstallerVerifyRules(String rule, boolean add);
 }
