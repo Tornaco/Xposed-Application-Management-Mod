@@ -3414,6 +3414,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     @InternalCall
     public boolean checkInstallApk(Object argsFrom) {
+        if (!OSUtil.isMOrAbove()) { // Not supported.
+            return true;
+        }
         // Enabled?
         boolean featureEnabled = isPackageInstallVerifyEnabled();
         if (!featureEnabled) {
@@ -3424,13 +3427,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         InstallArgsProxy argsProxy = new InstallArgsProxy(argsFrom);
         Object originObject = argsProxy.getOriginInfoObject();
         OriginInfoProxy originInfoProxy = new OriginInfoProxy(originObject);
-        XposedLog.verbose(XposedLog.PREFIX_PM + "onCopyApk: " + argsFrom
+
+        File apkFile = originInfoProxy.getFile();
+
+        XposedLog.verbose(XposedLog.PREFIX_PM + "checkInstallApk: " + argsFrom
                 + ", installer: " + argsProxy.getInstallerPackageName()
                 + ", origin: " + originObject
-                + ", file: " + originInfoProxy.getFile());
+                + ", file: " + apkFile);
 
-        PackageParser.Package parsed = PkgUtil.getPackageInfo(originInfoProxy.getFile());
+        PackageParser.Package parsed = PkgUtil.getPackageInfo(apkFile);
         if (parsed == null) {
+            XposedLog.verbose(XposedLog.PREFIX_PM + "checkInstallApk: parsed is null");
             return true; // Bad package, skip check.
         }
         XposedLog.verbose(XposedLog.PREFIX_PM + "PackageParser.Package: " + parsed);
@@ -3440,19 +3447,26 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         XposedLog.verbose(XposedLog.PREFIX_PM + "generatePackageInfo: " + packageInfo);
 
         if (packageInfo == null) {
+            XposedLog.verbose(XposedLog.PREFIX_PM + "checkInstallApk: packageInfo is null");
             return true; // Bad package, skip check.
         }
 
+        String appPackageName = packageInfo.packageName;
+        if (appPackageName == null) {
+            XposedLog.verbose(XposedLog.PREFIX_PM + "checkInstallApk: packagename is null");
+            return true;
+        }
+
+        boolean isReplacing = PkgUtil.isPkgInstalled(getContext(), appPackageName);
+
         PackageInstallerManager pm = PackageInstallerManager.from(getContext());
 
-        Context pContext = new AppResource(getContext()).getContext();
-        if (pContext == null) {
-            pContext = getContext();
-        }
+        Context pContext = getContext();
+
         // Retrieve label and icon.
         Resources pRes = pContext.getResources();
         AssetManager assetManager = new AssetManager();
-        assetManager.addAssetPath(originInfoProxy.getFile().getAbsolutePath());
+        assetManager.addAssetPath(apkFile.getAbsolutePath());
         Resources res = new Resources(assetManager, pRes.getDisplayMetrics(), pRes.getConfiguration());
 
         // Label.
@@ -3460,22 +3474,30 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         if (packageInfo.applicationInfo != null && packageInfo.applicationInfo.labelRes != 0) {
             try {
                 label = res.getText(packageInfo.applicationInfo.labelRes);
+                XposedLog.verbose(XposedLog.PREFIX_PM + "label1: " + label);
             } catch (Throwable ignored) {
-
+                XposedLog.wtf(XposedLog.PREFIX_PM + "Fail get label from res:" + Log.getStackTraceString(ignored));
             }
         }
 
         if (label == null && packageInfo.applicationInfo != null) {
             label = packageInfo.applicationInfo.nonLocalizedLabel == null ? packageInfo.packageName
                     : packageInfo.applicationInfo.nonLocalizedLabel;
+            XposedLog.verbose(XposedLog.PREFIX_PM + "label2: " + label);
         }
 
-        if (label == null && packageInfo.applicationInfo != null) {
-            label = packageInfo.applicationInfo.name;
+        // Use previous app label if replacing.
+        if (isReplacing) {
+            CharSequence installedLabel = PkgUtil.loadNameByPkgName(getContext(), appPackageName);
+            if (installedLabel != null && !"NULL".equalsIgnoreCase(String.valueOf(installedLabel))) {
+                label = installedLabel;
+                XposedLog.verbose(XposedLog.PREFIX_PM + "label3: " + label);
+            }
         }
 
         if (label == null) {
             label = packageInfo.packageName;
+            XposedLog.verbose(XposedLog.PREFIX_PM + "label4: " + label);
         }
 
         // Icon.
@@ -3492,10 +3514,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             ApplicationInfo appInfo = packageInfo.applicationInfo;
             if (appInfo != null) {
                 try {
-                    appInfo.sourceDir = originInfoProxy.getFile().getAbsolutePath();
-                    appInfo.publicSourceDir = originInfoProxy.getFile().getAbsolutePath();
+                    appInfo.sourceDir = apkFile.getAbsolutePath();
+                    appInfo.publicSourceDir = apkFile.getAbsolutePath();
                     icon = appInfo.loadIcon(pContext.getPackageManager());
-                } catch (Throwable e) {
+                } catch (Throwable ignored) {
 
                 }
             }
@@ -3511,11 +3533,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                         "SHELL"
                         : String.valueOf(PkgUtil.loadNameByPkgName(getContext(), argsProxy.getInstallerPackageName()));
 
+        String installerPkg = argsProxy.getInstallerPackageName() == null ? "SHELL" : argsProxy.getInstallerPackageName();
+
         PackageInstallerManager.VerifyArgs verifyArgs = PackageInstallerManager.VerifyArgs
                 .builder()
                 .appIcon(icon)
+                .isReplacing(isReplacing)
+                .packageName(appPackageName)
                 .appLabel(String.valueOf(label))
                 .installerAppLabel(installerAppLabel)
+                .installerPackageName(installerPkg)
                 .build();
 
         Holder<Boolean> resultHolder = new Holder<>();

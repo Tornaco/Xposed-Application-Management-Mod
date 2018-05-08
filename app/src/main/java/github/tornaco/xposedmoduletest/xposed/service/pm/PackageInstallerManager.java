@@ -17,6 +17,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.util.OSUtil;
@@ -39,6 +40,10 @@ public class PackageInstallerManager {
 
     private static final String NOTIFICATION_CHANNEL_ID_PM = "dev.tornaco.notification.channel.id.X-APM-PM";
     private static final AtomicInteger NOTIFICATION_ID_DYNAMIC = new AtomicInteger(99999);
+
+    // Make it longer for dev.
+    public static final long PACKAGE_INSTALL_VERIFY_TIMEOUT_MILLS = BuildConfig.DEBUG ? (24 * 1000) : (12 * 1000);
+    public static final long PACKAGE_INSTALL_VERIFY_TIMEOUT_S = PACKAGE_INSTALL_VERIFY_TIMEOUT_MILLS / 1000;
 
     @Getter
     private Context context;
@@ -143,9 +148,10 @@ public class PackageInstallerManager {
         };
 
         InstallDialog dialog = new InstallDialog(args, receiverProxy);
+        Context finalDContext = getContext();
         uiHandler.post(() -> {
             try {
-                dialog.display(getContext());
+                dialog.display(finalDContext);
             } catch (Throwable e) {
                 // Serious err!
                 XposedLog.wtf(XposedLog.PREFIX_PM + "Fail show dialog! " + Log.getStackTraceString(e));
@@ -270,7 +276,7 @@ public class PackageInstallerManager {
             }
             NotificationChannel notificationChannel;
             notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID_PM,
-                    "应用管理应用安装频道",
+                    "应用管理PM频道",
                     NotificationManager.IMPORTANCE_LOW);
             notificationChannel.enableLights(false);
             notificationChannel.enableVibration(false);
@@ -286,7 +292,7 @@ public class PackageInstallerManager {
         // True for timeout.
         boolean waitForResult() {
             try {
-                return latch.await(12, TimeUnit.SECONDS);
+                return latch.await(PACKAGE_INSTALL_VERIFY_TIMEOUT_S, TimeUnit.SECONDS);
             } catch (InterruptedException ignored) {
                 return false;
             }
