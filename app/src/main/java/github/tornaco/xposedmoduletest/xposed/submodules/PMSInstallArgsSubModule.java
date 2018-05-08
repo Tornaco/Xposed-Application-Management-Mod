@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.util.Log;
 
 import java.util.Set;
@@ -18,6 +19,11 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 class PMSInstallArgsSubModule extends AndroidSubModule {
+
+    @Override
+    public int needMinSdk() {
+        return Build.VERSION_CODES.M;
+    }
 
     @Override
     public String needBuildVar() {

@@ -40,6 +40,9 @@ public class PackageInstallerManager {
     private static final String NOTIFICATION_CHANNEL_ID_PM = "dev.tornaco.notification.channel.id.X-APM-PM";
     private static final AtomicInteger NOTIFICATION_ID_DYNAMIC = new AtomicInteger(99999);
 
+    public static final long PACKAGE_INSTALL_VERIFY_TIMEOUT_MILLS = 12 * 1000;
+    public static final long PACKAGE_INSTALL_VERIFY_TIMEOUT_S = PACKAGE_INSTALL_VERIFY_TIMEOUT_MILLS / 1000;
+
     @Getter
     private Context context;
 
@@ -143,9 +146,10 @@ public class PackageInstallerManager {
         };
 
         InstallDialog dialog = new InstallDialog(args, receiverProxy);
+        Context finalDContext = getContext();
         uiHandler.post(() -> {
             try {
-                dialog.display(getContext());
+                dialog.display(finalDContext);
             } catch (Throwable e) {
                 // Serious err!
                 XposedLog.wtf(XposedLog.PREFIX_PM + "Fail show dialog! " + Log.getStackTraceString(e));
@@ -286,7 +290,7 @@ public class PackageInstallerManager {
         // True for timeout.
         boolean waitForResult() {
             try {
-                return latch.await(12, TimeUnit.SECONDS);
+                return latch.await(PACKAGE_INSTALL_VERIFY_TIMEOUT_S, TimeUnit.SECONDS);
             } catch (InterruptedException ignored) {
                 return false;
             }

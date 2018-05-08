@@ -887,7 +887,7 @@ public class NavigatorActivityBottomNav
                 }
             }
 
-            if (AppSettings.isShowInfoEnabled(getContext(), "show_hidden_features2", false)) {
+            if (OSUtil.isMOrAbove() && AppSettings.isShowInfoEnabled(getContext(), "show_hidden_features2", false)) {
                 sec.addTile(new PackageInstallVerify(getActivity()));
             }
 
