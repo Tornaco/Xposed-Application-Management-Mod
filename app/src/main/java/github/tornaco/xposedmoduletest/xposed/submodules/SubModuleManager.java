@@ -159,7 +159,10 @@ public class SubModuleManager {
         // System props.
         addToSubsChecked(new SystemPropSubModule());
 
-        addToSubsChecked(new PMSInstallArgsSubModule());
+        // Packages.
+        // addToSubsChecked(new PMSInstallArgsSubModule());
+        addToSubsChecked(new PMSInstallPackageLISubModule());
+        addToSubsChecked(new PackageParserSubModule());
 
         // Submodules for debug purpose.
         // These module is under test, maybe publish for user
@@ -182,9 +185,6 @@ public class SubModuleManager {
 
             // Multiple apps.
             addToSubsChecked(new UserManagerServiceSubModule());
-
-            // Packages.
-            addToSubsChecked(new PackageParserSubModule());
 
             // Hot fix.
             addToSubsChecked(new DisplayListCanvasSubModule());

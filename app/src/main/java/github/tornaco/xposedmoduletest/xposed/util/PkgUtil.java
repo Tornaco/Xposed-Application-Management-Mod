@@ -22,6 +22,7 @@ import android.os.Message;
 import android.os.Process;
 import android.os.UserHandle;
 import android.print.PrintManager;
+import android.util.Log;
 import android.util.SparseArray;
 
 import java.io.File;
@@ -31,6 +32,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import de.robv.android.xposed.XposedHelpers;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
@@ -587,12 +590,34 @@ public class PkgUtil {
         return ri != null;
     }
 
-    public static PackageParser.Package getPackageInfo(File sourceFile) {
-        final PackageParser packageParser = new PackageParser();
+    /**
+     * Utility method to get package information for a given {@link File}
+     */
+    // http://androidxref.com/6.0.1_r10/xref/packages/apps/PackageInstaller/src/com/android/packageinstaller/PackageUtil.java
+    private static PackageParser.Package getPackageInfoM(File sourceFile) {
+        final PackageParser parser = new PackageParser();
         try {
-            return packageParser.parsePackage(sourceFile, 0);
-        } catch (PackageParser.PackageParserException e) {
+            PackageParser.Package pkg = parser.parseMonolithicPackage(sourceFile, 0);
+            // parser.collectManifestDigest(pkg);
+            XposedHelpers.callMethod(parser, "collectManifestDigest", pkg);
+            return pkg;
+        } catch (Throwable e) {
+            XposedLog.wtf(XposedLog.PREFIX_PM + "Fail getPackageInfoM: " + Log.getStackTraceString(e));
             return null;
+        }
+    }
+
+    public static PackageParser.Package getPackageInfo(File sourceFile) {
+        if (OSUtil.isNOrAbove()) {
+            final PackageParser packageParser = new PackageParser();
+            try {
+                return packageParser.parsePackage(sourceFile, 0);
+            } catch (Throwable e) {
+                XposedLog.wtf(XposedLog.PREFIX_PM + "Fail getPackageInfo: " + Log.getStackTraceString(e));
+                return null;
+            }
+        } else {
+            return getPackageInfoM(sourceFile);
         }
     }
 }

@@ -2271,4 +2271,13 @@ public class XAshmanManager {
             return false;
         }
     }
+
+    public void onSourceApkFileDetected(String path, String pkg) {
+        ensureService();
+        try {
+            mService.onSourceApkFileDetected(path, pkg);
+        } catch (Exception e) {
+
+        }
+    }
 }

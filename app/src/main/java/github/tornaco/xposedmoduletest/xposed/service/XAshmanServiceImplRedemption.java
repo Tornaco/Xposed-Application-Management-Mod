@@ -158,6 +158,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public void onSourceApkFileDetected(String path, String apkPackageName) {
+
+    }
+
+    @Override
     public boolean checkInstallApk(Object installArgsObject) {
         return true; // Yes.
     }
