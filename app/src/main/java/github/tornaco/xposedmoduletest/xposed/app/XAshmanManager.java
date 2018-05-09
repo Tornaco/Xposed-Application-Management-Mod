@@ -2280,4 +2280,13 @@ public class XAshmanManager {
 
         }
     }
+
+    public String getCurrentTopPackage() {
+        ensureService();
+        try {
+            return mService.getCurrentTopPackage();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

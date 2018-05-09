@@ -163,6 +163,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public String getCurrentTopPackage() throws RemoteException {
+        return null;
+    }
+
+    @Override
     public boolean checkInstallApk(Object installArgsObject) {
         return true; // Yes.
     }

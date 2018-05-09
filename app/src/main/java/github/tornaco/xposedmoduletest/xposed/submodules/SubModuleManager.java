@@ -69,6 +69,8 @@ public class SubModuleManager {
         addToSubsChecked(new AlarmManagerSubModule());
         addToSubsChecked(new WakelockSubModule());
         addToSubsChecked(new SecureSettingsSubModule());
+        addToSubsChecked(new SystemSettingsSubModule());
+        addToSubsChecked(new PowerManagerServiceLocalSubModule());
 
         addToSubsChecked(new TelephonyManagerSubModule());
 

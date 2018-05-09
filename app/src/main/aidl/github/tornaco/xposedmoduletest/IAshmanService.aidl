@@ -487,4 +487,6 @@ interface IAshmanService {
     String[] getPackageInstallerVerifyRules();
     boolean addOrRemovePackageInstallerVerifyRules(String rule, boolean add);
     void onSourceApkFileDetected(String path, String pkg);
+
+    String getCurrentTopPackage();
 }
