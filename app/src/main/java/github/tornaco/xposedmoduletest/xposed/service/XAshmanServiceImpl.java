@@ -29,11 +29,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageParser;
 import android.content.pm.PackageUserState;
 import android.content.pm.ResolveInfo;
-import android.content.res.AssetManager;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
@@ -161,6 +158,7 @@ import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.PushNotificationHa
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.TGPushNotificationHandler;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.WeChatPushNotificationHandler;
 import github.tornaco.xposedmoduletest.xposed.service.pm.InstallArgsProxy;
+import github.tornaco.xposedmoduletest.xposed.service.pm.InstallerUtil;
 import github.tornaco.xposedmoduletest.xposed.service.pm.OriginInfoProxy;
 import github.tornaco.xposedmoduletest.xposed.service.pm.PackageInstallerManager;
 import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
@@ -3412,8 +3410,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    public void onSourceApkFileDetected(String path, String apkPackageName) {
+        PackageInstallerManager.from(getContext()).onSourceApkFileDetected(path, apkPackageName);
+    }
+
+    @Override
     @InternalCall
     public boolean checkInstallApk(Object argsFrom) {
+        return checkInstallApkInternal(argsFrom);
+    }
+
+    private boolean checkInstallApkInternal(Object argsFrom) {
         if (!OSUtil.isMOrAbove()) { // Not supported.
             return true;
         }
@@ -3424,126 +3431,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             return true;
         }
 
-        InstallArgsProxy argsProxy = new InstallArgsProxy(argsFrom);
-        Object originObject = argsProxy.getOriginInfoObject();
-        OriginInfoProxy originInfoProxy = new OriginInfoProxy(originObject);
-
-        File apkFile = originInfoProxy.getFile();
-
-        XposedLog.verbose(XposedLog.PREFIX_PM + "checkInstallApk: " + argsFrom
-                + ", installer: " + argsProxy.getInstallerPackageName()
-                + ", origin: " + originObject
-                + ", file: " + apkFile);
-
-        PackageParser.Package parsed = PkgUtil.getPackageInfo(apkFile);
-        if (parsed == null) {
-            XposedLog.verbose(XposedLog.PREFIX_PM + "checkInstallApk: parsed is null");
-            return true; // Bad package, skip check.
-        }
-        XposedLog.verbose(XposedLog.PREFIX_PM + "PackageParser.Package: " + parsed);
-        PackageInfo packageInfo = PackageParser.generatePackageInfo(parsed, null, PackageManager.GET_PERMISSIONS, 0, 0, null,
-                new PackageUserState());
-
-        XposedLog.verbose(XposedLog.PREFIX_PM + "generatePackageInfo: " + packageInfo);
-
-        if (packageInfo == null) {
-            XposedLog.verbose(XposedLog.PREFIX_PM + "checkInstallApk: packageInfo is null");
-            return true; // Bad package, skip check.
-        }
-
-        String appPackageName = packageInfo.packageName;
-        if (appPackageName == null) {
-            XposedLog.verbose(XposedLog.PREFIX_PM + "checkInstallApk: packagename is null");
+        PackageInstallerManager.VerifyArgs verifyArgs = parseInstallArgs(argsFrom);
+        if (verifyArgs == null) {
+            XposedLog.verbose(XposedLog.PREFIX_PM + "checkInstallApk: VerifyArgs is null");
             return true;
         }
-
-        boolean isReplacing = PkgUtil.isPkgInstalled(getContext(), appPackageName);
-
-        PackageInstallerManager pm = PackageInstallerManager.from(getContext());
-
-        Context pContext = getContext();
-
-        // Retrieve label and icon.
-        Resources pRes = pContext.getResources();
-        AssetManager assetManager = new AssetManager();
-        assetManager.addAssetPath(apkFile.getAbsolutePath());
-        Resources res = new Resources(assetManager, pRes.getDisplayMetrics(), pRes.getConfiguration());
-
-        // Label.
-        CharSequence label = null;
-        if (packageInfo.applicationInfo != null && packageInfo.applicationInfo.labelRes != 0) {
-            try {
-                label = res.getText(packageInfo.applicationInfo.labelRes);
-                XposedLog.verbose(XposedLog.PREFIX_PM + "label1: " + label);
-            } catch (Throwable ignored) {
-                XposedLog.wtf(XposedLog.PREFIX_PM + "Fail get label from res:" + Log.getStackTraceString(ignored));
-            }
-        }
-
-        if (label == null && packageInfo.applicationInfo != null) {
-            label = packageInfo.applicationInfo.nonLocalizedLabel == null ? packageInfo.packageName
-                    : packageInfo.applicationInfo.nonLocalizedLabel;
-            XposedLog.verbose(XposedLog.PREFIX_PM + "label2: " + label);
-        }
-
-        // Use previous app label if replacing.
-        if (isReplacing) {
-            CharSequence installedLabel = PkgUtil.loadNameByPkgName(getContext(), appPackageName);
-            if (installedLabel != null && !"NULL".equalsIgnoreCase(String.valueOf(installedLabel))) {
-                label = installedLabel;
-                XposedLog.verbose(XposedLog.PREFIX_PM + "label3: " + label);
-            }
-        }
-
-        if (label == null) {
-            label = packageInfo.packageName;
-            XposedLog.verbose(XposedLog.PREFIX_PM + "label4: " + label);
-        }
-
-        // Icon.
-        Drawable icon = null;
-        if (packageInfo.applicationInfo != null && packageInfo.applicationInfo.icon != 0) {
-            try {
-                icon = res.getDrawable(packageInfo.applicationInfo.icon);
-            } catch (Throwable ignored) {
-
-            }
-        }
-
-        if (icon == null) {
-            ApplicationInfo appInfo = packageInfo.applicationInfo;
-            if (appInfo != null) {
-                try {
-                    appInfo.sourceDir = apkFile.getAbsolutePath();
-                    appInfo.publicSourceDir = apkFile.getAbsolutePath();
-                    icon = appInfo.loadIcon(pContext.getPackageManager());
-                } catch (Throwable ignored) {
-
-                }
-            }
-        }
-
-        if (icon == null) {
-            icon = getContext().getPackageManager().getDefaultActivityIcon();
-        }
-
-        // Installer.
-        String installerAppLabel =
-                argsProxy.getInstallerPackageName() == null ?
-                        "SHELL"
-                        : String.valueOf(PkgUtil.loadNameByPkgName(getContext(), argsProxy.getInstallerPackageName()));
-
-        String installerPkg = argsProxy.getInstallerPackageName() == null ? "SHELL" : argsProxy.getInstallerPackageName();
-
-        PackageInstallerManager.VerifyArgs verifyArgs = PackageInstallerManager.VerifyArgs
-                .builder()
-                .appIcon(icon)
-                .isReplacing(isReplacing)
-                .packageName(appPackageName)
-                .appLabel(String.valueOf(label))
-                .installerAppLabel(installerAppLabel)
-                .installerPackageName(installerPkg)
-                .build();
 
         Holder<Boolean> resultHolder = new Holder<>();
         resultHolder.setData(true); // Default, allow install.
@@ -3553,6 +3445,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             XposedLog.verbose(XposedLog.PREFIX_PM + "VerifyReceiver reason: " + reason);
         };
 
+        PackageInstallerManager pm = PackageInstallerManager.from(getContext());
         pm.verifyIncomingInstallRequest(verifyArgs, receiver, mainHandler);
 
         XposedLog.verbose(XposedLog.PREFIX_PM + "get verify result: " + resultHolder.getData());
@@ -3560,6 +3453,52 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         return resultHolder.getData();
     }
 
+    private PackageInstallerManager.VerifyArgs parseInstallArgs(Object argsFrom) {
+        InstallArgsProxy argsProxy = new InstallArgsProxy(argsFrom);
+        Object originObject = argsProxy.getOriginInfoObject();
+        OriginInfoProxy originInfoProxy = new OriginInfoProxy(originObject);
+
+        File apkFile = argsProxy.getTmpPackageFile();
+        if (apkFile == null) {
+            apkFile = originInfoProxy.getFile();
+        }
+
+        XposedLog.verbose(XposedLog.PREFIX_PM
+                + "checkInstallApk: " + argsFrom
+                + ", installer: " + argsProxy.getInstallerPackageName()
+                + ", origin: " + originObject
+                + ", file: " + apkFile);
+
+        if (apkFile == null) {
+            XposedLog.verbose(XposedLog.PREFIX_PM + "checkInstallApk: apkFile is null");
+            return null; // Bad package, skip check.
+        }
+
+        boolean canRead = apkFile.canRead();
+        XposedLog.verbose(XposedLog.PREFIX_PM + "apkFile canRead:  " + canRead);
+
+        PackageParser.Package parsed = PkgUtil.getPackageInfo(apkFile);
+        XposedLog.verbose(XposedLog.PREFIX_PM + "getPackageInfo: " + parsed);
+        if (parsed == null) {
+            XposedLog.verbose(XposedLog.PREFIX_PM + "checkInstallApk: parsed is null");
+            return null; // Bad package, skip check.
+        }
+
+        PackageInfo packageInfo = PackageParser.generatePackageInfo(parsed, null, 0, 0, 0, null,
+                new PackageUserState());
+
+        XposedLog.verbose(XposedLog.PREFIX_PM + "generatePackageInfo: " + packageInfo);
+
+        if (packageInfo == null) {
+            XposedLog.verbose(XposedLog.PREFIX_PM + "checkInstallApk: packageInfo is null");
+            return null; // Bad package, skip check.
+        }
+
+        return InstallerUtil.generateVerifyArgs(getContext(),
+                packageInfo,
+                apkFile.getAbsolutePath(),
+                argsProxy.getInstallerPackageName());
+    }
 
     @Override
     public void setRecentTaskExcludeSetting(ComponentName c, int setting) {

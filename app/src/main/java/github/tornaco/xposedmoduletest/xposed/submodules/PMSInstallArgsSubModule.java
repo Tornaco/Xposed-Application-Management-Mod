@@ -38,7 +38,7 @@ class PMSInstallArgsSubModule extends AndroidSubModule {
     }
 
     private void hookFileInstallArgs(XC_LoadPackage.LoadPackageParam lpparam) {
-        logOnBootStage("PMSInstallArgsSubModule hookFileInstallArgs...");
+        logOnBootStage(XposedLog.PREFIX_PM + "PMSInstallArgsSubModule hookFileInstallArgs...");
         try {
             final Class ams = XposedHelpers.findClass("com.android.server.pm.PackageManagerService$FileInstallArgs",
                     lpparam.classLoader);
@@ -51,17 +51,17 @@ class PMSInstallArgsSubModule extends AndroidSubModule {
                     }
                 }
             });
-            logOnBootStage("PMSInstallArgsSubModule hookFileInstallArgs OK:" + unHooks);
+            logOnBootStage(XposedLog.PREFIX_PM + "PMSInstallArgsSubModule hookFileInstallArgs OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Throwable e) {
-            logOnBootStage("PMSInstallArgsSubModule Fail hookFileInstallArgs: " + Log.getStackTraceString(e));
+            logOnBootStage(XposedLog.PREFIX_PM + "PMSInstallArgsSubModule Fail hookFileInstallArgs: " + Log.getStackTraceString(e));
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }
     }
 
     private void hookAescInstallArgs(XC_LoadPackage.LoadPackageParam lpparam) {
-        logOnBootStage("PMSInstallArgsSubModule hookAescInstallArgs...");
+        logOnBootStage(XposedLog.PREFIX_PM + "PMSInstallArgsSubModule hookAescInstallArgs...");
         try {
             final Class ams = XposedHelpers.findClass("com.android.server.pm.PackageManagerService$AescInstallArgs",
                     lpparam.classLoader);
@@ -74,16 +74,16 @@ class PMSInstallArgsSubModule extends AndroidSubModule {
                     }
                 }
             });
-            logOnBootStage("PMSInstallArgsSubModule hookAescInstallArgs OK:" + unHooks);
+            logOnBootStage(XposedLog.PREFIX_PM + "PMSInstallArgsSubModule hookAescInstallArgs OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Throwable e) {
-            logOnBootStage("PMSInstallArgsSubModule Fail hookAescInstallArgs: " + Log.getStackTraceString(e));
+            logOnBootStage(XposedLog.PREFIX_PM + "PMSInstallArgsSubModule Fail hookAescInstallArgs: " + Log.getStackTraceString(e));
             // It's OK.
         }
     }
 
     private void hookMoveInstallArgs(XC_LoadPackage.LoadPackageParam lpparam) {
-        logOnBootStage("PMSInstallArgsSubModule hookMoveInstallArgs...");
+        logOnBootStage(XposedLog.PREFIX_PM + "PMSInstallArgsSubModule hookMoveInstallArgs...");
         try {
             final Class ams = XposedHelpers.findClass("com.android.server.pm.PackageManagerService$MoveInstallArgs",
                     lpparam.classLoader);
@@ -96,10 +96,10 @@ class PMSInstallArgsSubModule extends AndroidSubModule {
                     }
                 }
             });
-            logOnBootStage("PMSInstallArgsSubModule hookMoveInstallArgs OK:" + unHooks);
+            logOnBootStage(XposedLog.PREFIX_PM + "PMSInstallArgsSubModule hookMoveInstallArgs OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Throwable e) {
-            logOnBootStage("PMSInstallArgsSubModule Fail hookMoveInstallArgs: " + Log.getStackTraceString(e));
+            logOnBootStage(XposedLog.PREFIX_PM + "PMSInstallArgsSubModule Fail hookMoveInstallArgs: " + Log.getStackTraceString(e));
             // It's OK.
         }
     }
@@ -108,7 +108,7 @@ class PMSInstallArgsSubModule extends AndroidSubModule {
         try {
             return getBridge().checkInstallApk(argsFrom);
         } catch (Throwable e) {
-            XposedLog.wtf("PMSInstallArgsSubModule fail call bridge checkInstallApk: " + Log.getStackTraceString(e));
+            XposedLog.wtf(XposedLog.PREFIX_PM + "PMSInstallArgsSubModule fail call bridge checkInstallApk: " + Log.getStackTraceString(e));
             return true; // :(
         }
     }

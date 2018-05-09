@@ -132,7 +132,7 @@ public class InstallDialog implements View.OnClickListener {
         AppResource appResource = new AppResource(context);
         Spanned dialogTitle = Html.fromHtml(appResource.loadStringFromAPMApp("package_install_verify_dialog_title"));
         Spanned dialogMessage = Html.fromHtml(appResource.loadStringFromAPMApp("package_install_verify_dialog_message",
-                args.getInstallerAppLabel(), args.getAppLabel()));
+                args.getInstallerAppLabel(), args.getSoucrePath(), args.getAppLabel()));
 
         String allow = appResource.loadStringFromAPMApp("package_install_verify_dialog_allow");
         String deny = appResource.loadStringFromAPMApp("package_install_verify_dialog_deny");

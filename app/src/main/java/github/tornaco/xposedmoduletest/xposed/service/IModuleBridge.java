@@ -186,6 +186,9 @@ public interface IModuleBridge {
 
     void onInputEvent(Object arg);
 
+    // PM.
+    void onSourceApkFileDetected(String path, String apkPackageName) throws RemoteException;
+
     boolean checkInstallApk(Object installArgsObject);
     // API For ASH END.
 }

@@ -13,11 +13,12 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.util.OSUtil;
@@ -42,11 +43,13 @@ public class PackageInstallerManager {
     private static final AtomicInteger NOTIFICATION_ID_DYNAMIC = new AtomicInteger(99999);
 
     // Make it longer for dev.
-    public static final long PACKAGE_INSTALL_VERIFY_TIMEOUT_MILLS = BuildConfig.DEBUG ? (24 * 1000) : (12 * 1000);
+    public static final long PACKAGE_INSTALL_VERIFY_TIMEOUT_MILLS = (24 * 1000);
     public static final long PACKAGE_INSTALL_VERIFY_TIMEOUT_S = PACKAGE_INSTALL_VERIFY_TIMEOUT_MILLS / 1000;
 
     @Getter
     private Context context;
+
+    private final Map<String, String> SOURCE_APK_PATH_MAP = new HashMap<>();
 
     private PackageInstallerManager(Context context) {
         this.context = context;
@@ -101,6 +104,20 @@ public class PackageInstallerManager {
         XposedLog.verbose("PackageInstallerManager args: " + args);
 
         return true;
+    }
+
+    public void onSourceApkFileDetected(String path, String apkPackageName) {
+        XposedLog.verbose(XposedLog.PREFIX_PM + "onSourceApkFileDetected: " + path + ", pkg: " + apkPackageName);
+        if (path != null && apkPackageName != null) synchronized (SOURCE_APK_PATH_MAP) {
+            SOURCE_APK_PATH_MAP.put(apkPackageName, path);
+        }
+    }
+
+    // Nullable.
+    public String getSourceApkFilePath(String apkPackageName) {
+        synchronized (SOURCE_APK_PATH_MAP) {
+            return SOURCE_APK_PATH_MAP.get(apkPackageName);
+        }
     }
 
     // Note. This will block the calling thread.
@@ -313,6 +330,7 @@ public class PackageInstallerManager {
         private String installerPackageName;
         private String installerAppLabel;
         private String appLabel;
+        private String soucrePath;
         private Drawable appIcon;
         private int verificationId;
         private int installFlags;
