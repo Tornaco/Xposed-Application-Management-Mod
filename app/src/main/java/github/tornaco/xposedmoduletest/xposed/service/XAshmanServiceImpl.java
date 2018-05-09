@@ -3410,8 +3410,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    @BinderCall
     public void onSourceApkFileDetected(String path, String apkPackageName) {
         PackageInstallerManager.from(getContext()).onSourceApkFileDetected(path, apkPackageName);
+    }
+
+    @Override
+    @BinderCall(restrict = "any")
+    public String getCurrentTopPackage() throws RemoteException {
+        return mTopPackageImd.getData();
     }
 
     @Override
