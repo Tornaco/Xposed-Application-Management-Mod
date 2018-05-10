@@ -17,6 +17,7 @@ import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerP
 import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
+import github.tornaco.xposedmoduletest.xposed.service.power.PowerManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.submodules.SubModule;
 
 /**
@@ -132,6 +133,8 @@ public interface IModuleBridge {
     void attachAMS(AMSProxy proxy);
 
     void attachActiveServices(ActiveServicesProxy proxy);
+
+    void attachPowerManagerServices(PowerManagerServiceProxy proxy);
 
     boolean checkService(Intent intent, ComponentName service, int callerUid) throws RemoteException;
 

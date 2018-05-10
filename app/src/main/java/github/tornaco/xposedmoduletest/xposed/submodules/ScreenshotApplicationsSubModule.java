@@ -24,7 +24,9 @@ import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.bean.BlurTask;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
+import github.tornaco.xposedmoduletest.xposed.util.BlurTaskCache;
 import github.tornaco.xposedmoduletest.xposed.util.XBitmapUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XStopWatch;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -146,9 +148,23 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
                                     return;
                                 }
 
+                                // Query from cache.
+                                BlurTaskCache cache = BlurTaskCache.getInstance();
+                                BlurTask cachedTask = cache.get(pkg);
+                                if (BuildConfig.DEBUG) {
+                                    XposedLog.verbose("BLUR getTaskThumbnail cachedTask: " + cachedTask);
+                                }
+
                                 ActivityManager.TaskThumbnail tt = (ActivityManager.TaskThumbnail) param.getResult();
                                 if (tt == null) {
                                     XposedLog.verbose("BLUR TaskThumbnail is null");
+                                    return;
+                                }
+
+                                if (cachedTask != null) {
+                                    tt.mainThumbnail = cachedTask.bitmap;
+                                    param.setResult(tt);
+                                    XposedLog.verbose("BLUR getTaskThumbnail using cached: " + cachedTask);
                                     return;
                                 }
 
@@ -174,6 +190,8 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
                                     }
                                 }
                                 tt.mainThumbnail = XBitmapUtil.createBlurredBitmap(source, br, XBitmapUtil.BITMAP_SCALE);
+                                // Save to cache.
+                                cache.put(pkg, BlurTask.from(pkg, tt.mainThumbnail));
                                 param.setResult(tt);
                                 XposedLog.verbose("BLUR getTaskThumbnail Thumb replaced!");
                             } catch (Throwable e) {
@@ -249,14 +267,30 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
         XposedLog.verbose("BLUR onScreenshotApplicationsNAndBelow: " + pkgName);
         if (getBridge().isBlurForPkg(pkgName)
                 && param.getResult() != null) {
+
+            // Query from cache.
+            BlurTaskCache cache = BlurTaskCache.getInstance();
+            BlurTask cachedTask = cache.get(pkgName);
+            if (BuildConfig.DEBUG) {
+                XposedLog.verbose("BLUR onScreenshotApplicationsNAndBelow cachedTask: " + cachedTask);
+            }
+
+            if (cachedTask != null) {
+                param.setResult(cachedTask.bitmap);
+                XposedLog.verbose("BLUR onScreenshotApplicationsNAndBelow using cached: " + cachedTask);
+                return;
+            }
+
             Bitmap res = (Bitmap) param.getResult();
             XposedLog.verbose("BLUR onScreenshotApplicationsNAndBelow. res: " + res);
             int radius = getBridge().getBlurRadius();
             float scale = getBridge().getBlurScale();
             XposedLog.verbose("BLUR onScreenshotApplicationsNAndBelow, bluring, r and s: " + radius + "-" + scale);
             Bitmap blured = (XBitmapUtil.createBlurredBitmap(res, radius, scale));
-            if (blured != null)
+            if (blured != null) {
                 param.setResult(blured);
+                cache.put(pkgName, BlurTask.from(pkgName, blured));
+            }
         } else {
             XposedLog.verbose("BLUR onScreenshotApplicationsNAndBelow, blur is disabled...");
         }

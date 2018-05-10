@@ -340,9 +340,7 @@ public class NavigatorActivityBottomNav
             if (AppSettings.isFirstRun(getApplicationContext())) {
 
                 MaterialStyledDialog dialog = new MaterialStyledDialog.Builder(getActivity())
-                        .setStyle(Style.HEADER_WITH_ICON)
-                        .withIconAnimation(true)
-                        .setIcon(R.drawable.ic_favorite_red_24dp)
+                        .setStyle(Style.HEADER_WITH_TITLE)
                         .setTitle(R.string.title_app_dev_say)
                         .setDescription(getString(R.string.message_first_run))
                         .setCancelable(false)

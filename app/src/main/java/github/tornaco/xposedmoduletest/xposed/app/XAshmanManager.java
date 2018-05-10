@@ -24,6 +24,7 @@ import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IBooleanCallback1;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IServiceControl;
+import github.tornaco.xposedmoduletest.ITaskRemoveListener;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.util.ArrayUtil;
@@ -2287,6 +2288,24 @@ public class XAshmanManager {
             return mService.getCurrentTopPackage();
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    public void registerTaskRemoveListener(ITaskRemoveListener listener) {
+        ensureService();
+        try {
+            mService.registerTaskRemoveListener(listener);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public void unRegisterTaskRemoveListener(ITaskRemoveListener listener) {
+        ensureService();
+        try {
+            mService.unRegisterTaskRemoveListener(listener);
+        } catch (Exception e) {
+
         }
     }
 }
