@@ -6114,6 +6114,26 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private static final long LAZY_KILL_SERVICE_SERVICE_INTERVAL = 2 * LAZY_KILL_SERVICE_NORMAL_INTERVAL;
     private static final long LAZY_CHECK_PACKAGE_PROCESS_DELAY = 500;
 
+    private final Set<String> mLazyServiceKillPendingCheckList = new HashSet<>();
+
+    private void addToLazyPendingCheckListForPackage(String packageName) {
+        synchronized (mLazyServiceKillPendingCheckList) {
+            mLazyServiceKillPendingCheckList.add(packageName);
+        }
+    }
+
+    private void removePackageFromLazyPendingCheckList(String packageName) {
+        synchronized (mLazyServiceKillPendingCheckList) {
+            mLazyServiceKillPendingCheckList.remove(packageName);
+        }
+    }
+
+    private boolean isPackageInLazyPendingCheckList(String packageName) {
+        synchronized (mLazyServiceKillPendingCheckList) {
+            return mLazyServiceKillPendingCheckList.contains(packageName);
+        }
+    }
+
     private void postLazyServiceKillerIfNecessary(String packageName, long intervalToPerform, String reason) {
         XposedLog.verbose("LAZY postLazyServiceKillerIfNecessary %s %s", packageName, reason);
 
@@ -6127,9 +6147,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             return;
         }
 
+        // If this package is pending?
+        if (isPackageInLazyPendingCheckList(packageName)) {
+            XposedLog.verbose("LAZY postLazyServiceKillerIfNecessary, ignore isPackageInLazyPendingCheckList!!!");
+            return;
+        }
+
         // Kill services by ActiveServices!
         Runnable lazyKill = new LazyServiceKiller(packageName);
         ErrorCatchRunnable ecr = new ErrorCatchRunnable(lazyKill, "lazyKill");
+
+        // Add to pending list.
+        addToLazyPendingCheckListForPackage(packageName);
+
         // Kill all service after xs.
         mLazyHandler.postDelayed(ecr, intervalToPerform);
         XposedLog.verbose("LAZY post lazy!!! " + packageName + ", delayed: " + intervalToPerform);
@@ -6195,6 +6225,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         @Override
         public void run() {
+            // Before we really do kill service, we should notify that
+            // this pending check is done.
+            removePackageFromLazyPendingCheckList(targetServicePkg);
+            // Go.
+            doCheckKillService();
+        }
+
+        private void doCheckKillService() {
             if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("LAZY, checking if need clean up service:" + targetServicePkg);
             }
