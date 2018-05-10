@@ -70,9 +70,7 @@ public class SubModuleManager {
         addToSubsChecked(new WakelockSubModule());
         addToSubsChecked(new SecureSettingsSubModule());
         addToSubsChecked(new SystemSettingsSubModule());
-
         addToSubsChecked(new PowerManagerServiceLocalSubModule());
-        addToSubsChecked(new PowerManagerServiceSubModule());
 
         addToSubsChecked(new TelephonyManagerSubModule());
 
@@ -200,6 +198,9 @@ public class SubModuleManager {
             // Installer
             addToSubsChecked(new PackageInstallerServiceSubModule());
             addToSubsChecked(new PackageInstallerSessionSubModule());
+
+            // Wakelock blocker.
+            addToSubsChecked(new PowerManagerServiceSubModule());
         }
     }
 

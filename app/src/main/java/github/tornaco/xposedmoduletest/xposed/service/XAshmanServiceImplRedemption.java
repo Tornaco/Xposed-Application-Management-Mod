@@ -703,6 +703,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public boolean checkAcquireWakeLockInternal(int flags, String tag, String packageName) {
+        return true;
+    }
+
+    @Override
     public boolean checkService(Intent service, String callingPackage, int callingPid,
                                 int callingUid, boolean callingFromFg) {
         return false;
