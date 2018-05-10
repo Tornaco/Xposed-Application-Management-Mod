@@ -2235,8 +2235,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         // Post lazy app check.
         if (res.res) {
-            if (isLazyModeEnabled() && isPackageLazyByUser(appPkg)) {
-                postLazyServiceKillerIfNecessary(appPkg, GCMFCMHelper.GCM_INTENT_HANDLE_INTERVAL_MILLS, "Service start");
+            if (!isPackageRunningOnTop(appPkg)
+                    && isLazyModeEnabled()
+                    && isPackageLazyByUser(appPkg)) {
+                postLazyServiceKillerIfNecessary(appPkg, LAZY_KILL_SERVICE_SERVICE_INTERVAL, "Service start");
             }
         }
 
@@ -6109,6 +6111,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private static final long LAZY_KILL_SERVICE_NORMAL_INTERVAL = 5 * 1000;
     private static final long LAZY_KILL_SERVICE_NOTIFICATION_INTERVAL = LAZY_KILL_SERVICE_NORMAL_INTERVAL;
     private static final long LAZY_KILL_SERVICE_PROCESS_INTERVAL = 2 * LAZY_KILL_SERVICE_NORMAL_INTERVAL;
+    private static final long LAZY_KILL_SERVICE_SERVICE_INTERVAL = 2 * LAZY_KILL_SERVICE_NORMAL_INTERVAL;
     private static final long LAZY_CHECK_PACKAGE_PROCESS_DELAY = 500;
 
     private void postLazyServiceKillerIfNecessary(String packageName, long intervalToPerform, String reason) {
