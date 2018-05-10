@@ -2229,8 +2229,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @InternalCall
     public boolean checkService(Intent intent, ComponentName serviceComp, int callerUid) {
         if (serviceComp == null) return true;
+
         String appPkg = serviceComp.getPackageName();
         CheckResult res = checkServiceDetailed(intent, appPkg, serviceComp, callerUid);
+
+        // Post lazy app check.
+        if (res.res) {
+            if (isLazyModeEnabled() && isPackageLazyByUser(appPkg)) {
+                postLazyServiceKillerIfNecessary(appPkg, GCMFCMHelper.GCM_INTENT_HANDLE_INTERVAL_MILLS, "Service start");
+            }
+        }
 
         // Saving res record.
         logServiceBlockEventToMemory(ServiceEvent.builder()
@@ -2366,6 +2374,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             // Start rule enabled, may be has GCM intent.
             boolean hasGcmIntent = GCMFCMHelper.isHandlingGcmIntent(servicePkgName);
             if (hasGcmIntent) {
+                if (XposedLog.isVerboseLoggable()) {
+                    XposedLog.verbose("Package is handling GCM allow service start: " + servicePkgName);
+                }
                 return CheckResult.HAS_GCM_INTENT;
             }
         }
