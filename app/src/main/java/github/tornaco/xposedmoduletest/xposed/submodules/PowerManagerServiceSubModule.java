@@ -21,7 +21,7 @@ class PowerManagerServiceSubModule extends AndroidSubModule {
 
     @Override
     public String needBuildVar() {
-        return XAppBuildVar.APP_OPS;
+        return XAppBuildVar.APP_WAKELOCK_BLOCKER;
     }
 
     @Override

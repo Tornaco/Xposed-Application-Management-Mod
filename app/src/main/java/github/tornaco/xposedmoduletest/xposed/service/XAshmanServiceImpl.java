@@ -2229,8 +2229,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @InternalCall
     public boolean checkService(Intent intent, ComponentName serviceComp, int callerUid) {
         if (serviceComp == null) return true;
+
         String appPkg = serviceComp.getPackageName();
         CheckResult res = checkServiceDetailed(intent, appPkg, serviceComp, callerUid);
+
+        // Post lazy app check.
+        if (res.res) {
+            if (!isPackageRunningOnTop(appPkg)
+                    && isLazyModeEnabled()
+                    && isPackageLazyByUser(appPkg)) {
+                postLazyServiceKillerIfNecessary(appPkg, LAZY_KILL_SERVICE_SERVICE_INTERVAL, "Service start");
+            }
+        }
 
         // Saving res record.
         logServiceBlockEventToMemory(ServiceEvent.builder()
@@ -2366,6 +2376,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             // Start rule enabled, may be has GCM intent.
             boolean hasGcmIntent = GCMFCMHelper.isHandlingGcmIntent(servicePkgName);
             if (hasGcmIntent) {
+                if (XposedLog.isVerboseLoggable()) {
+                    XposedLog.verbose("Package is handling GCM allow service start: " + servicePkgName);
+                }
                 return CheckResult.HAS_GCM_INTENT;
             }
         }
@@ -6098,6 +6111,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private static final long LAZY_KILL_SERVICE_NORMAL_INTERVAL = 5 * 1000;
     private static final long LAZY_KILL_SERVICE_NOTIFICATION_INTERVAL = LAZY_KILL_SERVICE_NORMAL_INTERVAL;
     private static final long LAZY_KILL_SERVICE_PROCESS_INTERVAL = 2 * LAZY_KILL_SERVICE_NORMAL_INTERVAL;
+    private static final long LAZY_KILL_SERVICE_SERVICE_INTERVAL = 2 * LAZY_KILL_SERVICE_NORMAL_INTERVAL;
     private static final long LAZY_CHECK_PACKAGE_PROCESS_DELAY = 500;
 
     private void postLazyServiceKillerIfNecessary(String packageName, long intervalToPerform, String reason) {
