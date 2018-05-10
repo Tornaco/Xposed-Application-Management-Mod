@@ -5,6 +5,7 @@ import github.tornaco.xposedmoduletest.IProcessClearListener;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
+import github.tornaco.xposedmoduletest.ITaskRemoveListener;
 import github.tornaco.xposedmoduletest.IServiceControl;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
@@ -489,4 +490,8 @@ interface IAshmanService {
     void onSourceApkFileDetected(String path, String pkg);
 
     String getCurrentTopPackage();
+
+    // Tasks.
+    void registerTaskRemoveListener(in ITaskRemoveListener listener);
+    void unRegisterTaskRemoveListener(in ITaskRemoveListener listener);
 }

@@ -22,6 +22,7 @@ import github.tornaco.xposedmoduletest.IBooleanCallback1;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
 import github.tornaco.xposedmoduletest.IServiceControl;
+import github.tornaco.xposedmoduletest.ITaskRemoveListener;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
@@ -39,6 +40,7 @@ import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerP
 import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
+import github.tornaco.xposedmoduletest.xposed.service.power.PowerManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.submodules.SubModuleManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -163,8 +165,18 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
-    public String getCurrentTopPackage() throws RemoteException {
+    public String getCurrentTopPackage() {
         return null;
+    }
+
+    @Override
+    public void registerTaskRemoveListener(ITaskRemoveListener listener) {
+
+    }
+
+    @Override
+    public void unRegisterTaskRemoveListener(ITaskRemoveListener listener) {
+
     }
 
     @Override
@@ -477,12 +489,12 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
-    public String[] getPackageInstallerVerifyRules() throws RemoteException {
+    public String[] getPackageInstallerVerifyRules() {
         return new String[0];
     }
 
     @Override
-    public boolean addOrRemovePackageInstallerVerifyRules(String rule, boolean add) throws RemoteException {
+    public boolean addOrRemovePackageInstallerVerifyRules(String rule, boolean add) {
         return false;
     }
 
@@ -682,6 +694,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
 
     @Override
     public void attachActiveServices(ActiveServicesProxy proxy) {
+
+    }
+
+    @Override
+    public void attachPowerManagerServices(PowerManagerServiceProxy proxy) {
 
     }
 

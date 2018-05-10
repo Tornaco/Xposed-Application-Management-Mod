@@ -2,6 +2,8 @@ package github.tornaco.xposedmoduletest.ui.activity.blur;
 
 import android.app.Fragment;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
 
 import github.tornaco.permission.requester.RuntimePermissions;
@@ -9,6 +11,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.ag.GuardSettingsActivity;
 import github.tornaco.xposedmoduletest.ui.widget.BlurRadiusPreference;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
  * Created by guohao4 on 2017/11/2.
@@ -32,10 +35,16 @@ public class GeneralBlurSettings extends GuardSettingsActivity {
                 final BlurRadiusPreference blurRadiusPreference = (BlurRadiusPreference) findPreference("blur_radius");
                 blurRadiusPreference.setCurrentRadius(XAppGuardManager.get()
                         .getBlurRadius());
-                blurRadiusPreference.setOnSeekCompleteListener(new BlurRadiusPreference.OnSeekCompleteListener() {
+                blurRadiusPreference.setOnSeekCompleteListener(progress -> XAppGuardManager.get().setBlurRadius(progress));
+
+                SwitchPreference blurOptPreference = (SwitchPreference) findPreference("opt_blur_cache");
+                blurOptPreference.setChecked(XAshmanManager.get().isOptFeatureEnabled("opt_blur_cache"));
+                blurOptPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
-                    public void onSeekComplete(int progress) {
-                        XAppGuardManager.get().setBlurRadius(progress);
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        boolean enable = (boolean) newValue;
+                        XAshmanManager.get().setOptFeatureEnabled("opt_blur_cache", enable);
+                        return true;
                     }
                 });
             } else {

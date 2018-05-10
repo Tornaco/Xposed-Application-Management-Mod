@@ -1,9 +1,11 @@
 package github.tornaco.xposedmoduletest.xposed.util;
 
+import android.util.Log;
 import android.util.LruCache;
 
-import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.ITaskRemoveListener;
 import github.tornaco.xposedmoduletest.util.Singleton;
+import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurTask;
 
 /**
@@ -11,8 +13,6 @@ import github.tornaco.xposedmoduletest.xposed.bean.BlurTask;
  * God bless no bug!
  */
 public class BlurTaskCache {
-
-    private static final boolean CACHE_ENABLED = BuildConfig.DEBUG;
 
     private static final int MAX_ENTRY_SIZE = 12;
 
@@ -34,16 +34,27 @@ public class BlurTaskCache {
 
     private BlurTaskCache() {
         mCache = new LruCache<>(MAX_ENTRY_SIZE);
+        // Tracking the task removal.
+        XAshmanManager.get().registerTaskRemoveListener(new ITaskRemoveListener.Stub() {
+            @Override
+            public void onTaskRemoved(String packageName) {
+                try {
+                    mCache.remove(packageName);
+                    Log.d(XposedLog.TAG, "BLUR, removing blur cache for: " + packageName);
+                } catch (Throwable ignored) {
+                }
+            }
+        });
     }
 
     public void put(String key, BlurTask task) {
-        if (CACHE_ENABLED && key != null && task != null) {
+        if (isBlurCacheEnabled() && key != null && task != null) {
             mCache.put(key, task);
         }
     }
 
     public BlurTask get(String key) {
-        if (!CACHE_ENABLED) {
+        if (!isBlurCacheEnabled()) {
             return null;
         }
         BlurTask task = key == null ? null : mCache.get(key);
@@ -61,5 +72,9 @@ public class BlurTaskCache {
 
     private static boolean isDirtyTask(BlurTask task) {
         return task.bitmap == null || task.bitmap.isRecycled() || System.currentTimeMillis() - task.updateTimeMills > EXPIRE_TIME_MILLS;
+    }
+
+    private static boolean isBlurCacheEnabled() {
+        return XAshmanManager.get().isOptFeatureEnabled("opt_blur_cache");
     }
 }

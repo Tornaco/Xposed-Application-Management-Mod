@@ -8,5 +8,10 @@
             android:summary="@string/summary_app_recent_blur_radius"
             android:title="@string/title_app_recent_blur_radius" />
 
+        <SwitchPreference
+            android:key="opt_blur_cache"
+            android:persistent="false"
+            android:summary="@string/summary_app_recent_blur_opt_cache"
+            android:title="@string/title_app_recent_blur_opt_cache" />
     </PreferenceCategory>
 </PreferenceScreen>

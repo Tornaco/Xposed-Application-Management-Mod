@@ -55,4 +55,11 @@ public class InvokeTargetProxy<T> {
             return false;
         }
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "{" +
+                "host=" + host +
+                '}';
+    }
 }

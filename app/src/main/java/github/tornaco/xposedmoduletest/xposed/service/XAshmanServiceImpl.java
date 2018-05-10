@@ -112,6 +112,7 @@ import github.tornaco.xposedmoduletest.IBooleanCallback1;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
 import github.tornaco.xposedmoduletest.IServiceControl;
+import github.tornaco.xposedmoduletest.ITaskRemoveListener;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.ui.widget.ClickableToastManager;
@@ -119,6 +120,7 @@ import github.tornaco.xposedmoduletest.ui.widget.FloatView;
 import github.tornaco.xposedmoduletest.util.ArrayUtil;
 import github.tornaco.xposedmoduletest.util.GsonUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
+import github.tornaco.xposedmoduletest.xposed.GlobalWhiteList;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.IProcessClearListenerAdapter;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -142,6 +144,7 @@ import github.tornaco.xposedmoduletest.xposed.service.am.AppServiceControlServic
 import github.tornaco.xposedmoduletest.xposed.service.am.AppServiceController;
 import github.tornaco.xposedmoduletest.xposed.service.am.InactiveAppIdler;
 import github.tornaco.xposedmoduletest.xposed.service.am.KillAppIdler;
+import github.tornaco.xposedmoduletest.xposed.service.am.PackageStateManager;
 import github.tornaco.xposedmoduletest.xposed.service.am.ServiceRecordProxy;
 import github.tornaco.xposedmoduletest.xposed.service.am.UsageStatsServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.bandwidth.BandwidthCommandCompat;
@@ -162,6 +165,7 @@ import github.tornaco.xposedmoduletest.xposed.service.pm.InstallerUtil;
 import github.tornaco.xposedmoduletest.xposed.service.pm.OriginInfoProxy;
 import github.tornaco.xposedmoduletest.xposed.service.pm.PackageInstallerManager;
 import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
+import github.tornaco.xposedmoduletest.xposed.service.power.PowerManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
 import github.tornaco.xposedmoduletest.xposed.service.rule.Rule;
 import github.tornaco.xposedmoduletest.xposed.service.rule.RuleParser;
@@ -316,6 +320,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     private AMSProxy mAmsProxy;
     private ActiveServicesProxy mActiveServicesProxy;
+    private PowerManagerServiceProxy mPowerManagerServiceProxy;
 
     // App idler.
     private AppIdler mKillIdler, mInactiveIdler;
@@ -1634,6 +1639,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         if (GCMFCMHelper.isGcmOrFcmIntent(intent)) {
             final String targetPkg = intent.getPackage();
             if (targetPkg != null) {
+                XposedLog.verbose("checkBroadcastIntentSendingInternal isGcmOrFcmIntent: " + targetPkg);
 
                 if (BuildConfig.DEBUG) {
                     XposedLog.verbose("PushNotificationHandler@ intent: "
@@ -1840,6 +1846,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         } catch (Throwable e) {
             XposedLog.wtf("Fail workaroundForHwActiveServices: " + Log.getStackTraceString(e));
         }
+    }
+
+    @Override
+    public void attachPowerManagerServices(PowerManagerServiceProxy proxy) {
+        mPowerManagerServiceProxy = proxy;
+        XposedLog.boot("attachPowerManagerServices, mPowerManagerServiceProxy: " + proxy);
     }
 
     @Override
@@ -3417,8 +3429,26 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     @BinderCall(restrict = "any")
-    public String getCurrentTopPackage() throws RemoteException {
+    public String getCurrentTopPackage() {
         return mTopPackageImd.getData();
+    }
+
+    @Override
+    @BinderCall(restrict = "any")
+    public void registerTaskRemoveListener(ITaskRemoveListener listener) {
+        if (getContext() != null) {
+            PackageStateManager.from(getContext())
+                    .registerTaskRemoveListener(listener);
+        }
+    }
+
+    @Override
+    @BinderCall(restrict = "any")
+    public void unRegisterTaskRemoveListener(ITaskRemoveListener listener) {
+        if (getContext() != null) {
+            PackageStateManager.from(getContext())
+                    .unRegisterTaskRemoveListener(listener);
+        }
     }
 
     @Override
@@ -4520,13 +4550,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
-    public String[] getPackageInstallerVerifyRules() throws RemoteException {
+    public String[] getPackageInstallerVerifyRules() {
         enforceCallingPermissions();
         return convertObjectArrayToStringArray(RepoProxy.getProxy().getPm_rules().getAll().toArray());
     }
 
     @Override
-    public boolean addOrRemovePackageInstallerVerifyRules(String rule, boolean add) throws RemoteException {
+    public boolean addOrRemovePackageInstallerVerifyRules(String rule, boolean add) {
         XposedLog.verbose("addOrRemovePackageInstallerVerifyRules: " + rule + ", " + add);
         RuleParser p = RuleParser.Factory.newParser();
         Rule r = p.parse(rule);
@@ -5361,6 +5391,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 // Tell app guard service to clean up verify res.
                 mAppGuardService.onTaskRemoving(pkgOfThisTask);
 
+                // Notify psm.
+                String finalPkgOfThisTask1 = pkgOfThisTask;
+                ErrorCatchRunnable psm = new ErrorCatchRunnable(() -> PackageStateManager.from(getContext()).onTaskRemoved(finalPkgOfThisTask1), "PSM onTaskRemoved");
+                mLazyHandler.post(psm);
+
                 if (!isTaskRemoveKillEnabled()) {
                     if (XposedLog.isVerboseLoggable()) {
                         XposedLog.verbose("removeTask: trk is not enabled");
@@ -6058,6 +6093,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     private void postLazyServiceKillerIfNecessary(String packageName, long intervalToPerform, String reason) {
         XposedLog.verbose("LAZY postLazyServiceKillerIfNecessary %s %s", packageName, reason);
+
+        // Check white list first.
+        if (GlobalWhiteList.isInGlobalWhiteList(packageName)) {
+            XposedLog.verbose("LAZY postLazyServiceKillerIfNecessary, ignore in global white list");
+            return;
+        }
 
         if (!isLazyModeEnabled() || !isPackageLazyByUser(packageName)) {
             return;
