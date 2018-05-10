@@ -81,6 +81,8 @@ class WakelockSubModule extends AndroidSubModule {
                                     param.setResult(null);
                                 }
                             }
+
+                            // Check blocker.
                         }
                     });
             XposedLog.verbose("hookAcquireWakeLock OK:" + unHooks);

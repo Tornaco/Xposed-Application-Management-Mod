@@ -136,6 +136,8 @@ public interface IModuleBridge {
 
     void attachPowerManagerServices(PowerManagerServiceProxy proxy);
 
+    boolean checkAcquireWakeLockInternal(int flags, String tag, String packageName);
+
     boolean checkService(Intent intent, ComponentName service, int callerUid) throws RemoteException;
 
     @Deprecated

@@ -1855,6 +1855,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    public boolean checkAcquireWakeLockInternal(int flags, String tag, String packageName) {
+        XposedLog.verbose("checkAcquireWakeLockInternal: " + tag + ", pkg: " + packageName);
+        if (mPowerManagerServiceProxy != null) {
+            return mPowerManagerServiceProxy.onAcquireWakeLockInternal(flags, tag, packageName);
+        }
+        return true;
+    }
+
+    @Override
     public void attachUsageStatsService(UsageStatsServiceProxy proxy) {
         mInactiveIdler = new InactiveAppIdler(proxy);
         mInactiveIdler.setListener(mOnAppIdleListener);
