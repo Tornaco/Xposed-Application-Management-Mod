@@ -22,6 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginBottom="@dimen/dashboard_category_bot_margin"
+        android:layout_marginEnd="@dimen/dashboard_category_title_margin_end"
         android:layout_toEndOf="@+id/icon"
         android:layout_toLeftOf="@+id/action_area"
         android:layout_toRightOf="@+id/icon"

@@ -80,18 +80,14 @@ import github.tornaco.xposedmoduletest.ui.tiles.TileManager;
 import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AboutSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppDevMode;
-import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlack;
-import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlackNotification;
 import github.tornaco.xposedmoduletest.ui.tiles.app.BackupRestoreSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CleanUpSystemErrorTrace;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CrashDump;
-import github.tornaco.xposedmoduletest.ui.tiles.app.InactiveInsteadOfKillApp;
 import github.tornaco.xposedmoduletest.ui.tiles.app.MokeCrash;
 import github.tornaco.xposedmoduletest.ui.tiles.app.MokeSystemDead;
-import github.tornaco.xposedmoduletest.ui.tiles.app.PowerSave;
+import github.tornaco.xposedmoduletest.ui.tiles.app.PolicySettings;
 import github.tornaco.xposedmoduletest.ui.tiles.app.ShowFocusedActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.StyleSettings;
-import github.tornaco.xposedmoduletest.ui.tiles.app.WhiteSystemApp;
 import github.tornaco.xposedmoduletest.ui.tiles.prop.PackageInstallVerify;
 import github.tornaco.xposedmoduletest.ui.widget.BottomNavigationViewHelper;
 import github.tornaco.xposedmoduletest.ui.widget.ToastManager;
@@ -1013,34 +1009,35 @@ public class NavigatorActivityBottomNav
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
 
-            Category system = new Category();
-            system.titleRes = R.string.title_opt;
-            system.addTile(new PowerSave(getActivity()));
+            if (AppSettings.isPStyleIcon(getActivity())) {
+                Category aio = new Category();
+                aio.addTile(new PolicySettings(getActivity()));
+                aio.addTile(new BackupRestoreSettings(getActivity()));
+                aio.addTile(new StyleSettings(getActivity()));
+                aio.addTile(new AboutSettings(getActivity()));
+                categories.add(aio);
+            } else {
+                Category policy = new Category();
+                policy.titleRes = R.string.title_policy;
+                policy.addTile(new PolicySettings(getActivity()));
 
-            Category policy = new Category();
-            policy.titleRes = R.string.title_policy;
-            policy.addTile(new WhiteSystemApp(getActivity()));
-            policy.addTile(new AutoBlack(getActivity()));
-            policy.addTile(new AutoBlackNotification(getActivity()));
-            policy.addTile(new InactiveInsteadOfKillApp(getActivity()));
+                Category data = new Category();
+                data.titleRes = R.string.title_data;
+                data.addTile(new BackupRestoreSettings(getActivity()));
 
-            Category data = new Category();
-            data.titleRes = R.string.title_data;
-            data.addTile(new BackupRestoreSettings(getActivity()));
+                Category theme = new Category();
+                theme.titleRes = R.string.title_style;
+                theme.addTile(new StyleSettings(getActivity()));
 
-            Category theme = new Category();
-            theme.titleRes = R.string.title_style;
-            theme.addTile(new StyleSettings(getActivity()));
+                Category about = new Category();
+                about.titleRes = R.string.title_about;
+                about.addTile(new AboutSettings(getActivity()));
 
-            Category about = new Category();
-            about.titleRes = R.string.title_about;
-            about.addTile(new AboutSettings(getActivity()));
-
-            categories.add(system);
-            categories.add(policy);
-            categories.add(data);
-            categories.add(theme);
-            categories.add(about);
+                categories.add(policy);
+                categories.add(data);
+                categories.add(theme);
+                categories.add(about);
+            }
         }
     }
 }
