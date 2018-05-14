@@ -69,6 +69,12 @@ public class PMHAvailableHandlersActivity extends WithWithCustomTabActivity {
     }
 
     public static class Dashboards extends AppCustomDashboardFragment {
+
+        @Override
+        protected boolean androidPStyleIcon() {
+            return false;
+        }
+
         @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);

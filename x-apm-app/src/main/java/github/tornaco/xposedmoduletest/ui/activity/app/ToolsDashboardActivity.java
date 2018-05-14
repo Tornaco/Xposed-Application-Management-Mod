@@ -31,6 +31,12 @@ public class ToolsDashboardActivity extends WithWithCustomTabActivity {
     }
 
     public static class Dashboards extends ActivityLifeCycleDashboardFragment {
+
+        @Override
+        protected boolean androidPStyleIcon() {
+            return false;
+        }
+
         @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);

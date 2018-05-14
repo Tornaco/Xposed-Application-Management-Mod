@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -17,6 +18,7 @@ import github.tornaco.xposedmoduletest.loader.BlockRecord2Loader;
 import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.Themes;
+import github.tornaco.xposedmoduletest.ui.activity.app.PerAppSettingsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.BlockRecord2ListAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -144,9 +146,15 @@ public class BlockRecordViewerActivity extends WithRecyclerView {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.block_record_details, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
+        if (mTargetPkgName != null && item.getItemId() == R.id.action_per_app_settings) {
+            PerAppSettingsDashboardActivity.start(getContext(), mTargetPkgName);
         }
         return super.onOptionsItemSelected(item);
     }

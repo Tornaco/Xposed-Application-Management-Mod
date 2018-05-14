@@ -760,6 +760,9 @@ public class NavigatorActivityBottomNav
                 summaryView.setText(R.string.app_intro);
             }
 
+            // Default, visible.
+            findView(rootView, R.id.status_container).setVisibility(View.VISIBLE);
+
             if (serviceAvailable) {
                 XExecutor.execute(() -> {
                     try {
@@ -783,6 +786,11 @@ public class NavigatorActivityBottomNav
                                             (hasModuleError ? getString(R.string.title_device_status_summary_compat_ng) : getString(R.string.title_device_status_summary_good)),
                                             hasSystemError ? getString(R.string.title_device_status_summary_system_ng) : getString(R.string.title_device_status_summary_good));
                                     summaryView.setText(summary);
+
+                                    // If all good, hide this card.
+                                    if (!hasModuleError && !hasSystemError) {
+                                        findView(rootView, R.id.status_container).setVisibility(View.GONE);
+                                    }
                                 }
                             });
                         }

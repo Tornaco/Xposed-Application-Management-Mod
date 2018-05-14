@@ -59,6 +59,7 @@ public class PerAppSettingsDashboardActivity extends WithWithCustomTabActivity {
         if (pkgName == null) return;
 
         setTitle(getTitle() + "\t" + PkgUtil.loadNameByPkgName(getContext(), pkgName));
+        setSubTitleChecked(pkgName);
 
         replaceV4(R.id.container, Dashboards.newInstance(getContext(), pkgName), null, false);
 
@@ -107,6 +108,11 @@ public class PerAppSettingsDashboardActivity extends WithWithCustomTabActivity {
     }
 
     public static class Dashboards extends AppCustomDashboardFragment {
+
+        @Override
+        protected boolean androidPStyleIcon() {
+            return false;
+        }
 
         private String mPkg;
 

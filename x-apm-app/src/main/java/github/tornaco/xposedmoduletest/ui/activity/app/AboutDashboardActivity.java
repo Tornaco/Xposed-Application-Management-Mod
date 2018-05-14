@@ -31,6 +31,12 @@ public class AboutDashboardActivity extends WithWithCustomTabActivity {
     }
 
     public static class AboutNavFragment extends AppCustomDashboardFragment {
+
+        @Override
+        protected boolean androidPStyleIcon() {
+            return false;
+        }
+
         @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);

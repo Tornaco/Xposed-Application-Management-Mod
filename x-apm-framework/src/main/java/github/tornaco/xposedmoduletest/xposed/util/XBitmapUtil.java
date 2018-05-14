@@ -16,6 +16,8 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
+import github.tornaco.xposedmoduletest.xposed.DefaultConfiguration;
+
 /**
  * {@link Bitmap} specific helpers.
  *
@@ -23,10 +25,10 @@ import android.graphics.Paint;
  */
 public final class XBitmapUtil {
 
-    public static final float BITMAP_SCALE = 0.22f;
+    public static final float BITMAP_SCALE = DefaultConfiguration.BITMAP_SCALE;
     /* Initial blur radius. */
-    public static final int BLUR_RADIUS = 8;
-    public static final int BLUR_RADIUS_MAX = 25;
+    public static final int BLUR_RADIUS = DefaultConfiguration.BLUR_RADIUS;
+    public static final int BLUR_RADIUS_MAX = DefaultConfiguration.BLUR_RADIUS_MAX;
 
     /**
      * This class is never instantiated

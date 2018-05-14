@@ -147,6 +147,11 @@ public class PrivacyNavActivity extends CommonPackageInfoListActivity
 
     public static class Dashboards extends AppCustomDashboardFragment {
 
+        @Override
+        protected boolean androidPStyleIcon() {
+            return false;
+        }
+
         public void reload() {
             buildUI(getActivity());
         }

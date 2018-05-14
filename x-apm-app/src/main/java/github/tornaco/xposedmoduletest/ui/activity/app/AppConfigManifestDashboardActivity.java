@@ -83,6 +83,11 @@ public class AppConfigManifestDashboardActivity extends WithWithCustomTabActivit
 
     public static class Dashboards extends AppCustomDashboardFragment {
 
+        @Override
+        protected boolean androidPStyleIcon() {
+            return false;
+        }
+
         private String mPkg;
 
         public static Dashboards newInstance(Context context, String pkg) {

@@ -26,12 +26,14 @@ public class GlobalWhiteList {
 
             "com.android.providers.media",
             "com.android.providers.calendar",
+            "com.android.providers.contacts",
             "com.android.providers.downloads",
             "com.android.providers.downloads.ui",
             "com.android.providers.settings",
             "com.android.providers.telephony",
             "com.android.providers.userdictionary",
             "com.android.providers.phone",
+            "com.android.providers.contacts",
 
             "com.zui.incallui",
 

@@ -336,6 +336,11 @@ public class BaseActivity extends AppCompatActivity implements View {
         }
     }
 
+    public void setSubTitleChecked(CharSequence title) {
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setSubtitle(title);
+        }
+    }
 
     protected RelativeLayout.LayoutParams generateCenterParams() {
         return generateCenterParams(ViewGroup.LayoutParams.WRAP_CONTENT,

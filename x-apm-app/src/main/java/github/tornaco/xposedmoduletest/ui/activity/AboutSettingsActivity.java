@@ -51,6 +51,11 @@ public class AboutSettingsActivity extends WithWithCustomTabActivity {
 
     public static class AboutNavFragment extends ActivityLifeCycleDashboardFragment {
         @Override
+        protected boolean androidPStyleIcon() {
+            return false;
+        }
+
+        @Override
         public int getPageTitle() {
             return R.string.title_about;
         }
