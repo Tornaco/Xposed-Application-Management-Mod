@@ -19,7 +19,7 @@ import github.tornaco.xposedmoduletest.loader.ComponentLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.util.Singleton;
-import github.tornaco.xposedmoduletest.xposed.XApp;
+import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -62,13 +62,13 @@ public class InstalledAppsLoadingCache {
                 public InstalledAppsData load(@NonNull String key) throws Exception {
                     try {
                         List<CommonPackageInfo> infoList =
-                                ComponentLoader.Impl.create(XApp.getApp().getApplicationContext())
+                                ComponentLoader.Impl.create(XAPMApplication.getApp().getApplicationContext())
                                         .loadInstalledApps(false, ComponentLoader.Sort.byState(),
                                                 CommonPackageInfoListActivity.FilterOption.OPTION_ALL_APPS);
                         int appCount = infoList.size();
                         return new InstalledAppsData(infoList, appCount);
                     } finally {
-                        EventBus.from().publish(new Event(XApp.EVENT_INSTALLED_APPS_CACHE_UPDATE));
+                        EventBus.from().publish(new Event(XAPMApplication.EVENT_INSTALLED_APPS_CACHE_UPDATE));
                     }
                 }
             });

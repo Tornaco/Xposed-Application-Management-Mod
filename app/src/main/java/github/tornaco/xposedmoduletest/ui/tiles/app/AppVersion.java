@@ -11,7 +11,7 @@ import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
-import github.tornaco.xposedmoduletest.xposed.XApp;
+import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildHostInfo;
 import github.tornaco.xposedmoduletest.xposed.XAppGithubCommitSha;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -62,16 +62,16 @@ public class AppVersion extends QuickTile {
                         + "\n框架层序列号：" + (XAshmanManager.get().isServiceAvailable()
                         ? XAshmanManager.get().getBuildSerial() : "UNKNOWN")
                         + "\n应用层序列号：" + BuildFingerprintBuildHostInfo.BUILD_FINGER_PRINT
-                        + "\n该设备支持GMS：" + XApp.isGMSSupported();
+                        + "\n该设备支持GMS：" + XAPMApplication.isGMSSupported();
                 new AlertDialog.Builder(context)
                         .setMessage(m)
                         .setPositiveButton(android.R.string.ok, null)
                         .setNegativeButton("GMS判断错误？", (dialog, which) -> {
                             Switch gmsSwitch = new Switch(context);
                             gmsSwitch.setText("强制设置是否支持GMS");
-                            gmsSwitch.setChecked(XApp.isGMSSupported());
+                            gmsSwitch.setChecked(XAPMApplication.isGMSSupported());
                             gmsSwitch.setOnClickListener(v1 -> {
-                                XApp.setGMSSupported(gmsSwitch.isChecked());
+                                XAPMApplication.setGMSSupported(gmsSwitch.isChecked());
                                 AppSettings.setForceHasGMS(context, gmsSwitch.isChecked());
                             });
                             new AlertDialog.Builder(context)

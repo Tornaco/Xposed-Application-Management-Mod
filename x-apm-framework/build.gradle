@@ -1,0 +1,45 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion as int
+    // buildToolsVersion rootProject.ext.buildToolsVersion as String
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion as int
+        targetSdkVersion rootProject.ext.compileSdkVersion as int
+        versionCode rootProject.ext.versionCode as int
+        versionName rootProject.ext.versionName
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation rootProject.ext.supportAppCompat
+
+    annotationProcessor 'org.projectlombok:lombok:1.16.16'
+    compileOnly 'org.projectlombok:lombok:1.16.16'
+
+    compileOnly 'de.robv.android.xposed:api:82'
+
+    implementation 'com.google.guava:guava:20.0'
+    implementation 'com.google.code.gson:gson:2.8.4'
+
+    implementation 'com.github.Tornaco:AndroidCommon:v1.0'
+
+    compileOnly project(':api-gen-annotations')
+    annotationProcessor project(':api-gen-compiler')
+
+    implementation project(':x-apm-base')
+}

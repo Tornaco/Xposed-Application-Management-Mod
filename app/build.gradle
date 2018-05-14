@@ -10,8 +10,8 @@ android {
         applicationId "github.tornaco.xposedmoduletest"
         minSdkVersion rootProject.ext.minSdkVersion as int
         targetSdkVersion rootProject.ext.compileSdkVersion as int
-        versionCode 5070
-        versionName "MAY-5.0.7"
+        versionCode  rootProject.ext.versionCode as int
+        versionName  rootProject.ext.versionName
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -108,8 +108,8 @@ dependencies {
     implementation "com.squareup.retrofit2:adapter-rxjava:${rootProject.ext.retrofitVersion}"
     implementation "org.jsoup:jsoup:${rootProject.ext.jsoupVersion}"
 
-    // implementation project(':vangoghcore')
-    // compile project(':keyguard')
+    implementation project(':x-apm-base')
+    implementation project(':x-apm-framework')
     implementation project(':tiles')
     implementation project(':patternlockview')
     implementation project(':pinlockview')

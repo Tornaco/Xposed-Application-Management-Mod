@@ -23,7 +23,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.xposed.XApp;
+import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 
 
 /**
@@ -107,7 +107,7 @@ public abstract class SafeAsyncTask<Params, Progress, Result>
     public static void executeOnThreadPool(final Runnable runnable, final boolean withWakeLock) {
         if (withWakeLock) {
             final Intent intent = new Intent();
-            sWakeLock.acquire(XApp.getApp().getApplicationContext(), intent, WAKELOCK_OP);
+            sWakeLock.acquire(XAPMApplication.getApp().getApplicationContext(), intent, WAKELOCK_OP);
             THREAD_POOL_EXECUTOR.execute(new Runnable() {
                 @Override
                 public void run() {
