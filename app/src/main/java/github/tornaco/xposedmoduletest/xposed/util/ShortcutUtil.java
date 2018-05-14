@@ -8,6 +8,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
@@ -88,7 +90,7 @@ public class ShortcutUtil {
 
         shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON,
                 customIcon ?
-                        BitmapUtil.createDisabledAppLauncherIcon(context, resource)
+                        createDisabledAppLauncherIcon(context, resource)
                         : resource);
 
         context.sendBroadcast(shortcut);
@@ -147,5 +149,21 @@ public class ShortcutUtil {
                 .getLaunchIntentForPackage(pkgName);
         shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
         context.sendBroadcast(shortcut);
+    }
+
+    public static Bitmap createDisabledAppLauncherIcon(Context context, Bitmap original) {
+        Bitmap res = Bitmap.createBitmap(original.getWidth(), original.getHeight(), original.getConfig());
+        Canvas canvas = new Canvas(res);
+        canvas.drawBitmap(original, new Matrix(), null);
+        Bitmap our = BitmapUtil.getBitmap(context, R.mipmap.ic_launcher_round);
+        if (our == null) return original;
+        Matrix matrix = new Matrix();
+        matrix.postScale(0.2f, 0.2f);
+        float padding = 3;
+        Bitmap scaled = Bitmap.createBitmap(our, 0, 0, our.getWidth(), our.getHeight(),
+                matrix, true);
+        canvas.drawBitmap(scaled, original.getWidth() - scaled.getWidth()
+                - padding, original.getHeight() - scaled.getHeight() - padding, null);
+        return res;
     }
 }

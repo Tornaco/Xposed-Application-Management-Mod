@@ -108,8 +108,8 @@ dependencies {
     implementation "com.squareup.retrofit2:adapter-rxjava:${rootProject.ext.retrofitVersion}"
     implementation "org.jsoup:jsoup:${rootProject.ext.jsoupVersion}"
 
-    // implementation project(':vangoghcore')
-    // compile project(':keyguard')
+    implementation project(':x-apm-base')
+    implementation project(':x-apm-framework')
     implementation project(':tiles')
     implementation project(':patternlockview')
     implementation project(':pinlockview')

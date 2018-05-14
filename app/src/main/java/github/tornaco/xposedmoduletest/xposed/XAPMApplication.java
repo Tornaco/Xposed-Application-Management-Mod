@@ -16,13 +16,9 @@ import org.newstand.logger.Logger;
 import org.newstand.logger.Settings;
 
 import github.tornaco.android.common.BlackHole;
-import github.tornaco.apigen.BuildHostInfo;
-import github.tornaco.apigen.BuildVar;
-import github.tornaco.apigen.GithubCommitSha;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.cache.InstalledAppsLoadingCache;
 import github.tornaco.xposedmoduletest.cache.RunningServicesLoadingCache;
-import github.tornaco.xposedmoduletest.model.PushMessage;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.NavigatorActivityBottomNav;
@@ -30,17 +26,11 @@ import github.tornaco.xposedmoduletest.ui.widget.SimpleEmojiProvider;
 import github.tornaco.xposedmoduletest.util.ActvityLifeCycleAdapter;
 import github.tornaco.xposedmoduletest.util.GMSUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.xposed.bean.SystemProp;
-import github.tornaco.xposedmoduletest.xposed.service.XAshmanServiceImpl;
-import github.tornaco.xposedmoduletest.xposed.util.ClazzDumper;
 
 /**
  * Created by guohao4 on 2017/10/17.
  * Email: Tornaco@163.com
  */
-@GithubCommitSha(user = "Tornaco")
-@BuildHostInfo
-@BuildVar
 public class XAPMApplication extends MultiDexApplication {
 
     public static final int EVENT_RUNNING_SERVICE_CACHE_UPDATE = 0x1;
@@ -155,10 +145,6 @@ public class XAPMApplication extends MultiDexApplication {
     }
 
     private void forDev() {
-        PushMessage.makeDummy();
-        ClazzDumper.dump(XAshmanServiceImpl.class, ClazzDumper.ANDROID_UTIL_LOG_PRINTER);
         Toast.makeText(this, "Hello developer!", Toast.LENGTH_LONG).show();
-        SystemProp.dumpBuildFields();
-        SystemProp.dumpBuilds();
     }
 }

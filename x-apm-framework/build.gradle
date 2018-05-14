@@ -26,6 +26,8 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+    implementation rootProject.ext.supportAppCompat
+
     annotationProcessor 'org.projectlombok:lombok:1.16.16'
     compileOnly 'org.projectlombok:lombok:1.16.16'
 
