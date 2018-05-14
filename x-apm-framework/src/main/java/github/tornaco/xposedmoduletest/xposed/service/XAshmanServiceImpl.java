@@ -3477,7 +3477,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     @InternalCall
     public boolean checkInstallApk(Object argsFrom) {
-        return checkInstallApkInternal(argsFrom);
+        return !isSystemReady() || checkInstallApkInternal(argsFrom);
     }
 
     private boolean checkInstallApkInternal(Object argsFrom) {
