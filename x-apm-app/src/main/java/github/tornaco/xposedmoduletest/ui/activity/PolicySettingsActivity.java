@@ -48,6 +48,11 @@ public class PolicySettingsActivity extends BaseActivity {
             extends AppCustomDashboardFragment {
 
         @Override
+        protected boolean androidPStyleIcon() {
+            return false;
+        }
+
+        @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
 

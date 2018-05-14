@@ -221,6 +221,11 @@ public class BackupRestoreSettingsActivity extends BaseActivity implements
             extends AppCustomDashboardFragment {
 
         @Override
+        protected boolean androidPStyleIcon() {
+            return false;
+        }
+
+        @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
 
