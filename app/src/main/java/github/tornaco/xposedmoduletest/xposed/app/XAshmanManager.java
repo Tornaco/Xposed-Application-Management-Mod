@@ -786,7 +786,6 @@ public class XAshmanManager {
         } catch (Exception e) {
             return false;
         }
-        return false;
     }
 
     public boolean isUidInPrivacyList(int uid) {
@@ -796,7 +795,6 @@ public class XAshmanManager {
         } catch (Exception e) {
             return false;
         }
-        return false;
     }
 
     public String[] getPrivacyList(boolean priv) {
