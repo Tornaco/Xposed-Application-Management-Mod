@@ -828,6 +828,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         // Owner package is always white listed.
         if (pkg.equals(BuildConfig.APPLICATION_ID)) return true;
 
+        // If it is in Globacl white list.
+        if (GlobalWhiteList.isInGlobalWhiteList(pkg)) return true;
+
         boolean inWhite = WHITE_LIST.contains(pkg);
         if (inWhite) return true;
 
@@ -1546,7 +1549,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             // Exit doze force state.
             if (mDeviceIdleController != null) {
                 mDeviceIdleController.exitForceIdleLocked();
-                XposedLog.verbose("exitForceIdleLocked, state " + mDeviceIdleController.getState());
+                XposedLog.verbose("DOZE exitForceIdleLocked, state " + mDeviceIdleController.getState());
             }
         }
 
@@ -3474,7 +3477,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     @InternalCall
     public boolean checkInstallApk(Object argsFrom) {
-        return checkInstallApkInternal(argsFrom);
+        return !isSystemReady() || checkInstallApkInternal(argsFrom);
     }
 
     private boolean checkInstallApkInternal(Object argsFrom) {
@@ -8201,6 +8204,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
                         String runningPackageName = packagesToClear[i];
 
+                        if (isInWhiteList(runningPackageName)) {
+                            if (XposedLog.isVerboseLoggable()) {
+                                XposedLog.verbose(TAG_LK + "Won't kill app in white list: " + runningPackageName);
+                            }
+                            if (listener != null) try {
+                                listener.onIgnoredPkg(null, "White list");
+                            } catch (RemoteException ignored) {
+
+                            }
+                            continue;
+                        }
+
                         if (!runningPackages.contains(runningPackageName)) {
                             if (XposedLog.isVerboseLoggable()) {
                                 XposedLog.verbose(TAG_LK + "Won't kill app which not running: " + runningPackageName);
@@ -8238,22 +8253,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                                 XposedLog.verbose(TAG_LK + "App is in foreground, wont kill: " + runningPackageName);
                             continue;
                         }
-
-//                        if (PkgUtil.isDefaultSmsApp(getContext(), runningPackageName)) {
-//
-//                            addToWhiteList(runningPackageName);
-//
-//                            if (listener != null) try {
-//                                listener.onIgnoredPkg(runningPackageName, "sms-app");
-//                            } catch (RemoteException ignored) {
-//
-//                            }
-//
-//                            if (XposedLog.isVerboseLoggable()) {
-//                                XposedLog.verbose(TAG_LK + "App is in isDefaultSmsApp, wont kill: " + runningPackageName);
-//                            }
-//                            continue;
-//                        }
 
                         if (isDoNotKillSBNEnabled(XAppBuildVar.APP_LK)
                                 && hasNotificationForPackageInternal(runningPackageName)) {

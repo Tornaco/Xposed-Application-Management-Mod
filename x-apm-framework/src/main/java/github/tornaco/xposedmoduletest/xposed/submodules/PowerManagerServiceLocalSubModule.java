@@ -10,6 +10,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.xposed.GlobalWhiteList;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -47,7 +48,7 @@ class PowerManagerServiceLocalSubModule extends AndroidSubModule {
 
                                 String currentPkg = ash.getCurrentTopPackage();
 
-                                if (currentPkg != null) {
+                                if (currentPkg != null && !GlobalWhiteList.isInGlobalWhiteList(currentPkg)) {
                                     int mode = ash.getPermissionControlBlockModeForPkg(
                                             AppOpsManagerCompat.OP_CHANGE_BRIGHTNESS,
                                             currentPkg,
