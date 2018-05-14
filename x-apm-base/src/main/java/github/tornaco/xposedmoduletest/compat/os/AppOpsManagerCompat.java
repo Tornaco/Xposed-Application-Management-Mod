@@ -389,7 +389,7 @@ public final class AppOpsManagerCompat {
     public static final String OPSTR_MONITOR_HIGH_POWER_LOCATION
             = "android:monitor_location_high_power";
     /**
-     * Access to {@link android.app.usage.UsageStatsManager}.
+     * Access to {@link UsageStatsManager}.
      */
     public static final String OPSTR_GET_USAGE_STATS
             = "android:get_usage_stats";
@@ -733,35 +733,35 @@ public final class AppOpsManagerCompat {
      * is no permission associated with an operation, it is null.
      */
     private static String[] sOpPerms = new String[]{
-            android.Manifest.permission.ACCESS_COARSE_LOCATION,
-            android.Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
             null,
-            android.Manifest.permission.VIBRATE,
-            android.Manifest.permission.READ_CONTACTS,
-            android.Manifest.permission.WRITE_CONTACTS,
-            android.Manifest.permission.READ_CALL_LOG,
-            android.Manifest.permission.WRITE_CALL_LOG,
-            android.Manifest.permission.READ_CALENDAR,
-            android.Manifest.permission.WRITE_CALENDAR,
-            android.Manifest.permission.ACCESS_WIFI_STATE,
+            Manifest.permission.VIBRATE,
+            Manifest.permission.READ_CONTACTS,
+            Manifest.permission.WRITE_CONTACTS,
+            Manifest.permission.READ_CALL_LOG,
+            Manifest.permission.WRITE_CALL_LOG,
+            Manifest.permission.READ_CALENDAR,
+            Manifest.permission.WRITE_CALENDAR,
+            Manifest.permission.ACCESS_WIFI_STATE,
             null, // no permission required for notifications
             null, // neighboring cells shares the coarse location perm
-            android.Manifest.permission.CALL_PHONE,
-            android.Manifest.permission.READ_SMS,
+            Manifest.permission.CALL_PHONE,
+            Manifest.permission.READ_SMS,
             null, // no permission required for writing sms
-            android.Manifest.permission.RECEIVE_SMS,
-            android.Manifest.permission.RECEIVE_EMERGENCY_BROADCAST,
-            android.Manifest.permission.RECEIVE_MMS,
-            android.Manifest.permission.RECEIVE_WAP_PUSH,
-            android.Manifest.permission.SEND_SMS,
-            android.Manifest.permission.READ_SMS,
+            Manifest.permission.RECEIVE_SMS,
+            Manifest.permission.RECEIVE_EMERGENCY_BROADCAST,
+            Manifest.permission.RECEIVE_MMS,
+            Manifest.permission.RECEIVE_WAP_PUSH,
+            Manifest.permission.SEND_SMS,
+            Manifest.permission.READ_SMS,
             null, // no permission required for writing icc sms
 //            android.Manifest.permission.WRITE_SETTINGS,
             null,
-            android.Manifest.permission.SYSTEM_ALERT_WINDOW,
-            android.Manifest.permission.ACCESS_NOTIFICATIONS,
-            android.Manifest.permission.CAMERA,
-            android.Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.SYSTEM_ALERT_WINDOW,
+            Manifest.permission.ACCESS_NOTIFICATIONS,
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO,
             null, // no permission for playing audio
             null, // no permission for reading clipboard
             null, // no permission for writing clipboard
@@ -774,10 +774,10 @@ public final class AppOpsManagerCompat {
             null, // no permission for changing alarm volume
             null, // no permission for changing notification volume
             null, // no permission for changing bluetooth volume
-            android.Manifest.permission.WAKE_LOCK,
+            Manifest.permission.WAKE_LOCK,
             null, // no permission for generic location monitoring
             null, // no permission for high power location monitoring
-            android.Manifest.permission.PACKAGE_USAGE_STATS,
+            Manifest.permission.PACKAGE_USAGE_STATS,
             null, // no permission for muting/unmuting microphone
             null, // no permission for displaying toasts
             null, // no permission for projecting media
