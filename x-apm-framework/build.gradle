@@ -16,8 +16,28 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    annotationProcessor 'org.projectlombok:lombok:1.16.16'
+    compileOnly 'org.projectlombok:lombok:1.16.16'
+
+    compileOnly 'de.robv.android.xposed:api:82'
+
+    implementation 'com.google.guava:guava:20.0'
+    implementation 'com.google.code.gson:gson:2.8.4'
+
+    implementation 'com.github.Tornaco:AndroidCommon:v1.0'
+
+    compileOnly project(':api-gen-annotations')
+    annotationProcessor project(':api-gen-compiler')
+
+    implementation project(':x-apm-base')
 }
