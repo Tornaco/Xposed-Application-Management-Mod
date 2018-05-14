@@ -781,7 +781,7 @@ public class XAshmanManager {
 
     public boolean isPackageInPrivacyList(String pkg) {
         ensureService();
-        if (BuildConfig.DEBUG) try {
+        try {
             return mService.isPackageInPrivacyList(pkg);
         } catch (Exception e) {
             return false;
@@ -791,7 +791,7 @@ public class XAshmanManager {
 
     public boolean isUidInPrivacyList(int uid) {
         ensureService();
-        if (BuildConfig.DEBUG) try {
+        try {
             return mService.isUidInPrivacyList(uid);
         } catch (Exception e) {
             return false;
