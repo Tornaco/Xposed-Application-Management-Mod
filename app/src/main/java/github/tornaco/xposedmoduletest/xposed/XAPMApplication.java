@@ -41,7 +41,7 @@ import github.tornaco.xposedmoduletest.xposed.util.ClazzDumper;
 @GithubCommitSha(user = "Tornaco")
 @BuildHostInfo
 @BuildVar
-public class XApp extends MultiDexApplication {
+public class XAPMApplication extends MultiDexApplication {
 
     public static final int EVENT_RUNNING_SERVICE_CACHE_UPDATE = 0x1;
     public static final int EVENT_INSTALLED_APPS_CACHE_UPDATE = 0x2;
@@ -49,9 +49,9 @@ public class XApp extends MultiDexApplication {
     public static final int EVENT_RECENT_TILE_CHANGED = 0x4;
 
     @SuppressLint("StaticFieldLeak")
-    private static XApp xApp;
+    private static XAPMApplication xApp;
 
-    public static XApp getApp() {
+    public static XAPMApplication getApp() {
         return xApp;
     }
 

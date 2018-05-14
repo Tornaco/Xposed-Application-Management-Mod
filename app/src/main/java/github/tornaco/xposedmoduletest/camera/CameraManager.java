@@ -54,7 +54,7 @@ import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.xposed.XApp;
+import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 
 /**
  * Class which manages interactions with the camera, but does not do any UI.  This class is
@@ -993,7 +993,7 @@ public class CameraManager implements FocusOverlayManager.Listener {
                             Log.i(TAG, "onPictureTaken...");
                             try {
                                 Bitmap bm = BitmapFactory.decodeByteArray(data, 0, data.length);
-                                File picDir = XSettings.getPhotosDir(XApp.getApp());
+                                File picDir = XSettings.getPhotosDir(XAPMApplication.getApp());
                                 if (!picDir.exists()) {
                                     if (!picDir.mkdir()) {
                                         callback.onFail(new IOException("Fail mkdir"));
@@ -1009,7 +1009,7 @@ public class CameraManager implements FocusOverlayManager.Listener {
                                 bos.close();
 
                                 // Insert.
-                                DaoSession daoSession = DaoManager.getInstance().getSession(XApp.getApp());
+                                DaoSession daoSession = DaoManager.getInstance().getSession(XAPMApplication.getApp());
                                 if (daoSession != null) {
                                     AccessInfo accessInfo = new AccessInfo();
                                     accessInfo.setUrl(picUrl);
@@ -1020,7 +1020,7 @@ public class CameraManager implements FocusOverlayManager.Listener {
                                 callback.onImageReady(picUrl);
 
                                 // Save new notification to settings.
-                                AppSettings.setShowInfo(XApp.getApp().getApplicationContext(),
+                                AppSettings.setShowInfo(XAPMApplication.getApp().getApplicationContext(),
                                         "new_photo", true);
                             } catch (Exception e) {
                                 callback.onFail(e);

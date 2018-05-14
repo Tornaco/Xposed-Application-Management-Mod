@@ -19,7 +19,7 @@ import github.tornaco.xposedmoduletest.bean.RecentTile;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.WorkaroundFixer;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.xposed.XApp;
+import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.service.BuildFingerprintBuildHostInfo;
 
@@ -42,7 +42,7 @@ public class AppSettings extends Observable {
     }
 
     public static boolean isHideTileInDashboard(Context context, String which) {
-        return XApp.isPlayVersion()
+        return XAPMApplication.isPlayVersion()
                 && PreferenceManager.getDefaultSharedPreferences(context).getBoolean(AppKey.HIDE_TILE + which, false);
     }
 
@@ -358,7 +358,7 @@ public class AppSettings extends Observable {
                 }
             }
         }
-        EventBus.from().publish(new Event(XApp.EVENT_RECENT_TILE_CHANGED));
+        EventBus.from().publish(new Event(XAPMApplication.EVENT_RECENT_TILE_CHANGED));
     }
 
     public static List<RecentTile> getCachedTiles() {

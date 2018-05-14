@@ -68,7 +68,7 @@ import github.tornaco.xposedmoduletest.ui.adapter.ReceiverSettingsAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.ServiceSettingsAdapter;
 import github.tornaco.xposedmoduletest.util.ComponentUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.xposed.XApp;
+import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -749,7 +749,7 @@ public class ComponentEditorActivity extends WithSearchActivity<Searchable>
 
         void onRequestEnabledDisableAll(final boolean enable) {
             if (getActivity() == null) {
-                Toast.makeText(XApp.getApp(), R.string.err_context_null, Toast.LENGTH_LONG).show();
+                Toast.makeText(XAPMApplication.getApp(), R.string.err_context_null, Toast.LENGTH_LONG).show();
                 return;
             }
 

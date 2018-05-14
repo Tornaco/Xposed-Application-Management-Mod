@@ -48,7 +48,7 @@ import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoViewer
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.SpannableUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.xposed.XApp;
+import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
@@ -124,7 +124,7 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
             switchBar.hide();
         });
 
-        boolean donateOrPlay = XApp.isPlayVersion() || AppSettings.isDonated(getContext());
+        boolean donateOrPlay = XAPMApplication.isPlayVersion() || AppSettings.isDonated(getContext());
         if (!donateOrPlay) {
             tabLayout.getTabAt(INDEX_OPS).setText(R.string.donated_available);
         }
@@ -165,7 +165,7 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
         }
         if (item.getItemId() == R.id.action_ops_template) {
             if (AppSettings.isDonated(getContext())
-                    || XApp.isPlayVersion()) {
+                    || XAPMApplication.isPlayVersion()) {
                 Apps2OpListActivity.start(getContext(), XAshmanManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME);
             } else {
                 Toast.makeText(getContext(), R.string.donated_available, Toast.LENGTH_SHORT).show();
@@ -247,7 +247,7 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
                     return ComponentLoader.Impl.create(getActivity()).loadInstalledApps(mShowSystemApp,
                             ComponentLoader.Sort.byName(), mFilterOption);
                 case INDEX_OPS:
-                    boolean donateOrPlay = XApp.isPlayVersion() || AppSettings.isDonated(getContext());
+                    boolean donateOrPlay = XAPMApplication.isPlayVersion() || AppSettings.isDonated(getContext());
                     if (!donateOrPlay) return new ArrayList(0);
                     return PermissionLoader.Impl.create(getActivity())
                             .loadOps(mFilterOption);

@@ -94,7 +94,7 @@ import github.tornaco.xposedmoduletest.ui.widget.ToastManager;
 import github.tornaco.xposedmoduletest.util.EmojiUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.xposed.XApp;
+import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -175,9 +175,9 @@ public class NavigatorActivityBottomNav
         @Override
         public int[] events() {
             return new int[]{
-                    XApp.EVENT_INSTALLED_APPS_CACHE_UPDATE,
-                    XApp.EVENT_RUNNING_SERVICE_CACHE_UPDATE,
-                    XApp.EVENT_RECENT_TILE_CHANGED,
+                    XAPMApplication.EVENT_INSTALLED_APPS_CACHE_UPDATE,
+                    XAPMApplication.EVENT_RUNNING_SERVICE_CACHE_UPDATE,
+                    XAPMApplication.EVENT_RECENT_TILE_CHANGED,
             };
         }
     };
@@ -543,9 +543,9 @@ public class NavigatorActivityBottomNav
         @Override
         public void onEvent(Event event) {
             super.onEvent(event);
-            if (event.getEventType() == XApp.EVENT_RUNNING_SERVICE_CACHE_UPDATE
-                    || event.getEventType() == XApp.EVENT_INSTALLED_APPS_CACHE_UPDATE
-                    || event.getEventType() == XApp.EVENT_RECENT_TILE_CHANGED) {
+            if (event.getEventType() == XAPMApplication.EVENT_RUNNING_SERVICE_CACHE_UPDATE
+                    || event.getEventType() == XAPMApplication.EVENT_INSTALLED_APPS_CACHE_UPDATE
+                    || event.getEventType() == XAPMApplication.EVENT_RECENT_TILE_CHANGED) {
 
                 BaseActivity activity = (BaseActivity) getActivity();
                 boolean visible = activity != null && activity.isVisible();
@@ -579,7 +579,7 @@ public class NavigatorActivityBottomNav
             if (isNewBuild) {
                 statusTitle.setText(R.string.title_service_need_action);
             } else {
-                boolean isDonatedOrPlay = XApp.isPlayVersion() || AppSettings.isDonated(getContext());
+                boolean isDonatedOrPlay = XAPMApplication.isPlayVersion() || AppSettings.isDonated(getContext());
                 if (isServiceAvailable() && isDonatedOrPlay) {
                     statusTitle.setText(R.string.title_device_status);
                 } else {
@@ -610,7 +610,7 @@ public class NavigatorActivityBottomNav
                         XAppGuardManager.get().isServiceAvailable() ?
                                 cardAccentColor
                                 : ContextCompat.getColor(getActivity(), R.color.red));
-                boolean isDonatedOrPlay = XApp.isPlayVersion() || AppSettings.isDonated(getContext());
+                boolean isDonatedOrPlay = XAPMApplication.isPlayVersion() || AppSettings.isDonated(getContext());
                 imageView.setImageResource(isServiceAvailable()
                         ? isDonatedOrPlay ? R.drawable.ic_multiline_chart_black_24dp : R.drawable.ic_check_circle_black_24dp
                         : R.drawable.ic_error_black_24dp);
@@ -966,7 +966,7 @@ public class NavigatorActivityBottomNav
                 exp.addTile(new Lazy(getActivity()));
             }
 
-            if (XApp.isGMSSupported()) {
+            if (XAPMApplication.isGMSSupported()) {
                 exp.addTile(new PushMessageHandler(getActivity()));
             }
 

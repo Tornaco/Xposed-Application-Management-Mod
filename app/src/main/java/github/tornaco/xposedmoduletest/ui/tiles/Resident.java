@@ -9,7 +9,7 @@ import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.resdient.ResdientAppNavActivity;
-import github.tornaco.xposedmoduletest.xposed.XApp;
+import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 
 /**
@@ -24,7 +24,7 @@ public class Resident extends QuickTile {
         this.titleRes = R.string.title_app_resident;
 
         final boolean donateOrPlay = (AppSettings.isDonated(getContext())
-                || XApp.isPlayVersion());
+                || XAPMApplication.isPlayVersion());
         if (!donateOrPlay) {
             this.summaryRes = R.string.donated_available;
         } else if (XAshmanManager.get().isServiceAvailable()) {

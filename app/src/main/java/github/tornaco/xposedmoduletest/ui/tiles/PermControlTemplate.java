@@ -7,7 +7,7 @@ import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.perm.Apps2OpListActivity;
-import github.tornaco.xposedmoduletest.xposed.XApp;
+import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 import lombok.Getter;
 
 /**
@@ -25,7 +25,7 @@ public class PermControlTemplate extends QuickTile {
         this.titleRes = R.string.title_perm_control_template;
 
         final boolean isDonateOrPlay = github.tornaco.xposedmoduletest.provider.AppSettings.isDonated(getContext())
-                || XApp.isPlayVersion();
+                || XAPMApplication.isPlayVersion();
         if (!isDonateOrPlay) {
             this.summaryRes = R.string.donated_available;
         } else {

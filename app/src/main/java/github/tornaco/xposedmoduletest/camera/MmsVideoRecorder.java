@@ -23,7 +23,7 @@ import android.net.Uri;
 
 import java.io.FileNotFoundException;
 
-import github.tornaco.xposedmoduletest.xposed.XApp;
+import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 
 class MmsVideoRecorder extends MediaRecorder {
     private static final float VIDEO_OVERSHOOT_SLOP = .85F;
@@ -75,7 +75,7 @@ class MmsVideoRecorder extends MediaRecorder {
         setVideoSource(VideoSource.CAMERA);
         setOutputFormat(mCamcorderProfile.fileFormat);
         setOutputFile(
-                XApp.getApp().getApplicationContext().getContentResolver().openFileDescriptor(
+                XAPMApplication.getApp().getApplicationContext().getContentResolver().openFileDescriptor(
                         mTempVideoUri, "w").getFileDescriptor());
 
         // Copy settings from CamcorderProfile to MediaRecorder
@@ -108,7 +108,7 @@ class MmsVideoRecorder extends MediaRecorder {
         SafeAsyncTask.executeOnThreadPool(new Runnable() {
             @Override
             public void run() {
-                XApp.getApp().getApplicationContext().getContentResolver().delete(
+                XAPMApplication.getApp().getApplicationContext().getContentResolver().delete(
                         tempUri, null, null);
             }
         });

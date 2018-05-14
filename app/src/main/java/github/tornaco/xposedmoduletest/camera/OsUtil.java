@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Set;
 
-import github.tornaco.xposedmoduletest.xposed.XApp;
+import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 
 /**
  * Android OS version utilities
@@ -140,7 +140,7 @@ public class OsUtil {
 
     public static boolean isSecondaryUser() {
         if (sIsSecondaryUser == null) {
-            final Context context = XApp.getApp().getApplicationContext();
+            final Context context = XAPMApplication.getApp().getApplicationContext();
             boolean isSecondaryUser = false;
 
             // Only check for newer devices (but not the nexus 10)
@@ -199,7 +199,7 @@ public class OsUtil {
             // cached as the process does not getSingleton killed if the user enables the permission setting.
             if (!sPermissions.containsKey(permission)
                     || sPermissions.get(permission) == PackageManager.PERMISSION_DENIED) {
-                final Context context = XApp.getApp().getApplicationContext();
+                final Context context = XAPMApplication.getApp().getApplicationContext();
                 final int permissionState = context.checkSelfPermission(permission);
                 sPermissions.put(permission, permissionState);
             }

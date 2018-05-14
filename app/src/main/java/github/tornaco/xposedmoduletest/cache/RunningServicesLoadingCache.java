@@ -17,7 +17,7 @@ import dev.nick.eventbus.Event;
 import dev.nick.eventbus.EventBus;
 import github.tornaco.xposedmoduletest.ui.activity.helper.RunningState;
 import github.tornaco.xposedmoduletest.util.Singleton;
-import github.tornaco.xposedmoduletest.xposed.XApp;
+import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -66,7 +66,7 @@ public class RunningServicesLoadingCache {
                 @Override
                 public RunningServicesData load(@NonNull String key) {
                     try {
-                        RunningState state = RunningState.getInstance(XApp.getApp().getApplicationContext());
+                        RunningState state = RunningState.getInstance(XAPMApplication.getApp().getApplicationContext());
                         state.updateNow();
                         List<RunningState.MergedItem> current = state.getCurrentMergedItems();
                         List<RunningState.MergedItem> bg = state.getCurrentBackgroundItems();
@@ -90,7 +90,7 @@ public class RunningServicesLoadingCache {
                         all.addAll(bg);
                         return new RunningServicesData(all, serviceCount, appCount);
                     } finally {
-                        EventBus.from().publish(new Event(XApp.EVENT_RUNNING_SERVICE_CACHE_UPDATE));
+                        EventBus.from().publish(new Event(XAPMApplication.EVENT_RUNNING_SERVICE_CACHE_UPDATE));
                     }
                 }
             });

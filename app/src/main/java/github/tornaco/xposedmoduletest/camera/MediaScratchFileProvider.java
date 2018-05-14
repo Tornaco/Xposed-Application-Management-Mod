@@ -30,7 +30,7 @@ import android.util.Log;
 import java.io.File;
 import java.util.List;
 
-import github.tornaco.xposedmoduletest.xposed.XApp;
+import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 
 /**
  * A very simple content provider that can serve media files from our cache directory.
@@ -77,7 +77,7 @@ public class MediaScratchFileProvider extends FileProvider {
     }
 
     private static File getFileWithExtension(final String path, final String extension) {
-        final Context context = XApp.getApp().getApplicationContext();
+        final Context context = XAPMApplication.getApp().getApplicationContext();
         return new File(getDirectory(context),
                 TextUtils.isEmpty(extension) ? path : path + "." + extension);
     }

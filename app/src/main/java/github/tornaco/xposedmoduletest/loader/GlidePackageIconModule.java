@@ -28,7 +28,7 @@ import github.tornaco.xposedmoduletest.ui.iconpack.IconPack;
 import github.tornaco.xposedmoduletest.ui.iconpack.IconPackManager;
 import github.tornaco.xposedmoduletest.util.BitmapUtil;
 import github.tornaco.xposedmoduletest.util.Singleton;
-import github.tornaco.xposedmoduletest.xposed.XApp;
+import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -54,7 +54,7 @@ public class GlidePackageIconModule extends AppGlideModule {
                 callback.onLoadFailed(new NullPointerException("Package name is null"));
                 return;
             }
-            Context context = XApp.getApp().getApplicationContext();
+            Context context = XAPMApplication.getApp().getApplicationContext();
             try {
                 String iconPackPackage = AppSettings.getAppIconPack(context);
                 if (iconPackPackage != null) {
@@ -67,7 +67,7 @@ public class GlidePackageIconModule extends AppGlideModule {
                             Drawable iconPackDrawable = pack.getDrawableIconForPackage(info.getPkgName());
                             Logger.d("IconPack iconPackDrawable: " + iconPackDrawable);
                             if (iconPackDrawable != null) {
-                                Bitmap bd = BitmapUtil.getBitmap(XApp.getApp().getApplicationContext(), iconPackDrawable);
+                                Bitmap bd = BitmapUtil.getBitmap(XAPMApplication.getApp().getApplicationContext(), iconPackDrawable);
                                 callback.onDataReady(bd);
                                 return;
                             }
@@ -78,7 +78,7 @@ public class GlidePackageIconModule extends AppGlideModule {
                 Logger.e("Fail load icon from pack: " + Logger.getStackTraceString(e));
             }
             Drawable d = ApkUtil.loadIconByPkgName(context, info.getPkgName());
-            Bitmap bd = BitmapUtil.getBitmap(XApp.getApp().getApplicationContext(), d);
+            Bitmap bd = BitmapUtil.getBitmap(XAPMApplication.getApp().getApplicationContext(), d);
             callback.onDataReady(bd);
         }
 

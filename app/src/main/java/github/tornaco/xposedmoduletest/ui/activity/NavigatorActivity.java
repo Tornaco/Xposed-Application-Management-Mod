@@ -72,7 +72,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.IconToast;
 import github.tornaco.xposedmoduletest.ui.widget.ToastManager;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.xposed.XApp;
+import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
@@ -107,7 +107,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         setupView();
         setupFragment();
 
-        if (!XApp.isPlayVersion()) {
+        if (!XAPMApplication.isPlayVersion()) {
             // FIXME Extract to constant.
             boolean showUserGuide = AppSettings.isShowInfoEnabled(this, "USER_GUIDES_AIO", true);
             if (showUserGuide) {
@@ -515,7 +515,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             if (isNewBuild) {
                 statusTitle.setText(R.string.title_service_need_action);
             } else {
-                boolean isDonatedOrPlay = XApp.isPlayVersion() || AppSettings.isDonated(getContext());
+                boolean isDonatedOrPlay = XAPMApplication.isPlayVersion() || AppSettings.isDonated(getContext());
                 if (isServiceAvailable() && isDonatedOrPlay) {
                     statusTitle.setText(R.string.title_device_status);
                 } else {
@@ -546,7 +546,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                         XAppGuardManager.get().isServiceAvailable() ?
                                 cardAccentColor
                                 : ContextCompat.getColor(getActivity(), R.color.red));
-                boolean isDonatedOrPlay = XApp.isPlayVersion() || AppSettings.isDonated(getContext());
+                boolean isDonatedOrPlay = XAPMApplication.isPlayVersion() || AppSettings.isDonated(getContext());
                 imageView.setImageResource(isServiceAvailable()
                         ? isDonatedOrPlay ? R.drawable.ic_multiline_chart_black_24dp : R.drawable.ic_check_circle_black_24dp
                         : R.drawable.ic_error_black_24dp);
