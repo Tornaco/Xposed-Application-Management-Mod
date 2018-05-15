@@ -164,7 +164,7 @@ import github.tornaco.xposedmoduletest.xposed.service.pm.OriginInfoProxy;
 import github.tornaco.xposedmoduletest.xposed.service.pm.PackageInstallerManager;
 import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.power.PowerManagerServiceProxy;
-import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
+import github.tornaco.xposedmoduletest.xposed.service.provider.XAPMServerSettings;
 import github.tornaco.xposedmoduletest.xposed.service.rule.Rule;
 import github.tornaco.xposedmoduletest.xposed.service.rule.RuleParser;
 import github.tornaco.xposedmoduletest.xposed.service.shell.AshShellCommand;
@@ -543,7 +543,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         long id = Binder.clearCallingIdentity();
         try {
             // Disable app guard.
-            SystemSettings.APP_GUARD_ENABLED_NEW_B.writeToSystemSettings(getContext(), false);
+            XAPMServerSettings.APP_GUARD_ENABLED_NEW_B.write(false);
 
             AlertDialog d = new AlertDialog.Builder(getContext())
                     .setTitle("应用管理")
@@ -924,7 +924,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     private void loadConfigFromSettings() {
         try {
-            boolean whiteSysApp = (boolean) SystemSettings.ASH_WHITE_SYS_APP_ENABLED_B.readFromSystemSettings(getContext());
+            boolean whiteSysApp = XAPMServerSettings.ASH_WHITE_SYS_APP_ENABLED_B.read();
             mWhiteSysAppEnabled.set(whiteSysApp);
             XposedLog.boot("whiteSysAapp: " + String.valueOf(whiteSysApp));
         } catch (Throwable e) {
@@ -932,7 +932,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean bootBlockEnabled = (boolean) SystemSettings.BOOT_BLOCK_ENABLED_B.readFromSystemSettings(getContext());
+            boolean bootBlockEnabled = XAPMServerSettings.BOOT_BLOCK_ENABLED_B.read();
             mBootBlockEnabled.set(bootBlockEnabled);
             XposedLog.boot("bootBlockEnabled: " + String.valueOf(bootBlockEnabled));
         } catch (Throwable e) {
@@ -940,7 +940,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean startBlockEnabled = (boolean) SystemSettings.START_BLOCK_ENABLED_B.readFromSystemSettings(getContext());
+            boolean startBlockEnabled = XAPMServerSettings.START_BLOCK_ENABLED_B.read();
             mStartBlockEnabled.set(startBlockEnabled);
             XposedLog.boot("startBlockEnabled:" + String.valueOf(startBlockEnabled));
         } catch (Throwable e) {
@@ -948,7 +948,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean startRuleEnabled = (boolean) SystemSettings.APM_START_RULE_B.readFromSystemSettings(getContext());
+            boolean startRuleEnabled = XAPMServerSettings.APM_START_RULE_B.read();
             mStartRuleEnabled.set(startRuleEnabled);
             XposedLog.boot("startRuleEnabled:" + String.valueOf(startRuleEnabled));
         } catch (Throwable e) {
@@ -956,7 +956,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean lockKillEnabled = (boolean) SystemSettings.LOCK_KILL_ENABLED_B.readFromSystemSettings(getContext());
+            boolean lockKillEnabled = XAPMServerSettings.LOCK_KILL_ENABLED_B.read();
             mLockKillEnabled.set(lockKillEnabled);
             XposedLog.boot("lockKillEnabled: " + String.valueOf(lockKillEnabled));
         } catch (Throwable e) {
@@ -964,7 +964,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean residentEnabled = (boolean) SystemSettings.APM_RESIDENT_B.readFromSystemSettings(getContext());
+            boolean residentEnabled = XAPMServerSettings.APM_RESIDENT_B.read();
             mResidentEnabled.set(residentEnabled);
             XposedLog.boot("residentEnabled: " + String.valueOf(residentEnabled));
         } catch (Throwable e) {
@@ -972,7 +972,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean panicHome = (boolean) SystemSettings.APM_PANIC_HOME_B.readFromSystemSettings(getContext());
+            boolean panicHome = XAPMServerSettings.APM_PANIC_HOME_B.read();
             mPanicHomeEnabled.set(panicHome);
             XposedLog.boot("panicHome: " + String.valueOf(panicHome));
         } catch (Throwable e) {
@@ -980,7 +980,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean panicLock = (boolean) SystemSettings.APM_PANIC_LOCK_B.readFromSystemSettings(getContext());
+            boolean panicLock = XAPMServerSettings.APM_PANIC_LOCK_B.read();
             mPanicLockEnabled.set(panicLock);
             XposedLog.boot("panicLock: " + String.valueOf(panicLock));
         } catch (Throwable e) {
@@ -988,7 +988,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean privEnabled = (boolean) SystemSettings.PRIVACY_ENABLED_B.readFromSystemSettings(getContext());
+            boolean privEnabled = XAPMServerSettings.PRIVACY_ENABLED_B.read();
             mPrivacyEnabled.set(privEnabled);
             XposedLog.boot("lockKillEnabled: " + String.valueOf(privEnabled));
         } catch (Throwable e) {
@@ -996,7 +996,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean greeningEnabled = (boolean) SystemSettings.GREENING_ENABLED_B.readFromSystemSettings(getContext());
+            boolean greeningEnabled = XAPMServerSettings.GREENING_ENABLED_B.read();
             mGreeningEnabled.set(greeningEnabled);
             XposedLog.boot("greeningEnabled: " + String.valueOf(greeningEnabled));
         } catch (Throwable e) {
@@ -1004,7 +1004,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            String userDeviceId = (String) SystemSettings.USER_DEFINED_DEVICE_ID_T_S.readFromSystemSettings(getContext());
+            String userDeviceId = XAPMServerSettings.USER_DEFINED_DEVICE_ID_T_S.read();
             mUserDefinedDeviceId.setData(userDeviceId);
             XposedLog.boot("userDeviceId: " + String.valueOf(userDeviceId));
         } catch (Throwable e) {
@@ -1012,7 +1012,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            String userAndroidId = (String) SystemSettings.USER_DEFINED_ANDROID_ID_T_S.readFromSystemSettings(getContext());
+            String userAndroidId = XAPMServerSettings.USER_DEFINED_ANDROID_ID_T_S.read();
             mUserDefinedAndroidId.setData(userAndroidId);
             XposedLog.boot("userAndroidId: " + String.valueOf(userAndroidId));
         } catch (Throwable e) {
@@ -1020,7 +1020,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            String userLine1Number = (String) SystemSettings.USER_DEFINED_LINE1_NUM_T_S.readFromSystemSettings(getContext());
+            String userLine1Number = XAPMServerSettings.USER_DEFINED_LINE1_NUM_T_S.read();
             mUserDefinedLine1Number.setData(userLine1Number);
             XposedLog.boot("userLine1Number: " + String.valueOf(userLine1Number));
         } catch (Throwable e) {
@@ -1028,7 +1028,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean migrated = (boolean) SystemSettings.DATA_MIGRATE_B.readFromSystemSettings(getContext());
+            boolean migrated = XAPMServerSettings.DATA_MIGRATE_B.read();
             mDataHasBeenMigrated.set(migrated);
             XposedLog.boot("migrated: " + String.valueOf(migrated));
         } catch (Throwable e) {
@@ -1036,7 +1036,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean dumpCrash = (boolean) SystemSettings.SHOW_CRASH_DUMP_B.readFromSystemSettings(getContext());
+            boolean dumpCrash = XAPMServerSettings.SHOW_CRASH_DUMP_B.read();
             mShowAppCrashDumpEnabled.set(dumpCrash);
             XposedLog.boot("dumpCrash: " + String.valueOf(dumpCrash));
         } catch (Throwable e) {
@@ -1044,7 +1044,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean lazy = (boolean) SystemSettings.LAZY_ENABLED_B.readFromSystemSettings(getContext());
+            boolean lazy = XAPMServerSettings.LAZY_ENABLED_B.read();
             mLazyEnabled.set(lazy);
             XposedLog.boot("lazy: " + String.valueOf(lazy));
         } catch (Throwable e) {
@@ -1052,7 +1052,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean lazyRule = (boolean) SystemSettings.APM_LAZY_RULE_B.readFromSystemSettings(getContext());
+            boolean lazyRule = XAPMServerSettings.APM_LAZY_RULE_B.read();
             mLazyRuleEnabled.set(lazyRule);
             XposedLog.boot("lazyRule: " + String.valueOf(lazyRule));
         } catch (Throwable e) {
@@ -1060,7 +1060,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean lazySolutionApp = (boolean) SystemSettings.APM_LAZY_SOLUTION_APP_B.readFromSystemSettings(getContext());
+            boolean lazySolutionApp = XAPMServerSettings.APM_LAZY_SOLUTION_APP_B.read();
             mLazySolutionApp.set(lazySolutionApp);
             XposedLog.boot("lazySolutionApp: " + String.valueOf(lazySolutionApp));
         } catch (Throwable e) {
@@ -1068,7 +1068,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean lazySolutionFW = (boolean) SystemSettings.APM_LAZY_SOLUTION_FW_B.readFromSystemSettings(getContext());
+            boolean lazySolutionFW = XAPMServerSettings.APM_LAZY_SOLUTION_FW_B.read();
             mLazySolutionFW.set(lazySolutionFW);
             XposedLog.boot("mLazySolutionFW: " + String.valueOf(lazySolutionFW));
         } catch (Throwable e) {
@@ -1076,7 +1076,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean autoAddBlack = (boolean) SystemSettings.AUTO_BLACK_FOR_NEW_INSTALLED_APP_B.readFromSystemSettings(getContext());
+            boolean autoAddBlack = XAPMServerSettings.AUTO_BLACK_FOR_NEW_INSTALLED_APP_B.read();
             mAutoAddToBlackListForNewApp.set(autoAddBlack);
             XposedLog.boot("autoAddBlack: " + String.valueOf(autoAddBlack));
         } catch (Throwable e) {
@@ -1084,8 +1084,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean autoAddBlackNotification = (boolean) SystemSettings.AUTO_BLACK_NOTIFICATION_FOR_NEW_INSTALLED_APP_B
-                    .readFromSystemSettings(getContext());
+            boolean autoAddBlackNotification = XAPMServerSettings.AUTO_BLACK_NOTIFICATION_FOR_NEW_INSTALLED_APP_B
+                    .read();
             mAutoAddNotificationToBlackListForNewApp.set(autoAddBlackNotification);
             XposedLog.boot("autoAddBlackNotification: " + String.valueOf(autoAddBlackNotification));
         } catch (Throwable e) {
@@ -1094,7 +1094,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         // Do not read from settings anymore, this is dangerous...
 //        try {
-//            boolean showFocusedActivity = (boolean) SystemSettings.SHOW_FOCUSED_ACTIVITY_INFO_B.readFromSystemSettings(getContext());
+//            boolean showFocusedActivity = (boolean) XAPMServerSettings.SHOW_FOCUSED_ACTIVITY_INFO_B.read();
 //            mShowFocusedActivityInfoEnabled.set(showFocusedActivity);
 //            XposedLog.boot("showFocusedActivity: " + String.valueOf(showFocusedActivity));
 //        } catch (Throwable e) {
@@ -1102,8 +1102,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 //        }
 
         try {
-            boolean lockKillDoNotKillAudioEnabled = (boolean) SystemSettings.LOCK_KILL_DONT_KILL_AUDIO_ENABLED_B
-                    .readFromSystemSettings(getContext());
+            boolean lockKillDoNotKillAudioEnabled = XAPMServerSettings.LOCK_KILL_DONT_KILL_AUDIO_ENABLED_B
+                    .read();
             mLockKillDoNotKillAudioEnabled.set(lockKillDoNotKillAudioEnabled);
             XposedLog.boot("lockKillDoNotKillAudioEnabled: " + String.valueOf(lockKillDoNotKillAudioEnabled));
         } catch (Throwable e) {
@@ -1111,8 +1111,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean showAppProcessUpdateNotification = (boolean) SystemSettings.APM_SHOW_APP_PROCESS_UPDATE_B
-                    .readFromSystemSettings(getContext());
+            boolean showAppProcessUpdateNotification = XAPMServerSettings.APM_SHOW_APP_PROCESS_UPDATE_B
+                    .read();
             mShowAppProcessUpdateNotification.set(showAppProcessUpdateNotification);
             XposedLog.boot("showAppProcessUpdateNotification: " + String.valueOf(showAppProcessUpdateNotification));
         } catch (Throwable e) {
@@ -1120,8 +1120,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean doNotKillSBNEnabled = (boolean) SystemSettings.ASH_WONT_KILL_SBN_APP_B
-                    .readFromSystemSettings(getContext());
+            boolean doNotKillSBNEnabled = XAPMServerSettings.ASH_WONT_KILL_SBN_APP_B
+                    .read();
             mDoNotKillSBNEnabled.set(doNotKillSBNEnabled);
             XposedLog.boot("doNotKillSBNEnabled: " + String.valueOf(doNotKillSBNEnabled));
         } catch (Throwable e) {
@@ -1129,8 +1129,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean doNotKillSBNGreenEnabled = (boolean) SystemSettings.ASH_WONT_KILL_SBN_APP_GREEN_B
-                    .readFromSystemSettings(getContext());
+            boolean doNotKillSBNGreenEnabled = XAPMServerSettings.ASH_WONT_KILL_SBN_APP_GREEN_B
+                    .read();
             mDoNotKillSBNGreenEnabled.set(doNotKillSBNGreenEnabled);
             XposedLog.boot("doNotKillSBNGreenEnabled: " + String.valueOf(doNotKillSBNGreenEnabled));
         } catch (Throwable e) {
@@ -1138,8 +1138,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean rootKillEnabled = (boolean) SystemSettings.ROOT_ACTIVITY_KILL_ENABLED_B
-                    .readFromSystemSettings(getContext());
+            boolean rootKillEnabled = XAPMServerSettings.ROOT_ACTIVITY_KILL_ENABLED_B
+                    .read();
             mRootActivityFinishKillEnabled.set(rootKillEnabled);
             XposedLog.boot("rootKillEnabled: " + String.valueOf(rootKillEnabled));
         } catch (Throwable e) {
@@ -1147,8 +1147,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean taskRemovedKillEnabled = (boolean) SystemSettings.REMOVE_TASK_KILL_ENABLED_B
-                    .readFromSystemSettings(getContext());
+            boolean taskRemovedKillEnabled = XAPMServerSettings.REMOVE_TASK_KILL_ENABLED_B
+                    .read();
             mTaskRemovedKillEnabled.set(taskRemovedKillEnabled);
             XposedLog.boot("taskRemovedKillEnabled: " + String.valueOf(taskRemovedKillEnabled));
         } catch (Throwable e) {
@@ -1156,8 +1156,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean longPressBackKill = (boolean) SystemSettings.LONG_PRESS_BACK_KILL_ENABLED_B
-                    .readFromSystemSettings(getContext());
+            boolean longPressBackKill = XAPMServerSettings.LONG_PRESS_BACK_KILL_ENABLED_B
+                    .read();
             mLongPressBackKillEnabled.set(longPressBackKill);
             XposedLog.boot("longPressBackKill: " + String.valueOf(longPressBackKill));
         } catch (Throwable e) {
@@ -1165,8 +1165,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean compSettingBlockEnabled = (boolean) SystemSettings.COMP_SETTING_BLOCK_ENABLED_B
-                    .readFromSystemSettings(getContext());
+            boolean compSettingBlockEnabled = XAPMServerSettings.COMP_SETTING_BLOCK_ENABLED_B
+                    .read();
             mCompSettingBlockEnabled.set(compSettingBlockEnabled);
             XposedLog.boot("compSettingBlockEnabled: " + String.valueOf(compSettingBlockEnabled));
         } catch (Throwable e) {
@@ -1174,21 +1174,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            mLockKillDelay = (long) SystemSettings.LOCK_KILL_DELAY_L.readFromSystemSettings(getContext());
+            mLockKillDelay = XAPMServerSettings.LOCK_KILL_DELAY_L.read();
             XposedLog.boot("mLockKillDelay: " + String.valueOf(mLockKillDelay));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
         try {
-            mDozeDelay = (long) SystemSettings.DOZE_DELAY_L.readFromSystemSettings(getContext());
+            mDozeDelay = XAPMServerSettings.DOZE_DELAY_L.read();
             XposedLog.boot("mDozeDelay: " + String.valueOf(mDozeDelay));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
         try {
-            boolean doze = (boolean) SystemSettings.APM_DOZE_ENABLE_B.readFromSystemSettings(getContext());
+            boolean doze = XAPMServerSettings.APM_DOZE_ENABLE_B.read();
             mDozeEnabled.set(doze);
             XposedLog.boot("doze: " + String.valueOf(doze));
         } catch (Throwable e) {
@@ -1196,7 +1196,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean forceDoze = (boolean) SystemSettings.APM_FORCE_DOZE_ENABLE_B.readFromSystemSettings(getContext());
+            boolean forceDoze = XAPMServerSettings.APM_FORCE_DOZE_ENABLE_B.read();
             mForeDozeEnabled.set(forceDoze);
             XposedLog.boot("forceDoze: " + String.valueOf(forceDoze));
         } catch (Throwable e) {
@@ -1204,7 +1204,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean disableMotion = (boolean) SystemSettings.APM_DISABLE_MOTION_ENABLE_B.readFromSystemSettings(getContext());
+            boolean disableMotion = XAPMServerSettings.APM_DISABLE_MOTION_ENABLE_B.read();
             mDisableMotionEnabled.set(disableMotion);
             XposedLog.boot("disableMotion: " + String.valueOf(disableMotion));
         } catch (Throwable e) {
@@ -1212,7 +1212,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean powerSave = (boolean) SystemSettings.APM_POWER_SAVE_B.readFromSystemSettings(getContext());
+            boolean powerSave = XAPMServerSettings.APM_POWER_SAVE_B.read();
             mPowerSaveModeEnabled.set(powerSave);
             XposedLog.boot("powerSave: " + String.valueOf(powerSave));
         } catch (Throwable e) {
@@ -1220,8 +1220,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            boolean wakeupOnNotificationPosted = (boolean) SystemSettings.WAKE_UP_ON_NOTIFICATION_POSTED_ENABLED_B
-                    .readFromSystemSettings(getContext());
+            boolean wakeupOnNotificationPosted = XAPMServerSettings.WAKE_UP_ON_NOTIFICATION_POSTED_ENABLED_B
+                    .read();
             mWakeupOnNotificationPosted.set(wakeupOnNotificationPosted);
             XposedLog.boot("wakeupOnNotificationPosted: " + String.valueOf(wakeupOnNotificationPosted));
         } catch (Throwable e) {
@@ -1499,7 +1499,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         @Override
         public void setDozeDelayMills(long delayMills) {
             mDozeDelay = delayMills;
-            SystemSettings.DOZE_DELAY_L.writeToSystemSettings(getContext(), delayMills);
+            XAPMServerSettings.DOZE_DELAY_L.write(delayMills);
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("setDozeDelayMills to: " + mDozeDelay);
         }
@@ -1507,7 +1507,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         @Override
         public void setDozeEnabled(boolean enabled) {
             if (mDozeEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.APM_DOZE_ENABLE_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.APM_DOZE_ENABLE_B.write(enabled);
             }
             if (!enabled) {
                 resetDozeEvent();
@@ -1517,14 +1517,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         @Override
         public void setForceDozeEnabled(boolean enabled) {
             if (mForeDozeEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.APM_FORCE_DOZE_ENABLE_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.APM_FORCE_DOZE_ENABLE_B.write(enabled);
             }
         }
 
         @Override
         public void setDisableMotionEnabled(boolean enabled) {
             if (mDisableMotionEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.APM_DISABLE_MOTION_ENABLE_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.APM_DISABLE_MOTION_ENABLE_B.write(enabled);
             }
         }
 
@@ -7813,14 +7813,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         @Override
         public void setPrivacyEnabled(boolean enabled) {
             if (mPrivacyEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.PRIVACY_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.PRIVACY_ENABLED_B.write(enabled);
             }
         }
 
         @Override
         public void setWhiteSysAppEnabled(boolean enabled) {
             if (mWhiteSysAppEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.ASH_WHITE_SYS_APP_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.ASH_WHITE_SYS_APP_ENABLED_B.write(enabled);
             }
         }
 
@@ -7829,11 +7829,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             XposedLog.verbose("setDoNotKillSBNEnabled %s %s", enabled, module);
             if (module.equals(XAppBuildVar.APP_LK)) {
                 if (mDoNotKillSBNEnabled.compareAndSet(!enabled, enabled)) {
-                    SystemSettings.ASH_WONT_KILL_SBN_APP_B.writeToSystemSettings(getContext(), enabled);
+                    XAPMServerSettings.ASH_WONT_KILL_SBN_APP_B.write(enabled);
                 }
             } else {
                 if (mDoNotKillSBNGreenEnabled.compareAndSet(!enabled, enabled)) {
-                    SystemSettings.ASH_WONT_KILL_SBN_APP_GREEN_B.writeToSystemSettings(getContext(), enabled);
+                    XAPMServerSettings.ASH_WONT_KILL_SBN_APP_GREEN_B.write(enabled);
                 }
             }
         }
@@ -7841,35 +7841,35 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         @Override
         public void setTaskRemoveKillEnabled(boolean enabled) {
             if (mTaskRemovedKillEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.REMOVE_TASK_KILL_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.REMOVE_TASK_KILL_ENABLED_B.write(enabled);
             }
         }
 
         @Override
         public void setBootBlockEnabled(boolean enabled) {
             if (mBootBlockEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.BOOT_BLOCK_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.BOOT_BLOCK_ENABLED_B.write(enabled);
             }
         }
 
         @Override
         public void setStartBlockEnabled(boolean enabled) {
             if (mStartBlockEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.START_BLOCK_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.START_BLOCK_ENABLED_B.write(enabled);
             }
         }
 
         @Override
         public void setStartRuleEnabled(boolean enabled) {
             if (mStartRuleEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.APM_START_RULE_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.APM_START_RULE_B.write(enabled);
             }
         }
 
         @Override
         public void setLazyRuleEnabled(boolean enabled) {
             if (mLazyRuleEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.APM_LAZY_RULE_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.APM_LAZY_RULE_B.write(enabled);
             }
         }
 
@@ -7877,75 +7877,75 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         public void setAppServiceLazyControlSolution(int solutionFlags, boolean enabled) {
             if (solutionFlags == XAPMManager.AppServiceControlSolutions.FLAG_FW) {
                 mLazySolutionFW.set(enabled);
-                SystemSettings.APM_LAZY_SOLUTION_FW_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.APM_LAZY_SOLUTION_FW_B.write(enabled);
             }
 
             if (solutionFlags == XAPMManager.AppServiceControlSolutions.FLAG_APP) {
                 mLazySolutionApp.set(enabled);
-                SystemSettings.APM_LAZY_SOLUTION_APP_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.APM_LAZY_SOLUTION_APP_B.write(enabled);
             }
         }
 
         @Override
         public void setLockKillEnabled(boolean enabled) {
             if (mLockKillEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.LOCK_KILL_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.LOCK_KILL_ENABLED_B.write(enabled);
             }
         }
 
         @Override
         public void setShowAppProcessUpdateNotificationEnabled(boolean enabled) {
             if (mShowAppProcessUpdateNotification.compareAndSet(!enabled, enabled)) {
-                SystemSettings.APM_SHOW_APP_PROCESS_UPDATE_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.APM_SHOW_APP_PROCESS_UPDATE_B.write(enabled);
             }
         }
 
         @Override
         public void setResidentEnabled(boolean enabled) {
             if (mResidentEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.APM_RESIDENT_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.APM_RESIDENT_B.write(enabled);
             }
         }
 
         @Override
         public void setPowerSaveModeEnabled(boolean enabled) {
             if (mPowerSaveModeEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.APM_POWER_SAVE_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.APM_POWER_SAVE_B.write(enabled);
             }
         }
 
         @Override
         public void setPanicHomeEnabled(boolean enabled) {
             if (mPanicHomeEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.APM_PANIC_HOME_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.APM_PANIC_HOME_B.write(enabled);
             }
         }
 
         @Override
         public void setPanicLockEnabled(boolean enabled) {
             if (mPanicLockEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.APM_PANIC_LOCK_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.APM_PANIC_LOCK_B.write(enabled);
             }
         }
 
         @Override
         public void setAutoAddBlackEnable(boolean enabled) {
             if (mAutoAddToBlackListForNewApp.compareAndSet(!enabled, enabled)) {
-                SystemSettings.AUTO_BLACK_FOR_NEW_INSTALLED_APP_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.AUTO_BLACK_FOR_NEW_INSTALLED_APP_B.write(enabled);
             }
         }
 
         @Override
         public void setAutoAddBlackNotificationEnabled(boolean value) {
             if (mAutoAddNotificationToBlackListForNewApp.compareAndSet(!value, value)) {
-                SystemSettings.AUTO_BLACK_NOTIFICATION_FOR_NEW_INSTALLED_APP_B.writeToSystemSettings(getContext(), value);
+                XAPMServerSettings.AUTO_BLACK_NOTIFICATION_FOR_NEW_INSTALLED_APP_B.write(value);
             }
         }
 
         @Override
         public void setWakeupOnNotificationEnabled(boolean enable) {
             if (mWakeupOnNotificationPosted.compareAndSet(!enable, enable)) {
-                SystemSettings.WAKE_UP_ON_NOTIFICATION_POSTED_ENABLED_B.writeToSystemSettings(getContext(), enable);
+                XAPMServerSettings.WAKE_UP_ON_NOTIFICATION_POSTED_ENABLED_B.write(enable);
             }
         }
 
@@ -7975,35 +7975,35 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         @Override
         public void setPermissionControlEnabled(boolean enabled) {
             if (mPermissionControlEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.PERMISSION_CONTROL_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.PERMISSION_CONTROL_B.write(enabled);
             }
         }
 
         @Override
         public void setUserDefinedAndroidId(String id) {
             mUserDefinedAndroidId.setData(id);
-            SystemSettings.USER_DEFINED_ANDROID_ID_T_S
-                    .writeToSystemSettings(getContext(), id);
+            XAPMServerSettings.USER_DEFINED_ANDROID_ID_T_S
+                    .write(id);
         }
 
         @Override
         public void setUserDefinedDeviceId(String id) {
             mUserDefinedDeviceId.setData(id);
-            SystemSettings.USER_DEFINED_DEVICE_ID_T_S
-                    .writeToSystemSettings(getContext(), id);
+            XAPMServerSettings.USER_DEFINED_DEVICE_ID_T_S
+                    .write(id);
         }
 
         @Override
         public void setUserDefinedLine1Number(String id) {
             mUserDefinedLine1Number.setData(id);
-            SystemSettings.USER_DEFINED_LINE1_NUM_T_S
-                    .writeToSystemSettings(getContext(), id);
+            XAPMServerSettings.USER_DEFINED_LINE1_NUM_T_S
+                    .write(id);
         }
 
         @Override
         public void setShowFocusedActivityInfoEnabled(boolean enabled) {
             if (mShowFocusedActivityInfoEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.SHOW_FOCUSED_ACTIVITY_INFO_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.SHOW_FOCUSED_ACTIVITY_INFO_B.write(enabled);
             }
 
             // Hide float view in lazy handler.
@@ -8027,13 +8027,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         @Override
         public void setGreeningEnabled(boolean enabled) {
             if (mGreeningEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.GREENING_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.GREENING_ENABLED_B.write(enabled);
             }
         }
 
         @Override
         public void restoreDefaultSettings() {
-            SystemSettings.restoreDefault(getContext());
             RepoProxy.getProxy().deleteAll();
             loadConfigFromSettings();
             SettingsProvider.get().putString("AppInstalledAutoApplyTemplate", "NULL");
@@ -8103,42 +8102,42 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         @Override
         public void setAppCrashDumpEnabled(boolean enabled) {
             if (mShowAppCrashDumpEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.SHOW_CRASH_DUMP_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.SHOW_CRASH_DUMP_B.write(enabled);
             }
         }
 
         @Override
         public void setLockKillDoNotKillAudioEnabled(boolean enabled) {
             if (mLockKillDoNotKillAudioEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.LOCK_KILL_DONT_KILL_AUDIO_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.LOCK_KILL_DONT_KILL_AUDIO_ENABLED_B.write(enabled);
             }
         }
 
         @Override
         public void setLazyModeEnabled(boolean enabled) {
             if (mLazyEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.LAZY_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.LAZY_ENABLED_B.write(enabled);
             }
         }
 
         @Override
         public void setRFKillEnabled(boolean enabled) {
             if (mRootActivityFinishKillEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.ROOT_ACTIVITY_KILL_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.ROOT_ACTIVITY_KILL_ENABLED_B.write(enabled);
             }
         }
 
         @Override
         public void setLPBKEnabled(boolean enabled) {
             if (mLongPressBackKillEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.LONG_PRESS_BACK_KILL_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.LONG_PRESS_BACK_KILL_ENABLED_B.write(enabled);
             }
         }
 
         @Override
         public void setCompSettingBlockEnabled(boolean enabled) {
             if (mCompSettingBlockEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.COMP_SETTING_BLOCK_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.COMP_SETTING_BLOCK_ENABLED_B.write(enabled);
             }
         }
 
@@ -8320,7 +8319,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         @Override
         public void setLockKillDelay(long delay) {
             mLockKillDelay = delay;
-            SystemSettings.LOCK_KILL_DELAY_L.writeToSystemSettings(getContext(), delay);
+            XAPMServerSettings.LOCK_KILL_DELAY_L.write(delay);
             if (XposedLog.isVerboseLoggable())
                 XposedLog.verbose("setLockKillDelay to: " + mLockKillDelay);
         }
@@ -8511,7 +8510,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         @Override
         public void setControlMode(int mode) {
 //            mControlMode.set(mode);
-//            SystemSettings.ASH_CONTROL_MODE_I.writeToSystemSettings(getContext(), mode);
+//            XAPMServerSettings.ASH_CONTROL_MODE_I.write( mode);
         }
     }
 

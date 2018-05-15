@@ -21,7 +21,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
-import android.os.RemoteException;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -61,7 +60,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.MapRepo;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.repo.SetRepo;
-import github.tornaco.xposedmoduletest.xposed.service.provider.SystemSettings;
+import github.tornaco.xposedmoduletest.xposed.service.provider.XAPMServerSettings;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -227,22 +226,22 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     private void loadConfigFromSettings() {
         try {
-            boolean appGuardEnabled = (boolean) SystemSettings.APP_GUARD_ENABLED_NEW_B.readFromSystemSettings(getContext());
+            boolean appGuardEnabled = XAPMServerSettings.APP_GUARD_ENABLED_NEW_B.read();
             mAppLockEnabled.set(appGuardEnabled);
 
-            boolean uninstallProEnabled = (boolean) SystemSettings.UNINSTALL_GUARD_ENABLED_B.readFromSystemSettings(getContext());
+            boolean uninstallProEnabled = XAPMServerSettings.UNINSTALL_GUARD_ENABLED_B.read();
             mUninstallProEnabled.set(uninstallProEnabled);
 
-            boolean blurEnabled = (boolean) SystemSettings.BLUR_ENABLED_B.readFromSystemSettings(getContext());
+            boolean blurEnabled = XAPMServerSettings.BLUR_ENABLED_B.read();
             mBlurEnabled.set(blurEnabled);
 
-            int blurR = (int) SystemSettings.BLUR_RADIUS_I.readFromSystemSettings(getContext());
+            int blurR = XAPMServerSettings.BLUR_RADIUS_I.read();
             mBlurRadius.set(blurR);
 
-            boolean interruptFPS = (boolean) SystemSettings.INTERRUPT_FP_SUCCESS_VB_ENABLED_B.readFromSystemSettings(getContext());
+            boolean interruptFPS = XAPMServerSettings.INTERRUPT_FP_SUCCESS_VB_ENABLED_B.read();
             mInterruptFPSuccessVB.set(interruptFPS);
 
-            boolean interruptFPE = (boolean) SystemSettings.INTERRUPT_FP_ERROR_VB_ENABLED_B.readFromSystemSettings(getContext());
+            boolean interruptFPE = XAPMServerSettings.INTERRUPT_FP_ERROR_VB_ENABLED_B.read();
             mInterruptFPERRORVB.set(interruptFPE);
 
             boolean debug = BuildConfig.DEBUG;
@@ -397,8 +396,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
 
     @BinderCall
-    public void addOrRemoveComponentReplacement(ComponentName from, ComponentName to, boolean add)
-            throws RemoteException {
+    public void addOrRemoveComponentReplacement(ComponentName from, ComponentName to, boolean add) {
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("addOrRemoveComponentReplacement, from: "
                     + from + ", to: " + to + ", add? " + add);
@@ -419,7 +417,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
 
     @BinderCall
-    public Map getComponentReplacements() throws RemoteException {
+    public Map getComponentReplacements() {
         return RepoProxy.getProxy().getComponentReplacement().dup();
     }
 
@@ -585,7 +583,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_ONACTIVITYPACKAGERESUME, pkg).sendToTarget();
     }
 
-    public boolean isInterruptFPEventVBEnabled(int event) throws RemoteException {
+    public boolean isInterruptFPEventVBEnabled(int event) {
         enforceCallingPermissions();
         switch (event) {
             case XAppLockManager.FPEvent.SUCCESS:
@@ -604,7 +602,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     @BinderCall
-    public void setInterruptFPEventVBEnabled(int event, boolean enabled) throws RemoteException {
+    public void setInterruptFPEventVBEnabled(int event, boolean enabled) {
         enforceCallingPermissions();
         mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages
                 .MSG_SETINTERRUPTFPEVENTVBENABLED, event, event, enabled)
@@ -675,7 +673,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         return false;
     }
 
-    public void forceReloadPackages() throws RemoteException {
+    public void forceReloadPackages() {
 
         mWorkingService.execute(new Runnable() {
 
@@ -716,7 +714,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         return out;
     }
 
-    public String[] getLockApps(boolean lock) throws RemoteException {
+    public String[] getLockApps(boolean lock) {
         if (lock) {
             Set<String> packages = mRepoProxy.getLocks().getAll();
             if (packages.size() == 0) {
@@ -757,7 +755,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         }
     }
 
-    public void addOrRemoveLockApps(String[] packages, boolean add) throws RemoteException {
+    public void addOrRemoveLockApps(String[] packages, boolean add) {
         if (XposedLog.isVerboseLoggable())
             XposedLog.verbose("addOrRemoveLockApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
@@ -765,7 +763,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         addOrRemoveFromRepo(packages, mRepoProxy.getLocks(), add);
     }
 
-    public String[] getBlurApps(boolean blur) throws RemoteException {
+    public String[] getBlurApps(boolean blur) {
         if (blur) {
             Set<String> packages = mRepoProxy.getBlurs().getAll();
             if (packages.size() == 0) {
@@ -807,7 +805,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         }
     }
 
-    public void addOrRemoveBlurApps(String[] packages, boolean blur) throws RemoteException {
+    public void addOrRemoveBlurApps(String[] packages, boolean blur) {
         if (XposedLog.isVerboseLoggable())
             XposedLog.verbose("addOrRemoveBlurApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
@@ -815,7 +813,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         addOrRemoveFromRepo(packages, mRepoProxy.getBlurs(), blur);
     }
 
-    public String[] getUPApps(boolean lock) throws RemoteException {
+    public String[] getUPApps(boolean lock) {
         if (lock) {
             Set<String> packages = mRepoProxy.getUninstall().getAll();
             if (packages.size() == 0) {
@@ -862,7 +860,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
 
-    public void addOrRemoveUPApps(String[] packages, boolean add) throws RemoteException {
+    public void addOrRemoveUPApps(String[] packages, boolean add) {
         if (XposedLog.isVerboseLoggable())
             XposedLog.verbose("addOrRemoveUPApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
@@ -871,14 +869,14 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
 
-    public void restoreDefaultSettings() throws RemoteException {
+    public void restoreDefaultSettings() {
         enforceCallingPermissions();
         mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_RESTOREDEFAULTSETTINGS)
                 .sendToTarget();
     }
 
 
-    public void onTaskRemoving(String pkg) throws RemoteException {
+    public void onTaskRemoving(String pkg) {
         mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_ONAPPTASKREMOVED,
                 pkg).sendToTarget();
     }
@@ -892,7 +890,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
 
     @BinderCall
-    public void setAppLockEnabled(boolean enabled) throws RemoteException {
+    public void setAppLockEnabled(boolean enabled) {
         enforceCallingPermissions();
         mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_SETENABLED,
                 enabled ? 1 : 0, 0)
@@ -905,7 +903,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
 
-    public void setBlurEnabled(boolean enabled) throws RemoteException {
+    public void setBlurEnabled(boolean enabled) {
         enforceCallingPermissions();
         mServiceHandler.obtainMessage(
                 AppGuardServiceHandlerMessages.MSG_SETBLURENABLED,
@@ -922,7 +920,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
 
     @BinderCall
-    public void setUninstallInterruptEnabled(boolean enabled) throws RemoteException {
+    public void setUninstallInterruptEnabled(boolean enabled) {
         enforceCallingPermissions();
         mServiceHandler.obtainMessage(
                 AppGuardServiceHandlerMessages.MSG_SETUNINSTALLINTERRUPTENABLED,
@@ -932,7 +930,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
 
     @BinderCall
-    public void setVerifySettings(VerifySettings settings) throws RemoteException {
+    public void setVerifySettings(VerifySettings settings) {
         enforceCallingPermissions();
         mServiceHandler.removeMessages(AppGuardServiceHandlerMessages.MSG_SETVERIFYSETTINGS);
         mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_SETVERIFYSETTINGS, settings).sendToTarget();
@@ -940,14 +938,14 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
 
     @BinderCall
-    public VerifySettings getVerifySettings() throws RemoteException {
+    public VerifySettings getVerifySettings() {
         enforceCallingPermissions();
         return mVerifySettings == null ? null : mVerifySettings.duplicate();
     }
 
 
     @BinderCall
-    public void setResult(int transactionID, int res) throws RemoteException {
+    public void setResult(int transactionID, int res) {
         enforceCallingPermissions();
         mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_SETRESULT, transactionID, res).sendToTarget();
     }
@@ -961,26 +959,26 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
 
     @BinderCall
-    public void mockCrash() throws RemoteException {
+    public void mockCrash() {
         enforceCallingPermissions();
         mServiceHandler.sendEmptyMessage(AppGuardServiceHandlerMessages.MSG_MOCKCRASH);
     }
 
 
     @BinderCall
-    public void setVerifierPackage(String pkg) throws RemoteException {
+    public void setVerifierPackage(String pkg) {
         enforceCallingPermissions();
         // TODO.
     }
 
 
     @Deprecated
-    public void injectHomeEvent() throws RemoteException {
+    public void injectHomeEvent() {
         throw new IllegalStateException("injectHomeEvent is Deprecated api");
     }
 
 
-    public void setDebug(boolean debug) throws RemoteException {
+    public void setDebug(boolean debug) {
         enforceCallingPermissions();
         mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_SETDEBUG, debug).sendToTarget();
     }
@@ -994,7 +992,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
 
-    public boolean isDebug() throws RemoteException {
+    public boolean isDebug() {
         enforceCallingPermissions();
         return mDebugEnabled.get();
     }
@@ -1117,20 +1115,20 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
         public void setEnabled(boolean enabled) {
             if (mAppLockEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.APP_GUARD_ENABLED_NEW_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.APP_GUARD_ENABLED_NEW_B.write(enabled);
             }
         }
 
 
         public void setUninstallInterruptEnabled(boolean enabled) {
             if (mUninstallProEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.UNINSTALL_GUARD_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.UNINSTALL_GUARD_ENABLED_B.write(enabled);
             }
         }
 
         public void setBlurEnabled(boolean enabled) {
             if (mBlurEnabled.compareAndSet(!enabled, enabled)) {
-                SystemSettings.BLUR_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                XAPMServerSettings.BLUR_ENABLED_B.write(enabled);
 
                 if (enabled) {
                     RepoProxy.createFileIndicator("blur_indicator");
@@ -1142,7 +1140,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
         public void setBlurRadius(int r) {
             mBlurRadius.set(r);
-            SystemSettings.BLUR_RADIUS_I.writeToSystemSettings(getContext(), r);
+            XAPMServerSettings.BLUR_RADIUS_I.write(r);
         }
 
         public void setVerifySettings(final VerifySettings settings) {
@@ -1223,7 +1221,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
         public void setDebug(boolean debug) {
             if (mDebugEnabled.compareAndSet(!debug, debug)) {
-                SystemSettings.APP_GUARD_DEBUG_MODE_B_S.writeToSystemSettings(getContext(), debug);
+                XAPMServerSettings.APP_GUARD_DEBUG_MODE_B_S.write(debug);
             }
             XposedLog.setLogLevel(mDebugEnabled.get() ? XposedLog.LogLevel.ALL : XposedLog.LogLevel.WARN);
             warnIfDebug();
@@ -1250,12 +1248,12 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             switch (event) {
                 case XAppLockManager.FPEvent.SUCCESS:
                     if (mInterruptFPSuccessVB.compareAndSet(!enabled, enabled)) {
-                        SystemSettings.INTERRUPT_FP_SUCCESS_VB_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                        XAPMServerSettings.INTERRUPT_FP_SUCCESS_VB_ENABLED_B.write(enabled);
                     }
                     break;
                 case XAppLockManager.FPEvent.ERROR:
                     if (mInterruptFPERRORVB.compareAndSet(!enabled, enabled)) {
-                        SystemSettings.INTERRUPT_FP_ERROR_VB_ENABLED_B.writeToSystemSettings(getContext(), enabled);
+                        XAPMServerSettings.INTERRUPT_FP_ERROR_VB_ENABLED_B.write(enabled);
                     }
                     break;
                 default:
@@ -1264,7 +1262,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         }
 
         public void restoreDefaultSettings() {
-            SystemSettings.restoreDefault(getContext());
             RepoProxy.getProxy().deleteAll();
             loadConfigFromSettings();
         }
