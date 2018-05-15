@@ -110,11 +110,11 @@ dependencies {
 
     implementation project(':x-apm-base')
     implementation project(':x-apm-framework')
-    implementation project(':tiles')
-    implementation project(':patternlockview')
-    implementation project(':pinlockview')
-    implementation project(':mdsearch')
-    implementation project(':dateformatter')
+    implementation project(':third-party:tiles')
+    implementation project(':third-party:patternlockview')
+    implementation project(':third-party:pinlockview')
+    implementation project(':third-party:mdsearch')
+    implementation project(':third-party:dateformatter')
 
     implementation files('libs/flyme_fingerprint.jar')
     // compile files('libs/flymeapi.jar')

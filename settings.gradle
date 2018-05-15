@@ -1,1 +1,12 @@
-include ':x-apm-app', ':daogenerator', ':api-gen-annotations', ':x-apm-base', ':x-apm-framework', ':material-design-icons', ":api-gen-compiler", ':tiles', ':patternlockview', ':mdsearch', ':dateformatter', ':pinlockview'
+include ':x-apm-app',
+        ':x-apm-base',
+        ':x-apm-framework',
+        ':api-gen-annotations',
+        ":api-gen-compiler",
+        ':material-design-icons',
+        ':third-party:daogenerator',
+        ':third-party:tiles',
+        ':third-party:patternlockview',
+        ':third-party:mdsearch',
+        ':third-party:dateformatter',
+        ':third-party:pinlockview'
