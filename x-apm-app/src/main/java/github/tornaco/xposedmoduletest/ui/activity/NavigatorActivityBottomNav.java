@@ -288,15 +288,16 @@ public class NavigatorActivityBottomNav
     @Override
     public void setTitle(int titleId) {
         // super.setTitle(titleId);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        TextView titleView = toolbar.findViewById(R.id.toolbar_title);
-        titleView.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/futura-medium-bt.ttf"));
-        titleView.setText(titleId);
+        setTitleInternal(getString(titleId));
     }
 
     @Override
     public void setTitle(CharSequence title) {
         // super.setTitle(title);
+        setTitleInternal(title);
+    }
+
+    private void setTitleInternal(CharSequence title) {
         Toolbar toolbar = findViewById(R.id.toolbar);
         TextView titleView = toolbar.findViewById(R.id.toolbar_title);
         titleView.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/futura-medium-bt.ttf"));
