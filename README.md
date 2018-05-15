@@ -32,10 +32,11 @@
 * 各个功能的列表设置
 * 存储接口
 * 按键注入接口
+* ...
 
 ### 6.1 调用API所需的权限
 
-### 如何使用gradle构建项目
+### 6.2 如何使用gradle构建项目
 [示例项目](https://github.com/Tornaco/X-APM-Base-Sample)
 
 1. 添加依赖
@@ -56,11 +57,14 @@ implementation 'github.tornaco:x-apm-base:1.0.1'
 3. 代码示例
 ```java
         // 获取X-APM框架层服务是否成功注入
-        XAshmanManager ashmanManager = XAshmanManager.get();
+        StringBuilder sb = new StringBuilder();
+
+        XAPMManager ashmanManager = XAPMManager.get();
         boolean isActivated = ashmanManager.isServiceAvailable();
-        sb.append("active: " + isActivated).append("\n");
+        sb.append("active: ").append(isActivated).append("\n");
 
         // 获取X-APM框架层序列号
         String buildSerial = ashmanManager.getBuildSerial();
-        sb.append("buildSerial: " + buildSerial).append("\n");
+        sb.append("buildSerial: ").append(buildSerial).append("\n");
+        ...
 ```
