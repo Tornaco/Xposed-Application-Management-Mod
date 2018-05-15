@@ -68,7 +68,9 @@ public class ThemeChooser extends QuickTile {
                     try {
                         Activity activity = (Activity) context;
                         activity.recreate();
-                    } catch (Throwable e){
+                    } catch (Throwable ignored) {
+
+                    } finally {
                         Toast.makeText(context, R.string.title_theme_need_restart_app, Toast.LENGTH_SHORT).show();
                     }
                 }
