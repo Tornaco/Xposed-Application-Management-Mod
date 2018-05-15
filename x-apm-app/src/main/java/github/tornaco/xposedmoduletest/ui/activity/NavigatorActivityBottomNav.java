@@ -3,11 +3,11 @@ package github.tornaco.xposedmoduletest.ui.activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -261,10 +261,9 @@ public class NavigatorActivityBottomNav
                     cardController.setCurrent(INDEXS.SETTINGS);
                     break;
             }
-            ActivityLifeCycleDashboardFragment dashboardFragment = getCardController().getCurrent();
-            @StringRes int titleRes = dashboardFragment.getPageTitle();
-            setTitle(titleRes);
+
             setBottomNavIndex(getCardController().getCurrentIndex());
+            requestUpdateTitle();
             // Update menus.
             invalidateOptionsMenu();
             return true;
@@ -275,12 +274,33 @@ public class NavigatorActivityBottomNav
     private void setupView() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
 
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         if (AppSettings.isBottomNavNoShiftEnabled(getContext())) {
             BottomNavigationViewHelper.removeShiftMode(navigation);
         }
+    }
+
+    @Override
+    public void setTitle(int titleId) {
+        // super.setTitle(titleId);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        TextView titleView = toolbar.findViewById(R.id.toolbar_title);
+        titleView.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/futura-medium-bt.ttf"));
+        titleView.setText(titleId);
+    }
+
+    @Override
+    public void setTitle(CharSequence title) {
+        // super.setTitle(title);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        TextView titleView = toolbar.findViewById(R.id.toolbar_title);
+        titleView.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/futura-medium-bt.ttf"));
+        titleView.setText(title);
     }
 
     protected void setupFragment() {
@@ -290,12 +310,18 @@ public class NavigatorActivityBottomNav
                         new ManageNavFragment(),
                         new ToolsNavFragment(),
                         new SettingsNavFragment());
+
         cardController = new FragmentController<>(getSupportFragmentManager(), cards, R.id.container);
         cardController.setDefaultIndex(0);
         cardController.setCurrent(0);
 
         // Set activity title from the first one.
-        setTitle(cards.get(INDEXS.STATUS).getPageTitle());
+        cards.get(INDEXS.STATUS).onSetActivityTitle(this);
+    }
+
+    public void requestUpdateTitle() {
+        ActivityLifeCycleDashboardFragment dashboardFragment = getCardController().getCurrent();
+        dashboardFragment.onSetActivityTitle(this);
     }
 
     @Override
@@ -406,7 +432,7 @@ public class NavigatorActivityBottomNav
             AppSettings.setShow2ColumnsIn(getContext(), current.getClass().getSimpleName(), !two);
             try {
                 recreate();
-            } catch (Throwable e){
+            } catch (Throwable e) {
                 Toast.makeText(getContext(), R.string.title_theme_need_restart_app, Toast.LENGTH_SHORT).show();
             }
         }
@@ -457,6 +483,8 @@ public class NavigatorActivityBottomNav
         @Getter
         private View rootView;
 
+        private boolean apmModuleOKNoAndActionNeed = false;
+
         @Override
         protected int getLayoutId() {
             return R.layout.fragment_dev_status;
@@ -464,7 +492,15 @@ public class NavigatorActivityBottomNav
 
         @Override
         public int getPageTitle() {
-            return R.string.title_device_status;
+            return R.string.title_device_status_fragment;
+        }
+
+        @Override
+        public void onSetActivityTitle(BaseActivity activity) {
+            super.onSetActivityTitle(activity);
+//            if (apmModuleOKNoAndActionNeed) {
+//                activity.setSubTitleChecked(getString(R.string.title_service_connected));
+//            }
         }
 
         @Override
@@ -793,7 +829,12 @@ public class NavigatorActivityBottomNav
 
                                     // If all good, hide this card.
                                     if (!hasModuleError && !hasSystemError) {
-                                        findView(rootView, R.id.status_container).setVisibility(View.GONE);
+//                                        findView(rootView, R.id.status_container).setVisibility(View.GONE);
+                                        apmModuleOKNoAndActionNeed = true;
+                                        NavigatorActivityBottomNav activityBottomNav = (NavigatorActivityBottomNav) getActivity();
+                                        if (activityBottomNav != null && !activityBottomNav.isDestroyed()) {
+                                            activityBottomNav.requestUpdateTitle();
+                                        }
                                     }
                                 }
                             });

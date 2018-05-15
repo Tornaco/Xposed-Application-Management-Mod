@@ -143,11 +143,9 @@ public class ComponentEditorActivity extends WithSearchActivity<Searchable>
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
         // Post this fucking work, do not block ui work.
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                setTitle(PkgUtil.loadNameByPkgName(getApplicationContext(), mPackageName));
-            }
+        runOnUiThread(() -> {
+            setTitle(PkgUtil.loadNameByPkgName(getApplicationContext(), mPackageName));
+            setSubTitleChecked(mPackageName);
         });
 
     }
