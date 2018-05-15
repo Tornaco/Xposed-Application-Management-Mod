@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 
 /**
  * Created by guohao4 on 2017/10/18.
@@ -37,7 +37,7 @@ public interface UPPackageLoader {
 
             List<CommonPackageInfo> out = new ArrayList<>();
 
-            XAppGuardManager appGuardManager = XAppGuardManager.get();
+            XAppLockManager appGuardManager = XAppLockManager.get();
             if (!appGuardManager.isServiceAvailable()) return out;
 
             String[] packages = appGuardManager.getUPApps(up);

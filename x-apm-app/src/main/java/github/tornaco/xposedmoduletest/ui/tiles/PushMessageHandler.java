@@ -9,7 +9,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.RecentTile;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.pmh.PMHDashboardActivity;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -21,8 +21,8 @@ public class PushMessageHandler extends QuickTile {
     public PushMessageHandler(final Context context) {
         super(context);
         this.titleRes = R.string.title_push_message_handler;
-        if (XAshmanManager.get().isServiceAvailable()) {
-            this.summaryRes = XAshmanManager.get().isPushMessageHandleEnabled() ?
+        if (XAPMManager.get().isServiceAvailable()) {
+            this.summaryRes = XAPMManager.get().isPushMessageHandleEnabled() ?
                     R.string.summary_func_enabled : 0;
         }
         this.iconRes = R.drawable.ic_notifications_active_black_24dp;

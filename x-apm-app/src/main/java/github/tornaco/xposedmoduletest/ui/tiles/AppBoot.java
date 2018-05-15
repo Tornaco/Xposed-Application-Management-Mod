@@ -10,7 +10,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.RecentTile;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.boot.BootAppNavActivity;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -22,8 +22,8 @@ public class AppBoot extends QuickTile {
     public AppBoot(final Context context) {
         super(context);
         this.titleRes = R.string.title_app_boot;
-        if (XAshmanManager.get().isServiceAvailable()) {
-            this.summaryRes = XAshmanManager.get().isBlockBlockEnabled() ?
+        if (XAPMManager.get().isServiceAvailable()) {
+            this.summaryRes = XAPMManager.get().isBlockBlockEnabled() ?
                     R.string.summary_func_enabled : 0;
         }
         this.iconRes = R.drawable.ic_directions_car_black_24dp;

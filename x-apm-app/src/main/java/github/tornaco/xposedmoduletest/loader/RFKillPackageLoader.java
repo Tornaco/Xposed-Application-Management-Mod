@@ -10,7 +10,7 @@ import java.util.List;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.util.PinyinComparator;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/10/18.
@@ -40,7 +40,7 @@ public interface RFKillPackageLoader {
 
             List<CommonPackageInfo> out = new ArrayList<>();
 
-            XAshmanManager xAshmanManager = XAshmanManager.get();
+            XAPMManager xAshmanManager = XAPMManager.get();
             if (!xAshmanManager.isServiceAvailable()) return out;
 
             String[] packages = xAshmanManager.getRFKApps(willBeKill);

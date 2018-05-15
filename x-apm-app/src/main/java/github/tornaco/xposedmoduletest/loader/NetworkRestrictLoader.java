@@ -14,7 +14,7 @@ import java.util.List;
 
 import github.tornaco.xposedmoduletest.model.NetworkRestrictionItem;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
@@ -47,7 +47,7 @@ public interface NetworkRestrictLoader {
 
             List<NetworkRestrictionItem> restrictionItems = Lists.newArrayList();
 
-            XAshmanManager ash = XAshmanManager.get();
+            XAPMManager ash = XAPMManager.get();
             if (!ash.isServiceAvailable()) return restrictionItems;
 
             PackageManager pm = this.context.getPackageManager();

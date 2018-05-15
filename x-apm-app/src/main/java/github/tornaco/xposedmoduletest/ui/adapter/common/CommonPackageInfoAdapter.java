@@ -30,7 +30,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import lombok.Getter;
 import lombok.Setter;
 import tornaco.lib.widget.CheckableImageView;
@@ -120,17 +120,17 @@ public class CommonPackageInfoAdapter
     protected String getSystemAppIndicatorLabel(int appLevel) {
 
         switch (appLevel) {
-            case XAshmanManager.AppLevel.THIRD_PARTY:
+            case XAPMManager.AppLevel.THIRD_PARTY:
                 return null;
-            case XAshmanManager.AppLevel.SYSTEM:
+            case XAPMManager.AppLevel.SYSTEM:
                 return context.getString(R.string.app_level_system);
-            case XAshmanManager.AppLevel.SYSTEM_UID:
+            case XAPMManager.AppLevel.SYSTEM_UID:
                 return context.getString(R.string.app_level_core);
-            case XAshmanManager.AppLevel.PHONE_UID:
+            case XAPMManager.AppLevel.PHONE_UID:
                 return context.getString(R.string.app_level_phone);
-            case XAshmanManager.AppLevel.MEDIA_UID:
+            case XAPMManager.AppLevel.MEDIA_UID:
                 return context.getString(R.string.app_level_media);
-            case XAshmanManager.AppLevel.WEBVIEW_IMPL:
+            case XAPMManager.AppLevel.WEBVIEW_IMPL:
                 return context.getString(R.string.app_level_webview_impl);
         }
         return "";
@@ -138,17 +138,17 @@ public class CommonPackageInfoAdapter
 
     protected int getSystemAppIndicatorColor(int appLevel) {
         switch (appLevel) {
-            case XAshmanManager.AppLevel.THIRD_PARTY:
+            case XAPMManager.AppLevel.THIRD_PARTY:
                 return 0;
-            case XAshmanManager.AppLevel.SYSTEM:
+            case XAPMManager.AppLevel.SYSTEM:
                 return ContextCompat.getColor(context, R.color.amber_dark);
-            case XAshmanManager.AppLevel.SYSTEM_UID:
+            case XAPMManager.AppLevel.SYSTEM_UID:
                 return ContextCompat.getColor(context, R.color.red_dark);
-            case XAshmanManager.AppLevel.PHONE_UID:
+            case XAPMManager.AppLevel.PHONE_UID:
                 return ContextCompat.getColor(context, R.color.green_dark);
-            case XAshmanManager.AppLevel.MEDIA_UID:
+            case XAPMManager.AppLevel.MEDIA_UID:
                 return ContextCompat.getColor(context, R.color.blue_dark);
-            case XAshmanManager.AppLevel.WEBVIEW_IMPL:
+            case XAPMManager.AppLevel.WEBVIEW_IMPL:
                 return ContextCompat.getColor(context, R.color.blue_grey);
         }
         return 0;

@@ -14,7 +14,7 @@ import java.util.Map;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.model.PushMessage;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.service.ErrorCatchRunnable;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.BasePushNotificationHandler;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.NotificationHandlerSettingsRetriever;
@@ -82,7 +82,7 @@ public class PushMessageNotificationService extends Service implements Notificat
 
         mUIThreadHandler = new Handler();
 
-        XAshmanManager.get().registerOnTopPackageChangeListener(mTopPackageListener);
+        XAPMManager.get().registerOnTopPackageChangeListener(mTopPackageListener);
     }
 
     private void notifyTopPackageChanged(String from, String to) {
@@ -134,31 +134,31 @@ public class PushMessageNotificationService extends Service implements Notificat
     @Override
     public void onDestroy() {
         super.onDestroy();
-        XAshmanManager.get().unRegisterOnTopPackageChangeListener(mTopPackageListener);
+        XAPMManager.get().unRegisterOnTopPackageChangeListener(mTopPackageListener);
     }
 
     @Override
     public boolean isPushMessageHandlerEnabled(String pkg) {
-        return XAshmanManager.get().isPushMessageHandlerEnabled(pkg);
+        return XAPMManager.get().isPushMessageHandlerEnabled(pkg);
     }
 
     @Override
     public boolean isPushMessageHandlerShowContentEnabled(String pkg) {
-        return XAshmanManager.get().isPushMessageHandlerShowContentEnabled(pkg);
+        return XAPMManager.get().isPushMessageHandlerShowContentEnabled(pkg);
     }
 
     @Override
     public boolean isPushMessageHandlerNotificationSoundEnabled(String pkg) {
-        return XAshmanManager.get().isPushMessageHandlerNotificationSoundEnabled(pkg);
+        return XAPMManager.get().isPushMessageHandlerNotificationSoundEnabled(pkg);
     }
 
     @Override
     public boolean isPushMessageHandlerNotificationVibrateEnabled(String pkg) {
-        return XAshmanManager.get().isPushMessageHandlerNotificationVibrateEnabled(pkg);
+        return XAPMManager.get().isPushMessageHandlerNotificationVibrateEnabled(pkg);
     }
 
     @Override
     public boolean isPushMessageHandlerMessageNotificationByAppEnabled(String pkg) {
-        return XAshmanManager.get().isPushMessageHandlerMessageNotificationByAppEnabled(pkg);
+        return XAPMManager.get().isPushMessageHandlerMessageNotificationByAppEnabled(pkg);
     }
 }

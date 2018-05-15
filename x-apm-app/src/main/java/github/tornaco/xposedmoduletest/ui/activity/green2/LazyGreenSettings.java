@@ -10,7 +10,7 @@ import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.ag.GuardSettingsActivity;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/11/2.
@@ -30,14 +30,14 @@ public class LazyGreenSettings extends GuardSettingsActivity {
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.lazy_general);
-            if (XAshmanManager.get().isServiceAvailable()) {
+            if (XAPMManager.get().isServiceAvailable()) {
                 SwitchPreference doNotKillSBNPref = (SwitchPreference) findPreference("do_not_kill_sbn");
-                doNotKillSBNPref.setChecked(XAshmanManager.get().isDoNotKillSBNEnabled(XAppBuildVar.APP_GREEN));
+                doNotKillSBNPref.setChecked(XAPMManager.get().isDoNotKillSBNEnabled(XAppBuildVar.APP_GREEN));
                 doNotKillSBNPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean enabled = (boolean) newValue;
-                        XAshmanManager.get().setDoNotKillSBNEnabled(enabled, XAppBuildVar.APP_GREEN);
+                        XAPMManager.get().setDoNotKillSBNEnabled(enabled, XAppBuildVar.APP_GREEN);
                         return true;
                     }
                 });

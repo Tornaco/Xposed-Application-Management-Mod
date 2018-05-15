@@ -11,7 +11,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.util.OSUtil;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -71,7 +71,7 @@ public class BitmapCreateFromHWBufferSubModule extends AndroidSubModule {
             return;
         }
 
-        if (XAppGuardManager.get().isServiceAvailable() && XAppGuardManager.get()
+        if (XAppLockManager.get().isServiceAvailable() && XAppLockManager.get()
                 .isBlurEnabled()) {
             param.setResult(null);
             XposedLog.verbose("onCreateHWBitmap, hack to null for blur package");

@@ -6,7 +6,7 @@ import android.widget.RelativeLayout;
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.SwitchTileView;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.WeChatPushNotificationHandler;
 
 /**
@@ -24,15 +24,15 @@ public class WeChatPMHSoundSettings extends QuickTile {
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);
-                setChecked(XAshmanManager.get().isServiceAvailable()
-                        && XAshmanManager.get().isPushMessageHandlerNotificationSoundEnabled(WeChatPushNotificationHandler.WECHAT_PKG_NAME));
+                setChecked(XAPMManager.get().isServiceAvailable()
+                        && XAPMManager.get().isPushMessageHandlerNotificationSoundEnabled(WeChatPushNotificationHandler.WECHAT_PKG_NAME));
             }
 
             @Override
             protected void onCheckChanged(boolean checked) {
                 super.onCheckChanged(checked);
-                if (XAshmanManager.get().isServiceAvailable()) {
-                    XAshmanManager.get().setPushMessageHandlerNotificationSoundEnabled(WeChatPushNotificationHandler.WECHAT_PKG_NAME, checked);
+                if (XAPMManager.get().isServiceAvailable()) {
+                    XAPMManager.get().setPushMessageHandlerNotificationSoundEnabled(WeChatPushNotificationHandler.WECHAT_PKG_NAME, checked);
                 }
             }
         };

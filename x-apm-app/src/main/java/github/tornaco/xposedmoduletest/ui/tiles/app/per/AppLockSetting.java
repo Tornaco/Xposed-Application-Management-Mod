@@ -4,7 +4,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 
 /**
@@ -29,7 +29,7 @@ public class AppLockSetting extends AppSettingsSwitchTile {
     void applySwitchState(boolean checked) {
         super.applySwitchState(checked);
         getAppSettings().setApplock(checked);
-        XAppGuardManager.get()
+        XAppLockManager.get()
                 .addOrRemoveLockApps(new String[]{getAppSettings().getPkgName()},
                         checked);
     }

@@ -23,7 +23,7 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 
 public class GuardAppNavActivity extends CommonPackageInfoListActivity
         implements SwitchBar.OnSwitchChangeListener, AdapterView.OnItemSelectedListener {
@@ -36,7 +36,7 @@ public class GuardAppNavActivity extends CommonPackageInfoListActivity
     @Override
     protected void onInitSwitchBar(SwitchBar switchBar) {
         switchBar.show();
-        switchBar.setChecked(XAppGuardManager.get().isServiceAvailable() && XAppGuardManager.get().isEnabled());
+        switchBar.setChecked(XAppLockManager.get().isServiceAvailable() && XAppLockManager.get().isEnabled());
         switchBar.addOnSwitchChangeListener(this);
     }
 
@@ -90,7 +90,7 @@ public class GuardAppNavActivity extends CommonPackageInfoListActivity
                     @Override
                     public void accept(CommonPackageInfo commonPackageInfo) {
                         if (commonPackageInfo.isChecked()) {
-                            XAppGuardManager.get().addOrRemoveLockApps(new String[]{commonPackageInfo.getPkgName()}, false);
+                            XAppLockManager.get().addOrRemoveLockApps(new String[]{commonPackageInfo.getPkgName()}, false);
                         }
                     }
                 });
@@ -124,8 +124,8 @@ public class GuardAppNavActivity extends CommonPackageInfoListActivity
 
     @Override
     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-        if (XAppGuardManager.get().isServiceAvailable()) {
-            XAppGuardManager.get().setEnabled(isChecked);
+        if (XAppLockManager.get().isServiceAvailable()) {
+            XAppLockManager.get().setEnabled(isChecked);
         }
     }
 

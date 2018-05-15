@@ -5,7 +5,6 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.util.Log;
 
-import java.util.Arrays;
 import java.util.Set;
 
 import de.robv.android.xposed.IXposedHookZygoteInit;
@@ -14,7 +13,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.IServiceControlAdapter;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -62,8 +61,8 @@ class ServiceSubModule extends AndroidSubModule {
                                 return;
                             }
 
-                            if (XAshmanManager.get().isServiceAvailable()
-                                    && XAshmanManager.get().isLazyModeEnabledForPackage(hostPackage)) {
+                            if (XAPMManager.get().isServiceAvailable()
+                                    && XAPMManager.get().isLazyModeEnabledForPackage(hostPackage)) {
 
                                 // Retrieve class name.
                                 String className = (String) XposedHelpers.getObjectField(service, "mClassName");
@@ -80,7 +79,7 @@ class ServiceSubModule extends AndroidSubModule {
                                 ComponentName componentName = new ComponentName(hostPackage, className);
                                 IServiceControlAdapter serviceControlAdapter = new IServiceControlAdapter(service, componentName);
                                 Log.d(XposedLog.TAG_LAZY, "Registering serviceControlAdapter: " + serviceControlAdapter);
-                                XAshmanManager.get().registerController(serviceControlAdapter);
+                                XAPMManager.get().registerController(serviceControlAdapter);
                             }
                         }
                     });

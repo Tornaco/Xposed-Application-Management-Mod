@@ -21,7 +21,7 @@ import github.tornaco.xposedmoduletest.bean.ComponentReplacementList;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.util.PinyinComparator;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import lombok.AllArgsConstructor;
 
@@ -83,10 +83,10 @@ public interface ComponentReplacementsLoader {
         @NonNull
         @Override
         public List<ComponentReplacement> loadAllFromAPMS() {
-            if (!XAppGuardManager.get().isServiceAvailable()) {
+            if (!XAppLockManager.get().isServiceAvailable()) {
                 return new ArrayList<>(0);
             }
-            XAppGuardManager ag = XAppGuardManager.get();
+            XAppLockManager ag = XAppLockManager.get();
             Map replacements = ag.getComponentReplacements();
             List<ComponentReplacement> res = new ArrayList<>();
             for (Object k : replacements.keySet()) {

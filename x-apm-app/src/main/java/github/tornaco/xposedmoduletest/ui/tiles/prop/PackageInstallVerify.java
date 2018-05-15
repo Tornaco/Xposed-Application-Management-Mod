@@ -10,7 +10,7 @@ import github.tornaco.xposedmoduletest.bean.RecentTile;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.pm.PackageInstallVerifyNavActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.TileManager;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -22,8 +22,8 @@ public class PackageInstallVerify extends QuickTile {
     public PackageInstallVerify(final Context context) {
         super(context);
         this.titleRes = R.string.title_package_install_verify;
-        if (XAshmanManager.get().isServiceAvailable()) {
-            this.summaryRes = XAshmanManager.get().isPackageInstallVerifyEnabled() ?
+        if (XAPMManager.get().isServiceAvailable()) {
+            this.summaryRes = XAPMManager.get().isPackageInstallVerifyEnabled() ?
                     R.string.summary_func_enabled : 0;
         }
         this.iconRes = R.drawable.ic_adb_black_24dp;

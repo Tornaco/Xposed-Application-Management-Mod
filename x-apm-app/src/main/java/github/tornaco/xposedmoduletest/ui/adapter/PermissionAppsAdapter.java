@@ -23,7 +23,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -115,7 +115,7 @@ public class PermissionAppsAdapter extends RecyclerView.Adapter<PermissionAppsAd
             public void onClick(View v) {
                 Checkable c = (Checkable) v;
                 int mode = c.isChecked() ? AppOpsManagerCompat.MODE_ALLOWED : AppOpsManagerCompat.MODE_IGNORED;
-                XAshmanManager.get().setPermissionControlBlockModeForPkg(getOp(),
+                XAPMManager.get().setPermissionControlBlockModeForPkg(getOp(),
                         commonPackageInfo.getPkgName(), mode);
                 commonPackageInfo.setVersion(mode);
             }

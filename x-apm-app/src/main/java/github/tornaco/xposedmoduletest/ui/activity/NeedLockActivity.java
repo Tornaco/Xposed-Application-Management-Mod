@@ -342,8 +342,8 @@ public class NeedLockActivity<T> extends WithSearchActivity<T> {
         }
 
         private void vibrate() {
-//            if (XAppGuardManager.get().isServiceAvailable()
-//                    && XAppGuardManager.get().isInterruptFPEventVBEnabled(XAppGuardManager.FPEvent.SUCCESS)) {
+//            if (XAppLockManager.get().isServiceAvailable()
+//                    && XAppLockManager.get().isInterruptFPEventVBEnabled(XAppLockManager.FPEvent.SUCCESS)) {
 //                Vibrator vibrator = (Vibrator) activity.getSystemService(VIBRATOR_SERVICE);
 //                if (vibrator != null) {
 //                    vibrator.vibrate(new long[]{10, 20, 20}, -1);
@@ -652,7 +652,7 @@ public class NeedLockActivity<T> extends WithSearchActivity<T> {
 
         private void vibrate() {
 //            if (XAppGuardManager.get().isServiceAvailable()
-//                    && XAppGuardManager.get().isInterruptFPEventVBEnabled(XAppGuardManager.FPEvent.SUCCESS)) {
+//                    && XAppLockManager.get().isInterruptFPEventVBEnabled(XAppLockManager.FPEvent.SUCCESS)) {
 //                Vibrator vibrator = (Vibrator) activity.getSystemService(VIBRATOR_SERVICE);
 //                if (vibrator != null) {
 //                    vibrator.vibrate(new long[]{10, 20, 20}, -1);

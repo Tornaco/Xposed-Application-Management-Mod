@@ -19,7 +19,7 @@ import github.tornaco.xposedmoduletest.model.ActivityInfoSettings;
 import github.tornaco.xposedmoduletest.model.ActivityInfoSettingsList;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettings;
 import github.tornaco.xposedmoduletest.model.ServiceInfoSettingsList;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 import static android.content.pm.PackageManager.GET_ACTIVITIES;
@@ -111,7 +111,7 @@ public class ComponentUtil {
     }
 
     public static boolean applyBatch(Context context, ServiceInfoSettingsList serviceInfoSettingsList) {
-        final XAshmanManager xAshmanManager = XAshmanManager.get();
+        final XAPMManager xAshmanManager = XAPMManager.get();
         if (xAshmanManager == null) return false;
         if (serviceInfoSettingsList == null) return false;
         String pkg = serviceInfoSettingsList.getPackageName();
@@ -137,7 +137,7 @@ public class ComponentUtil {
     }
 
     public static boolean applyBatch(Context context, ActivityInfoSettingsList activityInfoSettingsList) {
-        final XAshmanManager xAshmanManager = XAshmanManager.get();
+        final XAPMManager xAshmanManager = XAPMManager.get();
         if (xAshmanManager == null) return false;
         if (activityInfoSettingsList == null) return false;
         String pkg = activityInfoSettingsList.getPackageName();

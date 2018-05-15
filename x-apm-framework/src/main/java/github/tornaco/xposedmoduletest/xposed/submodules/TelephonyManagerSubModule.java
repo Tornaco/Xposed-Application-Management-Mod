@@ -12,7 +12,7 @@ import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -60,7 +60,7 @@ class TelephonyManagerSubModule extends AndroidSubModule {
                                 return;
                             }
                             // Check op.
-                            XAshmanManager xAshmanManager = XAshmanManager.get();
+                            XAPMManager xAshmanManager = XAPMManager.get();
                             if (xAshmanManager.isServiceAvailable()) {
                                 int mode = xAshmanManager.getPermissionControlBlockModeForPkg(
                                         AppOpsManagerCompat.OP_GET_DEVICE_ID, callPackageName,
@@ -118,7 +118,7 @@ class TelephonyManagerSubModule extends AndroidSubModule {
                                 return;
                             }
                             // Check op.
-                            XAshmanManager xAshmanManager = XAshmanManager.get();
+                            XAPMManager xAshmanManager = XAPMManager.get();
                             if (xAshmanManager.isServiceAvailable()) {
                                 int mode = xAshmanManager.getPermissionControlBlockModeForPkg(
                                         AppOpsManagerCompat.OP_GET_LINE1_NUMBER, callPackageName,
@@ -175,7 +175,7 @@ class TelephonyManagerSubModule extends AndroidSubModule {
                                 return;
                             }
                             // Check op.
-                            XAshmanManager xAshmanManager = XAshmanManager.get();
+                            XAPMManager xAshmanManager = XAPMManager.get();
                             if (xAshmanManager.isServiceAvailable()) {
                                 int mode = xAshmanManager.getPermissionControlBlockModeForPkg(
                                         AppOpsManagerCompat.OP_GET_SIM_SERIAL_NUMBER, callPackageName,

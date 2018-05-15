@@ -6,7 +6,7 @@ import android.os.Parcelable;
 import com.google.gson.Gson;
 
 import github.tornaco.xposedmoduletest.xposed.DefaultConfiguration;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,7 +32,7 @@ public class BlurSettings implements Parcelable, Cloneable {
     public static final String KEY_SETTINGS = "tornaco.ag_blur";
 
     private boolean enabled = false;
-    private int policy = XAppGuardManager.BlurPolicy.BLUR_POLICY_UNKNOWN;
+    private int policy = XAppLockManager.BlurPolicy.BLUR_POLICY_UNKNOWN;
     private int radius = BLUR_RADIUS;
     private float scale = BITMAP_SCALE;
 

@@ -29,7 +29,7 @@ import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.util.ArrayUtil;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.service.ErrorCatchRunnable;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
@@ -66,7 +66,7 @@ public class RunningServicesActivity
                 });
 
         if (candidates.size() > 0) {
-            XAshmanManager.get().forceIdlePackages(ArrayUtil.convertObjectArrayToStringArray(candidates.toArray()));
+            XAPMManager.get().forceIdlePackages(ArrayUtil.convertObjectArrayToStringArray(candidates.toArray()));
 
             // Wait a while?
             try {

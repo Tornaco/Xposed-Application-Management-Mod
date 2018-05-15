@@ -29,7 +29,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppStartSetting;
 import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppTRKSetting;
 import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppUPSetting;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
@@ -103,7 +103,7 @@ public class PerAppSettingsDashboardActivity extends WithWithCustomTabActivity {
     }
 
     AppSettings onRetrieveAppSettings(String pkg) {
-        return XAshmanManager.get()
+        return XAPMManager.get()
                 .retrieveAppSettingsForPackage(pkg);
     }
 

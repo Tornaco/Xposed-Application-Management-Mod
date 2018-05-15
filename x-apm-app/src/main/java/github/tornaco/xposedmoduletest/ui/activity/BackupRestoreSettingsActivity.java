@@ -35,7 +35,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.Restore;
 import github.tornaco.xposedmoduletest.ui.tiles.app.RestoreDefault;
 import github.tornaco.xposedmoduletest.ui.tiles.app.UnInstallAPM;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import lombok.Synchronized;
 
 /**
@@ -203,8 +203,8 @@ public class BackupRestoreSettingsActivity extends BaseActivity implements
                 .setTitle(R.string.title_uninstall_apm)
                 .setMessage(getString(R.string.message_uninstall_apm))
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                    if (XAshmanManager.get().isServiceAvailable()) {
-                        XAshmanManager.get().restoreDefaultSettings();
+                    if (XAPMManager.get().isServiceAvailable()) {
+                        XAPMManager.get().restoreDefaultSettings();
                         Toast.makeText(getContext(), R.string.summary_restore_done, Toast.LENGTH_SHORT).show();
                     }
                     PackageManagerCompat.unInstallUserAppWithIntent(getContext(), BuildConfig.APPLICATION_ID);

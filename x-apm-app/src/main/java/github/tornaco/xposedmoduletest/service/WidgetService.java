@@ -12,7 +12,7 @@ import org.newstand.logger.Logger;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.IProcessClearListenerAdapter;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/12/4.
@@ -37,8 +37,8 @@ public class WidgetService extends Service {
 
         Logger.d("WidgetService. onStartCommand");
 
-        if (XAshmanManager.get().isServiceAvailable() && ACTION_CLEAR_PROCESS.equals(intent.getAction())) {
-            XAshmanManager.get().clearProcess(new IProcessClearListenerAdapter() {
+        if (XAPMManager.get().isServiceAvailable() && ACTION_CLEAR_PROCESS.equals(intent.getAction())) {
+            XAPMManager.get().clearProcess(new IProcessClearListenerAdapter() {
 
                 @Override
                 public void onPrepareClearing() throws RemoteException {

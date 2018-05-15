@@ -9,7 +9,7 @@ import org.newstand.logger.Logger;
 import dev.nick.tiles.tile.EditTextTileView;
 import dev.nick.tiles.tile.QuickTile;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -21,9 +21,9 @@ public class DozeDelayTile extends QuickTile {
     public DozeDelayTile(final Context context) {
         super(context);
         this.titleRes = R.string.title_delay;
-        final long delayMills = XAshmanManager.get()
+        final long delayMills = XAPMManager.get()
                 .isServiceAvailable() ?
-                XAshmanManager.get().getDozeDelayMills()
+                XAPMManager.get().getDozeDelayMills()
                 : -1;
         final String delayMillsStr = delayMills >= 0
                 ? context.getResources().getString(R.string.summary_delay_mills, String.valueOf(delayMills))
@@ -68,7 +68,7 @@ public class DozeDelayTile extends QuickTile {
                     if (delay < 0) {
                         Toast.makeText(context, R.string.summary_delay_should_be_positive, Toast.LENGTH_SHORT).show();
                     } else {
-                        XAshmanManager.get().setDozeDelayMills(delay);
+                        XAPMManager.get().setDozeDelayMills(delay);
 
                         // Update summary.
                         final String delayMillsStr = delay > 0

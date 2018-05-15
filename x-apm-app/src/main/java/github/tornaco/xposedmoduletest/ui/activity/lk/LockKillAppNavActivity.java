@@ -28,7 +28,7 @@ import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 public class LockKillAppNavActivity extends CommonPackageInfoListActivity implements SwitchBar.OnSwitchChangeListener, AdapterView.OnItemSelectedListener {
 
@@ -71,8 +71,8 @@ public class LockKillAppNavActivity extends CommonPackageInfoListActivity implem
                     @Override
                     public void accept(CommonPackageInfo commonPackageInfo) {
                         if (commonPackageInfo.isChecked()) {
-                            XAshmanManager.get().addOrRemoveLKApps(new String[]{commonPackageInfo.getPkgName()},
-                                    XAshmanManager.Op.REMOVE);
+                            XAPMManager.get().addOrRemoveLKApps(new String[]{commonPackageInfo.getPkgName()},
+                                    XAPMManager.Op.REMOVE);
                         }
                     }
                 });
@@ -83,7 +83,7 @@ public class LockKillAppNavActivity extends CommonPackageInfoListActivity implem
         switchBar.setOnRes(R.string.summary_func_lk_enabled);
         switchBar.setOffRes(R.string.summary_func_lk_disabled);
         switchBar.show();
-        switchBar.setChecked(XAshmanManager.get().isLockKillEnabled());
+        switchBar.setChecked(XAPMManager.get().isLockKillEnabled());
         switchBar.addOnSwitchChangeListener(this);
     }
 
@@ -141,7 +141,7 @@ public class LockKillAppNavActivity extends CommonPackageInfoListActivity implem
 
     @Override
     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-        XAshmanManager.get().setLockKillEnabled(isChecked);
+        XAPMManager.get().setLockKillEnabled(isChecked);
     }
 
     @Override

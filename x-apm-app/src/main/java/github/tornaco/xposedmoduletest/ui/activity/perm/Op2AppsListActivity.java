@@ -28,7 +28,7 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.WithSearchActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.PermissionAppsAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/12/12.
@@ -166,7 +166,7 @@ public class Op2AppsListActivity extends WithSearchActivity<CommonPackageInfo> {
                                     String pkg = info.getPkgName();
                                     int mode = b ? AppOpsManagerCompat.MODE_ALLOWED
                                             : AppOpsManagerCompat.MODE_IGNORED;
-                                    XAshmanManager.get().setPermissionControlBlockModeForPkg(op, pkg, mode);
+                                    XAPMManager.get().setPermissionControlBlockModeForPkg(op, pkg, mode);
                                     runOnUiThreadChecked(new Runnable() {
                                         @Override
                                         public void run() {

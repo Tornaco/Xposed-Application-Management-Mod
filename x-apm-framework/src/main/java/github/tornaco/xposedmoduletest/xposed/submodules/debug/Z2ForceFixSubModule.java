@@ -10,7 +10,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.submodules.AndroidSubModule;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -67,8 +67,8 @@ public class Z2ForceFixSubModule extends AndroidSubModule {
                         Log.d(XposedLog.TAG, "Z2ForceFixSubModule, ProtoParsers#get err: " + Log.getStackTraceString(e));
                         param.setThrowable(null);
                         param.setResult(null);
-                        if (XAshmanManager.get().isServiceAvailable()) {
-                            XAshmanManager.get().showToast("Z2ForceFixSubModule ERROR FIXED:" + e);
+                        if (XAPMManager.get().isServiceAvailable()) {
+                            XAPMManager.get().showToast("Z2ForceFixSubModule ERROR FIXED:" + e);
                         }
                     }
                 }

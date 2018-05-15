@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.ui.tiles.app;
 
+import android.app.Activity;
 import android.content.Context;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -63,7 +64,15 @@ public class ThemeChooser extends QuickTile {
 
                     getTileView().getSummaryTextView().setText(descList.get(position));
 
-                    Toast.makeText(context, R.string.title_theme_need_restart_app, Toast.LENGTH_SHORT).show();
+
+                    try {
+                        Activity activity = (Activity) context;
+                        activity.recreate();
+                    } catch (Throwable ignored) {
+
+                    } finally {
+                        Toast.makeText(context, R.string.title_theme_need_restart_app, Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         };

@@ -13,7 +13,7 @@ import java.util.Arrays;
 
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.xposed.app.IProcessClearListenerAdapter;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
@@ -43,7 +43,7 @@ public class ClearProcessActivity extends BaseActivity {
 
         final TextView textView = findViewById(R.id.text);
 
-        XAshmanManager.get().clearProcess(new IProcessClearListenerAdapter() {
+        XAPMManager.get().clearProcess(new IProcessClearListenerAdapter() {
             @Override
             public boolean doNotClearWhenIntervative() throws RemoteException {
                 return false;

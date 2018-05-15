@@ -12,7 +12,7 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 public class ResdientAppNavActivity extends CommonPackageInfoListActivity implements SwitchBar.OnSwitchChangeListener {
 
@@ -28,7 +28,7 @@ public class ResdientAppNavActivity extends CommonPackageInfoListActivity implem
                     @Override
                     public void accept(CommonPackageInfo commonPackageInfo) {
                         if (commonPackageInfo.isChecked()) {
-                            XAshmanManager.get().addOrRemoveResidentApps(
+                            XAPMManager.get().addOrRemoveResidentApps(
                                     commonPackageInfo.getPkgName(), false);
                         }
                     }
@@ -38,7 +38,7 @@ public class ResdientAppNavActivity extends CommonPackageInfoListActivity implem
     @Override
     protected void onInitSwitchBar(SwitchBar switchBar) {
         switchBar.show();
-        switchBar.setChecked(XAshmanManager.get().isResidentEnabled());
+        switchBar.setChecked(XAPMManager.get().isResidentEnabled());
         switchBar.addOnSwitchChangeListener(this);
     }
 
@@ -64,7 +64,7 @@ public class ResdientAppNavActivity extends CommonPackageInfoListActivity implem
 
     @Override
     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-        XAshmanManager.get().setResidentEnabled(isChecked);
+        XAPMManager.get().setResidentEnabled(isChecked);
     }
 
 }

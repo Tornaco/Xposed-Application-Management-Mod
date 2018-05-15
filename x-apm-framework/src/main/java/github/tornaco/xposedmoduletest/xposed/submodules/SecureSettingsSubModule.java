@@ -12,7 +12,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -46,7 +46,7 @@ class SecureSettingsSubModule extends AndroidSubModule {
                             String name = String.valueOf(param.args[1]);
                             if (Settings.Secure.ANDROID_ID.equals(name)) {
                                 // Use of defined id.
-                                XAshmanManager ash = XAshmanManager.get();
+                                XAPMManager ash = XAPMManager.get();
                                 if (ash.isServiceAvailable()) {
                                     String pkgName = AndroidAppHelper.currentPackageName();
                                     boolean priv =

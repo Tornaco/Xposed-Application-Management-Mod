@@ -26,7 +26,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.model.NetworkRestrictionItem;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -102,16 +102,16 @@ public class NetworkRestrictListAdapter
 
         holder.getSystemAppIndicator().setVisibility(item.isSystemApp() ? View.VISIBLE : View.GONE);
 
-        if (XAshmanManager.get().isServiceAvailable()) {
+        if (XAPMManager.get().isServiceAvailable()) {
 
             holder.getRestrictSwitch().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Switch s = (Switch) v;
                     if (isRestrictWifi()) {
-                        XAshmanManager.get().restrictAppOnWifi(item.getUid(), !s.isChecked());
+                        XAPMManager.get().restrictAppOnWifi(item.getUid(), !s.isChecked());
                     } else {
-                        XAshmanManager.get().restrictAppOnData(item.getUid(), !s.isChecked());
+                        XAPMManager.get().restrictAppOnData(item.getUid(), !s.isChecked());
                     }
                 }
             });

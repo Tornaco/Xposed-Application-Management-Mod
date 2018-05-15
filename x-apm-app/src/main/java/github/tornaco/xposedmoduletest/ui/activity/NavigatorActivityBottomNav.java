@@ -3,11 +3,11 @@ package github.tornaco.xposedmoduletest.ui.activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -96,8 +96,8 @@ import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 import github.tornaco.xposedmoduletest.xposed.service.ErrorCatchRunnable;
 import lombok.Getter;
 import lombok.Setter;
@@ -145,8 +145,8 @@ public class NavigatorActivityBottomNav
 
         // This is a workaround that some apps is installed on SD.
         // We trigger a package scan now, to ensure wo got all packages.
-        if (XAshmanManager.get().isServiceAvailable()) {
-            XAshmanManager.get().forceReloadPackages();
+        if (XAPMManager.get().isServiceAvailable()) {
+            XAPMManager.get().forceReloadPackages();
         }
 
         miscIfNotFirst();
@@ -194,10 +194,10 @@ public class NavigatorActivityBottomNav
     }
 
     private void loadAppLockConfig() {
-        if (XAshmanManager.get().isServiceAvailable()) {
+        if (XAPMManager.get().isServiceAvailable()) {
             XExecutor.execute(() -> {
                 String[] whitelist = getResources().getStringArray(R.array.app_lock_white_list_activity);
-                XAshmanManager.get().addAppLockWhiteListActivity(whitelist);
+                XAPMManager.get().addAppLockWhiteListActivity(whitelist);
             });
         }
     }
@@ -261,10 +261,9 @@ public class NavigatorActivityBottomNav
                     cardController.setCurrent(INDEXS.SETTINGS);
                     break;
             }
-            ActivityLifeCycleDashboardFragment dashboardFragment = getCardController().getCurrent();
-            @StringRes int titleRes = dashboardFragment.getPageTitle();
-            setTitle(titleRes);
+
             setBottomNavIndex(getCardController().getCurrentIndex());
+            requestUpdateTitle();
             // Update menus.
             invalidateOptionsMenu();
             return true;
@@ -275,12 +274,34 @@ public class NavigatorActivityBottomNav
     private void setupView() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
 
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         if (AppSettings.isBottomNavNoShiftEnabled(getContext())) {
             BottomNavigationViewHelper.removeShiftMode(navigation);
         }
+    }
+
+    @Override
+    public void setTitle(int titleId) {
+        // super.setTitle(titleId);
+        setTitleInternal(getString(titleId));
+    }
+
+    @Override
+    public void setTitle(CharSequence title) {
+        // super.setTitle(title);
+        setTitleInternal(title);
+    }
+
+    private void setTitleInternal(CharSequence title) {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        TextView titleView = toolbar.findViewById(R.id.toolbar_title);
+        titleView.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/futura-medium-bt.ttf"));
+        titleView.setText(title);
     }
 
     protected void setupFragment() {
@@ -290,12 +311,18 @@ public class NavigatorActivityBottomNav
                         new ManageNavFragment(),
                         new ToolsNavFragment(),
                         new SettingsNavFragment());
+
         cardController = new FragmentController<>(getSupportFragmentManager(), cards, R.id.container);
         cardController.setDefaultIndex(0);
         cardController.setCurrent(0);
 
         // Set activity title from the first one.
-        setTitle(cards.get(INDEXS.STATUS).getPageTitle());
+        cards.get(INDEXS.STATUS).onSetActivityTitle(this);
+    }
+
+    public void requestUpdateTitle() {
+        ActivityLifeCycleDashboardFragment dashboardFragment = getCardController().getCurrent();
+        dashboardFragment.onSetActivityTitle(this);
     }
 
     @Override
@@ -306,8 +333,8 @@ public class NavigatorActivityBottomNav
     }
 
     private void checkForRedemptionMode() {
-        boolean redemption = XAshmanManager.get().isServiceAvailable()
-                && XAshmanManager.get().isInRedemptionMode();
+        boolean redemption = XAPMManager.get().isServiceAvailable()
+                && XAPMManager.get().isInRedemptionMode();
         if (redemption) {
             new AlertDialog.Builder(getActivity())
                     .setTitle(R.string.title_redemption_mode)
@@ -321,7 +348,7 @@ public class NavigatorActivityBottomNav
                             })
                     .setNegativeButton(R.string.leave_redemption_mode,
                             (dialog, which) -> {
-                                XAshmanManager.get().leaveRedemptionMode();
+                                XAPMManager.get().leaveRedemptionMode();
                                 finishAffinity();
                                 Toast.makeText(getContext(), R.string.redemption_need_restart, Toast.LENGTH_SHORT).show();
                             })
@@ -404,7 +431,11 @@ public class NavigatorActivityBottomNav
             ActivityLifeCycleDashboardFragment current = getCardController().getCurrent();
             boolean two = AppSettings.show2ColumnsIn(getActivity(), current.getClass().getSimpleName());
             AppSettings.setShow2ColumnsIn(getContext(), current.getClass().getSimpleName(), !two);
-            Toast.makeText(getContext(), R.string.title_theme_need_restart_app, Toast.LENGTH_SHORT).show();
+            try {
+                recreate();
+            } catch (Throwable e) {
+                Toast.makeText(getContext(), R.string.title_theme_need_restart_app, Toast.LENGTH_SHORT).show();
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -453,6 +484,8 @@ public class NavigatorActivityBottomNav
         @Getter
         private View rootView;
 
+        private boolean apmModuleOKNoAndActionNeed = false;
+
         @Override
         protected int getLayoutId() {
             return R.layout.fragment_dev_status;
@@ -460,7 +493,15 @@ public class NavigatorActivityBottomNav
 
         @Override
         public int getPageTitle() {
-            return R.string.title_device_status;
+            return R.string.title_device_status_fragment;
+        }
+
+        @Override
+        public void onSetActivityTitle(BaseActivity activity) {
+            super.onSetActivityTitle(activity);
+//            if (apmModuleOKNoAndActionNeed) {
+//                activity.setSubTitleChecked(getString(R.string.title_service_connected));
+//            }
         }
 
         @Override
@@ -507,7 +548,7 @@ public class NavigatorActivityBottomNav
                 popupMenu.inflate(R.menu.card_boost);
                 popupMenu.setOnMenuItemClickListener(item -> {
                     if (item.getItemId() == R.id.action_lock_now) {
-                        XAshmanManager.get().injectPowerEvent();
+                        XAPMManager.get().injectPowerEvent();
                     } else if (item.getItemId() == R.id.action_add_lock_shortcut) {
                         LockScreenStubActivity.addShortcut(getActivity());
                     } else if (item.getItemId() == R.id.action_add_shortcut) {
@@ -607,7 +648,7 @@ public class NavigatorActivityBottomNav
 
                 ViewGroup header = findView(rootView, R.id.header1);
                 header.setBackgroundColor(
-                        XAppGuardManager.get().isServiceAvailable() ?
+                        XAppLockManager.get().isServiceAvailable() ?
                                 cardAccentColor
                                 : ContextCompat.getColor(getActivity(), R.color.red));
                 boolean isDonatedOrPlay = XAPMApplication.isPlayVersion() || AppSettings.isDonated(getContext());
@@ -649,7 +690,7 @@ public class NavigatorActivityBottomNav
             }
 
             // Active!
-            if (!XAshmanManager.get().isServiceAvailable()) {
+            if (!XAPMManager.get().isServiceAvailable()) {
                 Suggestion suggestion = new Suggestion(
                         getString(R.string.suggestion_active),
                         getString(R.string.suggestion_summary_active),
@@ -672,7 +713,7 @@ public class NavigatorActivityBottomNav
 
             // Donate
             boolean isPlayVersion = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.PLAY);
-            if (!isPlayVersion && XAshmanManager.get().isServiceAvailable() && !AppSettings.isDonated(getActivity())) {
+            if (!isPlayVersion && XAPMManager.get().isServiceAvailable() && !AppSettings.isDonated(getActivity())) {
                 Suggestion suggestion = new Suggestion(
                         getString(R.string.suggestion_donate),
                         getString(R.string.suggestion_summary_donate,
@@ -690,28 +731,28 @@ public class NavigatorActivityBottomNav
             }
 
             // Debug mode.
-            if (XAppGuardManager.get().isServiceAvailable() && XAppGuardManager.get().isDebug()) {
+            if (XAppLockManager.get().isServiceAvailable() && XAppLockManager.get().isDebug()) {
                 Suggestion suggestion = new Suggestion(
                         getString(R.string.suggestion_turn_off_debug_mode),
                         getString(R.string.suggestion_summary_turn_off_debug_mode),
                         getString(R.string.suggestion_action_turn_off_debug_mode),
                         R.drawable.ic_developer_mode_black_24dp,
                         (group, flatPosition, childIndex) -> {
-                            XAppGuardManager.get().setDebug(false);
+                            XAppLockManager.get().setDebug(false);
                             return true;
                         });
                 suggestionList.add(suggestion);
             }
 
             // Power save.
-            if (XAshmanManager.get().isServiceAvailable() && !XAshmanManager.get().isPowerSaveModeEnabled()) {
+            if (XAPMManager.get().isServiceAvailable() && !XAPMManager.get().isPowerSaveModeEnabled()) {
                 Suggestion suggestion = new Suggestion(
                         getString(R.string.suggestion_turn_on_power_save),
                         getString(R.string.suggestion_summary_turn_on_power_save),
                         getString(R.string.suggestion_action_turn_on_power_save),
                         R.drawable.ic_power_black_24dp,
                         (group, flatPosition, childIndex) -> {
-                            XAshmanManager.get().setPowerSaveModeEnabled(true);
+                            XAPMManager.get().setPowerSaveModeEnabled(true);
                             return true;
                         });
                 suggestionList.add(suggestion);
@@ -736,8 +777,8 @@ public class NavigatorActivityBottomNav
                     .setTitle(R.string.title_uninstall_apm)
                     .setMessage(getString(R.string.message_uninstall_apm))
                     .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                        if (XAshmanManager.get().isServiceAvailable()) {
-                            XAshmanManager.get().restoreDefaultSettings();
+                        if (XAPMManager.get().isServiceAvailable()) {
+                            XAPMManager.get().restoreDefaultSettings();
                             Toast.makeText(getContext(), R.string.summary_restore_done, Toast.LENGTH_SHORT).show();
                         }
                         PackageManagerCompat.unInstallUserAppWithIntent(getContext(), BuildConfig.APPLICATION_ID);
@@ -766,8 +807,8 @@ public class NavigatorActivityBottomNav
             if (serviceAvailable) {
                 XExecutor.execute(() -> {
                     try {
-                        final boolean hasModuleError = XAshmanManager.get().hasModuleError();
-                        final boolean hasSystemError = XAshmanManager.get().hasSystemError();
+                        final boolean hasModuleError = XAPMManager.get().hasModuleError();
+                        final boolean hasSystemError = XAPMManager.get().hasSystemError();
                         Logger.d("hasModuleError %s hasSystemError %s", hasModuleError, hasSystemError);
                         BaseActivity baseActivity = (BaseActivity) getActivity();
                         if (baseActivity != null) {
@@ -789,7 +830,12 @@ public class NavigatorActivityBottomNav
 
                                     // If all good, hide this card.
                                     if (!hasModuleError && !hasSystemError) {
-                                        findView(rootView, R.id.status_container).setVisibility(View.GONE);
+//                                        findView(rootView, R.id.status_container).setVisibility(View.GONE);
+                                        apmModuleOKNoAndActionNeed = true;
+                                        NavigatorActivityBottomNav activityBottomNav = (NavigatorActivityBottomNav) getActivity();
+                                        if (activityBottomNav != null && !activityBottomNav.isDestroyed()) {
+                                            activityBottomNav.requestUpdateTitle();
+                                        }
                                     }
                                 }
                             });
@@ -802,7 +848,7 @@ public class NavigatorActivityBottomNav
         }
 
         private boolean isServiceAvailable() {
-            return XAppGuardManager.get().isServiceAvailable();
+            return XAppLockManager.get().isServiceAvailable();
         }
 
         @SuppressWarnings("unchecked")

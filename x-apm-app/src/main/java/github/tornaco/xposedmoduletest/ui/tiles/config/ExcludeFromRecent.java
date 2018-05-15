@@ -11,7 +11,7 @@ import org.newstand.logger.Logger;
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -24,15 +24,15 @@ public class ExcludeFromRecent extends QuickTile {
         super(context);
         this.titleRes = R.string.title_exclude_from_recent;
         this.iconRes = R.drawable.ic_fiber_smart_record_black_24dp;
-        int setting = XAshmanManager.ExcludeRecentSetting.NONE;
+        int setting = XAPMManager.ExcludeRecentSetting.NONE;
         final ComponentName componentName = new ComponentName(pkg, "DUMMY");
-        if (XAshmanManager.get().isServiceAvailable()) {
-            setting = XAshmanManager.get().getRecentTaskExcludeSetting(componentName);
-            if (setting == XAshmanManager.ExcludeRecentSetting.NONE) {
+        if (XAPMManager.get().isServiceAvailable()) {
+            setting = XAPMManager.get().getRecentTaskExcludeSetting(componentName);
+            if (setting == XAPMManager.ExcludeRecentSetting.NONE) {
                 this.summaryRes = R.string.summary_exclude_recent_none;
-            } else if (setting == XAshmanManager.ExcludeRecentSetting.EXCLUDE) {
+            } else if (setting == XAPMManager.ExcludeRecentSetting.EXCLUDE) {
                 this.summaryRes = R.string.summary_exclude_recent_exclude;
-            } else if (setting == XAshmanManager.ExcludeRecentSetting.INCLUDE) {
+            } else if (setting == XAPMManager.ExcludeRecentSetting.INCLUDE) {
                 this.summaryRes = R.string.summary_exclude_recent_include;
             }
 
@@ -46,7 +46,7 @@ public class ExcludeFromRecent extends QuickTile {
                 String[] source = context.getResources().getStringArray(R.array.exclude_from_recent_settings);
 
                 new AlertDialog.Builder(context)
-                        .setSingleChoiceItems(source, XAshmanManager.get().getRecentTaskExcludeSetting(componentName),
+                        .setSingleChoiceItems(source, XAPMManager.get().getRecentTaskExcludeSetting(componentName),
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
@@ -57,13 +57,13 @@ public class ExcludeFromRecent extends QuickTile {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 Logger.d("Set exclude setting: " + newSetting[0]);
-                                XAshmanManager.get().setRecentTaskExcludeSetting(componentName, newSetting[0]);
+                                XAPMManager.get().setRecentTaskExcludeSetting(componentName, newSetting[0]);
 
-                                if (newSetting[0] == XAshmanManager.ExcludeRecentSetting.NONE) {
+                                if (newSetting[0] == XAPMManager.ExcludeRecentSetting.NONE) {
                                     getSummaryTextView().setText(R.string.summary_exclude_recent_none);
-                                } else if (newSetting[0] == XAshmanManager.ExcludeRecentSetting.EXCLUDE) {
+                                } else if (newSetting[0] == XAPMManager.ExcludeRecentSetting.EXCLUDE) {
                                     getSummaryTextView().setText(R.string.summary_exclude_recent_exclude);
-                                } else if (newSetting[0] == XAshmanManager.ExcludeRecentSetting.INCLUDE) {
+                                } else if (newSetting[0] == XAPMManager.ExcludeRecentSetting.INCLUDE) {
                                     getSummaryTextView().setText(R.string.summary_exclude_recent_include);
                                 }
                             }

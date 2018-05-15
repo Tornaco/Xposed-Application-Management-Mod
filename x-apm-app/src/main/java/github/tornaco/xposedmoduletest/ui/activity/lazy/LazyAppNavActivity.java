@@ -16,7 +16,7 @@ import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListA
 import github.tornaco.xposedmoduletest.ui.activity.green2.LazySettingsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 public class LazyAppNavActivity extends CommonPackageInfoListActivity implements SwitchBar.OnSwitchChangeListener {
 
@@ -25,7 +25,7 @@ public class LazyAppNavActivity extends CommonPackageInfoListActivity implements
         Collections.consumeRemaining(getCommonPackageInfoAdapter().getCommonPackageInfos(),
                 commonPackageInfo -> {
                     if (commonPackageInfo.isChecked()) {
-                        XAshmanManager.get().addOrRemoveLazyApps(new String[]{commonPackageInfo.getPkgName()}, XAshmanManager.Op.REMOVE);
+                        XAPMManager.get().addOrRemoveLazyApps(new String[]{commonPackageInfo.getPkgName()}, XAPMManager.Op.REMOVE);
                     }
                 });
     }
@@ -33,7 +33,7 @@ public class LazyAppNavActivity extends CommonPackageInfoListActivity implements
     @Override
     protected void onInitSwitchBar(SwitchBar switchBar) {
         switchBar.show();
-        switchBar.setChecked(XAshmanManager.get().isLazyModeEnabled());
+        switchBar.setChecked(XAPMManager.get().isLazyModeEnabled());
         switchBar.addOnSwitchChangeListener(this);
     }
 
@@ -65,7 +65,7 @@ public class LazyAppNavActivity extends CommonPackageInfoListActivity implements
 
     @Override
     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-        XAshmanManager.get().setLazyModeEnabled(isChecked);
+        XAPMManager.get().setLazyModeEnabled(isChecked);
     }
 
     @Override

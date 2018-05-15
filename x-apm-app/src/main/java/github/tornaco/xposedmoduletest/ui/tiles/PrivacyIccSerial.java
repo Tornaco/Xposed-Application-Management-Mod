@@ -7,7 +7,7 @@ import android.view.View;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.app.PrivacyNavActivity;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -31,7 +31,7 @@ public class PrivacyIccSerial extends PrivacyItemTile {
                 showEditTextDialog((Activity) context, new EditTextAction() {
                     @Override
                     public void onAction(String text) {
-                        XAshmanManager.get().setUserDefinedLine1Number(text);
+                        XAPMManager.get().setUserDefinedLine1Number(text);
 
 
                         PrivacyNavActivity pa = (PrivacyNavActivity) context;
@@ -44,10 +44,10 @@ public class PrivacyIccSerial extends PrivacyItemTile {
     }
 
     private String getLine1Number() {
-        return XAshmanManager.get().getLine1Number();
+        return XAPMManager.get().getLine1Number();
     }
 
     private String getUserSetLine1Number() {
-        return XAshmanManager.get().getUserDefinedLine1Number();
+        return XAPMManager.get().getUserDefinedLine1Number();
     }
 }

@@ -44,7 +44,7 @@ import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.InterestingConfigChanges;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Singleton for retrieving and monitoring the state about all running
@@ -400,9 +400,9 @@ public class RunningState {
                     return false;
                 }
                 // Query starter.
-                if (XAshmanManager.get().isServiceAvailable()) {
+                if (XAPMManager.get().isServiceAvailable()) {
                     // updateNow: java.lang.NoSuchMethodError: No virtual method getComponentName()Landroid/content/ComponentName; in class Landroid/content/pm/
-                    // si.starter = XAshmanManager.get().getServiceStarter(si.mServiceInfo.getComponentName());
+                    // si.starter = XAPMManager.get().getServiceStarter(si.mServiceInfo.getComponentName());
                 }
                 si.mDisplayLabel = makeLabel(pm,
                         si.mRunningService.service.getClassName(), si.mServiceInfo);
@@ -706,7 +706,7 @@ public class RunningState {
         // Retrieve list of services, filtering out anything that definitely
         // won't be shown in the UI.
         List<ActivityManager.RunningServiceInfo> services
-                = XAshmanManager.get().getRunningServices(MAX_SERVICES);
+                = XAPMManager.get().getRunningServices(MAX_SERVICES);
         int NS = services != null ? services.size() : 0;
         for (int i = 0; i < NS; i++) {
             ActivityManager.RunningServiceInfo si = services.get(i);
@@ -733,7 +733,7 @@ public class RunningState {
         // Retrieve list of running processes, organizing them into a sparse
         // array for easy retrieval.
         List<ActivityManager.RunningAppProcessInfo> processes
-                = XAshmanManager.get().getRunningAppProcesses();
+                = XAPMManager.get().getRunningAppProcesses();
         final int NP = processes != null ? processes.size() : 0;
         mTmpAppProcesses.clear();
         for (int i = 0; i < NP; i++) {
@@ -1111,7 +1111,7 @@ public class RunningState {
         for (int i = 0; i < numProc; i++) {
             pids[i] = mAllProcessItems.get(i).mPid;
         }
-        long[] pss = XAshmanManager.get()
+        long[] pss = XAPMManager.get()
                 .getProcessPss(pids);
         int bgIndex = 0;
 

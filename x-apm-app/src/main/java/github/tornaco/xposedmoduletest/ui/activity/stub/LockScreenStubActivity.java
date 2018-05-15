@@ -21,7 +21,7 @@ import org.newstand.logger.Logger;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.util.OSUtil;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2018/3/5.
@@ -97,8 +97,8 @@ public class LockScreenStubActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (XAshmanManager.get().isServiceAvailable()) {
-            XAshmanManager.get().injectPowerEvent();
+        if (XAPMManager.get().isServiceAvailable()) {
+            XAPMManager.get().injectPowerEvent();
         }
         Logger.w("LockScreenStubActivity create");
         finishAffinity();

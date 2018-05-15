@@ -121,7 +121,7 @@ import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.GlobalWhiteList;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.IProcessClearListenerAdapter;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
@@ -186,9 +186,9 @@ import lombok.ToString;
 
 import static android.content.Context.KEYGUARD_SERVICE;
 import static android.content.Context.POWER_SERVICE;
-import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_NONE;
-import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_ON_DATA;
-import static github.tornaco.xposedmoduletest.xposed.app.XAshmanManager.POLICY_REJECT_ON_WIFI;
+import static github.tornaco.xposedmoduletest.xposed.app.XAPMManager.POLICY_REJECT_NONE;
+import static github.tornaco.xposedmoduletest.xposed.app.XAPMManager.POLICY_REJECT_ON_DATA;
+import static github.tornaco.xposedmoduletest.xposed.app.XAPMManager.POLICY_REJECT_ON_WIFI;
 import static github.tornaco.xposedmoduletest.xposed.bean.DozeEvent.FAIL_DEVICE_INTERACTIVE;
 import static github.tornaco.xposedmoduletest.xposed.bean.DozeEvent.FAIL_GENERIC_FAILURE;
 import static github.tornaco.xposedmoduletest.xposed.bean.DozeEvent.FAIL_RETRY_TIMEOUT;
@@ -301,7 +301,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private final Holder<String> mUserDefinedLine1Number = new Holder<>();
 
     // FIXME Now we force set control mode to BLACK LIST.
-    private AtomicInteger mControlMode = new AtomicInteger(XAshmanManager.ControlMode.BLACK_LIST);
+    private AtomicInteger mControlMode = new AtomicInteger(XAPMManager.ControlMode.BLACK_LIST);
 
     private long mLockKillDelay, mDozeDelay;
 
@@ -1670,7 +1670,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                     // Start app process.
                     // FIXME No need to add for system app? Need a real user test.
                     int appLevel = getAppLevel(targetPkg);
-                    if (appLevel == XAshmanManager.AppLevel.THIRD_PARTY) {
+                    if (appLevel == XAPMManager.AppLevel.THIRD_PARTY) {
                         addApp(targetPkg);
                     }
                     XposedLog.verbose("Introduce FLAG_INCLUDE_STOPPED_PACKAGES for GCM/FCM package: "
@@ -1919,24 +1919,24 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @BinderCall
     public int getAppLevel(String pkg) {
         if (SYSTEM_UID_APPS.contains(pkg)) {
-            return XAshmanManager.AppLevel.SYSTEM_UID;
+            return XAPMManager.AppLevel.SYSTEM_UID;
         }
         if (MEDIA_UID_APPS.contains(pkg)) {
-            return XAshmanManager.AppLevel.MEDIA_UID;
+            return XAPMManager.AppLevel.MEDIA_UID;
         }
         if (PHONE_UID_APPS.contains(pkg)) {
-            return XAshmanManager.AppLevel.PHONE_UID;
+            return XAPMManager.AppLevel.PHONE_UID;
         }
 
         if (isWebviewProvider(pkg)) {
-            return XAshmanManager.AppLevel.WEBVIEW_IMPL;
+            return XAPMManager.AppLevel.WEBVIEW_IMPL;
         }
 
         // Do not change this order.
         if (SYSTEM_APPS.contains(pkg)) {
-            return XAshmanManager.AppLevel.SYSTEM;
+            return XAPMManager.AppLevel.SYSTEM;
         }
-        return XAshmanManager.AppLevel.THIRD_PARTY;
+        return XAPMManager.AppLevel.THIRD_PARTY;
     }
 
     @Override
@@ -2423,7 +2423,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         // Same app for system-core/media/phone is allowed.
         if (serviceUid == callerUid) {
             int appLevel = getAppLevel(servicePkgName);
-            if (appLevel > XAshmanManager.AppLevel.SYSTEM) {
+            if (appLevel > XAPMManager.AppLevel.SYSTEM) {
                 return CheckResult.SAME_CALLER_CORE;
             }
 
@@ -2931,9 +2931,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         List<String> outList = Lists.newArrayList();
         outList.addAll(packages);
 
-        final boolean showSystem = filterOptions == XAshmanManager.FLAG_SHOW_SYSTEM_APP
-                || filterOptions == XAshmanManager.FLAG_SHOW_SYSTEM_APP_WITHOUT_CORE_APP;
-        final boolean withoutCore = filterOptions == XAshmanManager.FLAG_SHOW_SYSTEM_APP_WITHOUT_CORE_APP;
+        final boolean showSystem = filterOptions == XAPMManager.FLAG_SHOW_SYSTEM_APP
+                || filterOptions == XAPMManager.FLAG_SHOW_SYSTEM_APP_WITHOUT_CORE_APP;
+        final boolean withoutCore = filterOptions == XAPMManager.FLAG_SHOW_SYSTEM_APP_WITHOUT_CORE_APP;
         final List<String> filtered = Lists.newArrayList();
         Collections.consumeRemaining(outList, new Consumer<String>() {
             @Override
@@ -3028,7 +3028,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             XposedLog.verbose("addOrRemoveBootBlockApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
-        addOrRemoveFromRepo(packages, RepoProxy.getProxy().getBoots(), op == XAshmanManager.Op.ADD);
+        addOrRemoveFromRepo(packages, RepoProxy.getProxy().getBoots(), op == XAPMManager.Op.ADD);
     }
 
     @Override
@@ -3088,7 +3088,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             XposedLog.verbose("addOrRemoveStartBlockApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
-        addOrRemoveFromRepo(packages, RepoProxy.getProxy().getStarts(), op == XAshmanManager.Op.ADD);
+        addOrRemoveFromRepo(packages, RepoProxy.getProxy().getStarts(), op == XAPMManager.Op.ADD);
     }
 
     @Override
@@ -3142,8 +3142,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             XposedLog.verbose("addOrRemoveLKApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
-        addOrRemoveFromRepo(packages, RepoProxy.getProxy().getLks(), op == XAshmanManager.Op.ADD);
-        if (op == XAshmanManager.Op.REMOVE) {
+        addOrRemoveFromRepo(packages, RepoProxy.getProxy().getLks(), op == XAPMManager.Op.ADD);
+        if (op == XAPMManager.Op.REMOVE) {
             removeFromRunningProcessPackages(packages);
         }
     }
@@ -3205,7 +3205,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             XposedLog.verbose("addOrRemoveRFKApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
-        addOrRemoveFromRepo(packages, RepoProxy.getProxy().getRfks(), op == XAshmanManager.Op.ADD);
+        addOrRemoveFromRepo(packages, RepoProxy.getProxy().getRfks(), op == XAPMManager.Op.ADD);
     }
 
     @Override
@@ -3265,7 +3265,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             XposedLog.verbose("addOrRemoveGreeningApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
-        addOrRemoveFromRepo(packages, RepoProxy.getProxy().getGreens(), op == XAshmanManager.Op.ADD);
+        addOrRemoveFromRepo(packages, RepoProxy.getProxy().getGreens(), op == XAPMManager.Op.ADD);
     }
 
     @Override
@@ -3334,7 +3334,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public void setControlMode(int mode) {
-        if (mode != XAshmanManager.ControlMode.BLACK_LIST && mode != XAshmanManager.ControlMode.WHITE_LIST) {
+        if (mode != XAPMManager.ControlMode.BLACK_LIST && mode != XAPMManager.ControlMode.WHITE_LIST) {
             throw new IllegalArgumentException("Bad mode:" + mode);
         }
         enforceCallingPermissions();
@@ -3378,8 +3378,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public int getRecentTaskExcludeSetting(ComponentName c) {
-        if (c == null) return XAshmanManager.ExcludeRecentSetting.NONE;
-        return SettingsProvider.get().getInt("RECENT_EXCLUDE_" + c.getPackageName(), XAshmanManager.ExcludeRecentSetting.NONE);
+        if (c == null) return XAPMManager.ExcludeRecentSetting.NONE;
+        return SettingsProvider.get().getInt("RECENT_EXCLUDE_" + c.getPackageName(), XAPMManager.ExcludeRecentSetting.NONE);
     }
 
     @Override
@@ -3568,7 +3568,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     public int getAppConfigOverlayIntSetting(String appPackageName, String tag) {
         return SettingsProvider.get().getInt("CONFIG_OVERLAY_" + tag + "_" + appPackageName,
-                XAshmanManager.ConfigOverlays.NONE);// Invalid.
+                XAPMManager.ConfigOverlays.NONE);// Invalid.
     }
 
     @Override
@@ -4001,7 +4001,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @CommonBringUpApi
     public void publish() {
         try {
-            String serviceName = XAshmanManager.SERVICE_NAME;
+            String serviceName = XAPMManager.SERVICE_NAME;
             XposedLog.boot("publishing ash to: " + serviceName);
             ServiceManager.addService(serviceName, asBinder());
         } catch (Throwable e) {
@@ -4389,17 +4389,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     public void setAppServiceLazyControlSolution(int solutionFlags, boolean enable) {
         enforceCallingPermissions();
-        XposedLog.verbose("LAZY setAppServiceLazyControlSolution: " + XAshmanManager.AppServiceControlSolutions.decode(solutionFlags));
+        XposedLog.verbose("LAZY setAppServiceLazyControlSolution: " + XAPMManager.AppServiceControlSolutions.decode(solutionFlags));
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_SETAPPSERVICELAZYCONTROLSOLUTION, solutionFlags, solutionFlags, enable).sendToTarget();
     }
 
     @Override
     public boolean isAppServiceLazyControlSolutionEnable(int solutionFlags) {
         enforceCallingPermissions();
-        if (solutionFlags == XAshmanManager.AppServiceControlSolutions.FLAG_APP) {
+        if (solutionFlags == XAPMManager.AppServiceControlSolutions.FLAG_APP) {
             return mLazySolutionApp.get();
         }
-        if (solutionFlags == XAshmanManager.AppServiceControlSolutions.FLAG_FW) {
+        if (solutionFlags == XAPMManager.AppServiceControlSolutions.FLAG_FW) {
             return mLazySolutionFW.get();
         }
         return false;
@@ -4490,7 +4490,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 if (add) {
                     // Check if this is 3-rd app.
                     int appLevel = getAppLevel(p);
-                    if (appLevel == XAshmanManager.AppLevel.THIRD_PARTY) {
+                    if (appLevel == XAPMManager.AppLevel.THIRD_PARTY) {
                         RepoProxy.getProxy().getProps().add(p);
                     } else {
                         XposedLog.wtf("addOrRemoveSystemPropProfileApplyApps skip for no-3rd app: " + p);
@@ -4556,7 +4556,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     public boolean isSystemPropProfileApplyApp(String packageName) {
         int appLevel = getAppLevel(packageName);
         // 3-rd and in list.
-        return appLevel == XAshmanManager.AppLevel.THIRD_PARTY
+        return appLevel == XAPMManager.AppLevel.THIRD_PARTY
                 && isPackagePropApplyByUser(packageName);
     }
 
@@ -5098,7 +5098,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         enforceCallingPermissions();
         long id = Binder.clearCallingIdentity();
         try {
-            if (op == XAshmanManager.Op.ADD) {
+            if (op == XAPMManager.Op.ADD) {
                 RepoProxy.getProxy().getPrivacy().add(pkg);
             } else {
                 RepoProxy.getProxy().getPrivacy().remove(pkg);
@@ -5327,9 +5327,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             XposedLog.verbose("addOrRemoveLazyApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
-        addOrRemoveFromRepo(packages, RepoProxy.getProxy().getLazy(), op == XAshmanManager.Op.ADD);
+        addOrRemoveFromRepo(packages, RepoProxy.getProxy().getLazy(), op == XAPMManager.Op.ADD);
 
-        if (op == XAshmanManager.Op.ADD) {
+        if (op == XAPMManager.Op.ADD) {
             // Post a check.
             for (String p : packages) {
                 postLazyServiceKillerIfNecessary(p, LAZY_KILL_SERVICE_NORMAL_INTERVAL, "Lazy-Added");
@@ -5699,7 +5699,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             XposedLog.verbose("addOrRemoveTRKApps: " + Arrays.toString(packages));
         enforceCallingPermissions();
         if (packages == null || packages.length == 0) return;
-        addOrRemoveFromRepo(packages, RepoProxy.getProxy().getTrks(), op == XAshmanManager.Op.ADD);
+        addOrRemoveFromRepo(packages, RepoProxy.getProxy().getTrks(), op == XAPMManager.Op.ADD);
     }
 
     @Override
@@ -5940,14 +5940,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         addOrRemoveLockApps(data, settings.isApplock());
         addOrRemoveBlurApps(data, settings.isBlur());
         addOrRemoveUPApps(data, settings.isUninstall());
-        addOrRemoveFromPrivacyList(pkg, settings.isPrivacy() ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);
+        addOrRemoveFromPrivacyList(pkg, settings.isPrivacy() ? XAPMManager.Op.ADD : XAPMManager.Op.REMOVE);
 
-        addOrRemoveBootBlockApps(data, settings.isBoot() ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);
-        addOrRemoveStartBlockApps(data, settings.isStart() ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);
-        addOrRemoveLKApps(data, settings.isLk() ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);
-        addOrRemoveRFKApps(data, settings.isRfk() ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);
-        addOrRemoveTRKApps(data, settings.isTrk() ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);
-        addOrRemoveLazyApps(data, settings.isLazy() ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);
+        addOrRemoveBootBlockApps(data, settings.isBoot() ? XAPMManager.Op.ADD : XAPMManager.Op.REMOVE);
+        addOrRemoveStartBlockApps(data, settings.isStart() ? XAPMManager.Op.ADD : XAPMManager.Op.REMOVE);
+        addOrRemoveLKApps(data, settings.isLk() ? XAPMManager.Op.ADD : XAPMManager.Op.REMOVE);
+        addOrRemoveRFKApps(data, settings.isRfk() ? XAPMManager.Op.ADD : XAPMManager.Op.REMOVE);
+        addOrRemoveTRKApps(data, settings.isTrk() ? XAPMManager.Op.ADD : XAPMManager.Op.REMOVE);
+        addOrRemoveLazyApps(data, settings.isLazy() ? XAPMManager.Op.ADD : XAPMManager.Op.REMOVE);
 
         setPermissionControlBlockModeForPkg(AppOpsManagerCompat.OP_WAKE_LOCK,
                 pkg,
@@ -5996,7 +5996,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         try {
             for (int i = 0; i < AppOpsManagerCompat._NUM_OP; i++) {
                 int code = i;
-                int mode = getPermissionControlBlockModeForPkg(code, XAshmanManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME, false, null);
+                int mode = getPermissionControlBlockModeForPkg(code, XAPMManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME, false, null);
                 XposedLog.verbose("Template code and mode: %s %s", code, mode);
                 setPermissionControlBlockModeForPkg(code, pkg, mode);
             }
@@ -6257,7 +6257,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 // return;
             }
 
-            boolean isFwSolution = isAppServiceLazyControlSolutionEnable(XAshmanManager.AppServiceControlSolutions.FLAG_FW);
+            boolean isFwSolution = isAppServiceLazyControlSolutionEnable(XAPMManager.AppServiceControlSolutions.FLAG_FW);
 
 
             // Invoke ActiveServices.
@@ -6280,7 +6280,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             }
 
             // Invoke App service control.
-            boolean isAppSolution = isAppServiceLazyControlSolutionEnable(XAshmanManager.AppServiceControlSolutions.FLAG_APP);
+            boolean isAppSolution = isAppServiceLazyControlSolutionEnable(XAPMManager.AppServiceControlSolutions.FLAG_APP);
             if (isAppSolution) {
                 XposedLog.verbose("LAZY, isAppSolution candidate package to kill: " + targetServicePkg);
                 toastLazyAppTipsIfNeeded(targetServicePkg, "A");
@@ -6981,7 +6981,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         // Check if this is a verifier.
         // Ignore this event for verifier.
         ComponentName componentName = intent.getComponent();
-        if (componentName != null && XAshmanManager.VERIFIER_CLASS_NAME.equals(componentName.getClassName())) {
+        if (componentName != null && XAPMManager.VERIFIER_CLASS_NAME.equals(componentName.getClassName())) {
             XposedLog.verbose("Ignore onPackageMoveToFront for verifier...");
             return;
         }
@@ -7875,12 +7875,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         @Override
         public void setAppServiceLazyControlSolution(int solutionFlags, boolean enabled) {
-            if (solutionFlags == XAshmanManager.AppServiceControlSolutions.FLAG_FW) {
+            if (solutionFlags == XAPMManager.AppServiceControlSolutions.FLAG_FW) {
                 mLazySolutionFW.set(enabled);
                 SystemSettings.APM_LAZY_SOLUTION_FW_B.writeToSystemSettings(getContext(), enabled);
             }
 
-            if (solutionFlags == XAshmanManager.AppServiceControlSolutions.FLAG_APP) {
+            if (solutionFlags == XAPMManager.AppServiceControlSolutions.FLAG_APP) {
                 mLazySolutionApp.set(enabled);
                 SystemSettings.APM_LAZY_SOLUTION_APP_B.writeToSystemSettings(getContext(), enabled);
             }
@@ -8642,7 +8642,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                     // We only add to black list when this is a new installed app.
                     if (!replacing) try {
 
-                        XAshmanManager x = XAshmanManager.get();
+                        XAPMManager x = XAPMManager.get();
 
                         boolean autoAdd = x.isServiceAvailable() && x.isAutoAddBlackEnabled();
 
@@ -8718,11 +8718,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                             XposedLog.debug("Package uninstalled, remove from cache: " + needRem);
                         }
 
-                        XAshmanManager x = XAshmanManager.get();
-                        x.addOrRemoveBootBlockApps(new String[]{packageName}, XAshmanManager.Op.REMOVE);
-                        x.addOrRemoveRFKApps(new String[]{packageName}, XAshmanManager.Op.REMOVE);
-                        x.addOrRemoveLKApps(new String[]{packageName}, XAshmanManager.Op.REMOVE);
-                        x.addOrRemoveStartBlockApps(new String[]{packageName}, XAshmanManager.Op.REMOVE);
+                        XAPMManager x = XAPMManager.get();
+                        x.addOrRemoveBootBlockApps(new String[]{packageName}, XAPMManager.Op.REMOVE);
+                        x.addOrRemoveRFKApps(new String[]{packageName}, XAPMManager.Op.REMOVE);
+                        x.addOrRemoveLKApps(new String[]{packageName}, XAPMManager.Op.REMOVE);
+                        x.addOrRemoveStartBlockApps(new String[]{packageName}, XAPMManager.Op.REMOVE);
 
                         if (BuildConfig.APPLICATION_ID.equals(packageName)) {
                             mLazyHandler.postDelayed(new Runnable() {

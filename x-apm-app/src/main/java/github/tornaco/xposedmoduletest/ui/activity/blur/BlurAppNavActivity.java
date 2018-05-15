@@ -24,7 +24,7 @@ import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListA
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.OSUtil;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 
 public class BlurAppNavActivity extends CommonPackageInfoListActivity implements SwitchBar.OnSwitchChangeListener,
         AdapterView.OnItemSelectedListener {
@@ -67,7 +67,7 @@ public class BlurAppNavActivity extends CommonPackageInfoListActivity implements
         Collections.consumeRemaining(getCommonPackageInfoAdapter().getCommonPackageInfos(),
                 commonPackageInfo -> {
                     if (commonPackageInfo.isChecked()) {
-                        XAppGuardManager.get().addOrRemoveBlurApps(new String[]{commonPackageInfo.getPkgName()}, false);
+                        XAppLockManager.get().addOrRemoveBlurApps(new String[]{commonPackageInfo.getPkgName()}, false);
                     }
                 });
     }
@@ -75,7 +75,7 @@ public class BlurAppNavActivity extends CommonPackageInfoListActivity implements
     @Override
     protected void onInitSwitchBar(SwitchBar switchBar) {
         switchBar.show();
-        switchBar.setChecked(XAppGuardManager.get().isBlurEnabled());
+        switchBar.setChecked(XAppLockManager.get().isBlurEnabled());
         switchBar.addOnSwitchChangeListener(this);
     }
 
@@ -107,7 +107,7 @@ public class BlurAppNavActivity extends CommonPackageInfoListActivity implements
 
     @Override
     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-        XAppGuardManager.get().setBlurEnabled(isChecked);
+        XAppLockManager.get().setBlurEnabled(isChecked);
         if (OSUtil.isOOrAbove()) {
             Toast.makeText(getContext(), R.string.title_reboot_take_effect_blur, Toast.LENGTH_LONG).show();
         }

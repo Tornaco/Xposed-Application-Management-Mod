@@ -48,6 +48,7 @@ public class AppConfigManifestDashboardActivity extends WithWithCustomTabActivit
         if (pkgName == null) return;
 
         setTitle(PkgUtil.loadNameByPkgName(getContext(), pkgName));
+        setSubTitleChecked(pkgName);
 
         replaceV4(R.id.container, Dashboards.newInstance(getContext(), pkgName), null, false);
 

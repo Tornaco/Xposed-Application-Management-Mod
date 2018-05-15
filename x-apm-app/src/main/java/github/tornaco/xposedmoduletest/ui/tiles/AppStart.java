@@ -14,7 +14,7 @@ import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.BlockRecordViewerActivity;
 import github.tornaco.xposedmoduletest.ui.activity.start.StartAppNavActivity;
 import github.tornaco.xposedmoduletest.ui.activity.start.StartRuleNavActivity;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -26,8 +26,8 @@ public class AppStart extends QuickTile {
     public AppStart(final Context context) {
         super(context);
         this.titleRes = R.string.title_app_auto_start;
-        if (XAshmanManager.get().isServiceAvailable()) {
-            this.summaryRes = XAshmanManager.get().isStartBlockEnabled() ?
+        if (XAPMManager.get().isServiceAvailable()) {
+            this.summaryRes = XAPMManager.get().isStartBlockEnabled() ?
                     R.string.summary_func_enabled : 0;
         }
         this.iconRes = R.drawable.ic_device_hub_black_24dp;

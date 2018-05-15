@@ -41,7 +41,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 @SuppressWarnings("EmptyCatchBlock")
-public class XAshmanManager {
+public class XAPMManager {
 
     public static final String APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME = "tornaco.github.apm.ops.dummy.template";
 
@@ -123,19 +123,19 @@ public class XAshmanManager {
 
     private IAshmanService mService;
 
-    private static final Singleton<XAshmanManager> sManager
-            = new Singleton<XAshmanManager>() {
+    private static final Singleton<XAPMManager> sManager
+            = new Singleton<XAPMManager>() {
         @Override
-        protected XAshmanManager create() {
-            return new XAshmanManager();
+        protected XAPMManager create() {
+            return new XAPMManager();
         }
     };
 
-    private XAshmanManager() {
+    private XAPMManager() {
         retrieveService();
     }
 
-    public static XAshmanManager get() {
+    public static XAPMManager get() {
         return sManager.get();
     }
 

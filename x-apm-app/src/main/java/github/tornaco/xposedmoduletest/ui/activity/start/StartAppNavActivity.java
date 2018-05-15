@@ -22,7 +22,7 @@ import github.tornaco.xposedmoduletest.ui.activity.BlockRecordViewerActivity;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 public class StartAppNavActivity extends CommonPackageInfoListActivity
         implements SwitchBar.OnSwitchChangeListener, AdapterView.OnItemSelectedListener {
@@ -64,8 +64,8 @@ public class StartAppNavActivity extends CommonPackageInfoListActivity
         Collections.consumeRemaining(getCommonPackageInfoAdapter().getCommonPackageInfos(),
                 commonPackageInfo -> {
                     if (commonPackageInfo.isChecked()) {
-                        XAshmanManager.get().addOrRemoveStartBlockApps(new String[]{commonPackageInfo.getPkgName()},
-                                XAshmanManager.Op.REMOVE);
+                        XAPMManager.get().addOrRemoveStartBlockApps(new String[]{commonPackageInfo.getPkgName()},
+                                XAPMManager.Op.REMOVE);
                     }
                 });
     }
@@ -73,7 +73,7 @@ public class StartAppNavActivity extends CommonPackageInfoListActivity
     @Override
     protected void onInitSwitchBar(SwitchBar switchBar) {
         switchBar.show();
-        switchBar.setChecked(XAshmanManager.get().isStartBlockEnabled());
+        switchBar.setChecked(XAPMManager.get().isStartBlockEnabled());
         switchBar.addOnSwitchChangeListener(this);
     }
 
@@ -105,7 +105,7 @@ public class StartAppNavActivity extends CommonPackageInfoListActivity
 
     @Override
     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-        XAshmanManager.get().setStartBlockEnabled(isChecked);
+        XAPMManager.get().setStartBlockEnabled(isChecked);
     }
 
     @Override

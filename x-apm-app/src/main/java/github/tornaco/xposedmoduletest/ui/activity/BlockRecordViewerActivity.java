@@ -21,7 +21,7 @@ import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.activity.app.PerAppSettingsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.BlockRecord2ListAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
@@ -73,7 +73,7 @@ public class BlockRecordViewerActivity extends WithRecyclerView {
         super.onResume();
         startLoading();
 
-        boolean powerSave = XAshmanManager.get().isPowerSaveModeEnabled();
+        boolean powerSave = XAPMManager.get().isPowerSaveModeEnabled();
         if (powerSave) {
             Toast.makeText(getContext(), R.string.power_save_no_logs, Toast.LENGTH_SHORT).show();
         }

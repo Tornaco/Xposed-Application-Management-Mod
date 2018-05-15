@@ -10,7 +10,7 @@ import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.SwitchTileView;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.provider.XSettings;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -28,7 +28,7 @@ public class AppDevMode extends QuickTile {
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);
-                setChecked(XAppGuardManager.get().isServiceAvailable() && XAppGuardManager.get().isDebug());
+                setChecked(XAppLockManager.get().isServiceAvailable() && XAppLockManager.get().isDebug());
                 XSettings.setInDevMode(context, isChecked());
             }
 
@@ -40,8 +40,8 @@ public class AppDevMode extends QuickTile {
             @Override
             protected void onCheckChanged(boolean checked) {
                 super.onCheckChanged(checked);
-                if (XAppGuardManager.get().isServiceAvailable()) {
-                    XAppGuardManager.get().setDebug(checked);
+                if (XAppLockManager.get().isServiceAvailable()) {
+                    XAppLockManager.get().setDebug(checked);
                     XSettings.setInDevMode(context, checked);
 
                     Logger.config(Settings.builder().tag("X-APM-C")

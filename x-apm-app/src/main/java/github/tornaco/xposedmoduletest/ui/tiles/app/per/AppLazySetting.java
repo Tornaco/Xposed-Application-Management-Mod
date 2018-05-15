@@ -4,7 +4,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 
 /**
@@ -30,8 +30,8 @@ public class AppLazySetting extends AppSettingsSwitchTile {
     void applySwitchState(boolean checked) {
         super.applySwitchState(checked);
         getAppSettings().setLazy(checked);
-        XAshmanManager.get()
+        XAPMManager.get()
                 .addOrRemoveLazyApps(new String[]{getAppSettings().getPkgName()},
-                        checked ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);
+                        checked ? XAPMManager.Op.ADD : XAPMManager.Op.REMOVE);
     }
 }

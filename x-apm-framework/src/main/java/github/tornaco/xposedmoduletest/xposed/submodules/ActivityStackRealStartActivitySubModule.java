@@ -10,7 +10,7 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
@@ -50,7 +50,7 @@ class ActivityStackRealStartActivitySubModule extends AndroidSubModule {
                             super.afterHookedMethod(param);
                             String pkgName = (String) getObjectField(param.args[0], "packageName");
                             if (pkgName == null) return;
-                            XAshmanManager ash = XAshmanManager.get();
+                            XAPMManager ash = XAPMManager.get();
                             if (!ash.isServiceAvailable()) return;
                             boolean resident = ash.isResidentEnabled()
                                     && ash.isResidentEnabledForPackage(pkgName);

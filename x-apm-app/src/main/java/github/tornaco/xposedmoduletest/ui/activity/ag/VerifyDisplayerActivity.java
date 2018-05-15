@@ -48,13 +48,13 @@ import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.util.PatternLockViewListenerAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
-import static github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager.EXTRA_INJECT_HOME_WHEN_FAIL_ID;
-import static github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager.EXTRA_PKG_NAME;
-import static github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager.EXTRA_TRANS_ID;
+import static github.tornaco.xposedmoduletest.xposed.app.XAppLockManager.EXTRA_INJECT_HOME_WHEN_FAIL_ID;
+import static github.tornaco.xposedmoduletest.xposed.app.XAppLockManager.EXTRA_PKG_NAME;
+import static github.tornaco.xposedmoduletest.xposed.app.XAppLockManager.EXTRA_TRANS_ID;
 
 
 /**
@@ -105,7 +105,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
 //                getUIThreadHandler().postDelayed(new Runnable() {
 //                    @Override
 //                    public void run() {
-//                        XAppGuardManager.get().setResult(tid, XAppVerifyMode.MODE_ALLOWED);
+//                        XAppLockManager.get().setResult(tid, XAppVerifyMode.MODE_ALLOWED);
 //                    }
 //                }, 100);
             }
@@ -364,7 +364,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private void vibrate() {
-//        if (XAppGuardManager.get().isInterruptFPEventVBEnabled(XAppGuardManager.FPEvent.SUCCESS)) {
+//        if (XAppLockManager.get().isInterruptFPEventVBEnabled(XAppLockManager.FPEvent.SUCCESS)) {
 //            Logger.w("vibrating...");
 //            Vibrator vibrator = (Vibrator) VerifyDisplayerActivity.this.getSystemService(VIBRATOR_SERVICE);
 //            if (vibrator != null) {
@@ -420,7 +420,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
                 public void run() {
                     Logger.w("set Res delayed: " + needFix);
                     // Delay res.
-                    XAppGuardManager.get().setResult(tid, XAppVerifyMode.MODE_ALLOWED);
+                    XAppLockManager.get().setResult(tid, XAppVerifyMode.MODE_ALLOWED);
                 }
             }, resDelay);
 
@@ -478,8 +478,8 @@ public class VerifyDisplayerActivity extends BaseActivity {
             finish();
             return false;
         }
-        return XAppGuardManager.get().isServiceAvailable()
-                && XAppGuardManager.get().isTransactionValid(tid);
+        return XAppLockManager.get().isServiceAvailable()
+                && XAppLockManager.get().isTransactionValid(tid);
     }
 
     private void onFail() {
@@ -488,7 +488,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
         }
         mResNotified = true;
         cancelFP();
-        XAppGuardManager.get().setResult(tid, XAppVerifyMode.MODE_DENIED);
+        XAppLockManager.get().setResult(tid, XAppVerifyMode.MODE_DENIED);
         if (injectHome) {
             Intent intent = new Intent("android.intent.action.MAIN");
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -523,7 +523,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private boolean resolveIntent(Intent intent) {
         // Service is not available, ignore.
-        if (!XAppGuardManager.get().isServiceAvailable()) {
+        if (!XAppLockManager.get().isServiceAvailable()) {
             return false;
         }
         Logger.d("before resolveIntent: %s, %s", pkg, tid);

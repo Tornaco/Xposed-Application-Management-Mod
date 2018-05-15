@@ -11,7 +11,7 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListPickerActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoPickerAdapter;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 public class PropAppListPickerActivity extends CommonPackageInfoListPickerActivity {
 
@@ -25,7 +25,7 @@ public class PropAppListPickerActivity extends CommonPackageInfoListPickerActivi
         Collections.consumeRemaining(getCommonPackageInfoAdapter().getCommonPackageInfos(),
                 commonPackageInfo -> {
                     if (commonPackageInfo.isChecked()) {
-                        XAshmanManager.get().addOrRemoveSystemPropProfileApplyApps(
+                        XAPMManager.get().addOrRemoveSystemPropProfileApplyApps(
                                 new String[]{commonPackageInfo.getPkgName()},
                                 true);
                     }

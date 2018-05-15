@@ -7,7 +7,7 @@ import android.service.quicksettings.TileService;
 
 import org.newstand.logger.Logger;
 
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2018/1/28.
@@ -23,10 +23,10 @@ public class APMQuickTileService extends TileService {
 
         // Disable/Enable activity info view.
         boolean enabled;
-        if (XAshmanManager.get().isServiceAvailable()) {
-            enabled = XAshmanManager.get().showFocusedActivityInfoEnabled();
+        if (XAPMManager.get().isServiceAvailable()) {
+            enabled = XAPMManager.get().showFocusedActivityInfoEnabled();
             boolean newEnabled = !enabled;
-            XAshmanManager.get().setShowFocusedActivityInfoEnabled(newEnabled);
+            XAPMManager.get().setShowFocusedActivityInfoEnabled(newEnabled);
             getQsTile().setState(newEnabled ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
         } else {
             getQsTile().setState(Tile.STATE_INACTIVE);
@@ -38,9 +38,9 @@ public class APMQuickTileService extends TileService {
     public void onStartListening() {
         super.onStartListening();
         Logger.d("onStartListening");
-        if (XAshmanManager.get().isServiceAvailable()) {
-            getQsTile().setState(XAshmanManager.get().isServiceAvailable()
-                    && XAshmanManager.get().showFocusedActivityInfoEnabled() ?
+        if (XAPMManager.get().isServiceAvailable()) {
+            getQsTile().setState(XAPMManager.get().isServiceAvailable()
+                    && XAPMManager.get().showFocusedActivityInfoEnabled() ?
                     Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
         } else {
             getQsTile().setState(Tile.STATE_INACTIVE);

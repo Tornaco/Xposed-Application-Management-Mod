@@ -74,8 +74,8 @@ import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 import lombok.Getter;
 
 /**
@@ -130,19 +130,19 @@ public class NavigatorActivity extends WithWithCustomTabActivity
 
             // This is a workaround that some apps is installed on SD.
             // We trigger a package scan now, to ensure wo got all packages.
-            if (XAshmanManager.get().isServiceAvailable()) {
-                XAshmanManager.get().forceReloadPackages();
+            if (XAPMManager.get().isServiceAvailable()) {
+                XAPMManager.get().forceReloadPackages();
             }
         }
     }
 
     private void loadAppLockConfig() {
-        if (XAshmanManager.get().isServiceAvailable()) {
+        if (XAPMManager.get().isServiceAvailable()) {
             XExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
                     String[] whitelist = getResources().getStringArray(R.array.app_lock_white_list_activity);
-                    XAshmanManager.get().addAppLockWhiteListActivity(whitelist);
+                    XAPMManager.get().addAppLockWhiteListActivity(whitelist);
                 }
             });
         }
@@ -249,8 +249,8 @@ public class NavigatorActivity extends WithWithCustomTabActivity
     }
 
     private void checkForRedemptionMode() {
-        boolean redemption = XAshmanManager.get().isServiceAvailable()
-                && XAshmanManager.get().isInRedemptionMode();
+        boolean redemption = XAPMManager.get().isServiceAvailable()
+                && XAPMManager.get().isInRedemptionMode();
         if (redemption) {
             new AlertDialog.Builder(getActivity())
                     .setTitle(R.string.title_redemption_mode)
@@ -274,7 +274,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    XAshmanManager.get().leaveRedemptionMode();
+                                    XAPMManager.get().leaveRedemptionMode();
                                     finishAffinity();
                                     Toast.makeText(getContext(), R.string.redemption_need_restart, Toast.LENGTH_SHORT).show();
                                 }
@@ -382,8 +382,8 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (XAshmanManager.get().isServiceAvailable()) {
-                            XAshmanManager.get().restoreDefaultSettings();
+                        if (XAPMManager.get().isServiceAvailable()) {
+                            XAPMManager.get().restoreDefaultSettings();
                             Toast.makeText(getContext(), R.string.summary_restore_done, Toast.LENGTH_SHORT).show();
                         }
                         PackageManagerCompat.unInstallUserAppWithIntent(getContext(), getPackageName());
@@ -543,7 +543,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
 
                 ViewGroup header = findView(rootView, R.id.header1);
                 header.setBackgroundColor(
-                        XAppGuardManager.get().isServiceAvailable() ?
+                        XAppLockManager.get().isServiceAvailable() ?
                                 cardAccentColor
                                 : ContextCompat.getColor(getActivity(), R.color.red));
                 boolean isDonatedOrPlay = XAPMApplication.isPlayVersion() || AppSettings.isDonated(getContext());
@@ -583,8 +583,8 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                     @Override
                     public void run() {
                         try {
-                            final boolean hasModuleError = XAshmanManager.get().hasModuleError();
-                            final boolean hasSystemError = XAshmanManager.get().hasSystemError();
+                            final boolean hasModuleError = XAPMManager.get().hasModuleError();
+                            final boolean hasSystemError = XAPMManager.get().hasSystemError();
                             Logger.d("hasModuleError %s hasSystemError %s", hasModuleError, hasSystemError);
                             BaseActivity baseActivity = (BaseActivity) getActivity();
                             if (baseActivity != null) {
@@ -617,7 +617,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         }
 
         private boolean isServiceAvailable() {
-            return XAppGuardManager.get().isServiceAvailable();
+            return XAppLockManager.get().isServiceAvailable();
         }
 
         @Override
@@ -659,7 +659,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
                             if (item.getItemId() == R.id.action_lock_now) {
-                                XAshmanManager.get().injectPowerEvent();
+                                XAPMManager.get().injectPowerEvent();
                             } else {
                                 ToastManager.show(getActivity(), "No impl, waiting for developer's work...");
                             }

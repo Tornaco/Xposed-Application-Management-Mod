@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/10/18.
@@ -37,7 +37,7 @@ public interface ResidentPackageLoader {
 
             List<CommonPackageInfo> out = new ArrayList<>();
 
-            XAshmanManager manager = XAshmanManager.get();
+            XAPMManager manager = XAPMManager.get();
             if (!manager.isServiceAvailable()) return out;
 
             String[] packages = manager.getResidentApps(redisent);

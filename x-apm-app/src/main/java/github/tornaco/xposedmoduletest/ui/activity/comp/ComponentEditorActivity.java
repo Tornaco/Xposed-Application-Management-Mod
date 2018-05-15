@@ -69,7 +69,7 @@ import github.tornaco.xposedmoduletest.ui.adapter.ServiceSettingsAdapter;
 import github.tornaco.xposedmoduletest.util.ComponentUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import lombok.Getter;
@@ -143,11 +143,9 @@ public class ComponentEditorActivity extends WithSearchActivity<Searchable>
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
         // Post this fucking work, do not block ui work.
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                setTitle(PkgUtil.loadNameByPkgName(getApplicationContext(), mPackageName));
-            }
+        runOnUiThread(() -> {
+            setTitle(PkgUtil.loadNameByPkgName(getApplicationContext(), mPackageName));
+            setSubTitleChecked(mPackageName);
         });
 
     }
@@ -784,7 +782,7 @@ public class ComponentEditorActivity extends WithSearchActivity<Searchable>
 
                                     if (componentName == null) return;
 
-                                    XAshmanManager.get().setComponentEnabledSetting(componentName,
+                                    XAPMManager.get().setComponentEnabledSetting(componentName,
                                             enable ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
                                                     : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                                             0);

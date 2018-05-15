@@ -12,7 +12,7 @@ import github.tornaco.xposedmoduletest.bean.RecentTile;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.lazy.LazyAppNavActivity;
 import github.tornaco.xposedmoduletest.ui.activity.lazy.LazyRuleNavActivity;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -24,8 +24,8 @@ public class Lazy extends QuickTile {
     public Lazy(final Context context) {
         super(context);
         this.titleRes = R.string.title_app_lazy;
-        if (XAshmanManager.get().isServiceAvailable()) {
-            this.summaryRes = XAshmanManager.get().isLazyModeEnabled() ?
+        if (XAPMManager.get().isServiceAvailable()) {
+            this.summaryRes = XAPMManager.get().isLazyModeEnabled() ?
                     R.string.summary_func_enabled : 0;
         }
         this.iconRes = R.drawable.ic_child_care_black_24dp;

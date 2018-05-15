@@ -23,7 +23,7 @@ import github.tornaco.xposedmoduletest.ui.activity.BlockRecordViewerActivity;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 public class BootAppNavActivity extends CommonPackageInfoListActivity implements SwitchBar.OnSwitchChangeListener, AdapterView.OnItemSelectedListener {
 
@@ -66,8 +66,8 @@ public class BootAppNavActivity extends CommonPackageInfoListActivity implements
                     @Override
                     public void accept(CommonPackageInfo commonPackageInfo) {
                         if (commonPackageInfo.isChecked()) {
-                            XAshmanManager.get().addOrRemoveBootBlockApps(new String[]{commonPackageInfo.getPkgName()},
-                                    XAshmanManager.Op.REMOVE);
+                            XAPMManager.get().addOrRemoveBootBlockApps(new String[]{commonPackageInfo.getPkgName()},
+                                    XAPMManager.Op.REMOVE);
                         }
                     }
                 });
@@ -76,7 +76,7 @@ public class BootAppNavActivity extends CommonPackageInfoListActivity implements
     @Override
     protected void onInitSwitchBar(SwitchBar switchBar) {
         switchBar.show();
-        switchBar.setChecked(XAshmanManager.get().isBlockBlockEnabled());
+        switchBar.setChecked(XAPMManager.get().isBlockBlockEnabled());
         switchBar.addOnSwitchChangeListener(this);
     }
 
@@ -108,7 +108,7 @@ public class BootAppNavActivity extends CommonPackageInfoListActivity implements
 
     @Override
     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-        XAshmanManager.get().setBootBlockEnabled(isChecked);
+        XAPMManager.get().setBootBlockEnabled(isChecked);
     }
 
     @Override

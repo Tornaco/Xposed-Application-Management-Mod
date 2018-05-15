@@ -12,7 +12,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -49,8 +49,8 @@ class RuntimeSubModule extends AndroidSubModule {
                                 String command = (String) in;
                                 String caller = AndroidAppHelper.currentPackageName();
                                 // Log.d(XposedLog.TAG, String.format("Runtime exec: %s %s", command, caller));
-                                if (XAshmanManager.get().isServiceAvailable()) {
-                                    int mode = XAshmanManager.get().getPermissionControlBlockModeForPkg(AppOpsManagerCompat
+                                if (XAPMManager.get().isServiceAvailable()) {
+                                    int mode = XAPMManager.get().getPermissionControlBlockModeForPkg(AppOpsManagerCompat
                                             .OP_EXECUTE_SHELL_COMMAND, caller, true, new String[]{command});
                                     if (mode == AppOpsManagerCompat.MODE_IGNORED) {
                                         param.setResult(null);
@@ -61,8 +61,8 @@ class RuntimeSubModule extends AndroidSubModule {
                                 String[] cmdArr = (String[]) in;
                                 String caller = AndroidAppHelper.currentPackageName();
                                 // Log.d(XposedLog.TAG, String.format("Runtime exec arr: %s %s", Arrays.toString(cmdArr), caller));
-                                if (XAshmanManager.get().isServiceAvailable()) {
-                                    int mode = XAshmanManager.get().getPermissionControlBlockModeForPkg(AppOpsManagerCompat
+                                if (XAPMManager.get().isServiceAvailable()) {
+                                    int mode = XAPMManager.get().getPermissionControlBlockModeForPkg(AppOpsManagerCompat
                                             .OP_EXECUTE_SHELL_COMMAND, caller, true, cmdArr);
                                     if (mode == AppOpsManagerCompat.MODE_IGNORED) {
                                         param.setResult(null);

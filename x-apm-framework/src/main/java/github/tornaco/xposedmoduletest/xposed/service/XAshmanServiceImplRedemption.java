@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.service.notification.StatusBarNotification;
 import android.view.KeyEvent;
@@ -24,7 +23,7 @@ import github.tornaco.xposedmoduletest.IProcessClearListener;
 import github.tornaco.xposedmoduletest.IServiceControl;
 import github.tornaco.xposedmoduletest.ITaskRemoveListener;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
@@ -59,7 +58,7 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
         XposedLog.boot("Publishing redemption ashman!!!");
 
         try {
-            String serviceName = XAshmanManager.SERVICE_NAME;
+            String serviceName = XAPMManager.SERVICE_NAME;
             XposedLog.boot("publishing redemption ash to: " + serviceName);
             ServiceManager.addService(serviceName, asBinder());
         } catch (Throwable e) {
@@ -126,7 +125,7 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
 
     @Override
     public int getRecentTaskExcludeSetting(ComponentName c) {
-        return XAshmanManager.ExcludeRecentSetting.NONE;
+        return XAPMManager.ExcludeRecentSetting.NONE;
     }
 
     @Override
@@ -191,7 +190,7 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
 
     @Override
     public int getAppConfigOverlayIntSetting(String appPackageName, String tag) {
-        return XAshmanManager.ConfigOverlays.NONE;
+        return XAPMManager.ConfigOverlays.NONE;
     }
 
     @Override

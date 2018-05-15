@@ -9,7 +9,7 @@ import org.newstand.logger.Logger;
 import dev.nick.tiles.tile.EditTextTileView;
 import dev.nick.tiles.tile.QuickTile;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -22,9 +22,9 @@ public class DensityOverlay extends QuickTile {
         super(context);
         this.titleRes = R.string.title_density_overlay;
         this.iconRes = R.drawable.ic_fiber_smart_record_black_24dp;
-        if (XAshmanManager.get().isServiceAvailable()) {
-            int density = XAshmanManager.get().getAppConfigOverlayIntSetting(pkg, "densityDpi");
-            if (density != XAshmanManager.ConfigOverlays.NONE) {
+        if (XAPMManager.get().isServiceAvailable()) {
+            int density = XAPMManager.get().getAppConfigOverlayIntSetting(pkg, "densityDpi");
+            if (density != XAPMManager.ConfigOverlays.NONE) {
                 this.summary = String.valueOf(density);
             } else {
                 this.summary = "DEFAULT";
@@ -67,8 +67,8 @@ public class DensityOverlay extends QuickTile {
                     if (density < 0) {
                         Toast.makeText(context, R.string.summary_density_overlay_should_be_positive, Toast.LENGTH_SHORT).show();
                     } else {
-                        XAshmanManager.get().setAppConfigOverlayIntSetting(pkg, "densityDpi",
-                                density == 0 ? XAshmanManager.ConfigOverlays.NONE : density);
+                        XAPMManager.get().setAppConfigOverlayIntSetting(pkg, "densityDpi",
+                                density == 0 ? XAPMManager.ConfigOverlays.NONE : density);
 
                         // Update summary.
                         final String delayMillsStr =

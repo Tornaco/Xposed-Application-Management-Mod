@@ -13,7 +13,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.BuildConfig;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 class AMSCreateRecentTaskInfoFromTaskRecordSubModule extends AndroidSubModule {
@@ -50,11 +50,11 @@ class AMSCreateRecentTaskInfoFromTaskRecordSubModule extends AndroidSubModule {
                                 XposedLog.verbose("- createRecentTaskInfoFromTaskRecord exclude: %s comp: %s", excludeRecent, componentName);
                             }
                             int setting = getBridge().getRecentTaskExcludeSetting(componentName);
-                            if (setting == XAshmanManager.ExcludeRecentSetting.NONE) {
+                            if (setting == XAPMManager.ExcludeRecentSetting.NONE) {
                                 // Do nothing.
-                            } else if (setting == XAshmanManager.ExcludeRecentSetting.EXCLUDE && !excludeRecent) {
+                            } else if (setting == XAPMManager.ExcludeRecentSetting.EXCLUDE && !excludeRecent) {
                                 flags |= Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
-                            } else if (setting == XAshmanManager.ExcludeRecentSetting.INCLUDE && excludeRecent) {
+                            } else if (setting == XAPMManager.ExcludeRecentSetting.INCLUDE && excludeRecent) {
                                 flags &= Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
                             }
                             baseIntent.setFlags(flags);

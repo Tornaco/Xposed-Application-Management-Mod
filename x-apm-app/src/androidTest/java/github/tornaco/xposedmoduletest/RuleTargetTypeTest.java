@@ -6,7 +6,7 @@ import org.newstand.logger.Logger;
 
 import java.util.Arrays;
 
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.service.rule.RuleParser;
 
 /**
@@ -44,22 +44,22 @@ public class RuleTargetTypeTest {
         RuleParser p = RuleParser.Factory.newParser();
         for (String t : TESTS) {
             Logger.d("testRules rule %s", t, p.parse(t));
-            boolean added = XAshmanManager.get().addOrRemoveStartRules(t, true);
+            boolean added = XAPMManager.get().addOrRemoveStartRules(t, true);
             Logger.d("Add rule %s", added);
 
-            String[] rules = XAshmanManager.get().getStartRules();
+            String[] rules = XAPMManager.get().getStartRules();
             Logger.d("All rules %s", Arrays.toString(rules));
 
             if (added) {
-                Assert.assertTrue(XAshmanManager.get().addOrRemoveStartRules(t, false));
+                Assert.assertTrue(XAPMManager.get().addOrRemoveStartRules(t, false));
 
-                rules = XAshmanManager.get().getStartRules();
+                rules = XAPMManager.get().getStartRules();
                 Logger.d("All rules %s", Arrays.toString(rules));
 
             }
         }
 
-        XAshmanManager.get().addOrRemoveStartRules("DENY * com.sina.weibo", true);
+        XAPMManager.get().addOrRemoveStartRules("DENY * com.sina.weibo", true);
 
     }
 }

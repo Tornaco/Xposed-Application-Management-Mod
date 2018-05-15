@@ -12,7 +12,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.service.pm.InstallerUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -50,7 +50,7 @@ class PackageParserSubModule extends AndroidSubModule {
                                         PackageParser.Package pkg = (PackageParser.Package) result;
                                         String apkPackageName = pkg.packageName;
                                         // Try setup with aidl.
-                                        XAshmanManager.get().onSourceApkFileDetected(file.getAbsolutePath(), apkPackageName);
+                                        XAPMManager.get().onSourceApkFileDetected(file.getAbsolutePath(), apkPackageName);
                                     }
                                 }
                             }

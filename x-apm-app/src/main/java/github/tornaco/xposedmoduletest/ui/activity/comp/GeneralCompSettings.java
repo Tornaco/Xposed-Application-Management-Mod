@@ -9,7 +9,7 @@ import android.support.annotation.Nullable;
 import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.ag.GuardSettingsActivity;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/11/2.
@@ -29,14 +29,14 @@ public class GeneralCompSettings extends GuardSettingsActivity {
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.comp_general);
-            if (XAshmanManager.get().isServiceAvailable()) {
+            if (XAPMManager.get().isServiceAvailable()) {
                 SwitchPreference switchPreference = (SwitchPreference) findPreference("comp_setting_block");
-                switchPreference.setChecked(XAshmanManager.get().isCompSettingBlockEnabledEnabled());
+                switchPreference.setChecked(XAPMManager.get().isCompSettingBlockEnabledEnabled());
                 switchPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean block = (boolean) newValue;
-                        XAshmanManager.get().setCompSettingBlockEnabled(block);
+                        XAPMManager.get().setCompSettingBlockEnabled(block);
                         return true;
                     }
                 });

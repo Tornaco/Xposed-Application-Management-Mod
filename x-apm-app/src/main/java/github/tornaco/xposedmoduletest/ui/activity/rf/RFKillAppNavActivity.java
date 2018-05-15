@@ -21,7 +21,7 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 public class RFKillAppNavActivity extends CommonPackageInfoListActivity
         implements SwitchBar.OnSwitchChangeListener, AdapterView.OnItemSelectedListener {
@@ -66,8 +66,8 @@ public class RFKillAppNavActivity extends CommonPackageInfoListActivity
                     @Override
                     public void accept(CommonPackageInfo commonPackageInfo) {
                         if (commonPackageInfo.isChecked()) {
-                            XAshmanManager.get().addOrRemoveRFKApps(new String[]{commonPackageInfo.getPkgName()},
-                                    XAshmanManager.Op.REMOVE);
+                            XAPMManager.get().addOrRemoveRFKApps(new String[]{commonPackageInfo.getPkgName()},
+                                    XAPMManager.Op.REMOVE);
                         }
                     }
                 });
@@ -76,7 +76,7 @@ public class RFKillAppNavActivity extends CommonPackageInfoListActivity
     @Override
     protected void onInitSwitchBar(SwitchBar switchBar) {
         switchBar.show();
-        switchBar.setChecked(XAshmanManager.get().isRFKillEnabled());
+        switchBar.setChecked(XAPMManager.get().isRFKillEnabled());
         switchBar.addOnSwitchChangeListener(this);
     }
 
@@ -108,7 +108,7 @@ public class RFKillAppNavActivity extends CommonPackageInfoListActivity
 
     @Override
     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-        XAshmanManager.get().setRFKillEnabled(isChecked);
+        XAPMManager.get().setRFKillEnabled(isChecked);
     }
 
     @Override

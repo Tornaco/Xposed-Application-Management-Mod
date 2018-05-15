@@ -22,15 +22,15 @@ public class DoNotKillSBNApp extends QuickTile {
 //            @Override
 //            protected void onBindActionView(RelativeLayout container) {
 //                super.onBindActionView(container);
-//                setChecked(XAshmanManager.get().isServiceAvailable() &&
-//                        XAshmanManager.get().isDoNotKillSBNEnabled());
+//                setChecked(XAPMManager.get().isServiceAvailable() &&
+//                        XAPMManager.get().isDoNotKillSBNEnabled());
 //            }
 //
 //            @Override
 //            protected void onCheckChanged(boolean checked) {
 //                super.onCheckChanged(checked);
-//                if (XAshmanManager.get().isServiceAvailable()) {
-//                    XAshmanManager.get().setDoNotKillSBNEnabled(checked);
+//                if (XAPMManager.get().isServiceAvailable()) {
+//                    XAPMManager.get().setDoNotKillSBNEnabled(checked);
 //                }
 //            }
 //        };

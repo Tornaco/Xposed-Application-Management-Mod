@@ -26,7 +26,7 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoViewerAdapter;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import si.virag.fuzzydateformatter.FuzzyDateTimeFormatter;
@@ -54,7 +54,7 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        boolean powerSave = XAshmanManager.get().isPowerSaveModeEnabled();
+        boolean powerSave = XAPMManager.get().isPowerSaveModeEnabled();
         if (powerSave) {
             Toast.makeText(getContext(), R.string.power_save_no_logs, Toast.LENGTH_SHORT).show();
         }
@@ -73,9 +73,9 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
         fab.setOnClickListener(v -> {
             // Clear.
             if (mPackageName != null) {
-                XAshmanManager.get().clearOpLogForPackage(mPackageName);
+                XAPMManager.get().clearOpLogForPackage(mPackageName);
             } else if (mOp >= 0) {
-                XAshmanManager.get().clearOpLogForOp(mOp);
+                XAPMManager.get().clearOpLogForOp(mOp);
             }
             startLoading();
         });
@@ -145,7 +145,7 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
     @Override
     protected List<? extends CommonPackageInfo> performLoading() {
         if (!TextUtils.isEmpty(mPackageName)) {
-            List<OpLog> oplogs = XAshmanManager.get().getOpLogForPackage(mPackageName);
+            List<OpLog> oplogs = XAPMManager.get().getOpLogForPackage(mPackageName);
             if (oplogs != null) {
                 List<CommonPackageInfo> ps = new ArrayList<>(oplogs.size());
                 for (OpLog l : oplogs) {
@@ -160,7 +160,7 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
                 return ps;
             }
         } else if (mOp >= 0) {
-            List<OpLog> oplogs = XAshmanManager.get().getOpLogForOp(mOp);
+            List<OpLog> oplogs = XAPMManager.get().getOpLogForOp(mOp);
             if (oplogs != null) {
                 List<CommonPackageInfo> ps = new ArrayList<>(oplogs.size());
                 for (OpLog l : oplogs) {

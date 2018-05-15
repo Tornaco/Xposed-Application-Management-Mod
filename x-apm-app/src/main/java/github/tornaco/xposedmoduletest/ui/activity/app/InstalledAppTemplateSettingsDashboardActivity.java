@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 
 /**
@@ -33,7 +33,7 @@ public class InstalledAppTemplateSettingsDashboardActivity
 
     @Override
     AppSettings onRetrieveAppSettings(String pkg) {
-        mAppSettings = XAshmanManager.get().getAppInstalledAutoApplyTemplate();
+        mAppSettings = XAPMManager.get().getAppInstalledAutoApplyTemplate();
         if (mAppSettings == null) mAppSettings = AppSettings.builder()
                 .boot(true)
                 .start(true)
@@ -46,7 +46,7 @@ public class InstalledAppTemplateSettingsDashboardActivity
 
     @Override
     void onFabClick() {
-        XAshmanManager.get().setAppInstalledAutoApplyTemplate(mAppSettings);
+        XAPMManager.get().setAppInstalledAutoApplyTemplate(mAppSettings);
         super.onFabClick();
     }
 }

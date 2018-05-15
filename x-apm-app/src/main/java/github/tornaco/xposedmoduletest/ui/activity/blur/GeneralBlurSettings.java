@@ -10,8 +10,8 @@ import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.ag.GuardSettingsActivity;
 import github.tornaco.xposedmoduletest.ui.widget.BlurRadiusPreference;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 
 /**
  * Created by guohao4 on 2017/11/2.
@@ -31,19 +31,19 @@ public class GeneralBlurSettings extends GuardSettingsActivity {
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.blur);
-            if (XAppGuardManager.get().isServiceAvailable()) {
+            if (XAppLockManager.get().isServiceAvailable()) {
                 final BlurRadiusPreference blurRadiusPreference = (BlurRadiusPreference) findPreference("blur_radius");
-                blurRadiusPreference.setCurrentRadius(XAppGuardManager.get()
+                blurRadiusPreference.setCurrentRadius(XAppLockManager.get()
                         .getBlurRadius());
-                blurRadiusPreference.setOnSeekCompleteListener(progress -> XAppGuardManager.get().setBlurRadius(progress));
+                blurRadiusPreference.setOnSeekCompleteListener(progress -> XAppLockManager.get().setBlurRadius(progress));
 
                 SwitchPreference blurOptPreference = (SwitchPreference) findPreference("opt_blur_cache");
-                blurOptPreference.setChecked(XAshmanManager.get().isOptFeatureEnabled("opt_blur_cache"));
+                blurOptPreference.setChecked(XAPMManager.get().isOptFeatureEnabled("opt_blur_cache"));
                 blurOptPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean enable = (boolean) newValue;
-                        XAshmanManager.get().setOptFeatureEnabled("opt_blur_cache", enable);
+                        XAPMManager.get().setOptFeatureEnabled("opt_blur_cache", enable);
                         return true;
                     }
                 });

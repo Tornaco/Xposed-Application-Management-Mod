@@ -19,7 +19,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.doze.DozeEnterTile;
 import github.tornaco.xposedmoduletest.ui.tiles.doze.DozeWhitelistTile;
 import github.tornaco.xposedmoduletest.ui.tiles.doze.ForceDozeTile;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 public class DozeNavActivity extends CommonPackageInfoListActivity
         implements SwitchBar.OnSwitchChangeListener {
@@ -39,7 +39,7 @@ public class DozeNavActivity extends CommonPackageInfoListActivity
     @Override
     protected void onInitSwitchBar(SwitchBar switchBar) {
         switchBar.show();
-        switchBar.setChecked(XAshmanManager.get().isDozeEnabled());
+        switchBar.setChecked(XAPMManager.get().isDozeEnabled());
         switchBar.addOnSwitchChangeListener(this);
     }
 
@@ -86,7 +86,7 @@ public class DozeNavActivity extends CommonPackageInfoListActivity
 
     @Override
     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-        XAshmanManager.get().setDozeEnabled(isChecked);
+        XAPMManager.get().setDozeEnabled(isChecked);
     }
 
     @Override
