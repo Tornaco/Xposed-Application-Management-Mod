@@ -113,7 +113,10 @@ interface IAshmanService {
     int getControlMode();
     void setControlMode(int mode);
 
+    // Server info.
     String getBuildSerial();
+    String getBuildVersionName();
+    int getBuildVersionCode();
 
     boolean isAutoAddBlackEnabled();
     void setAutoAddBlackEnable(boolean enable);

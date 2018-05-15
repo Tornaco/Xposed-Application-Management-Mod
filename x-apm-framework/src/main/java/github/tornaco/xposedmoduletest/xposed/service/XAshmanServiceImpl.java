@@ -1228,11 +1228,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
-        // NEW SETTINGS ARE STORED BY SETTINGS-PROVIDER.
-        // THIS IS SIMPLE FOR US TO CONTROL.
-        // SO PLEASE USE THIS WAY INSTEAD OF SETTINGS FROM SYSTEM.
         try {
-            mInactiveInsteadOfKillAppInstead.set(SettingsProvider.get().getBoolean("INACTIVE_INSTEAD_OF_KILL", false));
+            mInactiveInsteadOfKillAppInstead.set(XAPMServerSettings.INACTIVE_INSTEAD_OF_KILL.read());
             XposedLog.boot("mInactiveInsteadOfKillAppInstead: " + String.valueOf(mInactiveInsteadOfKillAppInstead));
         } catch (Throwable e) {
             XposedLog.wtf("Fail load settings from SettingsProvider:" + Log.getStackTraceString(e));
@@ -3333,6 +3330,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    @BinderCall
     public void setControlMode(int mode) {
         if (mode != XAPMManager.ControlMode.BLACK_LIST && mode != XAPMManager.ControlMode.WHITE_LIST) {
             throw new IllegalArgumentException("Bad mode:" + mode);
@@ -3343,8 +3341,24 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    @BinderCall
     public String getBuildSerial() {
+        enforceCallingPermissions();
         return BuildFingerprintBuildHostInfo.BUILD_FINGER_PRINT;
+    }
+
+    @Override
+    @BinderCall
+    public String getBuildVersionName() {
+        enforceCallingPermissions();
+        return BuildConfig.VERSION_NAME;
+    }
+
+    @Override
+    @BinderCall
+    public int getBuildVersionCode() {
+        enforceCallingPermissions();
+        return BuildConfig.VERSION_CODE;
     }
 
     @Override
@@ -5353,7 +5367,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     @BinderCall
-    public void onTaskRemoving(int callingUid, int taskId) throws RemoteException {
+    public void onTaskRemoving(int callingUid, int taskId) {
         String callingPkg = PkgUtil.pkgForUid(getContext(), callingUid);
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("removeTask: uid %s pkg %s task %s", callingUid, callingPkg, taskId);
@@ -5747,7 +5761,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
-    public void setAppLockEnabled(boolean enabled) throws RemoteException {
+    public void setAppLockEnabled(boolean enabled) {
         mAppGuardService.setAppLockEnabled(enabled);
     }
 
@@ -5763,7 +5777,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
-    public void setBlurEnabled(boolean enabled) throws RemoteException {
+    public void setBlurEnabled(boolean enabled) {
         mAppGuardService.setBlurEnabled(enabled);
     }
 
@@ -5783,22 +5797,22 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
-    public void setUninstallInterruptEnabled(boolean enabled) throws RemoteException {
+    public void setUninstallInterruptEnabled(boolean enabled) {
         mAppGuardService.setUninstallInterruptEnabled(enabled);
     }
 
     @Override
-    public void setVerifySettings(VerifySettings settings) throws RemoteException {
+    public void setVerifySettings(VerifySettings settings) {
         mAppGuardService.setVerifySettings(settings);
     }
 
     @Override
-    public VerifySettings getVerifySettings() throws RemoteException {
+    public VerifySettings getVerifySettings() {
         return mAppGuardService.getVerifySettings();
     }
 
     @Override
-    public void setResult(int transactionID, int res) throws RemoteException {
+    public void setResult(int transactionID, int res) {
         mAppGuardService.setResult(transactionID, res);
     }
 
@@ -5808,27 +5822,27 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
-    public void mockCrash() throws RemoteException {
+    public void mockCrash() {
         mAppGuardService.mockCrash();
     }
 
     @Override
-    public void setVerifierPackage(String pkg) throws RemoteException {
+    public void setVerifierPackage(String pkg) {
         mAppGuardService.setVerifierPackage(pkg);
     }
 
     @Override
-    public void injectHomeEvent() throws RemoteException {
+    public void injectHomeEvent() {
         mAppGuardService.injectHomeEvent();
     }
 
     @Override
-    public void setDebug(boolean debug) throws RemoteException {
+    public void setDebug(boolean debug) {
         mAppGuardService.setDebug(debug);
     }
 
     @Override
-    public boolean isDebug() throws RemoteException {
+    public boolean isDebug() {
         return mAppGuardService.isDebug();
     }
 
@@ -5838,52 +5852,52 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
-    public boolean isInterruptFPEventVBEnabled(int event) throws RemoteException {
+    public boolean isInterruptFPEventVBEnabled(int event) {
         return mAppGuardService.isInterruptFPEventVBEnabled(event);
     }
 
     @Override
-    public void setInterruptFPEventVBEnabled(int event, boolean enabled) throws RemoteException {
+    public void setInterruptFPEventVBEnabled(int event, boolean enabled) {
         mAppGuardService.setInterruptFPEventVBEnabled(event, enabled);
     }
 
     @Override
-    public void addOrRemoveComponentReplacement(ComponentName from, ComponentName to, boolean add) throws RemoteException {
+    public void addOrRemoveComponentReplacement(ComponentName from, ComponentName to, boolean add) {
         mAppGuardService.addOrRemoveComponentReplacement(from, to, add);
     }
 
     @Override
-    public Map getComponentReplacements() throws RemoteException {
+    public Map getComponentReplacements() {
         return mAppGuardService.getComponentReplacements();
     }
 
     @Override
-    public String[] getLockApps(boolean lock) throws RemoteException {
+    public String[] getLockApps(boolean lock) {
         return mAppGuardService.getLockApps(lock);
     }
 
     @Override
-    public void addOrRemoveLockApps(String[] packages, boolean add) throws RemoteException {
+    public void addOrRemoveLockApps(String[] packages, boolean add) {
         mAppGuardService.addOrRemoveLockApps(packages, add);
     }
 
     @Override
-    public String[] getBlurApps(boolean lock) throws RemoteException {
+    public String[] getBlurApps(boolean lock) {
         return mAppGuardService.getBlurApps(lock);
     }
 
     @Override
-    public void addOrRemoveBlurApps(String[] packages, boolean blur) throws RemoteException {
+    public void addOrRemoveBlurApps(String[] packages, boolean blur) {
         mAppGuardService.addOrRemoveBlurApps(packages, blur);
     }
 
     @Override
-    public String[] getUPApps(boolean lock) throws RemoteException {
+    public String[] getUPApps(boolean lock) {
         return mAppGuardService.getUPApps(lock);
     }
 
     @Override
-    public void addOrRemoveUPApps(String[] packages, boolean add) throws RemoteException {
+    public void addOrRemoveUPApps(String[] packages, boolean add) {
         mAppGuardService.addOrRemoveUPApps(packages, add);
     }
 
@@ -7314,7 +7328,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 + ", does not require permission to interact with XIntentFirewallService");
     }
 
-    protected static void enforceDebugBuild() {
+    private static void enforceDebugBuild() {
         if (!BuildConfig.DEBUG) {
             throw new SecurityException("User build does not require permission to interact with X-APM-S");
         }
@@ -7357,7 +7371,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public void setInactiveAppInsteadOfKillPreferred(boolean prefer) {
-        SettingsProvider.get().putBoolean("INACTIVE_INSTEAD_OF_KILL", prefer);
+        enforceCallingPermissions();
+        XAPMServerSettings.INACTIVE_INSTEAD_OF_KILL.write(prefer);
         mInactiveInsteadOfKillAppInstead.set(prefer);
     }
 

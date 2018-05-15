@@ -576,6 +576,24 @@ public class XAPMManager {
         }
     }
 
+    public String getBuildVersionName() {
+        ensureService();
+        try {
+            return mService.getBuildVersionName();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public int getBuildVersionCode() {
+        ensureService();
+        try {
+            return mService.getBuildVersionCode();
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     public boolean isAutoAddBlackEnabled() {
         ensureService();
         try {
