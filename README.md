@@ -34,37 +34,4 @@
 * 按键注入接口
 * ...
 
-### 6.1 调用API所需的权限
-
-### 6.2 如何使用gradle构建项目
-[示例项目](https://github.com/Tornaco/X-APM-Base-Sample)
-
-1. 添加依赖
-
-[ ![Download](https://api.bintray.com/packages/potestadetornaco/android/x-apm-base/images/download.svg) ](https://bintray.com/potestadetornaco/android/x-apm-base/_latestVersion)
-
-```
-implementation 'github.tornaco:x-apm-base:1.0.1'
-```
-2. 使用JDK1.8
-```
-    compileOptions {
-        targetCompatibility 1.8
-        sourceCompatibility 1.8
-    }
-```
-
-3. 代码示例
-```java
-        // 获取X-APM框架层服务是否成功注入
-        StringBuilder sb = new StringBuilder();
-
-        XAPMManager ashmanManager = XAPMManager.get();
-        boolean isActivated = ashmanManager.isServiceAvailable();
-        sb.append("active: ").append(isActivated).append("\n");
-
-        // 获取X-APM框架层序列号
-        String buildSerial = ashmanManager.getBuildSerial();
-        sb.append("buildSerial: ").append(buildSerial).append("\n");
-        ...
-```
+更多请参考[示例项目](https://github.com/Tornaco/X-APM-Base-Sample)
