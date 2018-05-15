@@ -1228,11 +1228,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
 
-        // NEW SETTINGS ARE STORED BY SETTINGS-PROVIDER.
-        // THIS IS SIMPLE FOR US TO CONTROL.
-        // SO PLEASE USE THIS WAY INSTEAD OF SETTINGS FROM SYSTEM.
         try {
-            mInactiveInsteadOfKillAppInstead.set(SettingsProvider.get().getBoolean("INACTIVE_INSTEAD_OF_KILL", false));
+            mInactiveInsteadOfKillAppInstead.set(XAPMServerSettings.INACTIVE_INSTEAD_OF_KILL.read());
             XposedLog.boot("mInactiveInsteadOfKillAppInstead: " + String.valueOf(mInactiveInsteadOfKillAppInstead));
         } catch (Throwable e) {
             XposedLog.wtf("Fail load settings from SettingsProvider:" + Log.getStackTraceString(e));
@@ -7357,7 +7354,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public void setInactiveAppInsteadOfKillPreferred(boolean prefer) {
-        SettingsProvider.get().putBoolean("INACTIVE_INSTEAD_OF_KILL", prefer);
+        enforceCallingPermissions();
+        XAPMServerSettings.INACTIVE_INSTEAD_OF_KILL.write(prefer);
         mInactiveInsteadOfKillAppInstead.set(prefer);
     }
 

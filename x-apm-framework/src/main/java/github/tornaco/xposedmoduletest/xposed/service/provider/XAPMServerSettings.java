@@ -92,6 +92,9 @@ public class XAPMServerSettings {
     // 清理通知
     public static final BaseSetting<Boolean> APM_SHOW_APP_PROCESS_UPDATE_B = new BooleanSettingImpl("APM_SHOW_APP_PROCESS_UPDATE_B", false);
 
+    // 休眠代替KILL
+    public static final BaseSetting<Boolean> INACTIVE_INSTEAD_OF_KILL = new BooleanSettingImpl("INACTIVE_INSTEAD_OF_KILL", false);
+
 
     // Int fields.
     public static final BaseSetting<Integer> BLUR_RADIUS_I = new IntSettingImpl("BLUR_RADIUS_I", BlurSettings.BLUR_RADIUS);
