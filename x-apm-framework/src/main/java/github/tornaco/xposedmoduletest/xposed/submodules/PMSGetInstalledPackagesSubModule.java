@@ -15,7 +15,7 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -52,7 +52,7 @@ class PMSGetInstalledPackagesSubModule extends AndroidSubModule {
                             if (PkgUtil.isSystemOrPhoneOrShell(uid)) return;
 
                             // Check op.
-                            XAshmanManager xAshmanManager = XAshmanManager.get();
+                            XAPMManager xAshmanManager = XAPMManager.get();
                             if (xAshmanManager.isServiceAvailable()) {
                                 int mode = xAshmanManager.getPermissionControlBlockModeForUid(
                                         AppOpsManagerCompat.OP_READ_INSTALLED_APPS, uid, true);
@@ -93,7 +93,7 @@ class PMSGetInstalledPackagesSubModule extends AndroidSubModule {
                             if (PkgUtil.isSystemOrPhoneOrShell(uid)) return;
 
                             // Check op.
-                            XAshmanManager xAshmanManager = XAshmanManager.get();
+                            XAPMManager xAshmanManager = XAPMManager.get();
                             if (xAshmanManager.isServiceAvailable()) {
                                 int mode = xAshmanManager.getPermissionControlBlockModeForUid(
                                         AppOpsManagerCompat.OP_READ_INSTALLED_APPS, uid,

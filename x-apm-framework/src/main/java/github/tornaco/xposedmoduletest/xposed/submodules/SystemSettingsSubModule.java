@@ -13,7 +13,7 @@ import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.xposed.GlobalWhiteList;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -47,7 +47,7 @@ class SystemSettingsSubModule extends AndroidSubModule {
                             if (Settings.System.SCREEN_BRIGHTNESS_MODE.equals(name)
                                     || Settings.System.SCREEN_BRIGHTNESS.equals(name)) {
                                 // Use of defined id.
-                                XAshmanManager ash = XAshmanManager.get();
+                                XAPMManager ash = XAPMManager.get();
                                 if (ash.isServiceAvailable()) {
                                     String pkgName = AndroidAppHelper.currentPackageName();
 

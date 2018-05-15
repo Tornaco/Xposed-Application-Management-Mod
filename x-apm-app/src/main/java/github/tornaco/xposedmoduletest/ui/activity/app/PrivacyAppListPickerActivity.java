@@ -12,7 +12,7 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListPickerActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoPickerAdapter;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 public class PrivacyAppListPickerActivity extends CommonPackageInfoListPickerActivity {
 
@@ -28,9 +28,9 @@ public class PrivacyAppListPickerActivity extends CommonPackageInfoListPickerAct
                     @Override
                     public void accept(CommonPackageInfo commonPackageInfo) {
                         if (commonPackageInfo.isChecked()) {
-                            XAshmanManager.get().addOrRemoveFromPrivacyList(
+                            XAPMManager.get().addOrRemoveFromPrivacyList(
                                     commonPackageInfo.getPkgName(),
-                                    XAshmanManager.Op.ADD);
+                                    XAPMManager.Op.ADD);
                         }
                     }
                 });

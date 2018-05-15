@@ -17,8 +17,8 @@ import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.util.DateUtils;
 import github.tornaco.xposedmoduletest.util.OSUtil;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -89,9 +89,9 @@ class RuntimeInitSubModule extends AndroidSubModule {
 
                                     // Disable debug mode, because I wonder it is debug mode
                                     // who made this err.
-                                    if (XAppGuardManager.get().isServiceAvailable()) {
+                                    if (XAppLockManager.get().isServiceAvailable()) {
                                         XposedLog.wtf("Disable debug mode first:(");
-                                        XAppGuardManager.get().setDebug(false);
+                                        XAppLockManager.get().setDebug(false);
                                     }
                                 }
                                 XposedLog.wtf("==================FATAL HANDLE END================");
@@ -103,7 +103,7 @@ class RuntimeInitSubModule extends AndroidSubModule {
 
                             Log.d(XposedLog.TAG, "uncaughtException, reporting to X-APM-S: " + Binder.getCallingUid());
                             // Now report to ash man.
-                            XAshmanManager xAshmanManager = XAshmanManager.get();
+                            XAPMManager xAshmanManager = XAPMManager.get();
                             if (xAshmanManager.isServiceAvailable()) {
                                 // Wrap err log to xp log.
                                 Thread t = (Thread) param.args[0];

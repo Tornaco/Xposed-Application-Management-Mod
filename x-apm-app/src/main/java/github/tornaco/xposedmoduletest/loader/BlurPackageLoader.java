@@ -8,7 +8,7 @@ import java.util.List;
 
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 
 /**
  * Created by guohao4 on 2017/10/18.
@@ -38,7 +38,7 @@ public interface BlurPackageLoader {
 
             List<CommonPackageInfo> out = new ArrayList<>();
 
-            XAppGuardManager appGuardManager = XAppGuardManager.get();
+            XAppLockManager appGuardManager = XAppLockManager.get();
             if (!appGuardManager.isServiceAvailable()) return out;
 
             String[] packages = appGuardManager.getBlurApps(blur);

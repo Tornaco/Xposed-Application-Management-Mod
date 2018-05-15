@@ -19,7 +19,7 @@ import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.model.Permission;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
@@ -54,7 +54,7 @@ public interface PermissionLoader {
         @Override
         public List<Permission> load(final String pkg, final int category) {
 
-            if (!XAshmanManager.get().isServiceAvailable()) {
+            if (!XAPMManager.get().isServiceAvailable()) {
                 return new ArrayList<>(0);
             }
 
@@ -71,7 +71,7 @@ public interface PermissionLoader {
                 String s = AppOpsManagerCompat.opToPermission(code);
 
                 // Here we check if this is dummy one.
-                boolean isDummy = XAshmanManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME.equals(pkg);
+                boolean isDummy = XAPMManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME.equals(pkg);
 
                 if (!isDummy && (s != null && !permSet.contains(s))) {
                     continue;
@@ -107,7 +107,7 @@ public interface PermissionLoader {
 
                 p.setIconRes(AppOpsManagerCompat.opToIconRes(code));
 
-                p.setMode(XAshmanManager.get().getPermissionControlBlockModeForPkg(code, pkg, false));
+                p.setMode(XAPMManager.get().getPermissionControlBlockModeForPkg(code, pkg, false));
 
                 Logger.d("Add perm: " + p);
 
@@ -128,7 +128,7 @@ public interface PermissionLoader {
                 String summary = AppOpsManagerCompat.getOpSummary(context, ecode);
                 p.setSummary(summary);
                 p.setIconRes(AppOpsManagerCompat.opToIconRes(ecode));
-                p.setMode(XAshmanManager.get().getPermissionControlBlockModeForPkg(ecode, pkg, false));
+                p.setMode(XAPMManager.get().getPermissionControlBlockModeForPkg(ecode, pkg, false));
                 Logger.d("Add perm: " + p);
                 permissions.add(p);
             }
@@ -141,7 +141,7 @@ public interface PermissionLoader {
         @NonNull
         @Override
         public List<CommonPackageInfo> loadByOp(int op, int category, boolean showSystem) {
-            if (!XAshmanManager.get().isServiceAvailable()) {
+            if (!XAPMManager.get().isServiceAvailable()) {
                 return new ArrayList<>(0);
             }
             final PackageManager pm = this.context.getPackageManager();
@@ -162,7 +162,7 @@ public interface PermissionLoader {
                 if (permission == null || (Arrays.binarySearch(decleared, permission) >= 0)) {
                     CommonPackageInfo c = new CommonPackageInfo();
                     c.setPkgName(info.packageName);
-                    c.setVersion(XAshmanManager.get().getPermissionControlBlockModeForPkg(op, c.getPkgName(), false));
+                    c.setVersion(XAPMManager.get().getPermissionControlBlockModeForPkg(op, c.getPkgName(), false));
                     c.setSystemApp(PkgUtil.isSystemApp(context, info.packageName));
 
                     if (c.isSystemApp() && !showSystem) {
@@ -170,7 +170,7 @@ public interface PermissionLoader {
                     }
 
                     c.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(context, info.packageName)));
-                    c.setAppLevel(XAshmanManager.get().getAppLevel(info.packageName));
+                    c.setAppLevel(XAPMManager.get().getAppLevel(info.packageName));
                     res.add(c);
                 }
             }

@@ -34,7 +34,7 @@ import java.util.Set;
 
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.util.OSUtil;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/11/9.
@@ -130,7 +130,7 @@ public class PkgUtil {
             return "Android操作系统"; // FIXME Not availabe in system process.
         }
         // Here we check if this is dummy one.
-        boolean isDummy = XAshmanManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME.equals(pkg);
+        boolean isDummy = XAPMManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME.equals(pkg);
         if (isDummy) {
             return "权限配置";
         }

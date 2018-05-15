@@ -14,7 +14,7 @@ import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildHostInfo;
 import github.tornaco.xposedmoduletest.xposed.XAppGithubCommitSha;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.service.BuildFingerprintBuildHostInfo;
 
 /**
@@ -59,8 +59,8 @@ public class AppVersion extends QuickTile {
                         + "\n编译主机：" + XAppBuildHostInfo.BUILD_HOST_NAME
                         + "\n编译日期：" + XAppBuildHostInfo.BUILD_DATE
                         + "\n提交：" + XAppGithubCommitSha.LATEST_SHA
-                        + "\n框架层序列号：" + (XAshmanManager.get().isServiceAvailable()
-                        ? XAshmanManager.get().getBuildSerial() : "UNKNOWN")
+                        + "\n框架层序列号：" + (XAPMManager.get().isServiceAvailable()
+                        ? XAPMManager.get().getBuildSerial() : "UNKNOWN")
                         + "\n应用层序列号：" + BuildFingerprintBuildHostInfo.BUILD_FINGER_PRINT
                         + "\n该设备支持GMS：" + XAPMApplication.isGMSSupported();
                 new AlertDialog.Builder(context)

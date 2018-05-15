@@ -11,7 +11,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -43,12 +43,12 @@ class WakelockSubModule extends AndroidSubModule {
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
 
-                            boolean ashServiceAvailable = XAshmanManager.get()
+                            boolean ashServiceAvailable = XAPMManager.get()
                                     .isServiceAvailable();
                             if (!ashServiceAvailable) {
                                 Log.e(XposedLog.TAG, "WakeLock-Service not available.");
                                 // Try retrieve service again.
-                                XAshmanManager.get().retrieveService();
+                                XAPMManager.get().retrieveService();
                                 return;
                             }
 
@@ -59,8 +59,8 @@ class WakelockSubModule extends AndroidSubModule {
 //                            }
 
                             // Check Greening.
-                            boolean greening = XAshmanManager.get().isServiceAvailable()
-                                    && XAshmanManager.get().isPackageGreening(pkgName);
+                            boolean greening = XAPMManager.get().isServiceAvailable()
+                                    && XAPMManager.get().isPackageGreening(pkgName);
 //                            if (BuildConfig.DEBUG) {
 //                                Log.d(XposedLog.TAG, "acquire wake lock: "
 //                                        + pkgName
@@ -72,8 +72,8 @@ class WakelockSubModule extends AndroidSubModule {
                             }
 
                             // Check OP.
-                            if (XAshmanManager.get().isServiceAvailable()) {
-                                int mode = XAshmanManager.get().getPermissionControlBlockModeForPkg(
+                            if (XAPMManager.get().isServiceAvailable()) {
+                                int mode = XAPMManager.get().getPermissionControlBlockModeForPkg(
                                         AppOpsManagerCompat.OP_WAKE_LOCK, pkgName,
                                         true);
                                 if (mode == AppOpsManagerCompat.MODE_IGNORED) {

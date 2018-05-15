@@ -19,7 +19,7 @@ import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.TileManager;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2018/1/23.
@@ -45,7 +45,7 @@ public class TestAIOActivity extends BaseActivity {
 
         findViewById(R.id.test_btn_create_ma_user)
                 .setOnClickListener(v -> {
-                    IAshmanService service = IAshmanService.Stub.asInterface(ServiceManager.getService(XAshmanManager.SERVICE_NAME));
+                    IAshmanService service = IAshmanService.Stub.asInterface(ServiceManager.getService(XAPMManager.SERVICE_NAME));
                     try {
                         service.createMultipleProfile();
                     } catch (RemoteException ignored) {
@@ -55,7 +55,7 @@ public class TestAIOActivity extends BaseActivity {
 
         findViewById(R.id.test_btn_install_apm)
                 .setOnClickListener(v -> {
-                    IAshmanService service = IAshmanService.Stub.asInterface(ServiceManager.getService(XAshmanManager.SERVICE_NAME));
+                    IAshmanService service = IAshmanService.Stub.asInterface(ServiceManager.getService(XAPMManager.SERVICE_NAME));
                     try {
                         service.installAppToMultipleAppsUser(BuildConfig.APPLICATION_ID);
                     } catch (RemoteException ignored) {
@@ -66,7 +66,7 @@ public class TestAIOActivity extends BaseActivity {
         findViewById(R.id.test_btn_launch_apm)
                 .setOnClickListener(v -> {
                     IAshmanService service =
-                            IAshmanService.Stub.asInterface(ServiceManager.getService(XAshmanManager.SERVICE_NAME));
+                            IAshmanService.Stub.asInterface(ServiceManager.getService(XAPMManager.SERVICE_NAME));
                     PackageManager pm = getPackageManager();
                     Intent launcher = pm.getLaunchIntentForPackage(BuildConfig.APPLICATION_ID);
                     try {

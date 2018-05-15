@@ -12,7 +12,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.xposed.GlobalWhiteList;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -43,7 +43,7 @@ class PowerManagerServiceLocalSubModule extends AndroidSubModule {
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
 
-                            XAshmanManager ash = XAshmanManager.get();
+                            XAPMManager ash = XAPMManager.get();
                             if (ash.isServiceAvailable()) {
 
                                 String currentPkg = ash.getCurrentTopPackage();

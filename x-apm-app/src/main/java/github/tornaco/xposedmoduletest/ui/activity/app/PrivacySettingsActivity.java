@@ -26,7 +26,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.PrivacyAndroidId;
 import github.tornaco.xposedmoduletest.ui.tiles.PrivacyApps;
 import github.tornaco.xposedmoduletest.ui.tiles.PrivacyDeviceId;
 import github.tornaco.xposedmoduletest.ui.tiles.PrivacyIccSerial;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/11/2.
@@ -91,7 +91,7 @@ public class PrivacySettingsActivity extends WithWithCustomTabActivity {
         View card = findViewById(R.id.card);
 
         final TextView androidIdTextView = card.findViewById(android.R.id.text1);
-        androidIdTextView.setText(XAshmanManager.get().getAndroidId());
+        androidIdTextView.setText(XAPMManager.get().getAndroidId());
 
         card.findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,13 +99,13 @@ public class PrivacySettingsActivity extends WithWithCustomTabActivity {
                 showEditTextDialog(new EditTextAction() {
                     @Override
                     public void onAction(String text) {
-                        XAshmanManager.get().setUserDefinedAndroidId(text);
+                        XAPMManager.get().setUserDefinedAndroidId(text);
                         androidIdTextView.setText(R.string.title_privacy_update_later);
 
                         getUIThreadHandler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                androidIdTextView.setText(XAshmanManager.get().getAndroidId());
+                                androidIdTextView.setText(XAPMManager.get().getAndroidId());
                             }
                         }, 1000);
                     }
@@ -115,13 +115,13 @@ public class PrivacySettingsActivity extends WithWithCustomTabActivity {
         card.findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                XAshmanManager.get().setUserDefinedAndroidId(null);
+                XAPMManager.get().setUserDefinedAndroidId(null);
                 androidIdTextView.setText(R.string.title_privacy_update_later);
 
                 getUIThreadHandler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        androidIdTextView.setText(XAshmanManager.get().getAndroidId());
+                        androidIdTextView.setText(XAPMManager.get().getAndroidId());
                     }
                 }, 1000);
             }
@@ -144,7 +144,7 @@ public class PrivacySettingsActivity extends WithWithCustomTabActivity {
                 showEditTextDialog(new EditTextAction() {
                     @Override
                     public void onAction(String text) {
-                        XAshmanManager.get().setUserDefinedDeviceId(text);
+                        XAPMManager.get().setUserDefinedDeviceId(text);
 
                         androidIdTextView.setText(R.string.title_privacy_update_later);
 
@@ -161,7 +161,7 @@ public class PrivacySettingsActivity extends WithWithCustomTabActivity {
         card.findViewById(R.id.button22).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                XAshmanManager.get().setUserDefinedDeviceId(null);
+                XAPMManager.get().setUserDefinedDeviceId(null);
 
                 androidIdTextView.setText(R.string.title_privacy_update_later);
 
@@ -191,7 +191,7 @@ public class PrivacySettingsActivity extends WithWithCustomTabActivity {
                 showEditTextDialog(new EditTextAction() {
                     @Override
                     public void onAction(String text) {
-                        XAshmanManager.get().setUserDefinedLine1Number(text);
+                        XAPMManager.get().setUserDefinedLine1Number(text);
 
                         androidIdTextView.setText(R.string.title_privacy_update_later);
 
@@ -208,7 +208,7 @@ public class PrivacySettingsActivity extends WithWithCustomTabActivity {
         card.findViewById(R.id.button32).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                XAshmanManager.get().setUserDefinedLine1Number(null);
+                XAPMManager.get().setUserDefinedLine1Number(null);
 
                 androidIdTextView.setText(R.string.title_privacy_update_later);
 

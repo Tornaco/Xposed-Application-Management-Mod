@@ -13,7 +13,7 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 public class PrivacyAppListNavActivity extends CommonPackageInfoListActivity implements SwitchBar.OnSwitchChangeListener {
 
@@ -29,8 +29,8 @@ public class PrivacyAppListNavActivity extends CommonPackageInfoListActivity imp
                     @Override
                     public void accept(CommonPackageInfo commonPackageInfo) {
                         if (commonPackageInfo.isChecked()) {
-                            XAshmanManager.get().addOrRemoveFromPrivacyList(commonPackageInfo.getPkgName(),
-                                    XAshmanManager.Op.REMOVE);
+                            XAPMManager.get().addOrRemoveFromPrivacyList(commonPackageInfo.getPkgName(),
+                                    XAPMManager.Op.REMOVE);
                         }
                     }
                 });

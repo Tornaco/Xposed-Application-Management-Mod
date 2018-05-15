@@ -20,7 +20,7 @@ import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.WorkaroundFixer;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.service.BuildFingerprintBuildHostInfo;
 
 /**
@@ -265,7 +265,7 @@ public class AppSettings extends Observable {
     }
 
     public static boolean isNewBuild(Context context) {
-        String serverSerial = XAshmanManager.get().isServiceAvailable() ? XAshmanManager.get().getBuildSerial() : null;
+        String serverSerial = XAPMManager.get().isServiceAvailable() ? XAPMManager.get().getBuildSerial() : null;
         if (serverSerial == null) return false;
         String appBuildSerial = BuildFingerprintBuildHostInfo.BUILD_FINGER_PRINT;
         return !TextUtils.isEmpty(appBuildSerial) && !appBuildSerial.equals(serverSerial);

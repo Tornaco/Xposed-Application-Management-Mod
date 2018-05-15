@@ -6,6 +6,9 @@ package github.tornaco.xposedmoduletest.xposed;
  */
 public abstract class DefaultConfiguration {
 
+    // Debug.
+    public static final String LOG_TAG_PREFIX = "X-APM";
+
     // Blur config.
     public static final float BITMAP_SCALE = 0.22f;
     /* Initial blur radius. */

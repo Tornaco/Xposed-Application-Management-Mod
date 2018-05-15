@@ -21,7 +21,7 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListPickerActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoPickerAdapter;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 public class LockKillAppPickerActivity extends CommonPackageInfoListPickerActivity implements AdapterView.OnItemSelectedListener {
 
@@ -70,8 +70,8 @@ public class LockKillAppPickerActivity extends CommonPackageInfoListPickerActivi
                     @Override
                     public void accept(CommonPackageInfo commonPackageInfo) {
                         if (commonPackageInfo.isChecked()) {
-                            XAshmanManager.get().addOrRemoveLKApps(new String[]{commonPackageInfo.getPkgName()},
-                                    XAshmanManager.Op.ADD);
+                            XAPMManager.get().addOrRemoveLKApps(new String[]{commonPackageInfo.getPkgName()},
+                                    XAPMManager.Op.ADD);
                         }
                     }
                 });

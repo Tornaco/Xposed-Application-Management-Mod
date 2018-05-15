@@ -21,7 +21,7 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListPickerActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoPickerAdapter;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 
 public class BlurAppPickerActivity extends CommonPackageInfoListPickerActivity implements AdapterView.OnItemSelectedListener {
 
@@ -70,7 +70,7 @@ public class BlurAppPickerActivity extends CommonPackageInfoListPickerActivity i
                     @Override
                     public void accept(CommonPackageInfo commonPackageInfo) {
                         if (commonPackageInfo.isChecked()) {
-                            XAppGuardManager.get().addOrRemoveBlurApps(new String[]{commonPackageInfo.getPkgName()}, true);
+                            XAppLockManager.get().addOrRemoveBlurApps(new String[]{commonPackageInfo.getPkgName()}, true);
                         }
                     }
                 });

@@ -23,7 +23,7 @@ import github.tornaco.android.common.util.ApkUtil;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.util.OSUtil;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -71,8 +71,8 @@ class ToastSubModule extends AndroidSubModule {
                                 Log.e(XposedLog.TAG, "Fail retrieve text from toast: " + e);
                             }
 
-                            int mode = XAshmanManager.get().isServiceAvailable() ?
-                                    XAshmanManager.get().getPermissionControlBlockModeForPkg(
+                            int mode = XAPMManager.get().isServiceAvailable() ?
+                                    XAPMManager.get().getPermissionControlBlockModeForPkg(
                                             AppOpsManagerCompat.OP_TOAST_WINDOW,
                                             currentPackageName, true, new String[]{text})
                                     : AppOpsManagerCompat.MODE_ALLOWED;
@@ -137,13 +137,13 @@ class ToastSubModule extends AndroidSubModule {
     }
 
     private boolean isToastCallerEnabled() {
-        return XAshmanManager.get().isServiceAvailable() && XAshmanManager.get()
-                .isOptFeatureEnabled(XAshmanManager.OPT.TOAST.name());
+        return XAPMManager.get().isServiceAvailable() && XAPMManager.get()
+                .isOptFeatureEnabled(XAPMManager.OPT.TOAST.name());
     }
 
     private boolean isToastCallerIconEnabled() {
-        return XAshmanManager.get().isServiceAvailable() && XAshmanManager.get()
-                .isOptFeatureEnabled(XAshmanManager.OPT.TOAST_ICON.name());
+        return XAPMManager.get().isServiceAvailable() && XAPMManager.get()
+                .isOptFeatureEnabled(XAPMManager.OPT.TOAST_ICON.name());
     }
 
     private void hookMakeToast() {

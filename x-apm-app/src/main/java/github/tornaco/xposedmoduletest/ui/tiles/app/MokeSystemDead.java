@@ -7,7 +7,7 @@ import android.widget.Toast;
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -25,8 +25,8 @@ public class MokeSystemDead extends QuickTile {
             @Override
             public void onClick(View v) {
                 super.onClick(v);
-                if (XAshmanManager.get().isServiceAvailable()) {
-                    XAshmanManager.get().mockSystemDead(5 * 1000);
+                if (XAPMManager.get().isServiceAvailable()) {
+                    XAPMManager.get().mockSystemDead(5 * 1000);
                     Toast.makeText(context, R.string.summary_system_dead_moke, Toast.LENGTH_LONG).show();
                 }
             }

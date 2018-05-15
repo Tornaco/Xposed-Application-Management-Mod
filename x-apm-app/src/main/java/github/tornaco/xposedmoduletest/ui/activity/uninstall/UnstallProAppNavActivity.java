@@ -13,7 +13,7 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 
 public class UnstallProAppNavActivity extends CommonPackageInfoListActivity implements SwitchBar.OnSwitchChangeListener {
 
@@ -29,7 +29,7 @@ public class UnstallProAppNavActivity extends CommonPackageInfoListActivity impl
                     @Override
                     public void accept(CommonPackageInfo commonPackageInfo) {
                         if (commonPackageInfo.isChecked()) {
-                            XAppGuardManager.get().addOrRemoveUPApps(new String[]{commonPackageInfo.getPkgName()}, false);
+                            XAppLockManager.get().addOrRemoveUPApps(new String[]{commonPackageInfo.getPkgName()}, false);
                         }
                     }
                 });
@@ -38,7 +38,7 @@ public class UnstallProAppNavActivity extends CommonPackageInfoListActivity impl
     @Override
     protected void onInitSwitchBar(SwitchBar switchBar) {
         switchBar.show();
-        switchBar.setChecked(XAppGuardManager.get().isUninstallInterruptEnabled());
+        switchBar.setChecked(XAppLockManager.get().isUninstallInterruptEnabled());
         switchBar.addOnSwitchChangeListener(this);
     }
 
@@ -70,7 +70,7 @@ public class UnstallProAppNavActivity extends CommonPackageInfoListActivity impl
 
     @Override
     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-        XAppGuardManager.get().setUninstallInterruptEnabled(isChecked);
+        XAppLockManager.get().setUninstallInterruptEnabled(isChecked);
     }
 
 }

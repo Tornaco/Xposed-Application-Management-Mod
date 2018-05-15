@@ -18,7 +18,7 @@ import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListA
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.tiles.pmh.PMHHnaldersEnabler;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/11/2.
@@ -46,7 +46,7 @@ public class PMHDashboardActivity extends CommonPackageInfoListActivity
     @Override
     protected void onInitSwitchBar(SwitchBar switchBar) {
         switchBar.show();
-        switchBar.setChecked(XAshmanManager.get().isPushMessageHandleEnabled());
+        switchBar.setChecked(XAPMManager.get().isPushMessageHandleEnabled());
         switchBar.addOnSwitchChangeListener(this);
     }
 
@@ -91,7 +91,7 @@ public class PMHDashboardActivity extends CommonPackageInfoListActivity
 
     @Override
     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-        XAshmanManager.get().setPushMessageHandleEnabled(isChecked);
+        XAPMManager.get().setPushMessageHandleEnabled(isChecked);
     }
 
     @Override

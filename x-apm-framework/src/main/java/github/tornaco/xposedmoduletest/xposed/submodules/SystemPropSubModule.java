@@ -13,7 +13,7 @@ import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.GlobalWhiteList;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.bean.SystemProp;
 import github.tornaco.xposedmoduletest.xposed.bean.SystemPropProfile;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -72,8 +72,8 @@ public class SystemPropSubModule extends AndroidSubModule {
 
                     boolean checkProfile = SystemProp.FIELDS.contains(propKey);
                     if (checkProfile) {
-                        boolean isSystemPropEnabled = XAshmanManager.get()
-                                .isServiceAvailable() && XAshmanManager.get()
+                        boolean isSystemPropEnabled = XAPMManager.get()
+                                .isServiceAvailable() && XAPMManager.get()
                                 .isSystemPropEnabled();
                         if (BuildConfig.DEBUG) {
                             Log.d(XposedLog.TAG,
@@ -84,13 +84,13 @@ public class SystemPropSubModule extends AndroidSubModule {
                             // Check if should apply this this package.
                             boolean enabledForThisPackage =
                                     !GlobalWhiteList.isInGlobalWhiteList(callerPackage)
-                                            && XAshmanManager.get().isSystemPropProfileApplyApp(callerPackage);
+                                            && XAPMManager.get().isSystemPropProfileApplyApp(callerPackage);
                             if (BuildConfig.DEBUG) {
                                 Log.d(XposedLog.TAG,
                                         "SystemProp get, enabledForThisPackage: " + enabledForThisPackage);
                             }
                             if (enabledForThisPackage) {
-                                SystemPropProfile activeProfile = XAshmanManager.get().getActiveSystemPropProfile();
+                                SystemPropProfile activeProfile = XAPMManager.get().getActiveSystemPropProfile();
                                 if (BuildConfig.DEBUG) {
                                     Log.d(XposedLog.TAG,
                                             "SystemProp get, activeProfile: " + activeProfile);

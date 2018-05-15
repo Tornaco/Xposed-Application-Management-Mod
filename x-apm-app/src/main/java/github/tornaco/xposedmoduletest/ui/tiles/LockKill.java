@@ -16,7 +16,7 @@ import github.tornaco.xposedmoduletest.ui.activity.lk.LockKillAppNavActivity;
 import github.tornaco.xposedmoduletest.ui.widget.ToastManager;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.IProcessClearListenerAdapter;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
@@ -31,8 +31,8 @@ public class LockKill extends QuickTile {
     public LockKill(final Context context) {
         super(context);
         this.titleRes = R.string.title_app_mem_boost;
-        if (XAshmanManager.get().isServiceAvailable()) {
-            this.summaryRes = XAshmanManager.get().isLockKillEnabled() ?
+        if (XAPMManager.get().isServiceAvailable()) {
+            this.summaryRes = XAPMManager.get().isLockKillEnabled() ?
                     R.string.summary_func_lk_enabled : R.string.summary_func_lk_disabled;
         }
         this.iconRes = R.drawable.ic_donut_small_black_24px;
@@ -60,7 +60,7 @@ public class LockKill extends QuickTile {
                 super.onAction();
                 // Toast.makeText(context, "XXX", Toast.LENGTH_SHORT).show();
                 final int[] clearNum = {0};
-                XAshmanManager.get().clearProcess(new IProcessClearListenerAdapter() {
+                XAPMManager.get().clearProcess(new IProcessClearListenerAdapter() {
                     @Override
                     public boolean doNotClearWhenIntervative() throws RemoteException {
                         return false;
@@ -114,7 +114,7 @@ public class LockKill extends QuickTile {
     }
 
     private int getMemoryUsagePercent() {
-        ActivityManager.MemoryInfo m = XAshmanManager.get().getMemoryInfo();
+        ActivityManager.MemoryInfo m = XAPMManager.get().getMemoryInfo();
         if (m != null) {
             final String infoStr = (m.totalMem - m.availMem) + "/" + m.totalMem;
             Logger.e("getMemoryUsagePercent: " + infoStr);

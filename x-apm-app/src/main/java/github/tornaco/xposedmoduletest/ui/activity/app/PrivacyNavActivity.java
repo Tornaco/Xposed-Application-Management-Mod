@@ -26,7 +26,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.PrivacyApps;
 import github.tornaco.xposedmoduletest.ui.tiles.PrivacyDeviceId;
 import github.tornaco.xposedmoduletest.ui.tiles.PrivacyIccSerial;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 @RuntimePermissions
 public class PrivacyNavActivity extends CommonPackageInfoListActivity
@@ -50,7 +50,7 @@ public class PrivacyNavActivity extends CommonPackageInfoListActivity
     @Override
     protected void onInitSwitchBar(SwitchBar switchBar) {
         switchBar.show();
-        switchBar.setChecked(XAshmanManager.get().isPrivacyEnabled());
+        switchBar.setChecked(XAPMManager.get().isPrivacyEnabled());
         switchBar.addOnSwitchChangeListener(this);
     }
 
@@ -123,7 +123,7 @@ public class PrivacyNavActivity extends CommonPackageInfoListActivity
 
     @Override
     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-        XAshmanManager.get().setPrivacyEnabled(isChecked);
+        XAPMManager.get().setPrivacyEnabled(isChecked);
     }
 
     @Override

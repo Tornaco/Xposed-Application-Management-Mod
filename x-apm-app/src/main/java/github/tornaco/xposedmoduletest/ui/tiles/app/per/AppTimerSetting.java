@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 
 /**
@@ -30,7 +30,7 @@ public class AppTimerSetting extends AppSettingsSwitchTile {
     void applySwitchState(boolean checked) {
         super.applySwitchState(checked);
         getAppSettings().setAlarm(checked);
-        XAshmanManager.get().setPermissionControlBlockModeForPkg(AppOpsManagerCompat.OP_SET_ALARM,
+        XAPMManager.get().setPermissionControlBlockModeForPkg(AppOpsManagerCompat.OP_SET_ALARM,
                 getAppSettings().getPkgName(),
                 checked ? AppOpsManagerCompat.MODE_IGNORED : AppOpsManagerCompat.MODE_ALLOWED);
     }

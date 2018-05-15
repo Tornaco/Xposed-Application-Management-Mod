@@ -8,7 +8,7 @@ import android.support.annotation.Nullable;
 import android.widget.Toast;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2018/1/18.
@@ -57,22 +57,22 @@ public class ShortcutStubActivity extends BaseActivity {
         boolean redisaletr = intent.getBooleanExtra(EXTRA_RE_DISABLE_TR, true);
 
         // Enable this app first.
-        if (XAshmanManager.get().isServiceAvailable()) {
+        if (XAPMManager.get().isServiceAvailable()) {
 
-            int state = XAshmanManager.get().getApplicationEnabledSetting(target);
+            int state = XAPMManager.get().getApplicationEnabledSetting(target);
             boolean disabled = state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED
                     && state != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
 
             if (disabled) {
-                XAshmanManager.get().setApplicationEnabledSetting(target, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0, true);
+                XAPMManager.get().setApplicationEnabledSetting(target, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0, true);
             }
 
             if (redisale) {
-                XAshmanManager.get().addPendingDisableApps(target);
+                XAPMManager.get().addPendingDisableApps(target);
             }
 
             if (redisaletr) {
-                XAshmanManager.get().addPendingDisableAppsTR(target);
+                XAPMManager.get().addPendingDisableAppsTR(target);
             }
 
             Intent launcherIntent = getPackageManager().getLaunchIntentForPackage(target);

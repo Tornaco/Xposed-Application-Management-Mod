@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
@@ -39,7 +39,7 @@ public interface FocusedAppLoader {
         public List<CommonPackageInfo> load() {
             List<CommonPackageInfo> out = new ArrayList<>();
 
-            XAshmanManager xAshmanManager = XAshmanManager.get();
+            XAPMManager xAshmanManager = XAPMManager.get();
             if (!xAshmanManager.isServiceAvailable()) return out;
 
             String[] packages = xAshmanManager.getAppFocusActionPackages();

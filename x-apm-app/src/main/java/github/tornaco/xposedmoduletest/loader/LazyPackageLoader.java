@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/10/18.
@@ -37,9 +37,9 @@ public interface LazyPackageLoader {
 
             List<CommonPackageInfo> out = new ArrayList<>();
 
-            if (!XAshmanManager.get().isServiceAvailable()) return out;
+            if (!XAPMManager.get().isServiceAvailable()) return out;
 
-            String[] packages = XAshmanManager.get().getLazyApps(lazy);
+            String[] packages = XAPMManager.get().getLazyApps(lazy);
 
             for (String pkg : packages) {
                 CommonPackageInfo p = LoaderUtil.constructCommonPackageInfo(context, pkg);

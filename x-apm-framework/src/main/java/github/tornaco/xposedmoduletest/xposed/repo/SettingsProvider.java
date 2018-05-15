@@ -1,6 +1,5 @@
 package github.tornaco.xposedmoduletest.xposed.repo;
 
-import android.os.Environment;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.util.Log;
@@ -9,7 +8,7 @@ import java.io.File;
 
 import github.tornaco.android.common.BlackHole;
 import github.tornaco.xposedmoduletest.util.Singleton;
-import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
+import github.tornaco.xposedmoduletest.xposed.DefaultConfiguration;
 
 /**
  * Created by guohao4 on 2017/12/19.
@@ -18,7 +17,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 public class SettingsProvider {
 
-    private static final String TAG = "SettingsProvider";
+    private static final String TAG = DefaultConfiguration.LOG_TAG_PREFIX + "-SP";
 
     private static final int SETTINGS_KEY_TOR_AG = 0x1;
     private static final String SETTINGS_NAME_TOR_AG = "settings_common.xml";
@@ -41,7 +40,7 @@ public class SettingsProvider {
 
     private final Object mLock = new Object();
 
-    public SettingsProvider() {
+    private SettingsProvider() {
 
         HandlerThread handlerThread = new HandlerThread("SettingsProvider@Tor");
         handlerThread.start();
@@ -60,12 +59,7 @@ public class SettingsProvider {
     }
 
     private static File getBaseDataDir() {
-        File systemFile = new File(Environment.getDataDirectory(), "system");
-        File dir = new File(systemFile, "tor_apm");
-        if (!dir.exists()) {
-            dir = new File(systemFile, "tor");
-        }
-        return dir;
+        return RepoProxy.getBaseDataDir();
     }
 
     private boolean insertSettingLocked(String name, String value) {
@@ -137,6 +131,26 @@ public class SettingsProvider {
         }
     }
 
+    public long getLong(String name, long def) {
+        String v = getSettingLocked(name);
+        if (v == null) return def;
+        try {
+            return Long.parseLong(v);
+        } catch (Throwable e) {
+            Log.e(TAG, "getLong" + Log.getStackTraceString(e));
+            return def;
+        }
+    }
+
+    public boolean putLong(String name, long value) {
+        try {
+            return insertSettingLocked(name, String.valueOf(value));
+        } catch (Throwable e) {
+            Log.e(TAG, "putLong" + Log.getStackTraceString(e));
+            return false;
+        }
+    }
+
     public void reset() {
         try {
             synchronized (mLock) {
@@ -144,10 +158,10 @@ public class SettingsProvider {
                 File dir = getBaseDataDir();
                 BlackHole.eat(new File(dir, SETTINGS_NAME_TOR_AG).delete());
                 initSettingsState(mLooper);
-                XposedLog.verbose("Settings state has been reset!");
+                Log.d(TAG, "Settings state has been reset!");
             }
         } catch (Throwable e) {
-            XposedLog.wtf("Fail reset settings state: " + Log.getStackTraceString(e));
+            Log.e(TAG, "Fail reset settings state: " + Log.getStackTraceString(e));
         }
     }
 }

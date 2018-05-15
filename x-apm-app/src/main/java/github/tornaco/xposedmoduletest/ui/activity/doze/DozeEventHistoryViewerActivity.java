@@ -14,7 +14,7 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListPickerActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoViewerAdapter;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerProxy;
 import si.virag.fuzzydateformatter.FuzzyDateTimeFormatter;
@@ -84,7 +84,7 @@ public class DozeEventHistoryViewerActivity extends CommonPackageInfoListPickerA
 
     @Override
     protected List<? extends CommonPackageInfo> performLoading() {
-        List<DozeEvent> dozeEvents = XAshmanManager.get().getDozeEventHistory();
+        List<DozeEvent> dozeEvents = XAPMManager.get().getDozeEventHistory();
         List<CommonPackageInfo> res = new ArrayList<>(dozeEvents.size());
         for (DozeEvent e : dozeEvents) {
 

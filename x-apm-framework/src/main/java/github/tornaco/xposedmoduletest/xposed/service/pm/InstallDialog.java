@@ -16,7 +16,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.service.AppResource;
 import github.tornaco.xposedmoduletest.xposed.service.ErrorCatchRunnable;
 import lombok.Getter;
@@ -159,7 +159,7 @@ public class InstallDialog implements View.OnClickListener {
                 .setNegativeButton(deny, (dialog, which) -> receiver.onVerifyResult("DENY", AppOpsManagerCompat.MODE_IGNORED))
                 .setNeutralButton(alwaysAllow, (dialog, which) -> {
                     receiver.onVerifyResult("ALWAYS ALLOW", AppOpsManagerCompat.MODE_ALLOWED);
-                    XAshmanManager.get().addOrRemovePackageInstallerVerifyRules("ALWAYS ALLOW " + args.getInstallerPackageName(), true);
+                    XAPMManager.get().addOrRemovePackageInstallerVerifyRules("ALWAYS ALLOW " + args.getInstallerPackageName(), true);
                 })
                 .setOnDismissListener(dialog -> cleanup())
                 .create();

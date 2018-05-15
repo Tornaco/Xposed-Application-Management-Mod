@@ -10,7 +10,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -43,8 +43,8 @@ class AMSRemoveTaskSubModule extends AndroidSubModule {
                             super.beforeHookedMethod(param);
                             int callingUid = Binder.getCallingUid();
                             int taskId = (int) param.args[0];
-                            if (XAshmanManager.get().isServiceAvailable()) {
-                                XAshmanManager.get().onTaskRemoving(callingUid, taskId);
+                            if (XAPMManager.get().isServiceAvailable()) {
+                                XAPMManager.get().onTaskRemoving(callingUid, taskId);
                             }
                         }
                     });

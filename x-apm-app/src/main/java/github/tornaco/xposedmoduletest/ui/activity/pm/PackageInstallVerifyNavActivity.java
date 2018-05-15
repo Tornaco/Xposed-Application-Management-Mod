@@ -18,7 +18,7 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 public class PackageInstallVerifyNavActivity extends CommonPackageInfoListActivity
         implements SwitchBar.OnSwitchChangeListener {
@@ -33,7 +33,7 @@ public class PackageInstallVerifyNavActivity extends CommonPackageInfoListActivi
         Collections.consumeRemaining(getCommonPackageInfoAdapter().getCommonPackageInfos(),
                 commonPackageInfo -> {
                     if (commonPackageInfo.isChecked()) {
-                        XAshmanManager.get().addOrRemovePackageInstallerVerifyRules(commonPackageInfo.getAppName(), false);
+                        XAPMManager.get().addOrRemovePackageInstallerVerifyRules(commonPackageInfo.getAppName(), false);
                     }
                 });
     }
@@ -41,7 +41,7 @@ public class PackageInstallVerifyNavActivity extends CommonPackageInfoListActivi
     @Override
     protected void onInitSwitchBar(SwitchBar switchBar) {
         switchBar.show();
-        switchBar.setChecked(XAshmanManager.get().isPackageInstallVerifyEnabled());
+        switchBar.setChecked(XAPMManager.get().isPackageInstallVerifyEnabled());
         switchBar.addOnSwitchChangeListener(this);
     }
 
@@ -54,7 +54,7 @@ public class PackageInstallVerifyNavActivity extends CommonPackageInfoListActivi
                 .setPositiveButton(android.R.string.ok,
                         (dialog, which) -> {
                             String text = e.getText().toString();
-                            boolean added = XAshmanManager.get().addOrRemovePackageInstallerVerifyRules(text, true);
+                            boolean added = XAPMManager.get().addOrRemovePackageInstallerVerifyRules(text, true);
                             if (added) {
                                 startLoading();
                             } else {
@@ -81,7 +81,7 @@ public class PackageInstallVerifyNavActivity extends CommonPackageInfoListActivi
 
     @Override
     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-        XAshmanManager.get().setPackageInstallVerifyEnabled(isChecked);
+        XAPMManager.get().setPackageInstallVerifyEnabled(isChecked);
     }
 
     @Override

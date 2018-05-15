@@ -17,7 +17,7 @@ import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.util.ArrayUtil;
 import github.tornaco.xposedmoduletest.util.PinyinComparator;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/10/18.
@@ -46,7 +46,7 @@ public interface DozeWhitelistPackageLoader {
         public List<CommonPackageInfo> loadWhiteList(boolean white) {
             List<CommonPackageInfo> out = new ArrayList<>();
 
-            XAshmanManager xAshmanManager = XAshmanManager.get();
+            XAPMManager xAshmanManager = XAPMManager.get();
             if (!xAshmanManager.isServiceAvailable()) return out;
 
             if (BuildConfig.DEBUG) {
@@ -72,7 +72,7 @@ public interface DozeWhitelistPackageLoader {
                 }
             } else {
                 Set<String> whiteSet = Sets.newHashSet(packages);
-                String[] allPackages = xAshmanManager.getInstalledApps(XAshmanManager.FLAG_SHOW_SYSTEM_APP);
+                String[] allPackages = xAshmanManager.getInstalledApps(XAPMManager.FLAG_SHOW_SYSTEM_APP);
                 for (String pkg : allPackages) {
                     boolean whitelisted = whiteSet.contains(pkg);
                     if (!whitelisted) {

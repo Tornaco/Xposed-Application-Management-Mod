@@ -7,7 +7,7 @@ import android.view.View;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.app.PrivacyNavActivity;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -31,7 +31,7 @@ public class PrivacyDeviceId extends PrivacyItemTile {
                 showEditTextDialog((Activity) context, new PrivacyItemTile.EditTextAction() {
                     @Override
                     public void onAction(String text) {
-                        XAshmanManager.get().setUserDefinedDeviceId(text);
+                        XAPMManager.get().setUserDefinedDeviceId(text);
 
                         PrivacyNavActivity pa = (PrivacyNavActivity) context;
                         pa.reload();
@@ -44,10 +44,10 @@ public class PrivacyDeviceId extends PrivacyItemTile {
     }
 
     private String getDeviceId() {
-        return XAshmanManager.get().getDeviceId();
+        return XAPMManager.get().getDeviceId();
     }
 
     private String getUserSetDeviceId() {
-        return XAshmanManager.get().getUserDefinedDeviceId();
+        return XAPMManager.get().getUserDefinedDeviceId();
     }
 }

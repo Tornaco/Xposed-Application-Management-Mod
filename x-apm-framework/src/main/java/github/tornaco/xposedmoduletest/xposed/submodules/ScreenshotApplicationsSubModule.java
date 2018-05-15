@@ -22,8 +22,8 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurTask;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.util.BlurTaskCache;
@@ -128,21 +128,21 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
 
                             try {
 
-                                if (!XAshmanManager.get().isServiceAvailable()
-                                        || !XAppGuardManager.get().isBlurEnabled()) {
+                                if (!XAPMManager.get().isServiceAvailable()
+                                        || !XAppLockManager.get().isBlurEnabled()) {
                                     return;
                                 }
 
                                 String caller = AndroidAppHelper.currentPackageName();
                                 int taskId = (int) param.args[0];
-                                String pkg = XAshmanManager.get().packageForTaskId(taskId);
+                                String pkg = XAPMManager.get().packageForTaskId(taskId);
                                 XposedLog.verbose("BLUR getTaskThumbnail caller %s task %s", caller, pkg);
 
                                 if (pkg == null) {
                                     return;
                                 }
 
-                                boolean blur = XAppGuardManager.get().isBlurEnabledForPackage(pkg);
+                                boolean blur = XAppLockManager.get().isBlurEnabledForPackage(pkg);
                                 if (!blur) {
                                     XposedLog.verbose("BLUR isBlurEnabledForPackage is false");
                                     return;
@@ -174,7 +174,7 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
                                     XposedLog.verbose("BLUR getTaskThumbnail thumbnailInfo: " + tt.thumbnailInfo);
                                 }
 
-                                int br = XAppGuardManager.get().getBlurRadius();
+                                int br = XAppLockManager.get().getBlurRadius();
                                 Bitmap source = tt.mainThumbnail;
                                 if (source == null) {
                                     XposedLog.verbose("BLUR getTaskThumbnail source is null, Try decode with fd.");

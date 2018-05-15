@@ -8,7 +8,7 @@ import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.util.OSUtil;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.WeChatPushNotificationHandler;
 
 /**
@@ -28,7 +28,7 @@ public class WeChatPMHNotificationSettingsOreo extends QuickTile {
                 super.onClick(v);
                 if (OSUtil.isOOrAbove()) {
                     if (!WeChatPushNotificationHandler.launchNotificationChannelSettingsForOreo(context,
-                            !XAshmanManager.get()
+                            !XAPMManager.get()
                                     .isPushMessageHandlerMessageNotificationByAppEnabled(WeChatPushNotificationHandler.WECHAT_PKG_NAME))) {
                         Toast.makeText(context, R.string.error_notification_channel_activity_not_found, Toast.LENGTH_LONG).show();
                     }

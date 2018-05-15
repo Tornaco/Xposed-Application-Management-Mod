@@ -54,7 +54,7 @@ import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoViewer
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.ArrayUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.ShortcutUtil;
 import lombok.Getter;
@@ -168,7 +168,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                     onRequestDisableApp(packageInfo.getPkgName());
                     break;
                 case R.id.action_enable_app:
-                    XAshmanManager.get().setApplicationEnabledSetting(
+                    XAPMManager.get().setApplicationEnabledSetting(
                             packageInfo.getPkgName(), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0,
                             false);
                     startLoading();
@@ -293,7 +293,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                         (dialoginterface, i) -> {
                             dialoginterface.dismiss();
 
-                            XAshmanManager.get().setApplicationEnabledSetting(
+                            XAPMManager.get().setApplicationEnabledSetting(
                                     pkgName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0,
                                     false);
 
@@ -372,14 +372,14 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
     private void onRequestAddAppFocusedAction(final String who) {
         pickAppFocusActions(actions -> {
             String[] actionString = ArrayUtil.convertObjectArrayToStringArray(actions.toArray());
-            XAshmanManager.get().addOrRemoveAppFocusAction(who, actionString, true);
+            XAPMManager.get().addOrRemoveAppFocusAction(who, actionString, true);
         });
     }
 
     private void onRequestAddAppUnFocusedAction(final String who) {
         pickAppFocusActions(actions -> {
             String[] actionString = ArrayUtil.convertObjectArrayToStringArray(actions.toArray());
-            XAshmanManager.get().addOrRemoveAppUnFocusAction(who, actionString, true);
+            XAPMManager.get().addOrRemoveAppUnFocusAction(who, actionString, true);
         });
     }
 

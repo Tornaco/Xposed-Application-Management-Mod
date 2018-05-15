@@ -5,7 +5,7 @@ import android.util.LruCache;
 
 import github.tornaco.xposedmoduletest.ITaskRemoveListener;
 import github.tornaco.xposedmoduletest.util.Singleton;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurTask;
 
 /**
@@ -35,7 +35,7 @@ public class BlurTaskCache {
     private BlurTaskCache() {
         mCache = new LruCache<>(MAX_ENTRY_SIZE);
         // Tracking the task removal.
-        XAshmanManager.get().registerTaskRemoveListener(new ITaskRemoveListener.Stub() {
+        XAPMManager.get().registerTaskRemoveListener(new ITaskRemoveListener.Stub() {
             @Override
             public void onTaskRemoved(String packageName) {
                 try {
@@ -75,6 +75,6 @@ public class BlurTaskCache {
     }
 
     private static boolean isBlurCacheEnabled() {
-        return XAshmanManager.get().isOptFeatureEnabled("opt_blur_cache");
+        return XAPMManager.get().isOptFeatureEnabled("opt_blur_cache");
     }
 }

@@ -6,7 +6,7 @@ import android.support.test.uiautomator.UiDevice;
 
 import org.junit.Test;
 
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 
 /**
@@ -35,9 +35,9 @@ public class AppLockStablityTest {
 
         // 1. Setup verify mode.
         VerifySettings vf = new VerifySettings(true, true, true);
-        XAppGuardManager.get().setVerifySettings(vf);
-        XAppGuardManager.get().addOrRemoveLockApps(new String[]{targetPackage}, true);
-        XAppGuardManager.get().setEnabled(true);
+        XAppLockManager.get().setVerifySettings(vf);
+        XAppLockManager.get().addOrRemoveLockApps(new String[]{targetPackage}, true);
+        XAppLockManager.get().setEnabled(true);
 
         // 2. Launch an app with applock.
         Intent launchIntent = InstrumentationRegistry.getContext()

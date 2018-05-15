@@ -7,7 +7,7 @@ import android.widget.Toast;
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -25,8 +25,8 @@ public class CleanUpSystemErrorTrace extends QuickTile {
             @Override
             public void onClick(View v) {
                 super.onClick(v);
-                if (XAshmanManager.get().isServiceAvailable()) {
-                    XAshmanManager.get().cleanUpSystemErrorTraces();
+                if (XAPMManager.get().isServiceAvailable()) {
+                    XAPMManager.get().cleanUpSystemErrorTraces();
                     Toast.makeText(context, R.string.res_cleanup_system_error_trace_success, Toast.LENGTH_SHORT).show();
                 }
             }

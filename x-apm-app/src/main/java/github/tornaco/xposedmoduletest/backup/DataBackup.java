@@ -18,8 +18,8 @@ import java.util.UUID;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.util.DateUtils;
 import github.tornaco.xposedmoduletest.util.ZipUtils;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 import github.tornaco.xposedmoduletest.xposed.util.Closer;
 import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 
@@ -38,8 +38,8 @@ public abstract class DataBackup {
 
     public static void performBackup(File dir, BackupRestoreListener listener) {
 
-        XAppGuardManager ag = XAppGuardManager.get();
-        XAshmanManager ash = XAshmanManager.get();
+        XAppLockManager ag = XAppLockManager.get();
+        XAPMManager ash = XAPMManager.get();
         if (!ag.isServiceAvailable() || !ash.isServiceAvailable()) {
             listener.onDataBackupFail(-1, new NullPointerException("Service not available"));
             return;
@@ -105,8 +105,8 @@ public abstract class DataBackup {
 
     public static void performRestore(Context context, File zipFile, BackupRestoreListener listener) {
 
-        XAppGuardManager ag = XAppGuardManager.get();
-        XAshmanManager ash = XAshmanManager.get();
+        XAppLockManager ag = XAppLockManager.get();
+        XAPMManager ash = XAPMManager.get();
         if (!ag.isServiceAvailable() || !ash.isServiceAvailable()) {
             listener.onDataBackupFail(-1, new NullPointerException("Service not available"));
             return;
@@ -142,7 +142,7 @@ public abstract class DataBackup {
                 fr = new InputStreamReader(Files.asByteSource(new File(tmpDir, "boot")).openStream());
                 br = new BufferedReader(fr);
                 while ((line = br.readLine()) != null) {
-                    ash.addOrRemoveBootBlockApps(new String[]{line}, XAshmanManager.Op.ADD);
+                    ash.addOrRemoveBootBlockApps(new String[]{line}, XAPMManager.Op.ADD);
                 }
                 Closer.closeQuietly(fr);
                 Closer.closeQuietly(br);
@@ -153,7 +153,7 @@ public abstract class DataBackup {
                 fr = new InputStreamReader(Files.asByteSource(new File(tmpDir, "start")).openStream());
                 br = new BufferedReader(fr);
                 while ((line = br.readLine()) != null) {
-                    ash.addOrRemoveStartBlockApps(new String[]{line}, XAshmanManager.Op.ADD);
+                    ash.addOrRemoveStartBlockApps(new String[]{line}, XAPMManager.Op.ADD);
                 }
                 Closer.closeQuietly(fr);
                 Closer.closeQuietly(br);
@@ -164,7 +164,7 @@ public abstract class DataBackup {
                 fr = new InputStreamReader(Files.asByteSource(new File(tmpDir, "lk")).openStream());
                 br = new BufferedReader(fr);
                 while ((line = br.readLine()) != null) {
-                    ash.addOrRemoveLKApps(new String[]{line}, XAshmanManager.Op.ADD);
+                    ash.addOrRemoveLKApps(new String[]{line}, XAPMManager.Op.ADD);
                 }
                 Closer.closeQuietly(fr);
                 Closer.closeQuietly(br);
@@ -175,7 +175,7 @@ public abstract class DataBackup {
                 fr = new InputStreamReader(Files.asByteSource(new File(tmpDir, "rfk")).openStream());
                 br = new BufferedReader(fr);
                 while ((line = br.readLine()) != null) {
-                    ash.addOrRemoveRFKApps(new String[]{line}, XAshmanManager.Op.ADD);
+                    ash.addOrRemoveRFKApps(new String[]{line}, XAPMManager.Op.ADD);
                 }
                 Closer.closeQuietly(fr);
                 Closer.closeQuietly(br);
@@ -186,7 +186,7 @@ public abstract class DataBackup {
                 fr = new InputStreamReader(Files.asByteSource(new File(tmpDir, "trk")).openStream());
                 br = new BufferedReader(fr);
                 while ((line = br.readLine()) != null) {
-                    ash.addOrRemoveTRKApps(new String[]{line}, XAshmanManager.Op.ADD);
+                    ash.addOrRemoveTRKApps(new String[]{line}, XAPMManager.Op.ADD);
                 }
                 Closer.closeQuietly(fr);
                 Closer.closeQuietly(br);
@@ -197,7 +197,7 @@ public abstract class DataBackup {
                 fr = new InputStreamReader(Files.asByteSource(new File(tmpDir, "lazy")).openStream());
                 br = new BufferedReader(fr);
                 while ((line = br.readLine()) != null) {
-                    ash.addOrRemoveLazyApps(new String[]{line}, XAshmanManager.Op.ADD);
+                    ash.addOrRemoveLazyApps(new String[]{line}, XAPMManager.Op.ADD);
                 }
                 Closer.closeQuietly(fr);
                 Closer.closeQuietly(br);
@@ -208,7 +208,7 @@ public abstract class DataBackup {
                 fr = new InputStreamReader(Files.asByteSource(new File(tmpDir, "privacy")).openStream());
                 br = new BufferedReader(fr);
                 while ((line = br.readLine()) != null) {
-                    ash.addOrRemoveFromPrivacyList(line, XAshmanManager.Op.ADD);
+                    ash.addOrRemoveFromPrivacyList(line, XAPMManager.Op.ADD);
                 }
                 Closer.closeQuietly(fr);
                 Closer.closeQuietly(br);

@@ -30,7 +30,7 @@ import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.WithRecyclerView;
 import github.tornaco.xposedmoduletest.ui.adapter.PermissionOpsAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
@@ -174,7 +174,7 @@ public class Apps2OpListActivity extends WithRecyclerView {
                         permission -> {
                             int mode = b ? AppOpsManagerCompat.MODE_ALLOWED
                                     : AppOpsManagerCompat.MODE_IGNORED;
-                            XAshmanManager.get().setPermissionControlBlockModeForPkg(permission.getCode(), mPkg, mode);
+                            XAPMManager.get().setPermissionControlBlockModeForPkg(permission.getCode(), mPkg, mode);
                             runOnUiThreadChecked(() -> p.setMessage(permission.getName()));
                         });
             } finally {

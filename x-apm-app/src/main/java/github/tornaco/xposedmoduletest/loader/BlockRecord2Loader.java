@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 
 /**
@@ -27,10 +27,10 @@ public interface BlockRecord2Loader {
         @NonNull
         @Override
         public List<BlockRecord2> loadAll(String pkg) {
-            if (XAshmanManager.get().isServiceAvailable()) {
+            if (XAPMManager.get().isServiceAvailable()) {
                 List<BlockRecord2> res = pkg == null
-                        ? XAshmanManager.get().getBlockRecords()
-                        : XAshmanManager.get().getStartRecordsForPackage(pkg);
+                        ? XAPMManager.get().getBlockRecords()
+                        : XAPMManager.get().getStartRecordsForPackage(pkg);
 
                 java.util.Collections.sort(res, (o1, o2) -> o1.getTimeWhen() > o2.getTimeWhen() ? -1 : 1);
 

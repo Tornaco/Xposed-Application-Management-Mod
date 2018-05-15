@@ -10,7 +10,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.BuildConfig;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -61,8 +61,8 @@ class ActiveServiceForegroundNotificationCancellationSubModule extends AndroidSu
                     protected void beforeHookedMethod(MethodHookParam param)
                             throws Throwable {
                         super.beforeHookedMethod(param);
-                        boolean opt = XAshmanManager.get().isServiceAvailable() && XAshmanManager.get()
-                                .isOptFeatureEnabled(XAshmanManager.OPT.FOREGROUND_NOTIFICATION.name());
+                        boolean opt = XAPMManager.get().isServiceAvailable() && XAPMManager.get()
+                                .isOptFeatureEnabled(XAPMManager.OPT.FOREGROUND_NOTIFICATION.name());
                         if (opt) {
                             // Always allow to cancel, do not check active services.
                             Object serviceRecordObject = param.args[0];

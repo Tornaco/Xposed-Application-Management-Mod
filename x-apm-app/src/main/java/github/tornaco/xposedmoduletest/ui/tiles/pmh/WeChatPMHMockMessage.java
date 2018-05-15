@@ -8,7 +8,7 @@ import android.view.View;
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.WeChatPushNotificationHandler;
 
 /**
@@ -27,11 +27,11 @@ public class WeChatPMHMockMessage extends QuickTile {
             @Override
             public void onClick(View v) {
                 super.onClick(v);
-                String userName = XAshmanManager.get().getUserName();
+                String userName = XAPMManager.get().getUserName();
                 if (TextUtils.isEmpty(userName)) {
                     userName = Build.DEVICE;
                 }
-                XAshmanManager.get().mockPushMessageReceived(
+                XAPMManager.get().mockPushMessageReceived(
                         WeChatPushNotificationHandler.WECHAT_PKG_NAME,
                         String.format("Hello %s, this is the %s-st message!", userName, ++messageCnt));
             }

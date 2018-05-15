@@ -49,7 +49,7 @@ import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.SpannableUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
 
@@ -166,7 +166,7 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
         if (item.getItemId() == R.id.action_ops_template) {
             if (AppSettings.isDonated(getContext())
                     || XAPMApplication.isPlayVersion()) {
-                Apps2OpListActivity.start(getContext(), XAshmanManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME);
+                Apps2OpListActivity.start(getContext(), XAPMManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME);
             } else {
                 Toast.makeText(getContext(), R.string.donated_available, Toast.LENGTH_SHORT).show();
             }

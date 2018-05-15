@@ -11,8 +11,8 @@ import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 
 /**
  * Created by guohao4 on 2017/11/16.
@@ -34,9 +34,9 @@ public class RestoreDefault extends QuickTile {
                         .setTitle(R.string.title_restore_def)
                         .setMessage(R.string.summary_restore_def)
                         .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                            if (XAshmanManager.get().isServiceAvailable()) {
-                                XAshmanManager.get().restoreDefaultSettings();
-                                XAppGuardManager.get().restoreDefaultSettings();
+                            if (XAPMManager.get().isServiceAvailable()) {
+                                XAPMManager.get().restoreDefaultSettings();
+                                XAppLockManager.get().restoreDefaultSettings();
                                 Toast.makeText(context, R.string.summary_restore_done, Toast.LENGTH_SHORT).show();
                             } else {
                                 XExecutor.execute(() -> {

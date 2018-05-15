@@ -10,7 +10,7 @@ import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.doze.DozeWhiteListViewerActivity;
 import github.tornaco.xposedmoduletest.util.ArrayUtil;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -26,8 +26,8 @@ public class DozeWhitelistTile extends QuickTile {
         int whitelistSize = 0;
         try {
             whitelistSize =
-                    ArrayUtil.combine(XAshmanManager.get().getUserPowerWhitelist(),
-                            XAshmanManager.get().getSystemPowerWhitelist()).length;
+                    ArrayUtil.combine(XAPMManager.get().getUserPowerWhitelist(),
+                            XAPMManager.get().getSystemPowerWhitelist()).length;
         } catch (Throwable e) {
             Logger.e("combine system and usr: " + e);
         }

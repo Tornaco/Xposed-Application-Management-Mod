@@ -17,7 +17,7 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 public class StartRuleNavActivity extends CommonPackageInfoListActivity
         implements SwitchBar.OnSwitchChangeListener {
@@ -32,7 +32,7 @@ public class StartRuleNavActivity extends CommonPackageInfoListActivity
         Collections.consumeRemaining(getCommonPackageInfoAdapter().getCommonPackageInfos(),
                 commonPackageInfo -> {
                     if (commonPackageInfo.isChecked()) {
-                        XAshmanManager.get().addOrRemoveStartRules(commonPackageInfo.getAppName(),
+                        XAPMManager.get().addOrRemoveStartRules(commonPackageInfo.getAppName(),
                                 false);
                     }
                 });
@@ -41,7 +41,7 @@ public class StartRuleNavActivity extends CommonPackageInfoListActivity
     @Override
     protected void onInitSwitchBar(SwitchBar switchBar) {
         switchBar.show();
-        switchBar.setChecked(XAshmanManager.get().isStartRuleEnabled());
+        switchBar.setChecked(XAPMManager.get().isStartRuleEnabled());
         switchBar.addOnSwitchChangeListener(this);
     }
 
@@ -54,7 +54,7 @@ public class StartRuleNavActivity extends CommonPackageInfoListActivity
                 .setPositiveButton(android.R.string.ok,
                         (dialog, which) -> {
                             String text = e.getText().toString();
-                            boolean added = XAshmanManager.get().addOrRemoveStartRules(text, true);
+                            boolean added = XAPMManager.get().addOrRemoveStartRules(text, true);
                             if (added) {
                                 startLoading();
                             } else {
@@ -81,7 +81,7 @@ public class StartRuleNavActivity extends CommonPackageInfoListActivity
 
     @Override
     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
-        XAshmanManager.get().setStartRuleEnabled(isChecked);
+        XAPMManager.get().setStartRuleEnabled(isChecked);
     }
 
     @Override

@@ -53,9 +53,9 @@ import github.tornaco.android.common.Holder;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.AppGlobals;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.MapRepo;
@@ -169,7 +169,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 public void onReceive(Context context, Intent intent) {
                     if (ACTION_DISABLE_DEBUG_MODE.equals(intent.getAction())) {
                         // Disable!
-                        XAppGuardManager.get().setDebug(false);
+                        XAppLockManager.get().setDebug(false);
                     }
                 }
             });
@@ -525,7 +525,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         }
 
         if (componentName != null) {
-            boolean isAPM = XAshmanManager.VERIFIER_CLASS_NAME.equals(componentName.getClassName());
+            boolean isAPM = XAPMManager.VERIFIER_CLASS_NAME.equals(componentName.getClassName());
             if (BuildConfig.DEBUG) {
                 XposedLog.verbose("is APM?" + isAPM);
             }
@@ -588,9 +588,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     public boolean isInterruptFPEventVBEnabled(int event) throws RemoteException {
         enforceCallingPermissions();
         switch (event) {
-            case XAppGuardManager.FPEvent.SUCCESS:
+            case XAppLockManager.FPEvent.SUCCESS:
                 return interruptFPSuccessVibrate();
-            case XAppGuardManager.FPEvent.ERROR:
+            case XAppLockManager.FPEvent.ERROR:
                 return interruptFPErrorVibrate();
         }
         return false;
@@ -1029,12 +1029,12 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     private static Intent buildVerifyIntent(boolean injectHome, int transId, String pkg) {
-        Intent intent = new Intent(XAppGuardManager.ACTION_APP_GUARD_VERIFY_DISPLAYER);
+        Intent intent = new Intent(XAppLockManager.ACTION_APP_GUARD_VERIFY_DISPLAYER);
         intent.setClassName(BuildConfig.APPLICATION_ID,
-                XAshmanManager.VERIFIER_CLASS_NAME);
-        intent.putExtra(XAppGuardManager.EXTRA_PKG_NAME, pkg);
-        intent.putExtra(XAppGuardManager.EXTRA_TRANS_ID, transId);
-        intent.putExtra(XAppGuardManager.EXTRA_INJECT_HOME_WHEN_FAIL_ID, injectHome);
+                XAPMManager.VERIFIER_CLASS_NAME);
+        intent.putExtra(XAppLockManager.EXTRA_PKG_NAME, pkg);
+        intent.putExtra(XAppLockManager.EXTRA_TRANS_ID, transId);
+        intent.putExtra(XAppLockManager.EXTRA_INJECT_HOME_WHEN_FAIL_ID, injectHome);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         return intent;
@@ -1248,12 +1248,12 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
         public void setInterruptFPEventVBEnabled(int event, boolean enabled) {
             switch (event) {
-                case XAppGuardManager.FPEvent.SUCCESS:
+                case XAppLockManager.FPEvent.SUCCESS:
                     if (mInterruptFPSuccessVB.compareAndSet(!enabled, enabled)) {
                         SystemSettings.INTERRUPT_FP_SUCCESS_VB_ENABLED_B.writeToSystemSettings(getContext(), enabled);
                     }
                     break;
-                case XAppGuardManager.FPEvent.ERROR:
+                case XAppLockManager.FPEvent.ERROR:
                     if (mInterruptFPERRORVB.compareAndSet(!enabled, enabled)) {
                         SystemSettings.INTERRUPT_FP_ERROR_VB_ENABLED_B.writeToSystemSettings(getContext(), enabled);
                     }

@@ -7,7 +7,7 @@ import android.net.Uri;
 import android.provider.Settings;
 import android.util.Log;
 
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.xposed.repo.SettingsKey;
 import github.tornaco.xposedmoduletest.xposed.repo.SettingsProvider;
@@ -647,7 +647,7 @@ public enum SystemSettings implements NameValueReader, NameValueWriter, UriProvi
         }
     },
 
-    ASH_CONTROL_MODE_I(XAshmanManager.ControlMode.BLACK_LIST) {
+    ASH_CONTROL_MODE_I(XAPMManager.ControlMode.BLACK_LIST) {
         @Override
         public boolean writeToSystemSettings(Context context, Object value) {
             ContentResolver resolver = context.getContentResolver();

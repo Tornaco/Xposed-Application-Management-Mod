@@ -19,7 +19,7 @@ import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.provider.LockStorage;
 import github.tornaco.xposedmoduletest.provider.XKey;
 import github.tornaco.xposedmoduletest.ui.activity.PhotoViewerActivity;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 
 /**
@@ -84,9 +84,9 @@ public class SecureGuardSettings extends GuardSettingsActivity {
             SwitchPreference workaround = (SwitchPreference) findPreference(AppKey.APPLOCK_WORKAROUND);
             workaround.setChecked(AppSettings.isAppLockWorkaroundEnabled(getActivity()));
 
-            if (XAppGuardManager.get().isServiceAvailable()) {
+            if (XAppLockManager.get().isServiceAvailable()) {
 
-                verifySettings = XAppGuardManager.get().getVerifySettings();
+                verifySettings = XAppLockManager.get().getVerifySettings();
                 if (verifySettings == null) verifySettings = new VerifySettings();
 
                 final boolean hidePatternEnabled = LockStorage.isShowPatternEnabled(getActivity());
@@ -106,7 +106,7 @@ public class SecureGuardSettings extends GuardSettingsActivity {
                 homePref.setOnPreferenceChangeListener((preference, newValue) -> {
                     boolean v = (boolean) newValue;
                     verifySettings.setVerifyOnAppSwitch(v);
-                    XAppGuardManager.get().setVerifySettings(verifySettings);
+                    XAppLockManager.get().setVerifySettings(verifySettings);
                     return true;
                 });
 
@@ -116,7 +116,7 @@ public class SecureGuardSettings extends GuardSettingsActivity {
                 screenPref.setOnPreferenceChangeListener((preference, newValue) -> {
                     boolean v = (boolean) newValue;
                     verifySettings.setVerifyOnScreenOff(v);
-                    XAppGuardManager.get().setVerifySettings(verifySettings);
+                    XAppLockManager.get().setVerifySettings(verifySettings);
                     return true;
                 });
 
@@ -126,7 +126,7 @@ public class SecureGuardSettings extends GuardSettingsActivity {
                 taskPref.setOnPreferenceChangeListener((preference, newValue) -> {
                     boolean v = (boolean) newValue;
                     verifySettings.setVerifyOnTaskRemoved(v);
-                    XAppGuardManager.get().setVerifySettings(verifySettings);
+                    XAppLockManager.get().setVerifySettings(verifySettings);
                     return true;
                 });
 

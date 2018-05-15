@@ -27,7 +27,7 @@ import github.tornaco.xposedmoduletest.model.ServiceInfoSettingsList;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.util.ComponentUtil;
 import github.tornaco.xposedmoduletest.util.PinyinComparator;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import lombok.AllArgsConstructor;
 
@@ -103,8 +103,8 @@ public interface ComponentLoader {
 
         @Override
         public List<CommonPackageInfo> loadInstalledApps(boolean showSystem, Sort sort, int filterOption) {
-            String[] packages = XAshmanManager.get().getInstalledApps(
-                    showSystem ? XAshmanManager.FLAG_SHOW_SYSTEM_APP : XAshmanManager.FLAG_NONE);
+            String[] packages = XAPMManager.get().getInstalledApps(
+                    showSystem ? XAPMManager.FLAG_SHOW_SYSTEM_APP : XAPMManager.FLAG_NONE);
             List<CommonPackageInfo> res = new ArrayList<>();
 
             for (String p : packages) {
@@ -169,8 +169,8 @@ public interface ComponentLoader {
 
         @Override
         public List<CommonPackageInfo> loadInstalledAppsWithOp(boolean showSystem, Sort sort, int filterOption) {
-            String[] packages = XAshmanManager.get().getInstalledApps(
-                    showSystem ? XAshmanManager.FLAG_SHOW_SYSTEM_APP_WITHOUT_CORE_APP : XAshmanManager.FLAG_NONE);
+            String[] packages = XAPMManager.get().getInstalledApps(
+                    showSystem ? XAPMManager.FLAG_SHOW_SYSTEM_APP_WITHOUT_CORE_APP : XAPMManager.FLAG_NONE);
             List<CommonPackageInfo> res = new ArrayList<>();
             for (String p : packages) {
                 CommonPackageInfo packageInfo = LoaderUtil.constructCommonPackageInfo(context, p);
@@ -189,15 +189,15 @@ public interface ComponentLoader {
         }
 
         private static void updateOpState(CommonPackageInfo info) {
-            int modeService = XAshmanManager.get()
+            int modeService = XAPMManager.get()
                     .getPermissionControlBlockModeForPkg(
                             AppOpsManagerCompat.OP_START_SERVICE, info.getPkgName(),
                             false);
-            int modeWakelock = XAshmanManager.get()
+            int modeWakelock = XAPMManager.get()
                     .getPermissionControlBlockModeForPkg(
                             AppOpsManagerCompat.OP_WAKE_LOCK, info.getPkgName(),
                             false);
-            int modeAlarm = XAshmanManager.get()
+            int modeAlarm = XAPMManager.get()
                     .getPermissionControlBlockModeForPkg(
                             AppOpsManagerCompat.OP_SET_ALARM, info.getPkgName(),
                             false);
@@ -210,7 +210,7 @@ public interface ComponentLoader {
         @Override
         public List<ActivityInfoSettings> loadActivitySettings(String pkg) {
             final PackageManager pm = context.getPackageManager();
-            final XAshmanManager xAshmanManager = XAshmanManager.get();
+            final XAPMManager xAshmanManager = XAPMManager.get();
 
             if (!xAshmanManager.isServiceAvailable()) {
                 return Lists.newArrayListWithCapacity(0);
@@ -265,7 +265,7 @@ public interface ComponentLoader {
         @Override
         public List<ActivityInfoSettings> loadReceiverSettings(String pkg) {
             final PackageManager pm = context.getPackageManager();
-            final XAshmanManager xAshmanManager = XAshmanManager.get();
+            final XAPMManager xAshmanManager = XAPMManager.get();
 
             if (xAshmanManager == null)
                 return Lists.newArrayListWithCapacity(0);
@@ -312,7 +312,7 @@ public interface ComponentLoader {
         @Override
         public List<ServiceInfoSettings> loadServiceSettings(String pkg) {
             final PackageManager pm = context.getPackageManager();
-            final XAshmanManager xAshmanManager = XAshmanManager.get();
+            final XAPMManager xAshmanManager = XAPMManager.get();
 
             if (xAshmanManager == null)
                 return Lists.newArrayListWithCapacity(0);

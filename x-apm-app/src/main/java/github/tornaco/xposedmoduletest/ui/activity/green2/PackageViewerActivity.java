@@ -29,7 +29,7 @@ import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListA
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoViewerChooserAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
@@ -71,8 +71,8 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
 
     }
 
-    private boolean mShowSystemApp = XAshmanManager.get().isServiceAvailable()
-            && !XAshmanManager.get().isWhiteSysAppEnabled();
+    private boolean mShowSystemApp = XAPMManager.get().isServiceAvailable()
+            && !XAPMManager.get().isWhiteSysAppEnabled();
 
     private int colorGreen, colorDefault, colorSet;
 
@@ -195,15 +195,15 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
     }
 
     private static void updateOpState(CommonPackageInfo info) {
-        int modeService = XAshmanManager.get()
+        int modeService = XAPMManager.get()
                 .getPermissionControlBlockModeForPkg(
                         AppOpsManagerCompat.OP_START_SERVICE, info.getPkgName(),
                         false);
-        int modeWakelock = XAshmanManager.get()
+        int modeWakelock = XAPMManager.get()
                 .getPermissionControlBlockModeForPkg(
                         AppOpsManagerCompat.OP_WAKE_LOCK, info.getPkgName(),
                         false);
-        int modeAlarm = XAshmanManager.get()
+        int modeAlarm = XAPMManager.get()
                 .getPermissionControlBlockModeForPkg(
                         AppOpsManagerCompat.OP_SET_ALARM, info.getPkgName(),
                         false);
@@ -230,7 +230,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                                 if (which == 1) op = AppOpsManagerCompat.OP_WAKE_LOCK;
                                 if (which == 2) op = AppOpsManagerCompat.OP_SET_ALARM;
                                 int mode = isChecked ? AppOpsManagerCompat.MODE_ALLOWED : AppOpsManagerCompat.MODE_IGNORED;
-                                XAshmanManager.get().setPermissionControlBlockModeForPkg(op, packageInfo.getPkgName(), mode);
+                                XAPMManager.get().setPermissionControlBlockModeForPkg(op, packageInfo.getPkgName(), mode);
                             }
                         })
                 .setPositiveButton(android.R.string.ok,
@@ -283,11 +283,11 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                                 Collections.consumeRemaining(packageInfo, new Consumer<CommonPackageInfo>() {
                                     @Override
                                     public void accept(CommonPackageInfo info) {
-                                        XAshmanManager.get().setPermissionControlBlockModeForPkg(
+                                        XAPMManager.get().setPermissionControlBlockModeForPkg(
                                                 AppOpsManagerCompat.OP_START_SERVICE, info.getPkgName(), modeService[0]);
-                                        XAshmanManager.get().setPermissionControlBlockModeForPkg(
+                                        XAPMManager.get().setPermissionControlBlockModeForPkg(
                                                 AppOpsManagerCompat.OP_SET_ALARM, info.getPkgName(), modeAlarm[0]);
-                                        XAshmanManager.get().setPermissionControlBlockModeForPkg(
+                                        XAPMManager.get().setPermissionControlBlockModeForPkg(
                                                 AppOpsManagerCompat.OP_WAKE_LOCK, info.getPkgName(), modeWakelock[0]);
 
 

@@ -23,7 +23,7 @@ import github.tornaco.xposedmoduletest.ui.widget.ToastManager;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.IProcessClearListenerAdapter;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
@@ -101,9 +101,9 @@ public class ClearStubActivity extends Activity {
 
         finishAffinity();
 
-        if (XAshmanManager.get().isServiceAvailable()) {
+        if (XAPMManager.get().isServiceAvailable()) {
             final int[] clearNum = {0};
-            XAshmanManager.get().clearProcess(new IProcessClearListenerAdapter() {
+            XAPMManager.get().clearProcess(new IProcessClearListenerAdapter() {
                 @Override
                 public boolean doNotClearWhenIntervative() throws RemoteException {
                     return false;

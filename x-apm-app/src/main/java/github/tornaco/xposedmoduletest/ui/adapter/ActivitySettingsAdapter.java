@@ -18,7 +18,7 @@ import org.newstand.logger.Logger;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.model.ActivityInfoSettings;
 import github.tornaco.xposedmoduletest.util.ComponentUtil;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/11/17.
@@ -30,10 +30,10 @@ public class ActivitySettingsAdapter extends ComponentListAdapter<ActivityInfoSe
 
     public ActivitySettingsAdapter(Context context) {
         super(context);
-        xAshmanManager = XAshmanManager.get();
+        xAshmanManager = XAPMManager.get();
     }
 
-    private XAshmanManager xAshmanManager;
+    private XAPMManager xAshmanManager;
 
     @Override
     int getTemplateLayoutRes() {

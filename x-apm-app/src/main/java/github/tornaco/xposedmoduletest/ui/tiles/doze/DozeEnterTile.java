@@ -12,7 +12,7 @@ import dev.nick.tiles.tile.QuickTileView;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.activity.doze.DozeEventHistoryViewerActivity;
 import github.tornaco.xposedmoduletest.util.TimeUtil;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 import si.virag.fuzzydateformatter.FuzzyDateTimeFormatter;
 
@@ -26,8 +26,8 @@ public class DozeEnterTile extends QuickTile {
     public DozeEnterTile(final Context context) {
         super(context);
         this.titleRes = R.string.title_last_doze;
-        DozeEvent lastDoze = XAshmanManager.get().isServiceAvailable() ?
-                XAshmanManager.get().getLastDozeEvent() : null;
+        DozeEvent lastDoze = XAPMManager.get().isServiceAvailable() ?
+                XAPMManager.get().getLastDozeEvent() : null;
 
         Logger.d("lastDoze: " + lastDoze);
 

@@ -48,7 +48,7 @@ import github.tornaco.xposedmoduletest.remote.ComponentReplacements;
 import github.tornaco.xposedmoduletest.ui.activity.WithRecyclerView;
 import github.tornaco.xposedmoduletest.ui.adapter.ComponentReplacementListAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
-import github.tornaco.xposedmoduletest.xposed.app.XAppGuardManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 
 /**
@@ -169,7 +169,7 @@ public class ComponentReplacementActivity extends WithRecyclerView {
                             public void onClick(DialogInterface dialog, int which) {
                                 ComponentName fromCompName = ComponentName.unflattenFromString(replacement.fromFlattenToString());
                                 ComponentName toCompName = ComponentName.unflattenFromString(replacement.toFlattenToString());
-                                XAppGuardManager.get().addOrRemoveComponentReplacement(fromCompName, toCompName, true);
+                                XAppLockManager.get().addOrRemoveComponentReplacement(fromCompName, toCompName, true);
                                 startLoading();
                             }
                         })
@@ -198,14 +198,14 @@ public class ComponentReplacementActivity extends WithRecyclerView {
                     @Override
                     protected PopupMenu.OnMenuItemClickListener
                     onCreateOnMenuItemClickListener(final ComponentReplacement t) {
-                        return XAppGuardManager.get().isServiceAvailable() ? new PopupMenu.OnMenuItemClickListener() {
+                        return XAppLockManager.get().isServiceAvailable() ? new PopupMenu.OnMenuItemClickListener() {
                             @Override
                             public boolean onMenuItemClick(MenuItem item) {
 
                                 if (item.getItemId() == R.id.action_remove) {
                                     ComponentName from = ComponentName.unflattenFromString(t.fromFlattenToString());
                                     if (from != null) {
-                                        XAppGuardManager.get().addOrRemoveComponentReplacement(from, null, false);
+                                        XAppLockManager.get().addOrRemoveComponentReplacement(from, null, false);
                                         startLoading();
                                     } else {
                                         Toast.makeText(getActivity(), R.string.title_from_comp_null, Toast.LENGTH_SHORT).show();
@@ -360,7 +360,7 @@ public class ComponentReplacementActivity extends WithRecyclerView {
                         public void accept(ComponentReplacement replacement) {
                             ComponentName fromCompName = ComponentName.unflattenFromString(replacement.fromFlattenToString());
                             ComponentName toCompName = ComponentName.unflattenFromString(replacement.toFlattenToString());
-                            XAppGuardManager.get().addOrRemoveComponentReplacement(fromCompName, toCompName, true);
+                            XAppLockManager.get().addOrRemoveComponentReplacement(fromCompName, toCompName, true);
                         }
                     });
 
@@ -393,7 +393,7 @@ public class ComponentReplacementActivity extends WithRecyclerView {
                 try {
                     ComponentName fromCompName = ComponentName.unflattenFromString(componentReplacement.fromFlattenToString());
                     ComponentName toCompName = ComponentName.unflattenFromString(componentReplacement.toFlattenToString());
-                    XAppGuardManager.get().addOrRemoveComponentReplacement(fromCompName, toCompName, true);
+                    XAppLockManager.get().addOrRemoveComponentReplacement(fromCompName, toCompName, true);
                     count[0]++;
                 } catch (Throwable e) {
                     Logger.e("Error add replacement: " + Logger.getStackTraceString(e));
@@ -642,7 +642,7 @@ public class ComponentReplacementActivity extends WithRecyclerView {
         }
         Logger.d("toCompName: " + toCompName);
 
-        XAppGuardManager.get().addOrRemoveComponentReplacement(fromCompName, toCompName, true);
+        XAppLockManager.get().addOrRemoveComponentReplacement(fromCompName, toCompName, true);
 
         startLoading();
     }

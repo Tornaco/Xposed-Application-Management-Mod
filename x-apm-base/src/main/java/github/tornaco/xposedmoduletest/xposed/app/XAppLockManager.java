@@ -19,14 +19,14 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 @SuppressWarnings({"WeakerAccess", "EmptyCatchBlock"})
-public class XAppGuardManager {
+public class XAppLockManager {
 
     public static final String META_DATA_KEY_APP_GUARD_VERIFY_DISPLAYER = "app_guard_verify_displayer";
 
     public static final String ACTION_APP_GUARD_VERIFY_DISPLAYER
             = "github.tornaco.xpose.app.interruptPackageRemoval.action.verify.displayer";
 
-    public static final String SERVICE_NAME = XAshmanManager.SERVICE_NAME;
+    public static final String SERVICE_NAME = XAPMManager.SERVICE_NAME;
 
     public static final String EXTRA_PKG_NAME = "extra.pkg";
 
@@ -51,21 +51,21 @@ public class XAppGuardManager {
         int ERROR = 0x2;
     }
 
-    private static final Singleton<XAppGuardManager> sManager =
-            new Singleton<XAppGuardManager>() {
+    private static final Singleton<XAppLockManager> sManager =
+            new Singleton<XAppLockManager>() {
                 @Override
-                protected XAppGuardManager create() {
-                    return new XAppGuardManager();
+                protected XAppLockManager create() {
+                    return new XAppLockManager();
                 }
             };
 
     private final IAshmanService mService;
 
-    private XAppGuardManager() {
+    private XAppLockManager() {
         mService = IAshmanService.Stub.asInterface(ServiceManager.getService(SERVICE_NAME));
     }
 
-    public static XAppGuardManager get() {
+    public static XAppLockManager get() {
         return sManager.get();
     }
 

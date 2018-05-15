@@ -11,7 +11,7 @@ import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.SwitchTileView;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.service.APMQuickTileService;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -34,14 +34,14 @@ public class ShowFocusedActivity extends QuickTile {
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);
-                setChecked(XAshmanManager.get().isServiceAvailable() && XAshmanManager.get().showFocusedActivityInfoEnabled());
+                setChecked(XAPMManager.get().isServiceAvailable() && XAPMManager.get().showFocusedActivityInfoEnabled());
             }
 
             @Override
             protected void onCheckChanged(boolean checked) {
                 super.onCheckChanged(checked);
-                if (XAshmanManager.get().isServiceAvailable()) {
-                    XAshmanManager.get().setShowFocusedActivityInfoEnabled(checked);
+                if (XAPMManager.get().isServiceAvailable()) {
+                    XAPMManager.get().setShowFocusedActivityInfoEnabled(checked);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         try {
                             ComponentName componentName = new ComponentName(context, APMQuickTileService.class);

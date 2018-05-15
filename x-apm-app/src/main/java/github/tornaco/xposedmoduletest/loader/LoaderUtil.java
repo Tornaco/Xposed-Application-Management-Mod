@@ -12,7 +12,7 @@ import java.util.List;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.util.PinyinComparator;
 import github.tornaco.xposedmoduletest.util.Singleton;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
@@ -46,7 +46,7 @@ public class LoaderUtil {
             CommonPackageInfo dup = CommonPackageInfo.duplicate(cached);
             dup.setChecked(false);
             // Force read GCM state.
-            dup.setGCMSupport(XAshmanManager.get().isServiceAvailable() && XAshmanManager.get().isGCMSupportPackage(pkg));
+            dup.setGCMSupport(XAPMManager.get().isServiceAvailable() && XAPMManager.get().isGCMSupportPackage(pkg));
             inflateEnableState(dup);
             return dup;
         }
@@ -57,10 +57,10 @@ public class LoaderUtil {
         p.setPkgName(pkg);
 
         // p.setInstalledTime(PkgUtil.loadInstalledTimeByPkgName(context, pkg));
-        p.setAppLevel(XAshmanManager.get().getAppLevel(pkg));
+        p.setAppLevel(XAPMManager.get().getAppLevel(pkg));
         p.setSystemApp(PkgUtil.isSystemApp(context, pkg));
 
-        p.setGCMSupport(XAshmanManager.get().isServiceAvailable() && XAshmanManager.get().isGCMSupportPackage(pkg));
+        p.setGCMSupport(XAPMManager.get().isServiceAvailable() && XAPMManager.get().isGCMSupportPackage(pkg));
 
         inflateEnableState(p);
 
@@ -91,8 +91,8 @@ public class LoaderUtil {
     }
 
     private static void inflateEnableState(CommonPackageInfo p) {
-        if (XAshmanManager.get().isServiceAvailable()) {
-            int state = XAshmanManager.get().getApplicationEnabledSetting(p.getPkgName());
+        if (XAPMManager.get().isServiceAvailable()) {
+            int state = XAPMManager.get().getApplicationEnabledSetting(p.getPkgName());
             boolean disabled = state != PackageManager.COMPONENT_ENABLED_STATE_ENABLED
                     && state != PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
             p.setDisabled(disabled);

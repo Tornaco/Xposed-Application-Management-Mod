@@ -12,7 +12,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.BuildConfig;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -49,14 +49,14 @@ public class ActivityThreadBindAppSubModule extends AndroidSubModule {
                             // Check
                             CompatibilityInfo compatibilityInfo
                                     = (CompatibilityInfo) XposedHelpers.getObjectField(appBindData, "compatInfo");
-                            if (XAshmanManager.get().isServiceAvailable()) {
-                                int densityDpi = XAshmanManager.get().getAppConfigOverlayIntSetting(applicationInfo.packageName, "densityDpi");
+                            if (XAPMManager.get().isServiceAvailable()) {
+                                int densityDpi = XAPMManager.get().getAppConfigOverlayIntSetting(applicationInfo.packageName, "densityDpi");
                                 if (BuildConfig.DEBUG) {
                                     Log.d(XposedLog.TAG, "handleBindApplication: "
                                             + applicationInfo.packageName + "-" + configuration.densityDpi + "-" + densityDpi
                                             + "-" + compatibilityInfo);
                                 }
-                                if (densityDpi != XAshmanManager.ConfigOverlays.NONE) {
+                                if (densityDpi != XAPMManager.ConfigOverlays.NONE) {
                                     configuration.densityDpi = densityDpi;
                                     if (compatibilityInfo != null) {
                                         XposedHelpers.setObjectField(compatibilityInfo, "applicationDensity", densityDpi);

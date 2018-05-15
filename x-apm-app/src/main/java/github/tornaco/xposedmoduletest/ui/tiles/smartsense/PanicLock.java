@@ -6,7 +6,7 @@ import android.widget.RelativeLayout;
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.SwitchTileView;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2017/11/10.
@@ -24,15 +24,15 @@ public class PanicLock extends QuickTile {
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);
-                setChecked(XAshmanManager.get().isServiceAvailable()
-                        && XAshmanManager.get().isPanicLockEnabled());
+                setChecked(XAPMManager.get().isServiceAvailable()
+                        && XAPMManager.get().isPanicLockEnabled());
             }
 
             @Override
             protected void onCheckChanged(boolean checked) {
                 super.onCheckChanged(checked);
-                if (XAshmanManager.get().isServiceAvailable()) {
-                    XAshmanManager.get().setPanicLockEnabled(checked);
+                if (XAPMManager.get().isServiceAvailable()) {
+                    XAPMManager.get().setPanicLockEnabled(checked);
                 }
             }
         };

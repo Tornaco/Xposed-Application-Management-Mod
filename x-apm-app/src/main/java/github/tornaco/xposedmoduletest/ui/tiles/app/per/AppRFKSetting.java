@@ -4,7 +4,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 
 /**
@@ -29,8 +29,8 @@ public class AppRFKSetting extends AppSettingsSwitchTile {
     void applySwitchState(boolean checked) {
         super.applySwitchState(checked);
         getAppSettings().setRfk(checked);
-        XAshmanManager.get()
+        XAPMManager.get()
                 .addOrRemoveRFKApps(new String[]{getAppSettings().getPkgName()},
-                        checked ? XAshmanManager.Op.ADD : XAshmanManager.Op.REMOVE);
+                        checked ? XAPMManager.Op.ADD : XAPMManager.Op.REMOVE);
     }
 }

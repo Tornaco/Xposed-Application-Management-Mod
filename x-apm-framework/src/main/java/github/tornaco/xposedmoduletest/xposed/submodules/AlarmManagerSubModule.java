@@ -13,7 +13,7 @@ import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -66,8 +66,8 @@ class AlarmManagerSubModule extends AndroidSubModule {
                             if ("android".equals(pkgName)) return;
 
                             // Check Greening.
-                            boolean greening = XAshmanManager.get().isServiceAvailable()
-                                    && XAshmanManager.get().isPackageGreening(pkgName);
+                            boolean greening = XAPMManager.get().isServiceAvailable()
+                                    && XAPMManager.get().isPackageGreening(pkgName);
                             if (BuildConfig.DEBUG) {
                                 Log.d(XposedLog.TAG, "set alarm: "
                                         + pkgName
@@ -79,8 +79,8 @@ class AlarmManagerSubModule extends AndroidSubModule {
                             }
 
                             // Check OP.
-                            if (XAshmanManager.get().isServiceAvailable()) {
-                                int mode = XAshmanManager.get().getPermissionControlBlockModeForPkg(
+                            if (XAPMManager.get().isServiceAvailable()) {
+                                int mode = XAPMManager.get().getPermissionControlBlockModeForPkg(
                                         AppOpsManagerCompat.OP_SET_ALARM, pkgName, true);
                                 if (mode == AppOpsManagerCompat.MODE_IGNORED) {
                                     if (BuildConfig.DEBUG) {

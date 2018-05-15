@@ -14,7 +14,7 @@ import github.tornaco.xposedmoduletest.loader.DozeWhitelistPackageLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
  * Created by guohao4 on 2018/1/19.
@@ -36,7 +36,7 @@ public class DozeWhiteListViewerActivity extends CommonPackageInfoListActivity {
                     @Override
                     public void accept(CommonPackageInfo commonPackageInfo) {
                         if (commonPackageInfo.isChecked()) {
-                            XAshmanManager.get().removePowerSaveWhitelistApp(commonPackageInfo.getPkgName());
+                            XAPMManager.get().removePowerSaveWhitelistApp(commonPackageInfo.getPkgName());
                         }
                     }
                 });

@@ -12,7 +12,7 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.xposed.app.XAshmanManager;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 public class PropAppListNavActivity extends CommonPackageInfoListActivity implements SwitchBar.OnSwitchChangeListener {
 
@@ -26,7 +26,7 @@ public class PropAppListNavActivity extends CommonPackageInfoListActivity implem
         Collections.consumeRemaining(getCommonPackageInfoAdapter().getCommonPackageInfos(),
                 commonPackageInfo -> {
                     if (commonPackageInfo.isChecked()) {
-                        XAshmanManager.get().addOrRemoveSystemPropProfileApplyApps(new String[]{commonPackageInfo.getPkgName()}, false);
+                        XAPMManager.get().addOrRemoveSystemPropProfileApplyApps(new String[]{commonPackageInfo.getPkgName()}, false);
                     }
                 });
     }
