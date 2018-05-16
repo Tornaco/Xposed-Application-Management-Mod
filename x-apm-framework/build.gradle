@@ -1,5 +1,10 @@
 apply plugin: 'com.android.library'
 
+afterEvaluate {
+    generateReleaseBuildConfig.enabled = false
+    generateDebugBuildConfig.enabled = false
+}
+
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion as int
     // buildToolsVersion rootProject.ext.buildToolsVersion as String
@@ -33,13 +38,15 @@ dependencies {
 
     compileOnly 'de.robv.android.xposed:api:82'
 
-    implementation 'com.google.guava:guava:20.0'
-    implementation 'com.google.code.gson:gson:2.8.4'
+    api 'com.google.guava:guava:20.0'
+    api ("com.squareup.retrofit2:converter-gson:${rootProject.ext.retrofitVersion}")
+            { exclude group: 'com.google.code.gson', module: 'gson' }
+    api 'com.google.code.gson:gson:2.8.4'
 
-    implementation 'com.github.Tornaco:AndroidCommon:v1.0'
+    api 'com.github.Tornaco:AndroidCommon:v1.0'
 
     compileOnly project(':api-gen-annotations')
     annotationProcessor project(':api-gen-compiler')
 
-    implementation project(':x-apm-base')
+    api project(':x-apm-base')
 }

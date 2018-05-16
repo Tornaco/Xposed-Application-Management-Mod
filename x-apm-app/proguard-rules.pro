@@ -167,13 +167,16 @@
 # Bean
 -keep class github.tornaco.xposedmoduletest.** {*;}
 
-# Glide
+# Glide http://bumptech.github.io/glide/doc/download-setup.html#proguard
 -keep public class * implements com.bumptech.glide.module.GlideModule
 -keep public class * extends com.bumptech.glide.module.AppGlideModule
 -keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
   **[] $VALUES;
   public *;
 }
+
+# If you're targeting any API level less than Android API 27, also include:
+-dontwarn com.bumptech.glide.load.resource.bitmap.VideoDecoder
 
 # http://greenrobot.org/greendao/documentation/updating-to-greendao-3-and-annotations/
 -keepclassmembers class * extends org.greenrobot.greendao.AbstractDao {

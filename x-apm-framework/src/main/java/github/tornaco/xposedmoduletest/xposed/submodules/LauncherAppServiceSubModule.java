@@ -17,7 +17,6 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
-import github.tornaco.xposedmoduletest.xposed.service.VerifyListener;
 import github.tornaco.xposedmoduletest.xposed.service.multipleapps.MultipleAppsManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -27,6 +26,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 // Hook hookStartShortcut settings.
+@SuppressWarnings("unchecked")
 class LauncherAppServiceSubModule extends AndroidSubModule {
     @Override
     public String needBuildVar() {
@@ -71,9 +71,7 @@ class LauncherAppServiceSubModule extends AndroidSubModule {
                 @Override
                 protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
                     super.beforeHookedMethod(param);
-
-                    XposedLog.verbose("verifyCallingPackage: " + param.args[0]);
-
+                    XposedLog.verbose("LauncherAppService verifyCallingPackage: " + param.args[0]);
                     param.setResult(null);
                 }
             });

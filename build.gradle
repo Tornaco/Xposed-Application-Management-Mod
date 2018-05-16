@@ -40,7 +40,7 @@ ext {
     targetSdkVersion = 27
     buildToolsVersion = '27.0.3'
 
-    supportLibraryVersion = '27.0.2'
+    supportLibraryVersion = '27.1.1'
 
     supportAppCompat = "com.android.support:appcompat-v7:$supportLibraryVersion"
     supportPreference = "com.android.support:preference-v14:$supportLibraryVersion"
