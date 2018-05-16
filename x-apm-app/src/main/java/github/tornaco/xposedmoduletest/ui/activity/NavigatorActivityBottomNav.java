@@ -494,6 +494,8 @@ public class NavigatorActivityBottomNav
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
 
+            if (getActivity() == null) return;
+
             Category assist = new Category();
             assist.titleRes = R.string.title_assistant;
             assist.numColumns = 1; // Force se to 1.
@@ -504,18 +506,40 @@ public class NavigatorActivityBottomNav
             }
 
             Category fav = new Category();
-            fav.moreDrawableRes = R.drawable.ic_clear_all_black_24dp;
+            fav.moreDrawableRes = R.drawable.ic_more_vert_black_24dp;
             fav.onMoreButtonClickListener = v -> {
-                AppSettings.clearRecentTile(getContext());
+                PopupMenu popupMenu = new PopupMenu(getActivity(), v);
+                popupMenu.inflate(R.menu.card_fav_tiles);
+                popupMenu.setOnMenuItemClickListener(item -> {
+                    if (item.getItemId() == R.id.action_clear) {
+                        AppSettings.clearRecentTile(getActivity());
+                    } else if (item.getItemId() == R.id.action_increase) {
+                        AppSettings.increaseOrDecreaseUserMaxRecentTileCount(getActivity(), true);
+                        AppSettings.cacheRecentTilesAsync(getActivity());
+                    } else if (item.getItemId() == R.id.action_decrease) {
+                        AppSettings.increaseOrDecreaseUserMaxRecentTileCount(getActivity(), false);
+                        AppSettings.cacheRecentTilesAsync(getActivity());
+                    } else {
+                        ToastManager.show(getActivity(), "No impl, waiting for developer's work...");
+                    }
+                    return true;
+                });
+                popupMenu.show();
             };
             fav.titleRes = R.string.title_fav;
-            fav.numColumns = AppSettings.MAX_RECENT_TILE_COUNT; // MAX
+            fav.numColumns = AppSettings.getUserMaxRecentTileCount(getActivity());
+            Logger.d("Dashboard recent tiles: " + fav.numColumns);
 
             ErrorCatchRunnable favLoader = new ErrorCatchRunnable(() -> {
                 List<RecentTile> recentTiles = AppSettings.getCachedTiles();
+                int added = 0;
                 for (RecentTile t : recentTiles) {
                     Tile tile = TileManager.makeTileByKey(t.getTileKey(), getActivity());
                     fav.addTile(tile);
+                    added += 1;
+                    if (added >= fav.numColumns) {
+                        break;
+                    }
                 }
             }, "Load fav");
             favLoader.run();

@@ -9,7 +9,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 
-import github.tornaco.xposedmoduletest.util.DateUtils;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 
 /**
