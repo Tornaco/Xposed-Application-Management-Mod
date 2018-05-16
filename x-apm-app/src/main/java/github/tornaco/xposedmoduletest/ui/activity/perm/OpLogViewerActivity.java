@@ -21,6 +21,7 @@ import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManagerRes;
 import github.tornaco.xposedmoduletest.loader.LoaderUtil;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
@@ -65,7 +66,7 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
         if (mPackageName != null) {
             setTitle(PkgUtil.loadNameByPkgName(getContext(), mPackageName));
         } else if (mOp >= 0) {
-            setTitle(XAppOpsManager.getOpLabel(getContext(), mOp));
+            setTitle(XAppOpsManagerRes.getOpLabel(getContext(), mOp));
         }
 
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -115,10 +116,10 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
                 holder.getLineTwoTextView().setVisibility(View.VISIBLE);
                 // This is query by package.
                 if (mPackageName != null) {
-                    String title = XAppOpsManager.getOpLabel(getContext(), log.getCode());
+                    String title = XAppOpsManagerRes.getOpLabel(getContext(), log.getCode());
                     holder.getLineOneTextView().setText(title);
                     holder.getCheckableImageView().setImageDrawable(ContextCompat
-                            .getDrawable(getContext(), XAppOpsManager.opToIconRes(log.getCode())));
+                            .getDrawable(getContext(), XAppOpsManagerRes.opToIconRes(log.getCode())));
                 }
             }
 

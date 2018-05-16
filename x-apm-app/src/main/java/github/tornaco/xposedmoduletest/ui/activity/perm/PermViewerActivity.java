@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManagerRes;
 import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.loader.ComponentLoader;
 import github.tornaco.xposedmoduletest.loader.PermissionLoader;
@@ -280,7 +280,7 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
                                 if (getActivity() != null) {
                                     holder.getCheckableImageView().setImageDrawable(ContextCompat
                                             .getDrawable(getActivity(),
-                                                    XAppOpsManager
+                                                    XAppOpsManagerRes
                                                             .opToIconRes(packageInfo.getVersion())));
                                 }
                             }
