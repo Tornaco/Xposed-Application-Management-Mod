@@ -137,7 +137,7 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.7.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
     // Crash report.
-    implementation 'com.tencent.bugly:crashreport:2.3.1'
+    // implementation 'com.tencent.bugly:crashreport:2.3.1'
 
     implementation 'com.vanniktech:emoji:0.5.1'
 
