@@ -33,7 +33,7 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
     //FIELD OF CLASS class com.android.server.am.ActiveServicesManager: private static final java.lang.String com.android.server.am.ActiveServicesManager.TAG
     public ActiveServicesProxy(Object host) {
         super(host);
-        ClazzDumper.dump(getHost().getClass(), new ClazzDumper.FilePrinter("ActiveServicesProxy"));
+        // ClazzDumper.dump(getHost().getClass(), new ClazzDumper.FilePrinter("ActiveServicesProxy"));
 
         // Check host.
         try {
