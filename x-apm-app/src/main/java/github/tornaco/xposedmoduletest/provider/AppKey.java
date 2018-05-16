@@ -28,4 +28,5 @@ public interface AppKey {
     String FORCE_HAS_GMS = "force_has_gms";
     String FILTER_OPTIONS = "filter_options_";
     String RECENT_TILE = "recent_tile";
+    String RECENT_TILE_COUNT = "recent_tile_count";
 }

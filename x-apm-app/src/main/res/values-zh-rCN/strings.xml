@@ -634,4 +634,7 @@
     <string name="summary_policy_settings">节电、模板、系统应用排除。</string>
     <string name="title_policy_settings">策略与优化</string>
     <string name="title_device_status_fragment">X-APM</string>
+    <string name="title_increase">+1</string>
+    <string name="title_decrease">-1</string>
+    <string name="title_clear_all_fav_tile">清空</string>
 </resources>

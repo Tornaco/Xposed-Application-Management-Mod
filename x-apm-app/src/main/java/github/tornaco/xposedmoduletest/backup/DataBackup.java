@@ -16,11 +16,11 @@ import java.util.StringTokenizer;
 import java.util.UUID;
 
 import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
-import github.tornaco.xposedmoduletest.util.DateUtils;
 import github.tornaco.xposedmoduletest.util.ZipUtils;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 import github.tornaco.xposedmoduletest.xposed.util.Closer;
+import github.tornaco.xposedmoduletest.xposed.util.DateUtils;
 import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 
 /**
@@ -74,7 +74,7 @@ public abstract class DataBackup {
 
         try {
             long startTimeMills = System.currentTimeMillis();
-            String name = "Backup" + DateUtils.formatForFileName(startTimeMills) + ".zip";
+            String name = "X-APM-Backup-" + DateUtils.formatForFileName(startTimeMills) + ".zip";
             ZipUtils.zip(tmpDir.getPath(), dir.getPath(), name);
         } catch (Exception e) {
             listener.onDataBackupFail(2, e);

@@ -13,6 +13,7 @@ import java.util.Observable;
 
 import dev.nick.eventbus.Event;
 import dev.nick.eventbus.EventBus;
+import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
 import github.tornaco.xposedmoduletest.bean.RecentTile;
@@ -333,9 +334,10 @@ public class AppSettings extends Observable {
         });
     }
 
-    public static final int MAX_RECENT_TILE_COUNT = 6;
-
     private static final List<RecentTile> sCachedTiles = new ArrayList<>();
+    private static final int MAX_CACHE_SAVED_TILES = 8;
+    private static int sCacheDefaultMaxTileCount = 0;
+    private static int sCacheUserMaxTileCount = 0;
 
     // Async.
     public static void cacheRecentTilesAsync(Context context) {
@@ -354,7 +356,7 @@ public class AppSettings extends Observable {
                     if (!sCachedTiles.contains(r)) {
                         sCachedTiles.add(r);
                     }
-                    if (sCachedTiles.size() >= MAX_RECENT_TILE_COUNT) break;
+                    if (sCachedTiles.size() >= MAX_CACHE_SAVED_TILES) break;
                 }
             }
         }
@@ -381,4 +383,34 @@ public class AppSettings extends Observable {
         return new ArrayList<>(0);
     }
 
+    public static int getDefaultMaxRecentTileCount(Context context) {
+        if (sCacheDefaultMaxTileCount > 0) {
+            return sCacheDefaultMaxTileCount;
+        }
+        sCacheDefaultMaxTileCount = context.getResources().getInteger(R.integer.dashboard_max_recent_tile_count);
+        return sCacheDefaultMaxTileCount;
+    }
+
+    public static int getUserMaxRecentTileCount(Context context) {
+        if (sCacheUserMaxTileCount > 0) {
+            return sCacheUserMaxTileCount;
+        }
+        sCacheUserMaxTileCount = PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(AppKey.RECENT_TILE_COUNT, getDefaultMaxRecentTileCount(context));
+        if (sCacheUserMaxTileCount < 0) {
+            sCacheUserMaxTileCount = getDefaultMaxRecentTileCount(context);
+        }
+        return sCacheUserMaxTileCount;
+    }
+
+    public static void increaseOrDecreaseUserMaxRecentTileCount(Context context, boolean increase) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putInt(AppKey.RECENT_TILE_COUNT,
+                        Math.abs(increase ? getUserMaxRecentTileCount(context) + 1 : getUserMaxRecentTileCount(context) - 1))
+                .apply();
+        // Update cache.
+        sCacheUserMaxTileCount = PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(AppKey.RECENT_TILE_COUNT, getDefaultMaxRecentTileCount(context));
+    }
 }

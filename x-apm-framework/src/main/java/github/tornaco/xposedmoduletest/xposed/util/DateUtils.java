@@ -1,8 +1,9 @@
-package github.tornaco.xposedmoduletest.util;
+package github.tornaco.xposedmoduletest.xposed.util;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by Nick@NewStand.org on 2017/3/26 17:00
@@ -11,6 +12,8 @@ import java.util.Date;
  */
 
 public class DateUtils {
+
+    private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd-HH:mm:ss";
 
     public static String formatLong(long l) {
         String time;
@@ -22,16 +25,8 @@ public class DateUtils {
     }
 
     public static String formatForFileName(long l) {
-        String time;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            SimpleDateFormat format = new SimpleDateFormat("MM-dd-HH-mm-ss");
-            Date d1 = new Date(l);
-            time = format.format(d1);
-        } else {
-            java.text.SimpleDateFormat format = new java.text.SimpleDateFormat("MM-dd-HH-mm-ss");
-            Date d1 = new Date(l);
-            time = format.format(d1);
-        }
-        return time;
+        SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT_PATTERN, Locale.ENGLISH);
+        Date d1 = new Date(l);
+        return format.format(d1);
     }
 }

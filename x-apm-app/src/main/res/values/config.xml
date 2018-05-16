@@ -4,4 +4,6 @@
     <string name="app_source_url">https://github.com/Tornaco/XAppGuard</string>
     <string name="app_rel_url">https://github.com/Tornaco/X-APM/releases</string>
     <string name="pay_list_url">https://raw.githubusercontent.com/Tornaco/Tor-Data/master/pay_list_app_guard</string>
+
+    <integer name="dashboard_max_recent_tile_count">4</integer>
 </resources>
