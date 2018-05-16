@@ -7,8 +7,6 @@ import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 import android.widget.Toast;
 
-import com.tencent.bugly.crashreport.BuglyLog;
-import com.tencent.bugly.crashreport.CrashReport;
 import com.vanniktech.emoji.EmojiManager;
 
 import org.newstand.logger.AndroidLogAdapter;
@@ -117,10 +115,10 @@ public class XAPMApplication extends MultiDexApplication {
 
         // No need for play version, google has done this.
         if (!isPlayVersion()) {
-            CrashReport.initCrashReport(getApplicationContext(), "db5e3b88a3", BuildConfig.DEBUG);
-            CrashReport.setIsDevelopmentDevice(getApplicationContext(), BuildConfig.DEBUG);
-            // Set cache size.
-            BuglyLog.setCache(12 * 1024);
+//            CrashReport.initCrashReport(getApplicationContext(), "db5e3b88a3", BuildConfig.DEBUG);
+//            CrashReport.setIsDevelopmentDevice(getApplicationContext(), BuildConfig.DEBUG);
+//            // Set cache size.
+//            BuglyLog.setCache(12 * 1024);
         }
 
         Logger.config(Settings.builder().tag("X-APM-C")
@@ -132,7 +130,7 @@ public class XAPMApplication extends MultiDexApplication {
                         super.e(tag, message);
                         if (!isPlayVersion()) {
                             // Report to bugly.
-                            CrashReport.postCatchedException(new Throwable(message));
+                            // CrashReport.postCatchedException(new Throwable(message));
                         }
                     }
                 })
