@@ -10,7 +10,7 @@ import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
-import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.xposed.GlobalWhiteList;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
@@ -58,11 +58,11 @@ class SystemSettingsSubModule extends AndroidSubModule {
                                     }
 
                                     int mode = ash.getPermissionControlBlockModeForPkg(
-                                            AppOpsManagerCompat.OP_CHANGE_BRIGHTNESS, pkgName,
+                                            XAppOpsManager.OP_CHANGE_BRIGHTNESS, pkgName,
                                             true);
                                     Log.d(XposedLog.TAG_DANGER + XposedLog.PREFIX_OPS,
                                             "set OP_CHANGE_BRIGHTNESS, pkg:" + pkgName + ", name: " + name);
-                                    if (mode == AppOpsManagerCompat.MODE_IGNORED) {
+                                    if (mode == XAppOpsManager.MODE_IGNORED) {
                                         Log.d(XposedLog.TAG_DANGER + XposedLog.PREFIX_OPS,
                                                 "Block OP_CHANGE_BRIGHTNESS!!! for: " + pkgName);
                                         param.setResult(true);

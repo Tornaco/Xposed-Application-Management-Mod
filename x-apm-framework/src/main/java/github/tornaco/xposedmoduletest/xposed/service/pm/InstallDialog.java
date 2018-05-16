@@ -15,7 +15,7 @@ import android.widget.CheckBox;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.service.AppResource;
 import github.tornaco.xposedmoduletest.xposed.service.ErrorCatchRunnable;
@@ -50,7 +50,7 @@ public class InstallDialog implements View.OnClickListener {
             d.show();
             new ErrorCatchRunnable(() -> startCountdown(context), "startCountdown").run();
         } else {
-            receiver.onVerifyResult("Dialog is null", AppOpsManagerCompat.MODE_ALLOWED);
+            receiver.onVerifyResult("Dialog is null", XAppOpsManager.MODE_ALLOWED);
         }
     }
 
@@ -155,10 +155,10 @@ public class InstallDialog implements View.OnClickListener {
                 .setIcon(args.getAppIcon())
                 .setCancelable(false)
                 //.setView(onCreateAndBindVerifierView(context))
-                .setPositiveButton(allow, (dialog, which) -> receiver.onVerifyResult("ALLOW", AppOpsManagerCompat.MODE_ALLOWED))
-                .setNegativeButton(deny, (dialog, which) -> receiver.onVerifyResult("DENY", AppOpsManagerCompat.MODE_IGNORED))
+                .setPositiveButton(allow, (dialog, which) -> receiver.onVerifyResult("ALLOW", XAppOpsManager.MODE_ALLOWED))
+                .setNegativeButton(deny, (dialog, which) -> receiver.onVerifyResult("DENY", XAppOpsManager.MODE_IGNORED))
                 .setNeutralButton(alwaysAllow, (dialog, which) -> {
-                    receiver.onVerifyResult("ALWAYS ALLOW", AppOpsManagerCompat.MODE_ALLOWED);
+                    receiver.onVerifyResult("ALWAYS ALLOW", XAppOpsManager.MODE_ALLOWED);
                     XAPMManager.get().addOrRemovePackageInstallerVerifyRules("ALWAYS ALLOW " + args.getInstallerPackageName(), true);
                 })
                 .setOnDismissListener(dialog -> cleanup())

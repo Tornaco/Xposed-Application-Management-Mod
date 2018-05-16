@@ -21,7 +21,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.android.common.util.ApkUtil;
 import github.tornaco.xposedmoduletest.BuildConfig;
-import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -73,11 +73,11 @@ class ToastSubModule extends AndroidSubModule {
 
                             int mode = XAPMManager.get().isServiceAvailable() ?
                                     XAPMManager.get().getPermissionControlBlockModeForPkg(
-                                            AppOpsManagerCompat.OP_TOAST_WINDOW,
+                                            XAppOpsManager.OP_TOAST_WINDOW,
                                             currentPackageName, true, new String[]{text})
-                                    : AppOpsManagerCompat.MODE_ALLOWED;
+                                    : XAppOpsManager.MODE_ALLOWED;
 
-                            if (mode == AppOpsManagerCompat.MODE_IGNORED) {
+                            if (mode == XAppOpsManager.MODE_IGNORED) {
                                 Log.d(XposedLog.TAG, "Toast show denied");
                                 param.setResult(null);
                             }

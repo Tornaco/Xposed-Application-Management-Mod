@@ -22,7 +22,7 @@ import java.util.List;
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.loader.ComponentLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
@@ -197,19 +197,19 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
     private static void updateOpState(CommonPackageInfo info) {
         int modeService = XAPMManager.get()
                 .getPermissionControlBlockModeForPkg(
-                        AppOpsManagerCompat.OP_START_SERVICE, info.getPkgName(),
+                        XAppOpsManager.OP_START_SERVICE, info.getPkgName(),
                         false);
         int modeWakelock = XAPMManager.get()
                 .getPermissionControlBlockModeForPkg(
-                        AppOpsManagerCompat.OP_WAKE_LOCK, info.getPkgName(),
+                        XAppOpsManager.OP_WAKE_LOCK, info.getPkgName(),
                         false);
         int modeAlarm = XAPMManager.get()
                 .getPermissionControlBlockModeForPkg(
-                        AppOpsManagerCompat.OP_SET_ALARM, info.getPkgName(),
+                        XAppOpsManager.OP_SET_ALARM, info.getPkgName(),
                         false);
-        info.setServiceOpAllowed(modeService == AppOpsManagerCompat.MODE_ALLOWED);
-        info.setAlarmOpAllowed(modeAlarm == AppOpsManagerCompat.MODE_ALLOWED);
-        info.setWakelockOpAllowed(modeWakelock == AppOpsManagerCompat.MODE_ALLOWED);
+        info.setServiceOpAllowed(modeService == XAppOpsManager.MODE_ALLOWED);
+        info.setAlarmOpAllowed(modeAlarm == XAppOpsManager.MODE_ALLOWED);
+        info.setWakelockOpAllowed(modeWakelock == XAppOpsManager.MODE_ALLOWED);
     }
 
 
@@ -226,10 +226,10 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                             @Override
                             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                                 int op = -1;
-                                if (which == 0) op = AppOpsManagerCompat.OP_START_SERVICE;
-                                if (which == 1) op = AppOpsManagerCompat.OP_WAKE_LOCK;
-                                if (which == 2) op = AppOpsManagerCompat.OP_SET_ALARM;
-                                int mode = isChecked ? AppOpsManagerCompat.MODE_ALLOWED : AppOpsManagerCompat.MODE_IGNORED;
+                                if (which == 0) op = XAppOpsManager.OP_START_SERVICE;
+                                if (which == 1) op = XAppOpsManager.OP_WAKE_LOCK;
+                                if (which == 2) op = XAppOpsManager.OP_SET_ALARM;
+                                int mode = isChecked ? XAppOpsManager.MODE_ALLOWED : XAppOpsManager.MODE_IGNORED;
                                 XAPMManager.get().setPermissionControlBlockModeForPkg(op, packageInfo.getPkgName(), mode);
                             }
                         })
@@ -264,7 +264,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                         new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                                final int mode = isChecked ? AppOpsManagerCompat.MODE_ALLOWED : AppOpsManagerCompat.MODE_IGNORED;
+                                final int mode = isChecked ? XAppOpsManager.MODE_ALLOWED : XAppOpsManager.MODE_IGNORED;
                                 if (which == 0) {
                                     modeService[0] = mode;
                                 }
@@ -284,11 +284,11 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                                     @Override
                                     public void accept(CommonPackageInfo info) {
                                         XAPMManager.get().setPermissionControlBlockModeForPkg(
-                                                AppOpsManagerCompat.OP_START_SERVICE, info.getPkgName(), modeService[0]);
+                                                XAppOpsManager.OP_START_SERVICE, info.getPkgName(), modeService[0]);
                                         XAPMManager.get().setPermissionControlBlockModeForPkg(
-                                                AppOpsManagerCompat.OP_SET_ALARM, info.getPkgName(), modeAlarm[0]);
+                                                XAppOpsManager.OP_SET_ALARM, info.getPkgName(), modeAlarm[0]);
                                         XAPMManager.get().setPermissionControlBlockModeForPkg(
-                                                AppOpsManagerCompat.OP_WAKE_LOCK, info.getPkgName(), modeWakelock[0]);
+                                                XAppOpsManager.OP_WAKE_LOCK, info.getPkgName(), modeWakelock[0]);
 
 
                                         updateOpState(info);

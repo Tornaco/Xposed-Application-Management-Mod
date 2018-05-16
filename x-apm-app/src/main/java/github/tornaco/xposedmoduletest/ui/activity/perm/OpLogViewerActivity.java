@@ -20,7 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.loader.LoaderUtil;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
@@ -65,7 +65,7 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
         if (mPackageName != null) {
             setTitle(PkgUtil.loadNameByPkgName(getContext(), mPackageName));
         } else if (mOp >= 0) {
-            setTitle(AppOpsManagerCompat.getOpLabel(getContext(), mOp));
+            setTitle(XAppOpsManager.getOpLabel(getContext(), mOp));
         }
 
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -105,7 +105,7 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
                 String timeStr = FuzzyDateTimeFormatter.getTimeAgo(getContext(),
                         new Date(log.getWhen()));
                 int mode = log.getMode();
-                String modeStr = mode == AppOpsManagerCompat.MODE_ALLOWED ? getString(R.string.mode_allowed)
+                String modeStr = mode == XAppOpsManager.MODE_ALLOWED ? getString(R.string.mode_allowed)
                         : getString(R.string.mode_ignored);
                 String desc = timeStr + "\t" + modeStr;
                 if (log.getPayload() != null && log.getPayload().length > 0) {
@@ -115,10 +115,10 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
                 holder.getLineTwoTextView().setVisibility(View.VISIBLE);
                 // This is query by package.
                 if (mPackageName != null) {
-                    String title = AppOpsManagerCompat.getOpLabel(getContext(), log.getCode());
+                    String title = XAppOpsManager.getOpLabel(getContext(), log.getCode());
                     holder.getLineOneTextView().setText(title);
                     holder.getCheckableImageView().setImageDrawable(ContextCompat
-                            .getDrawable(getContext(), AppOpsManagerCompat.opToIconRes(log.getCode())));
+                            .getDrawable(getContext(), XAppOpsManager.opToIconRes(log.getCode())));
                 }
             }
 
@@ -149,7 +149,7 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
             if (oplogs != null) {
                 List<CommonPackageInfo> ps = new ArrayList<>(oplogs.size());
                 for (OpLog l : oplogs) {
-                    if (l.getCode() >= AppOpsManagerCompat._NUM_OP) {
+                    if (l.getCode() >= XAppOpsManager._NUM_OP) {
                         continue;
                     }
                     CommonPackageInfo info = new CommonPackageInfo();
@@ -164,7 +164,7 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
             if (oplogs != null) {
                 List<CommonPackageInfo> ps = new ArrayList<>(oplogs.size());
                 for (OpLog l : oplogs) {
-                    if (l.getCode() >= AppOpsManagerCompat._NUM_OP) {
+                    if (l.getCode() >= XAppOpsManager._NUM_OP) {
                         continue;
                     }
                     CommonPackageInfo info = LoaderUtil.constructCommonPackageInfo(getContext(), l.getPackageName());

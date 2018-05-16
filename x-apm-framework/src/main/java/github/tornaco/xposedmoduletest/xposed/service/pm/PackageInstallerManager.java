@@ -18,7 +18,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.Singleton1;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
@@ -98,7 +98,7 @@ public class PackageInstallerManager {
         boolean alwaysAllow = RepoProxy.getProxy().getPm_rules().has(constructAlwaysAllowRules(args.installerPackageName));
         if (alwaysAllow) {
             XposedLog.verbose(XposedLog.PREFIX_PM + "always allow: " + args);
-            receiver.onVerifyResult("Rule allow", AppOpsManagerCompat.MODE_ALLOWED);
+            receiver.onVerifyResult("Rule allow", XAppOpsManager.MODE_ALLOWED);
             return;
         }
 
@@ -106,7 +106,7 @@ public class PackageInstallerManager {
         boolean alwaysDeny = RepoProxy.getProxy().getPm_rules().has(constructAlwaysDenyRules(args.installerPackageName));
         if (alwaysDeny) {
             XposedLog.verbose(XposedLog.PREFIX_PM + "always deny: " + args);
-            receiver.onVerifyResult("Rule deny", AppOpsManagerCompat.MODE_IGNORED);
+            receiver.onVerifyResult("Rule deny", XAppOpsManager.MODE_IGNORED);
             showInstallDenyNotification(args);
             return;
         }
@@ -121,7 +121,7 @@ public class PackageInstallerManager {
 
         // Default, allow.
         XposedLog.verbose(XposedLog.PREFIX_PM + "default allow: " + args);
-        receiver.onVerifyResult("Default allow", AppOpsManagerCompat.MODE_ALLOWED);
+        receiver.onVerifyResult("Default allow", XAppOpsManager.MODE_ALLOWED);
     }
 
     private void doAskUser(VerifyArgs args, VerifyReceiver receiver, Handler uiHandler) {
@@ -140,7 +140,7 @@ public class PackageInstallerManager {
             } catch (Throwable e) {
                 // Serious err!
                 XposedLog.wtf(XposedLog.PREFIX_PM + "Fail show dialog! " + Log.getStackTraceString(e));
-                receiverProxy.onVerifyResult("Fail show dialog", AppOpsManagerCompat.MODE_ALLOWED);
+                receiverProxy.onVerifyResult("Fail show dialog", XAppOpsManager.MODE_ALLOWED);
             }
         });
 
@@ -149,7 +149,7 @@ public class PackageInstallerManager {
         XposedLog.verbose(XposedLog.PREFIX_PM + "waiter.waitForResult return: " + res);
         if (!res) {
             // Timeout waiting for res, ignore install request.
-            receiver.onVerifyResult("Time out", AppOpsManagerCompat.MODE_IGNORED);
+            receiver.onVerifyResult("Time out", XAppOpsManager.MODE_IGNORED);
             dialog.dismiss();
             onInstallVerifyTimeout(args);
         }
@@ -311,8 +311,8 @@ public class PackageInstallerManager {
 
     public interface VerifyReceiver {
         /**
-         * @see github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat#MODE_ALLOWED
-         * @see github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat#MODE_IGNORED
+         * @see XAppOpsManager#MODE_ALLOWED
+         * @see XAppOpsManager#MODE_IGNORED
          */
         void onVerifyResult(String reason, int mode);
     }

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 
@@ -30,8 +30,8 @@ public class AppServiceSetting extends AppSettingsSwitchTile {
     void applySwitchState(boolean checked) {
         super.applySwitchState(checked);
         getAppSettings().setService(checked);
-        XAPMManager.get().setPermissionControlBlockModeForPkg(AppOpsManagerCompat.OP_START_SERVICE,
+        XAPMManager.get().setPermissionControlBlockModeForPkg(XAppOpsManager.OP_START_SERVICE,
                 getAppSettings().getPkgName(),
-                checked ? AppOpsManagerCompat.MODE_IGNORED : AppOpsManagerCompat.MODE_ALLOWED);
+                checked ? XAppOpsManager.MODE_IGNORED : XAppOpsManager.MODE_ALLOWED);
     }
 }

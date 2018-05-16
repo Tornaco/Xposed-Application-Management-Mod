@@ -12,7 +12,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.BuildConfig;
-import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.service.DeprecatedSince;
@@ -60,9 +60,9 @@ class AMSGetRunningAppsSubModule extends AndroidSubModule {
                             XAPMManager xAshmanManager = XAPMManager.get();
                             if (xAshmanManager.isServiceAvailable()) {
                                 int mode = xAshmanManager.getPermissionControlBlockModeForUid(
-                                        AppOpsManagerCompat.OP_GET_RUNNING_TASKS, callingUid,
+                                        XAppOpsManager.OP_GET_RUNNING_TASKS, callingUid,
                                         true);
-                                if (mode == AppOpsManagerCompat.MODE_IGNORED) {
+                                if (mode == XAppOpsManager.MODE_IGNORED) {
                                     try {
                                         @SuppressWarnings("unchecked") List<ActivityManager.RunningAppProcessInfo> empty
                                                 = (List<ActivityManager.RunningAppProcessInfo>) param.getResult();

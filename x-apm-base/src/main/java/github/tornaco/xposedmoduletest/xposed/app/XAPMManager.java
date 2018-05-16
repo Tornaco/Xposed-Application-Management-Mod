@@ -23,7 +23,7 @@ import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IServiceControl;
 import github.tornaco.xposedmoduletest.ITaskRemoveListener;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
-import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.util.ArrayUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.Singleton;
@@ -641,7 +641,7 @@ public class XAPMManager {
         try {
             return mService.getPermissionControlBlockModeForPkg(code, pkg, log, payload);
         } catch (Exception e) {
-            return AppOpsManagerCompat.MODE_ALLOWED;
+            return XAppOpsManager.MODE_ALLOWED;
         }
     }
 
@@ -650,7 +650,7 @@ public class XAPMManager {
         try {
             return mService.getPermissionControlBlockModeForUid(code, uid, log, payload);
         } catch (Exception e) {
-            return AppOpsManagerCompat.MODE_ALLOWED;
+            return XAppOpsManager.MODE_ALLOWED;
         }
     }
 
@@ -659,7 +659,7 @@ public class XAPMManager {
         try {
             return mService.getPermissionControlBlockModeForPkg(code, pkg, log, null);
         } catch (Exception e) {
-            return AppOpsManagerCompat.MODE_ALLOWED;
+            return XAppOpsManager.MODE_ALLOWED;
         }
     }
 
@@ -668,7 +668,7 @@ public class XAPMManager {
         try {
             return mService.getPermissionControlBlockModeForUid(code, uid, log, null);
         } catch (Exception e) {
-            return AppOpsManagerCompat.MODE_ALLOWED;
+            return XAppOpsManager.MODE_ALLOWED;
         }
     }
 
@@ -1502,7 +1502,7 @@ public class XAPMManager {
         try {
             return mService.getAppOpsTemplate(opsSettings);
         } catch (Exception e) {
-            return new OpsSettings(AppOpsManagerCompat.getDefaultModes());
+            return new OpsSettings(XAppOpsManager.getDefaultModes());
         }
     }
 

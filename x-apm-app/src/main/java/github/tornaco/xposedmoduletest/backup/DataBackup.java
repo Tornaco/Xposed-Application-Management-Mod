@@ -15,7 +15,7 @@ import java.io.PrintWriter;
 import java.util.StringTokenizer;
 import java.util.UUID;
 
-import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.util.DateUtils;
 import github.tornaco.xposedmoduletest.util.ZipUtils;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
@@ -256,7 +256,7 @@ public abstract class DataBackup {
                     Logger.d("perms: " + line);
                     String pkg = t.nextToken();
                     int code = Integer.parseInt(t.nextToken());
-                    ash.setPermissionControlBlockModeForPkg(code, pkg, AppOpsManagerCompat.MODE_IGNORED);
+                    ash.setPermissionControlBlockModeForPkg(code, pkg, XAppOpsManager.MODE_IGNORED);
                 }
                 Closer.closeQuietly(fr);
                 Closer.closeQuietly(br);

@@ -115,7 +115,7 @@ import github.tornaco.xposedmoduletest.IProcessClearListener;
 import github.tornaco.xposedmoduletest.IServiceControl;
 import github.tornaco.xposedmoduletest.ITaskRemoveListener;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
-import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.util.ArrayUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.GlobalWhiteList;
@@ -2286,8 +2286,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         // Check Op first for this package.
         int mode = getPermissionControlBlockModeForPkg(
-                AppOpsManagerCompat.OP_START_SERVICE, packageName, true, new String[]{String.valueOf(componentName)});
-        if (mode == AppOpsManagerCompat.MODE_IGNORED) {
+                XAppOpsManager.OP_START_SERVICE, packageName, true, new String[]{String.valueOf(componentName)});
+        if (mode == XAppOpsManager.MODE_IGNORED) {
             XposedLog.verbose("checkRestartService: deny op");
             return false;
         }
@@ -2354,11 +2354,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         // Check Op first for this package.
         String shortString = componentName.flattenToShortString();
         int mode = getPermissionControlBlockModeForPkg(
-                AppOpsManagerCompat.OP_START_SERVICE, servicePkgName, true, new String[]{shortString});
+                XAppOpsManager.OP_START_SERVICE, servicePkgName, true, new String[]{shortString});
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("checkService, get op mode for service: %s, mode: %s", shortString, mode);
         }
-        if (mode == AppOpsManagerCompat.MODE_IGNORED) {
+        if (mode == XAppOpsManager.MODE_IGNORED) {
             return CheckResult.DENIED_OP_DENIED;
         }
 
@@ -3515,7 +3515,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         resultHolder.setData(true); // Default, allow install.
 
         PackageInstallerManager.VerifyReceiver receiver = (reason, mode) -> {
-            resultHolder.setData(mode == AppOpsManagerCompat.MODE_ALLOWED);
+            resultHolder.setData(mode == XAppOpsManager.MODE_ALLOWED);
             XposedLog.verbose(XposedLog.PREFIX_PM + "VerifyReceiver reason: " + reason);
         };
 
@@ -4835,7 +4835,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             if (DEBUG_OP) {
                 XposedLog.verbose("getPermissionControlBlockModeForPkg white listed");
             }
-            return AppOpsManagerCompat.MODE_ALLOWED;
+            return XAppOpsManager.MODE_ALLOWED;
         }
 
         long id = Binder.clearCallingIdentity();
@@ -4844,15 +4844,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             XposedLog.verbose("getPermissionControlBlockModeForPkg pattern %s", pattern);
         }
         try {
-            if (isInPermissionBlockList(pattern)) return AppOpsManagerCompat.MODE_IGNORED;
+            if (isInPermissionBlockList(pattern)) return XAppOpsManager.MODE_IGNORED;
         } catch (Throwable e) {
             XposedLog.wtf("Error getPermissionControlBlockModeForPkg: " + Log.getStackTraceString(e));
-            return AppOpsManagerCompat.MODE_ALLOWED;
+            return XAppOpsManager.MODE_ALLOWED;
         } finally {
             Binder.restoreCallingIdentity(id);
         }
 
-        return AppOpsManagerCompat.MODE_ALLOWED;
+        return XAppOpsManager.MODE_ALLOWED;
     }
 
     @Override
@@ -4864,7 +4864,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         // FIXME Too slow.
         String pkg = PkgUtil.pkgForUid(getContext(), uid);
         if (pkg == null) {
-            return AppOpsManagerCompat.MODE_ALLOWED;
+            return XAppOpsManager.MODE_ALLOWED;
         }
         return getPermissionControlBlockModeForPkg(code, pkg, log, payload);
     }
@@ -4887,7 +4887,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             } else {
                 // Align with appops.
                 // Apply ranker.
-                if (code == AppOpsManagerCompat.OP_POST_NOTIFICATION) {
+                if (code == XAppOpsManager.OP_POST_NOTIFICATION) {
                     AppOpsManager ops = (AppOpsManager) getContext().getSystemService(Context.APP_OPS_SERVICE);
                     try {
                         if (ops != null) {
@@ -4903,7 +4903,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 }
             }
 
-            if (mode != AppOpsManagerCompat.MODE_ALLOWED) {
+            if (mode != XAppOpsManager.MODE_ALLOWED) {
                 RepoProxy.getProxy().getPerms().add(constructPatternForPermission(code, pkg));
             } else {
                 RepoProxy.getProxy().getPerms().remove(constructPatternForPermission(code, pkg));
@@ -5226,7 +5226,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         // Check op, if allow to show FC dialog.
         int mode = getPermissionControlBlockModeForPkg(
-                AppOpsManagerCompat.OP_FC_DIALOG, opPackageName == null ? packageName : opPackageName,
+                XAppOpsManager.OP_FC_DIALOG, opPackageName == null ? packageName : opPackageName,
                 true, new String[]{exception});
 
         XposedLog.verbose("uncaughtException on opPackageName:%s, packageName@%s, uid: %s, mode: %s",
@@ -5236,7 +5236,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 mode);
 
         // Do not interrupt app crash.
-        return mode == AppOpsManagerCompat.MODE_IGNORED;
+        return mode == XAppOpsManager.MODE_IGNORED;
     }
 
     @Override
@@ -5906,19 +5906,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     public AppSettings retrieveAppSettingsForPackage(String pkg) {
 
         int mode = getPermissionControlBlockModeForPkg(
-                AppOpsManagerCompat.OP_WAKE_LOCK, pkg, false, null
+                XAppOpsManager.OP_WAKE_LOCK, pkg, false, null
         );
-        boolean wakelock = mode == AppOpsManagerCompat.MODE_IGNORED;
+        boolean wakelock = mode == XAppOpsManager.MODE_IGNORED;
 
         mode = getPermissionControlBlockModeForPkg(
-                AppOpsManagerCompat.OP_START_SERVICE, pkg, false, null
+                XAppOpsManager.OP_START_SERVICE, pkg, false, null
         );
-        boolean service = mode == AppOpsManagerCompat.MODE_IGNORED;
+        boolean service = mode == XAppOpsManager.MODE_IGNORED;
 
         mode = getPermissionControlBlockModeForPkg(
-                AppOpsManagerCompat.OP_SET_ALARM, pkg, false, null
+                XAppOpsManager.OP_SET_ALARM, pkg, false, null
         );
-        boolean alarm = mode == AppOpsManagerCompat.MODE_IGNORED;
+        boolean alarm = mode == XAppOpsManager.MODE_IGNORED;
 
         return AppSettings.builder()
                 .appLevel(getAppLevel(pkg))
@@ -5963,17 +5963,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         addOrRemoveTRKApps(data, settings.isTrk() ? XAPMManager.Op.ADD : XAPMManager.Op.REMOVE);
         addOrRemoveLazyApps(data, settings.isLazy() ? XAPMManager.Op.ADD : XAPMManager.Op.REMOVE);
 
-        setPermissionControlBlockModeForPkg(AppOpsManagerCompat.OP_WAKE_LOCK,
+        setPermissionControlBlockModeForPkg(XAppOpsManager.OP_WAKE_LOCK,
                 pkg,
-                settings.isWakeLock() ? AppOpsManagerCompat.MODE_IGNORED : AppOpsManagerCompat.MODE_ALLOWED);
+                settings.isWakeLock() ? XAppOpsManager.MODE_IGNORED : XAppOpsManager.MODE_ALLOWED);
 
-        setPermissionControlBlockModeForPkg(AppOpsManagerCompat.OP_SET_ALARM,
+        setPermissionControlBlockModeForPkg(XAppOpsManager.OP_SET_ALARM,
                 pkg,
-                settings.isAlarm() ? AppOpsManagerCompat.MODE_IGNORED : AppOpsManagerCompat.MODE_ALLOWED);
+                settings.isAlarm() ? XAppOpsManager.MODE_IGNORED : XAppOpsManager.MODE_ALLOWED);
 
-        setPermissionControlBlockModeForPkg(AppOpsManagerCompat.OP_START_SERVICE,
+        setPermissionControlBlockModeForPkg(XAppOpsManager.OP_START_SERVICE,
                 pkg,
-                settings.isService() ? AppOpsManagerCompat.MODE_IGNORED : AppOpsManagerCompat.MODE_ALLOWED);
+                settings.isService() ? XAppOpsManager.MODE_IGNORED : XAppOpsManager.MODE_ALLOWED);
     }
 
     @SuppressWarnings("UnnecessaryLocalVariable")
@@ -6008,7 +6008,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private void applyOpsSettingsForPackage(String pkg) {
         XposedLog.verbose("applyOpsSettingsForPackage: " + pkg);
         try {
-            for (int i = 0; i < AppOpsManagerCompat._NUM_OP; i++) {
+            for (int i = 0; i < XAppOpsManager._NUM_OP; i++) {
                 int code = i;
                 int mode = getPermissionControlBlockModeForPkg(code, XAPMManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME, false, null);
                 XposedLog.verbose("Template code and mode: %s %s", code, mode);
@@ -6083,7 +6083,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @BinderCall
     public OpsSettings getAppOpsTemplate(OpsSettings opsSettings) {
         OpsSettings os = OpsSettings.fromJson(SettingsProvider.get().getString("AppOpsTemplate", null));
-        if (os == null) os = new OpsSettings(AppOpsManagerCompat.getDefaultModes());
+        if (os == null) os = new OpsSettings(XAppOpsManager.getDefaultModes());
         return os;
     }
 
@@ -6441,7 +6441,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         // No log for power save.
         if (isPowerSaveModeEnabled()) return;
 
-        if (code >= AppOpsManagerCompat._NUM_OP) {
+        if (code >= XAppOpsManager._NUM_OP) {
             // Do not add invaild op.
             return;
         }
@@ -6457,7 +6457,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         if (isWhiteSysAppEnabled() && isInSystemAppList(packageName))
             return;
 
-        if (AppOpsManagerCompat.isLoggableOp(code)) {
+        if (XAppOpsManager.isLoggableOp(code)) {
             logOpEventToMemory(packageName, code, mode, payload);
         }
     }
@@ -6690,19 +6690,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     private int checkOperationInternal(int code, int uid, String packageName, String reason) {
-        if (packageName == null) return AppOpsManagerCompat.MODE_ALLOWED;
+        if (packageName == null) return XAppOpsManager.MODE_ALLOWED;
 
-        if (BuildConfig.APPLICATION_ID.equals(packageName)) return AppOpsManagerCompat.MODE_ALLOWED;
+        if (BuildConfig.APPLICATION_ID.equals(packageName)) return XAppOpsManager.MODE_ALLOWED;
 
-        if (PkgUtil.isSystemOrPhoneOrShell(uid)) return AppOpsManagerCompat.MODE_ALLOWED;
+        if (PkgUtil.isSystemOrPhoneOrShell(uid)) return XAppOpsManager.MODE_ALLOWED;
 
-        if (isInWhiteList(packageName)) return AppOpsManagerCompat.MODE_ALLOWED;
+        if (isInWhiteList(packageName)) return XAppOpsManager.MODE_ALLOWED;
 
         if (isWhiteSysAppEnabled() && isInSystemAppList(packageName))
-            return AppOpsManagerCompat.MODE_ALLOWED;
+            return XAppOpsManager.MODE_ALLOWED;
 
         if (DEBUG_OP && XposedLog.isVerboseLoggable()) {
-            String permName = AppOpsManagerCompat.opToPermission(code);
+            String permName = XAppOpsManager.opToPermission(code);
             XposedLog.verbose("checkOperation: reason %s code %s perm %s uid %s pkg %s",
                     reason, code, permName, uid, packageName);
         }
@@ -6715,13 +6715,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 if (DEBUG_OP) {
                     XposedLog.verbose("checkOperation: returning MODE_IGNORED");
                 }
-                return AppOpsManagerCompat.MODE_IGNORED;
+                return XAppOpsManager.MODE_IGNORED;
             }
         } finally {
             Binder.restoreCallingIdentity(id);
         }
 
-        return AppOpsManagerCompat.MODE_ALLOWED;
+        return XAppOpsManager.MODE_ALLOWED;
     }
 
     private boolean isInPermissionBlockList(String pattern) {

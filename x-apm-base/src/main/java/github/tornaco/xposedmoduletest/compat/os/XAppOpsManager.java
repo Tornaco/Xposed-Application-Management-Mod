@@ -32,7 +32,7 @@ import lombok.Synchronized;
 /**
  * Helper for accessing features in {@link AppOpsManager}.
  */
-public final class AppOpsManagerCompat {
+public final class XAppOpsManager {
 
     public static final int MODE_ALLOWED = 0;
 
@@ -982,16 +982,16 @@ public final class AppOpsManagerCompat {
     private final CharSequence[] mOpSummaries;
     private final CharSequence[] mOpLabels;
 
-    private AppOpsManagerCompat(Context context) {
+    private XAppOpsManager(Context context) {
         mOpSummaries = context.getResources().getTextArray(R.array.app_ops_summaries);
         mOpLabels = context.getResources().getTextArray(R.array.app_ops_labels);
     }
 
-    private static AppOpsManagerCompat sMe = null;
+    private static XAppOpsManager sMe = null;
 
     @Synchronized
-    public static AppOpsManagerCompat from(Context context) {
-        if (sMe == null) sMe = new AppOpsManagerCompat(context);
+    public static XAppOpsManager from(Context context) {
+        if (sMe == null) sMe = new XAppOpsManager(context);
         return sMe;
     }
 
