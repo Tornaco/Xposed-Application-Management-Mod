@@ -10,7 +10,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.BuildConfig;
-import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -63,9 +63,9 @@ class TelephonyManagerSubModule extends AndroidSubModule {
                             XAPMManager xAshmanManager = XAPMManager.get();
                             if (xAshmanManager.isServiceAvailable()) {
                                 int mode = xAshmanManager.getPermissionControlBlockModeForPkg(
-                                        AppOpsManagerCompat.OP_GET_DEVICE_ID, callPackageName,
+                                        XAppOpsManager.OP_GET_DEVICE_ID, callPackageName,
                                         true);
-                                if (mode == AppOpsManagerCompat.MODE_IGNORED) {
+                                if (mode == XAppOpsManager.MODE_IGNORED) {
                                     XposedLog.verbose("getDeviceId, MODE_IGNORED returning null for :" + callPackageName);
                                     param.setResult(null);
                                 } else {
@@ -121,9 +121,9 @@ class TelephonyManagerSubModule extends AndroidSubModule {
                             XAPMManager xAshmanManager = XAPMManager.get();
                             if (xAshmanManager.isServiceAvailable()) {
                                 int mode = xAshmanManager.getPermissionControlBlockModeForPkg(
-                                        AppOpsManagerCompat.OP_GET_LINE1_NUMBER, callPackageName,
+                                        XAppOpsManager.OP_GET_LINE1_NUMBER, callPackageName,
                                         true);
-                                if (mode == AppOpsManagerCompat.MODE_IGNORED) {
+                                if (mode == XAppOpsManager.MODE_IGNORED) {
                                     XposedLog.verbose("getLine1Number, MODE_IGNORED returning null for :" + callPackageName);
                                     param.setResult(null);
                                 } else {
@@ -178,9 +178,9 @@ class TelephonyManagerSubModule extends AndroidSubModule {
                             XAPMManager xAshmanManager = XAPMManager.get();
                             if (xAshmanManager.isServiceAvailable()) {
                                 int mode = xAshmanManager.getPermissionControlBlockModeForPkg(
-                                        AppOpsManagerCompat.OP_GET_SIM_SERIAL_NUMBER, callPackageName,
+                                        XAppOpsManager.OP_GET_SIM_SERIAL_NUMBER, callPackageName,
                                         true);
-                                if (mode == AppOpsManagerCompat.MODE_IGNORED) {
+                                if (mode == XAppOpsManager.MODE_IGNORED) {
                                     XposedLog.verbose("getSimSerialNumber, MODE_IGNORED returning null for :" + callPackageName);
                                     param.setResult(null);
                                 }

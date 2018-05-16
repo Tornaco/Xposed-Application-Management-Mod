@@ -11,7 +11,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.BuildConfig;
-import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -81,8 +81,8 @@ class AlarmManagerSubModule extends AndroidSubModule {
                             // Check OP.
                             if (XAPMManager.get().isServiceAvailable()) {
                                 int mode = XAPMManager.get().getPermissionControlBlockModeForPkg(
-                                        AppOpsManagerCompat.OP_SET_ALARM, pkgName, true);
-                                if (mode == AppOpsManagerCompat.MODE_IGNORED) {
+                                        XAppOpsManager.OP_SET_ALARM, pkgName, true);
+                                if (mode == XAppOpsManager.MODE_IGNORED) {
                                     if (BuildConfig.DEBUG) {
                                         Log.d(XposedLog.TAG, "set alarm, MODE_IGNORED returning...");
                                     }

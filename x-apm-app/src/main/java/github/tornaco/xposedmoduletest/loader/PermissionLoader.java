@@ -15,7 +15,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.model.Permission;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
@@ -62,13 +62,13 @@ public interface PermissionLoader {
 
             Set<String> permSet = Sets.newHashSet(decleared == null ? new String[0] : decleared);
 
-            int OP_SIZE = AppOpsManagerCompat._NUM_OP_DEF;
+            int OP_SIZE = XAppOpsManager._NUM_OP_DEF;
 
             final List<Permission> permissions = new ArrayList<>();
 
             for (int code = 0; code < OP_SIZE; code++) {
 
-                String s = AppOpsManagerCompat.opToPermission(code);
+                String s = XAppOpsManager.opToPermission(code);
 
                 // Here we check if this is dummy one.
                 boolean isDummy = XAPMManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME.equals(pkg);
@@ -81,31 +81,31 @@ public interface PermissionLoader {
                 p.setPkgName(pkg);
                 p.setPermission(s);
 
-                if (code == AppOpsManagerCompat.OP_NONE) {
+                if (code == XAppOpsManager.OP_NONE) {
                     Logger.w("Un-support per control: " + s);
                     continue;
                 }
 
 
-                if (code == AppOpsManagerCompat.OP_WAKE_LOCK) {
+                if (code == XAppOpsManager.OP_WAKE_LOCK) {
                     Logger.w("Tem skip per control: " + s);
                     continue;
                 }
 
-//                if (!BuildConfig.DEBUG && code == AppOpsManagerCompat.OP_POST_NOTIFICATION) {
+//                if (!BuildConfig.DEBUG && code == XAppOpsManager.OP_POST_NOTIFICATION) {
 //                    Logger.w("Tem skip per control: " + s);
 //                    continue;
 //                }
 
                 p.setCode(code);
 
-                String name = AppOpsManagerCompat.getOpLabel(context, code);
+                String name = XAppOpsManager.getOpLabel(context, code);
                 p.setName(name);
 
-                String summary = AppOpsManagerCompat.getOpSummary(context, code);
+                String summary = XAppOpsManager.getOpSummary(context, code);
                 p.setSummary(summary);
 
-                p.setIconRes(AppOpsManagerCompat.opToIconRes(code));
+                p.setIconRes(XAppOpsManager.opToIconRes(code));
 
                 p.setMode(XAPMManager.get().getPermissionControlBlockModeForPkg(code, pkg, false));
 
@@ -117,17 +117,17 @@ public interface PermissionLoader {
             java.util.Collections.sort(permissions, new PermComparator());
 
             // Add our extra permissions.
-            for (int ecode : AppOpsManagerCompat.EXTRA_OPS) {
+            for (int ecode : XAppOpsManager.EXTRA_OPS) {
                 Permission p = new Permission();
                 p.setPkgName(pkg);
                 p.setPermission(null);
                 p.setCode(ecode);
-                p.setCategory(AppOpsManagerCompat.CATEGORY_EXTRA);
-                String name = AppOpsManagerCompat.getOpLabel(context, ecode);
+                p.setCategory(XAppOpsManager.CATEGORY_EXTRA);
+                String name = XAppOpsManager.getOpLabel(context, ecode);
                 p.setName(name);
-                String summary = AppOpsManagerCompat.getOpSummary(context, ecode);
+                String summary = XAppOpsManager.getOpSummary(context, ecode);
                 p.setSummary(summary);
-                p.setIconRes(AppOpsManagerCompat.opToIconRes(ecode));
+                p.setIconRes(XAppOpsManager.opToIconRes(ecode));
                 p.setMode(XAPMManager.get().getPermissionControlBlockModeForPkg(ecode, pkg, false));
                 Logger.d("Add perm: " + p);
                 permissions.add(p);
@@ -158,7 +158,7 @@ public interface PermissionLoader {
                 if (decleared == null || decleared.length == 0) {
                     continue;
                 }
-                String permission = AppOpsManagerCompat.opToPermission(op);
+                String permission = XAppOpsManager.opToPermission(op);
                 if (permission == null || (Arrays.binarySearch(decleared, permission) >= 0)) {
                     CommonPackageInfo c = new CommonPackageInfo();
                     c.setPkgName(info.packageName);
@@ -180,12 +180,12 @@ public interface PermissionLoader {
         @NonNull
         @Override
         public List<CommonPackageInfo> loadOps(int filterOption) {
-            int opCount = AppOpsManagerCompat._NUM_OP;
+            int opCount = XAppOpsManager._NUM_OP;
             List<CommonPackageInfo> res = new ArrayList<>(opCount);
             for (int i = 0; i < opCount; i++) {
                 CommonPackageInfo c = new CommonPackageInfo();
-                c.setAppName(AppOpsManagerCompat.getOpLabel(context, i));
-                c.setPayload(new String[]{AppOpsManagerCompat.getOpSummary(context, i)});
+                c.setAppName(XAppOpsManager.getOpLabel(context, i));
+                c.setPayload(new String[]{XAppOpsManager.getOpSummary(context, i)});
                 c.setPkgName(null);
                 c.setChecked(false);
                 c.setVersion(i);

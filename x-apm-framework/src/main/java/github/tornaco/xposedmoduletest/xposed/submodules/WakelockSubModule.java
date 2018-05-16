@@ -9,7 +9,7 @@ import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
-import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -74,9 +74,9 @@ class WakelockSubModule extends AndroidSubModule {
                             // Check OP.
                             if (XAPMManager.get().isServiceAvailable()) {
                                 int mode = XAPMManager.get().getPermissionControlBlockModeForPkg(
-                                        AppOpsManagerCompat.OP_WAKE_LOCK, pkgName,
+                                        XAppOpsManager.OP_WAKE_LOCK, pkgName,
                                         true);
-                                if (mode == AppOpsManagerCompat.MODE_IGNORED) {
+                                if (mode == XAppOpsManager.MODE_IGNORED) {
 //                                XposedLog.verbose("acquire wake lock, MODE_IGNORED returning...");
                                     param.setResult(null);
                                 }

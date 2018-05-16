@@ -18,7 +18,7 @@ import java.util.List;
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.BuildConfig;
-import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.model.ActivityInfoSettings;
 import github.tornaco.xposedmoduletest.model.ActivityInfoSettingsList;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
@@ -191,19 +191,19 @@ public interface ComponentLoader {
         private static void updateOpState(CommonPackageInfo info) {
             int modeService = XAPMManager.get()
                     .getPermissionControlBlockModeForPkg(
-                            AppOpsManagerCompat.OP_START_SERVICE, info.getPkgName(),
+                            XAppOpsManager.OP_START_SERVICE, info.getPkgName(),
                             false);
             int modeWakelock = XAPMManager.get()
                     .getPermissionControlBlockModeForPkg(
-                            AppOpsManagerCompat.OP_WAKE_LOCK, info.getPkgName(),
+                            XAppOpsManager.OP_WAKE_LOCK, info.getPkgName(),
                             false);
             int modeAlarm = XAPMManager.get()
                     .getPermissionControlBlockModeForPkg(
-                            AppOpsManagerCompat.OP_SET_ALARM, info.getPkgName(),
+                            XAppOpsManager.OP_SET_ALARM, info.getPkgName(),
                             false);
-            info.setServiceOpAllowed(modeService == AppOpsManagerCompat.MODE_ALLOWED);
-            info.setAlarmOpAllowed(modeAlarm == AppOpsManagerCompat.MODE_ALLOWED);
-            info.setWakelockOpAllowed(modeWakelock == AppOpsManagerCompat.MODE_ALLOWED);
+            info.setServiceOpAllowed(modeService == XAppOpsManager.MODE_ALLOWED);
+            info.setAlarmOpAllowed(modeAlarm == XAppOpsManager.MODE_ALLOWED);
+            info.setWakelockOpAllowed(modeWakelock == XAppOpsManager.MODE_ALLOWED);
         }
 
         @NonNull

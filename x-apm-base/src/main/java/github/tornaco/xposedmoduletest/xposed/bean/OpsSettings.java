@@ -6,7 +6,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
-import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,7 +23,7 @@ import lombok.ToString;
 @Setter
 public class OpsSettings implements Parcelable {
 
-    private static final int[] DEFAULT_MODE = AppOpsManagerCompat.getDefaultModes();
+    private static final int[] DEFAULT_MODE = XAppOpsManager.getDefaultModes();
 
     private int[] modes;
 

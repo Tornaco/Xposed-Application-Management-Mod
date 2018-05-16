@@ -22,7 +22,7 @@ import java.util.List;
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.util.ColorUtil;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.loader.PermissionLoader;
 import github.tornaco.xposedmoduletest.model.Permission;
@@ -172,8 +172,8 @@ public class Apps2OpListActivity extends WithRecyclerView {
             try {
                 Collections.consumeRemaining(permissionOpsAdapter.getData(),
                         permission -> {
-                            int mode = b ? AppOpsManagerCompat.MODE_ALLOWED
-                                    : AppOpsManagerCompat.MODE_IGNORED;
+                            int mode = b ? XAppOpsManager.MODE_ALLOWED
+                                    : XAppOpsManager.MODE_IGNORED;
                             XAPMManager.get().setPermissionControlBlockModeForPkg(permission.getCode(), mPkg, mode);
                             runOnUiThreadChecked(() -> p.setMessage(permission.getName()));
                         });

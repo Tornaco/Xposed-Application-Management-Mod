@@ -11,7 +11,7 @@ import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
-import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -50,9 +50,9 @@ class RuntimeSubModule extends AndroidSubModule {
                                 String caller = AndroidAppHelper.currentPackageName();
                                 // Log.d(XposedLog.TAG, String.format("Runtime exec: %s %s", command, caller));
                                 if (XAPMManager.get().isServiceAvailable()) {
-                                    int mode = XAPMManager.get().getPermissionControlBlockModeForPkg(AppOpsManagerCompat
+                                    int mode = XAPMManager.get().getPermissionControlBlockModeForPkg(XAppOpsManager
                                             .OP_EXECUTE_SHELL_COMMAND, caller, true, new String[]{command});
-                                    if (mode == AppOpsManagerCompat.MODE_IGNORED) {
+                                    if (mode == XAppOpsManager.MODE_IGNORED) {
                                         param.setResult(null);
                                         Log.d(XposedLog.TAG, "COMMAND BLOCKED");
                                     }
@@ -62,9 +62,9 @@ class RuntimeSubModule extends AndroidSubModule {
                                 String caller = AndroidAppHelper.currentPackageName();
                                 // Log.d(XposedLog.TAG, String.format("Runtime exec arr: %s %s", Arrays.toString(cmdArr), caller));
                                 if (XAPMManager.get().isServiceAvailable()) {
-                                    int mode = XAPMManager.get().getPermissionControlBlockModeForPkg(AppOpsManagerCompat
+                                    int mode = XAPMManager.get().getPermissionControlBlockModeForPkg(XAppOpsManager
                                             .OP_EXECUTE_SHELL_COMMAND, caller, true, cmdArr);
-                                    if (mode == AppOpsManagerCompat.MODE_IGNORED) {
+                                    if (mode == XAppOpsManager.MODE_IGNORED) {
                                         param.setResult(null);
                                         Log.d(XposedLog.TAG, "COMMAND BLOCKED");
                                     }

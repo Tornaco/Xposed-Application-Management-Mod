@@ -9,7 +9,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.xposed.GlobalWhiteList;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
@@ -50,7 +50,7 @@ class PowerManagerServiceLocalSubModule extends AndroidSubModule {
 
                                 if (currentPkg != null && !GlobalWhiteList.isInGlobalWhiteList(currentPkg)) {
                                     int mode = ash.getPermissionControlBlockModeForPkg(
-                                            AppOpsManagerCompat.OP_CHANGE_BRIGHTNESS,
+                                            XAppOpsManager.OP_CHANGE_BRIGHTNESS,
                                             currentPkg,
                                             true,
                                             new String[]{Arrays.toString(param.args)});
@@ -59,7 +59,7 @@ class PowerManagerServiceLocalSubModule extends AndroidSubModule {
                                             String.format("setScreenBrightnessOverrideFromWindowManager: %s %s %s",
                                                     Arrays.toString(param.args), currentPkg, mode));
 
-                                    if (mode == AppOpsManagerCompat.MODE_IGNORED) {
+                                    if (mode == XAppOpsManager.MODE_IGNORED) {
                                         Log.d(XposedLog.TAG + XposedLog.PREFIX_OPS, "Block setScreenBrightnessOverrideFromWindowManager");
                                         param.setResult(null);
                                     }

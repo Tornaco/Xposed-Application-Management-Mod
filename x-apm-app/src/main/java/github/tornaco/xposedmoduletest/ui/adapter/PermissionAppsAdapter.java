@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.compat.os.AppOpsManagerCompat;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
@@ -107,14 +107,14 @@ public class PermissionAppsAdapter extends RecyclerView.Adapter<PermissionAppsAd
                 .into(holder.getIconView());
 
 
-        boolean allowed = commonPackageInfo.getVersion() == AppOpsManagerCompat.MODE_ALLOWED;
+        boolean allowed = commonPackageInfo.getVersion() == XAppOpsManager.MODE_ALLOWED;
         holder.getCompSwitch().setChecked(allowed);
 
         holder.getCompSwitch().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Checkable c = (Checkable) v;
-                int mode = c.isChecked() ? AppOpsManagerCompat.MODE_ALLOWED : AppOpsManagerCompat.MODE_IGNORED;
+                int mode = c.isChecked() ? XAppOpsManager.MODE_ALLOWED : XAppOpsManager.MODE_IGNORED;
                 XAPMManager.get().setPermissionControlBlockModeForPkg(getOp(),
                         commonPackageInfo.getPkgName(), mode);
                 commonPackageInfo.setVersion(mode);
