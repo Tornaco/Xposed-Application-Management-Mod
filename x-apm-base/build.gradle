@@ -106,7 +106,9 @@ javadoc {
 }
 
 Properties properties = new Properties()
-if (System.getenv("TRAVIS") != "true") {
+// No need to load props for dog food build, publish lib is only need for project owner@tornaco.
+boolean dogFoodBuild = rootProject.ext.dogfoodBuild as boolean
+if (System.getenv("TRAVIS") != "true" && !dogFoodBuild) {
     properties.load(project.rootProject.file('local.properties').newDataInputStream())
 }
 
