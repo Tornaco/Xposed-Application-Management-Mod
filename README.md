@@ -1,3 +1,9 @@
+## 简介
+利用Xposed框架实现的类似于手机管家的Android系统工具。
+
+## 截图
+![flow1](art/INTRODUCE_SIMPLE.jpg)
+
 ## Play版下载
 
 <a href="https://play.google.com/store/apps/details?id=github.tornaco.xposedmoduletest"><img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" height="48"></a>
