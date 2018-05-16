@@ -68,8 +68,9 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:tint="@color/grey"
                 android:background="@drawable/image_btn_bg"
-                android:src="@drawable/ic_play_arrow_grey_24dp" />
+                android:src="@drawable/ic_play_arrow_black_24dp" />
         </RelativeLayout>
     </LinearLayout>
 </android.support.v7.widget.CardView>
