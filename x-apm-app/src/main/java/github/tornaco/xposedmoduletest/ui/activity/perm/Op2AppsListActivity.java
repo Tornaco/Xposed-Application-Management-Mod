@@ -23,6 +23,7 @@ import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManagerRes;
 import github.tornaco.xposedmoduletest.loader.PermissionLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.WithSearchActivity;
@@ -74,7 +75,7 @@ public class Op2AppsListActivity extends WithSearchActivity<CommonPackageInfo> {
 
         initView();
 
-        mRawTitle = XAppOpsManager.getOpSummary(this, op);
+        mRawTitle = XAppOpsManagerRes.getOpSummary(this, op);
         setTitle(mRawTitle);
     }
 

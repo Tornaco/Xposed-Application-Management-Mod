@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManagerRes;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.model.Permission;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
@@ -99,13 +100,13 @@ public interface PermissionLoader {
 
                 p.setCode(code);
 
-                String name = XAppOpsManager.getOpLabel(context, code);
+                String name = XAppOpsManagerRes.getOpLabel(context, code);
                 p.setName(name);
 
-                String summary = XAppOpsManager.getOpSummary(context, code);
+                String summary = XAppOpsManagerRes.getOpSummary(context, code);
                 p.setSummary(summary);
 
-                p.setIconRes(XAppOpsManager.opToIconRes(code));
+                p.setIconRes(XAppOpsManagerRes.opToIconRes(code));
 
                 p.setMode(XAPMManager.get().getPermissionControlBlockModeForPkg(code, pkg, false));
 
@@ -123,11 +124,11 @@ public interface PermissionLoader {
                 p.setPermission(null);
                 p.setCode(ecode);
                 p.setCategory(XAppOpsManager.CATEGORY_EXTRA);
-                String name = XAppOpsManager.getOpLabel(context, ecode);
+                String name = XAppOpsManagerRes.getOpLabel(context, ecode);
                 p.setName(name);
-                String summary = XAppOpsManager.getOpSummary(context, ecode);
+                String summary = XAppOpsManagerRes.getOpSummary(context, ecode);
                 p.setSummary(summary);
-                p.setIconRes(XAppOpsManager.opToIconRes(ecode));
+                p.setIconRes(XAppOpsManagerRes.opToIconRes(ecode));
                 p.setMode(XAPMManager.get().getPermissionControlBlockModeForPkg(ecode, pkg, false));
                 Logger.d("Add perm: " + p);
                 permissions.add(p);
@@ -184,8 +185,8 @@ public interface PermissionLoader {
             List<CommonPackageInfo> res = new ArrayList<>(opCount);
             for (int i = 0; i < opCount; i++) {
                 CommonPackageInfo c = new CommonPackageInfo();
-                c.setAppName(XAppOpsManager.getOpLabel(context, i));
-                c.setPayload(new String[]{XAppOpsManager.getOpSummary(context, i)});
+                c.setAppName(XAppOpsManagerRes.getOpLabel(context, i));
+                c.setPayload(new String[]{XAppOpsManagerRes.getOpSummary(context, i)});
                 c.setPkgName(null);
                 c.setChecked(false);
                 c.setVersion(i);
