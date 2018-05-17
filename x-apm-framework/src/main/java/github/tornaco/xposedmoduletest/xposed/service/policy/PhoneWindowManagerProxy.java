@@ -7,6 +7,7 @@ import android.view.WindowManagerPolicy;
 
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.ISettingsChangeListener;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.repo.SettingsProvider;
 import github.tornaco.xposedmoduletest.xposed.service.InvokeTargetProxy;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -80,6 +81,10 @@ public class PhoneWindowManagerProxy extends InvokeTargetProxy<Object> {
             @Override
             public void onChange(String name) {
                 XposedLog.verbose("PhoneWindowManagerProxy onChange: " + name);
+                if (XAPMManager.OPT.THREE_FINGER_GESTURE.name().equals(name)) {
+                    boolean enable = SettingsProvider.get().getBoolean(name, false);
+                    enableSwipeThreeFingerGesture(enable);
+                }
             }
         });
     }
@@ -105,6 +110,7 @@ public class PhoneWindowManagerProxy extends InvokeTargetProxy<Object> {
                 haveEnableGesture = false;
                 getWindowManagerFuncs().unregisterPointerEventListener(mOPGestures);
             }
+            XposedLog.verbose("PhoneWindowManagerProxy enableSwipeThreeFingerGesture ok: " + enable);
         } else {
             XposedLog.wtf("PhoneWindowManagerProxy enableSwipeThreeFingerGesture called while getWindowManagerFuncs() is null");
         }

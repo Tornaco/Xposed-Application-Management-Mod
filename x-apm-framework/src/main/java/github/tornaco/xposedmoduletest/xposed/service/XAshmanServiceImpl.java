@@ -1906,8 +1906,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     public void onPhoneWindowManagerSetInitialDisplaySize(Display display) {
         XposedLog.boot("onPhoneWindowManagerSetInitialDisplaySize: " + display);
-        mPhoneWindowManagerProxy.enableSwipeThreeFingerGesture(BuildConfig.DEBUG
-                || isOptFeatureEnabled(XAPMManager.OPT.THREE_FINGER_GESTURE.name()));
+        mPhoneWindowManagerProxy.enableSwipeThreeFingerGesture(isOptFeatureEnabled(XAPMManager.OPT.THREE_FINGER_GESTURE.name()));
     }
 
     @Override
@@ -3398,13 +3397,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    @Deprecated
+    // Use getInt/getBoolean instead.
     public boolean isOptFeatureEnabled(String tag) {
-        return SettingsProvider.get().getBoolean("OPT_FEATURE_" + tag, false);
+        return SettingsProvider.get().getBoolean(tag, false);
     }
 
     @Override
+    @Deprecated
     public void setOptFeatureEnabled(String tag, boolean enable) {
-        SettingsProvider.get().putBoolean("OPT_FEATURE_" + tag, enable);
+        SettingsProvider.get().putBoolean(tag, enable);
     }
 
     @Override

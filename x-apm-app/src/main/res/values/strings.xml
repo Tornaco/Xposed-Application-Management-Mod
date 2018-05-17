@@ -644,5 +644,7 @@
     <string name="title_increase">+1</string>
     <string name="title_decrease">-1</string>
     <string name="title_clear_all_fav_tile">清空</string>
+    <string name="title_three_fingers_down_screenshot">三指截图</string>
+    <string name="summary_three_fingers_down_screenshot">三指下滑截图</string>
 
 </resources>
