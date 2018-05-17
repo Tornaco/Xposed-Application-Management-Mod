@@ -1,15 +1,20 @@
 package github.tornaco.xposedmoduletest.xposed.repo;
 
+import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.os.Message;
+import android.os.RemoteCallbackList;
 import android.util.Log;
 
 import java.io.File;
 
 import github.tornaco.android.common.BlackHole;
 import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.ISettingsChangeListener;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.DefaultConfiguration;
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
  * Created by guohao4 on 2017/12/19.
@@ -19,6 +24,8 @@ import github.tornaco.xposedmoduletest.xposed.DefaultConfiguration;
 public class SettingsProvider {
 
     private static final String TAG = DefaultConfiguration.LOG_TAG_PREFIX + "-SP";
+
+    private static final int MSG_SETTINGS_UPDATE = 0x1;
 
     private static final int SETTINGS_KEY_TOR_AG = 0x1;
     private static final String SETTINGS_NAME_TOR_AG = "settings_common.xml";
@@ -37,17 +44,39 @@ public class SettingsProvider {
 
     private SettingsState mSettingsState;
 
-    private Looper mLooper;
+    private Looper mStateLooper;
+    private Handler mNotifyHandler;
 
     private final Object mLock = new Object();
 
+    private final RemoteCallbackList<ISettingsChangeListener> mListeners = new RemoteCallbackList<>();
+
     private SettingsProvider() {
 
-        HandlerThread handlerThread = new HandlerThread("SettingsProvider@Tor");
-        handlerThread.start();
-        mLooper = handlerThread.getLooper();
+        HandlerThread stateThread = new HandlerThread("SettingsState@APM");
+        stateThread.start();
+        mStateLooper = stateThread.getLooper();
 
-        initSettingsState(mLooper);
+        initSettingsState(mStateLooper);
+
+        HandlerThread notifyThread = new HandlerThread("SettingsState@APM");
+        notifyThread.start();
+        mNotifyHandler = new Handler(notifyThread.getLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                switch (msg.what) {
+                    case MSG_SETTINGS_UPDATE:
+                        try {
+                            notifySettingsChangeListener((String) msg.obj);
+                        } catch (Throwable e) {
+                            // Fuck it.
+                            XposedLog.wtf("Fail notifySettingsChangeListener! " + Log.getStackTraceString(e));
+                        }
+                        break;
+                }
+            }
+        };
     }
 
     private void initSettingsState(Looper looper) {
@@ -68,8 +97,16 @@ public class SettingsProvider {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "insertSettingLocked: " + name + " " + value);
             }
-            return mSettingsState.insertSettingLocked(name, value, "tornaco", true, "android");
+            boolean success = mSettingsState.insertSettingLocked(name, value, "tornaco", true, "android");
+            if (success) {
+                notifyForSettingChange(name);
+            }
+            return success;
         }
+    }
+
+    private void notifyForSettingChange(String name) {
+        mNotifyHandler.obtainMessage(MSG_SETTINGS_UPDATE, name).sendToTarget();
     }
 
     private String getSettingLocked(String name) {
@@ -161,11 +198,45 @@ public class SettingsProvider {
                 mSettingsState.reset();
                 File dir = getBaseDataDir();
                 BlackHole.eat(new File(dir, SETTINGS_NAME_TOR_AG).delete());
-                initSettingsState(mLooper);
+                initSettingsState(mStateLooper);
                 Log.d(TAG, "Settings state has been reset!");
             }
         } catch (Throwable e) {
             Log.e(TAG, "Fail reset settings state: " + Log.getStackTraceString(e));
+        }
+    }
+
+    public boolean registerSettingsChangeListener(ISettingsChangeListener listener) {
+        return listener != null && mListeners.register(listener);
+    }
+
+    public boolean unRegisterSettingsChangeListener(ISettingsChangeListener listener) {
+        return listener != null && mListeners.unregister(listener);
+    }
+
+    private void notifySettingsChangeListener(String name) {
+        XposedLog.verbose("notifySettingsChangeListener: " + name);
+        try {
+            int itemCount = mListeners.beginBroadcast();
+            for (int i = 0; i < itemCount; i++) {
+                try {
+                    ISettingsChangeListener listener = mListeners.getBroadcastItem(i);
+                    try {
+                        listener.onChange(name);
+                    } catch (Throwable e) {
+                        XposedLog.wtf(XposedLog.TAG_LAZY + "notifySettingsChangeListener fail call onChange! "
+                                + Log.getStackTraceString(e));
+                    }
+                } catch (Throwable ignored) {
+                    // We tried...
+                }
+            }
+            XposedLog.verbose("notifySettingsChangeListener notifySettingsChangeListener finish");
+        } catch (Throwable e) {
+            XposedLog.wtf("notifySettingsChangeListener notifySettingsChangeListener broadcast fail: " + Log.getStackTraceString(e));
+        } finally {
+            mListeners.finishBroadcast();
+            // If dead, go dead!!!!!
         }
     }
 }

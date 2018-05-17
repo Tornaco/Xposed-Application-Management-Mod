@@ -3,7 +3,6 @@ package github.tornaco.xposedmoduletest.xposed.service;
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Message;
 import android.util.Log;
 
 import de.robv.android.xposed.XposedBridge;
@@ -26,52 +25,27 @@ class XAppGuardServiceImplDev extends XAppGuardServiceImpl {
 
     @Override
     public void attachContext(final Context context) {
-        makeSafeCall(new XAppGuardServiceImplDev.Call() {
-            @Override
-            public void onCall() throws Throwable {
-                XAppGuardServiceImplDev.super.attachContext(context);
-            }
-        });
+        makeSafeCall(() -> XAppGuardServiceImplDev.super.attachContext(context));
     }
 
     @Override
     public void publish() {
-        makeSafeCall(new XAppGuardServiceImplDev.Call() {
-            @Override
-            public void onCall() throws Throwable {
-                XAppGuardServiceImplDev.super.publish();
-            }
-        });
+        makeSafeCall(XAppGuardServiceImplDev.super::publish);
     }
 
     @Override
     public void systemReady() {
-        makeSafeCall(new XAppGuardServiceImplDev.Call() {
-            @Override
-            public void onCall() throws Throwable {
-                XAppGuardServiceImplDev.super.systemReady();
-            }
-        });
+        makeSafeCall(XAppGuardServiceImplDev.super::systemReady);
     }
 
     @Override
     public void retrieveSettings() {
-        makeSafeCall(new XAppGuardServiceImplDev.Call() {
-            @Override
-            public void onCall() throws Throwable {
-                XAppGuardServiceImplDev.super.retrieveSettings();
-            }
-        });
+        makeSafeCall(XAppGuardServiceImplDev.super::retrieveSettings);
     }
 
     @Override
     public void shutdown() {
-        makeSafeCall(new XAppGuardServiceImplDev.Call() {
-            @Override
-            public void onCall() throws Throwable {
-                XAppGuardServiceImplDev.super.shutdown();
-            }
-        });
+        makeSafeCall(XAppGuardServiceImplDev.super::shutdown);
     }
 
     @Override
@@ -87,17 +61,7 @@ class XAppGuardServiceImplDev extends XAppGuardServiceImpl {
         HandlerThread hr = new HandlerThread("APP-GUARD-H");
         hr.start();
         final Handler impl = super.onCreateServiceHandler();
-        return new Handler(hr.getLooper(), new Handler.Callback() {
-            @Override
-            public boolean handleMessage(final Message msg) {
-                return makeSafeCall(new Call() {
-                    @Override
-                    public void onCall() throws Throwable {
-                        impl.handleMessage(msg);
-                    }
-                });
-            }
-        });
+        return new Handler(hr.getLooper(), msg -> makeSafeCall(() -> impl.handleMessage(msg)));
     }
 
     private boolean makeSafeCall(Call call) {

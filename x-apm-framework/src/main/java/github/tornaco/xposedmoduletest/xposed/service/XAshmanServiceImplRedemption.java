@@ -3,13 +3,16 @@ package github.tornaco.xposedmoduletest.xposed.service;
 import android.app.ActivityManager;
 import android.app.IApplicationThread;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.ServiceManager;
 import android.service.notification.StatusBarNotification;
+import android.view.Display;
 import android.view.KeyEvent;
+import android.view.WindowManagerPolicy;
 
 import java.util.List;
 import java.util.Map;
@@ -679,6 +682,16 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
 
     @Override
     public void attachPhoneWindowManager(PhoneWindowManagerProxy proxy) {
+
+    }
+
+    @Override
+    public void initPhoneWindowManager(Context context, WindowManagerPolicy.WindowManagerFuncs funcs) {
+
+    }
+
+    @Override
+    public void onPhoneWindowManagerSetInitialDisplaySize(Display display) {
 
     }
 

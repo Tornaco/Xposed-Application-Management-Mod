@@ -32,7 +32,7 @@ task clean(type: Delete) {
 }
 
 ext {
-    dogfoodBuild = true
+    dogfoodBuild = false
 
     versionCode = 5080
     versionName = "MAY-5.0.8"

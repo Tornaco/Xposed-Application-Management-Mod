@@ -75,6 +75,6 @@ public class BlurTaskCache {
     }
 
     private static boolean isBlurCacheEnabled() {
-        return XAPMManager.get().isOptFeatureEnabled("opt_blur_cache");
+        return XAPMManager.get().isOptFeatureEnabled(XAPMManager.OPT.OPT_BLUR_CACHE.name());
     }
 }

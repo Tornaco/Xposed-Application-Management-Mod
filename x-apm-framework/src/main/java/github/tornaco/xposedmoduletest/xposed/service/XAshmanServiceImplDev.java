@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -26,83 +25,43 @@ public class XAshmanServiceImplDev extends XAshmanServiceImpl {
 
     @Override
     public void attachContext(final Context context) {
-        makeSafeCall(new Call() {
-            @Override
-            public void onCall() throws Throwable {
-                XAshmanServiceImplDev.super.attachContext(context);
-            }
-        });
+        makeSafeCall(() -> XAshmanServiceImplDev.super.attachContext(context));
     }
 
     @Override
     public void publish() {
-        makeSafeCall(new Call() {
-            @Override
-            public void onCall() throws Throwable {
-                XAshmanServiceImplDev.super.publish();
-            }
-        });
+        makeSafeCall(XAshmanServiceImplDev.super::publish);
     }
 
     @Override
     public void systemReady() {
-        makeSafeCall(new Call() {
-            @Override
-            public void onCall() throws Throwable {
-                XAshmanServiceImplDev.super.systemReady();
-            }
-        });
+        makeSafeCall(XAshmanServiceImplDev.super::systemReady);
     }
 
     @Override
     public void attachDeviceIdleController(final DeviceIdleControllerProxy proxy) {
-        makeSafeCall(new Call() {
-            @Override
-            public void onCall() throws Throwable {
-                XAshmanServiceImplDev.super.attachDeviceIdleController(proxy);
-            }
-        });
+        makeSafeCall(() -> XAshmanServiceImplDev.super.attachDeviceIdleController(proxy));
     }
 
     @Override
     public void attachNotificationService(final NotificationManagerServiceProxy proxy) {
-        makeSafeCall(new Call() {
-            @Override
-            public void onCall() throws Throwable {
-                XAshmanServiceImplDev.super.attachNotificationService(proxy);
-            }
-        });
+        makeSafeCall(() -> XAshmanServiceImplDev.super.attachNotificationService(proxy));
     }
 
     @Override
     public void onNetWorkManagementServiceReady(final NativeDaemonConnector connector) {
-        makeSafeCall(new Call() {
-            @Override
-            public void onCall() throws Throwable {
-                XAshmanServiceImplDev.super.onNetWorkManagementServiceReady(connector);
-            }
-        });
+        makeSafeCall(() -> XAshmanServiceImplDev.super.onNetWorkManagementServiceReady(connector));
     }
 
     @Override
     public void retrieveSettings() {
-        makeSafeCall(new Call() {
-            @Override
-            public void onCall() throws Throwable {
-                XAshmanServiceImplDev.super.retrieveSettings();
-            }
-        });
+        makeSafeCall(XAshmanServiceImplDev.super::retrieveSettings);
     }
 
 
     @Override
     public void shutdown() {
-        makeSafeCall(new Call() {
-            @Override
-            public void onCall() throws Throwable {
-                XAshmanServiceImplDev.super.shutdown();
-            }
-        });
+        makeSafeCall(XAshmanServiceImplDev.super::shutdown);
     }
 
     @Override
@@ -147,17 +106,7 @@ public class XAshmanServiceImplDev extends XAshmanServiceImpl {
         HandlerThread hr = new HandlerThread("ASHMAN-H");
         hr.start();
         final Handler impl = super.onCreateServiceHandler();
-        return new Handler(hr.getLooper(), new Handler.Callback() {
-            @Override
-            public boolean handleMessage(final Message msg) {
-                return makeSafeCall(new XAshmanServiceImplDev.Call() {
-                    @Override
-                    public void onCall() throws Throwable {
-                        impl.handleMessage(msg);
-                    }
-                });
-            }
-        });
+        return new Handler(hr.getLooper(), msg -> makeSafeCall(() -> impl.handleMessage(msg)));
     }
 
     @Override
@@ -167,17 +116,7 @@ public class XAshmanServiceImplDev extends XAshmanServiceImpl {
         HandlerThread hr = new HandlerThread("ASHMAN-LAZY-H");
         hr.start();
         final Handler lazy = super.onCreateLazyHandler();
-        return new Handler(hr.getLooper(), new Handler.Callback() {
-            @Override
-            public boolean handleMessage(final Message msg) {
-                return makeSafeCall(new Call() {
-                    @Override
-                    public void onCall() throws Throwable {
-                        lazy.handleMessage(msg);
-                    }
-                });
-            }
-        });
+        return new Handler(hr.getLooper(), msg -> makeSafeCall(() -> lazy.handleMessage(msg)));
     }
 
     @Override
@@ -185,17 +124,7 @@ public class XAshmanServiceImplDev extends XAshmanServiceImpl {
         HandlerThread hr = new HandlerThread("ASHMAN-DOZE-H");
         hr.start();
         final Handler doze = super.onCreateDozeHandler();
-        return new Handler(hr.getLooper(), new Handler.Callback() {
-            @Override
-            public boolean handleMessage(final Message msg) {
-                return makeSafeCall(new Call() {
-                    @Override
-                    public void onCall() throws Throwable {
-                        doze.handleMessage(msg);
-                    }
-                });
-            }
-        });
+        return new Handler(hr.getLooper(), msg -> makeSafeCall(() -> doze.handleMessage(msg)));
     }
 
     private boolean makeSafeCall(XAshmanServiceImplDev.Call call) {
