@@ -1,6 +1,8 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
+import android.content.Context;
 import android.util.Log;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.WindowManagerPolicy;
 
@@ -33,6 +35,8 @@ class PWMInterceptKeySubModule extends AndroidSubModule {
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         hookPhoneWindowManagerConstruct(lpparam);
         hookInterceptKeyBeforeQueueing(lpparam);
+        hookPhoneWindowManagerInit(lpparam);
+        hookPhoneWindowManagerSetInitialSize(lpparam);
     }
 
     private void hookPhoneWindowManagerConstruct(final XC_LoadPackage.LoadPackageParam lpparam) {
@@ -55,8 +59,63 @@ class PWMInterceptKeySubModule extends AndroidSubModule {
             });
             logOnBootStage("hookPhoneWindowManagerConstruct OK:" + unHooks);
             setStatus(unhooksToStatus(unHooks));
-        } catch (Exception e) {
+        } catch (Throwable e) {
             logOnBootStage("Fail hookPhoneWindowManagerConstruct:" + e);
+            setStatus(SubModuleStatus.ERROR);
+            setErrorMessage(Log.getStackTraceString(e));
+        }
+    }
+
+    private void hookPhoneWindowManagerInit(final XC_LoadPackage.LoadPackageParam lpparam) {
+        logOnBootStage("hookPhoneWindowManagerInit...");
+        try {
+            Class clz =
+                    OSUtil.isMOrAbove() ?
+                            XposedHelpers.findClass("com.android.server.policy.PhoneWindowManager",
+                                    lpparam.classLoader)
+                            : XposedHelpers.findClass("com.android.internal.policy.impl.PhoneWindowManager",
+                            lpparam.classLoader);
+            Set unHooks = XposedBridge.hookAllMethods(clz, "init", new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    super.afterHookedMethod(param);
+                    logOnBootStage("hookPhoneWindowManagerInit init...");
+                    Context context = (Context) param.args[0];
+                    WindowManagerPolicy.WindowManagerFuncs windowManagerFuncs = (WindowManagerPolicy.WindowManagerFuncs) param.args[2];
+                    getBridge().initPhoneWindowManager(context, windowManagerFuncs);
+                }
+            });
+            logOnBootStage("hookPhoneWindowManagerInit OK:" + unHooks);
+            setStatus(unhooksToStatus(unHooks));
+        } catch (Throwable e) {
+            logOnBootStage("Fail hookPhoneWindowManagerInit:" + e);
+            setStatus(SubModuleStatus.ERROR);
+            setErrorMessage(Log.getStackTraceString(e));
+        }
+    }
+
+    private void hookPhoneWindowManagerSetInitialSize(final XC_LoadPackage.LoadPackageParam lpparam) {
+        logOnBootStage("hookPhoneWindowManagerSetInitialSize...");
+        try {
+            Class clz =
+                    OSUtil.isMOrAbove() ?
+                            XposedHelpers.findClass("com.android.server.policy.PhoneWindowManager",
+                                    lpparam.classLoader)
+                            : XposedHelpers.findClass("com.android.internal.policy.impl.PhoneWindowManager",
+                            lpparam.classLoader);
+            Set unHooks = XposedBridge.hookAllMethods(clz, "setInitialDisplaySize",
+                    new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            super.afterHookedMethod(param);
+                            logOnBootStage("hookPhoneWindowManagerSetInitialSize setInitialDisplaySize...");
+                            getBridge().onPhoneWindowManagerSetInitialDisplaySize((Display) param.args[0]);
+                        }
+                    });
+            logOnBootStage("hookPhoneWindowManagerSetInitialSize OK:" + unHooks);
+            setStatus(unhooksToStatus(unHooks));
+        } catch (Throwable e) {
+            logOnBootStage("Fail hookPhoneWindowManagerSetInitialSize:" + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }

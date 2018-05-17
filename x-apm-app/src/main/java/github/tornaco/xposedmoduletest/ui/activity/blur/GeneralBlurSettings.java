@@ -2,7 +2,6 @@ package github.tornaco.xposedmoduletest.ui.activity.blur;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
 
@@ -38,14 +37,11 @@ public class GeneralBlurSettings extends GuardSettingsActivity {
                 blurRadiusPreference.setOnSeekCompleteListener(progress -> XAppLockManager.get().setBlurRadius(progress));
 
                 SwitchPreference blurOptPreference = (SwitchPreference) findPreference("opt_blur_cache");
-                blurOptPreference.setChecked(XAPMManager.get().isOptFeatureEnabled("opt_blur_cache"));
-                blurOptPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        boolean enable = (boolean) newValue;
-                        XAPMManager.get().setOptFeatureEnabled("opt_blur_cache", enable);
-                        return true;
-                    }
+                blurOptPreference.setChecked(XAPMManager.get().isOptFeatureEnabled(XAPMManager.OPT.OPT_BLUR_CACHE.name()));
+                blurOptPreference.setOnPreferenceChangeListener((preference, newValue) -> {
+                    boolean enable = (boolean) newValue;
+                    XAPMManager.get().setOptFeatureEnabled(XAPMManager.OPT.OPT_BLUR_CACHE.name(), enable);
+                    return true;
                 });
             } else {
                 getPreferenceScreen().setEnabled(false);

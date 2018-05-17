@@ -63,6 +63,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseBooleanArray;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -163,13 +164,13 @@ import github.tornaco.xposedmoduletest.xposed.service.pm.InstallerUtil;
 import github.tornaco.xposedmoduletest.xposed.service.pm.OriginInfoProxy;
 import github.tornaco.xposedmoduletest.xposed.service.pm.PackageInstallerManager;
 import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
+import github.tornaco.xposedmoduletest.xposed.service.policy.wm.SystemGesturesPointerEventListener;
+import github.tornaco.xposedmoduletest.xposed.service.policy.wm.SystemGesturesPointerEventListenerCallbackImpl;
 import github.tornaco.xposedmoduletest.xposed.service.power.PowerManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.provider.XAPMServerSettings;
 import github.tornaco.xposedmoduletest.xposed.service.rule.Rule;
 import github.tornaco.xposedmoduletest.xposed.service.rule.RuleParser;
 import github.tornaco.xposedmoduletest.xposed.service.shell.AshShellCommand;
-import github.tornaco.xposedmoduletest.xposed.service.wm.SystemGesturesPointerEventListener;
-import github.tornaco.xposedmoduletest.xposed.service.wm.SystemGesturesPointerEventListenerCallbackImpl;
 import github.tornaco.xposedmoduletest.xposed.submodules.InputManagerInjectInputSubModule;
 import github.tornaco.xposedmoduletest.xposed.submodules.SubModuleManager;
 import github.tornaco.xposedmoduletest.xposed.submodules.debug.TestXposedMethod;
@@ -309,6 +310,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private final Set<AshManHandler.WatcherClient> mWatcherClients = new HashSet<>();
 
     private NotificationManagerServiceProxy mNotificationService;
+    private PhoneWindowManagerProxy mPhoneWindowManagerProxy;
+    private DevicePolicyManagerServiceProxy mDevicePolicyManagerService;
 
     // Safe mode is the last clear place user can stay.
     private boolean mIsSafeMode = false;
@@ -1883,15 +1886,28 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         XposedLog.boot("mNotificationService: " + proxy);
     }
 
-    private PhoneWindowManagerProxy mPhoneWindowManagerProxy;
-
     @Override
     public void attachPhoneWindowManager(PhoneWindowManagerProxy proxy) {
         mPhoneWindowManagerProxy = proxy;
         XposedLog.boot("attachPhoneWindowManager: " + proxy);
     }
 
-    private DevicePolicyManagerServiceProxy mDevicePolicyManagerService;
+    @Override
+    public void initPhoneWindowManager(Context context, WindowManagerPolicy.WindowManagerFuncs funcs) {
+        XposedLog.boot("initPhoneWindowManager: " + context + "-" + funcs);
+        if (funcs != null) {
+            mPhoneWindowManagerProxy.setWindowManagerFuncs(funcs);
+        }
+        if (context != null) {
+            mPhoneWindowManagerProxy.setContext(context);
+        }
+    }
+
+    @Override
+    public void onPhoneWindowManagerSetInitialDisplaySize(Display display) {
+        XposedLog.boot("onPhoneWindowManagerSetInitialDisplaySize: " + display);
+        mPhoneWindowManagerProxy.enableSwipeThreeFingerGesture(isOptFeatureEnabled(XAPMManager.OPT.THREE_FINGER_GESTURE.name()));
+    }
 
     @Override
     public void attachDevicePolicyManagerService(DevicePolicyManagerServiceProxy proxy) {
@@ -3381,13 +3397,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    @Deprecated
+    // Use getInt/getBoolean instead.
     public boolean isOptFeatureEnabled(String tag) {
-        return SettingsProvider.get().getBoolean("OPT_FEATURE_" + tag, false);
+        return SettingsProvider.get().getBoolean(tag, false);
     }
 
     @Override
+    @Deprecated
     public void setOptFeatureEnabled(String tag, boolean enable) {
-        SettingsProvider.get().putBoolean("OPT_FEATURE_" + tag, enable);
+        SettingsProvider.get().putBoolean(tag, enable);
     }
 
     @Override
@@ -4577,13 +4596,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     public boolean isPackageInstallVerifyEnabled() {
         enforceCallingPermissions();
-        return isOptFeatureEnabled("package_install_verify");
+        return isOptFeatureEnabled(XAPMManager.OPT.PKG_INSTALL_VERIFY.name());
     }
 
     @Override
     public void setPackageInstallVerifyEnabled(boolean enabled) {
         enforceCallingPermissions();
-        setOptFeatureEnabled("package_install_verify", enabled);
+        setOptFeatureEnabled(XAPMManager.OPT.PKG_INSTALL_VERIFY.name(), enabled);
     }
 
     @Override
@@ -6306,7 +6325,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private void toastLazyAppTipsIfNeeded(String packageName, String solutionName) {
         // Check if tips enabled.
         ErrorCatchRunnable er = new ErrorCatchRunnable(() -> {
-            boolean optLazyTipsEnabled = isOptFeatureEnabled("LAZY_APP_TIPS");
+            boolean optLazyTipsEnabled = isOptFeatureEnabled(XAPMManager.OPT.LAZY_APP_TIPS.name());
             if (optLazyTipsEnabled) {
                 Toast.makeText(getContext(),
                         String.format("即将为 %s 停止服务。",

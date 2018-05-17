@@ -26,13 +26,13 @@ public class LazyTips extends QuickTile {
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);
-                setChecked(XAPMManager.get().isOptFeatureEnabled("LAZY_APP_TIPS"));
+                setChecked(XAPMManager.get().isOptFeatureEnabled(XAPMManager.OPT.LAZY_APP_TIPS.name()));
             }
 
             @Override
             protected void onCheckChanged(boolean checked) {
                 super.onCheckChanged(checked);
-                XAPMManager.get().setOptFeatureEnabled("LAZY_APP_TIPS", checked);
+                XAPMManager.get().setOptFeatureEnabled(XAPMManager.OPT.LAZY_APP_TIPS.name(), checked);
             }
         };
 

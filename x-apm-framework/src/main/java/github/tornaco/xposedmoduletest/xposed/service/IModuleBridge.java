@@ -8,7 +8,9 @@ import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.service.notification.StatusBarNotification;
+import android.view.Display;
 import android.view.KeyEvent;
+import android.view.WindowManagerPolicy;
 
 import github.tornaco.xposedmoduletest.xposed.service.am.AMSProxy;
 import github.tornaco.xposedmoduletest.xposed.service.am.ActiveServicesProxy;
@@ -127,6 +129,10 @@ public interface IModuleBridge {
     void attachDevicePolicyManagerService(DevicePolicyManagerServiceProxy proxy);
 
     void attachPhoneWindowManager(PhoneWindowManagerProxy proxy);
+
+    void initPhoneWindowManager(Context context, WindowManagerPolicy.WindowManagerFuncs funcs);
+
+    void onPhoneWindowManagerSetInitialDisplaySize(Display display);
 
     void attachUsageStatsService(UsageStatsServiceProxy proxy);
 

@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.xposed.service.wm;
+package github.tornaco.xposedmoduletest.xposed.service.policy.wm;
 
 /**
  * Created by guohao4 on 2018/1/17.

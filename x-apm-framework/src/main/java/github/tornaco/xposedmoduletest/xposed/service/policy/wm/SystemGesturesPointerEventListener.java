@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package github.tornaco.xposedmoduletest.xposed.service.wm;
+package github.tornaco.xposedmoduletest.xposed.service.policy.wm;
 
 import android.content.Context;
 import android.os.Handler;
