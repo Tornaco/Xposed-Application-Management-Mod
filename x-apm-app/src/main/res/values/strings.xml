@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">X-APM</string>
     <string name="app_code_name">X-APM</string>
     <string name="manage_overlay">Manage overlay</string>
@@ -16,7 +16,7 @@
     <string name="title_advance">Advance</string>
     <string name="summary_dev_mode">Activate log output, will increase power consumption. No need for non-developers</string>
     <string name="summary_take_photo">When the password is entered incorrectly, try to save a photo of the front camera. Note that the success of the save depends to some extent on the speed of the camera preview of your device and the speed of the input.</string>
-    <string name="summary_manage_overlay">我们将使用系统对话框的形式展示解锁界面，因此你必须在系统设置内打开叠加层才能使用最基本的功能。</string>
+    <string name="summary_manage_overlay">We will use the system dialog box to display the unlock interface, so you must turn on the overlay layer in the system settings to use the most basic functions.</string>
     <string name="title_basic">Basic</string>
     <string name="title_fullscreen_noter">Fullscreen verifier</string>
     <string name="title_not_available">Not available</string>
@@ -45,7 +45,7 @@
     <string name="title_ver_on_home">Re-verify when app switched</string>
     <string name="summary_always_need_verify">The default mechanism is that applications that have been previously authenticated need to be revalidated when the screen goes out and re-lit. If this option is enabled, it will need to be verified each time.</string>
     <string name="title_reboot_take_effect">Some settings need a reboot to take effect.</string>
-    <string name="title_reboot_take_effect_blur">打开和关闭需要重启设备才可以生效</string>
+    <string name="title_reboot_take_effect_blur">Turn on/off need restart your phone</string>
     <string name="title_passcode_wrong">Wrong password, try again</string>
     <string name="title_delete_success">Deleted!</string>
     <string name="title_theme">Theme</string>
@@ -57,7 +57,7 @@
     <string name="title_app_recent_blur">Recent blur</string>
     <string name="summary_app_recent_blur">Gaussian blur to the recent task card. may affects system performance.</string>
     <string name="title_default_verifyer">Default verifier</string>
-    <string name="summary_app_recent_blur_all">启用该选项全部任务都会被模糊，否则只有需要验证的任务才会</string>
+    <string name="summary_app_recent_blur_all">If turn on this option, all app will be blurred.</string>
     <string name="title_app_recent_blur_all">Blur all tasks</string>
     <string name="title_allow_third_verifier">Third party verifiers</string>
     <string name="summary_allow_third_verifier">如果启用该选项，第三方开发的密码验证器允许被使用，到时你可以选择使用某一个。\n酷安提供了几种样式的验证器可供选择。\n你也可以自己开发自定义的任何样式的验证器，具体开发文档请参考源代码</string>
@@ -67,7 +67,7 @@
     <string name="crash_module">CRASH Service</string>
     <string name="summary_crash_module">Mock crash once</string>
     <string name="title_thanks">Thanks</string>
-    <string name="summary_can_not_hook_home">无法Hook home，功能不可用</string>
+    <string name="summary_can_not_hook_home">Can not Hook home, function unavailable</string>
     <string name="title_crop_enabled">Clip to round icon</string>
     <string name="title_show_app_icon">Show app icon</string>
     <string name="verifier_settings">View settings</string>
@@ -101,7 +101,7 @@
     <string name="clear_process_complete_with_num">%1$s apps cleared，nice!</string>
     <string name="clear_process_complete">Cleared, nice!</string>
 
-    <string name="summary_app_guard">以下应用在启动时需要经过密码验证。</string>
+    <string name="summary_app_guard">The following application needs to be authenticated by password when it is started.</string>
 
     <string name="summary_boot_app">"禁止以下应用开机自动启动。\n\n提示，尽管你禁止了某些应用开机自启动，某些应用开机后仍有可能被其他应用/广播启动，如果想要禁止，请同时设置关联启动。"</string>
 
@@ -118,15 +118,15 @@
 
     <string name="app_intro_need_restart">应用更新后需要重新启动设备，否则系统可能无法正常工作。</string>
     <string name="redemption_need_restart">已经退出自救模式，重启生效。</string>
-    <string name="title_restart_android">软重启</string>
+    <string name="title_restart_android">Soft restart</string>
     <string name="title_block_viewer">启动记录</string>
     <string name="title_restrict">限制</string>
-    <string name="done">完成</string>
-    <string name="clearing_process_app">正在杀掉%1$s…</string>
+    <string name="done">Done</string>
+    <string name="clearing_process_app">Clearing %1$s…</string>
     <string name="summary_verify_on_home">该功能目前还不稳定，某些应用可能无法适用，如果发现问题请关闭该选项</string>
     <string name="summary_verify_on_screenoff">建议开启以提高安全性</string>
     <string name="title_transaction_expire">过期请求，已忽略</string>
-    <string name="title_wrong_pwd">密码错误，请重试</string>
+    <string name="title_wrong_pwd">Wrong password, try again</string>
     <string name="fail_show_internal_lockview">无法显示内部验证窗口</string>
     <string name="input_previous_password">请输入原来的密码</string>
     <string name="input_new_password">请输入新的密码</string>
@@ -135,47 +135,47 @@
     <string name="lk_delay">清理延时</string>
     <string name="block_record_summary">阻止%1$s次，允许%2$s次\n最近尝试启动于%3$s，类型%4$s，结果%5$s，原因%6$s，启动者%7$s。</string>
     <string name="title_component_editor">组件控制- %1$s</string>
-    <string name="tab_text_1">服务</string>
-    <string name="tab_text_2">广播</string>
-    <string name="tab_text_3">活动</string>
-    <string name="nf_tab_text_1">移动数据</string>
+    <string name="tab_text_1">Services</string>
+    <string name="tab_text_2">Broadcast Receuver</string>
+    <string name="tab_text_3">Activity</string>
+    <string name="nf_tab_text_1">Cellular data</string>
     <string name="nf_tab_text_2">WIFI</string>
-    <string name="summary_service_info_process"><b>进程：</b>%1$s</string>
+    <string name="summary_service_info_process"><b>Process：</b>%1$s</string>
     <string name="summary_service_info_comp">%1$s</string>
     <string name="summary_service_info_comp_maybe_ad">疑似广告</string>
     <string name="title_component_manager">我的应用</string>
     <string name="summary_component_manager">共安装%1$s个应用</string>
-    <string name="title_export_comp_settings">导出应用配置</string>
-    <string name="title_export_service_settings">导出服务配置</string>
-    <string name="title_export_broadcast_settings">导出广播配置</string>
-    <string name="title_export_activity_settings">导出活动配置</string>
-    <string name="title_import_service_settings">导入服务配置</string>
-    <string name="title_import_broadcast_settings">导入广播配置</string>
-    <string name="title_import_activity_settings">导入活动配置</string>
+    <string name="title_export_comp_settings">Export application settings</string>
+    <string name="title_export_service_settings">Export service settings</string>
+    <string name="title_export_broadcast_settings">Export broadcast settings</string>
+    <string name="title_export_activity_settings">Export activity settings</string>
+    <string name="title_import_service_settings">Import service settings</string>
+    <string name="title_import_broadcast_settings">Import broadcast settings</string>
+    <string name="title_import_activity_settings">Import activity settings</string>
     <string name="title_control">控制 · 高级功能</string>
-    <string name="title_activity_donate">捐赠</string>
+    <string name="title_activity_donate">Donate</string>
 
-    <string name="action_settings">设置</string>
-    <string name="donate_intro">开发很辛苦，占用了很多个人休息时间，请他喝杯咖啡休息下吧~ 记得留下昵称~\n已经捐赠过的朋友请不要重复捐赠，作者没有服务器为你们存储凭据:( 请大家直接勾选上面的已经捐赠按钮，非常感谢你们的支持。</string>
-    <string name="title_developer">开发者</string>
-    <string name="title_support">支持我</string>
-    <string name="title_export">导出</string>
-    <string name="title_export_success">Import successed</string>
-    <string name="title_export_or_import_fail">无法导入或导出</string>
-    <string name="title_export_fail">无法导出</string>
-    <string name="title_import_fail">导入失败</string>
-    <string name="title_import_success"></string>
-    <string name="title_copy_to_clipboard">复制到剪贴板</string>
+    <string name="action_settings">Settings</string>
+    <string name="donate_intro" tools:ignore="StringEscaping">I have spent a lot time on this project, so do you want to pay for me?\nif you already donated, don't need donate again, The service don't have record of donation :( Please turn on the donation button above, thank you very much for your support.</string>
+    <string name="title_developer">Developer</string>
+    <string name="title_support">Support me</string>
+    <string name="title_export">Export</string>
+    <string name="title_export_success">Export successed</string>
+    <string name="title_export_or_import_fail">Export or import fail</string>
+    <string name="title_export_fail">Export fail</string>
+    <string name="title_import_fail">Import fail</string>
+    <string name="title_import_success">Import success</string>
+    <string name="title_copy_to_clipboard">Copy to clipboard</string>
 
     <string name="title_pay_list">感谢人员</string>
     <string name="notification_app_auto_start_blocked">%1$s已经被阻止关联启动</string>
     <string name="title_start_block_notify">启动被首次禁止通知</string>
     <string name="summary_comp_edit">禁用或启用某个应用的某些组件，禁用的组件将无法被启动运行，你可以进入设置修改是否允许其被自己重新启用。\n\n注意，禁用其组件可能会导致该应用运行出现异常（FC）。</string>
     <string name="title_package_disabled">（已冻结）</string>
-    <string name="title_disable_app">冻结</string>
-    <string name="title_enable_app">解冻</string>
+    <string name="title_disable_app">freeze app</string>
+    <string name="title_enable_app">unfreeze app</string>
     <string name="title_comp_edit">编辑组件</string>
-    <string name="title_feedback">反馈</string>
+    <string name="title_feedback">feedback</string>
     <string name="title_unlock_vibrate_enabled">解锁成功震动</string>
     <string name="title_error_vibrate_enabled">解锁失败震动</string>
     <string name="summary_unlock_vibrate_enabled">同时会修改屏幕解锁的设置</string>
@@ -225,7 +225,7 @@
     <string name="title_pull_from_server">从服务器获取预置规则</string>
     <string name="title_comp_replacement_remote_empty">远程服务器获取到的配置为空</string>
     <string name="title_comp_replacement_remote_success">已经更新%1$s条规则</string>
-    <string name="title_control_mode">白名单模式</string>
+    <string name="title_control_mode">Whitelist mode</string>
     <string name="summary_control_mode">当前为 %1$s 模式。你可以设置针对限制部分（自启动，关联启动，锁屏清理等）的控制模式为白名单模式（允许你勾选的应用），或者黑名单模式（禁止你勾选的应用）。</string>
     <string name="summary_control_mode_b">Blacklist</string>
     <string name="summary_control_mode_w">Whitelist</string>
@@ -237,7 +237,7 @@
     <string name="title_import_comp_replacements">Import from file</string>
     <string name="title_import_fail_invalid_file">Invalid file</string>
     <string name="config_dpi">DPI</string>
-    <string name="config_font_scale">字体缩放</string>
+    <string name="config_font_scale">font scale</string>
     <string name="title_config_setting">Configuration/Manifest</string>
     <string name="title_disable_all">禁用当前页全部</string>
     <string name="title_enable_all">启用当前页全部</string>
@@ -256,13 +256,13 @@
     <string name="summary_show_focused_activity">以Toast的形式显示当前的Activity。</string>
     <string name="title_privacy">隐匿</string>
     <string name="title_doo">幸福</string>
-    <string name="title_privacy_android_id">安卓序列号</string>
+    <string name="title_privacy_android_id">Android id</string>
     <string name="pay_alipay">Alipay</string>
     <string name="pay_wechat">Wechat</string>
     <string name="summary_privacy_android_id">Android Id是一串随机字符，用来表示该Android系统的身份，在该设备第一次初始化时由系统随机生成，并存储与Secure设置里。任何应用都有可能会读取该字符该区别你的设备。</string>
     <string name="title_privacy_android_id_regenerate">随机生成</string>
     <string name="title_privacy_android_id_test">test</string>
-    <string name="title_privacy_device_id">设备序列号</string>
+    <string name="title_privacy_device_id">Device id</string>
     <string name="summary_privacy_device_id">设备序列号是</string>
     <string name="title_privacy_android_id_input">手动输入</string>
     <string name="title_privacy_line_number">Phone number</string>
@@ -287,7 +287,7 @@
     <string name="title_activity_user_giude">用户向导</string>
     <string name="message_user_giude1">这是一份不得不写的声明，请仔细阅读。\n\n1. 关于应用管理数据，为了实现开机自启动限制，我们必须把某些数据存放到系统某个目录下，我们提供了删除数据的功能，如果你介意请退出！\n\n2. 关于内存占用，应用管理本身无需后台运行，你随时可以杀死。前台运行占用部分运行内存，如果你介意请退出！\n\n3. 关于稳定性，ROM众多，可能你的设备并不兼容，会导致一些使用上的问题，如果你介意，请退出！\n\n4. 关于bug，非常感谢所有朋友的bug反馈，本人会利用闲暇时间进行维护。\n\n本程序提供的高级功能，例如组件编辑，绿化等，使用不当可能会导致应用闪退等，请使用前仔细看好说明。\n\n最后感谢支持与理解！！！</string>
     <string name="user_notice_no">与我期望的不同</string>
-    <string name="user_notice_yes">我觉得还行</string>
+    <string name="user_notice_yes">I think that is OK.</string>
     <string name="title_crash_dump">错误报告</string>
     <string name="summary_crash_dump">当某应用异常闪退时，显示一个详细的错误堆栈。</string>
     <string name="title_crash_moke">模拟崩溃</string>
@@ -296,7 +296,7 @@
     <string name="summary_app_lazy">乖巧模式下的应用在前台运行时不受限制，当应用回到后台3秒后，主动停止服务（如果期间收到了FCM/GCM消息，会保留半分钟的时间）。\n\n注意，该模式与绿化会冲突，如果你对该应用绿化了服务，那么该应用前台是依然无法启动任何服务。</string>
     <string name="title_app_lazy">乖巧模式</string>
     <string name="title_draw_vibrate">绘图过程震动</string>
-    <string name="title_keys">按键</string>
+    <string name="title_keys">keys</string>
     <string name="title_long_press_back">长按返回结束当前应用</string>
     <string name="title_app_focus_acions">应用焦点事件</string>
     <string name="title_app_focused">应用前台运行时</string>
@@ -307,12 +307,12 @@
     <string name="action_bt_off">Turn off Bluetooth</string>
     <string name="action_wifi_on">Turn on WIFI</string>
     <string name="action_wifi_off">Turn off WIFI</string>
-    <string name="action_data_on">打开移动数据</string>
-    <string name="action_data_off">关闭移动数据</string>
-    <string name="action_crash">FC（意外停止）</string>
+    <string name="action_data_on">Turn on Cellular data</string>
+    <string name="action_data_off">Turn off Cellular data</string>
+    <string name="action_crash">FC (accident stop)</string>
     <string name="title_action_exe_by_sort">将按照选中顺序执行</string>
     <string name="summary_long_press_back">如果应用重定义了长按事件则无效</string>
-    <string name="title_style">外观</string>
+    <string name="title_style">Style</string>
     <string name="theme_name_dark">深色</string>
     <string name="theme_name_def">浅色</string>
     <string name="title_theme_need_restart_app">主题设置将在下次进入应用时生效</string>
@@ -365,7 +365,7 @@
     <string name="title_privacy_policy">Privacy Policy</string>
     <string name="title_force_doze">强制进入</string>
     <string name="summary_doze_force">摆脱一些严格要求。</string>
-    <string name="theme_name_black">A屏黑</string>
+    <string name="theme_name_black">AMOLED black</string>
     <string name="title_doze_fail_generic_failure">状态改变失败</string>
     <string name="perm_apps">By App</string>
     <string name="perm_ops">By Authority</string>
@@ -427,7 +427,7 @@
     <string name="loading_res_empty">空空如也，如果是系统应用无法读取，请确保 通用设置-排除系统应用 开关已经关闭</string>
     <string name="title_app_ops_tip">Tip</string>
     <string name="message_app_ops_tip">为了尽可能降低本应用对系统的影响，权限管理设定值将不会与系统自带APPOPS服务设定值一致，当某个权限被申请时，如果在应用管理这里被拒绝，那么此次权限申请会被拒绝，如果在应用管理这里被允许，系统会继续检查OPS服务设定（4.4以上自带的默认权限管理）。当你清除本应用数据时，权限管理设定不会有遗留问题。</string>
-    <string name="title_uninstall_apm">立即卸载</string>
+    <string name="title_uninstall_apm">Uninstall</string>
     <string name="message_uninstall_apm">卸载本应用，同时帮你清除所有残留数据。</string>
     <string name="filter_all_op">All</string>
     <string name="filter_ext_op">Extend</string>
@@ -517,7 +517,7 @@
     <string name="theme_name_invert">INVERT</string>
     <string name="title_add_shortcut">创建桌面快捷方式</string>
     <string name="pay_miner">帮我挖1分钱的矿，只需几秒钟时间</string>
-    <string name="title_main_status">tatus</string>
+    <string name="title_main_status">Status</string>
     <string name="title_app_update_log">Change log</string>
     <string name="title_add_lock_shortcut">添加锁屏快捷方式</string>
     <string name="title_lock_now">立即锁屏</string>
@@ -600,16 +600,16 @@
     <string name="lock_method_pin">PIN</string>
     <string name="lock_method_pattern">PATTERN</string>
     <string name="error_notification_channel_activity_not_found">请收到任意一次通知后再进行设置</string>
-    <string name="filter_background_process">已缓存</string>
-    <string name="filter_running_process">正在运行</string>
+    <string name="filter_background_process">Background process</string>
+    <string name="filter_running_process">Running process</string>
     <string name="filter_merged_process">ALL</string>
-    <string name="title_notification">通知</string>
-    <string name="title_wakeup_on_notification_post">通知亮屏</string>
-    <string name="filter_ime_apps">输入法</string>
-    <string name="filter_gcm_apps">支持GCM</string>
-    <string name="filter_tencent_apps">腾讯类</string>
-    <string name="filter_baidu_apps">百度类</string>
-    <string name="filter_launcher_apps">启动器</string>
+    <string name="title_notification">Notification</string>
+    <string name="title_wakeup_on_notification_post">Wakeup on notification post</string>
+    <string name="filter_ime_apps">Ime apps</string>
+    <string name="filter_gcm_apps">Support GCM</string>
+    <string name="filter_tencent_apps">Tencent apps</string>
+    <string name="filter_baidu_apps">Baidu apps</string>
+    <string name="filter_launcher_apps">Launcher apps</string>
     <string name="title_app_lazy_rule">乖巧规则</string>
     <string name="summary_lazy_rules">可以控制保留某些服务。</string>
     <string name="title_app_disabled">%1$s DISABLED</string>
@@ -621,8 +621,8 @@
     <string name="summary_lazy_solution_fw">适用于（类）AOSP ROM，由注入系统框架层的应用管理核心来控制。新增或者移除应用无需重启。</string>
     <string name="title_make_lazy_rule_as_keep">生成并导入到乖巧KEEP规则</string>
     <string name="title_make_lazy_rule_as_keep_success">已经为你导入到规则，并且复制到了剪贴板:)</string>
-    <string name="report">报告</string>
-    <string name="title_lazy_solution_suggestion">建议</string>
+    <string name="report">Report</string>
+    <string name="title_lazy_solution_suggestion">Suggestion</string>
     <string name="summary_lazy_solution_suggestion">能用B就用B，不行再用A，不放心可全用，再不行请提issue。\n注意，A方案修改配置需要重启，不要简单的软重启。\n</string>
     <string name="title_lazy_toast">乖巧提醒</string>
     <string name="summary_lazy_toast">当处理某个乖巧应用时，显示Toast作为提醒。</string>
@@ -633,7 +633,7 @@
     <string name="summary_prop">XXX</string>
     <string name="title_prop_apply_apps">伪装的应用</string>
     <string name="summary_about_settings">版本、开源信息、捐赠。</string>
-    <string name="title_open_source_lisenses">开放源代码许可</string>
+    <string name="title_open_source_lisenses">Open source lisenses</string>
     <string name="title_package_install_verify">APK验证</string>
     <string name="summary_package_install_verify">当检测到某APK将要被安装时，你可以指定是否允许、拒绝、或者弹出对话框询问用户是否允许该次安装，每次对话框展示24秒，超时后默认拒绝此次安装。\n\n你需要通过规则指定允许、询问或者拒绝来自某应用/ADB的安装请求，也可以制定超时的行为。如果不指定任何规则（默认情况），所有安装将被允许。</string>
     <string name="title_app_recent_blur_opt_cache">使用缓存</string>
@@ -643,8 +643,9 @@
     <string name="title_device_status_fragment">X-APM</string>
     <string name="title_increase">+1</string>
     <string name="title_decrease">-1</string>
-    <string name="title_clear_all_fav_tile">清空</string>
-    <string name="title_three_fingers_down_screenshot">三指截图</string>
-    <string name="summary_three_fingers_down_screenshot">三指下滑截图</string>
+    <string name="title_clear_all_fav_tile">Clear all</string>
+    <string name="title_three_fingers_down_screenshot">Three-fingers screenshot</string>
+    <string name="summary_three_fingers_down_screenshot">Three fingers down to screenshot</string>
+    <string name="service_stop">Stop</string>
 
 </resources>

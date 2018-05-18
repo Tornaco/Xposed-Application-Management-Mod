@@ -16,7 +16,6 @@
     <string name="no_services" msgid="7133900764462288263">"无活动服务"</string>
     <string name="runningservicedetails_services_title" msgid="391168243725357375">"服务"</string>
     <string name="runningservicedetails_processes_title" msgid="928115582044655268">"进程"</string>
-    <string name="service_stop" msgid="6369807553277527248">"停止"</string>
     <string name="service_manage" msgid="1876642087421959194">"设置"</string>
     <string name="service_stop_description" msgid="9146619928198961643">"此服务由其应用启动。停止服务可能会导致应用无法运行。"</string>
     <string name="heavy_weight_stop_description" msgid="6050413065144035971">"无法安全地停止该应用。如果强行停止，可能会导致您目前的部分工作内容丢失。"</string>
