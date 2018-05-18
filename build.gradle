@@ -10,8 +10,10 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.0'
+        classpath 'com.android.tools.build:gradle:3.1.2'
         classpath 'org.greenrobot:greendao-gradle-plugin:3.2.2' // add plugin
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
         // classpath 'com.google.gms:google-services:3.2.0'
     }
 }
@@ -30,14 +32,20 @@ task clean(type: Delete) {
 }
 
 ext {
+    dogfoodBuild = true
+
+    versionCode = 5080
+    versionName = "MAY-5.0.8"
+
     minSdkVersion = 21
     compileSdkVersion = 26
     targetSdkVersion = 27
     buildToolsVersion = '27.0.3'
 
-    supportLibraryVersion = '27.0.2'
+    supportLibraryVersion = '27.1.1'
 
     supportAppCompat = "com.android.support:appcompat-v7:$supportLibraryVersion"
+    supportPreference = "com.android.support:preference-v14:$supportLibraryVersion"
     supportDesign = "com.android.support:design:$supportLibraryVersion"
     supportPelette = "com.android.support:palette-v7:$supportLibraryVersion"
     supportV4CoreUi = "com.android.support:support-core-ui:$supportLibraryVersion"

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tile_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="@dimen/dashboard_tile_minimum_height">
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="@dimen/dashboard_tile_image_size"
+        android:layout_height="@dimen/dashboard_tile_image_size"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="@dimen/dashboard_tile_image_margin_end"
+        android:layout_marginLeft="@dimen/dashboard_tile_image_margin_start"
+        android:layout_marginRight="@dimen/dashboard_tile_image_margin_end"
+        android:layout_marginStart="@dimen/dashboard_tile_image_margin_start"
+        android:padding="@dimen/dashboard_tile_image_padding"
+        android:scaleType="fitXY" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginBottom="@dimen/dashboard_category_bot_margin"
+        android:layout_marginEnd="@dimen/dashboard_category_title_margin_end"
+        android:layout_toEndOf="@+id/icon"
+        android:layout_toLeftOf="@+id/action_area"
+        android:layout_toRightOf="@+id/icon"
+        android:layout_toStartOf="@+id/action_area">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fadingEdge="horizontal"
+            android:text="@string/app_name"
+            android:textAppearance="@style/TextAppearance.TileTitle" />
+
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@android:id/title"
+            android:layout_alignStart="@android:id/title"
+            android:layout_below="@id/title"
+            android:ellipsize="end"
+            android:maxLines="30"
+            android:textAppearance="@style/TextAppearance.TileSubTitle" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/action_area"
+        style="@style/ActionArea"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="@dimen/dashboard_tile_image_margin_end" />
+
+    <View
+        android:id="@+id/tile_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toEndOf="@+id/icon"
+        android:layout_toRightOf="@+id/icon"
+        android:background="?android:attr/dividerVertical" />
+
+
+</RelativeLayout>

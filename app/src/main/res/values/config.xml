@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_wiki_url">https://tornaco.github.io/archivers/APM_DOC</string>
-    <string name="app_source_url">https://github.com/Tornaco/XAppGuard</string>
-    <string name="app_rel_url">https://github.com/Tornaco/X-APM/releases</string>
-    <string name="pay_list_url">https://raw.githubusercontent.com/Tornaco/Tor-Data/master/pay_list_app_guard</string>
-</resources>

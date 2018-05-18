@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="default_ash_white_list_packages">
+
+        <item>android</item>
+        <item>com.android.systemui</item>
+        <item>com.android.phone</item>
+        <item>com.android.mtp</item>
+        <item>android.ext.shared</item>
+        <item>com.android.pacprocessor</item>
+        <item>com.android.server.telecom</item>
+        <item>com.android.carrierconfig</item>
+        <item>com.android.defcontainer</item>
+        <item>com.android.mms.service</item>
+        <item>com.validation</item>
+
+        <!--providers-->
+        <item>com.android.providers.media</item>
+        <item>com.android.providers.calendar</item>
+        <item>com.android.providers.downloads</item>
+        <item>com.android.providers.downloads.ui</item>
+        <item>com.android.providers.settings</item>
+        <item>com.android.providers.telephony</item>
+        <item>com.android.providers.userdictionary</item>
+        <item>com.android.providers.phone</item>
+
+        <item>com.zui.incallui</item>
+
+        <item>github.tornaco.xposedmoduletest</item>
+        <item>de.robv.android.xposed.installer</item>
+
+    </string-array>
+
+    // These apps will not be add into white list even it is CORE(SMS/PHONE .etc) app.
+    <string-array name="ash_white_list_packages_hooks">
+        <item>com.tencent.pb</item>
+    </string-array>
+
+    <string-array name="app_lock_white_list_activity">
+        <item>com.tencent.mm/.plugin.voip.ui.VideoActivity</item>
+        <item>com.tencent.mobileqq/com.tencent.av.ui.VideoInviteFull</item>
+        <item>com.tencent.mobileqq/com.tencent.av.ui.AVActivity</item>
+        <item>com.tencent.mobileqq/com.tencent.av.ui.VideoInviteLock</item>
+        <item>com.tencent.mobileqq/.activity.QQLSActivity</item>
+
+        <!--Shortcut stub.-->
+        <item>github.tornaco.xposedmoduletest/.ui.activity.stub.LockScreenStubActivity</item>
+        <item>github.tornaco.xposedmoduletest/.ui.activity.stub.ClearStubActivity</item>
+
+        <!--PACKAGES-->
+        <item>com.tencent.mm</item>
+        <item>com.tencent.mobileqq</item>
+    </string-array>
+</resources>

@@ -1,0 +1,16 @@
+ Intent { act=android.intent.action.PACKAGE_NEEDS_VERIFICATION dat=file:///data/app/vmdl635221498.tmp
+ typ=application/vnd.android.package-archive flg=0x10000011
+ cmp=com.android.vending/com.google.android.vending.verifier.PackageVerificationReceiver (has extras) }
+ extra: Bundle[{android.content.pm.extra.VERIFICATION_INSTALLER_UID=10085, android.content.pm.extra.VERIFICATION_ID=1,
+ android.intent.extra.ORIGINATING_UID=10126, android.content.pm.extra.VERIFICATION_PACKAGE_NAME=com.coolapk.market,
+ android.content.pm.extra.VERIFICATION_INSTALL_FLAGS=18, android.content.pm.extra.VERIFICATION_VERSION_CODE=1804183,
+ android.content.pm.extra.VERIFICATION_INSTALLER_PACKAGE=com.android.packageinstaller}]
+
+ Intent { act=android.intent.action.PACKAGE_NEEDS_VERIFICATION dat=file:///data/app/vmdl635221498.tmp
+ typ=application/vnd.android.package-archive flg=0x10000011
+ cmp=com.android.vending/com.google.android.vending.verifier.PackageVerificationReceiver
+  extras={android.content.pm.extra.VERIFICATION_INSTALLER_UID=10085,
+  android.content.pm.extra.VERIFICATION_ID=1, android.intent.extra.ORIGINATING_UID=10126,
+  android.content.pm.extra.VERIFICATION_PACKAGE_NAME=com.coolapk.market,
+  android.content.pm.extra.VERIFICATION_INSTALL_FLAGS=18, android.content.pm.extra.VERIFICATION_VERSION_CODE=1804183,
+  android.content.pm.extra.VERIFICATION_INSTALLER_PACKAGE=com.android.packageinstaller} }

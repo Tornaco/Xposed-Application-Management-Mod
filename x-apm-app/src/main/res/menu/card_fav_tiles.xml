@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_clear"
+        android:title="@string/title_clear_all_fav_tile" />
+
+    <item
+        android:id="@+id/action_increase"
+        android:title="@string/title_increase" />
+
+    <item
+        android:id="@+id/action_decrease"
+        android:title="@string/title_decrease" />
+
+</menu>

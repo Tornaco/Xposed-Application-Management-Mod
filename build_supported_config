@@ -16,5 +16,8 @@ app_privacy
 app_comp_edit
 app_comp_replace
 app_doze
+app_prop
+app_package_install_verify
+app_wakelock_blocker
 play
 debug

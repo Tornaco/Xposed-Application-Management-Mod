@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="package_install_verify_dialog_allow">允许</string>
+    <string name="package_install_verify_dialog_deny">拒绝</string>
+    <string name="package_install_verify_dialog_always_allow">始终允许该应用</string>
+
+
+    <string name="package_install_verify_dialog_title">应用安装</string>
+    <string name="package_install_verify_dialog_message"><Data><![CDATA[应用管理检测到<font color="#F44336"><b> %1$s </b></font>想要安装可能来源于<font color="#F44336"><i> %2$s </i> </font>的<font color="#F44336"><b> %3$s </b></font>应用，要允许这次安装吗？]]></Data></string>
+
+    <string name="package_install_verify_timeout_notification_title">拒绝安装</string>
+    <string name="package_install_verify_timeout_notification_message">应用管理检测到 %1$s 想要安装%2$s 应用，由于你没有在给定时间内响应，该安装请求已经被拒绝。</string>
+
+    <string name="package_install_verify_deny_notification_title">拒绝安装</string>
+    <string name="package_install_verify_deny_notification_message">应用管理检测到 %1$s 想要安装%2$s 应用，该安装请求已经被拒绝。</string>
+</resources>
