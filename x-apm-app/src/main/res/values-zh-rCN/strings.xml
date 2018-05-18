@@ -639,4 +639,6 @@
     <string name="title_clear_all_fav_tile">清空</string>
     <string name="title_three_fingers_down_screenshot">三指截图</string>
     <string name="summary_three_fingers_down_screenshot">三指下滑截图</string>
+    <string name="service_stop">停止</string>
+    <string name="perm_unknown">未知</string>
 </resources>
