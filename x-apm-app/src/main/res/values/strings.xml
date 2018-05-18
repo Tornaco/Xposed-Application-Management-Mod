@@ -23,7 +23,7 @@
     <string name="title_app_ver">Version</string>
     <string name="title_about">About</string>
     <string name="summary_dump_module">Check the inject states.</string>
-    <string name="summary_test_noter">测试密码盘在本机的样式以及是否可以正确弹出</string>
+    <string name="summary_test_noter">Test code pad style and wheather correctly popped up</string>
     <string name="title_my_act_code">My activation code</string>
     <string name="title_picker">App picker</string>
     <string name="title_setup_passcode">Password settings</string>
@@ -57,10 +57,10 @@
     <string name="title_app_recent_blur">Recent blur</string>
     <string name="summary_app_recent_blur">Gaussian blur to the recent task card. may affects system performance.</string>
     <string name="title_default_verifyer">Default verifier</string>
-    <string name="summary_app_recent_blur_all">blur all tasks if turned on, otherwise blur those to be authenticated only</string>
+    <string name="summary_app_recent_blur_all">Blur all tasks if turned on, otherwise only blur those need authentication.</string>
     <string name="title_app_recent_blur_all">Blur all tasks</string>
     <string name="title_allow_third_verifier">Third party verifiers</string>
-    <string name="summary_allow_third_verifier">如果启用该选项，第三方开发的密码验证器允许被使用，到时你可以选择使用某一个。\n酷安提供了几种样式的验证器可供选择。\n你也可以自己开发自定义的任何样式的验证器，具体开发文档请参考源代码</string>
+    <string name="summary_allow_third_verifier">Third-party password validators will be allowed, you can choose one to use.\nSeveral styles of validators are available to choose from Coolapk.\nYou can also develop any custom style validators yourself. For specific development documentation, please refer to the source code.</string>
     <string name="title_verifier">Verifiers</string>
     <string name="title_ver_on_screenoff">Re-verify after screen off</string>
     <string name="title_service_not_connected_settings">Service not activated</string>
@@ -101,40 +101,39 @@
     <string name="clear_process_complete_with_num">%1$s apps cleared，nice!</string>
     <string name="clear_process_complete">Cleared, nice!</string>
 
-    <string name="summary_app_guard">The following application needs to be authenticated by password when it is started.</string>
+    <string name="summary_app_guard">The following applications need to be authenticated by password when it is started.</string>
 
-    <string name="summary_boot_app">"禁止以下应用开机自动启动。\n\n提示，尽管你禁止了某些应用开机自启动，某些应用开机后仍有可能被其他应用/广播启动，如果想要禁止，请同时设置关联启动。"</string>
+    <string name="summary_boot_app">"The following applications are blocked from running after phone booting.\n\nNote that, although certain applications are blocked from starting up while booting, they may still be started by other applications/broadcasts later. If you want to disable this, please set the auto start too."</string>
 
-    <string name="summary_lock_kill_app">"以下应用在点击立即清理，或者锁屏后会被强行停止。为了提升用户体验，锁屏清理过程中，任何和设备交互的行为都会中断清理过程。\n\n注意，为了防止错过重要通知，默认情况下在对选中应用进行清理时，会跳过有通知消息的应用，你可以到通用设置中更改此项设定。"\n\n为什么有的应用锁屏没有被清理？请检查是否开启了保护通知应用设置，或者是否开启了保护具有音频焦点应用的设置。</string>
+    <string name="summary_lock_kill_app">"The following applications will be forced to stop when they are clicked to clear immediately or after the screen is locked. To enhance the user experience, any interaction with the device during the lock screen cleanup process interrupts the cleanup process.\n\nNote that in order to prevent missing important notifications, applications that have notification messages are skipped by default when clearing the selected application. You can change this setting in the General Settings."\n\nWhy are some application lock screens not cleaned? Please check if the protection notification application setting is turned on or if the setting to protect an application with audio focus is turned on.</string>
 
-    <string name="summary_rf_kill_app">"以下应用在按返回键退出后会被强行停止。"</string>
+    <string name="summary_rf_kill_app">"The following applications will be forcibly stopped after quited via the back button."</string>
 
-    <string name="summary_tr_kill_app">"以下应用在从最近任务划掉后会被强行停止。"</string>
+    <string name="summary_tr_kill_app">"The following applications will be forcibly stopped after removed from the recent tasks."</string>
 
-    <string name="summary_start_app">"禁止以下应用被其他应用（通过服务或者广播）启动（微信和支付宝建议不要加入，否则可能无法发起付款，输入法建议也不要禁止，否则无法唤起输入）。"</string>
+    <string name="summary_start_app">"The following applications are prohibited from being launched by other applications (via service or broadcast). (WeChat and Alipay are not recommended to add, otherwise you may fail initiating a payment; neither the input method app, otherwise it may not be able to evoke the input)."</string>
 
-    <string name="app_intro">1. 你需要在 Xposed installer 中激活 应用管理 模块，并且重启才可以使用下面的功能。
-        Xposed installer 需要接收广播，以获取模块更新通知，如果无法激活请确保你没有对 Xposed installer 做任何限制处理，并且可以尝试重新勾选，重启。</string>
+    <string name="app_intro">1. You need to activate the X-APM module in the Xposed installer and reboot phone to use the following features.\nThe Xposed installer needs to receive broadcasts to get module update notifications. If it doesn't, make sure you don't have any restrictions on the Xposed installer , and try to recheck the module and reboot.</string>
 
-    <string name="app_intro_need_restart">应用更新后需要重新启动设备，否则系统可能无法正常工作。</string>
-    <string name="redemption_need_restart">已经退出自救模式，重启生效。</string>
+    <string name="app_intro_need_restart">After X-APM module is updated, you need to restart the device. Otherwise, system may not work properly.</string>
+    <string name="redemption_need_restart">Redemption mode has been exited and the restart takes effect.</string>
     <string name="title_restart_android">Soft restart</string>
-    <string name="title_block_viewer">启动记录</string>
-    <string name="title_restrict">限制</string>
+    <string name="title_block_viewer">Block record</string>
+    <string name="title_restrict">Restrict</string>
     <string name="done">Done</string>
     <string name="clearing_process_app">Clearing %1$s…</string>
-    <string name="summary_verify_on_home">该功能目前还不稳定，某些应用可能无法适用，如果发现问题请关闭该选项</string>
-    <string name="summary_verify_on_screenoff">I suggest that turn on this to raise safety</string>
-    <string name="title_transaction_expire">过期请求，已忽略</string>
+    <string name="summary_verify_on_home">This function is currently unstable, some applications may not be applicable, if you find a problem please turn off this option.</string>
+    <string name="summary_verify_on_screenoff">Recommended to turn on for security</string>
+    <string name="title_transaction_expire">Expired transaction ignored</string>
     <string name="title_wrong_pwd">Wrong password, try again</string>
-    <string name="fail_show_internal_lockview">无法显示内部验证窗口</string>
+    <string name="fail_show_internal_lockview">Unable to show internal verification window</string>
     <string name="input_previous_password">Please input previous password</string>
     <string name="input_new_password">Please input new password</string>
-    <string name="app_lock_need_unlock">需要验证密码以继续</string>
+    <string name="app_lock_need_unlock">Verify password to continue</string>
     <string name="title_general_settings">General settings</string>
     <string name="lk_delay">清理延时</string>
-    <string name="block_record_summary">阻止%1$s次，允许%2$s次\n最近尝试启动于%3$s，类型%4$s，结果%5$s，原因%6$s，启动者%7$s。</string>
-    <string name="title_component_editor">组件控制- %1$s</string>
+    <string name="block_record_summary">Blocked %1$s times. Permitted %2$s times.\nRecently start attempt at %3$s, type %4$s, result %5$s, reason %6$s, launched by %7$s.</string>
+    <string name="title_component_editor">Component editor- %1$s</string>
     <string name="tab_text_1">Services</string>
     <string name="tab_text_2">Broadcast Receuver</string>
     <string name="tab_text_3">Activity</string>
@@ -142,9 +141,9 @@
     <string name="nf_tab_text_2">WIFI</string>
     <string name="summary_service_info_process"><b>Process：</b>%1$s</string>
     <string name="summary_service_info_comp">%1$s</string>
-    <string name="summary_service_info_comp_maybe_ad">疑似广告</string>
-    <string name="title_component_manager">我的应用</string>
-    <string name="summary_component_manager">共安装%1$s个应用</string>
+    <string name="summary_service_info_comp_maybe_ad">Suspected advertisement</string>
+    <string name="title_component_manager">Applications</string>
+    <string name="summary_component_manager">%1$s application installed</string>
     <string name="title_export_comp_settings">Export application settings</string>
     <string name="title_export_service_settings">Export service settings</string>
     <string name="title_export_broadcast_settings">Export broadcast settings</string>
@@ -152,7 +151,7 @@
     <string name="title_import_service_settings">Import service settings</string>
     <string name="title_import_broadcast_settings">Import broadcast settings</string>
     <string name="title_import_activity_settings">Import activity settings</string>
-    <string name="title_control">控制 · 高级功能</string>
+    <string name="title_control">Control and advanced </string>
     <string name="title_activity_donate">Donate</string>
 
     <string name="action_settings">Settings</string>
@@ -167,29 +166,29 @@
     <string name="title_import_success">Import success</string>
     <string name="title_copy_to_clipboard">Copy to clipboard</string>
 
-    <string name="title_pay_list">感谢人员</string>
-    <string name="notification_app_auto_start_blocked">%1$s已经被阻止关联启动</string>
-    <string name="title_start_block_notify">启动被首次禁止通知</string>
-    <string name="summary_comp_edit">禁用或启用某个应用的某些组件，禁用的组件将无法被启动运行，你可以进入设置修改是否允许其被自己重新启用。\n\n注意，禁用其组件可能会导致该应用运行出现异常（FC）。</string>
-    <string name="title_package_disabled">（freezed）</string>
-    <string name="title_disable_app">freeze app</string>
-    <string name="title_enable_app">unfreeze app</string>
-    <string name="title_comp_edit">编辑组件</string>
-    <string name="title_feedback">feedback</string>
-    <string name="title_unlock_vibrate_enabled">解锁成功震动</string>
-    <string name="title_error_vibrate_enabled">解锁失败震动</string>
-    <string name="summary_unlock_vibrate_enabled">同时会修改屏幕解锁的设置</string>
-    <string name="summary_error_vibrate_enabled">同时会修改屏幕解锁的设置</string>
-    <string name="title_component_block">阻止应用启用组件</string>
-    <string name="summary_component_block">某些应用会主动启用自己已经被禁用的组件，勾选后可以阻止该行为</string>
-    <string name="title_app_recent_blur_radius">模糊半径</string>
-    <string name="summary_app_recent_blur_radius">加大模糊算法半径参数可以降低资源消耗，减少算法处理时间，但是会造成生成的图像变更加模糊</string>
+    <string name="title_pay_list">Donation list</string>
+    <string name="notification_app_auto_start_blocked">%1$s auto start blocked</string>
+    <string name="title_start_block_notify">Notification blocked after start</string>
+    <string name="summary_comp_edit">Disable or enable components of a application, components disabled will not be launched, you can modify whether to allow it to reactivate itself in settings.\n\nNote that disabling its components may cause the application to run abnormally (FC).</string>
+    <string name="title_package_disabled">(Disabled)</string>
+    <string name="title_disable_app">Disable application</string>
+    <string name="title_enable_app">Enable application</string>
+    <string name="title_comp_edit">Edit component</string>
+    <string name="title_feedback">Feedback</string>
+    <string name="title_unlock_vibrate_enabled">Vibrate when success to unlock</string>
+    <string name="title_error_vibrate_enabled">Vibrate when fail to unlock</string>
+    <string name="summary_unlock_vibrate_enabled">Will change screen unlocking settings at the same time</string>
+    <string name="summary_error_vibrate_enabled">Will change screen unlocking settings at the same time</string>
+    <string name="title_component_block">Block application from reactivating components</string>
+    <string name="summary_component_block">Some apps will automatically re-enable their own disabled components. Turn this option on to block this behavior.</string>
+    <string name="title_app_recent_blur_radius">Blur radius</string>
+    <string name="summary_app_recent_blur_radius">Increasing the radius parameter of the blur algorithm can reduce its processing time and resource cost, but will cause the generated image to become more blurred too.</string>
     <string name="title_system_app">System App</string>
     <string name="message_saving_changes">Applying</string>
     <string name="title_common_settings">Global Settings</string>
-    <string name="title_app_settings">限制设置</string>
-    <string name="title_white_system_app">排除系统应用</string>
-    <string name="summary_white_system_app">不对任何的系统应用做任何处理。各个列表不显示任何系统应用。</string>
+    <string name="title_app_settings">Restrict settings</string>
+    <string name="title_white_system_app">Whitelist system apps</string>
+    <string name="summary_white_system_app">Do nothing to system applications. Each list does not show any system applications.</string>
     <string name="title_app_dev_say">内功心法</string>
     <string name="title_app_black_list">很重要的通知</string>
     <string name="message_app_black_list">新用户请绕过。\n\n由于各个亲爱的用户的反馈中，有很多是因为应用被误杀，造成一些使用问题，因此，从这个版本起，我们的 [限制] 部分由之前的白名单模式改为了黑名单模式，你可能需要前往下面的各项设置重新进行配置。</string>
