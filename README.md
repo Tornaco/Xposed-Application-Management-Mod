@@ -1,6 +1,14 @@
-## Play版下载
+## 简介
+利用Xposed框架实现的类似于手机管家的Android系统工具。
+
+## 截图
+![flow1](art/INTRODUCE_SIMPLE.jpg)
+
+## Rleases
 
 <a href="https://play.google.com/store/apps/details?id=github.tornaco.xposedmoduletest"><img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" height="48"></a>
+
+<a href="https://www.coolapk.com/apk/github.tornaco.xposedmoduletest"><img src="http://image.coolapk.com/apk_logo/2018/0116/ic_launcher-4599-o_1c3v0ii87s26r0benla7q118eq-uid-97100@192x192.png" height="48"></a>
 
 ## 开发与交流
 
@@ -13,6 +21,7 @@
 ## 编译状态
 
 [![Build Status](https://travis-ci.org/Tornaco/X-APM.svg?branch=master)](https://travis-ci.org/Tornaco/X-APM)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a78b1d40f139418e9c6ce070986ca7e2)](https://www.codacy.com/app/Tornaco/X-APM?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Tornaco/X-APM&amp;utm_campaign=Badge_Grade)
 
 ## 已知问题
 1. 8.x通知权限。
