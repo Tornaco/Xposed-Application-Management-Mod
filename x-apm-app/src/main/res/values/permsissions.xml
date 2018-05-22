@@ -2,5 +2,5 @@
 <resources>
     <string name="perm_read_contacts">读取联系人</string>
     <string name="perm_write_contacts">写入联系人</string>
-    <string name="perm_unknown">未知</string>
+    <string name="perm_unknown">Unknow</string>
 </resources>
