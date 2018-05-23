@@ -1,7 +1,9 @@
 package github.tornaco.xposedmoduletest.ui.activity.trk;
 
+import android.content.Intent;
 import android.support.v7.widget.SwitchCompat;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
@@ -19,6 +21,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.TRKillPackageLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
+import github.tornaco.xposedmoduletest.ui.activity.lk.LKSettingsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
@@ -92,7 +95,7 @@ public class TRKillAppNavActivity extends CommonPackageInfoListActivity
 
     @Override
     protected CommonPackageInfoAdapter onCreateAdapter() {
-        return new CommonPackageInfoAdapter(this){
+        return new CommonPackageInfoAdapter(this) {
             @Override
             protected void onItemClickNoneChoiceMode(CommonPackageInfo commonPackageInfo, View view) {
                 super.onItemClickNoneChoiceMode(commonPackageInfo, view);
@@ -113,7 +116,15 @@ public class TRKillAppNavActivity extends CommonPackageInfoListActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.rf_kill, menu);
+        getMenuInflater().inflate(R.menu.tr_kill, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_settings) {
+            startActivity(new Intent(this, TRKSettingsDashboardActivity.class));
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

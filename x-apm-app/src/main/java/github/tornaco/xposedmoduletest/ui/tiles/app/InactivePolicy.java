@@ -13,9 +13,9 @@ import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
  * Email: Tornaco@163.com
  */
 
-public class InactiveInsteadOfKillApp extends QuickTile {
+public class InactivePolicy extends QuickTile {
 
-    public InactiveInsteadOfKillApp(final Context context) {
+    public InactivePolicy(final Context context, String module) {
         super(context);
 
         this.titleRes = R.string.title_inactive_instead_of_kill;
@@ -31,16 +31,16 @@ public class InactiveInsteadOfKillApp extends QuickTile {
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);
-                setChecked(XAPMManager.get().isServiceAvailable() &&
-                        XAPMManager.get().isInactiveAppInsteadOfKillPreferred());
+                boolean isIdlePolicy = XAPMManager.get().getAppInactivePolicyForModule(module)
+                        == XAPMManager.AppInactivePolicy.IDLE;
+                setChecked(isIdlePolicy);
             }
 
             @Override
             protected void onCheckChanged(boolean checked) {
                 super.onCheckChanged(checked);
-                if (XAPMManager.get().isServiceAvailable()) {
-                    XAPMManager.get().setInactiveAppInsteadOfKillPreferred(checked);
-                }
+                int policy = checked ? XAPMManager.AppInactivePolicy.IDLE : XAPMManager.AppInactivePolicy.FORCE_STOP;
+                XAPMManager.get().setAppInactivePolicyForModule(module, policy);
             }
         };
     }

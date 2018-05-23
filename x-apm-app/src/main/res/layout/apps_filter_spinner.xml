@@ -36,7 +36,7 @@
         android:theme="@style/SpinnerStyle" />
 
     <ImageView
-        android:id="@+id/filter_se"
+        android:id="@+id/filter_actions"
         style="?android:attr/borderlessButtonStyle"
         android:layout_width="56dp"
         android:layout_height="56dp"

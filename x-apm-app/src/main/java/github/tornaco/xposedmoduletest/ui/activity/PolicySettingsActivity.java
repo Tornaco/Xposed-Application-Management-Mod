@@ -14,7 +14,6 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.AppCustomDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlack;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlackNotification;
-import github.tornaco.xposedmoduletest.ui.tiles.app.InactiveInsteadOfKillApp;
 import github.tornaco.xposedmoduletest.ui.tiles.app.PowerSave;
 import github.tornaco.xposedmoduletest.ui.tiles.app.WhiteSystemApp;
 
@@ -65,7 +64,6 @@ public class PolicySettingsActivity extends BaseActivity {
             policy.addTile(new WhiteSystemApp(getActivity()));
             policy.addTile(new AutoBlack(getActivity()));
             policy.addTile(new AutoBlackNotification(getActivity()));
-            policy.addTile(new InactiveInsteadOfKillApp(getActivity()));
 
             categories.add(system);
             categories.add(policy);

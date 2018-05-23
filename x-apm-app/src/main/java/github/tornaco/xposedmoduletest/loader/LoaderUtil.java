@@ -43,10 +43,10 @@ public class LoaderUtil {
         String key = constructKeyForPackageAndFlags(pkg, flag);
         CommonPackageInfo cached = LoaderCache.getInstance().get(key);
         if (cached != null) {
-            Logger.i("Using cache package info.");
             // Reset selection state.
             CommonPackageInfo dup = CommonPackageInfo.duplicate(cached);
             dup.setChecked(false);
+            dup.setAppIdle(XAPMManager.get().isAppInactive(pkg, UserHandle.USER_CURRENT));
             // Force read GCM state.
             dup.setGCMSupport(XAPMManager.get().isServiceAvailable() && XAPMManager.get().isGCMSupportPackage(pkg));
             inflateEnableState(dup);
@@ -87,7 +87,7 @@ public class LoaderUtil {
             Logger.i("FLAG_INCLUDE_BAIDU_INFO");
         }
 
-        if ((flag & FLAG_INCLUDE_APP_IDLE_INFO) != 0) {
+        if (true) {
             p.setAppIdle(XAPMManager.get().isAppInactive(pkg, UserHandle.USER_CURRENT));
             Logger.i("FLAG_INCLUDE_APP_IDLE_INFO");
         }

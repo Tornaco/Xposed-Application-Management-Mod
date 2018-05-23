@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.ui.activity.doze;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.view.View;
 
@@ -57,7 +58,7 @@ public class DozeEventHistoryViewerActivity extends CommonPackageInfoListPickerA
             }
 
             @Override
-            public void onBindViewHolder(CommonViewHolder holder, int position) {
+            public void onBindViewHolder(@NonNull CommonViewHolder holder, int position) {
                 super.onBindViewHolder(holder, position);
 
                 final CommonPackageInfo packageInfo = getCommonPackageInfos().get(position);

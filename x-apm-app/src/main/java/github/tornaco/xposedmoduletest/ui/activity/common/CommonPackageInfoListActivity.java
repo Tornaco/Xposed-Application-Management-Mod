@@ -229,8 +229,8 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
 
             showFilterSpinnerIntro(spinner);
 
-            // Setup sort.
-            View sortView = filterContainer.findViewById(R.id.filter_se);
+            // Setup action.
+            View sortView = filterContainer.findViewById(R.id.filter_actions);
             if (enableSortSelection()) {
                 sortView.setOnClickListener(v -> selectSortOption());
             } else {

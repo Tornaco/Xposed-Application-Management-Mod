@@ -270,7 +270,7 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
                         }
 
                         @Override
-                        public void onBindViewHolder(CommonViewHolder holder, int position) {
+                        public void onBindViewHolder(@NonNull CommonViewHolder holder, int position) {
                             super.onBindViewHolder(holder, position);
 
                             final CommonPackageInfo packageInfo = getCommonPackageInfos().get(position);

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -99,7 +100,7 @@ public class OpLogViewerActivity extends CommonPackageInfoListActivity {
 
             @SuppressLint("SetTextI18n")
             @Override
-            public void onBindViewHolder(CommonViewHolder holder, int position) {
+            public void onBindViewHolder(@NonNull CommonViewHolder holder, int position) {
                 super.onBindViewHolder(holder, position);
                 final CommonPackageInfo packageInfo = getCommonPackageInfos().get(position);
                 OpLog log = (OpLog) packageInfo.getArgs();
