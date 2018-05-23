@@ -310,7 +310,7 @@
     <string name="action_data_off">Turn off Cellular data</string>
     <string name="action_crash">FC (accident stop)</string>
     <string name="title_action_exe_by_sort">将按照选中顺序执行</string>
-    <string name="summary_long_press_back">如果应用重定义了长按事件则无效</string>
+    <string name="summary_long_press_back">如果应用重定义了长按事件则无效。</string>
     <string name="title_style">Style</string>
     <string name="theme_name_dark">深色</string>
     <string name="theme_name_def">浅色</string>
@@ -645,9 +645,11 @@
     <string name="title_decrease">-1</string>
     <string name="title_clear_all_fav_tile">Clear all</string>
     <string name="title_three_fingers_down_screenshot">Three-fingers screenshot</string>
-    <string name="summary_three_fingers_down_screenshot">Three fingers down to screenshot</string>
+    <string name="summary_three_fingers_down_screenshot">Three fingers down to screenshot.</string>
     <string name="service_stop">Stop</string>
     <string name="package_install_verify_dialog_allow">Allow</string>
     <string name="title_app_state_idle">IDLE</string>
+    <string name="title_p_gesture">全面屏手势</string>
+    <string name="summary_p_gesture">仅供娱乐和测试。</string>
 
 </resources>

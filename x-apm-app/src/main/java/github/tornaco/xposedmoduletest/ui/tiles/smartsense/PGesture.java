@@ -13,26 +13,26 @@ import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
  * Email: Tornaco@163.com
  */
 
-public class LongPressBackKey extends QuickTile {
+public class PGesture extends QuickTile {
 
-    public LongPressBackKey(final Context context) {
+    public PGesture(final Context context) {
         super(context);
-        this.titleRes = R.string.title_long_press_back;
-        this.summaryRes = R.string.summary_long_press_back;
-        this.iconRes = R.drawable.ic_arrow_back_black_24dp;
+        this.titleRes = R.string.title_p_gesture;
+        this.summaryRes = R.string.summary_p_gesture;
+        this.iconRes = R.drawable.ic_touch_app_black_24dp;
         this.tileView = new SwitchTileView(context) {
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);
                 setChecked(XAPMManager.get().isServiceAvailable()
-                        && XAPMManager.get().isLPBKEnabled());
+                        && XAPMManager.get().isOptFeatureEnabled(XAPMManager.OPT.P_GESTURE.name()));
             }
 
             @Override
             protected void onCheckChanged(boolean checked) {
                 super.onCheckChanged(checked);
                 if (XAPMManager.get().isServiceAvailable()) {
-                    XAPMManager.get().setLPBKEnabled(checked);
+                    XAPMManager.get().setOptFeatureEnabled(XAPMManager.OPT.P_GESTURE.name(), checked);
                 }
             }
         };

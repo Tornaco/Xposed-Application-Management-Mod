@@ -1,11 +1,13 @@
 package github.tornaco.xposedmoduletest.ui.activity.test;
 
+import android.app.usage.IUsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.os.UserHandle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -80,5 +82,13 @@ public class TestAIOActivity extends BaseActivity {
         Logger.d("makeTileByKey: " + tile);
 
         AppSettings.getRecentTiles(this);
+
+        try {
+            IUsageStatsManager.Stub.asInterface(ServiceManager
+                    .getService(Context.USAGE_STATS_SERVICE))
+                    .setAppInactive(BuildConfig.APPLICATION_ID, true, UserHandle.getCallingUserId());
+        } catch (RemoteException e) {
+            e.rethrowAsRuntimeException();
+        }
     }
 }

@@ -68,6 +68,7 @@ public class XAPMManager {
         TOAST_ICON,
         FOREGROUND_NOTIFICATION,
         THREE_FINGER_GESTURE,
+        P_GESTURE,
         LAZY_APP_TIPS,
         PKG_INSTALL_VERIFY,
         OPT_BLUR_CACHE

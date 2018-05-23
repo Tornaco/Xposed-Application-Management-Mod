@@ -310,7 +310,7 @@
     <string name="action_crash">FC（意外停止）</string>
     <string name="title_goto_system_settings">转到系统设置</string>
     <string name="title_action_exe_by_sort">将按照选中顺序执行</string>
-    <string name="summary_long_press_back">如果应用重定义了长按事件则无效</string>
+    <string name="summary_long_press_back">如果应用重定义了长按事件则无效。</string>
     <string name="title_style">外观</string>
     <string name="title_copyed">已复制</string>
     <string name="theme_name_dark">深色</string>
@@ -639,11 +639,12 @@
     <string name="title_decrease">-1</string>
     <string name="title_clear_all_fav_tile">清空</string>
     <string name="title_three_fingers_down_screenshot">三指截图</string>
-    <string name="summary_three_fingers_down_screenshot">三指下滑截图</string>
+    <string name="summary_three_fingers_down_screenshot">三指下滑截图。</string>
     <string name="service_stop">停止</string>
     <string name="perm_unknown">未知</string>
     <string name="package_install_verify_dialog_allow">允许</string>
     <string name="package_install_verify_dialog_deny">拒绝</string>
     <string name="package_install_verify_dialog_always_allow">始终允许该应用</string>
     <string name="title_app_state_idle">休眠中</string>
+    <string name="title_p_gesture">全面屏手势</string>
 </resources>
