@@ -502,4 +502,8 @@ interface IAshmanService {
 
     // Package manage.
     void forceStopPackage(String packageName);
+
+    // Inactive policy.
+    void setAppInactivePolicyForModule(String module, int policy);
+    int getAppInactivePolicyForModule(String module);
 }

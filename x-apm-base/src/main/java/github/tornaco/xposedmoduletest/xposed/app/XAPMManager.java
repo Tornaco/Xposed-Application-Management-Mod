@@ -84,6 +84,11 @@ public class XAPMManager {
         int UNKNOWN = -1;
     }
 
+    public interface AppInactivePolicy {
+        int IDLE = 0x1;
+        int FORCE_STOP = 0x2;
+    }
+
     public interface AppLevel {
         int THIRD_PARTY = 0;
         int SYSTEM = 1;
@@ -2351,6 +2356,24 @@ public class XAPMManager {
             mService.forceStopPackage(packageName);
         } catch (Exception e) {
 
+        }
+    }
+
+    public void setAppInactivePolicyForModule(String module, int policy) {
+        ensureService();
+        try {
+            mService.setAppInactivePolicyForModule(module, policy);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public int getAppInactivePolicyForModule(String module) {
+        ensureService();
+        try {
+            return mService.getAppInactivePolicyForModule(module);
+        } catch (Exception e) {
+            return AppInactivePolicy.FORCE_STOP;
         }
     }
 }

@@ -1,7 +1,9 @@
 package github.tornaco.xposedmoduletest.ui.activity.rf;
 
+import android.content.Intent;
 import android.support.v7.widget.SwitchCompat;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
@@ -14,7 +16,6 @@ import org.newstand.logger.Logger;
 import java.util.List;
 
 import github.tornaco.android.common.Collections;
-import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.RFKillPackageLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
@@ -62,13 +63,10 @@ public class RFKillAppNavActivity extends CommonPackageInfoListActivity
     @Override
     protected void onRequestClearItemsInBackground() {
         Collections.consumeRemaining(getCommonPackageInfoAdapter().getCommonPackageInfos(),
-                new Consumer<CommonPackageInfo>() {
-                    @Override
-                    public void accept(CommonPackageInfo commonPackageInfo) {
-                        if (commonPackageInfo.isChecked()) {
-                            XAPMManager.get().addOrRemoveRFKApps(new String[]{commonPackageInfo.getPkgName()},
-                                    XAPMManager.Op.REMOVE);
-                        }
+                commonPackageInfo -> {
+                    if (commonPackageInfo.isChecked()) {
+                        XAPMManager.get().addOrRemoveRFKApps(new String[]{commonPackageInfo.getPkgName()},
+                                XAPMManager.Op.REMOVE);
                     }
                 });
     }
@@ -92,7 +90,7 @@ public class RFKillAppNavActivity extends CommonPackageInfoListActivity
 
     @Override
     protected CommonPackageInfoAdapter onCreateAdapter() {
-        return new CommonPackageInfoAdapter(this){
+        return new CommonPackageInfoAdapter(this) {
             @Override
             protected void onItemClickNoneChoiceMode(CommonPackageInfo commonPackageInfo, View view) {
                 super.onItemClickNoneChoiceMode(commonPackageInfo, view);
@@ -115,5 +113,13 @@ public class RFKillAppNavActivity extends CommonPackageInfoListActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.rf_kill, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_settings) {
+            startActivity(new Intent(this, RFKSettingsDashboardActivity.class));
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

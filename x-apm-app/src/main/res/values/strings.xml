@@ -95,7 +95,7 @@
     <string name="title_app_auto_start">Start blocker</string>
     <string name="title_clearn">Boost</string>
     <string name="title_app_mem_boost">Memory cleaner</string>
-    <string name="title_app_rf_kill">Back kill</string>
+    <string name="title_app_rf_kill">Back clean</string>
     <string name="clear_process">Clear memory</string>
     <string name="clear_process_now">Clear now</string>
     <string name="clear_process_complete_with_num">%1$s apps cleared，nice!</string>
@@ -347,7 +347,7 @@
     <string name="title_do_not_kill_sbn_app">保护有通知的应用</string>
     <string name="summary_do_not_kill_sbn_app">不对有通知消息的应用进行锁屏清理。</string>
     <string name="summary_do_not_kill_sbn_app_lazy">不对有通知消息的应用进行处理。</string>
-    <string name="title_app_tr_kill">划卡强退</string>
+    <string name="title_app_tr_kill">划卡清理</string>
     <string name="summary_verify_on_task_removed">当应用从最近任务卡片中划掉时，该应用下次启动需要重新验证。</string>
     <string name="title_ver_on_task_removed">后台卡片划掉重新验证</string>
     <string name="title_doze_history_summary">失败原因 %1$s\n最后尝试进入打盹时设备状态为 %2$s</string>
@@ -548,8 +548,8 @@
     <string name="suggestion_donate">喜欢的话来一次捐赠吧</string>
     <string name="suggestion_summary_donate">支持开发者更加努力的进行改进，解锁更多功能%s。</string>
     <string name="suggestion_action_donate">我要捐赠</string>
-    <string name="title_inactive_instead_of_kill">休眠代替强行停止（实验）</string>
-    <string name="summary_inactive_instead_of_kill">清理应用时使用休眠API而不是强行停止API。</string>
+    <string name="title_inactive_instead_of_kill">休眠代替强行停止</string>
+    <string name="summary_inactive_instead_of_kill">清理应用时使用休眠API（App standby）而不是强行停止API。</string>
     <string name="title_policy">策略</string>
     <string name="title_system_dead_moke">模拟系统级别崩溃</string>
     <string name="summary_system_dead_moke">系统将在5秒内模拟依次崩溃，会导致设备重启。</string>

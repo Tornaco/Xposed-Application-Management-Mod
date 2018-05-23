@@ -166,7 +166,6 @@ import github.tornaco.xposedmoduletest.xposed.service.pm.OriginInfoProxy;
 import github.tornaco.xposedmoduletest.xposed.service.pm.PackageInstallerManager;
 import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.policy.wm.SystemGesturesPointerEventListener;
-import github.tornaco.xposedmoduletest.xposed.service.policy.wm.SystemGesturesPointerEventListenerCallbackImpl;
 import github.tornaco.xposedmoduletest.xposed.service.power.PowerManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.provider.XAPMServerSettings;
 import github.tornaco.xposedmoduletest.xposed.service.rule.Rule;
@@ -3567,6 +3566,31 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    @BinderCall
+    public void setAppInactivePolicyForModule(String module, int policy) {
+        enforceCallingPermissions();
+        if (policy != XAPMManager.AppInactivePolicy.FORCE_STOP && policy != XAPMManager.AppInactivePolicy.IDLE) {
+            policy = XAPMManager.AppInactivePolicy.FORCE_STOP;
+        }
+        SettingsProvider.get().putInt("APP_INACTIVE_POLICY_" + module, policy);
+    }
+
+    @Override
+    @BinderCall
+    public int getAppInactivePolicyForModule(String module) {
+        enforceCallingPermissions();
+        if (module == null || !HAS_STATS_MANAGER) {
+            return XAPMManager.AppInactivePolicy.FORCE_STOP;
+        }
+        int policy = SettingsProvider.get().getInt("APP_INACTIVE_POLICY_" + module, XAPMManager.AppInactivePolicy.FORCE_STOP);
+        if (policy != XAPMManager.AppInactivePolicy.FORCE_STOP && policy != XAPMManager.AppInactivePolicy.IDLE) {
+            policy = XAPMManager.AppInactivePolicy.FORCE_STOP;
+            setAppInactivePolicyForModule(module, XAPMManager.AppInactivePolicy.FORCE_STOP);
+        }
+        return policy;
+    }
+
+    @Override
     @InternalCall
     public boolean checkInstallApk(Object argsFrom) {
         return !isSystemReady() || checkInstallApkInternal(argsFrom);
@@ -4504,7 +4528,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         XposedLog.verbose("forceIdlePackages: " + Arrays.toString(packages));
         wrapCallingIdetUnCaught(new ErrorCatchRunnable(() -> {
             for (String p : packages) {
-                getAppIdler().setAppIdle(p);
+                getAppIdler(null).setAppIdle(p);
             }
         }, "forceStopPackages"));
     }
@@ -5526,7 +5550,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 final String finalPkgOfThisTask = pkgOfThisTask;
                 mLazyHandler.postDelayed(new ErrorCatchRunnable(() -> {
                     XposedLog.verbose("removeTask, killing: " + finalPkgOfThisTask);
-                    getAppIdler().setAppIdle(finalPkgOfThisTask);
+                    getAppIdler(XAppBuildVar.APP_TRK).setAppIdle(finalPkgOfThisTask);
                 }, "removeTask-kill"), 888); // FIXME why 888?
             }
         }
@@ -6942,15 +6966,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         if (getContext() != null) {
             mKillIdler = new KillAppIdler(getContext(), mOnAppIdleListener);
         }
-
-        // Under test.
-        if (false)
-            mSystemGesturesPointerEventListener = new SystemGesturesPointerEventListener(getContext(),
-                    new SystemGesturesPointerEventListenerCallbackImpl(getContext()));
     }
 
-    private AppIdler getAppIdler() {
-        AppIdler idler = getAppIdlerInternal();
+    private AppIdler getAppIdler(String module) {
+        AppIdler idler = getAppIdlerInternal(module);
         if (BuildConfig.DEBUG) {
             XposedLog.verbose("getAppIdler: " + idler);
         }
@@ -6961,13 +6980,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             Build.VERSION.SDK_INT
                     >= Build.VERSION_CODES.LOLLIPOP_MR1;
 
-    private AppIdler getAppIdlerInternal() {
+    private AppIdler getAppIdlerInternal(String module) {
         if (mKillIdler == null && mInactiveIdler == null) {
             return mDummyIdler;
         }
         // Safe check before usage.
-        return (HAS_STATS_MANAGER && mInactiveInsteadOfKillAppInstead.get() && (mInactiveIdler != null))
-                ? mInactiveIdler : mKillIdler;
+        int policy = getAppInactivePolicyForModule(module);
+        return (policy == XAPMManager.AppInactivePolicy.IDLE && (mInactiveIdler != null)) ? mInactiveIdler : mKillIdler;
     }
 
     protected Handler onCreateServiceHandler() {
@@ -8371,7 +8390,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                             return cleared;
                         }
 
-                        getAppIdler().setAppIdle(runningPackageName);
+                        getAppIdler(XAppBuildVar.APP_LK).setAppIdle(runningPackageName);
 
                         cleared[i] = runningPackageName;
 
@@ -8987,7 +9006,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             boolean mayBeKillThisPackage = getTopPackageDelay() != null && getTopPackageDelay().equals(targetPackage);
             if (mayBeKillThisPackage) {
                 XposedLog.verbose(XposedLog.PREFIX_KEY + "mayBeKillThisPackage after long back: " + targetPackage);
-                getAppIdler().setAppIdle(targetPackage);
+                getAppIdler(null).setAppIdle(targetPackage);
             }
         }
 
@@ -9027,9 +9046,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                             return;
                         }
 
-                        getAppIdler().setAppIdle(packageName);
+                        getAppIdler(XAppBuildVar.APP_RFK).setAppIdle(packageName);
                     } catch (Throwable e) {
-                        XposedLog.wtf(XposedLog.PREFIX_KEY + "Fail rf kill in runnable: " + Log.getStackTraceString(e));
+                        XposedLog.wtf(XposedLog.PREFIX_KEY + "Fail killPackageWhenBackPressed in runnable: " + Log.getStackTraceString(e));
                     }
                 }, "killPackageWhenBackPressed"), 666);
             }

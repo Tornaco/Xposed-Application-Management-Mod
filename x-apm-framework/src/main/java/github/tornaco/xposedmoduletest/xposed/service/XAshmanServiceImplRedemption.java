@@ -184,18 +184,28 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setAppInactive(String packageName, boolean inactive, int userId) throws RemoteException {
+    public void setAppInactive(String packageName, boolean inactive, int userId) {
 
     }
 
     @Override
-    public boolean isAppInactive(String packageName, int userId) throws RemoteException {
+    public boolean isAppInactive(String packageName, int userId) {
         return false;
     }
 
     @Override
-    public void forceStopPackage(String packageName) throws RemoteException {
+    public void forceStopPackage(String packageName) {
 
+    }
+
+    @Override
+    public void setAppInactivePolicyForModule(String module, int policy) {
+
+    }
+
+    @Override
+    public int getAppInactivePolicyForModule(String module) {
+        return 0;
     }
 
     @Override
