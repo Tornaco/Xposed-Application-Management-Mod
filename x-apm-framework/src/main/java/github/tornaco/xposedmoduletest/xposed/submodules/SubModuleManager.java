@@ -94,6 +94,8 @@ public class SubModuleManager {
         addToSubsChecked(new AppOpsSubModule2());
         addToSubsChecked(new AppOpsSubModule());
 
+        // For some permissions.
+        addToSubsChecked(new ContextImplSubModule());
         addToSubsChecked(new ServiceSubModule());
         addToSubsChecked(new ActiveServiceSubModule());
         addToSubsChecked(new ActiveServiceForegroundNotificationCancellationSubModule());

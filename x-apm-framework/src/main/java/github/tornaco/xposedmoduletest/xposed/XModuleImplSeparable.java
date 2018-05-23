@@ -25,7 +25,7 @@ class XModuleImplSeparable extends XModuleAbs {
     }
 
     @Override
-    public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
+    public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) {
         XposedLog.verbose("handleLoadPackage: " + lpparam.packageName);
 
         for (SubModule s : SubModuleManager.getInstance().getAllSubModules()) {
@@ -42,7 +42,7 @@ class XModuleImplSeparable extends XModuleAbs {
     }
 
     @Override
-    public void initZygote(StartupParam startupParam) throws Throwable {
+    public void initZygote(StartupParam startupParam) {
         for (SubModule s : SubModuleManager.getInstance().getAllSubModules()) {
             try {
                 s.initZygote(startupParam);

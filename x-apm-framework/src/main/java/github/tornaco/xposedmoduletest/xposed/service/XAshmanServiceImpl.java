@@ -15,6 +15,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.admin.DevicePolicyManager;
+import android.app.usage.IUsageStatsManager;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -1232,7 +1233,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            mInactiveInsteadOfKillAppInstead.set(XAPMServerSettings.INACTIVE_INSTEAD_OF_KILL.read());
+            mInactiveInsteadOfKillAppInstead.set(XAPMServerSettings.INACTIVE_INSTEAD_OF_FORCE_STOP.read());
             XposedLog.boot("mInactiveInsteadOfKillAppInstead: " + String.valueOf(mInactiveInsteadOfKillAppInstead));
         } catch (Throwable e) {
             XposedLog.wtf("Fail load settings from SettingsProvider:" + Log.getStackTraceString(e));
@@ -3505,6 +3506,62 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             PackageStateManager.from(getContext())
                     .unRegisterTaskRemoveListener(listener);
         }
+    }
+
+    @Override
+    @BinderCall
+    public void setAppInactive(String packageName, boolean inactive, int userId) {
+        enforceCallingPermissions();
+        long ident = Binder.clearCallingIdentity();
+        try {
+            if (HAS_STATS_MANAGER) {
+                IUsageStatsManager usm = IUsageStatsManager.Stub.asInterface(ServiceManager
+                        .getService(Context.USAGE_STATS_SERVICE));
+                if (usm != null) try {
+                    usm.setAppInactive(packageName, true, userId);
+                } catch (Throwable e) {
+                    XposedLog.wtf("Fail setAppInactive: " +
+                            Log.getStackTraceString(e));
+                }
+            }
+        } finally {
+            Binder.restoreCallingIdentity(ident);
+        }
+    }
+
+    @Override
+    @BinderCall
+    public boolean isAppInactive(String packageName, int userId) {
+        enforceCallingPermissions();
+        long ident = Binder.clearCallingIdentity();
+        try {
+            if (HAS_STATS_MANAGER) {
+                IUsageStatsManager usm = IUsageStatsManager.Stub.asInterface(ServiceManager
+                        .getService(Context.USAGE_STATS_SERVICE));
+                if (usm != null) try {
+                    return usm.isAppInactive(packageName, userId);
+                } catch (Throwable e) {
+                    XposedLog.wtf("Fail isAppInactive: " +
+                            Log.getStackTraceString(e));
+                }
+            }
+        } finally {
+            Binder.restoreCallingIdentity(ident);
+        }
+        return false;
+    }
+
+    @Override
+    @BinderCall
+    public void forceStopPackage(String packageName) {
+        enforceCallingPermissions();
+        Runnable r = () -> {
+            ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
+            if (am != null) {
+                am.forceStopPackage(packageName);
+            }
+        };
+        mainHandler.post(new ErrorCatchRunnable(r, "forceStopPackage"));
     }
 
     @Override
@@ -5964,7 +6021,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     @BinderCall
-    public void applyAppSettingsForPackage(String pkg, AppSettings settings) throws RemoteException {
+    public void applyAppSettingsForPackage(String pkg, AppSettings settings) {
         XposedLog.verbose("applyAppSettingsForPackage %s %s", pkg, settings);
         enforceCallingPermissions();
 
@@ -6898,10 +6955,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         return idler;
     }
 
-    // FIXME Temp disable this feature for user build.
-    // There is some serious issue on MIUI that cause system dead.
     private static final boolean HAS_STATS_MANAGER =
-            BuildConfig.DEBUG && Build.VERSION.SDK_INT
+            Build.VERSION.SDK_INT
                     >= Build.VERSION_CODES.LOLLIPOP_MR1;
 
     private AppIdler getAppIdlerInternal() {
@@ -7391,7 +7446,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     public void setInactiveAppInsteadOfKillPreferred(boolean prefer) {
         enforceCallingPermissions();
-        XAPMServerSettings.INACTIVE_INSTEAD_OF_KILL.write(prefer);
+        XAPMServerSettings.INACTIVE_INSTEAD_OF_FORCE_STOP.write(prefer);
         mInactiveInsteadOfKillAppInstead.set(prefer);
     }
 

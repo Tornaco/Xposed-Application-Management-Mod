@@ -1,19 +1,14 @@
 package github.tornaco.xposedmoduletest.xposed.service.am;
 
-import android.Manifest;
-import android.app.AppGlobals;
 import android.app.usage.IUsageStatsManager;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.Build;
-import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.UserHandle;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
-import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.service.ErrorCatchRunnable;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Getter;
@@ -58,55 +53,24 @@ public class InactiveAppIdler implements AppIdler {
             ErrorCatchRunnable er = new ErrorCatchRunnable(() -> setAppIdleInternal(pkg), "setAppIdleInternal");
             proxy.getUssHandler().post(er);
         } else {
-            XposedLog.wtf("Fail setAppInactive, proxy or handler is null");
+            XposedLog.wtf("InactiveAppIdler Fail setAppInactive, proxy or handler is null");
         }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP_MR1)
     private void setAppIdleInternal(String pkg) {
         int userId = UserHandle.getUserId(Binder.getCallingUid());
-
-        // Check self permission.
-        if (BuildConfig.DEBUG) {
-
-            int appId = UserHandle.getAppId(Binder.getCallingUid());
-            XposedLog.verbose("setAppInactive, userId: %s, uid: %s, pid: %s, appId: %s",
-                    userId,
-                    Binder.getCallingUid(),
-                    Binder.getCallingPid(),
-                    appId);
-
-            final int callingUid = Binder.getCallingUid();
-            int perm = PackageManager.PERMISSION_GRANTED;
+        if (ensureUSM()) {
             try {
-                perm = AppGlobals.getPackageManager()
-                        .checkUidPermission(Manifest.permission.CHANGE_APP_IDLE_STATE, callingUid);
-            } catch (RemoteException ignored) {
-
+                usm.setAppInactive(pkg, true, userId);
+                listener.onAppIdle(pkg);
+            } catch (Throwable e) {
+                XposedLog.wtf("InactiveAppIdler, fail setAppInactive: " +
+                        Log.getStackTraceString(e));
             }
-            if (perm != PackageManager.PERMISSION_GRANTED) {
-                XposedLog.wtf("setAppInactive, permission denied!!!");
-            }
-        }
-
-        if (getProxy() != null) {
-            getProxy().setAppIdle(pkg, true, userId);
-            listener.onAppIdle(pkg);
-            XposedLog.wtf("setAppInactive, by proxy. " + pkg);
         } else {
-            synchronized (this) {
-                if (ensureUSM()) {
-                    try {
-                        usm.setAppInactive(pkg, true, userId);
-                        listener.onAppIdle(pkg);
-                    } catch (RemoteException e) {
-                        // We tried...
-                    }
-                } else {
-                    XposedLog.wtf("InactiveAppIdler, fail setAppInactive: " +
-                            Log.getStackTraceString(new NullPointerException("USM is null")));
-                }
-            }
+            XposedLog.wtf("InactiveAppIdler, fail setAppInactive: " +
+                    Log.getStackTraceString(new NullPointerException("USM is null")));
         }
     }
 
