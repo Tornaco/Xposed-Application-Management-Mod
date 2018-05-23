@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.ui.adapter.common;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.AdapterView;
 
@@ -26,7 +27,7 @@ public class CommonPackageInfoViewerChooserAdapter extends CommonPackageInfoAdap
 
     @SuppressLint("SetTextI18n")
     @Override
-    public void onBindViewHolder(final CommonViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final CommonViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
 
         final CommonPackageInfo packageInfo = commonPackageInfos.get(position);

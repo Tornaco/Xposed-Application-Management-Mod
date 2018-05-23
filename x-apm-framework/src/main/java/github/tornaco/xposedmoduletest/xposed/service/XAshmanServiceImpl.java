@@ -3512,6 +3512,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @BinderCall
     public void setAppInactive(String packageName, boolean inactive, int userId) {
         enforceCallingPermissions();
+        XposedLog.verbose("setAppInactive : " + packageName + "-" + userId);
         long ident = Binder.clearCallingIdentity();
         try {
             if (HAS_STATS_MANAGER) {
@@ -3533,6 +3534,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @BinderCall
     public boolean isAppInactive(String packageName, int userId) {
         enforceCallingPermissions();
+        XposedLog.verbose("isAppInactive : " + packageName + "-" + userId);
         long ident = Binder.clearCallingIdentity();
         try {
             if (HAS_STATS_MANAGER) {
@@ -8671,6 +8673,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             String from = mTopPackageImd.getData();
             if (who != null && !who.equals(from)) {
                 mTopPackageImd.setData(who);
+
+                addToRunningProcessPackages(who);
+
                 postNotifyTopPackageChanged(from, who);
 
                 // Check if we need to add app process for this host.

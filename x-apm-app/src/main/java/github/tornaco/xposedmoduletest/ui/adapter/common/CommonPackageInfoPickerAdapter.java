@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.ui.adapter.common;
 
 import android.content.Context;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
 
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
@@ -24,7 +25,7 @@ public class CommonPackageInfoPickerAdapter extends CommonPackageInfoAdapter {
     }
 
     @Override
-    public void onBindViewHolder(CommonViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull CommonViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         final CommonPackageInfo packageInfo = commonPackageInfos.get(position);
         holder.getLineTwoTextView().setText(packageInfo.getPkgName());

@@ -167,13 +167,8 @@ public class CommonPackageInfoAdapter
             holder.getLineOneTextView().setText(getContext().getString(R.string.title_app_disabled, packageInfo.getAppName()));
             holder.getLineOneTextView().setTextColor(Color.RED);
         } else {
-            if (packageInfo.isAppIdle()) {
-                holder.getLineOneTextView().setText(getContext().getString(R.string.title_app_idle, packageInfo.getAppName()));
-                holder.getLineOneTextView().setTextColor(Color.GRAY);
-            } else {
-                holder.getLineOneTextView().setText(packageInfo.getAppName());
-                holder.getLineOneTextView().setTextColor(mDefaultTextColor);
-            }
+            holder.getLineOneTextView().setText(packageInfo.getAppName());
+            holder.getLineOneTextView().setTextColor(mDefaultTextColor);
         }
 
         holder.getCheckableImageView().setChecked(false, false);
@@ -226,6 +221,14 @@ public class CommonPackageInfoAdapter
                     .text1("GCM")
                     .build();
 
+    @Getter
+    final BadgeDrawable idleBadge =
+            new BadgeDrawable.Builder()
+                    .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
+                    .badgeColor(Color.GRAY)
+                    .text1("IDLE")
+                    .build();
+
     BadgeDrawable createAppLevelBadge(String levelText, int levelColor) {
         if (levelText == null) return null;
         return new BadgeDrawable.Builder()
@@ -251,6 +254,9 @@ public class CommonPackageInfoAdapter
         }
         if (onBuildGCMIndicator(info, textView) && showGcmIndicator && info.isGCMSupport()) {
             descSets.add(getGcmBadge().toSpannable());
+        }
+        if (info.isAppIdle()) {
+            descSets.add(getIdleBadge().toSpannable());
         }
         if (descSets.size() > 0) {
             CharSequence fullDesc = "";

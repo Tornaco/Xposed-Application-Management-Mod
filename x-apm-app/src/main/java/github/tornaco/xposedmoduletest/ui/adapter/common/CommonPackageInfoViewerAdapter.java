@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.ui.adapter.common;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.widget.AdapterView;
 
 import lombok.Getter;
@@ -28,7 +29,7 @@ public class CommonPackageInfoViewerAdapter extends CommonPackageInfoAdapter {
     }
 
     @Override
-    public void onBindViewHolder(final CommonViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final CommonViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
 
         holder.itemView.setOnClickListener(v -> {

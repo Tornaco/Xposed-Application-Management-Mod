@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.ui.activity.doze;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 
 import org.newstand.logger.Logger;
 
@@ -57,7 +58,7 @@ public class DozeWhiteListViewerActivity extends CommonPackageInfoListActivity {
     protected CommonPackageInfoAdapter onCreateAdapter() {
         return new CommonPackageInfoAdapter(this) {
             @Override
-            public void onBindViewHolder(CommonViewHolder holder, int position) {
+            public void onBindViewHolder(@NonNull CommonViewHolder holder, int position) {
                 super.onBindViewHolder(holder, position);
 
                 final CommonPackageInfo packageInfo = getCommonPackageInfos().get(position);
