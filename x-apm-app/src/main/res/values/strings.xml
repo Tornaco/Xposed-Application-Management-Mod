@@ -648,5 +648,6 @@
     <string name="summary_three_fingers_down_screenshot">Three fingers down to screenshot</string>
     <string name="service_stop">Stop</string>
     <string name="package_install_verify_dialog_allow">Allow</string>
+    <string name="title_app_state_idle">IDLE</string>
 
 </resources>

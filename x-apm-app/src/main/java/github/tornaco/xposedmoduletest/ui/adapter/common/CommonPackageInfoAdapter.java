@@ -83,6 +83,12 @@ public class CommonPackageInfoAdapter
         setChoiceMode(false);
 
         this.showGcmIndicator = AppSettings.isShowGcmIndicator(context);
+
+        this.idleBadge = new BadgeDrawable.Builder()
+                .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
+                .badgeColor(Color.GRAY)
+                .text1(context.getString(R.string.title_app_state_idle))
+                .build();
     }
 
     @Getter
@@ -222,12 +228,8 @@ public class CommonPackageInfoAdapter
                     .build();
 
     @Getter
-    final BadgeDrawable idleBadge =
-            new BadgeDrawable.Builder()
-                    .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
-                    .badgeColor(Color.GRAY)
-                    .text1("IDLE")
-                    .build();
+    final BadgeDrawable idleBadge;
+
 
     BadgeDrawable createAppLevelBadge(String levelText, int levelColor) {
         if (levelText == null) return null;
