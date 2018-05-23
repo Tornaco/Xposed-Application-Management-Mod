@@ -1907,6 +1907,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     public void onPhoneWindowManagerSetInitialDisplaySize(Display display) {
         XposedLog.boot("onPhoneWindowManagerSetInitialDisplaySize: " + display);
         mPhoneWindowManagerProxy.enableSwipeThreeFingerGesture(isOptFeatureEnabled(XAPMManager.OPT.THREE_FINGER_GESTURE.name()));
+        mPhoneWindowManagerProxy.enablePGesture(isOptFeatureEnabled(XAPMManager.OPT.P_GESTURE.name()));
     }
 
     @Override

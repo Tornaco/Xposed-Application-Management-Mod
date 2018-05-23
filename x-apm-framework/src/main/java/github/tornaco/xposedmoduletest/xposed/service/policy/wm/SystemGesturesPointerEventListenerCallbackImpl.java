@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed.service.policy.wm;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.WindowManager;
@@ -28,8 +29,10 @@ public class SystemGesturesPointerEventListenerCallbackImpl
         this.context = context;
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display = Objects.requireNonNull(wm).getDefaultDisplay();
-        screenWidth = display.getWidth();  // deprecated
-        screenHeight = display.getHeight();  // deprecated
+        Point point = new Point();
+        display.getSize(point);
+        screenWidth = point.x;
+        screenHeight = point.y;
     }
 
     private SwipeAreaX getSwipeAreaX(int x) {
