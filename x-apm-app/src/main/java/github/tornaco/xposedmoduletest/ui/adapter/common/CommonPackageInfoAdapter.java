@@ -217,7 +217,7 @@ public class CommonPackageInfoAdapter
     final BadgeDrawable gcmBadge =
             new BadgeDrawable.Builder()
                     .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
-                    .badgeColor(Color.GRAY)
+                    .badgeColor(Color.BLUE)
                     .text1("GCM")
                     .build();
 
