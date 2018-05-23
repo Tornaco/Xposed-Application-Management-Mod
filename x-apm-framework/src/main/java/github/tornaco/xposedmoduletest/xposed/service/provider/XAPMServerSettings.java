@@ -93,7 +93,7 @@ public class XAPMServerSettings {
     public static final BaseSetting<Boolean> APM_SHOW_APP_PROCESS_UPDATE_B = new BooleanSettingImpl("APM_SHOW_APP_PROCESS_UPDATE_B", false);
 
     // 休眠代替KILL
-    public static final BaseSetting<Boolean> INACTIVE_INSTEAD_OF_KILL = new BooleanSettingImpl("INACTIVE_INSTEAD_OF_KILL", false);
+    public static final BaseSetting<Boolean> INACTIVE_INSTEAD_OF_FORCE_STOP = new BooleanSettingImpl("INACTIVE_INSTEAD_OF_FORCE_STOP", false);
 
 
     // Int fields.

@@ -155,7 +155,7 @@ public class CommonPackageInfoAdapter
     }
 
     @Override
-    public void onBindViewHolder(final CommonViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final CommonViewHolder holder, final int position) {
         final CommonPackageInfo packageInfo = commonPackageInfos.get(position);
 
         inflatePackageDesc(packageInfo, holder.getSystemAppIndicator(), showGcmIndicator);
@@ -167,8 +167,13 @@ public class CommonPackageInfoAdapter
             holder.getLineOneTextView().setText(getContext().getString(R.string.title_app_disabled, packageInfo.getAppName()));
             holder.getLineOneTextView().setTextColor(Color.RED);
         } else {
-            holder.getLineOneTextView().setText(packageInfo.getAppName());
-            holder.getLineOneTextView().setTextColor(mDefaultTextColor);
+            if (packageInfo.isAppIdle()) {
+                holder.getLineOneTextView().setText(getContext().getString(R.string.title_app_idle, packageInfo.getAppName()));
+                holder.getLineOneTextView().setTextColor(Color.GRAY);
+            } else {
+                holder.getLineOneTextView().setText(packageInfo.getAppName());
+                holder.getLineOneTextView().setTextColor(mDefaultTextColor);
+            }
         }
 
         holder.getCheckableImageView().setChecked(false, false);

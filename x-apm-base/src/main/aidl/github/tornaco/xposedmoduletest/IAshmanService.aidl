@@ -495,4 +495,11 @@ interface IAshmanService {
     // Tasks.
     void registerTaskRemoveListener(in ITaskRemoveListener listener);
     void unRegisterTaskRemoveListener(in ITaskRemoveListener listener);
+
+    // Usages.
+    void setAppInactive(String packageName, boolean inactive, int userId);
+    boolean isAppInactive(String packageName, int userId);
+
+    // Package manage.
+    void forceStopPackage(String packageName);
 }

@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.xposed;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.preference.PreferenceManager;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 import android.widget.Toast;
@@ -144,5 +145,8 @@ public class XAPMApplication extends MultiDexApplication {
 
     private void forDev() {
         Toast.makeText(this, "Hello developer!", Toast.LENGTH_LONG).show();
+        PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+                .edit().putString("DEBUG_APP_START", String.valueOf(System.currentTimeMillis()))
+                .apply();
     }
 }

@@ -267,7 +267,7 @@
     <string name="title_privacy_update_later">稍后将刷新</string>
     <string name="title_privacy_input_code">请输入</string>
     <string name="summary_privacy">应用了隐匿的应用，在其尝试读取AndroidID，设备ICC号码，与设备序列号时，使用用户设定的数值来代替当前设备的原始数值（不会改变当前设备原始数值）。\n\n提示：尽量不要对常用社交APP使用，否则可能造成账号登陆异常。</string>
-    <string name="title_smart_sense">情景模式</string>
+    <string name="title_smart_sense">拓展</string>
     <string name="title_privacy_apps">查看应用隐匿设置的应用</string>
     <string name="title_privacy_items">隐匿项目</string>
     <string name="title_greening">绿色化</string>
@@ -607,6 +607,7 @@
     <string name="title_app_lazy_rule">乖巧规则</string>
     <string name="summary_lazy_rules">可以控制保留某些服务。</string>
     <string name="title_app_disabled">%1$s 已冻结</string>
+    <string name="title_app_idle">%1$s 已休眠</string>
     <string name="title_push_message_handler_notification_mock_message">模拟一条消息</string>
     <string name="title_lazy_solution_app">方案A</string>
     <string name="title_lazy_solution_fw">方案B</string>

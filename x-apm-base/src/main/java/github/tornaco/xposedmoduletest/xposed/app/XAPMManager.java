@@ -2326,4 +2326,31 @@ public class XAPMManager {
 
         }
     }
+
+    public void setAppInactive(String packageName, boolean inactive, int userId) {
+        ensureService();
+        try {
+            mService.setAppInactive(packageName, inactive, userId);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public boolean isAppInactive(String packageName, int userId) {
+        ensureService();
+        try {
+            return mService.isAppInactive(packageName, userId);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void forceStopPackage(String packageName) {
+        ensureService();
+        try {
+            mService.forceStopPackage(packageName);
+        } catch (Exception e) {
+
+        }
+    }
 }

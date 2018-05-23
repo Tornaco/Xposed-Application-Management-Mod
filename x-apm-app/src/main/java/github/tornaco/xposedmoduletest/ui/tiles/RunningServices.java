@@ -37,7 +37,16 @@ public class RunningServices extends QuickTile {
             public void onClick(View v) {
                 super.onClick(v);
                 context.startActivity(new Intent(context, RunningServicesActivity.class));
+                //startRunningServicesActivity(context);
+
             }
         };
+    }
+
+    private void startRunningServicesActivity(Context context) {
+        Intent intent = new Intent();
+        intent.setClassName("com.android.settings",
+                "com.android.settings.Settings$DevRunningServicesActivity");
+        context.startActivity(intent);
     }
 }

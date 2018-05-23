@@ -109,6 +109,7 @@ public interface ComponentLoader {
 
             for (String p : packages) {
                 int flag = LoaderUtil.FLAG_NONE;
+                flag |= LoaderUtil.FLAG_INCLUDE_APP_IDLE_INFO;
 
                 if (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_IME_APPS) {
                     flag |= LoaderUtil.FLAG_INCLUDE_IME_INFO;
