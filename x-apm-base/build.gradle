@@ -41,7 +41,7 @@ def siteUrl = 'https://github.com/Tornaco/X-APM'    // project homepage
 def gitUrl = 'https://github.com/Tornaco/X-APM.git' // project git
 
 group = "github.tornaco"
-version = "1.0.3"
+version = "1.0.5"
 
 install {
     repositories.mavenInstaller {
