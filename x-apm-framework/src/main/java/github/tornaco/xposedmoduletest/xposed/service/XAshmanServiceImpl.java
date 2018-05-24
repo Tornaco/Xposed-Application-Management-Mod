@@ -8694,13 +8694,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             if (who != null && !who.equals(from)) {
                 mTopPackageImd.setData(who);
 
-                addToRunningProcessPackages(who);
-
                 postNotifyTopPackageChanged(from, who);
 
                 // Check if we need to add app process for this host.
                 ErrorCatchRunnable er = new ErrorCatchRunnable(() -> addAppForLazyIfNeeded(who), "LAZY addAppForLazyIfNeeded");
                 er.run();
+
+                if (!isInWhiteList(who) && isPackageLKByUser(who)) {
+                    addToRunningProcessPackages(who);
+                }
             }
         }
 

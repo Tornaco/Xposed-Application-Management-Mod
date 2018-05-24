@@ -54,11 +54,7 @@ public class RunningServiceAdapter extends CommonPackageInfoAdapter {
         holder.getSystemAppIndicator().setVisibility(View.VISIBLE);
         holder.getSystemAppIndicator().setText(display.getMergedItem().mSizeStr);
 
-        RunningState.ProcessItem processItem = display.getMergedItem().mProcess;
-        // FIXME Extract text to res.
-        if (processItem != null) {
-            runningServiceInfoHolder.getProcessNameView().setVisibility(View.GONE);
-        }
+        inflatePackageDesc(display, runningServiceInfoHolder.getProcessNameView(), false);
     }
 
     @Override

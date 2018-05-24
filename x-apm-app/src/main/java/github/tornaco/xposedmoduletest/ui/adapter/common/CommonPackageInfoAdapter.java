@@ -244,7 +244,7 @@ public class CommonPackageInfoAdapter
         return true;
     }
 
-    void inflatePackageDesc(CommonPackageInfo info, TextView textView, boolean showGcmIndicator) {
+    protected void inflatePackageDesc(CommonPackageInfo info, TextView textView, boolean showGcmIndicator) {
 
         int appLevel = info.getAppLevel();
         String appLevelDesc = getSystemAppIndicatorLabel(appLevel);

@@ -65,8 +65,9 @@
                 style="@style/ListItemSecondaryText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@android:id/text2"
-                android:layout_marginEnd="@dimen/activity_horizontal_margin_large"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin_marco"
+                android:layout_toStartOf="@android:id/text1"
                 android:fadingEdge="horizontal"
                 android:maxLines="8"
                 android:text="@string/title_system_app" />
@@ -78,7 +79,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@android:id/title"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin_large"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="3dp"
                 android:fadingEdge="horizontal"
                 android:maxLines="1"
                 android:text="@string/title_system_app" />
