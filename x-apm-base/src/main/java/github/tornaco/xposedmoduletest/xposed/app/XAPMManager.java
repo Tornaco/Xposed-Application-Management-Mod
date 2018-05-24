@@ -2377,4 +2377,13 @@ public class XAPMManager {
             return AppInactivePolicy.FORCE_STOP;
         }
     }
+
+    public void executeInputCommand(String[] args) {
+        ensureService();
+        try {
+            mService.executeInputCommand(args);
+        } catch (Exception e) {
+
+        }
+    }
 }

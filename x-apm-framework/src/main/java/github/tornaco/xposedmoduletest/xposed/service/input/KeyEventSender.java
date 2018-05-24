@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.xposed.service;
+package github.tornaco.xposedmoduletest.xposed.service.input;
 
 import android.hardware.input.InputManager;
 import android.os.SystemClock;

@@ -209,6 +209,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public void executeInputCommand(String[] args) throws RemoteException {
+
+    }
+
+    @Override
     public boolean checkInstallApk(Object installArgsObject) {
         return true; // Yes.
     }

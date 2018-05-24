@@ -153,6 +153,7 @@ import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerP
 import github.tornaco.xposedmoduletest.xposed.service.doze.DozeStateRetriever;
 import github.tornaco.xposedmoduletest.xposed.service.doze.PowerWhitelistBackend;
 import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerServiceProxy;
+import github.tornaco.xposedmoduletest.xposed.service.input.Input;
 import github.tornaco.xposedmoduletest.xposed.service.multipleapps.MultipleAppsManager;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.GCMFCMHelper;
@@ -3589,6 +3590,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             setAppInactivePolicyForModule(module, XAPMManager.AppInactivePolicy.FORCE_STOP);
         }
         return policy;
+    }
+
+    @Override
+    public void executeInputCommand(String[] args) {
+        enforceCallingPermissions();
+        wrapCallingIdetUnCaught(new ErrorCatchRunnable(() -> Input.main(args), "executeInputCommand: " + Arrays.toString(args)));
     }
 
     @Override
