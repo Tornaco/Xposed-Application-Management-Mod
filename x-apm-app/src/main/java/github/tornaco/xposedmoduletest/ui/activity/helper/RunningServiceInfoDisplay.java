@@ -2,8 +2,10 @@ package github.tornaco.xposedmoduletest.ui.activity.helper;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.UserHandle;
 
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Delegate;
@@ -37,5 +39,7 @@ class RunningServiceInfoDisplay extends CommonPackageInfo {
 
         String pkgName = mergedItem.mPackageInfo.packageName;
         setPkgName(pkgName);
+
+        setAppIdle(XAPMManager.get().isAppInactive(pkgName, UserHandle.USER_CURRENT));
     }
 }
