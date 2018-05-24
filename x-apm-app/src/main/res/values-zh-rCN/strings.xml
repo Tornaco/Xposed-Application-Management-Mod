@@ -647,4 +647,5 @@
     <string name="package_install_verify_dialog_always_allow">始终允许该应用</string>
     <string name="title_app_state_idle">休眠中</string>
     <string name="title_p_gesture">全面屏手势</string>
+    <string name="title_long_screen_shot">滚动截图</string>
 </resources>

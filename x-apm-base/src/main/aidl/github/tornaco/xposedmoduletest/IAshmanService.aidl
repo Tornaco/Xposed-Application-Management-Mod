@@ -509,4 +509,7 @@ interface IAshmanService {
 
     // Input.
     void executeInputCommand(in String[] args);
+
+    // Screenshots.
+    void takeLongScreenShot();
 }

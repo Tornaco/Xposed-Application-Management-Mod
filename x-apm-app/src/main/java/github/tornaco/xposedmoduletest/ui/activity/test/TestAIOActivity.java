@@ -92,6 +92,11 @@ public class TestAIOActivity extends BaseActivity {
                     });
                 });
 
+        findViewById(R.id.test_btn_screenshot)
+                .setOnClickListener(v -> {
+                    XAPMManager.get().takeLongScreenShot();
+                });
+
         Tile tile = TileManager.makeTileByKey("Lazy", getActivity());
         Logger.d("makeTileByKey: " + tile);
 

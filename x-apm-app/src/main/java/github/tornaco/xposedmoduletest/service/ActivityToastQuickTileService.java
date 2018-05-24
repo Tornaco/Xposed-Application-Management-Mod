@@ -15,7 +15,7 @@ import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
  */
 
 @TargetApi(Build.VERSION_CODES.N)
-public class APMQuickTileService extends TileService {
+public class ActivityToastQuickTileService extends TileService {
 
     @Override
     public void onClick() {
