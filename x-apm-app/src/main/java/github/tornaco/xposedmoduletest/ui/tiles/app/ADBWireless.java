@@ -1,6 +1,8 @@
 package github.tornaco.xposedmoduletest.ui.tiles.app;
 
 import android.content.Context;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -25,13 +27,14 @@ public class ADBWireless extends QuickTile {
     public ADBWireless(final Context context) {
         super(context);
         this.titleRes = R.string.title_adb_wireless;
-        this.summaryRes = R.string.summary_adb_wireless;
         this.iconRes = R.drawable.ic_adb_wireless_black_24dp;
+        this.summary = context.getString(R.string.summary_adb_wireless) + getIP();
         this.tileView = new SwitchTileView(context) {
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);
-                setChecked(getprop("service.adb.tcp.port", "-1").equals("5555"));
+                boolean ok = getprop("service.adb.tcp.port", "-1").equals("5555");
+                setChecked(ok);
             }
 
             @Override
@@ -43,7 +46,7 @@ public class ADBWireless extends QuickTile {
             protected void onCheckChanged(boolean checked) {
                 String cmd = checked ? "setprop service.adb.tcp.port 5555 && stop adbd && start adbd" : "setprop service.adb.tcp.port -1 && stop adbd && start adbd";
                 boolean ok = runRootCommand(cmd);
-                Toast.makeText(getContext(), ok ? R.string.adb_wireless_shell_success : R.string.adb_wireless_shell_fail, Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, ok ? R.string.adb_wireless_shell_success : R.string.adb_wireless_shell_fail, Toast.LENGTH_SHORT).show();
                 if (ok) {
                     super.onCheckChanged(checked);
                 }
@@ -87,5 +90,24 @@ public class ADBWireless extends QuickTile {
         }
 
         return defaultValue;
+    }
+
+    private String getIP() {
+        WifiManager wifiManager = (WifiManager) getContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        if (wifiManager.isWifiEnabled()) {
+            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+            int ipAddress = wifiInfo.getIpAddress();
+            String ip = intToIp(ipAddress);
+            return ip;
+        }
+        return "-.-.-.-";
+    }
+
+    private String intToIp(int i) {
+
+        return (i & 0xFF) + "." +
+                ((i >> 8) & 0xFF) + "." +
+                ((i >> 16) & 0xFF) + "." +
+                (i >> 24 & 0xFF);
     }
 }
