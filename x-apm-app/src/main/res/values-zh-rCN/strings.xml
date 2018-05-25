@@ -12,8 +12,12 @@
     <string name="title_view_photos">查看闯入者</string>
     <string name="title_take_photo">闯入抓拍</string>
     <string name="title_dev_mode">调试模式</string>
+    <string name="title_adb_wireless">无线ADB</string>
     <string name="title_exp">实验室</string>
     <string name="title_advance">高级</string>
+    <string name="adb_wireless_shell_success">无线ADB指令执行成功</string>
+    <string name="adb_wireless_shell_fail">无线ADB指令执行失败</string>
+    <string name="summary_adb_wireless">启用或禁用无线ADB(需要root权限)</string>
     <string name="summary_dev_mode">激活日志输出，启用某些实验性能，耗电会增加，非开发者无需启用此项设置。</string>
     <string name="summary_take_photo">当密码输入错误时，尝试保存一张前置摄像头的照片，注意，能否保存成功一定程度上取决于你设备的相机预览开启速度以及输入者手速。</string>
     <string name="summary_manage_overlay">我们将使用系统对话框的形式展示解锁界面，因此你必须在系统设置内打开叠加层才能使用最基本的功能。</string>
