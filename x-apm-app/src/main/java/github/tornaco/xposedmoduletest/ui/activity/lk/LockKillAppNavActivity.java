@@ -1,6 +1,5 @@
 package github.tornaco.xposedmoduletest.ui.activity.lk;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -19,7 +18,6 @@ import org.newstand.logger.Logger;
 import java.util.List;
 
 import github.tornaco.android.common.Collections;
-import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.loader.LockKillPackageLoader;
@@ -67,13 +65,10 @@ public class LockKillAppNavActivity extends CommonPackageInfoListActivity implem
     @Override
     protected void onRequestClearItemsInBackground() {
         Collections.consumeRemaining(getCommonPackageInfoAdapter().getCommonPackageInfos(),
-                new Consumer<CommonPackageInfo>() {
-                    @Override
-                    public void accept(CommonPackageInfo commonPackageInfo) {
-                        if (commonPackageInfo.isChecked()) {
-                            XAPMManager.get().addOrRemoveLKApps(new String[]{commonPackageInfo.getPkgName()},
-                                    XAPMManager.Op.REMOVE);
-                        }
+                commonPackageInfo -> {
+                    if (commonPackageInfo.isChecked()) {
+                        XAPMManager.get().addOrRemoveLKApps(new String[]{commonPackageInfo.getPkgName()},
+                                XAPMManager.Op.REMOVE);
                     }
                 });
     }
@@ -100,19 +95,11 @@ public class LockKillAppNavActivity extends CommonPackageInfoListActivity implem
                     .setTitle(R.string.title_app_lk_tip)
                     .setMessage(getString(R.string.message_app_lk_tip))
                     .setCancelable(false)
-                    .setNeutralButton(R.string.no_remind, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            AppSettings.setShowInfo(getApplicationContext(), "lk_ue_tip", false);
-                        }
-                    })
+                    .setNeutralButton(R.string.no_remind, (dialog, which) -> AppSettings.setShowInfo(getApplicationContext(), "lk_ue_tip", false))
                     .setPositiveButton(android.R.string.ok, null)
-                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finishAffinity();
-                            PackageManagerCompat.unInstallUserAppWithIntent(getContext(), getPackageName());
-                        }
+                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+                        finishAffinity();
+                        PackageManagerCompat.unInstallUserAppWithIntent(getContext(), getPackageName());
                     })
                     .show();
 

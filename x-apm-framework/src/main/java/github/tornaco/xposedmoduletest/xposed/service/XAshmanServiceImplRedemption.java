@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.service.notification.StatusBarNotification;
 import android.view.Display;
@@ -180,6 +181,31 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     @Override
     public void unRegisterTaskRemoveListener(ITaskRemoveListener listener) {
 
+    }
+
+    @Override
+    public void setAppInactive(String packageName, boolean inactive, int userId) {
+
+    }
+
+    @Override
+    public boolean isAppInactive(String packageName, int userId) {
+        return false;
+    }
+
+    @Override
+    public void forceStopPackage(String packageName) {
+
+    }
+
+    @Override
+    public void setAppInactivePolicyForModule(String module, int policy) {
+
+    }
+
+    @Override
+    public int getAppInactivePolicyForModule(String module) {
+        return 0;
     }
 
     @Override

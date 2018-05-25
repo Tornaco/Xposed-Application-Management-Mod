@@ -15,6 +15,8 @@ public interface SubModule {
 
     void onBridgeCreate(IModuleBridge bridge);
 
+    void onBridgeChange(IModuleBridge bridge);
+
     void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam);
 
     void initZygote(IXposedHookZygoteInit.StartupParam startupParam);

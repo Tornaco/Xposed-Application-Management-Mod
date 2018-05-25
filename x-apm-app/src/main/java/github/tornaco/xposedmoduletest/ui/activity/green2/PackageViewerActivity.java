@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.ui.activity.green2;
 
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -142,7 +143,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
             }
 
             @Override
-            public void onBindViewHolder(CommonPackageInfoAdapter.CommonViewHolder holder, int position) {
+            public void onBindViewHolder(@NonNull CommonPackageInfoAdapter.CommonViewHolder holder, int position) {
                 super.onBindViewHolder(holder, position);
 
                 final CommonPackageInfo packageInfo = getCommonPackageInfos().get(position);

@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.loader;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.UserHandle;
 import android.util.LruCache;
 
 import org.newstand.logger.Logger;
@@ -27,6 +28,7 @@ public class LoaderUtil {
     public static final int FLAG_INCLUDE_TENCENT_INFO = 0x00000002;
     public static final int FLAG_INCLUDE_BAIDU_INFO = 0x00000004;
     public static final int FLAG_INCLUDE_LAUNCHER_INFO = 0x00000008;
+    public static final int FLAG_INCLUDE_APP_IDLE_INFO = 0x00000010;
 
     public static final int FLAG_NONE = 0;
 
@@ -41,10 +43,10 @@ public class LoaderUtil {
         String key = constructKeyForPackageAndFlags(pkg, flag);
         CommonPackageInfo cached = LoaderCache.getInstance().get(key);
         if (cached != null) {
-            Logger.i("Using cache package info.");
             // Reset selection state.
             CommonPackageInfo dup = CommonPackageInfo.duplicate(cached);
             dup.setChecked(false);
+            dup.setAppIdle(XAPMManager.get().isAppInactive(pkg, UserHandle.USER_CURRENT));
             // Force read GCM state.
             dup.setGCMSupport(XAPMManager.get().isServiceAvailable() && XAPMManager.get().isGCMSupportPackage(pkg));
             inflateEnableState(dup);
@@ -83,6 +85,11 @@ public class LoaderUtil {
         if ((flag & FLAG_INCLUDE_BAIDU_INFO) != 0) {
             p.setBaidu(pkg != null && pkg.contains("baidu"));
             Logger.i("FLAG_INCLUDE_BAIDU_INFO");
+        }
+
+        if (true) {
+            p.setAppIdle(XAPMManager.get().isAppInactive(pkg, UserHandle.USER_CURRENT));
+            Logger.i("FLAG_INCLUDE_APP_IDLE_INFO");
         }
 
         LoaderCache.getInstance().put(key, p);

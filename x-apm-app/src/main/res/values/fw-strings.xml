@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="package_install_verify_dialog_allow">允许</string>
-    <string name="package_install_verify_dialog_deny">拒绝</string>
-    <string name="package_install_verify_dialog_always_allow">始终允许该应用</string>
+    <string name="package_install_verify_dialog_deny">Deny</string>
+    <string name="package_install_verify_dialog_always_allow">Always allow this app</string>
 
 
     <string name="package_install_verify_dialog_title">应用安装</string>

@@ -68,6 +68,7 @@ public class XAPMManager {
         TOAST_ICON,
         FOREGROUND_NOTIFICATION,
         THREE_FINGER_GESTURE,
+        P_GESTURE,
         LAZY_APP_TIPS,
         PKG_INSTALL_VERIFY,
         OPT_BLUR_CACHE
@@ -82,6 +83,11 @@ public class XAPMManager {
         int WHITE_LIST = 1;
         int BLACK_LIST = 2;
         int UNKNOWN = -1;
+    }
+
+    public interface AppInactivePolicy {
+        int IDLE = 0x1;
+        int FORCE_STOP = 0x2;
     }
 
     public interface AppLevel {
@@ -2324,6 +2330,51 @@ public class XAPMManager {
             mService.unRegisterTaskRemoveListener(listener);
         } catch (Exception e) {
 
+        }
+    }
+
+    public void setAppInactive(String packageName, boolean inactive, int userId) {
+        ensureService();
+        try {
+            mService.setAppInactive(packageName, inactive, userId);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public boolean isAppInactive(String packageName, int userId) {
+        ensureService();
+        try {
+            return mService.isAppInactive(packageName, userId);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void forceStopPackage(String packageName) {
+        ensureService();
+        try {
+            mService.forceStopPackage(packageName);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public void setAppInactivePolicyForModule(String module, int policy) {
+        ensureService();
+        try {
+            mService.setAppInactivePolicyForModule(module, policy);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public int getAppInactivePolicyForModule(String module) {
+        ensureService();
+        try {
+            return mService.getAppInactivePolicyForModule(module);
+        } catch (Exception e) {
+            return AppInactivePolicy.FORCE_STOP;
         }
     }
 }

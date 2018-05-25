@@ -10,6 +10,8 @@ import github.tornaco.xposedmoduletest.ISettingsChangeListener;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.repo.SettingsProvider;
 import github.tornaco.xposedmoduletest.xposed.service.InvokeTargetProxy;
+import github.tornaco.xposedmoduletest.xposed.service.policy.wm.SystemGesturesPointerEventListener;
+import github.tornaco.xposedmoduletest.xposed.service.policy.wm.SystemGesturesPointerEventListenerCallbackImpl;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +25,7 @@ public class PhoneWindowManagerProxy extends InvokeTargetProxy<Object> {
 
     @Setter
     @Getter
-    private boolean haveEnableGesture;
+    private boolean haveEnableThreeFingerGesture, haveEnablePGesture, settingsListenerRegistered;
 
     @Getter
     @Setter
@@ -34,6 +36,7 @@ public class PhoneWindowManagerProxy extends InvokeTargetProxy<Object> {
     private WindowManagerPolicy.WindowManagerFuncs windowManagerFuncs;
 
     private OPGesturesListener mOPGestures;
+    private SystemGesturesPointerEventListener mSystemGesturesListener;
 
     public PhoneWindowManagerProxy(Object host) {
         super(host);
@@ -70,23 +73,69 @@ public class PhoneWindowManagerProxy extends InvokeTargetProxy<Object> {
         }
     }
 
-    public void init(Context context) {
-        mOPGestures = new OPGesturesListener(context, () -> {
-            XposedLog.verbose("PhoneWindowManagerProxy onSwipeThreeFinger");
-            takeScreenshot(0);
-        });
+    private void initThreeFingerGesture(Context context) {
+        if (context != null) {
+            mOPGestures = new OPGesturesListener(context, () -> {
+                XposedLog.verbose("PhoneWindowManagerProxy onSwipeThreeFinger");
+                takeScreenshot(0);
+            });
+        }
+        registerSettingsListener();
+    }
 
+    private void initPGesture(Context context) {
+        if (context != null) {
+            mSystemGesturesListener = new SystemGesturesPointerEventListener(context,
+                    new SystemGesturesPointerEventListenerCallbackImpl(context));
+        }
+        registerSettingsListener();
+    }
+
+    private void registerSettingsListener() {
+        if (settingsListenerRegistered) {
+            return;
+        }
         // Register listener.
-        SettingsProvider.get().registerSettingsChangeListener(new ISettingsChangeListener.Stub() {
+        settingsListenerRegistered = SettingsProvider.get().registerSettingsChangeListener(new ISettingsChangeListener.Stub() {
             @Override
             public void onChange(String name) {
                 XposedLog.verbose("PhoneWindowManagerProxy onChange: " + name);
                 if (XAPMManager.OPT.THREE_FINGER_GESTURE.name().equals(name)) {
                     boolean enable = SettingsProvider.get().getBoolean(name, false);
                     enableSwipeThreeFingerGesture(enable);
+                } else if (XAPMManager.OPT.P_GESTURE.name().equals(name)) {
+                    boolean enable = SettingsProvider.get().getBoolean(name, false);
+                    enablePGesture(enable);
                 }
             }
         });
+    }
+
+    public void enablePGesture(boolean enable) {
+        if (getContext() == null) {
+            XposedLog.wtf("PhoneWindowManagerProxy enablePGesture called while getContext() is null");
+            return;
+        }
+
+        if (mSystemGesturesListener == null) {
+            initPGesture(context);
+        }
+
+        retrieveWindowManagerFuncs();
+        if (getWindowManagerFuncs() != null) {
+            if (enable) {
+                if (haveEnablePGesture) return;
+                haveEnablePGesture = true;
+                getWindowManagerFuncs().registerPointerEventListener(mSystemGesturesListener);
+            } else {
+                if (!haveEnablePGesture) return;
+                haveEnablePGesture = false;
+                getWindowManagerFuncs().unregisterPointerEventListener(mSystemGesturesListener);
+            }
+            XposedLog.verbose("PhoneWindowManagerProxy enablePGesture ok: " + enable);
+        } else {
+            XposedLog.wtf("PhoneWindowManagerProxy enablePGesture called while getWindowManagerFuncs() is null");
+        }
     }
 
     public void enableSwipeThreeFingerGesture(boolean enable) {
@@ -96,18 +145,18 @@ public class PhoneWindowManagerProxy extends InvokeTargetProxy<Object> {
         }
 
         if (mOPGestures == null) {
-            init(context);
+            initThreeFingerGesture(context);
         }
 
         retrieveWindowManagerFuncs();
         if (getWindowManagerFuncs() != null) {
             if (enable) {
-                if (haveEnableGesture) return;
-                haveEnableGesture = true;
+                if (haveEnableThreeFingerGesture) return;
+                haveEnableThreeFingerGesture = true;
                 getWindowManagerFuncs().registerPointerEventListener(mOPGestures);
             } else {
-                if (!haveEnableGesture) return;
-                haveEnableGesture = false;
+                if (!haveEnableThreeFingerGesture) return;
+                haveEnableThreeFingerGesture = false;
                 getWindowManagerFuncs().unregisterPointerEventListener(mOPGestures);
             }
             XposedLog.verbose("PhoneWindowManagerProxy enableSwipeThreeFingerGesture ok: " + enable);

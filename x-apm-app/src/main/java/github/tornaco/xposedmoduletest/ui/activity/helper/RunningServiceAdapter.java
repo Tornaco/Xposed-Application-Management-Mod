@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.ui.activity.helper;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
@@ -39,7 +40,7 @@ public class RunningServiceAdapter extends CommonPackageInfoAdapter {
 
     @SuppressLint("SetTextI18n")
     @Override
-    public void onBindViewHolder(CommonViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull CommonViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         RunningServiceInfoHolder runningServiceInfoHolder = (RunningServiceInfoHolder) holder;
         final RunningServiceInfoDisplay display = (RunningServiceInfoDisplay) getCommonPackageInfos().get(position);
@@ -53,11 +54,7 @@ public class RunningServiceAdapter extends CommonPackageInfoAdapter {
         holder.getSystemAppIndicator().setVisibility(View.VISIBLE);
         holder.getSystemAppIndicator().setText(display.getMergedItem().mSizeStr);
 
-        RunningState.ProcessItem processItem = display.getMergedItem().mProcess;
-        // FIXME Extract text to res.
-        if (processItem != null) {
-            runningServiceInfoHolder.getProcessNameView().setVisibility(View.GONE);
-        }
+        inflatePackageDesc(display, runningServiceInfoHolder.getProcessNameView(), false);
     }
 
     @Override

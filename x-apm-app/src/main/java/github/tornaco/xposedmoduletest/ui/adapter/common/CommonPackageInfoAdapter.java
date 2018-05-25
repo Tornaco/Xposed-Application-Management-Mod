@@ -83,6 +83,12 @@ public class CommonPackageInfoAdapter
         setChoiceMode(false);
 
         this.showGcmIndicator = AppSettings.isShowGcmIndicator(context);
+
+        this.idleBadge = new BadgeDrawable.Builder()
+                .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
+                .badgeColor(Color.GRAY)
+                .text1(context.getString(R.string.title_app_state_idle))
+                .build();
     }
 
     @Getter
@@ -155,7 +161,7 @@ public class CommonPackageInfoAdapter
     }
 
     @Override
-    public void onBindViewHolder(final CommonViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final CommonViewHolder holder, final int position) {
         final CommonPackageInfo packageInfo = commonPackageInfos.get(position);
 
         inflatePackageDesc(packageInfo, holder.getSystemAppIndicator(), showGcmIndicator);
@@ -217,9 +223,13 @@ public class CommonPackageInfoAdapter
     final BadgeDrawable gcmBadge =
             new BadgeDrawable.Builder()
                     .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
-                    .badgeColor(Color.GRAY)
+                    .badgeColor(Color.BLUE)
                     .text1("GCM")
                     .build();
+
+    @Getter
+    final BadgeDrawable idleBadge;
+
 
     BadgeDrawable createAppLevelBadge(String levelText, int levelColor) {
         if (levelText == null) return null;
@@ -234,7 +244,7 @@ public class CommonPackageInfoAdapter
         return true;
     }
 
-    void inflatePackageDesc(CommonPackageInfo info, TextView textView, boolean showGcmIndicator) {
+    protected void inflatePackageDesc(CommonPackageInfo info, TextView textView, boolean showGcmIndicator) {
 
         int appLevel = info.getAppLevel();
         String appLevelDesc = getSystemAppIndicatorLabel(appLevel);
@@ -246,6 +256,9 @@ public class CommonPackageInfoAdapter
         }
         if (onBuildGCMIndicator(info, textView) && showGcmIndicator && info.isGCMSupport()) {
             descSets.add(getGcmBadge().toSpannable());
+        }
+        if (info.isAppIdle()) {
+            descSets.add(getIdleBadge().toSpannable());
         }
         if (descSets.size() > 0) {
             CharSequence fullDesc = "";

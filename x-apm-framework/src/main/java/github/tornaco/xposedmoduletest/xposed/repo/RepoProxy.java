@@ -32,7 +32,6 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Created by guohao4 on 2017/12/11.
  * Email: Tornaco@163.com
  */
-
 public class RepoProxy {
 
     private static final Singleton<RepoProxy> sProxy =

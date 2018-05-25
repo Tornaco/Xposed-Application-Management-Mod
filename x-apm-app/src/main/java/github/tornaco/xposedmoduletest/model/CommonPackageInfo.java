@@ -30,6 +30,7 @@ public class CommonPackageInfo implements Cloneable {
     private int usageTimes;
     private Object args;
     private boolean isGCMSupport;
+    private boolean isAppIdle;
 
     // Extra info.
     private boolean isIME, isLauncher;

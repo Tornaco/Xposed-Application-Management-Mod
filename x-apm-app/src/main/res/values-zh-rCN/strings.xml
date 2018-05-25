@@ -95,7 +95,7 @@
     <string name="title_app_auto_start">关联启动限制</string>
     <string name="title_clearn">加速</string>
     <string name="title_app_mem_boost">内存清理</string>
-    <string name="title_app_rf_kill">返回强退</string>
+    <string name="title_app_rf_kill">返回清理</string>
     <string name="clear_process">清理内存</string>
     <string name="clear_process_now">立即清理</string>
     <string name="clear_process_complete_with_num">清理了%1$s个应用，已达最佳状态</string>
@@ -267,7 +267,7 @@
     <string name="title_privacy_update_later">稍后将刷新</string>
     <string name="title_privacy_input_code">请输入</string>
     <string name="summary_privacy">应用了隐匿的应用，在其尝试读取AndroidID，设备ICC号码，与设备序列号时，使用用户设定的数值来代替当前设备的原始数值（不会改变当前设备原始数值）。\n\n提示：尽量不要对常用社交APP使用，否则可能造成账号登陆异常。</string>
-    <string name="title_smart_sense">情景模式</string>
+    <string name="title_smart_sense">拓展</string>
     <string name="title_privacy_apps">查看应用隐匿设置的应用</string>
     <string name="title_privacy_items">隐匿项目</string>
     <string name="title_greening">绿色化</string>
@@ -310,7 +310,7 @@
     <string name="action_crash">FC（意外停止）</string>
     <string name="title_goto_system_settings">转到系统设置</string>
     <string name="title_action_exe_by_sort">将按照选中顺序执行</string>
-    <string name="summary_long_press_back">如果应用重定义了长按事件则无效</string>
+    <string name="summary_long_press_back">如果应用重定义了长按事件则无效。</string>
     <string name="title_style">外观</string>
     <string name="title_copyed">已复制</string>
     <string name="theme_name_dark">深色</string>
@@ -348,7 +348,7 @@
     <string name="title_do_not_kill_sbn_app">保护有通知的应用</string>
     <string name="summary_do_not_kill_sbn_app">不对有通知消息的应用进行锁屏清理。</string>
     <string name="summary_do_not_kill_sbn_app_lazy">不对有通知消息的应用进行处理。</string>
-    <string name="title_app_tr_kill">划卡强退</string>
+    <string name="title_app_tr_kill">划卡清理</string>
     <string name="summary_verify_on_task_removed">当应用从最近任务卡片中划掉时，该应用下次启动需要重新验证。</string>
     <string name="title_ver_on_task_removed">后台卡片划掉重新验证</string>
     <string name="title_doze_history_summary">失败原因 %1$s\n最后尝试进入打盹时设备状态为 %2$s</string>
@@ -549,8 +549,8 @@
     <string name="suggestion_donate">喜欢的话来一次捐赠吧</string>
     <string name="suggestion_summary_donate">支持开发者更加努力的进行改进，解锁更多功能%s。</string>
     <string name="suggestion_action_donate">我要捐赠</string>
-    <string name="title_inactive_instead_of_kill">休眠代替强行停止（实验）</string>
-    <string name="summary_inactive_instead_of_kill">清理应用时使用休眠API而不是强行停止API。</string>
+    <string name="title_inactive_instead_of_kill">休眠代替强行停止</string>
+    <string name="summary_inactive_instead_of_kill">清理应用时使用休眠API（App standby）而不是强行停止API。</string>
     <string name="title_policy">策略</string>
     <string name="title_system_dead_moke">模拟系统级别崩溃</string>
     <string name="summary_system_dead_moke">系统将在5秒内模拟依次崩溃，会导致设备重启。</string>
@@ -607,6 +607,7 @@
     <string name="title_app_lazy_rule">乖巧规则</string>
     <string name="summary_lazy_rules">可以控制保留某些服务。</string>
     <string name="title_app_disabled">%1$s 已冻结</string>
+    <string name="title_app_idle">%1$s 已休眠</string>
     <string name="title_push_message_handler_notification_mock_message">模拟一条消息</string>
     <string name="title_lazy_solution_app">方案A</string>
     <string name="title_lazy_solution_fw">方案B</string>
@@ -638,5 +639,12 @@
     <string name="title_decrease">-1</string>
     <string name="title_clear_all_fav_tile">清空</string>
     <string name="title_three_fingers_down_screenshot">三指截图</string>
-    <string name="summary_three_fingers_down_screenshot">三指下滑截图</string>
+    <string name="summary_three_fingers_down_screenshot">三指下滑截图。</string>
+    <string name="service_stop">停止</string>
+    <string name="perm_unknown">未知</string>
+    <string name="package_install_verify_dialog_allow">允许</string>
+    <string name="package_install_verify_dialog_deny">拒绝</string>
+    <string name="package_install_verify_dialog_always_allow">始终允许该应用</string>
+    <string name="title_app_state_idle">休眠中</string>
+    <string name="title_p_gesture">全面屏手势</string>
 </resources>

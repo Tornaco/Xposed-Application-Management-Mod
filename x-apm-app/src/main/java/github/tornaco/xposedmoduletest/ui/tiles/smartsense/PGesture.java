@@ -1,4 +1,4 @@
-package github.tornaco.xposedmoduletest.ui.tiles.app;
+package github.tornaco.xposedmoduletest.ui.tiles.smartsense;
 
 import android.content.Context;
 import android.widget.RelativeLayout;
@@ -13,33 +13,26 @@ import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
  * Email: Tornaco@163.com
  */
 
-public class InactiveInsteadOfKillApp extends QuickTile {
+public class PGesture extends QuickTile {
 
-    public InactiveInsteadOfKillApp(final Context context) {
+    public PGesture(final Context context) {
         super(context);
-
-        this.titleRes = R.string.title_inactive_instead_of_kill;
-        this.summaryRes = R.string.summary_inactive_instead_of_kill;
-        this.iconRes = R.drawable.ic_motorcycle_black_24dp;
+        this.titleRes = R.string.title_p_gesture;
+        this.summaryRes = R.string.summary_p_gesture;
+        this.iconRes = R.drawable.ic_touch_app_black_24dp;
         this.tileView = new SwitchTileView(context) {
-
-            @Override
-            protected int getImageViewBackgroundRes() {
-                return R.drawable.tile_bg_red;
-            }
-
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);
-                setChecked(XAPMManager.get().isServiceAvailable() &&
-                        XAPMManager.get().isInactiveAppInsteadOfKillPreferred());
+                setChecked(XAPMManager.get().isServiceAvailable()
+                        && XAPMManager.get().isOptFeatureEnabled(XAPMManager.OPT.P_GESTURE.name()));
             }
 
             @Override
             protected void onCheckChanged(boolean checked) {
                 super.onCheckChanged(checked);
                 if (XAPMManager.get().isServiceAvailable()) {
-                    XAPMManager.get().setInactiveAppInsteadOfKillPreferred(checked);
+                    XAPMManager.get().setOptFeatureEnabled(XAPMManager.OPT.P_GESTURE.name(), checked);
                 }
             }
         };

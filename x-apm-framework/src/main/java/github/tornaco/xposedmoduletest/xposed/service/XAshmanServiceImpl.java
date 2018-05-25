@@ -15,6 +15,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.admin.DevicePolicyManager;
+import android.app.usage.IUsageStatsManager;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -165,7 +166,6 @@ import github.tornaco.xposedmoduletest.xposed.service.pm.OriginInfoProxy;
 import github.tornaco.xposedmoduletest.xposed.service.pm.PackageInstallerManager;
 import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.policy.wm.SystemGesturesPointerEventListener;
-import github.tornaco.xposedmoduletest.xposed.service.policy.wm.SystemGesturesPointerEventListenerCallbackImpl;
 import github.tornaco.xposedmoduletest.xposed.service.power.PowerManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.provider.XAPMServerSettings;
 import github.tornaco.xposedmoduletest.xposed.service.rule.Rule;
@@ -1232,7 +1232,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
-            mInactiveInsteadOfKillAppInstead.set(XAPMServerSettings.INACTIVE_INSTEAD_OF_KILL.read());
+            mInactiveInsteadOfKillAppInstead.set(XAPMServerSettings.INACTIVE_INSTEAD_OF_FORCE_STOP.read());
             XposedLog.boot("mInactiveInsteadOfKillAppInstead: " + String.valueOf(mInactiveInsteadOfKillAppInstead));
         } catch (Throwable e) {
             XposedLog.wtf("Fail load settings from SettingsProvider:" + Log.getStackTraceString(e));
@@ -1907,6 +1907,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     public void onPhoneWindowManagerSetInitialDisplaySize(Display display) {
         XposedLog.boot("onPhoneWindowManagerSetInitialDisplaySize: " + display);
         mPhoneWindowManagerProxy.enableSwipeThreeFingerGesture(isOptFeatureEnabled(XAPMManager.OPT.THREE_FINGER_GESTURE.name()));
+        mPhoneWindowManagerProxy.enablePGesture(isOptFeatureEnabled(XAPMManager.OPT.P_GESTURE.name()));
     }
 
     @Override
@@ -3508,6 +3509,89 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    @BinderCall
+    public void setAppInactive(String packageName, boolean inactive, int userId) {
+        enforceCallingPermissions();
+        XposedLog.verbose("setAppInactive : " + packageName + "-" + userId);
+        long ident = Binder.clearCallingIdentity();
+        try {
+            if (HAS_STATS_MANAGER) {
+                IUsageStatsManager usm = IUsageStatsManager.Stub.asInterface(ServiceManager
+                        .getService(Context.USAGE_STATS_SERVICE));
+                if (usm != null) try {
+                    usm.setAppInactive(packageName, true, userId);
+                } catch (Throwable e) {
+                    XposedLog.wtf("Fail setAppInactive: " +
+                            Log.getStackTraceString(e));
+                }
+            }
+        } finally {
+            Binder.restoreCallingIdentity(ident);
+        }
+    }
+
+    @Override
+    @BinderCall
+    public boolean isAppInactive(String packageName, int userId) {
+        enforceCallingPermissions();
+        XposedLog.verbose("isAppInactive : " + packageName + "-" + userId);
+        long ident = Binder.clearCallingIdentity();
+        try {
+            if (HAS_STATS_MANAGER) {
+                IUsageStatsManager usm = IUsageStatsManager.Stub.asInterface(ServiceManager
+                        .getService(Context.USAGE_STATS_SERVICE));
+                if (usm != null) try {
+                    return usm.isAppInactive(packageName, userId);
+                } catch (Throwable e) {
+                    XposedLog.wtf("Fail isAppInactive: " +
+                            Log.getStackTraceString(e));
+                }
+            }
+        } finally {
+            Binder.restoreCallingIdentity(ident);
+        }
+        return false;
+    }
+
+    @Override
+    @BinderCall
+    public void forceStopPackage(String packageName) {
+        enforceCallingPermissions();
+        Runnable r = () -> {
+            ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
+            if (am != null) {
+                am.forceStopPackage(packageName);
+            }
+        };
+        mainHandler.post(new ErrorCatchRunnable(r, "forceStopPackage"));
+    }
+
+    @Override
+    @BinderCall
+    public void setAppInactivePolicyForModule(String module, int policy) {
+        enforceCallingPermissions();
+        if (policy != XAPMManager.AppInactivePolicy.FORCE_STOP && policy != XAPMManager.AppInactivePolicy.IDLE) {
+            policy = XAPMManager.AppInactivePolicy.FORCE_STOP;
+        }
+        SettingsProvider.get().putInt("APP_INACTIVE_POLICY_" + module, policy);
+    }
+
+    @Override
+    @BinderCall
+    public int getAppInactivePolicyForModule(String module) {
+        enforceCallingPermissions();
+        if (module == null || !HAS_STATS_MANAGER) {
+            return XAPMManager.AppInactivePolicy.FORCE_STOP;
+        }
+        int policy = SettingsProvider.get().getInt("APP_INACTIVE_POLICY_" + module, XAPMManager.AppInactivePolicy.FORCE_STOP);
+        if (policy != XAPMManager.AppInactivePolicy.FORCE_STOP && policy != XAPMManager.AppInactivePolicy.IDLE) {
+            policy = XAPMManager.AppInactivePolicy.FORCE_STOP;
+            setAppInactivePolicyForModule(module, XAPMManager.AppInactivePolicy.FORCE_STOP);
+        }
+        return policy;
+    }
+
+    @Override
     @InternalCall
     public boolean checkInstallApk(Object argsFrom) {
         return !isSystemReady() || checkInstallApkInternal(argsFrom);
@@ -4445,7 +4529,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         XposedLog.verbose("forceIdlePackages: " + Arrays.toString(packages));
         wrapCallingIdetUnCaught(new ErrorCatchRunnable(() -> {
             for (String p : packages) {
-                getAppIdler().setAppIdle(p);
+                getAppIdler(null).setAppIdle(p);
             }
         }, "forceStopPackages"));
     }
@@ -5467,7 +5551,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 final String finalPkgOfThisTask = pkgOfThisTask;
                 mLazyHandler.postDelayed(new ErrorCatchRunnable(() -> {
                     XposedLog.verbose("removeTask, killing: " + finalPkgOfThisTask);
-                    getAppIdler().setAppIdle(finalPkgOfThisTask);
+                    getAppIdler(XAppBuildVar.APP_TRK).setAppIdle(finalPkgOfThisTask);
                 }, "removeTask-kill"), 888); // FIXME why 888?
             }
         }
@@ -5964,7 +6048,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     @BinderCall
-    public void applyAppSettingsForPackage(String pkg, AppSettings settings) throws RemoteException {
+    public void applyAppSettingsForPackage(String pkg, AppSettings settings) {
         XposedLog.verbose("applyAppSettingsForPackage %s %s", pkg, settings);
         enforceCallingPermissions();
 
@@ -6883,34 +6967,27 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         if (getContext() != null) {
             mKillIdler = new KillAppIdler(getContext(), mOnAppIdleListener);
         }
-
-        // Under test.
-        if (false)
-            mSystemGesturesPointerEventListener = new SystemGesturesPointerEventListener(getContext(),
-                    new SystemGesturesPointerEventListenerCallbackImpl(getContext()));
     }
 
-    private AppIdler getAppIdler() {
-        AppIdler idler = getAppIdlerInternal();
+    private AppIdler getAppIdler(String module) {
+        AppIdler idler = getAppIdlerInternal(module);
         if (BuildConfig.DEBUG) {
             XposedLog.verbose("getAppIdler: " + idler);
         }
         return idler;
     }
 
-    // FIXME Temp disable this feature for user build.
-    // There is some serious issue on MIUI that cause system dead.
     private static final boolean HAS_STATS_MANAGER =
-            BuildConfig.DEBUG && Build.VERSION.SDK_INT
+            Build.VERSION.SDK_INT
                     >= Build.VERSION_CODES.LOLLIPOP_MR1;
 
-    private AppIdler getAppIdlerInternal() {
+    private AppIdler getAppIdlerInternal(String module) {
         if (mKillIdler == null && mInactiveIdler == null) {
             return mDummyIdler;
         }
         // Safe check before usage.
-        return (HAS_STATS_MANAGER && mInactiveInsteadOfKillAppInstead.get() && (mInactiveIdler != null))
-                ? mInactiveIdler : mKillIdler;
+        int policy = getAppInactivePolicyForModule(module);
+        return (policy == XAPMManager.AppInactivePolicy.IDLE && (mInactiveIdler != null)) ? mInactiveIdler : mKillIdler;
     }
 
     protected Handler onCreateServiceHandler() {
@@ -7391,7 +7468,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     public void setInactiveAppInsteadOfKillPreferred(boolean prefer) {
         enforceCallingPermissions();
-        XAPMServerSettings.INACTIVE_INSTEAD_OF_KILL.write(prefer);
+        XAPMServerSettings.INACTIVE_INSTEAD_OF_FORCE_STOP.write(prefer);
         mInactiveInsteadOfKillAppInstead.set(prefer);
     }
 
@@ -8314,7 +8391,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                             return cleared;
                         }
 
-                        getAppIdler().setAppIdle(runningPackageName);
+                        getAppIdler(XAppBuildVar.APP_LK).setAppIdle(runningPackageName);
 
                         cleared[i] = runningPackageName;
 
@@ -8616,11 +8693,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             String from = mTopPackageImd.getData();
             if (who != null && !who.equals(from)) {
                 mTopPackageImd.setData(who);
+
                 postNotifyTopPackageChanged(from, who);
 
                 // Check if we need to add app process for this host.
                 ErrorCatchRunnable er = new ErrorCatchRunnable(() -> addAppForLazyIfNeeded(who), "LAZY addAppForLazyIfNeeded");
                 er.run();
+
+                if (!isInWhiteList(who) && isPackageLKByUser(who)) {
+                    addToRunningProcessPackages(who);
+                }
             }
         }
 
@@ -8927,7 +9009,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             boolean mayBeKillThisPackage = getTopPackageDelay() != null && getTopPackageDelay().equals(targetPackage);
             if (mayBeKillThisPackage) {
                 XposedLog.verbose(XposedLog.PREFIX_KEY + "mayBeKillThisPackage after long back: " + targetPackage);
-                getAppIdler().setAppIdle(targetPackage);
+                getAppIdler(null).setAppIdle(targetPackage);
             }
         }
 
@@ -8967,9 +9049,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                             return;
                         }
 
-                        getAppIdler().setAppIdle(packageName);
+                        getAppIdler(XAppBuildVar.APP_RFK).setAppIdle(packageName);
                     } catch (Throwable e) {
-                        XposedLog.wtf(XposedLog.PREFIX_KEY + "Fail rf kill in runnable: " + Log.getStackTraceString(e));
+                        XposedLog.wtf(XposedLog.PREFIX_KEY + "Fail killPackageWhenBackPressed in runnable: " + Log.getStackTraceString(e));
                     }
                 }, "killPackageWhenBackPressed"), 666);
             }
