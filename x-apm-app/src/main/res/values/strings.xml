@@ -655,5 +655,6 @@
     <string name="title_app_state_idle">IDLE</string>
     <string name="title_p_gesture">全面屏手势</string>
     <string name="summary_p_gesture">仅供娱乐和测试。</string>
+    <string name="title_long_screen_shot">滚动截图</string>
 
 </resources>

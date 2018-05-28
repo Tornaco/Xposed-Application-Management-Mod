@@ -60,6 +60,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.MapRepo;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.repo.SetRepo;
+import github.tornaco.xposedmoduletest.xposed.service.notification.SystemUI;
 import github.tornaco.xposedmoduletest.xposed.service.provider.XAPMServerSettings;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -1301,6 +1302,12 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
                     NotificationCompat.Builder builder
                             = new NotificationCompat.Builder(getContext(), NOTIFICATION_CHANNEL_ID_DEBUG);
+
+                    try {
+                        SystemUI.overrideNotificationAppName(getContext(), builder, "X-APM");
+                    } catch (Throwable ignored) {
+                    }
+
                     Notification n = builder
                             .setOngoing(true)
                             .setContentTitle("应用管理")

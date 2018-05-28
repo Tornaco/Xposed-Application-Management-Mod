@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.util.Log;
 
@@ -2375,6 +2376,24 @@ public class XAPMManager {
             return mService.getAppInactivePolicyForModule(module);
         } catch (Exception e) {
             return AppInactivePolicy.FORCE_STOP;
+        }
+    }
+
+    public void executeInputCommand(String[] args) {
+        ensureService();
+        try {
+            mService.executeInputCommand(args);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public void takeLongScreenShot() {
+        ensureService();
+        try {
+            mService.takeLongScreenShot();
+        } catch (Exception e) {
+
         }
     }
 }

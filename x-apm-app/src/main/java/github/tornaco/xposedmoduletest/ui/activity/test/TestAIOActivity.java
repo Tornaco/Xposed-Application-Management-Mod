@@ -10,6 +10,7 @@ import android.os.ServiceManager;
 import android.os.UserHandle;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.newstand.logger.Logger;
 
@@ -78,6 +79,24 @@ public class TestAIOActivity extends BaseActivity {
                     }
                 });
 
+        findViewById(R.id.test_btn_input)
+                .setOnClickListener(v -> {
+                    XAPMManager.get().executeInputCommand(new String[]{"-h"});
+
+                    XAPMManager.get().executeInputCommand(new String[]{
+                            "swipe",
+                            "300",
+                            "300",
+                            "900",
+                            "900"
+                    });
+                });
+
+        findViewById(R.id.test_btn_screenshot)
+                .setOnClickListener(v -> {
+                    XAPMManager.get().takeLongScreenShot();
+                });
+
         Tile tile = TileManager.makeTileByKey("Lazy", getActivity());
         Logger.d("makeTileByKey: " + tile);
 
@@ -87,8 +106,8 @@ public class TestAIOActivity extends BaseActivity {
             IUsageStatsManager.Stub.asInterface(ServiceManager
                     .getService(Context.USAGE_STATS_SERVICE))
                     .setAppInactive(BuildConfig.APPLICATION_ID, true, UserHandle.getCallingUserId());
-        } catch (RemoteException e) {
-            e.rethrowAsRuntimeException();
+        } catch (Throwable e) {
+            Toast.makeText(getContext(), e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
         }
     }
 }

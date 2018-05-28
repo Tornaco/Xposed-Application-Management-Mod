@@ -209,6 +209,16 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public void executeInputCommand(String[] args) {
+
+    }
+
+    @Override
+    public void takeLongScreenShot() {
+
+    }
+
+    @Override
     public boolean checkInstallApk(Object installArgsObject) {
         return true; // Yes.
     }

@@ -153,8 +153,10 @@ import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerP
 import github.tornaco.xposedmoduletest.xposed.service.doze.DozeStateRetriever;
 import github.tornaco.xposedmoduletest.xposed.service.doze.PowerWhitelistBackend;
 import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerServiceProxy;
+import github.tornaco.xposedmoduletest.xposed.service.input.Input;
 import github.tornaco.xposedmoduletest.xposed.service.multipleapps.MultipleAppsManager;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
+import github.tornaco.xposedmoduletest.xposed.service.notification.SystemUI;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.GCMFCMHelper;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.NotificationHandlerSettingsRetriever;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.PushNotificationHandler;
@@ -171,6 +173,7 @@ import github.tornaco.xposedmoduletest.xposed.service.provider.XAPMServerSetting
 import github.tornaco.xposedmoduletest.xposed.service.rule.Rule;
 import github.tornaco.xposedmoduletest.xposed.service.rule.RuleParser;
 import github.tornaco.xposedmoduletest.xposed.service.shell.AshShellCommand;
+import github.tornaco.xposedmoduletest.xposed.service.view.LocalScreenShot;
 import github.tornaco.xposedmoduletest.xposed.submodules.InputManagerInjectInputSubModule;
 import github.tornaco.xposedmoduletest.xposed.submodules.SubModuleManager;
 import github.tornaco.xposedmoduletest.xposed.submodules.debug.TestXposedMethod;
@@ -643,6 +646,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         viewer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID_DEFAULT);
+        try {
+            String override = new AppResource(getContext())
+                    .loadStringFromAPMApp("notification_override_settings_template");
+            SystemUI.overrideNotificationAppName(getContext(), builder, override);
+        } catch (Throwable ignored) {
+        }
 
         Notification n = builder
                 .setContentIntent(PendingIntent.getActivity(getContext(), 0x1, viewer,
@@ -680,6 +689,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(),
                 NOTIFICATION_CHANNEL_ID_APP_PROCESS);
+
+        try {
+            String override = new AppResource(getContext())
+                    .loadStringFromAPMApp("notification_override_process_update");
+            SystemUI.overrideNotificationAppName(getContext(), builder, override);
+        } catch (Throwable ignored) {
+        }
 
         Intent clearBroadcastIntent = new Intent(ACTION_CLEAR_PROCESS);
         PendingIntent clearIntent = PendingIntent.getBroadcast(getContext(), 0, clearBroadcastIntent, PendingIntent.FLAG_CANCEL_CURRENT);
@@ -3589,6 +3605,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             setAppInactivePolicyForModule(module, XAPMManager.AppInactivePolicy.FORCE_STOP);
         }
         return policy;
+    }
+
+    @Override
+    public void executeInputCommand(String[] args) {
+        enforceCallingPermissions();
+        wrapCallingIdetUnCaught(new ErrorCatchRunnable(() -> Input.main(args), "executeInputCommand: " + Arrays.toString(args)));
+    }
+
+    @Override
+    public void takeLongScreenShot() {
+        enforceCallingPermissions();
+        LocalScreenShot ls = new LocalScreenShot(getContext());
+        wrapCallingIdetUnCaught(new ErrorCatchRunnable(ls::takeLongScreenshot, "takeLongScreenShot: "));
     }
 
     @Override

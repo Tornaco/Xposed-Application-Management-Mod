@@ -506,4 +506,10 @@ interface IAshmanService {
     // Inactive policy.
     void setAppInactivePolicyForModule(String module, int policy);
     int getAppInactivePolicyForModule(String module);
+
+    // Input.
+    void executeInputCommand(in String[] args);
+
+    // Screenshots.
+    void takeLongScreenShot();
 }

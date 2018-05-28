@@ -12,4 +12,8 @@
 
     <string name="package_install_verify_deny_notification_title">拒绝安装</string>
     <string name="package_install_verify_deny_notification_message">应用管理检测到 %1$s 想要安装%2$s 应用，该安装请求已经被拒绝。</string>
+
+    <string name="notification_override_push_message_handler">%s代收</string>
+    <string name="notification_override_settings_template">模板设置</string>
+    <string name="notification_override_process_update">清理通知</string>
 </resources>
