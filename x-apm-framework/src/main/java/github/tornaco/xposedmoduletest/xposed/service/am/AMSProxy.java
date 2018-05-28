@@ -1,6 +1,11 @@
 package github.tornaco.xposedmoduletest.xposed.service.am;
 
 import android.content.pm.ApplicationInfo;
+import android.os.IBinder;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.xposedmoduletest.util.OSUtil;
@@ -14,6 +19,8 @@ import lombok.Getter;
  */
 @Getter
 public class AMSProxy extends InvokeTargetProxy<Object> {
+
+    private Object mStackSupervisor;
 
     public AMSProxy(Object host) {
         super(host);
@@ -32,8 +39,29 @@ public class AMSProxy extends InvokeTargetProxy<Object> {
         return invokeMethod("addAppLocked", applicationInfo, isolated, abiOverride);
     }
 
-    public ActiveServicesProxy newActiveServicesProxy() {
-        Object mServices = XposedHelpers.getObjectField(getHost(), "mServices");
-        return new ActiveServicesProxy(mServices);
+    public void dumpTopActivity() {
+        List<Object> activities = getDumpActivitiesLocked("top");
+        if (activities.size() > 0) {
+            Object activityRecord = activities.get(0);
+            IBinder appToken = (IBinder) XposedHelpers.getObjectField(activityRecord, "appToken");
+            XposedLog.verbose("AMSProxy appToken: " + appToken);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Object> getDumpActivitiesLocked(String name) {
+        try {
+            synchronized (this) {
+                if (mStackSupervisor == null) {
+                    mStackSupervisor = XposedHelpers
+                            .getObjectField(getHost(), "mStackSupervisor");
+                    XposedLog.verbose("AMSProxy getDumpActivitiesLocked mStackSupervisor= " + mStackSupervisor);
+                }
+            }
+            return (List<Object>) XposedHelpers.callMethod(mStackSupervisor, "getDumpActivitiesLocked", name);
+        } catch (Throwable e) {
+            XposedLog.wtf("AMSProxy Fail getDumpActivitiesLocked: " + Log.getStackTraceString(e));
+            return new ArrayList<>(0);
+        }
     }
 }
