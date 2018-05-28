@@ -28,8 +28,7 @@ public class AppDevMode extends QuickTile {
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);
-                setChecked(XAppLockManager.get().isServiceAvailable() && XAppLockManager.get().isDebug());
-                XSettings.setInDevMode(context, isChecked());
+                setChecked(XAppLockManager.get().isServiceAvailable() && XAppLockManager.get().isDebug() || XSettings.isDevMode(context));
             }
 
             @Override
@@ -40,15 +39,14 @@ public class AppDevMode extends QuickTile {
             @Override
             protected void onCheckChanged(boolean checked) {
                 super.onCheckChanged(checked);
-                if (XAppLockManager.get().isServiceAvailable()) {
-                    XAppLockManager.get().setDebug(checked);
-                    XSettings.setInDevMode(context, checked);
 
-                    Logger.config(Settings.builder().tag("X-APM-C")
-                            .logLevel(isChecked()
-                                    ? Logger.LogLevel.VERBOSE : Logger.LogLevel.WARN)
-                            .build());
-                }
+                XAppLockManager.get().setDebug(checked);
+                XSettings.setInDevMode(context, checked);
+
+                Logger.config(Settings.builder().tag("X-APM-C")
+                        .logLevel(isChecked()
+                                ? Logger.LogLevel.VERBOSE : Logger.LogLevel.WARN)
+                        .build());
             }
         };
     }
