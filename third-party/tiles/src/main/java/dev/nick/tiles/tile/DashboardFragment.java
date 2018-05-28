@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -72,6 +73,17 @@ public class DashboardFragment extends Fragment {
 
     protected boolean androidPStyleIcon() {
         return getResources().getBoolean(R.bool.dashboard_android_p_icon);
+    }
+
+    protected void buildUIDelay(final Context context, long delayMills) {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (isVisible() && getActivity() != null) {
+                    buildUI(context);
+                }
+            }
+        }, delayMills);
     }
 
     protected void buildUI(Context context) {

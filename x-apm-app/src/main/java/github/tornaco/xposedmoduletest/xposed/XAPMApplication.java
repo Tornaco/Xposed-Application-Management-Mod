@@ -124,7 +124,7 @@ public class XAPMApplication extends MultiDexApplication {
         }
 
         Logger.config(Settings.builder().tag("X-APM-C")
-                .logLevel(BuildConfig.DEBUG || XSettings.isDevMode(this)
+                .logLevel(XSettings.isDevMode(this)
                         ? Logger.LogLevel.VERBOSE : Logger.LogLevel.WARN)
                 .logAdapter(new AndroidLogAdapter() {
                     @Override

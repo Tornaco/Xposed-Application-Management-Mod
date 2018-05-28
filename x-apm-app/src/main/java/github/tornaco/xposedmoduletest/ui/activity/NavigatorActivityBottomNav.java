@@ -450,7 +450,7 @@ public class NavigatorActivityBottomNav
                 boolean visible = activity != null && activity.isVisible();
 
                 if (visible) {
-                    buildUI(getActivity());
+                    buildUIDelay(getActivity(), 1000);
                 }
             }
         }

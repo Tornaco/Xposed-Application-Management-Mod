@@ -9,6 +9,7 @@ import java.util.Observable;
 
 import dev.nick.eventbus.Event;
 import dev.nick.eventbus.EventBus;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 
@@ -68,7 +69,7 @@ public class XSettings extends Observable {
 
     public static boolean isDevMode(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(XKey.DEV_MODE, true);
+                .getBoolean(XKey.DEV_MODE, BuildConfig.DEBUG);
     }
 
     public static boolean isStartBlockNotify(Context context) {
