@@ -36,6 +36,7 @@ public class XAPMApplication extends MultiDexApplication {
     public static final int EVENT_INSTALLED_APPS_CACHE_UPDATE = 0x2;
     public static final int EVENT_GCM_REGISTRATION_COMPLETE = 0x3;
     public static final int EVENT_RECENT_TILE_CHANGED = 0x4;
+    public static final int EVENT_APP_DEBUG_MODE_CHANGED = 0x5;
 
     @SuppressLint("StaticFieldLeak")
     private static XAPMApplication xApp;

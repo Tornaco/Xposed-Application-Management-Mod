@@ -48,6 +48,7 @@ import github.tornaco.xposedmoduletest.bean.Suggestion;
 import github.tornaco.xposedmoduletest.bean.Suggestions;
 import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
+import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.ActivityLifeCycleDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.FragmentController;
 import github.tornaco.xposedmoduletest.ui.Themes;
@@ -177,6 +178,7 @@ public class NavigatorActivityBottomNav
                     XAPMApplication.EVENT_INSTALLED_APPS_CACHE_UPDATE,
                     XAPMApplication.EVENT_RUNNING_SERVICE_CACHE_UPDATE,
                     XAPMApplication.EVENT_RECENT_TILE_CHANGED,
+                    XAPMApplication.EVENT_APP_DEBUG_MODE_CHANGED,
             };
         }
     };
@@ -440,13 +442,29 @@ public class NavigatorActivityBottomNav
         }
 
         @Override
+        public void onEvent(Event event) {
+            super.onEvent(event);
+            if (event.getEventType() == XAPMApplication.EVENT_APP_DEBUG_MODE_CHANGED) {
+
+                BaseActivity activity = (BaseActivity) getActivity();
+                boolean visible = activity != null && activity.isVisible();
+
+                if (visible) {
+                    buildUI(getActivity());
+                }
+            }
+        }
+
+        @Override
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
 
             Category dev = new Category();
             dev.titleRes = R.string.title_dev_tools;
             dev.addTile(new AppDevMode(getActivity()));
-            dev.addTile(new ADBWireless(getActivity()));
+            if (XSettings.isDevMode(getActivity())) {
+                dev.addTile(new ADBWireless(getActivity()));
+            }
             dev.addTile(new CrashDump(getActivity()));
             dev.addTile(new MokeCrash(getActivity()));
             dev.addTile(new MokeSystemDead(getActivity()));
