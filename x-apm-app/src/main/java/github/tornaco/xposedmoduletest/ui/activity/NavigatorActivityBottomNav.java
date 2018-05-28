@@ -76,6 +76,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.SmartSense;
 import github.tornaco.xposedmoduletest.ui.tiles.TRKill;
 import github.tornaco.xposedmoduletest.ui.tiles.TileManager;
 import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
+import github.tornaco.xposedmoduletest.ui.tiles.app.ADBWireless;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AboutSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppDevMode;
 import github.tornaco.xposedmoduletest.ui.tiles.app.BackupRestoreSettings;
@@ -445,6 +446,7 @@ public class NavigatorActivityBottomNav
             Category dev = new Category();
             dev.titleRes = R.string.title_dev_tools;
             dev.addTile(new AppDevMode(getActivity()));
+            dev.addTile(new ADBWireless(getActivity()));
             dev.addTile(new CrashDump(getActivity()));
             dev.addTile(new MokeCrash(getActivity()));
             dev.addTile(new MokeSystemDead(getActivity()));

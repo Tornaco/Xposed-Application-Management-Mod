@@ -12,8 +12,12 @@
     <string name="title_view_photos">View visitors</string>
     <string name="title_take_photo">Capture visitors</string>
     <string name="title_dev_mode">Debug mode</string>
+    <string name="title_adb_wireless">ADB over Wireless</string>
     <string name="title_exp">Experiment</string>
     <string name="title_advance">Advance</string>
+    <string name="adb_wireless_shell_success">ADB over Wireless shell success</string>
+    <string name="adb_wireless_shell_fail">ADB over Wireless shell fail</string>
+    <string name="summary_adb_wireless">Enable or disable ADB over wireless(need root)\nADB over wireless use IP address:</string>
     <string name="summary_dev_mode">Activate log output, will increase power consumption. No need for non-developers</string>
     <string name="summary_take_photo">When the password is entered incorrectly, try to save a photo of the front camera. Note that the success of the save depends to some extent on the speed of the camera preview of your device and the speed of the input.</string>
     <string name="summary_manage_overlay">We will use the system dialog box to display the unlock interface, so you must turn on the overlay layer in the system settings to use the most basic functions.</string>
