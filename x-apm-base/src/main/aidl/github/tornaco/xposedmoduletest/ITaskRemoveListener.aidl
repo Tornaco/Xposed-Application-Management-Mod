@@ -1,5 +1,5 @@
 package github.tornaco.xposedmoduletest;
 
 interface ITaskRemoveListener {
-    void onTaskRemoved(String packageName);
+    oneway void onTaskRemoved(String packageName);
 }

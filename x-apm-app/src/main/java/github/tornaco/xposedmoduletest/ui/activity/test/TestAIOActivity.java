@@ -60,7 +60,7 @@ public class TestAIOActivity extends BaseActivity {
                 .setOnClickListener(v -> {
                     IAshmanService service = IAshmanService.Stub.asInterface(ServiceManager.getService(XAPMManager.SERVICE_NAME));
                     try {
-                        service.installAppToMultipleAppsUser(BuildConfig.APPLICATION_ID);
+                        service.installAppToMultipleAppsUser("com.tencent.mm");
                     } catch (RemoteException ignored) {
 
                     }
@@ -71,7 +71,7 @@ public class TestAIOActivity extends BaseActivity {
                     IAshmanService service =
                             IAshmanService.Stub.asInterface(ServiceManager.getService(XAPMManager.SERVICE_NAME));
                     PackageManager pm = getPackageManager();
-                    Intent launcher = pm.getLaunchIntentForPackage(BuildConfig.APPLICATION_ID);
+                    Intent launcher = pm.getLaunchIntentForPackage("com.tencent.mm");
                     try {
                         service.startActivityAsUser(launcher, 10);
                     } catch (RemoteException ignored) {

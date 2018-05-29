@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
-import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.util.Log;
 
@@ -19,6 +18,7 @@ import java.util.Map;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
+import github.tornaco.xposedmoduletest.IBackupAgent;
 import github.tornaco.xposedmoduletest.IBooleanCallback1;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IServiceControl;
@@ -2394,6 +2394,15 @@ public class XAPMManager {
             mService.takeLongScreenShot();
         } catch (Exception e) {
 
+        }
+    }
+
+    public IBackupAgent getBackupAgent() {
+        ensureService();
+        try {
+            return mService.getBackupAgent();
+        } catch (Exception e) {
+            return null;
         }
     }
 }

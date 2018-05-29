@@ -74,7 +74,7 @@ public class SettingsDashboardActivity extends WithWithCustomTabActivity
         XExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                DataBackup.performBackup(dir, SettingsDashboardActivity.this);
+                DataBackup.performBackup(getContext(), dir, SettingsDashboardActivity.this);
             }
         });
     }
@@ -177,7 +177,7 @@ public class SettingsDashboardActivity extends WithWithCustomTabActivity
     }
 
     @Override
-    public void onDataBackupFail(int errNum, final Throwable e) {
+    public void onDataBackupFail(final Throwable e) {
         runOnUiThreadChecked(new Runnable() {
             @Override
             public void run() {

@@ -111,6 +111,7 @@ import github.tornaco.android.common.Consumer;
 import github.tornaco.android.common.Holder;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
+import github.tornaco.xposedmoduletest.IBackupAgent;
 import github.tornaco.xposedmoduletest.IBooleanCallback1;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
@@ -3621,6 +3622,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    public IBackupAgent getBackupAgent() throws RemoteException {
+        enforceCallingPermissions();
+        return RepoProxy.getProxy().getBackupAgent();
+    }
+
+    @Override
     @InternalCall
     public boolean checkInstallApk(Object argsFrom) {
         return !isSystemReady() || checkInstallApkInternal(argsFrom);
@@ -6154,14 +6161,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     @BinderCall
     public void backupTo(String dir) {
-        long ident = Binder.clearCallingIdentity();
-        try {
-            RepoProxy.getProxy().backupTo(dir);
-        } catch (Throwable e) {
-            XposedLog.wtf("backupTo fail " + Log.getStackTraceString(e));
-        } finally {
-            Binder.restoreCallingIdentity(ident);
-        }
+        throw new RuntimeException("Directly back to dir is not supported");
     }
 
     @Override
@@ -6807,7 +6807,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         wrapCallingIdetUnCaught(new ErrorCatchRunnable(new Runnable() {
             @Override
             public void run() {
-                FileUtil.deleteDir(RepoProxy.getSystemErrorTraceDir());
+                FileUtil.deleteDirQuiet(RepoProxy.getSystemErrorTraceDir());
             }
         }, "cleanUpSystemErrorTraces"));
     }
