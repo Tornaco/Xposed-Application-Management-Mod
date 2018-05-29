@@ -157,6 +157,7 @@ import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerSer
 import github.tornaco.xposedmoduletest.xposed.service.input.Input;
 import github.tornaco.xposedmoduletest.xposed.service.multipleapps.MultipleAppsManager;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
+import github.tornaco.xposedmoduletest.xposed.service.notification.RebootNotification;
 import github.tornaco.xposedmoduletest.xposed.service.notification.SystemUI;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.GCMFCMHelper;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.NotificationHandlerSettingsRetriever;
@@ -340,6 +341,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             // Nothing.
         }
     };
+
+    private RebootNotification mRebootNotification;
 
     private static final String ACTION_CLEAR_PROCESS = "github.tornaco.broadcast.action.clear_process";
 
@@ -3622,9 +3625,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
-    public IBackupAgent getBackupAgent() throws RemoteException {
+    public IBackupAgent getBackupAgent() {
         enforceCallingPermissions();
         return RepoProxy.getProxy().getBackupAgent();
+    }
+
+    @Override
+    public void showRebootNeededNotification(String why) {
+        XposedLog.verbose("RebootNotification show: " + why);
+        enforceCallingPermissions();
+        wrapCallingIdetUnCaught(() -> {
+            createDefaultNotificationChannelForO();
+            mRebootNotification.show(NOTIFICATION_CHANNEL_ID_DEFAULT, NOTIFICATION_ID_DYNAMIC.getAndIncrement());
+        });
     }
 
     @Override
@@ -4208,6 +4221,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }, "Ready to post notifications"), 3 * 1000);
 
         cacheWebviewPackacgaes();
+
+        mRebootNotification = new RebootNotification(getContext(), mainHandler);
 
         // Disable layout debug incase our logic make the system dead in loop.
         if (BuildConfig.DEBUG) {

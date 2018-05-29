@@ -224,6 +224,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public void showRebootNeededNotification(String why) {
+
+    }
+
+    @Override
     public boolean checkInstallApk(Object installArgsObject) {
         return true; // Yes.
     }

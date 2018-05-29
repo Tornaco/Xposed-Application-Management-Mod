@@ -169,6 +169,7 @@ public class XAPMManager {
         try {
             return mService.getAppLevel(pkg);
         } catch (Exception e) {
+            handleException(e);
             return AppLevel.THIRD_PARTY;
         }
     }
@@ -178,6 +179,7 @@ public class XAPMManager {
         try {
             return mService.packageForTaskId(taskId);
         } catch (Exception e) {
+            handleException(e);
             return null;
         }
     }
@@ -195,6 +197,7 @@ public class XAPMManager {
         try {
             mService.setBootBlockEnabled(enabled);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -203,6 +206,7 @@ public class XAPMManager {
         try {
             return mService.isBlockBlockEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -212,6 +216,7 @@ public class XAPMManager {
         try {
             mService.setStartBlockEnabled(enabled);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -220,6 +225,7 @@ public class XAPMManager {
         try {
             return mService.isStartBlockEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -229,6 +235,7 @@ public class XAPMManager {
         try {
             mService.setLockKillEnabled(enabled);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -237,6 +244,7 @@ public class XAPMManager {
         try {
             return mService.getBlockRecords();
         } catch (Exception e) {
+            handleException(e);
             return new ArrayList<>(0);
         }
     }
@@ -246,6 +254,7 @@ public class XAPMManager {
         try {
             mService.clearBlockRecords();
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -254,6 +263,7 @@ public class XAPMManager {
         try {
             return mService.isLockKillEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -263,6 +273,7 @@ public class XAPMManager {
         try {
             mService.setLockKillDelay(delay);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -271,6 +282,7 @@ public class XAPMManager {
         try {
             return mService.getLockKillDelay();
         } catch (Exception e) {
+            handleException(e);
             return 0L;
         }
     }
@@ -279,6 +291,7 @@ public class XAPMManager {
         try {
             mService.setRFKillEnabled(enabled);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -286,6 +299,7 @@ public class XAPMManager {
         try {
             return mService.isRFKillEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -313,6 +327,7 @@ public class XAPMManager {
         try {
             mService.setComponentEnabledSetting(componentName, newState, flags);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -321,6 +336,7 @@ public class XAPMManager {
         try {
             return mService.getComponentEnabledSetting(componentName);
         } catch (Exception e) {
+            handleException(e);
             return Integer.MIN_VALUE + PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
         }
     }
@@ -330,6 +346,7 @@ public class XAPMManager {
         try {
             return mService.getApplicationEnabledSetting(packageName);
         } catch (Exception e) {
+            handleException(e);
             return Integer.MIN_VALUE + PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
         }
     }
@@ -339,6 +356,7 @@ public class XAPMManager {
         try {
             mService.setApplicationEnabledSetting(packageName, newState, flags, tmp);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -347,6 +365,7 @@ public class XAPMManager {
         try {
             mService.addPendingDisableApps(pkg);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -356,6 +375,7 @@ public class XAPMManager {
         try {
             mService.addPendingDisableAppsTR(pkg);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -365,6 +385,7 @@ public class XAPMManager {
         try {
             mService.watch(w);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -373,6 +394,7 @@ public class XAPMManager {
         try {
             mService.unWatch(w);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -381,6 +403,7 @@ public class XAPMManager {
         try {
             mService.setNetworkPolicyUidPolicy(uid, policy);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -389,6 +412,7 @@ public class XAPMManager {
         try {
             mService.restart();
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -397,6 +421,7 @@ public class XAPMManager {
         try {
             mService.setCompSettingBlockEnabled(enabled);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -405,6 +430,7 @@ public class XAPMManager {
         try {
             return mService.isCompSettingBlockEnabledEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -414,6 +440,7 @@ public class XAPMManager {
         try {
             return mService.getWhiteListApps(filterOptions);
         } catch (Exception e) {
+            handleException(e);
             return new String[0];
         }
     }
@@ -423,6 +450,7 @@ public class XAPMManager {
         try {
             return mService.getBootBlockApps(block);
         } catch (Exception e) {
+            handleException(e);
             return new String[0];
         }
     }
@@ -432,6 +460,7 @@ public class XAPMManager {
         try {
             mService.addOrRemoveBootBlockApps(packages, op);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -440,6 +469,7 @@ public class XAPMManager {
         try {
             return mService.getStartBlockApps(block);
         } catch (Exception e) {
+            handleException(e);
             return new String[0];
         }
     }
@@ -449,6 +479,7 @@ public class XAPMManager {
         try {
             mService.addOrRemoveStartBlockApps(packages, op);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -457,6 +488,7 @@ public class XAPMManager {
         try {
             return mService.getLKApps(kill);
         } catch (Exception e) {
+            handleException(e);
             return new String[0];
         }
     }
@@ -466,6 +498,7 @@ public class XAPMManager {
         try {
             mService.addOrRemoveLKApps(packages, op);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -474,6 +507,7 @@ public class XAPMManager {
         try {
             return mService.getRFKApps(kill);
         } catch (Exception e) {
+            handleException(e);
             return new String[0];
         }
     }
@@ -483,6 +517,7 @@ public class XAPMManager {
         try {
             mService.addOrRemoveRFKApps(packages, op);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -491,6 +526,7 @@ public class XAPMManager {
         try {
             mService.setWhiteSysAppEnabled(enabled);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -499,6 +535,7 @@ public class XAPMManager {
         try {
             return mService.isWhiteSysAppEnabled();
         } catch (Exception e) {
+            handleException(e);
             return true;
         }
     }
@@ -508,6 +545,7 @@ public class XAPMManager {
         try {
             mService.unInstallPackage(pkg, callback);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -516,6 +554,7 @@ public class XAPMManager {
         try {
             mService.restrictAppOnData(uid, restrict);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -524,6 +563,7 @@ public class XAPMManager {
         try {
             mService.restrictAppOnWifi(uid, restrict);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -532,6 +572,7 @@ public class XAPMManager {
         try {
             return mService.isRestrictOnData(uid);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -541,6 +582,7 @@ public class XAPMManager {
         try {
             return mService.isRestrictOnWifi(uid);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -550,6 +592,7 @@ public class XAPMManager {
         try {
             return mService.isLockKillDoNotKillAudioEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -559,6 +602,7 @@ public class XAPMManager {
         try {
             mService.setLockKillDoNotKillAudioEnabled(enabled);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -566,6 +610,7 @@ public class XAPMManager {
         try {
             return mService.getControlMode();
         } catch (Exception e) {
+            handleException(e);
             return ControlMode.UNKNOWN;
         }
     }
@@ -575,6 +620,7 @@ public class XAPMManager {
         try {
             mService.setControlMode(mode);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -583,6 +629,7 @@ public class XAPMManager {
         try {
             return mService.getBuildSerial();
         } catch (Exception e) {
+            handleException(e);
             return null;
         }
     }
@@ -592,6 +639,7 @@ public class XAPMManager {
         try {
             return mService.getBuildVersionName();
         } catch (Exception e) {
+            handleException(e);
             return null;
         }
     }
@@ -601,6 +649,7 @@ public class XAPMManager {
         try {
             return mService.getBuildVersionCode();
         } catch (Exception e) {
+            handleException(e);
             return 0;
         }
     }
@@ -610,6 +659,7 @@ public class XAPMManager {
         try {
             return mService.isAutoAddBlackEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -627,6 +677,7 @@ public class XAPMManager {
         try {
             mService.forceReloadPackages();
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -635,6 +686,7 @@ public class XAPMManager {
         try {
             mService.setPermissionControlEnabled(enabled);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -643,6 +695,7 @@ public class XAPMManager {
         try {
             return mService.isPermissionControlEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -652,6 +705,7 @@ public class XAPMManager {
         try {
             return mService.getPermissionControlBlockModeForPkg(code, pkg, log, payload);
         } catch (Exception e) {
+            handleException(e);
             return XAppOpsManager.MODE_ALLOWED;
         }
     }
@@ -661,6 +715,7 @@ public class XAPMManager {
         try {
             return mService.getPermissionControlBlockModeForUid(code, uid, log, payload);
         } catch (Exception e) {
+            handleException(e);
             return XAppOpsManager.MODE_ALLOWED;
         }
     }
@@ -670,6 +725,7 @@ public class XAPMManager {
         try {
             return mService.getPermissionControlBlockModeForPkg(code, pkg, log, null);
         } catch (Exception e) {
+            handleException(e);
             return XAppOpsManager.MODE_ALLOWED;
         }
     }
@@ -679,6 +735,7 @@ public class XAPMManager {
         try {
             return mService.getPermissionControlBlockModeForUid(code, uid, log, null);
         } catch (Exception e) {
+            handleException(e);
             return XAppOpsManager.MODE_ALLOWED;
         }
     }
@@ -721,6 +778,7 @@ public class XAPMManager {
         try {
             return mService.getAndroidId();
         } catch (Exception e) {
+            handleException(e);
             return null;
         }
     }
@@ -757,6 +815,7 @@ public class XAPMManager {
         try {
             return mService.getUserDefinedDeviceId();
         } catch (Exception e) {
+            handleException(e);
             return null;
         }
     }
@@ -775,6 +834,7 @@ public class XAPMManager {
         try {
             return mService.showFocusedActivityInfoEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -793,6 +853,7 @@ public class XAPMManager {
         try {
             mService.setPrivacyEnabled(enable);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -802,6 +863,7 @@ public class XAPMManager {
         try {
             return mService.isPrivacyEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -811,6 +873,7 @@ public class XAPMManager {
         try {
             return mService.isPackageInPrivacyList(pkg);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -820,6 +883,7 @@ public class XAPMManager {
         try {
             return mService.isUidInPrivacyList(uid);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -837,6 +901,7 @@ public class XAPMManager {
         try {
             return mService.getPrivacyAppsCount();
         } catch (Exception e) {
+            handleException(e);
             return 0;
         }
     }
@@ -854,6 +919,7 @@ public class XAPMManager {
         try {
             return mService.getGreeningApps(greening);
         } catch (Exception e) {
+            handleException(e);
             return new String[0];
         }
     }
@@ -879,6 +945,7 @@ public class XAPMManager {
         try {
             return mService.isGreeningEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -888,6 +955,7 @@ public class XAPMManager {
         if (BuildConfig.DEBUG) try {
             return mService.isPackageGreening(packageName);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
         return false;
@@ -898,6 +966,7 @@ public class XAPMManager {
         try {
             return mService.isUidGreening(uid);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -907,6 +976,7 @@ public class XAPMManager {
         try {
             return mService.getInstalledApps(filterOptions);
         } catch (Exception e) {
+            handleException(e);
             return new String[0];
         }
     }
@@ -924,6 +994,7 @@ public class XAPMManager {
         try {
             return mService.getRunningServices(max);
         } catch (Exception e) {
+            handleException(e);
             return new ArrayList<>(0);
         }
     }
@@ -932,6 +1003,7 @@ public class XAPMManager {
         try {
             return mService.getRunningAppProcesses();
         } catch (Exception e) {
+            handleException(e);
             return new ArrayList<>(0);
         }
     }
@@ -949,6 +1021,7 @@ public class XAPMManager {
         try {
             return mService.getSystemSettings(key);
         } catch (Exception e) {
+            handleException(e);
             return null;
         }
     }
@@ -958,6 +1031,7 @@ public class XAPMManager {
         try {
             return mService.getProcessPss(pids);
         } catch (Exception e) {
+            handleException(e);
             return new long[0];
         }
     }
@@ -976,6 +1050,7 @@ public class XAPMManager {
         try {
             return mService.isAppCrashDumpEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1011,6 +1086,7 @@ public class XAPMManager {
         try {
             return mService.isLazyModeEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1020,6 +1096,7 @@ public class XAPMManager {
         try {
             return mService.isLazyModeEnabledForPackage(pkg);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1029,6 +1106,7 @@ public class XAPMManager {
         try {
             return mService.hasNotificationForPackage(pkg);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1046,6 +1124,7 @@ public class XAPMManager {
         try {
             return mService.getLazyApps(lazy);
         } catch (Exception e) {
+            handleException(e);
             return new String[0];
         }
     }
@@ -1090,6 +1169,7 @@ public class XAPMManager {
         try {
             mService.addOrRemoveAppFocusAction(pkg, actions, add);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1099,6 +1179,7 @@ public class XAPMManager {
         try {
             mService.addOrRemoveAppUnFocusAction(pkg, actions, add);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1108,6 +1189,7 @@ public class XAPMManager {
         try {
             return mService.getAppFocusActionPackages();
         } catch (Exception e) {
+            handleException(e);
             return new String[0];
         }
     }
@@ -1117,6 +1199,7 @@ public class XAPMManager {
         try {
             return mService.getAppFocusActions(pkg);
         } catch (Exception e) {
+            handleException(e);
             return new String[0];
         }
     }
@@ -1126,6 +1209,7 @@ public class XAPMManager {
         try {
             return mService.getAppUnFocusActionPackages();
         } catch (Exception e) {
+            handleException(e);
             return new String[0];
         }
     }
@@ -1135,6 +1219,7 @@ public class XAPMManager {
         try {
             return mService.getAppUnFocusActions(pkg);
         } catch (Exception e) {
+            handleException(e);
             return new String[0];
         }
     }
@@ -1144,6 +1229,7 @@ public class XAPMManager {
         try {
             return mService.getLastDozeEnterTimeMills();
         } catch (Exception e) {
+            handleException(e);
             return -1;
         }
     }
@@ -1154,6 +1240,7 @@ public class XAPMManager {
         try {
             return mService.getLastDozeEvent();
         } catch (Exception e) {
+            handleException(e);
             return null;
         }
     }
@@ -1163,6 +1250,7 @@ public class XAPMManager {
         try {
             mService.setDozeEnabled(enable);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1172,6 +1260,7 @@ public class XAPMManager {
         try {
             return mService.isDozeEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1181,6 +1270,7 @@ public class XAPMManager {
         try {
             return mService.getDozeDelayMills();
         } catch (Exception e) {
+            handleException(e);
             return -1; // FIXME Make a meaningful res.
         }
     }
@@ -1190,6 +1280,7 @@ public class XAPMManager {
         try {
             mService.setDozeDelayMills(delayMills);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1199,6 +1290,7 @@ public class XAPMManager {
         try {
             mService.setDoNotKillSBNEnabled(enable, module);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1208,6 +1300,7 @@ public class XAPMManager {
         try {
             return mService.isDoNotKillSBNEnabled(module);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1217,6 +1310,7 @@ public class XAPMManager {
         try {
             mService.setTaskRemoveKillEnabled(enable);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1226,6 +1320,7 @@ public class XAPMManager {
         try {
             return mService.isTaskRemoveKillEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1235,6 +1330,7 @@ public class XAPMManager {
         try {
             return mService.getTRKApps(kill);
         } catch (Exception e) {
+            handleException(e);
             return new String[0];
         }
     }
@@ -1244,6 +1340,7 @@ public class XAPMManager {
         try {
             mService.addOrRemoveTRKApps(packages, op);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1253,6 +1350,7 @@ public class XAPMManager {
         try {
             return mService.getDozeEventHistory();
         } catch (Exception e) {
+            handleException(e);
             return new ArrayList<>(0);
         }
     }
@@ -1262,6 +1360,7 @@ public class XAPMManager {
         try {
             mService.setForceDozeEnabled(enable);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1271,6 +1370,7 @@ public class XAPMManager {
         try {
             return mService.isForceDozeEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1280,6 +1380,7 @@ public class XAPMManager {
         try {
             return mService.retrieveAppSettingsForPackage(pkg);
         } catch (Exception e) {
+            handleException(e);
             return AppSettings.builder().pkgName(pkg).appName("NULL").build();
         }
     }
@@ -1289,6 +1390,7 @@ public class XAPMManager {
         try {
             mService.applyAppSettingsForPackage(pkg, settings);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1298,6 +1400,7 @@ public class XAPMManager {
         try {
             mService.backupTo(dir);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1307,6 +1410,7 @@ public class XAPMManager {
         try {
             mService.restoreFrom(dir);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1316,6 +1420,7 @@ public class XAPMManager {
         try {
             return mService.getRawPermSettings(page, countInPage);
         } catch (Exception e) {
+            handleException(e);
             return new String[0];
         }
     }
@@ -1325,6 +1430,7 @@ public class XAPMManager {
         try {
             mService.setAppInstalledAutoApplyTemplate(settings);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1334,6 +1440,7 @@ public class XAPMManager {
         try {
             return mService.getAppInstalledAutoApplyTemplate();
         } catch (Exception e) {
+            handleException(e);
             return AppSettings.fromJson("XXX");
         }
     }
@@ -1343,6 +1450,7 @@ public class XAPMManager {
         try {
             return mService.getOpLogForPackage(packageName);
         } catch (Exception e) {
+            handleException(e);
             return new ArrayList<>(0);
         }
     }
@@ -1352,6 +1460,7 @@ public class XAPMManager {
         try {
             return mService.getOpLogForOp(code);
         } catch (Exception e) {
+            handleException(e);
             return new ArrayList<>(0);
         }
     }
@@ -1361,6 +1470,7 @@ public class XAPMManager {
         try {
             mService.clearOpLogForPackage(packageName);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1370,6 +1480,7 @@ public class XAPMManager {
         try {
             mService.clearOpLogForOp(cod);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1379,6 +1490,7 @@ public class XAPMManager {
         try {
             return mService.getUserName();
         } catch (Exception e) {
+            handleException(e);
             return null;
         }
     }
@@ -1388,6 +1500,7 @@ public class XAPMManager {
         try {
             return mService.getUserIcon();
         } catch (Exception e) {
+            handleException(e);
             return null;
         }
     }
@@ -1397,6 +1510,7 @@ public class XAPMManager {
         try {
             mService.addPowerSaveWhitelistApp(pkg);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1406,6 +1520,7 @@ public class XAPMManager {
         try {
             mService.removePowerSaveWhitelistApp(pkg);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1415,6 +1530,7 @@ public class XAPMManager {
         try {
             return mService.getFullPowerWhitelist();
         } catch (Exception e) {
+            handleException(e);
             return ArrayUtil.newEmptyStringArray();
         }
     }
@@ -1424,6 +1540,7 @@ public class XAPMManager {
         try {
             return mService.getSystemPowerWhitelist();
         } catch (Exception e) {
+            handleException(e);
             return ArrayUtil.newEmptyStringArray();
         }
     }
@@ -1433,6 +1550,7 @@ public class XAPMManager {
         try {
             return mService.getUserPowerWhitelist();
         } catch (Exception e) {
+            handleException(e);
             return ArrayUtil.newEmptyStringArray();
         }
     }
@@ -1442,6 +1560,7 @@ public class XAPMManager {
         try {
             return mService.getMemoryInfo();
         } catch (Exception e) {
+            handleException(e);
             return new ActivityManager.MemoryInfo();
         }
     }
@@ -1451,6 +1570,7 @@ public class XAPMManager {
         try {
             mService.enableKeyguard(enabled);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1460,6 +1580,7 @@ public class XAPMManager {
         try {
             mService.exitKeyguardSecurely(result);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1469,6 +1590,7 @@ public class XAPMManager {
         try {
             mService.dismissKeyguardLw();
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1478,6 +1600,7 @@ public class XAPMManager {
         try {
             return mService.isKeyguardLocked();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1487,6 +1610,7 @@ public class XAPMManager {
         try {
             return mService.getRunningProcessCount();
         } catch (Exception e) {
+            handleException(e);
             return 0;
         }
     }
@@ -1496,6 +1620,7 @@ public class XAPMManager {
         try {
             return mService.hasModuleError();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1505,6 +1630,7 @@ public class XAPMManager {
         try {
             mService.setAppOpsTemplate(opsSettings);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -1513,6 +1639,7 @@ public class XAPMManager {
         try {
             return mService.getAppOpsTemplate(opsSettings);
         } catch (Exception e) {
+            handleException(e);
             return new OpsSettings(XAppOpsManager.getDefaultModes());
         }
     }
@@ -1522,6 +1649,7 @@ public class XAPMManager {
         try {
             mService.setResidentEnabled(enable);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1531,6 +1659,7 @@ public class XAPMManager {
         try {
             return mService.isResidentEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1539,6 +1668,7 @@ public class XAPMManager {
         try {
             return mService.isResidentEnabledForPackage(who);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1548,6 +1678,7 @@ public class XAPMManager {
         try {
             mService.addOrRemoveResidentApps(app, add);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1557,6 +1688,7 @@ public class XAPMManager {
         try {
             return mService.getResidentApps(resident);
         } catch (Exception e) {
+            handleException(e);
             return ArrayUtil.emptyStringArray();
         }
     }
@@ -1566,6 +1698,7 @@ public class XAPMManager {
         try {
             return mService.isPanicHomeEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1575,6 +1708,7 @@ public class XAPMManager {
         try {
             mService.setPanicHomeEnabled(enable);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1584,6 +1718,7 @@ public class XAPMManager {
         try {
             return mService.isPanicLockEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1593,6 +1728,7 @@ public class XAPMManager {
         try {
             mService.setPanicLockEnabled(enable);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -1601,6 +1737,7 @@ public class XAPMManager {
         try {
             mService.lockNow();
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1610,6 +1747,7 @@ public class XAPMManager {
         try {
             return mService.isInRedemptionMode();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1619,6 +1757,7 @@ public class XAPMManager {
         try {
             mService.leaveRedemptionMode();
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1628,6 +1767,7 @@ public class XAPMManager {
         try {
             mService.enterRedemptionMode();
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1637,6 +1777,7 @@ public class XAPMManager {
         try {
             return mService.isSELinuxEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1646,6 +1787,7 @@ public class XAPMManager {
         try {
             return mService.isSELinuxEnforced();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1655,6 +1797,7 @@ public class XAPMManager {
         try {
             mService.setSelinuxEnforce(enforce);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1664,6 +1807,7 @@ public class XAPMManager {
         try {
             return mService.isPowerSaveModeEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1673,6 +1817,7 @@ public class XAPMManager {
         try {
             mService.setPowerSaveModeEnabled(enable);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1682,6 +1827,7 @@ public class XAPMManager {
         try {
             return mService.getStartRules();
         } catch (Exception e) {
+            handleException(e);
             return ArrayUtil.newEmptyStringArray();
         }
     }
@@ -1691,6 +1837,7 @@ public class XAPMManager {
         try {
             return mService.addOrRemoveStartRules(rule, add);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1700,6 +1847,7 @@ public class XAPMManager {
         try {
             return mService.addOrRemoveLazyRules(rule, add);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1709,6 +1857,7 @@ public class XAPMManager {
         try {
             return mService.getLazyRules();
         } catch (Exception e) {
+            handleException(e);
             return ArrayUtil.newEmptyStringArray();
         }
     }
@@ -1718,6 +1867,7 @@ public class XAPMManager {
         try {
             return mService.isLazyRuleEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1727,6 +1877,7 @@ public class XAPMManager {
         try {
             mService.setLazyRuleEnabled(enable);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1736,6 +1887,7 @@ public class XAPMManager {
         try {
             return mService.hasSystemError();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1745,6 +1897,7 @@ public class XAPMManager {
         try {
             mService.cleanUpSystemErrorTraces();
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1754,6 +1907,7 @@ public class XAPMManager {
         try {
             mService.addAppLockWhiteListActivity(activities);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1763,6 +1917,7 @@ public class XAPMManager {
         try {
             return mService.isAutoAddBlackNotificationEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1772,6 +1927,7 @@ public class XAPMManager {
         try {
             mService.setAutoAddBlackNotificationEnabled(value);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1781,6 +1937,7 @@ public class XAPMManager {
         try {
             return mService.isOptFeatureEnabled(tag);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1790,6 +1947,7 @@ public class XAPMManager {
         try {
             mService.setOptFeatureEnabled(tag, enable);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1799,6 +1957,7 @@ public class XAPMManager {
         try {
             return mService.getRecentTaskExcludeSetting(c);
         } catch (Exception e) {
+            handleException(e);
             return ExcludeRecentSetting.NONE;
         }
     }
@@ -1808,6 +1967,7 @@ public class XAPMManager {
         try {
             mService.setRecentTaskExcludeSetting(c, setting);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1817,6 +1977,7 @@ public class XAPMManager {
         try {
             return mService.getAppConfigOverlayIntSetting(appPackageName, tag);
         } catch (Exception e) {
+            handleException(e);
             return ConfigOverlays.NONE;
         }
     }
@@ -1826,6 +1987,7 @@ public class XAPMManager {
         try {
             mService.setAppConfigOverlayIntSetting(appPackageName, tag, value);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1835,6 +1997,7 @@ public class XAPMManager {
         try {
             mService.injectPowerEvent();
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1844,6 +2007,7 @@ public class XAPMManager {
         try {
             return mService.getServiceStarter(service);
         } catch (Exception e) {
+            handleException(e);
             return null;
         }
     }
@@ -1853,6 +2017,7 @@ public class XAPMManager {
         try {
             return mService.isInactiveAppInsteadOfKillPreferred();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1865,6 +2030,7 @@ public class XAPMManager {
         try {
             mService.setInactiveAppInsteadOfKillPreferred(prefer);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1874,6 +2040,7 @@ public class XAPMManager {
         try {
             mService.mockSystemDead(delay);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1883,6 +2050,7 @@ public class XAPMManager {
         try {
             mService.clearModuleSettings(moduleVar);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1892,6 +2060,7 @@ public class XAPMManager {
         try {
             return mService.isDisableMotionEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1901,6 +2070,7 @@ public class XAPMManager {
         try {
             mService.setDisableMotionEnabled(enable);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1910,6 +2080,7 @@ public class XAPMManager {
         try {
             return mService.isGCMSupportPackage(pkg);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1919,6 +2090,7 @@ public class XAPMManager {
         try {
             return mService.isShowAppProcessUpdateNotificationEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1928,6 +2100,7 @@ public class XAPMManager {
         try {
             mService.setShowAppProcessUpdateNotificationEnabled(enabled);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1937,6 +2110,7 @@ public class XAPMManager {
         try {
             return mService.isStartRuleEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1946,6 +2120,7 @@ public class XAPMManager {
         try {
             mService.setStartRuleEnabled(enabled);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1955,6 +2130,7 @@ public class XAPMManager {
         try {
             return mService.isPushMessageHandlerEnabled(pkg);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1964,6 +2140,7 @@ public class XAPMManager {
         try {
             mService.setPushMessageHandlerEnabled(pkg, enabled);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1973,6 +2150,7 @@ public class XAPMManager {
         try {
             return mService.isPushMessageHandlerShowContentEnabled(pkg);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1982,6 +2160,7 @@ public class XAPMManager {
         try {
             mService.setPushMessageHandlerShowContentEnabled(pkg, enabled);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -1991,6 +2170,7 @@ public class XAPMManager {
         try {
             return mService.isPushMessageHandleEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -2000,6 +2180,7 @@ public class XAPMManager {
         try {
             mService.setPushMessageHandleEnabled(enabled);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2009,6 +2190,7 @@ public class XAPMManager {
         try {
             return mService.isPushMessageHandlerNotificationSoundEnabled(pkg);
         } catch (Exception e) {
+            handleException(e);
             return true;
         }
     }
@@ -2018,6 +2200,7 @@ public class XAPMManager {
         try {
             mService.setPushMessageHandlerNotificationSoundEnabled(pkg, enabled);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2027,6 +2210,7 @@ public class XAPMManager {
         try {
             return mService.isPushMessageHandlerNotificationVibrateEnabled(pkg);
         } catch (Exception e) {
+            handleException(e);
             return true;
         }
     }
@@ -2036,6 +2220,7 @@ public class XAPMManager {
         try {
             mService.setPushMessageHandlerNotificationVibrateEnabled(pkg, enabled);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2045,6 +2230,7 @@ public class XAPMManager {
         try {
             return mService.isPushMessageHandlerMessageNotificationByAppEnabled(pkg);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -2054,6 +2240,7 @@ public class XAPMManager {
         try {
             mService.setPushMessageHandlerMessageNotificationByAppEnabled(pkg, enabled);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2063,6 +2250,7 @@ public class XAPMManager {
         try {
             return mService.isHandlingPushMessageIntent(packageName);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -2072,6 +2260,7 @@ public class XAPMManager {
         try {
             return mService.showToast(message);
         } catch (Exception e) {
+            handleException(e);
             return true;
         }
     }
@@ -2081,6 +2270,7 @@ public class XAPMManager {
         try {
             return mService.getStartRecordsForPackage(pkg);
         } catch (Exception e) {
+            handleException(e);
             return null;
         }
     }
@@ -2090,6 +2280,7 @@ public class XAPMManager {
         try {
             mService.clearStartRecordsForPackage(pkg);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2099,6 +2290,7 @@ public class XAPMManager {
         try {
             return mService.isWakeupOnNotificationEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -2108,6 +2300,7 @@ public class XAPMManager {
         try {
             mService.setWakeupOnNotificationEnabled(enable);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2117,6 +2310,7 @@ public class XAPMManager {
         try {
             mService.mockPushMessageReceived(pkg, message);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2126,6 +2320,7 @@ public class XAPMManager {
         try {
             mService.registerController(control);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2135,6 +2330,7 @@ public class XAPMManager {
         try {
             mService.unRegisterController(control);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2144,6 +2340,7 @@ public class XAPMManager {
         try {
             mService.setAppServiceLazyControlSolution(solutionFlags, enable);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2153,6 +2350,7 @@ public class XAPMManager {
         try {
             return mService.isAppServiceLazyControlSolutionEnable(solutionFlags);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -2162,6 +2360,7 @@ public class XAPMManager {
         try {
             mService.forceIdlePackages(packages);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2171,6 +2370,7 @@ public class XAPMManager {
         try {
             mService.stopService(serviceIntent);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2180,6 +2380,7 @@ public class XAPMManager {
         try {
             return mService.isSystemPropEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -2189,6 +2390,7 @@ public class XAPMManager {
         try {
             mService.setSystemPropEnabled(enabled);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -2197,6 +2399,7 @@ public class XAPMManager {
         try {
             mService.addOrRemoveSystemPropProfile(profile, add);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -2205,6 +2408,7 @@ public class XAPMManager {
         try {
             return mService.getSystemPropProfiles();
         } catch (Exception e) {
+            handleException(e);
             return new HashMap(0);
         }
     }
@@ -2214,6 +2418,7 @@ public class XAPMManager {
         try {
             mService.setActiveSystemPropProfileId(profileId);
         } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -2222,6 +2427,7 @@ public class XAPMManager {
         try {
             return mService.getActiveSystemPropProfileId();
         } catch (Exception e) {
+            handleException(e);
             return null;
         }
     }
@@ -2231,6 +2437,7 @@ public class XAPMManager {
         try {
             return mService.getActiveSystemPropProfile();
         } catch (Exception e) {
+            handleException(e);
             return null;
         }
     }
@@ -2240,6 +2447,7 @@ public class XAPMManager {
         try {
             mService.addOrRemoveSystemPropProfileApplyApps(pkgs, add);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2249,6 +2457,7 @@ public class XAPMManager {
         try {
             return mService.getSystemPropProfileApplyApps(apply);
         } catch (Exception e) {
+            handleException(e);
             return ArrayUtil.emptyStringArray();
         }
     }
@@ -2258,6 +2467,7 @@ public class XAPMManager {
         try {
             return mService.isSystemPropProfileApplyApp(packageName);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -2267,6 +2477,7 @@ public class XAPMManager {
         try {
             return mService.isPackageInstallVerifyEnabled();
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -2276,6 +2487,7 @@ public class XAPMManager {
         try {
             mService.setPackageInstallVerifyEnabled(enabled);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2285,6 +2497,7 @@ public class XAPMManager {
         try {
             return mService.getPackageInstallerVerifyRules();
         } catch (Exception e) {
+            handleException(e);
             return ArrayUtil.emptyStringArray();
         }
     }
@@ -2294,6 +2507,7 @@ public class XAPMManager {
         try {
             return mService.addOrRemovePackageInstallerVerifyRules(rule, add);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -2303,6 +2517,7 @@ public class XAPMManager {
         try {
             mService.onSourceApkFileDetected(path, pkg);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2312,6 +2527,7 @@ public class XAPMManager {
         try {
             return mService.getCurrentTopPackage();
         } catch (Exception e) {
+            handleException(e);
             return null;
         }
     }
@@ -2321,6 +2537,7 @@ public class XAPMManager {
         try {
             mService.registerTaskRemoveListener(listener);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2330,6 +2547,7 @@ public class XAPMManager {
         try {
             mService.unRegisterTaskRemoveListener(listener);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2339,6 +2557,7 @@ public class XAPMManager {
         try {
             mService.setAppInactive(packageName, inactive, userId);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2348,6 +2567,7 @@ public class XAPMManager {
         try {
             return mService.isAppInactive(packageName, userId);
         } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -2357,6 +2577,7 @@ public class XAPMManager {
         try {
             mService.forceStopPackage(packageName);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2366,6 +2587,7 @@ public class XAPMManager {
         try {
             mService.setAppInactivePolicyForModule(module, policy);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2375,6 +2597,7 @@ public class XAPMManager {
         try {
             return mService.getAppInactivePolicyForModule(module);
         } catch (Exception e) {
+            handleException(e);
             return AppInactivePolicy.FORCE_STOP;
         }
     }
@@ -2384,6 +2607,7 @@ public class XAPMManager {
         try {
             mService.executeInputCommand(args);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2393,6 +2617,7 @@ public class XAPMManager {
         try {
             mService.takeLongScreenShot();
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -2402,7 +2627,26 @@ public class XAPMManager {
         try {
             return mService.getBackupAgent();
         } catch (Exception e) {
+            handleException(e);
             return null;
+        }
+    }
+
+    public void showRebootNeededNotification(String why) {
+        ensureService();
+        try {
+            mService.showRebootNeededNotification(why);
+        } catch (Exception e) {
+            handleException(e);
+
+        }
+    }
+
+    private static void handleException(Throwable e) {
+        if (BuildConfig.DEBUG) {
+            throw new RuntimeException(e);
+        } else {
+            Log.e(XposedLog.TAG, Log.getStackTraceString(e));
         }
     }
 }
