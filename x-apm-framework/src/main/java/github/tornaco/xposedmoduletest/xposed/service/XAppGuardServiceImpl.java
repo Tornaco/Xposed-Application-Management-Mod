@@ -1298,7 +1298,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             try {
                 if (isDevMode) {
                     Intent disableBroadcastIntent = new Intent(ACTION_DISABLE_DEBUG_MODE);
-                    PendingIntent disableIntent = PendingIntent.getBroadcast(getContext(), 0, disableBroadcastIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                    PendingIntent disableIntent = PendingIntent.getBroadcast(getContext(),
+                            0,
+                            disableBroadcastIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
                     NotificationCompat.Builder builder
                             = new NotificationCompat.Builder(getContext(), NOTIFICATION_CHANNEL_ID_DEBUG);

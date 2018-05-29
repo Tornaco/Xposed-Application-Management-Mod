@@ -519,4 +519,7 @@ interface IAshmanService {
 
     // Backup And Restore.
     IBackupAgent getBackupAgent();
+
+    // Reboot action.
+    void showRebootNeededNotification(in String why);
 }
