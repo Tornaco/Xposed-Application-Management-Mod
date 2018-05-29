@@ -329,10 +329,10 @@
     <string name="message_import_old_comp_replacements">从3.0.6版本开始，为了提升兼容性与适用性，移花接木不再使用ContentProvider做数据通信，如果你刚刚完成从3.0.6之前的版本升级，点击导入按钮，将其导入到现用的数据库中吧。</string>
     <string name="title_import">Import</string>
     <string name="title_backup">Backup data</string>
-    <string name="summary_title_backup">备份本应用的 自启，关联，锁屏清理，返回强退，划卡强退，模糊，应用锁，阻止卸载，乖巧，隐匿，权限管理 名单设置到外部存储根目录，为了安全起见其他数据（各个功能开关，防火墙设置，组件控制，绿化）暂时不支持备份。移花接木由于比较麻烦，时间有限，后续支持直接再此处备份，当前版本请前往移花接木，单独导出进行备份。\n</string>
+    <string name="summary_title_backup">备份应用管理的功能开关和列表等核心数据。</string>
     <string name="title_backup_restore_success">Done</string>
     <string name="title_restore">Restore from backup</string>
-    <string name="summary_title_restore">Choose a backup file to restore.</string>
+    <string name="summary_title_restore">Choose a backup file to restore, need reboot.</string>
     <string name="title_doze">Doze</string>
     <string name="summary_doze">该功能可以在设备屏幕关闭且未在充电状态时，催促系统尽快的进入打盹模式，以尽可能的降低电量消耗。\n\n注意，亮屏或者充电等某些用户与设备的交互行为会中断催促与打盹过程，催促打盹期间与打盹期间可能会导致设备某些功能暂时不可用。使用之前请提前了解什么是打盹（Doze）。</string>
     <string name="title_battery">Battery</string>

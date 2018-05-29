@@ -86,7 +86,7 @@ public class BackupRestoreSettingsActivity extends BaseActivity implements
     @RequiresPermission({Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE})
     void performBackup(final File dir) {
-        XExecutor.execute(() -> DataBackup.performBackup(dir, BackupRestoreSettingsActivity.this));
+        XExecutor.execute(() -> DataBackup.performBackup(getContext(), dir, BackupRestoreSettingsActivity.this));
     }
 
     @RequiresPermission({Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -173,7 +173,7 @@ public class BackupRestoreSettingsActivity extends BaseActivity implements
     }
 
     @Override
-    public void onDataBackupFail(int errNum, final Throwable e) {
+    public void onDataBackupFail(final Throwable e) {
         runOnUiThreadChecked(() -> {
             cancelProgressDialog();
             Toast.makeText(getActivity(),

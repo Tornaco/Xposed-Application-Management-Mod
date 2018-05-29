@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.service.notification.StatusBarNotification;
 import android.view.Display;
@@ -22,6 +21,7 @@ import java.util.UUID;
 import de.robv.android.xposed.SELinuxHelper;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
+import github.tornaco.xposedmoduletest.IBackupAgent;
 import github.tornaco.xposedmoduletest.IBooleanCallback1;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
@@ -216,6 +216,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     @Override
     public void takeLongScreenShot() {
 
+    }
+
+    @Override
+    public IBackupAgent getBackupAgent() {
+        return RepoProxy.getProxy().getBackupAgent();
     }
 
     @Override

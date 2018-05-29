@@ -76,7 +76,7 @@ public class StringSetRepo implements SetRepo<String> {
 
                 if (mFile.getBaseFile().isDirectory()) {
                     XposedLog.wtf("getBaseFile isDirectory, clean up: " + name());
-                    FileUtil.deleteDir(mFile.getBaseFile());
+                    FileUtil.deleteDirQuiet(mFile.getBaseFile());
                     mFile.delete();
                 }
 
