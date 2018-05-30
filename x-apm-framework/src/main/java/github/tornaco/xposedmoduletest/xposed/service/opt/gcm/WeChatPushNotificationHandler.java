@@ -12,7 +12,7 @@ import java.util.Map;
 
 import github.tornaco.xposedmoduletest.model.PushMessage;
 import github.tornaco.xposedmoduletest.service.PushMessageNotificationService;
-import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationIdFactory;
+import github.tornaco.xposedmoduletest.xposed.service.notification.UniqueIdFactory;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -171,7 +171,7 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
         static int id(String messageIdString) {
             Integer cache = idMap.get(messageIdString);
             if (cache != null) return cache;
-            int idNew = NotificationIdFactory.getNextId();
+            int idNew = UniqueIdFactory.getNextId();
             idMap.put(messageIdString, idNew);
             return idNew;
         }

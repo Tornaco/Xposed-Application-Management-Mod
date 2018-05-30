@@ -152,7 +152,7 @@ import github.tornaco.xposedmoduletest.xposed.service.doze.PowerWhitelistBackend
 import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.input.Input;
 import github.tornaco.xposedmoduletest.xposed.service.multipleapps.MultipleAppsManager;
-import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationIdFactory;
+import github.tornaco.xposedmoduletest.xposed.service.notification.UniqueIdFactory;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.notification.RebootNotification;
 import github.tornaco.xposedmoduletest.xposed.service.notification.SystemUI;
@@ -655,7 +655,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         AppResource appResource = new AppResource(getContext());
         Notification n = builder
-                .setContentIntent(PendingIntent.getActivity(getContext(), 0x1, viewer, 0))
+                .setContentIntent(PendingIntent.getActivity(getContext(), UniqueIdFactory.getNextId(), viewer, 0))
                 .setContentTitle(appResource.loadStringFromAPMApp("notification_title_app_settings_template"))
                 .setContentText(appResource.loadStringFromAPMApp("notification_content_app_settings_template", name))
                 .setSmallIcon(android.R.drawable.stat_sys_warning)
@@ -666,12 +666,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         NotificationManagerCompat.from(context)
-                .notify(NotificationIdFactory.getNextId(), n);
+                .notify(UniqueIdFactory.getNextId(), n);
     }
 
     private void clearRunningAppProcessUpdateNotification() {
         NotificationManagerCompat.from(getContext())
-                .cancel(NotificationIdFactory.getIdByTag(NOTIFICATION_CHANNEL_ID_APP_PROCESS));
+                .cancel(UniqueIdFactory.getIdByTag(NOTIFICATION_CHANNEL_ID_APP_PROCESS));
     }
 
     private void showRunningAppProcessUpdateNotification() {
@@ -698,14 +698,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         Intent clearBroadcastIntent = new Intent(ACTION_CLEAR_PROCESS);
-        PendingIntent clearIntent = PendingIntent.getBroadcast(getContext(), 0, clearBroadcastIntent, 0);
+        PendingIntent clearIntent = PendingIntent.getBroadcast(getContext(), UniqueIdFactory.getNextId(), clearBroadcastIntent, 0);
 
         Intent viewerIntent = new Intent();
         viewerIntent.setPackage(BuildConfig.APPLICATION_ID);
         viewerIntent.setClassName(BuildConfig.APPLICATION_ID,
                 "github.tornaco.xposedmoduletest.ui.activity.helper.RunningServicesActivity");
         viewerIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent detailsIntent = PendingIntent.getActivity(getContext(), 0, viewerIntent, 0);
+        PendingIntent detailsIntent = PendingIntent.getActivity(getContext(), UniqueIdFactory.getNextId(), viewerIntent, 0);
 
         if (mRunningProcessPackages.size() < 1) {
             // Now no apps need to be clear.
@@ -732,7 +732,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         NotificationManagerCompat.from(getContext())
-                .notify(NotificationIdFactory.getIdByTag(NOTIFICATION_CHANNEL_ID_APP_PROCESS), n);
+                .notify(UniqueIdFactory.getIdByTag(NOTIFICATION_CHANNEL_ID_APP_PROCESS), n);
 
         if (BuildConfig.DEBUG) {
             XposedLog.verbose("showRunningAppProcessUpdateNotification:"
@@ -3603,7 +3603,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         enforceCallingPermissions();
         wrapCallingIdetUnCaught(() -> {
             createDefaultNotificationChannelForO();
-            mRebootNotification.show(NOTIFICATION_CHANNEL_ID_DEFAULT, NotificationIdFactory.getIdByTag("Reboot Notification"));
+            mRebootNotification.show(NOTIFICATION_CHANNEL_ID_DEFAULT, UniqueIdFactory.getIdByTag("Reboot Notification"));
         });
     }
 

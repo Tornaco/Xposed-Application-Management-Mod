@@ -24,7 +24,7 @@ import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.service.AppResource;
 import github.tornaco.xposedmoduletest.xposed.service.ErrorCatchRunnable;
 import github.tornaco.xposedmoduletest.xposed.service.PMRuleCheck;
-import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationIdFactory;
+import github.tornaco.xposedmoduletest.xposed.service.notification.UniqueIdFactory;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Builder;
 import lombok.Getter;
@@ -207,7 +207,7 @@ public class PackageInstallerManager {
         }
 
         NotificationManagerCompat.from(getContext())
-                .notify(NotificationIdFactory.getNextId(), n);
+                .notify(UniqueIdFactory.getNextId(), n);
     }
 
     private void showInstallDenyNotification(VerifyArgs args) {
@@ -243,7 +243,7 @@ public class PackageInstallerManager {
         }
 
         NotificationManagerCompat.from(getContext())
-                .notify(NotificationIdFactory.getNextId(), n);
+                .notify(UniqueIdFactory.getNextId(), n);
     }
 
     private void createPMNotificationChannelForO() {

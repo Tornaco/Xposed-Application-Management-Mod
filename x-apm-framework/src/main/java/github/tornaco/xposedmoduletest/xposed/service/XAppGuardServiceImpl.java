@@ -60,7 +60,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.MapRepo;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.repo.SetRepo;
-import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationIdFactory;
+import github.tornaco.xposedmoduletest.xposed.service.notification.UniqueIdFactory;
 import github.tornaco.xposedmoduletest.xposed.service.notification.SystemUI;
 import github.tornaco.xposedmoduletest.xposed.service.provider.XAPMServerSettings;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -79,7 +79,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     private static final String NOTIFICATION_CHANNEL_ID_DEBUG = "dev.tornaco.notification.channel.id.X-APM-DEBUG";
     // Warn user if dev mode is open.
-    private final static int NOTIFICATION_ID_DEBUG_MODE = NotificationIdFactory.getIdByTag(NOTIFICATION_CHANNEL_ID_DEBUG);
+    private final static int NOTIFICATION_ID_DEBUG_MODE = UniqueIdFactory.getIdByTag(NOTIFICATION_CHANNEL_ID_DEBUG);
 
     private Handler mServiceHandler;
 
@@ -1298,7 +1298,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 if (isDevMode) {
                     Intent disableBroadcastIntent = new Intent(ACTION_DISABLE_DEBUG_MODE);
                     PendingIntent disableIntent = PendingIntent.getBroadcast(getContext(),
-                            0,
+                            UniqueIdFactory.getNextId(),
                             disableBroadcastIntent, 0);
 
                     NotificationCompat.Builder builder

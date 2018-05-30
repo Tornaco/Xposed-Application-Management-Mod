@@ -28,6 +28,7 @@ import github.tornaco.xposedmoduletest.util.BitmapUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.service.AppResource;
 import github.tornaco.xposedmoduletest.xposed.service.notification.SystemUI;
+import github.tornaco.xposedmoduletest.xposed.service.notification.UniqueIdFactory;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Getter;
@@ -194,7 +195,7 @@ public abstract class BasePushNotificationHandler implements PushNotificationHan
         }
 
         launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), 0x1, launchIntent, 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), UniqueIdFactory.getNextId(), launchIntent, 0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(), pushMessage.getChannelId());
 
