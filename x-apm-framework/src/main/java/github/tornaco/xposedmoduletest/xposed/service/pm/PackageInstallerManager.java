@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.util.OSUtil;
@@ -25,6 +24,7 @@ import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.service.AppResource;
 import github.tornaco.xposedmoduletest.xposed.service.ErrorCatchRunnable;
 import github.tornaco.xposedmoduletest.xposed.service.PMRuleCheck;
+import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationIdFactory;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,11 +37,11 @@ import lombok.ToString;
 public class PackageInstallerManager {
 
     private static final String NOTIFICATION_CHANNEL_ID_PM = "dev.tornaco.notification.channel.id.X-APM-PM";
-    private static final AtomicInteger NOTIFICATION_ID_DYNAMIC = new AtomicInteger(99999);
+    private static final String NOTIFICATION_CHANNEL_NAME_PM = "X-APM PM频道";
 
     // Make it longer for dev.
-    public static final long PACKAGE_INSTALL_VERIFY_TIMEOUT_MILLS = (24 * 1000);
-    public static final long PACKAGE_INSTALL_VERIFY_TIMEOUT_S = PACKAGE_INSTALL_VERIFY_TIMEOUT_MILLS / 1000;
+    static final long PACKAGE_INSTALL_VERIFY_TIMEOUT_MILLS = (24 * 1000);
+    static final long PACKAGE_INSTALL_VERIFY_TIMEOUT_S = PACKAGE_INSTALL_VERIFY_TIMEOUT_MILLS / 1000;
 
     @Getter
     private Context context;
@@ -208,7 +208,7 @@ public class PackageInstallerManager {
         }
 
         NotificationManagerCompat.from(getContext())
-                .notify(NOTIFICATION_ID_DYNAMIC.incrementAndGet(), n);
+                .notify(NotificationIdFactory.getNextId(), n);
     }
 
     private void showInstallDenyNotification(VerifyArgs args) {
@@ -244,7 +244,7 @@ public class PackageInstallerManager {
         }
 
         NotificationManagerCompat.from(getContext())
-                .notify(NOTIFICATION_ID_DYNAMIC.incrementAndGet(), n);
+                .notify(NotificationIdFactory.getNextId(), n);
     }
 
     private void createPMNotificationChannelForO() {
@@ -261,7 +261,7 @@ public class PackageInstallerManager {
             }
             NotificationChannel notificationChannel;
             notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID_PM,
-                    "应用管理PM频道",
+                    NOTIFICATION_CHANNEL_NAME_PM,
                     NotificationManager.IMPORTANCE_LOW);
             notificationChannel.enableLights(false);
             notificationChannel.enableVibration(false);

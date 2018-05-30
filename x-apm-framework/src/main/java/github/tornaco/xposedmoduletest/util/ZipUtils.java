@@ -57,9 +57,9 @@ public class ZipUtils {
         else {
             //压缩目录中的文件或子目录
             File[] childFileList = file.listFiles();
-            for (int n = 0; n < childFileList.length; n++) {
-                childFileList[n].getAbsolutePath().indexOf(file.getAbsolutePath());
-                zip(srcRootDir, childFileList[n], zos);
+            if (childFileList != null) for (File aChildFileList : childFileList) {
+                aChildFileList.getAbsolutePath().indexOf(file.getAbsolutePath());
+                zip(srcRootDir, aChildFileList, zos);
             }
         }
     }

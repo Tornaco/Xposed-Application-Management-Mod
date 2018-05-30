@@ -8,4 +8,5 @@ include ':x-apm-app',
         ':third-party:patternlockview',
         ':third-party:mdsearch',
         ':third-party:dateformatter',
-        ':third-party:pinlockview'
+        ':third-party:pinlockview',
+        ':third-party:zip4j'

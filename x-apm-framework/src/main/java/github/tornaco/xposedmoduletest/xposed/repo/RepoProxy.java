@@ -1,6 +1,5 @@
 package github.tornaco.xposedmoduletest.xposed.repo;
 
-import android.annotation.SuppressLint;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -192,15 +191,8 @@ public class RepoProxy {
         doze_whitelist_adding = new StringSetRepo(new File(dir, "doze_whitelist_adding"), h, io);
         doze_whitelist_removal = new StringSetRepo(new File(dir, "doze_whitelist_removal"), h, io);
 
-        if (BuildConfig.DEBUG) try {
-            @SuppressLint("SdCardPath") File dynamicHooks =
-                    new File("/sdcard/.android/.apm_configs"
-                            + File.separator
-                            + ".apm_white_list_hooks");
-            white_list_hooks_dynamic = new StringSetRepo(dynamicHooks, h, io);
-        } catch (Exception e) {
-            XposedLog.wtf("Fail init white list hooks " + e);
-        }
+        // Prevent some system app being added to whitelist.
+        white_list_hooks_dynamic = new StringSetRepo(new File(dir, "white_list_hooks_dynamic"), h, io);
 
         // FIXME java.io.FileNotFoundException:
         // /data/system/tor/wifi_restrict: open failed: EISDIR (Is a directory)
@@ -594,7 +586,8 @@ public class RepoProxy {
                 XposedLog.wtf("IBackupAgent, tmpDir: " + tmpDir);
             } catch (IOException e) {
                 callback.onFail(e.getLocalizedMessage());
-                XposedLog.wtf("IBackupAgent, deleteDirQuiet : " + tmpDir);
+                XposedLog.wtf("IBackupAgent, createParentDirs fail deleteDirQuiet : " + tmpDir);
+                XposedLog.wtf("IBackupAgent, createParentDirs fail : " + Log.getStackTraceString(e));
                 return;
             }
             // Zip all subFiles.
@@ -623,6 +616,7 @@ public class RepoProxy {
                                 } catch (IOException e) {
                                     XposedLog.wtf("IBackupAgent, IOException performBackup subFile: " + Log.getStackTraceString(e));
                                     callback.onFail(e.getLocalizedMessage());
+                                    XposedLog.wtf("IBackupAgent, acceptAppParcelFileDescriptor fail : " + Log.getStackTraceString(e));
                                 } finally {
                                     FileUtil.deleteDirQuiet(tmpDir);
                                     Closer.closeQuietly(pfd);
@@ -633,6 +627,7 @@ public class RepoProxy {
             } catch (Exception e) {
                 callback.onFail(e.getLocalizedMessage());
                 FileUtil.deleteDirQuiet(tmpDir);
+                XposedLog.wtf("IBackupAgent, backup fail : " + Log.getStackTraceString(e));
                 XposedLog.wtf("IBackupAgent, deleteDirQuiet : " + tmpDir);
             }
         }

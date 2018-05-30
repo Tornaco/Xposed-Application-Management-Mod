@@ -60,6 +60,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.MapRepo;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.repo.SetRepo;
+import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationIdFactory;
 import github.tornaco.xposedmoduletest.xposed.service.notification.SystemUI;
 import github.tornaco.xposedmoduletest.xposed.service.provider.XAPMServerSettings;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -77,6 +78,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     private static final long TRANSACTION_EXPIRE_TIME = 60 * 1000;
 
     private static final String NOTIFICATION_CHANNEL_ID_DEBUG = "dev.tornaco.notification.channel.id.X-APM-DEBUG";
+    // Warn user if dev mode is open.
+    private final static int NOTIFICATION_ID_DEBUG_MODE = NotificationIdFactory.getIdByTag(NOTIFICATION_CHANNEL_ID_DEBUG);
 
     private Handler mServiceHandler;
 
@@ -983,10 +986,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         enforceCallingPermissions();
         mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_SETDEBUG, debug).sendToTarget();
     }
-
-
-    // Warn user if dev mode is open.
-    private final static int NOTIFICATION_ID_DEBUG_MODE = 20182018;
 
     private void updateDebugMode() {
         mServiceHandler.sendEmptyMessageDelayed(AppGuardServiceHandlerMessages.MSG_WARNIFDEBUG, 10 * 1000);

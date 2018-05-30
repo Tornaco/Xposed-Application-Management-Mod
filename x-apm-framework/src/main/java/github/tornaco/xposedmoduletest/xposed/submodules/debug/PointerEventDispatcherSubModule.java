@@ -32,7 +32,6 @@ public class PointerEventDispatcherSubModule extends AndroidSubModule {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
-                            XposedLog.verbose("PointerEventDispatcher onInputEvent: " + Log.getStackTraceString(new Throwable()));
                             getBridge().onInputEvent(param.args[0]);
                         }
                     });

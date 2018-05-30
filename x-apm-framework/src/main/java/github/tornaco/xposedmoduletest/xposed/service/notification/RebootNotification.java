@@ -25,6 +25,8 @@ import lombok.Getter;
  */
 public class RebootNotification {
 
+    private int mLastRebootNotificationId;
+
     @Getter
     private Context context;
     private static final String ACTION_DISABLE_DEBUG_MODE = "github.tornaco.broadcast.action.reboot";
@@ -69,7 +71,12 @@ public class RebootNotification {
             n.setSmallIcon(new AppResource(getContext()).loadIconFromAPMApp("ic_android_black_24dp"));
         }
 
+        if (mLastRebootNotificationId > 0) {
+            NotificationManagerCompat.from(context)
+                    .cancel(mLastRebootNotificationId);
+        }
         NotificationManagerCompat.from(context)
                 .notify(notificationId, n);
+        mLastRebootNotificationId = notificationId;
     }
 }
