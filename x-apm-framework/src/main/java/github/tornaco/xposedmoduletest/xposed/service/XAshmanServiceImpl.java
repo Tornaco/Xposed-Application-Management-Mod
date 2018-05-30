@@ -716,14 +716,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         // FIXME May occur index err. need sync action.
         String recentApp = String.valueOf(PkgUtil.loadNameByPkgName(getContext(), mRunningProcessPackages.get(0)));
 
+        AppResource appResource = new AppResource(getContext());
         Notification n = builder
-                .setContentTitle("等待清理的应用")
-                .setContentText("当前有" + recentApp + "等" + mRunningProcessPackages.size() + "个应用等待被清理。")
+                .setContentTitle(appResource.loadStringFromAPMApp("notification_title_process_update"))
+                .setContentText(appResource.loadStringFromAPMApp("notification_content_process_update", recentApp, mRunningProcessPackages.size()))
                 .setSmallIcon(android.R.drawable.stat_sys_warning)
                 .setContentIntent(clearIntent)
                 .setAutoCancel(true)
-                .addAction(0, "立即清理", clearIntent)
-                .addAction(0, "查看更多", detailsIntent)
+                .addAction(0, appResource.loadStringFromAPMApp("notification_action_clear_process_update"), clearIntent)
+                .addAction(0, appResource.loadStringFromAPMApp("notification_action_more_process_update"), detailsIntent)
                 .build();
 
         if (OSUtil.isMOrAbove()) {
@@ -7178,7 +7179,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     @BinderCall
-    protected void dump(FileDescriptor fd, final PrintWriter fout, String[] args) {
+    protected void dump(@NonNull FileDescriptor fd, @NonNull final PrintWriter fout, String[] args) {
         super.dump(fd, fout, args);
         // For secure and CTS.
         if (getContext().checkCallingOrSelfPermission(Manifest.permission.DUMP) != PackageManager.PERMISSION_GRANTED) {
@@ -7209,7 +7210,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 // Dump while list.
                 fout.println("White list: ");
                 Object[] whileListObjects = WHITE_LIST.toArray();
-                Collections.consumeRemaining(whileListObjects, o -> fout.println(o));
+                Collections.consumeRemaining(whileListObjects, fout::println);
 
                 fout.println();
                 fout.println("======================");
@@ -7219,7 +7220,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 fout.println("White list hook: ");
                 Collections.consumeRemaining(RepoProxy.getProxy()
                         .getWhite_list_hooks_dynamic()
-                        .getAll(), o -> fout.println(o));
+                        .getAll(), fout::println);
 
                 fout.println();
                 fout.println("======================");
@@ -7228,7 +7229,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 // Dump System list.
                 fout.println("System list: ");
                 Object[] systemListObjects = SYSTEM_APPS.toArray();
-                Collections.consumeRemaining(systemListObjects, o -> fout.println(o));
+                Collections.consumeRemaining(systemListObjects, fout::println);
 
                 fout.println();
                 fout.println("======================");
@@ -7236,7 +7237,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
                 // Dump boot list.
                 fout.println("Boot list: ");
-                Collections.consumeRemaining(RepoProxy.getProxy().getBoots().getAll(), o -> fout.println(o));
+                Collections.consumeRemaining(RepoProxy.getProxy().getBoots().getAll(), fout::println);
 
                 fout.println();
                 fout.println("======================");
@@ -7244,7 +7245,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
                 // Dump start list.
                 fout.println("Start list: ");
-                Collections.consumeRemaining(RepoProxy.getProxy().getStarts().getAll(), s -> fout.println(s));
+                Collections.consumeRemaining(RepoProxy.getProxy().getStarts().getAll(), fout::println);
 
                 fout.println();
                 fout.println("======================");
@@ -7252,7 +7253,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
                 // Dump lk list.
                 fout.println("LK list: ");
-                Collections.consumeRemaining(RepoProxy.getProxy().getLks().getAll(), s -> fout.println(s));
+                Collections.consumeRemaining(RepoProxy.getProxy().getLks().getAll(), fout::println);
 
                 fout.println();
                 fout.println("======================");
@@ -7260,7 +7261,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
                 // Dump rf list.
                 fout.println("RF list: ");
-                Collections.consumeRemaining(RepoProxy.getProxy().getRfks().getAll(), s -> fout.println(s));
+                Collections.consumeRemaining(RepoProxy.getProxy().getRfks().getAll(), fout::println);
 
                 fout.println();
                 fout.println("======================");
@@ -7269,17 +7270,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 // Dump watcher.
                 fout.println("Watcher list: ");
                 Object[] watcherListObjects = mWatcherClients.toArray();
-                Collections.consumeRemaining(watcherListObjects, o -> fout.println(o));
+                Collections.consumeRemaining(watcherListObjects, fout::println);
 
                 // Dump webview.
                 fout.println("Webview provider list: ");
                 Object[] wwListObjects = mWebviewProviders.toArray();
-                Collections.consumeRemaining(wwListObjects, o -> fout.println(o));
+                Collections.consumeRemaining(wwListObjects, fout::println);
 
                 // Dump block list.
                 fout.println("Block record list: ");
                 Object[] blockRecordObjects = mBlockRecords.values().toArray();
-                Collections.consumeRemaining(blockRecordObjects, o -> fout.println(o));
+                Collections.consumeRemaining(blockRecordObjects, fout::println);
             }
         } else {
             // Exe command.
@@ -8026,17 +8027,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             }
 
             try {
+                AppResource appResource = new AppResource(getContext());
                 AlertDialog d = new AlertDialog.Builder(getContext())
-                        .setTitle("调试模式")
-                        .setMessage(String.format(
-                                "应用管理检测到 %s 发生了异常，已经为你取得了错误信息与堆栈，截图反馈给开发者或许可以帮助解决该问题。\n\n" +
-                                        "错误线程：%s\n" +
-                                        "堆栈：%s\n\n" +
-                                        "你也可以在Xposed日志中查看该错误信息。",
-                                PkgUtil.loadNameByPkgName(getContext(), packageName),
-                                thread,
-                                trace
-                        ))
+                        .setTitle(appResource.loadStringFromAPMApp("dialog_title_app_crash"))
+                        .setMessage(appResource.loadStringFromAPMApp("dialog_message_app_crash", PkgUtil.loadNameByPkgName(getContext(), packageName), thread, trace))
                         .setCancelable(false)
                         .setPositiveButton(android.R.string.copy,
                                 (dialog, which) -> {
@@ -8652,7 +8646,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                             }
                         }
 
-
                         // Cache GCM packages async.
                         mWorkingService.execute(new ErrorCatchRunnable(XAshmanServiceImpl.this::cacheGCMPackages, "cacheGCMPackages"));
 
@@ -8691,7 +8684,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                         x.addOrRemoveStartBlockApps(new String[]{packageName}, XAPMManager.Op.REMOVE);
 
                         if (BuildConfig.APPLICATION_ID.equals(packageName)) {
-                            mLazyHandler.postDelayed(() -> onAppGuardClientUninstalled(), 2000);
+                            mLazyHandler.postDelayed(XAshmanServiceImpl.this::onAppGuardClientUninstalled, 2000);
                         }
                     } catch (Throwable e) {
                         XposedLog.wtf(Log.getStackTraceString(e));
