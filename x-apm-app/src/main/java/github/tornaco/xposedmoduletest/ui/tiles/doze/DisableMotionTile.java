@@ -32,6 +32,7 @@ public class DisableMotionTile extends QuickTile {
             protected void onCheckChanged(boolean checked) {
                 super.onCheckChanged(checked);
                 XAPMManager.get().setDisableMotionEnabled(checked);
+                XAPMManager.get().showRebootNeededNotification("DisableMotion");
             }
         };
     }
