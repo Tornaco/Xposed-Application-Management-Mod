@@ -37,7 +37,6 @@ import lombok.ToString;
 public class PackageInstallerManager {
 
     private static final String NOTIFICATION_CHANNEL_ID_PM = "dev.tornaco.notification.channel.id.X-APM-PM";
-    private static final String NOTIFICATION_CHANNEL_NAME_PM = "X-APM PM频道";
 
     // Make it longer for dev.
     static final long PACKAGE_INSTALL_VERIFY_TIMEOUT_MILLS = (24 * 1000);
@@ -261,7 +260,7 @@ public class PackageInstallerManager {
             }
             NotificationChannel notificationChannel;
             notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID_PM,
-                    NOTIFICATION_CHANNEL_NAME_PM,
+                    new AppResource(getContext()).loadStringFromAPMApp("notification_channel_name_package_verifier"),
                     NotificationManager.IMPORTANCE_LOW);
             notificationChannel.enableLights(false);
             notificationChannel.enableVibration(false);

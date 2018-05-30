@@ -10,6 +10,7 @@ import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,6 +31,9 @@ public class AppResource {
     private Context context;
 
     public Bitmap loadBitmapFromAPMApp(String resName) {
+        if (!PkgUtil.isPkgInstalled(this.context, BuildConfig.APPLICATION_ID)) {
+            return BitmapFactory.decodeResource(this.context.getResources(), android.R.drawable.stat_sys_warning);
+        }
         if (BuildConfig.DEBUG) {
             Log.d(XposedLog.TAG, "loadBitmapFromAPMApp, resName: " + resName);
         }
@@ -69,6 +73,9 @@ public class AppResource {
 
     @RequiresApi(Build.VERSION_CODES.M)
     public Icon loadIconFromAPMApp(String resName, Transform<Bitmap> bitmapTransform) {
+        if (!PkgUtil.isPkgInstalled(this.context, BuildConfig.APPLICATION_ID)) {
+            return Icon.createWithResource(this.context.getResources(), android.R.drawable.stat_sys_warning);
+        }
         if (BuildConfig.DEBUG) {
             Log.d(XposedLog.TAG, "loadIconFromAPMApp, resName: " + resName);
         }
@@ -138,6 +145,9 @@ public class AppResource {
     }
 
     String[] readStringArrayFromAPMApp(String resName) {
+        if (!PkgUtil.isPkgInstalled(this.context, BuildConfig.APPLICATION_ID)) {
+            return new String[0];
+        }
         Context context = getContext();
         if (context == null) {
             Log.e(XposedLog.TAG, "Context is null!!!");
@@ -159,6 +169,9 @@ public class AppResource {
     }
 
     public String loadStringFromAPMApp(String resName, Object... args) {
+        if (!PkgUtil.isPkgInstalled(this.context, BuildConfig.APPLICATION_ID)) {
+            return resName;
+        }
         Context context = getContext();
         if (context == null) {
             Log.e(XposedLog.TAG, "Context is null!!!");

@@ -20,7 +20,7 @@ public class SmartSense extends QuickTile {
     public SmartSense(final Context context) {
         super(context);
         this.titleRes = R.string.title_smart_sense;
-        this.iconRes = R.drawable.ic_airport_shuttle_black_24dp;
+        this.iconRes = R.drawable.ic_extension_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override
             protected int getImageViewBackgroundRes() {

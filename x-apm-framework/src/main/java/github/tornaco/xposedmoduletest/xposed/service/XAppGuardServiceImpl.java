@@ -1280,7 +1280,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 }
                 NotificationChannel notificationChannel;
                 notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID_DEBUG,
-                        "应用管理调试频道",
+                        new AppResource(getContext()).loadStringFromAPMApp("notification_channel_name_debug"),
                         NotificationManager.IMPORTANCE_LOW);
                 notificationChannel.enableLights(false);
                 notificationChannel.enableVibration(false);
@@ -1299,7 +1299,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                     Intent disableBroadcastIntent = new Intent(ACTION_DISABLE_DEBUG_MODE);
                     PendingIntent disableIntent = PendingIntent.getBroadcast(getContext(),
                             0,
-                            disableBroadcastIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                            disableBroadcastIntent, 0);
 
                     NotificationCompat.Builder builder
                             = new NotificationCompat.Builder(getContext(), NOTIFICATION_CHANNEL_ID_DEBUG);
@@ -1309,12 +1309,13 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                     } catch (Throwable ignored) {
                     }
 
+                    AppResource appRes = new AppResource(getContext());
                     Notification n = builder
                             .setOngoing(true)
-                            .setContentTitle("应用管理")
-                            .setContentText("调试模式已经打开。")
+                            .setContentTitle(appRes.loadStringFromAPMApp("notification_title_debug_mode"))
+                            .setContentText(appRes.loadStringFromAPMApp("notification_content_debug_mode"))
                             .setSmallIcon(android.R.drawable.stat_sys_warning)
-                            .addAction(0, "关闭", disableIntent)
+                            .addAction(0, appRes.loadStringFromAPMApp("notification_action_debug_mode_disable"), disableIntent)
                             .build();
 
                     if (OSUtil.isMOrAbove()) {
@@ -1329,7 +1330,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 }
             } catch (Throwable e) {
                 Toast.makeText(getContext(),
-                        "应用管理 调试模式已经打开，如果使用完毕请及时关闭，否则会新增加耗电，造成系统卡顿。", Toast.LENGTH_LONG).show();
+                        new AppResource(getContext()).loadStringFromAPMApp("notification_toast_debug_mode"),
+                        Toast.LENGTH_LONG)
+                        .show();
             }
         }
 
