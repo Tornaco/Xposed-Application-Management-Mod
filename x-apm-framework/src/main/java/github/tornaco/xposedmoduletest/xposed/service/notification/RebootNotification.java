@@ -58,7 +58,8 @@ public class RebootNotification {
         }
 
         Intent disableBroadcastIntent = new Intent(ACTION_DISABLE_DEBUG_MODE);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), 0, disableBroadcastIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), 0, disableBroadcastIntent,
+                0);
 
         Notification n = builder
                 .addAction(0, "立即重启", pendingIntent)

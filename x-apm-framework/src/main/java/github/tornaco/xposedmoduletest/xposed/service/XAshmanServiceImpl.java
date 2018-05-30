@@ -21,7 +21,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
@@ -78,12 +77,10 @@ import com.android.internal.os.Zygote;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.common.io.Files;
 import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileDescriptor;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -107,7 +104,6 @@ import java.util.regex.Pattern;
 import de.robv.android.xposed.SELinuxHelper;
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.android.common.Collections;
-import github.tornaco.android.common.Consumer;
 import github.tornaco.android.common.Holder;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
@@ -558,17 +554,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         try {
             // Disable app guard.
             XAPMServerSettings.APP_GUARD_ENABLED_NEW_B.write(false);
-
+            AppResource appResource = new AppResource(getContext());
             AlertDialog d = new AlertDialog.Builder(getContext())
-                    .setTitle("应用管理")
-                    .setMessage("应用管理已经被卸载，是否要清除 自启动/关联启动/锁屏清理/后台限制 的名单等设置数据？" +
-                            "如果你是想安装新版本，强烈建议你保留该数据。")
+                    .setTitle(appResource.loadStringFromAPMApp("dialog_title_apm_uninstalled"))
+                    .setMessage(appResource.loadStringFromAPMApp("dialog_message_apm_uninstalled"))
                     .setCancelable(false)
-                    .setPositiveButton("清除数据",
+                    .setPositiveButton(appResource.loadStringFromAPMApp("dialog_action_yes_apm_uninstalled"),
                             (dialog, which) -> RepoProxy.getProxy().deleteAll())
-                    .setNegativeButton("暂不清除", (dialog, which) -> {
-
-                    })
+                    .setNegativeButton(appResource.loadStringFromAPMApp("dialog_action_no_apm_uninstalled"),
+                            (dialog, which) -> {
+                                // dialog.dismiss();
+                            })
                     .create();
             d.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG);
             d.show();
@@ -598,7 +594,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             }
             NotificationChannel notificationChannel;
             notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID_DEFAULT,
-                    "应用管理默认频道",
+                    new AppResource(getContext())
+                            .loadStringFromAPMApp("notification_channel_name_default"),
                     NotificationManager.IMPORTANCE_DEFAULT);
             notificationChannel.enableLights(true);
             notificationChannel.setLightColor(Color.RED);
@@ -624,7 +621,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             }
             NotificationChannel notificationChannel;
             notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID_APP_PROCESS,
-                    "应用管理进程提示频道",
+                    new AppResource(getContext())
+                            .loadStringFromAPMApp("notification_channel_name_process_update"),
                     NotificationManager.IMPORTANCE_LOW);
             notificationChannel.enableLights(false);
             notificationChannel.enableVibration(false);
@@ -655,11 +653,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         } catch (Throwable ignored) {
         }
 
+        AppResource appResource = new AppResource(getContext());
         Notification n = builder
-                .setContentIntent(PendingIntent.getActivity(getContext(), 0x1, viewer,
-                        PendingIntent.FLAG_CANCEL_CURRENT))
-                .setContentTitle("模板已应用")
-                .setContentText("已按照模板将 " + name + " 完成设置")
+                .setContentIntent(PendingIntent.getActivity(getContext(), 0x1, viewer, 0))
+                .setContentTitle(appResource.loadStringFromAPMApp("notification_title_app_settings_template"))
+                .setContentText(appResource.loadStringFromAPMApp("notification_content_app_settings_template", name))
                 .setSmallIcon(android.R.drawable.stat_sys_warning)
                 .build();
 
@@ -700,14 +698,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         Intent clearBroadcastIntent = new Intent(ACTION_CLEAR_PROCESS);
-        PendingIntent clearIntent = PendingIntent.getBroadcast(getContext(), 0, clearBroadcastIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent clearIntent = PendingIntent.getBroadcast(getContext(), 0, clearBroadcastIntent, 0);
 
         Intent viewerIntent = new Intent();
         viewerIntent.setPackage(BuildConfig.APPLICATION_ID);
         viewerIntent.setClassName(BuildConfig.APPLICATION_ID,
                 "github.tornaco.xposedmoduletest.ui.activity.helper.RunningServicesActivity");
         viewerIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent detailsIntent = PendingIntent.getActivity(getContext(), 0, viewerIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent detailsIntent = PendingIntent.getActivity(getContext(), 0, viewerIntent, 0);
 
         if (mRunningProcessPackages.size() < 1) {
             // Now no apps need to be clear.
@@ -1761,23 +1759,23 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     @InternalCall
     public void notifyPackageDataClearInterrupt(String pkg) {
-        mLazyHandler.post(new ErrorCatchRunnable(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getContext(), "受保护应用清除数据请求已经被应用管理拦截", Toast.LENGTH_SHORT).show();
-            }
-        }, "notifyPackageDataClearInterrupt"));
+        mLazyHandler.post(new ErrorCatchRunnable(() ->
+                Toast.makeText(getContext(),
+                        new AppResource(getContext()).loadStringFromAPMApp("notification_uninstall_pro_data"),
+                        Toast.LENGTH_SHORT)
+                        .show(),
+                "notifyPackageDataClearInterrupt"));
     }
 
     @Override
     @InternalCall
     public void notifyPackageRemovalInterrupt(String pkg) {
-        mLazyHandler.post(new ErrorCatchRunnable(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getContext(), "受保护应用卸载请求已经被应用管理拦截", Toast.LENGTH_SHORT).show();
-            }
-        }, "notifyPackageDataClearInterrupt"));
+        mLazyHandler.post(new ErrorCatchRunnable(() ->
+                Toast.makeText(getContext(),
+                        new AppResource(getContext()).loadStringFromAPMApp("notification_uninstall_pro_app"),
+                        Toast.LENGTH_SHORT)
+                        .show(),
+                "notifyPackageRemovalInterrupt"));
     }
 
     @Override
@@ -2918,11 +2916,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     public void restart() {
         enforceCallingPermissions();
-        mLazyHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                Zygote.execShell("reboot"); //FIXME Change to soft reboot?
-            }
+        mLazyHandler.post(() -> {
+            Zygote.execShell("reboot"); //FIXME Change to soft reboot?
         });
     }
 
@@ -2967,13 +2962,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 || filterOptions == XAPMManager.FLAG_SHOW_SYSTEM_APP_WITHOUT_CORE_APP;
         final boolean withoutCore = filterOptions == XAPMManager.FLAG_SHOW_SYSTEM_APP_WITHOUT_CORE_APP;
         final List<String> filtered = Lists.newArrayList();
-        Collections.consumeRemaining(outList, new Consumer<String>() {
-            @Override
-            public void accept(String s) {
-                if (!showSystem && (isInSystemAppList(s) || isInWhiteList(s))) return;
-                if (withoutCore && isInWhiteList(s)) return;
-                filtered.add(s);
-            }
+        Collections.consumeRemaining(outList, s -> {
+            if (!showSystem && (isInSystemAppList(s) || isInWhiteList(s))) return;
+            if (withoutCore && isInWhiteList(s)) return;
+            filtered.add(s);
         });
         return convertObjectArrayToStringArray(filtered.toArray());
     }
@@ -3005,27 +2997,24 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             // Remove those not in blocked list.
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
 
-            Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
-                @Override
-                public void accept(String s) {
-                    if (outList.contains(s)) {
-                        XposedLog.verbose("// Kik dup package: " + s);
-                        return;// Kik dup package.
-                    }
-                    if (isPackageBootBlockByUser(s)) {
-                        XposedLog.verbose("// Kik blocked package: " + s);
-                        return;
-                    }
-                    if (isInWhiteList(s)) {
-                        XposedLog.verbose("// Kik white package: " + s);
-                        return;
-                    }
-                    if (isWhiteSysAppEnabled() && isInSystemAppList(s)) {
-                        XposedLog.verbose("// Kik system package: " + s);
-                        return;
-                    }
-                    outList.add(s);
+            Collections.consumeRemaining(allPackagesArr, s -> {
+                if (outList.contains(s)) {
+                    XposedLog.verbose("// Kik dup package: " + s);
+                    return;// Kik dup package.
                 }
+                if (isPackageBootBlockByUser(s)) {
+                    XposedLog.verbose("// Kik blocked package: " + s);
+                    return;
+                }
+                if (isInWhiteList(s)) {
+                    XposedLog.verbose("// Kik white package: " + s);
+                    return;
+                }
+                if (isWhiteSysAppEnabled() && isInSystemAppList(s)) {
+                    XposedLog.verbose("// Kik system package: " + s);
+                    return;
+                }
+                outList.add(s);
             });
 
             if (outList.size() == 0) {
@@ -3041,14 +3030,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             final List<String> noSys = Lists.newArrayList();
 
-            Collections.consumeRemaining(packages, new Consumer<String>() {
-                @Override
-                public void accept(String p) {
-                    if (isWhiteSysAppEnabled() && isInSystemAppList(p)) {
-                        return;
-                    }
-                    noSys.add(p);
+            Collections.consumeRemaining(packages, p -> {
+                if (isWhiteSysAppEnabled() && isInSystemAppList(p)) {
+                    return;
                 }
+                noSys.add(p);
             });
             return convertObjectArrayToStringArray(noSys.toArray());
         }
@@ -3077,15 +3063,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             // Remove those not in blocked list.
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
-            Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
-                @Override
-                public void accept(String s) {
-                    if (outList.contains(s)) return;// Kik dup package.
-                    if (isPackageStartBlockByUser(s)) return;
-                    if (isInWhiteList(s)) return;
-                    if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
-                    outList.add(s);
-                }
+            Collections.consumeRemaining(allPackagesArr, s -> {
+                if (outList.contains(s)) return;// Kik dup package.
+                if (isPackageStartBlockByUser(s)) return;
+                if (isInWhiteList(s)) return;
+                if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
+                outList.add(s);
             });
 
             if (outList.size() == 0) {
@@ -3101,14 +3084,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             final List<String> noSys = Lists.newArrayList();
 
-            Collections.consumeRemaining(packages, new Consumer<String>() {
-                @Override
-                public void accept(String p) {
-                    if (isWhiteSysAppEnabled() && isInSystemAppList(p)) {
-                        return;
-                    }
-                    noSys.add(p);
+            Collections.consumeRemaining(packages, p -> {
+                if (isWhiteSysAppEnabled() && isInSystemAppList(p)) {
+                    return;
                 }
+                noSys.add(p);
             });
             return convertObjectArrayToStringArray(noSys.toArray());
         }
@@ -3194,15 +3174,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             // Remove those not in blocked list.
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
-            Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
-                @Override
-                public void accept(String s) {
-                    if (outList.contains(s)) return;// Kik dup package.
-                    if (isPackageRFKByUser(s)) return;
-                    if (isInWhiteList(s)) return;
-                    if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
-                    outList.add(s);
-                }
+            Collections.consumeRemaining(allPackagesArr, s -> {
+                if (outList.contains(s)) return;// Kik dup package.
+                if (isPackageRFKByUser(s)) return;
+                if (isInWhiteList(s)) return;
+                if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
+                outList.add(s);
             });
 
             if (outList.size() == 0) {
@@ -3218,14 +3195,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             final List<String> noSys = Lists.newArrayList();
 
-            Collections.consumeRemaining(packages, new Consumer<String>() {
-                @Override
-                public void accept(String p) {
-                    if (isWhiteSysAppEnabled() && isInSystemAppList(p)) {
-                        return;
-                    }
-                    noSys.add(p);
+            Collections.consumeRemaining(packages, p -> {
+                if (isWhiteSysAppEnabled() && isInSystemAppList(p)) {
+                    return;
                 }
+                noSys.add(p);
             });
             return convertObjectArrayToStringArray(noSys.toArray());
         }
@@ -3254,15 +3228,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             // Remove those not in blocked list.
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
-            Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
-                @Override
-                public void accept(String s) {
-                    if (outList.contains(s)) return;// Kik dup package.
-                    if (isPackageGreeningByUser(s)) return;
-                    if (isInWhiteList(s)) return;
-                    if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
-                    outList.add(s);
-                }
+            Collections.consumeRemaining(allPackagesArr, s -> {
+                if (outList.contains(s)) return;// Kik dup package.
+                if (isPackageGreeningByUser(s)) return;
+                if (isInWhiteList(s)) return;
+                if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
+                outList.add(s);
             });
 
             if (outList.size() == 0) {
@@ -3278,14 +3249,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             final List<String> noSys = Lists.newArrayList();
 
-            Collections.consumeRemaining(packages, new Consumer<String>() {
-                @Override
-                public void accept(String p) {
-                    if (isWhiteSysAppEnabled() && isInSystemAppList(p)) {
-                        return;
-                    }
-                    noSys.add(p);
+            Collections.consumeRemaining(packages, p -> {
+                if (isWhiteSysAppEnabled() && isInSystemAppList(p)) {
+                    return;
                 }
+                noSys.add(p);
             });
             return convertObjectArrayToStringArray(noSys.toArray());
         }
@@ -3742,12 +3710,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public void injectPowerEvent() {
-        mainHandler.post(new ErrorCatchRunnable(new Runnable() {
-            @Override
-            public void run() {
-                PowerManager powerManager = (PowerManager) getContext().getSystemService(POWER_SERVICE);
-                powerManager.goToSleep(SystemClock.uptimeMillis());
-            }
+        mainHandler.post(new ErrorCatchRunnable(() -> {
+            PowerManager powerManager = (PowerManager) getContext().getSystemService(POWER_SERVICE);
+            powerManager.goToSleep(SystemClock.uptimeMillis());
         }, "goToSleep"));
     }
 
@@ -5192,15 +5157,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             // Remove those not in blocked list.
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
-            Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
-                @Override
-                public void accept(String s) {
-                    if (outList.contains(s)) return;// Kik dup package.
-                    if (isPackageprivacyByUser(s)) return;
-                    if (isInWhiteList(s)) return;
-                    if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
-                    outList.add(s);
-                }
+            Collections.consumeRemaining(allPackagesArr, s -> {
+                if (outList.contains(s)) return;// Kik dup package.
+                if (isPackageprivacyByUser(s)) return;
+                if (isInWhiteList(s)) return;
+                if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
+                outList.add(s);
             });
 
             if (outList.size() == 0) {
@@ -5216,14 +5178,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             final List<String> noSys = Lists.newArrayList();
 
-            Collections.consumeRemaining(packages, new Consumer<String>() {
-                @Override
-                public void accept(String p) {
-                    if (isWhiteSysAppEnabled() && isInSystemAppList(p)) {
-                        return;
-                    }
-                    noSys.add(p);
+            Collections.consumeRemaining(packages, p -> {
+                if (isWhiteSysAppEnabled() && isInSystemAppList(p)) {
+                    return;
                 }
+                noSys.add(p);
             });
             return convertObjectArrayToStringArray(noSys.toArray());
         }
@@ -5450,15 +5409,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             // Remove those not in blocked list.
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
             Collections.consumeRemaining(allPackagesArr,
-                    new Consumer<String>() {
-                        @Override
-                        public void accept(String s) {
-                            if (outList.contains(s)) return;// Kik dup package.
-                            if (isPackageLazyByUser(s)) return;
-                            if (isInWhiteList(s)) return;
-                            if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
-                            outList.add(s);
-                        }
+                    s -> {
+                        if (outList.contains(s)) return;// Kik dup package.
+                        if (isPackageLazyByUser(s)) return;
+                        if (isInWhiteList(s)) return;
+                        if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
+                        outList.add(s);
                     });
 
             if (outList.size() == 0) {
@@ -5474,14 +5430,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             final List<String> noSys = Lists.newArrayList();
 
-            Collections.consumeRemaining(packages, new Consumer<String>() {
-                @Override
-                public void accept(String p) {
-                    if (isWhiteSysAppEnabled() && isInSystemAppList(p)) {
-                        return;
-                    }
-                    noSys.add(p);
+            Collections.consumeRemaining(packages, p -> {
+                if (isWhiteSysAppEnabled() && isInSystemAppList(p)) {
+                    return;
                 }
+                noSys.add(p);
             });
             return convertObjectArrayToStringArray(noSys.toArray());
         }
@@ -5681,39 +5634,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             mDozeHandler.obtainMessage(DozeHandlerMessages.MSG_SETDOZEENABLED, enable)
                     .sendToTarget();
         }
-
-        // This is test code for lr.
-        // Binder:27874_11: type=1400 audit(0.0:37239): avc: denied { write } for name="lockscreenwallpaper" dev="mmcblk0p22" ino=938401 scontext=u:r:system_server:s0 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=0
-        if (BuildConfig.DEBUG) {
-            final File f = new File("/data/local/tmp/lockscreenwallpaper/keyguard_wallpaper_land.png");
-            long ident = Binder.clearCallingIdentity();
-            try {
-                Files.createParentDirs(f);
-                f.createNewFile();
-                boolean exist = f.exists();
-                XposedLog.verbose("keyguard_wallpaper_land exists: " + exist);
-            } catch (final IOException e) {
-                XposedLog.wtf("e: " + Log.getStackTraceString(e));
-
-                // Try using handler.
-                mLazyHandler.post(new ErrorCatchRunnable(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Files.createParentDirs(f);
-                            boolean exist = f.exists();
-                            XposedLog.verbose("keyguard_wallpaper_land exists: " + exist);
-                            f.createNewFile();
-                        } catch (IOException e1) {
-                            XposedLog.wtf("e2: " + Log.getStackTraceString(e));
-                        }
-
-                    }
-                }, "test"));
-            } finally {
-                Binder.restoreCallingIdentity(ident);
-            }
-        }
     }
 
     @Override
@@ -5821,15 +5741,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             final List<String> outList = Lists.newArrayList();
 
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
-            Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
-                @Override
-                public void accept(String s) {
-                    if (outList.contains(s)) return;// Kik dup package.
-                    if (isPackageTRKByUser(s)) return;
-                    if (isInWhiteList(s)) return;
-                    if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
-                    outList.add(s);
-                }
+            Collections.consumeRemaining(allPackagesArr, s -> {
+                if (outList.contains(s)) return;// Kik dup package.
+                if (isPackageTRKByUser(s)) return;
+                if (isInWhiteList(s)) return;
+                if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
+                outList.add(s);
             });
 
             if (outList.size() == 0) {
@@ -5846,14 +5763,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             final List<String> noSys = Lists.newArrayList();
 
-            Collections.consumeRemaining(packages, new Consumer<String>() {
-                @Override
-                public void accept(String p) {
-                    if (isWhiteSysAppEnabled() && isInSystemAppList(p)) {
-                        return;
-                    }
-                    noSys.add(p);
+            Collections.consumeRemaining(packages, p -> {
+                if (isWhiteSysAppEnabled() && isInSystemAppList(p)) {
+                    return;
                 }
+                noSys.add(p);
             });
             return convertObjectArrayToStringArray(noSys.toArray());
         }
@@ -6664,15 +6578,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             // Remove those not in blocked list.
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
-            Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
-                @Override
-                public void accept(String s) {
-                    if (isInSystemAppList(s)) return; // No system app.
-                    if (outList.contains(s)) return;// Kik dup package.
-                    if (isPackageResidentByUser(s)) return;
-                    if (isInWhiteList(s)) return;
-                    outList.add(s);
-                }
+            Collections.consumeRemaining(allPackagesArr, s -> {
+                if (isInSystemAppList(s)) return; // No system app.
+                if (outList.contains(s)) return;// Kik dup package.
+                if (isPackageResidentByUser(s)) return;
+                if (isInWhiteList(s)) return;
+                outList.add(s);
             });
 
             if (outList.size() == 0) {
@@ -6688,14 +6599,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             final List<String> noSys = Lists.newArrayList();
 
-            Collections.consumeRemaining(packages, new Consumer<String>() {
-                @Override
-                public void accept(String p) {
-                    if (isInSystemAppList(p)) {
-                        return;
-                    }
-                    noSys.add(p);
+            Collections.consumeRemaining(packages, p -> {
+                if (isInSystemAppList(p)) {
+                    return;
                 }
+                noSys.add(p);
             });
             return convertObjectArrayToStringArray(noSys.toArray());
         }
@@ -6729,14 +6637,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @BinderCall
     public void lockNow() {
         if (mDevicePolicyManagerService != null) {
-            wrapCallingIdetUnCaught(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        mDevicePolicyManagerService.lockNow(getContext());
-                    } catch (RemoteException e) {
-                        XposedLog.wtf("lockNow: " + e);
-                    }
+            wrapCallingIdetUnCaught(() -> {
+                try {
+                    mDevicePolicyManagerService.lockNow(getContext());
+                } catch (RemoteException e) {
+                    XposedLog.wtf("lockNow: " + e);
                 }
             });
         }
@@ -6806,23 +6711,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     public boolean hasSystemError() {
         final Holder<Boolean> res = new Holder<>();
-        wrapCallingIdetUnCaught(new ErrorCatchRunnable(new Runnable() {
-            @Override
-            public void run() {
-                res.setData(!FileUtil.isEmptyDirOrNoExist(RepoProxy.getSystemErrorTraceDirByVersion()));
-            }
-        }, "hasSystemError"));
+        wrapCallingIdetUnCaught(new ErrorCatchRunnable(() -> res.setData(!FileUtil.isEmptyDirOrNoExist(RepoProxy.getSystemErrorTraceDirByVersion())), "hasSystemError"));
         return res.getData();
     }
 
     @Override
     public void cleanUpSystemErrorTraces() {
-        wrapCallingIdetUnCaught(new ErrorCatchRunnable(new Runnable() {
-            @Override
-            public void run() {
-                FileUtil.deleteDirQuiet(RepoProxy.getSystemErrorTraceDir());
-            }
-        }, "cleanUpSystemErrorTraces"));
+        wrapCallingIdetUnCaught(new ErrorCatchRunnable(() -> FileUtil.deleteDirQuiet(RepoProxy.getSystemErrorTraceDir()), "cleanUpSystemErrorTraces"));
     }
 
     @Override
@@ -7057,17 +6952,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private ComponentName mFocusedCompName;
 
     private ClickableToastManager.OnToastClickListener mOnToastClickListener
-            = new ClickableToastManager.OnToastClickListener() {
-        @Override
-        public void onToastClick(String text) {
-            // Do not crash anyway.
-            try {
-                ClipboardManager cmb = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                if (cmb != null) {
-                    cmb.setPrimaryClip(ClipData.newPlainText("service_config", text));
-                }
-            } catch (Throwable ignored) {
+            = text -> {
+        // Do not crash anyway.
+        try {
+            ClipboardManager cmb = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+            if (cmb != null) {
+                cmb.setPrimaryClip(ClipData.newPlainText("service_config", text));
             }
+        } catch (Throwable ignored) {
         }
     };
 
@@ -7317,12 +7209,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 // Dump while list.
                 fout.println("White list: ");
                 Object[] whileListObjects = WHITE_LIST.toArray();
-                Collections.consumeRemaining(whileListObjects, new Consumer<Object>() {
-                    @Override
-                    public void accept(Object o) {
-                        fout.println(o);
-                    }
-                });
+                Collections.consumeRemaining(whileListObjects, o -> fout.println(o));
 
                 fout.println();
                 fout.println("======================");
@@ -7332,12 +7219,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 fout.println("White list hook: ");
                 Collections.consumeRemaining(RepoProxy.getProxy()
                         .getWhite_list_hooks_dynamic()
-                        .getAll(), new Consumer<String>() {
-                    @Override
-                    public void accept(String o) {
-                        fout.println(o);
-                    }
-                });
+                        .getAll(), o -> fout.println(o));
 
                 fout.println();
                 fout.println("======================");
@@ -7346,12 +7228,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 // Dump System list.
                 fout.println("System list: ");
                 Object[] systemListObjects = SYSTEM_APPS.toArray();
-                Collections.consumeRemaining(systemListObjects, new Consumer<Object>() {
-                    @Override
-                    public void accept(Object o) {
-                        fout.println(o);
-                    }
-                });
+                Collections.consumeRemaining(systemListObjects, o -> fout.println(o));
 
                 fout.println();
                 fout.println("======================");
@@ -7359,12 +7236,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
                 // Dump boot list.
                 fout.println("Boot list: ");
-                Collections.consumeRemaining(RepoProxy.getProxy().getBoots().getAll(), new Consumer<String>() {
-                    @Override
-                    public void accept(String o) {
-                        fout.println(o);
-                    }
-                });
+                Collections.consumeRemaining(RepoProxy.getProxy().getBoots().getAll(), o -> fout.println(o));
 
                 fout.println();
                 fout.println("======================");
@@ -7372,13 +7244,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
                 // Dump start list.
                 fout.println("Start list: ");
-                Collections.consumeRemaining(RepoProxy.getProxy().getStarts().getAll(), new Consumer<String>() {
-
-                    @Override
-                    public void accept(String s) {
-                        fout.println(s);
-                    }
-                });
+                Collections.consumeRemaining(RepoProxy.getProxy().getStarts().getAll(), s -> fout.println(s));
 
                 fout.println();
                 fout.println("======================");
@@ -7386,13 +7252,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
                 // Dump lk list.
                 fout.println("LK list: ");
-                Collections.consumeRemaining(RepoProxy.getProxy().getLks().getAll(), new Consumer<String>() {
-
-                    @Override
-                    public void accept(String s) {
-                        fout.println(s);
-                    }
-                });
+                Collections.consumeRemaining(RepoProxy.getProxy().getLks().getAll(), s -> fout.println(s));
 
                 fout.println();
                 fout.println("======================");
@@ -7400,13 +7260,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
                 // Dump rf list.
                 fout.println("RF list: ");
-                Collections.consumeRemaining(RepoProxy.getProxy().getRfks().getAll(), new Consumer<String>() {
-
-                    @Override
-                    public void accept(String s) {
-                        fout.println(s);
-                    }
-                });
+                Collections.consumeRemaining(RepoProxy.getProxy().getRfks().getAll(), s -> fout.println(s));
 
                 fout.println();
                 fout.println("======================");
@@ -7415,32 +7269,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 // Dump watcher.
                 fout.println("Watcher list: ");
                 Object[] watcherListObjects = mWatcherClients.toArray();
-                Collections.consumeRemaining(watcherListObjects, new Consumer<Object>() {
-                    @Override
-                    public void accept(Object o) {
-                        fout.println(o);
-                    }
-                });
+                Collections.consumeRemaining(watcherListObjects, o -> fout.println(o));
 
                 // Dump webview.
                 fout.println("Webview provider list: ");
                 Object[] wwListObjects = mWebviewProviders.toArray();
-                Collections.consumeRemaining(wwListObjects, new Consumer<Object>() {
-                    @Override
-                    public void accept(Object o) {
-                        fout.println(o);
-                    }
-                });
+                Collections.consumeRemaining(wwListObjects, o -> fout.println(o));
 
                 // Dump block list.
                 fout.println("Block record list: ");
                 Object[] blockRecordObjects = mBlockRecords.values().toArray();
-                Collections.consumeRemaining(blockRecordObjects, new Consumer<Object>() {
-                    @Override
-                    public void accept(Object o) {
-                        fout.println(o);
-                    }
-                });
+                Collections.consumeRemaining(blockRecordObjects, o -> fout.println(o));
             }
         } else {
             // Exe command.
@@ -7714,12 +7553,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @BinderCall
     public void enableKeyguard(final boolean enabled) {
         if (mPhoneWindowManagerProxy != null) {
-            wrapCallingIdetUnCaught(new ErrorCatchRunnable(new Runnable() {
-                @Override
-                public void run() {
-                    mPhoneWindowManagerProxy.enableKeyguard(enabled);
-                }
-            }, "enableKeyguard"));
+            wrapCallingIdetUnCaught(new ErrorCatchRunnable(() -> mPhoneWindowManagerProxy.enableKeyguard(enabled), "enableKeyguard"));
         }
     }
 
@@ -7728,24 +7562,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     public void exitKeyguardSecurely(final IBooleanCallback1 result) {
         XposedLog.verbose("exitKeyguardSecurely: " + mPhoneWindowManagerProxy);
         if (mPhoneWindowManagerProxy != null) {
-            wrapCallingIdetUnCaught(new ErrorCatchRunnable(new Runnable() {
-                @Override
-                public void run() {
-                    mPhoneWindowManagerProxy.exitKeyguardSecurely(new WindowManagerPolicy
-                            .OnKeyguardExitResult() {
-                        @Override
-                        public void onKeyguardExitResult(boolean success) {
-                            if (result != null) {
-                                try {
-                                    result.onResult(success);
-                                } catch (RemoteException e) {
-                                    XposedLog.wtf("exitKeyguardSecurely,  result.onResult: " + e);
-                                }
-                            }
-                        }
-                    });
+            wrapCallingIdetUnCaught(new ErrorCatchRunnable(() -> mPhoneWindowManagerProxy.exitKeyguardSecurely(success -> {
+                if (result != null) {
+                    try {
+                        result.onResult(success);
+                    } catch (RemoteException e) {
+                        XposedLog.wtf("exitKeyguardSecurely,  result.onResult: " + e);
+                    }
                 }
-            }, "exitKeyguardSecurely"));
+            }), "exitKeyguardSecurely"));
         }
     }
 
@@ -7753,12 +7578,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     public void dismissKeyguardLw() {
         if (mPhoneWindowManagerProxy != null) {
-            wrapCallingIdetUnCaught(new ErrorCatchRunnable(new Runnable() {
-                @Override
-                public void run() {
-                    mPhoneWindowManagerProxy.dismissKeyguardLw();
-                }
-            }, "dismissKeyguardLw"));
+            wrapCallingIdetUnCaught(new ErrorCatchRunnable(() -> mPhoneWindowManagerProxy.dismissKeyguardLw(), "dismissKeyguardLw"));
         }
     }
 
@@ -8161,16 +7981,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             // Hide float view in lazy handler.
             if (!enabled) {
-                mLazyHandler.post(new ErrorCatchRunnable(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mFloatView != null) {
-                            try {
-                                mFloatView.hideAndDetach();
-                                mFloatView = null;
-                            } catch (Throwable e) {
-                                XposedLog.wtf("Fail detach float view: " + Log.getStackTraceString(e));
-                            }
+                mLazyHandler.post(new ErrorCatchRunnable(() -> {
+                    if (mFloatView != null) {
+                        try {
+                            mFloatView.hideAndDetach();
+                            mFloatView = null;
+                        } catch (Throwable e) {
+                            XposedLog.wtf("Fail detach float view: " + Log.getStackTraceString(e));
                         }
                     }
                 }, "hideAndDetach"));
@@ -8222,26 +8039,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                         ))
                         .setCancelable(false)
                         .setPositiveButton(android.R.string.copy,
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        try {
-                                            ClipboardManager cmb = (ClipboardManager) getContext()
-                                                    .getSystemService(Context.CLIPBOARD_SERVICE);
-                                            if (cmb != null) {
-                                                cmb.setPrimaryClip(ClipData.newPlainText("service_config", trace));
-                                            }
-                                        } catch (Throwable ignored) {
+                                (dialog, which) -> {
+                                    try {
+                                        ClipboardManager cmb = (ClipboardManager) getContext()
+                                                .getSystemService(Context.CLIPBOARD_SERVICE);
+                                        if (cmb != null) {
+                                            cmb.setPrimaryClip(ClipData.newPlainText("service_config", trace));
                                         }
+                                    } catch (Throwable ignored) {
                                     }
                                 })
                         .setNegativeButton(android.R.string.cancel, null)
-                        .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                            @Override
-                            public void onDismiss(DialogInterface dialog) {
-                                mCrashDialogShowing = false;
-                            }
-                        })
+                        .setOnDismissListener(dialog -> mCrashDialogShowing = false)
                         .create();
                 d.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG);
                 d.show();
@@ -8882,12 +8691,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                         x.addOrRemoveStartBlockApps(new String[]{packageName}, XAPMManager.Op.REMOVE);
 
                         if (BuildConfig.APPLICATION_ID.equals(packageName)) {
-                            mLazyHandler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    onAppGuardClientUninstalled();
-                                }
-                            }, 2000);
+                            mLazyHandler.postDelayed(() -> onAppGuardClientUninstalled(), 2000);
                         }
                     } catch (Throwable e) {
                         XposedLog.wtf(Log.getStackTraceString(e));
