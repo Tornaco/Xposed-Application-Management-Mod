@@ -11,6 +11,7 @@ import org.newstand.logger.Logger;
 
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.service.WidgetService;
+import github.tornaco.xposedmoduletest.xposed.service.notification.UniqueIdFactory;
 
 /**
  * Created by guohao4 on 2017/12/4.
@@ -32,6 +33,6 @@ public class ClearProcessAppWidgetProvider extends AppWidgetProvider {
 
     private PendingIntent getPendingIntent(Context context) {
         Intent intent = new Intent(WidgetService.ACTION_CLEAR_PROCESS);
-        return PendingIntent.getService(context, 0, intent, 0);
+        return PendingIntent.getService(context, UniqueIdFactory.getNextId(), intent, 0);
     }
 }

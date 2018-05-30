@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by Tornaco on 2018/5/30 10:10.
  * This file is writen for project X-APM at host guohao4.
  */
-public abstract class NotificationIdFactory {
+public abstract class UniqueIdFactory {
 
     private final static AtomicInteger ID = new AtomicInteger(0);
 

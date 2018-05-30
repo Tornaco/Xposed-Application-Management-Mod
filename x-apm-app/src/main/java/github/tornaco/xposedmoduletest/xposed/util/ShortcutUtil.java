@@ -25,6 +25,7 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.ShortcutStubActivity;
 import github.tornaco.xposedmoduletest.util.BitmapUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
+import github.tornaco.xposedmoduletest.xposed.service.notification.UniqueIdFactory;
 
 /**
  * Created by guohao4 on 2018/1/18.
@@ -125,7 +126,7 @@ public class ShortcutUtil {
                     .setIntent(shortcutInfoIntent)
                     .build();
 
-            PendingIntent shortcutCallbackIntent = PendingIntent.getActivity(context, 0,
+            PendingIntent shortcutCallbackIntent = PendingIntent.getActivity(context, UniqueIdFactory.getNextId(),
                     shortcutInfoIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
