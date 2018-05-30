@@ -185,7 +185,6 @@ public class BackupRestoreSettingsActivity extends BaseActivity implements
 
     @Override
     public void onDataBackupSuccess() {
-        XAPMManager.get().showRebootNeededNotification("Backup&Restore");
         runOnUiThreadChecked(() -> {
             cancelProgressDialog();
             Toast.makeText(getActivity(), R.string.title_backup_restore_success, Toast.LENGTH_SHORT).show();

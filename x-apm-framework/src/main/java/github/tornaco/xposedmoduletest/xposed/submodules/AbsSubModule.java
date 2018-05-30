@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import android.os.Build;
+import android.util.Log;
 
 import com.google.common.io.Files;
 
@@ -85,8 +86,8 @@ abstract class AbsSubModule implements SubModule {
                     .write(errorMessage);
             XposedLog.wtf("Module error trace has been write to: " + errFile);
 
-        } catch (Throwable ignored) {
-            // Fall.
+        } catch (Throwable e) {
+            XposedLog.wtf("Module error trace dump fail: " + Log.getStackTraceString(e));
         }
     }
 

@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed.submodules.debug;
 
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.util.Log;
 
 import java.lang.reflect.Method;
@@ -19,6 +20,11 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 // To fix that when bitmap is too large, an app is FC.
 public class DisplayListCanvasSubModule extends AndroidSubModule {
+
+    @Override
+    public int needMinSdk() {
+        return Build.VERSION_CODES.N;
+    }
 
     @Override
     public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {

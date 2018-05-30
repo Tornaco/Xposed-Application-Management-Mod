@@ -164,6 +164,7 @@ public abstract class DataBackup {
                 public void onRestoreFinished(String domain, String path) throws RemoteException {
                     super.onBackupFinished(domain, path);
                     listener.onDataBackupSuccess();
+                    XAPMManager.get().showRebootNeededNotification("Restore");
                     Logger.e("IBackupAgent onRestoreFinished: " + path);
                 }
 

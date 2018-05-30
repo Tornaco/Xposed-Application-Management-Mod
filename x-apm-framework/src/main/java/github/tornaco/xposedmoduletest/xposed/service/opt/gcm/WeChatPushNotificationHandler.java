@@ -9,10 +9,10 @@ import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import github.tornaco.xposedmoduletest.model.PushMessage;
 import github.tornaco.xposedmoduletest.service.PushMessageNotificationService;
+import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationIdFactory;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -167,12 +167,11 @@ public class WeChatPushNotificationHandler extends BasePushNotificationHandler {
 
     static class MessageIdWrapper {
         static final Map<String, Integer> idMap = new HashMap<>();
-        static final AtomicInteger NOTIFICATION_ID_DYNAMIC = new AtomicInteger(9999);
 
         static int id(String messageIdString) {
             Integer cache = idMap.get(messageIdString);
             if (cache != null) return cache;
-            int idNew = NOTIFICATION_ID_DYNAMIC.getAndIncrement();
+            int idNew = NotificationIdFactory.getNextId();
             idMap.put(messageIdString, idNew);
             return idNew;
         }

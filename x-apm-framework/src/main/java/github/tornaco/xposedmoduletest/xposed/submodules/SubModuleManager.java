@@ -192,7 +192,7 @@ public class SubModuleManager {
 
             // Hot fix.
             addToSubsChecked(new DisplayListCanvasSubModule());
-            addToSubsChecked(new Z2ForceFixSubModule());
+            // addToSubsChecked(new Z2ForceFixSubModule());
 
             // Input.
             addToSubsChecked(new PointerEventDispatcherSubModule());

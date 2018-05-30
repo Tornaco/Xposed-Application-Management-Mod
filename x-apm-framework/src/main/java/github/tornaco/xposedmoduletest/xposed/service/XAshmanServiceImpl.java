@@ -156,6 +156,7 @@ import github.tornaco.xposedmoduletest.xposed.service.doze.PowerWhitelistBackend
 import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.input.Input;
 import github.tornaco.xposedmoduletest.xposed.service.multipleapps.MultipleAppsManager;
+import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationIdFactory;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.notification.RebootNotification;
 import github.tornaco.xposedmoduletest.xposed.service.notification.SystemUI;
@@ -213,6 +214,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private static final String SYSTEM_UI_PKG_HUAWEI = "com.huawei.bd";
 
     private static final String TAG_LK = "LOCK-KILL-";
+
+    private static final String NOTIFICATION_CHANNEL_ID_DEFAULT = "dev.tornaco.notification.channel.id.X-APM-DEFAULT";
+    private static final String NOTIFICATION_CHANNEL_ID_APP_PROCESS = "dev.tornaco.notification.channel.id.X-APM-PROCESS";
 
     private static final boolean DEBUG_BROADCAST;
     private static final boolean DEBUG_SERVICE;
@@ -580,12 +584,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         mWorkingService.execute(() -> cachePackages(pkg));
     }
 
-    private static final AtomicInteger NOTIFICATION_ID_DYNAMIC = new AtomicInteger(0);
-    private static final int NOTIFICATION_ID_APP_PROCESS = Integer.MAX_VALUE - 2018;
-
-    private static final String NOTIFICATION_CHANNEL_ID_DEFAULT = "dev.tornaco.notification.channel.id.X-APM-DEFAULT";
-    private static final String NOTIFICATION_CHANNEL_ID_APP_PROCESS = "dev.tornaco.notification.channel.id.X-APM-PROCESS";
-
     private void createDefaultNotificationChannelForO() {
         if (OSUtil.isOOrAbove()) {
             NotificationManager notificationManager = (NotificationManager)
@@ -670,12 +668,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         NotificationManagerCompat.from(context)
-                .notify(NOTIFICATION_ID_DYNAMIC.getAndIncrement(), n);
+                .notify(NotificationIdFactory.getNextId(), n);
     }
 
     private void clearRunningAppProcessUpdateNotification() {
         NotificationManagerCompat.from(getContext())
-                .cancel(NOTIFICATION_ID_APP_PROCESS);
+                .cancel(NotificationIdFactory.getIdByTag(NOTIFICATION_CHANNEL_ID_APP_PROCESS));
     }
 
     private void showRunningAppProcessUpdateNotification() {
@@ -735,7 +733,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         NotificationManagerCompat.from(getContext())
-                .notify(NOTIFICATION_ID_APP_PROCESS, n);
+                .notify(NotificationIdFactory.getIdByTag(NOTIFICATION_CHANNEL_ID_APP_PROCESS), n);
 
         if (BuildConfig.DEBUG) {
             XposedLog.verbose("showRunningAppProcessUpdateNotification:"
@@ -3636,7 +3634,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         enforceCallingPermissions();
         wrapCallingIdetUnCaught(() -> {
             createDefaultNotificationChannelForO();
-            mRebootNotification.show(NOTIFICATION_CHANNEL_ID_DEFAULT, NOTIFICATION_ID_DYNAMIC.getAndIncrement());
+            mRebootNotification.show(NOTIFICATION_CHANNEL_ID_DEFAULT, NotificationIdFactory.getIdByTag("Reboot Notification"));
         });
     }
 

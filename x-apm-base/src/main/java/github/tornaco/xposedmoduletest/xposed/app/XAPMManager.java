@@ -2644,7 +2644,8 @@ public class XAPMManager {
 
     private static void handleException(Throwable e) {
         if (BuildConfig.DEBUG) {
-            throw new RuntimeException(e);
+            //throw new RuntimeException(e);
+            Log.e(XposedLog.TAG, Log.getStackTraceString(e));
         } else {
             Log.e(XposedLog.TAG, Log.getStackTraceString(e));
         }
