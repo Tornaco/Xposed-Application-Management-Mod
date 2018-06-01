@@ -72,7 +72,9 @@ public class XAPMManager {
         P_GESTURE,
         LAZY_APP_TIPS,
         PKG_INSTALL_VERIFY,
-        OPT_BLUR_CACHE
+        OPT_BLUR_CACHE,
+        APP_INACTIVE_POLICY_,
+        REMOVE_TASK_ON_APP_IDLE
     }
 
     public interface Op {

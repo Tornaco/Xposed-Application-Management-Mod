@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import github.tornaco.android.common.BlackHole;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IBackupAgent;
 import github.tornaco.xposedmoduletest.IBackupCallback;
@@ -68,18 +69,18 @@ public class RepoProxy {
             lazy, comps, white_list_hooks_dynamic,
             pending_disable_apps,
             pending_disable_apps_tr,
-            resident, doze_whitelist_adding, doze_whitelist_removal;
+            resident, doze_whitelist_adding, doze_whitelist_removal,
+            wakeup_on_notification;
 
-    private MapRepo<String, String> componentReplacement, appFocused, appUnFocused, systemPropProfiles;
-
-    private Handler h;
+    private MapRepo<String, String> componentReplacement, appFocused, appUnFocused, systemPropProfiles,
+            appSettingsTemplate, appOpsTemplate;
 
     private RepoProxy() {
 
         // Sync in a new handler thread.
         HandlerThread hr = new HandlerThread("Repo proxy");
         hr.start();
-        h = new Handler(hr.getLooper());
+        Handler h = new Handler(hr.getLooper());
 
         ExecutorService io = Executors.newSingleThreadExecutor();
 
@@ -91,7 +92,7 @@ public class RepoProxy {
         }
     }
 
-    public static boolean isAppDataDirExists(String pkgName) {
+    private static boolean isAppDataDirExists(String pkgName) {
         try {
             File dataDir = new File("data/data/" + pkgName);
             return dataDir.exists();
@@ -117,7 +118,7 @@ public class RepoProxy {
     public static void deleteFileIndicator(String name) {
         File f = new File(getBaseDataDir(), name);
         try {
-            f.delete();
+            BlackHole.eat(f.delete());
         } catch (Exception e) {
             XposedLog.wtf("Fail deleteFileIndicator " + Log.getStackTraceString(e));
         }
@@ -190,6 +191,7 @@ public class RepoProxy {
         resident = new StringSetRepo(new File(dir, "resident"), h, io);
         doze_whitelist_adding = new StringSetRepo(new File(dir, "doze_whitelist_adding"), h, io);
         doze_whitelist_removal = new StringSetRepo(new File(dir, "doze_whitelist_removal"), h, io);
+        wakeup_on_notification = new StringSetRepo(new File(dir, "wakeup_on_notification"), h, io);
 
         // Prevent some system app being added to whitelist.
         white_list_hooks_dynamic = new StringSetRepo(new File(dir, "white_list_hooks_dynamic"), h, io);
@@ -210,6 +212,8 @@ public class RepoProxy {
         appUnFocused = new StringMapRepo(new File(dir, "app_unfocused"), h, io);
         componentReplacement = new StringMapRepo(new File(dir, "component_replacement"), h, io);
         systemPropProfiles = new StringMapRepo(new File(dir, "system_prop_profiles"), h, io);
+        appSettingsTemplate = new StringMapRepo(new File(dir, "app_settings_template"), h, io);
+        appOpsTemplate = new StringMapRepo(new File(dir, "app_ops_template"), h, io);
     }
 
     private static final SetRepo<String> STRING_SET_NULL_HACK = new SetRepo<String>() {
@@ -505,6 +509,10 @@ public class RepoProxy {
         return comps == null ? STRING_SET_NULL_HACK : comps;
     }
 
+    public SetRepo<String> getWakeup_on_notification() {
+        return wakeup_on_notification == null ? STRING_SET_NULL_HACK : wakeup_on_notification;
+    }
+
     public MapRepo<String, String> getAppFocused() {
         return appFocused == null ? MAP_SET_NULL_HACK : appFocused;
     }
@@ -521,12 +529,21 @@ public class RepoProxy {
         return systemPropProfiles == null ? MAP_SET_NULL_HACK : systemPropProfiles;
     }
 
+    public MapRepo<String, String> getAppOpsTemplate() {
+        return appOpsTemplate == null ? MAP_SET_NULL_HACK : appOpsTemplate;
+    }
+
+    public MapRepo<String, String> getAppSettingsTemplate() {
+        return appSettingsTemplate == null ? MAP_SET_NULL_HACK : appSettingsTemplate;
+    }
+
     public IBackupAgent getBackupAgent() {
         return new BackupAgentBinder();
     }
 
     public void deleteAll() {
         XposedLog.wtf("deleteAll data...");
+
         getBoots().removeAll();
         getStarts().removeAll();
         getLks().removeAll();
@@ -549,6 +566,7 @@ public class RepoProxy {
         getResident().removeAll();
         getDoze_whitelist_adding().removeAll();
         getDoze_whitelist_removal().removeAll();
+        getWakeup_on_notification().removeAll();
 
         getStart_rules().removeAll();
         getLazy_rules().removeAll();
@@ -562,6 +580,8 @@ public class RepoProxy {
         getAppUnFocused().clear();
         getComponentReplacement().clear();
         getSystemPropProfiles().clear();
+        getAppOpsTemplate().clear();
+        getAppSettingsTemplate().clear();
 
         // Reset all settings.
         SettingsProvider.get().reset();
