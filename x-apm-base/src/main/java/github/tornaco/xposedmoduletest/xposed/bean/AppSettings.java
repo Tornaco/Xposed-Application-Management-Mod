@@ -36,7 +36,6 @@ public class AppSettings implements Parcelable {
 
     private boolean wakeLock, service, alarm;
 
-
     protected AppSettings(Parcel in) {
         pkgName = in.readString();
         appName = in.readString();

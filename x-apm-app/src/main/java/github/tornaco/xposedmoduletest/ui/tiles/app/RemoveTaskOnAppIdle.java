@@ -1,13 +1,11 @@
 package github.tornaco.xposedmoduletest.ui.tiles.app;
 
 import android.content.Context;
-import android.view.View;
 import android.widget.RelativeLayout;
 
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.SwitchTileView;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.ui.activity.app.InstalledAppTemplateSettingsDashboardActivity;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 /**
@@ -15,38 +13,32 @@ import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
  * Email: Tornaco@163.com
  */
 
-public class AutoBlack extends QuickTile {
+public class RemoveTaskOnAppIdle extends QuickTile {
 
-    public AutoBlack(final Context context) {
+    public RemoveTaskOnAppIdle(final Context context) {
         super(context);
 
-        this.titleRes = R.string.title_auto_black;
-        this.summaryRes = R.string.summary_auto_black;
-        this.iconRes = R.drawable.ic_brightness_auto_black_24dp;
+        this.titleRes = R.string.title_remove_task_on_app_idle;
+        this.iconRes = R.drawable.ic_remove_circle_black_24dp;
         this.tileView = new SwitchTileView(context) {
 
             @Override
             protected int getImageViewBackgroundRes() {
-                return R.drawable.tile_bg_blue;
-            }
-
-            @Override
-            public void onClick(View v) {
-                InstalledAppTemplateSettingsDashboardActivity.start(context, XAPMManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME);
+                return R.drawable.tile_bg_red;
             }
 
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);
                 setChecked(XAPMManager.get().isServiceAvailable() &&
-                        XAPMManager.get().isAutoAddBlackEnabled());
+                        XAPMManager.get().isOptFeatureEnabled(XAPMManager.OPT.REMOVE_TASK_ON_APP_IDLE.name()));
             }
 
             @Override
             protected void onCheckChanged(boolean checked) {
                 super.onCheckChanged(checked);
                 if (XAPMManager.get().isServiceAvailable()) {
-                    XAPMManager.get().setAutoAddBlackEnable(checked);
+                    XAPMManager.get().setOptFeatureEnabled(XAPMManager.OPT.REMOVE_TASK_ON_APP_IDLE.name(), checked);
                 }
             }
         };

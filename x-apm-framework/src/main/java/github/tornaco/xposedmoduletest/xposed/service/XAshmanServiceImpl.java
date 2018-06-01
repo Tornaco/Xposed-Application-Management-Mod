@@ -65,7 +65,6 @@ import android.util.Pair;
 import android.util.SparseBooleanArray;
 import android.view.Display;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.WindowManagerPolicy;
@@ -152,10 +151,10 @@ import github.tornaco.xposedmoduletest.xposed.service.doze.PowerWhitelistBackend
 import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.input.Input;
 import github.tornaco.xposedmoduletest.xposed.service.multipleapps.MultipleAppsManager;
-import github.tornaco.xposedmoduletest.xposed.service.notification.UniqueIdFactory;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.notification.RebootNotification;
 import github.tornaco.xposedmoduletest.xposed.service.notification.SystemUI;
+import github.tornaco.xposedmoduletest.xposed.service.notification.UniqueIdFactory;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.GCMFCMHelper;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.NotificationHandlerSettingsRetriever;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.PushNotificationHandler;
@@ -166,7 +165,6 @@ import github.tornaco.xposedmoduletest.xposed.service.pm.InstallerUtil;
 import github.tornaco.xposedmoduletest.xposed.service.pm.OriginInfoProxy;
 import github.tornaco.xposedmoduletest.xposed.service.pm.PackageInstallerManager;
 import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
-import github.tornaco.xposedmoduletest.xposed.service.policy.wm.SystemGesturesPointerEventListener;
 import github.tornaco.xposedmoduletest.xposed.service.power.PowerManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.provider.XAPMServerSettings;
 import github.tornaco.xposedmoduletest.xposed.service.rule.Rule;
@@ -187,6 +185,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import static android.content.Context.ACTIVITY_SERVICE;
 import static android.content.Context.KEYGUARD_SERVICE;
 import static android.content.Context.POWER_SERVICE;
 import static github.tornaco.xposedmoduletest.xposed.app.XAPMManager.POLICY_REJECT_NONE;
@@ -431,7 +430,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         mLazyHandler.post(mShowRunningAppProcessUpdateNotificationRunnable);
     }
 
-    private AppIdler.OnAppIdleListener mOnAppIdleListener = this::removeFromRunningProcessPackages;
+    private AppIdler.OnAppIdleListener mOnAppIdleListener =
+            this::removeFromRunningProcessPackages;
 
     private BroadcastReceiver mBatteryStateReceiver =
             new ProtectedBroadcastReceiver(new BroadcastReceiver() {
@@ -485,6 +485,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @SuppressLint("UseSparseArrays")
     private final Map<Integer, ComponentName> mTaskIdMap = new HashMap<>();
+    // Removed task is added to this set.
+    private final Set<Integer> mTaskIdRemoval = new HashSet<>();
 
     private XAppGuardServiceImpl mAppGuardService;
 
@@ -1734,6 +1736,53 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         // Use a dup package.
         ComponentName dup = new ComponentName(componentName.getPackageName(), componentName.getClassName());
         mTaskIdMap.put(taskId, dup);
+    }
+
+    @SuppressWarnings("deprecation")     // We are system.
+    private List<Integer> getRecentTaskIdsForPackageInternal(String[] packages) {
+        if (packages == null || packages.length == 0) {
+            return new ArrayList<>(0);
+        }
+        Set<String> targetSets = Sets.newHashSet(packages);
+        if (BuildConfig.DEBUG) {
+            XposedLog.verbose("getRecentTaskIdsForPackageInternal targetSets: " + Arrays.toString(targetSets.toArray()));
+        }
+        List<Integer> ids = new ArrayList<>();
+        ActivityManager am = (ActivityManager) getContext().getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RecentTaskInfo> recentTaskInfos = null;
+        if (am != null) {
+            recentTaskInfos = am.getRecentTasks(Integer.MAX_VALUE,
+                    ActivityManager.RECENT_IGNORE_UNAVAILABLE);
+            if (recentTaskInfos != null) {
+                for (ActivityManager.RecentTaskInfo recentTaskInfo : recentTaskInfos) {
+                    int taskId = recentTaskInfo.persistentId;
+                    XposedLog.verbose("recentTaskInfo.id for " + recentTaskInfo.baseIntent + "-" + taskId);
+                    Intent baseIntent = recentTaskInfo.baseIntent;
+                    if (targetSets.contains(PkgUtil.packageNameOf(baseIntent))) {
+                        ids.add(taskId);
+                    }
+                }
+            }
+        }
+        return ids;
+    }
+
+    private void removeTaskForPackagesInternal(String[] packages) {
+        if (BuildConfig.DEBUG) {
+            XposedLog.verbose("removeTaskForPackagesInternal packages: " + Arrays.toString(packages));
+        }
+        List<Integer> taskIds = getRecentTaskIdsForPackageInternal(packages);
+        for (Integer taskId : taskIds) {
+            if (taskId != null) {
+                ActivityManager am = (ActivityManager) getContext().getSystemService(ACTIVITY_SERVICE);
+                if (am != null) {
+                    // Add to task id removal before removing.
+                    mTaskIdRemoval.add(taskId);
+                    am.removeTask(taskId);
+                    XposedLog.verbose("Removed task: " + taskId);
+                }
+            }
+        }
     }
 
     @Override
@@ -3431,9 +3480,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     public void onNotificationPosted(StatusBarNotification sbn) {
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("NotificationListeners onNotificationPosted: " + sbn);
+        }
 
-            boolean isLightScreenEnabled = isWakeupOnNotificationEnabled();
-            if (isLightScreenEnabled) {
+        boolean isLightScreenEnabled = isWakeupOnNotificationEnabled();
+        if (sbn != null && isLightScreenEnabled) {
+            String packageName = sbn.getPackageName();
+            XposedLog.verbose("NotificationListeners onNotificationPosted: " + packageName);
+            if (RepoProxy.getProxy().getWakeup_on_notification().has(packageName)) {
                 PowerManager pm = (PowerManager) getContext().getSystemService(POWER_SERVICE);
                 if (pm != null && !pm.isInteractive()) {
                     pm.wakeUp(SystemClock.uptimeMillis());
@@ -3455,14 +3508,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
     }
 
-    private SystemGesturesPointerEventListener mSystemGesturesPointerEventListener;
-
     @Override
     public void onInputEvent(Object arg) {
-        if (false && mSystemGesturesPointerEventListener != null && arg instanceof MotionEvent) {
-            MotionEvent me = (MotionEvent) arg;
-            mSystemGesturesPointerEventListener.onPointerEvent(me);
-        }
+        // Noop.
     }
 
     @Override
@@ -3560,7 +3608,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         if (policy != XAPMManager.AppInactivePolicy.FORCE_STOP && policy != XAPMManager.AppInactivePolicy.IDLE) {
             policy = XAPMManager.AppInactivePolicy.FORCE_STOP;
         }
-        SettingsProvider.get().putInt("APP_INACTIVE_POLICY_" + module, policy);
+        SettingsProvider.get().putInt(XAPMManager.OPT.APP_INACTIVE_POLICY_.name() + module, policy);
     }
 
     @Override
@@ -3570,7 +3618,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         if (module == null || !HAS_STATS_MANAGER) {
             return XAPMManager.AppInactivePolicy.FORCE_STOP;
         }
-        int policy = SettingsProvider.get().getInt("APP_INACTIVE_POLICY_" + module, XAPMManager.AppInactivePolicy.FORCE_STOP);
+        int policy = SettingsProvider.get().getInt(XAPMManager.OPT.APP_INACTIVE_POLICY_.name() + module,
+                XAPMManager.AppInactivePolicy.FORCE_STOP);
         if (policy != XAPMManager.AppInactivePolicy.FORCE_STOP && policy != XAPMManager.AppInactivePolicy.IDLE) {
             policy = XAPMManager.AppInactivePolicy.FORCE_STOP;
             setAppInactivePolicyForModule(module, XAPMManager.AppInactivePolicy.FORCE_STOP);
@@ -5474,6 +5523,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     @BinderCall
     public void onTaskRemoving(int callingUid, int taskId) {
+        if (mTaskIdRemoval.contains(taskId)) {
+            XposedLog.wtf("onTaskRemoving, ignore that task in mTaskIdRemoval: " + taskId);
+            return;
+        }
+
         String callingPkg = PkgUtil.pkgForUid(getContext(), callingUid);
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("removeTask: uid %s pkg %s task %s", callingUid, callingPkg, taskId);
@@ -8255,6 +8309,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
                     }
 
+                    if (isOptFeatureEnabled(XAPMManager.OPT.REMOVE_TASK_ON_APP_IDLE.name())) {
+                        removeTaskForPackagesInternal(cleared);
+                    }
+
                     return cleared;
                 }
             });
@@ -8849,6 +8907,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             if (mayBeKillThisPackage) {
                 XposedLog.verbose(XposedLog.PREFIX_KEY + "mayBeKillThisPackage after long back: " + targetPackage);
                 getAppIdler(null).setAppIdle(targetPackage);
+
+                if (isOptFeatureEnabled(XAPMManager.OPT.REMOVE_TASK_ON_APP_IDLE.name())) {
+                    removeTaskForPackagesInternal(new String[]{targetPackage});
+                }
             }
         }
 
@@ -8889,6 +8951,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                         }
 
                         getAppIdler(XAppBuildVar.APP_RFK).setAppIdle(packageName);
+                        if (isOptFeatureEnabled(XAPMManager.OPT.REMOVE_TASK_ON_APP_IDLE.name())) {
+                            removeTaskForPackagesInternal(new String[]{packageName});
+                        }
                     } catch (Throwable e) {
                         XposedLog.wtf(XposedLog.PREFIX_KEY + "Fail killPackageWhenBackPressed in runnable: " + Log.getStackTraceString(e));
                     }

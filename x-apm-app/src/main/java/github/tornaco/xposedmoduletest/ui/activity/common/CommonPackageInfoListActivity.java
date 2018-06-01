@@ -1,6 +1,8 @@
 package github.tornaco.xposedmoduletest.ui.activity.common;
 
 import android.app.ProgressDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -373,6 +375,12 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
                     break;
                 case R.id.action_config_setting:
                     onRequestConfigSettings(packageInfo.getPkgName());
+                    break;
+                case R.id.action_config_copy_pkg_name:
+                    ClipboardManager cmb = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                    if (cmb != null) {
+                        cmb.setPrimaryClip(ClipData.newPlainText("pkg_name", packageInfo.getPkgName()));
+                    }
                     break;
 
             }
