@@ -7,7 +7,11 @@ import android.support.annotation.Nullable;
 import java.io.File;
 import java.util.Observable;
 
+import dev.nick.eventbus.Event;
+import dev.nick.eventbus.EventBus;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.ui.Themes;
+import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 
 /**
  * Created by guohao4 on 2017/10/19.
@@ -65,7 +69,7 @@ public class XSettings extends Observable {
 
     public static boolean isDevMode(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(XKey.DEV_MODE, true);
+                .getBoolean(XKey.DEV_MODE, BuildConfig.DEBUG);
     }
 
     public static boolean isStartBlockNotify(Context context) {
@@ -85,6 +89,7 @@ public class XSettings extends Observable {
                 .edit()
                 .putBoolean(XKey.DEV_MODE, in)
                 .apply();
+        EventBus.from().publish(new Event(XAPMApplication.EVENT_APP_DEBUG_MODE_CHANGED));
     }
 
     public static Themes getThemes(Context c) {

@@ -1,9 +1,9 @@
 package github.tornaco.xposedmoduletest.xposed.repo;
 
-import android.annotation.SuppressLint;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -11,6 +11,8 @@ import android.util.Log;
 import com.google.common.io.Files;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,10 +23,17 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import github.tornaco.android.common.Consumer;
+import github.tornaco.android.common.BlackHole;
 import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.IBackupAgent;
+import github.tornaco.xposedmoduletest.IBackupCallback;
+import github.tornaco.xposedmoduletest.IFileDescriptorConsumer;
+import github.tornaco.xposedmoduletest.IFileDescriptorInitializer;
 import github.tornaco.xposedmoduletest.util.Singleton;
+import github.tornaco.xposedmoduletest.util.ZipUtils;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
+import github.tornaco.xposedmoduletest.xposed.util.Closer;
+import github.tornaco.xposedmoduletest.xposed.util.DateUtils;
 import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -60,23 +69,36 @@ public class RepoProxy {
             lazy, comps, white_list_hooks_dynamic,
             pending_disable_apps,
             pending_disable_apps_tr,
-            resident, doze_whitelist_adding, doze_whitelist_removal;
+            resident, doze_whitelist_adding, doze_whitelist_removal,
+            wakeup_on_notification;
 
-    private MapRepo<String, String> componentReplacement, appFocused, appUnFocused, systemPropProfiles;
-
-    private Handler h;
+    private MapRepo<String, String> componentReplacement, appFocused, appUnFocused, systemPropProfiles,
+            appSettingsTemplate, appOpsTemplate;
 
     private RepoProxy() {
 
         // Sync in a new handler thread.
         HandlerThread hr = new HandlerThread("Repo proxy");
         hr.start();
-        h = new Handler(hr.getLooper());
+        Handler h = new Handler(hr.getLooper());
 
         ExecutorService io = Executors.newSingleThreadExecutor();
 
         bringBases(h, io);
         bringUpMaps(h, io);
+
+        if (BuildConfig.DEBUG) {
+            XposedLog.boot("RepoProxy app data dir exists? " + isAppDataDirExists(BuildConfig.APPLICATION_ID));
+        }
+    }
+
+    private static boolean isAppDataDirExists(String pkgName) {
+        try {
+            File dataDir = new File("data/data/" + pkgName);
+            return dataDir.exists();
+        } catch (Throwable e) {
+            return false;
+        }
     }
 
     public static void createFileIndicator(String name) {
@@ -96,7 +118,7 @@ public class RepoProxy {
     public static void deleteFileIndicator(String name) {
         File f = new File(getBaseDataDir(), name);
         try {
-            f.delete();
+            BlackHole.eat(f.delete());
         } catch (Exception e) {
             XposedLog.wtf("Fail deleteFileIndicator " + Log.getStackTraceString(e));
         }
@@ -124,6 +146,11 @@ public class RepoProxy {
         return new File(getBaseDataDir(), "dump");
     }
 
+    public static File getBaseTmpDir() {
+        File systemFile = new File(Environment.getDataDirectory(), "system");
+        return new File(systemFile, ".tmp_tor");
+    }
+
     public static File getSystemErrorTraceDirByVersion() {
         String versionName = String.valueOf(BuildConfig.VERSION_CODE);
         return new File(getSystemErrorTraceDir(), versionName);
@@ -132,14 +159,6 @@ public class RepoProxy {
     public static File getDebugDumpDirByVersion() {
         String versionName = String.valueOf(BuildConfig.VERSION_CODE);
         return new File(getDebugDumpDir(), versionName);
-    }
-
-    private static void cleanUpBaseDataDir() {
-        try {
-            FileUtil.deleteDir(getBaseDataDir());
-        } catch (Throwable e) {
-            XposedLog.wtf("Fail clean up dir: " + e);
-        }
     }
 
     private void bringBases(Handler h, ExecutorService io) {
@@ -172,16 +191,10 @@ public class RepoProxy {
         resident = new StringSetRepo(new File(dir, "resident"), h, io);
         doze_whitelist_adding = new StringSetRepo(new File(dir, "doze_whitelist_adding"), h, io);
         doze_whitelist_removal = new StringSetRepo(new File(dir, "doze_whitelist_removal"), h, io);
+        wakeup_on_notification = new StringSetRepo(new File(dir, "wakeup_on_notification"), h, io);
 
-        if (BuildConfig.DEBUG) try {
-            @SuppressLint("SdCardPath") File dynamicHooks =
-                    new File("/sdcard/.android/.apm_configs"
-                            + File.separator
-                            + ".apm_white_list_hooks");
-            white_list_hooks_dynamic = new StringSetRepo(dynamicHooks, h, io);
-        } catch (Exception e) {
-            XposedLog.wtf("Fail init white list hooks " + e);
-        }
+        // Prevent some system app being added to whitelist.
+        white_list_hooks_dynamic = new StringSetRepo(new File(dir, "white_list_hooks_dynamic"), h, io);
 
         // FIXME java.io.FileNotFoundException:
         // /data/system/tor/wifi_restrict: open failed: EISDIR (Is a directory)
@@ -199,6 +212,8 @@ public class RepoProxy {
         appUnFocused = new StringMapRepo(new File(dir, "app_unfocused"), h, io);
         componentReplacement = new StringMapRepo(new File(dir, "component_replacement"), h, io);
         systemPropProfiles = new StringMapRepo(new File(dir, "system_prop_profiles"), h, io);
+        appSettingsTemplate = new StringMapRepo(new File(dir, "app_settings_template"), h, io);
+        appOpsTemplate = new StringMapRepo(new File(dir, "app_ops_template"), h, io);
     }
 
     private static final SetRepo<String> STRING_SET_NULL_HACK = new SetRepo<String>() {
@@ -494,6 +509,10 @@ public class RepoProxy {
         return comps == null ? STRING_SET_NULL_HACK : comps;
     }
 
+    public SetRepo<String> getWakeup_on_notification() {
+        return wakeup_on_notification == null ? STRING_SET_NULL_HACK : wakeup_on_notification;
+    }
+
     public MapRepo<String, String> getAppFocused() {
         return appFocused == null ? MAP_SET_NULL_HACK : appFocused;
     }
@@ -510,53 +529,21 @@ public class RepoProxy {
         return systemPropProfiles == null ? MAP_SET_NULL_HACK : systemPropProfiles;
     }
 
-    public void backupTo(final String dir) throws RemoteException {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                XposedLog.verbose("backupTo: " + dir);
-                final File dirFile = new File(dir);
-
-                try {
-                    Files.createParentDirs(new File(dirFile, "dummy"));
-                } catch (IOException e) {
-                    XposedLog.wtf("backupTo fail: create dir fail");
-                    return;
-                }
-
-                if (!dirFile.exists()) {
-                    XposedLog.wtf("backupTo fail: target dir not exists");
-                    return;
-                }
-
-                File systemFile = new File(Environment.getDataDirectory(), "system");
-                File sourceDir = new File(systemFile, "tor_apm");
-                if (!sourceDir.exists()) {
-                    sourceDir = new File(systemFile, "tor");
-                }
-
-                github.tornaco.android.common.Collections.consumeRemaining(Files.fileTreeTraverser()
-                        .postOrderTraversal(sourceDir), new Consumer<File>() {
-                    @Override
-                    public void accept(File file) {
-                        try {
-                            Files.copy(file, new File(dirFile, file.getName()));
-                        } catch (IOException e) {
-                            XposedLog.wtf("Fail copy file: " + Log.getStackTraceString(e));
-                        }
-                    }
-                });
-            }
-        };
-        h.post(r);
+    public MapRepo<String, String> getAppOpsTemplate() {
+        return appOpsTemplate == null ? MAP_SET_NULL_HACK : appOpsTemplate;
     }
 
-    public void restoreFrom(String dir) throws RemoteException {
+    public MapRepo<String, String> getAppSettingsTemplate() {
+        return appSettingsTemplate == null ? MAP_SET_NULL_HACK : appSettingsTemplate;
+    }
 
+    public IBackupAgent getBackupAgent() {
+        return new BackupAgentBinder();
     }
 
     public void deleteAll() {
         XposedLog.wtf("deleteAll data...");
+
         getBoots().removeAll();
         getStarts().removeAll();
         getLks().removeAll();
@@ -579,6 +566,7 @@ public class RepoProxy {
         getResident().removeAll();
         getDoze_whitelist_adding().removeAll();
         getDoze_whitelist_removal().removeAll();
+        getWakeup_on_notification().removeAll();
 
         getStart_rules().removeAll();
         getLazy_rules().removeAll();
@@ -592,8 +580,114 @@ public class RepoProxy {
         getAppUnFocused().clear();
         getComponentReplacement().clear();
         getSystemPropProfiles().clear();
+        getAppOpsTemplate().clear();
+        getAppSettingsTemplate().clear();
 
         // Reset all settings.
         SettingsProvider.get().reset();
+    }
+
+    private static class BackupAgentBinder extends IBackupAgent.Stub {
+
+        @Override
+        public void performBackup(IFileDescriptorInitializer initializer,
+                                  String domain, String path, IBackupCallback callback)
+                throws RemoteException {
+            if (initializer == null) {
+                callback.onFail("IFileDescriptorInitializer is null");
+                return;
+            }
+
+            // Create tmp dir.
+            File tmpDir = getBaseTmpDir();
+
+            try {
+                Files.createParentDirs(tmpDir);
+                XposedLog.wtf("IBackupAgent, tmpDir: " + tmpDir);
+            } catch (IOException e) {
+                callback.onFail(e.getLocalizedMessage());
+                XposedLog.wtf("IBackupAgent, createParentDirs fail deleteDirQuiet : " + tmpDir);
+                XposedLog.wtf("IBackupAgent, createParentDirs fail : " + Log.getStackTraceString(e));
+                return;
+            }
+            // Zip all subFiles.
+            long startTimeMills = System.currentTimeMillis();
+            String name = "X-APM-Backup-" + DateUtils.formatForFileName(startTimeMills) + ".zip";
+            try {
+                ZipUtils.zip(getBaseDataDir().getAbsolutePath(), tmpDir.getAbsolutePath(), name);
+                File zipFile = new File(tmpDir, name);
+                XposedLog.wtf("IBackupAgent, zipFile: " + zipFile);
+                String relativePath = toRelativePath(zipFile);
+                // Init pfd.
+                initializer.initParcelFileDescriptor(relativePath, relativePath,
+                        new IFileDescriptorConsumer.Stub() {
+                            @Override
+                            public void acceptAppParcelFileDescriptor(ParcelFileDescriptor pfd) throws RemoteException {
+                                try {
+                                    if (pfd == null) {
+                                        callback.onFail("IBackupAgent ParcelFileDescriptor is null");
+                                        return;
+                                    }
+                                    Files.asByteSource(zipFile)
+                                            .copyTo(new FileOutputStream(pfd.getFileDescriptor()));
+                                    XposedLog.wtf("IBackupAgent, performBackup subFile complete: " + zipFile);
+                                    callback.onProgress(zipFile.getName());
+                                    callback.onBackupFinished(domain, relativePath);
+                                } catch (IOException e) {
+                                    XposedLog.wtf("IBackupAgent, IOException performBackup subFile: " + Log.getStackTraceString(e));
+                                    callback.onFail(e.getLocalizedMessage());
+                                    XposedLog.wtf("IBackupAgent, acceptAppParcelFileDescriptor fail : " + Log.getStackTraceString(e));
+                                } finally {
+                                    FileUtil.deleteDirQuiet(tmpDir);
+                                    Closer.closeQuietly(pfd);
+                                    XposedLog.wtf("IBackupAgent, deleteDirQuiet : " + tmpDir);
+                                }
+                            }
+                        });
+            } catch (Exception e) {
+                callback.onFail(e.getLocalizedMessage());
+                FileUtil.deleteDirQuiet(tmpDir);
+                XposedLog.wtf("IBackupAgent, backup fail : " + Log.getStackTraceString(e));
+                XposedLog.wtf("IBackupAgent, deleteDirQuiet : " + tmpDir);
+            }
+        }
+
+        @Override
+        public void performRestore(ParcelFileDescriptor pfd, String domain, String path, IBackupCallback callback) throws RemoteException {
+            if (pfd == null) {
+                callback.onFail("IBackupAgent ParcelFileDescriptor is null");
+                return;
+            }
+            // Create tmp dir.
+            File tmpDir = getBaseTmpDir();
+            File tmpZipFile = new File(tmpDir, "restore_file.zip");
+            XposedLog.wtf("IBackupAgent, zipFile : " + tmpZipFile);
+            // Copy to tmp.zip.
+            try {
+                Files.createParentDirs(tmpZipFile);
+                Files.asByteSink(tmpZipFile)
+                        .writeFrom(new FileInputStream(pfd.getFileDescriptor()));
+            } catch (IOException e) {
+                XposedLog.wtf("IBackupAgent, IOException copy zip to tmp: " + Log.getStackTraceString(e));
+                callback.onFail(e.getLocalizedMessage());
+                return;
+            } finally {
+                Closer.closeQuietly(pfd);
+            }
+            try {
+                ZipUtils.unzip(tmpZipFile.getAbsolutePath(), getBaseDataDir().getAbsolutePath(), false);
+                callback.onRestoreFinished(domain, path);
+            } catch (Exception e) {
+                XposedLog.wtf("IBackupAgent, IOException unzip to tmp: " + Log.getStackTraceString(e));
+                callback.onFail(e.getLocalizedMessage());
+            } finally {
+                FileUtil.deleteDirQuiet(tmpDir);
+            }
+        }
+
+        private static String toRelativePath(File subFile) {
+            File dataDir = getBaseDataDir();
+            return subFile.getAbsolutePath().replace(dataDir.getAbsolutePath(), "");
+        }
     }
 }

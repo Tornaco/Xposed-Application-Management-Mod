@@ -8,7 +8,7 @@ import android.view.WindowManager;
 
 import java.util.Objects;
 
-import github.tornaco.xposedmoduletest.xposed.service.KeyEventSender;
+import github.tornaco.xposedmoduletest.xposed.service.input.KeyEventSender;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Getter;
 

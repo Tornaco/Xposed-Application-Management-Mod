@@ -57,9 +57,9 @@ public class ZipUtils {
         else {
             //压缩目录中的文件或子目录
             File[] childFileList = file.listFiles();
-            for (int n = 0; n < childFileList.length; n++) {
-                childFileList[n].getAbsolutePath().indexOf(file.getAbsolutePath());
-                zip(srcRootDir, childFileList[n], zos);
+            if (childFileList != null) for (File aChildFileList : childFileList) {
+                aChildFileList.getAbsolutePath().indexOf(file.getAbsolutePath());
+                zip(srcRootDir, aChildFileList, zos);
             }
         }
     }
@@ -82,8 +82,8 @@ public class ZipUtils {
             File srcFile = new File(srcPath);
 
             //判断压缩文件保存的路径是否为源文件路径的子文件夹，如果是，则抛出异常（防止无限递归压缩的发生）
-            if (srcFile.isDirectory() && zipPath.indexOf(srcPath) != -1) {
-                throw new IllegalStateException("zipPath must not be the child directory of srcPath.");
+            if (srcFile.isDirectory() && zipPath.contains(srcPath)) {
+                throw new IllegalStateException(String.format("zipPath %s must not be the child directory of srcPath %s", zipPath, srcPath));
             }
 
             //判断压缩文件保存的路径是否存在，如果不存在，则创建目录

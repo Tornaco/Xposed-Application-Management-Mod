@@ -22,7 +22,7 @@
 
     <uses-permission android:name="com.android.vending.BILLING" />
 
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
 
     <application
         android:name=".xposed.XAPMApplication"
@@ -455,9 +455,24 @@
             </intent-filter>
         </service>
         <service
-            android:name=".service.APMQuickTileService"
+            android:name=".service.ActivityToastQuickTileService"
             android:icon="@drawable/ic_add_alert_black_24dp"
             android:label="@string/title_show_focused_activity"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <meta-data
+                android:name="android.service.quicksettings.ACTIVE_TILE"
+                android:value="true" />
+
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".service.ScreenShotQuickTileService"
+            android:icon="@drawable/ic_image_black_24dp"
+            android:label="@string/title_long_screen_shot"
+            android:enabled="false"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <meta-data
                 android:name="android.service.quicksettings.ACTIVE_TILE"

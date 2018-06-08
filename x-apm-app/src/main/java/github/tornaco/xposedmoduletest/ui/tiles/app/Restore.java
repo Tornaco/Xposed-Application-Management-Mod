@@ -20,7 +20,7 @@ public class Restore extends QuickTile {
 
         this.titleRes = R.string.title_restore;
         this.summaryRes = R.string.summary_title_restore;
-        this.iconRes = R.drawable.ic_import_export_black_24dp;
+        this.iconRes = R.drawable.ic_restore_page_black_24dp;
 
         this.tileView = new QuickTileView(context, this) {
             @Override

@@ -27,6 +27,9 @@ import github.tornaco.xposedmoduletest.model.PushMessage;
 import github.tornaco.xposedmoduletest.util.BitmapUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.service.AppResource;
+import github.tornaco.xposedmoduletest.xposed.service.notification.SystemUI;
+import github.tornaco.xposedmoduletest.xposed.service.notification.UniqueIdFactory;
+import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Getter;
 import lombok.Setter;
@@ -192,8 +195,7 @@ public abstract class BasePushNotificationHandler implements PushNotificationHan
         }
 
         launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), 0x1, launchIntent,
-                PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), UniqueIdFactory.getNextId(), launchIntent, 0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(), pushMessage.getChannelId());
 
@@ -209,6 +211,14 @@ public abstract class BasePushNotificationHandler implements PushNotificationHan
 
         if (BuildConfig.DEBUG) {
             Log.d(XposedLog.TAG, String.format("BasePushNotificationHandler, curSoundUri: %s", curSoundUri));
+        }
+
+        try {
+            CharSequence appName = PkgUtil.loadNameByPkgName(getContext(), getTargetPackageName());
+            String override = new AppResource(getContext())
+                    .loadStringFromAPMApp("notification_override_push_message_handler", appName);
+            SystemUI.overrideNotificationAppName(getContext(), builder, override);
+        } catch (Throwable ignored) {
         }
 
         Notification n = builder

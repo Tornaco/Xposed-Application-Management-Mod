@@ -202,6 +202,12 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                 case R.id.action_config_setting:
                     onRequestConfigSettings(packageInfo.getPkgName());
                     break;
+                case R.id.action_config_copy_pkg_name:
+                    ClipboardManager cmb = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                    if (cmb != null) {
+                        cmb.setPrimaryClip(ClipData.newPlainText("pkg_name", packageInfo.getPkgName()));
+                    }
+                    break;
 
             }
             return true;

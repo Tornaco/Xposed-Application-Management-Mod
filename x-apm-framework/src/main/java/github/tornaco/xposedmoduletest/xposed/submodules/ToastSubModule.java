@@ -185,8 +185,9 @@ class ToastSubModule extends AndroidSubModule {
         if (isToastCallerIconEnabled()) {
             try {
                 Toast t = (Toast) param.getResult();
+                if (t == null) return;
                 ViewGroup v = (ViewGroup) t.getView();
-                if (!hasToastIconImageView(v)) {
+                if (v != null && !hasToastIconImageView(v)) {
                     ImageView iconView = new ImageView(v.getContext());
                     iconView.setTag(ICON_VIEW_TAG);
                     TextView tv = v.findViewById(com.android.internal.R.id.message);
@@ -206,7 +207,7 @@ class ToastSubModule extends AndroidSubModule {
     private static final String ICON_VIEW_TAG = "APM-TOAST-ICON";
 
     private static boolean hasToastIconImageView(ViewGroup viewGroup) {
-        for (int i = 0; i < viewGroup.getChildCount(); i++) {
+        if (viewGroup != null) for (int i = 0; i < viewGroup.getChildCount(); i++) {
             View c = viewGroup.getChildAt(i);
             if (c instanceof ImageView && ICON_VIEW_TAG.equals(c.getTag())) {
                 return true;

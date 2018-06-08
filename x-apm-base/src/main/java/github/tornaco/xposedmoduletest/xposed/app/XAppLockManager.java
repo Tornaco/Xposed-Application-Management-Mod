@@ -7,6 +7,7 @@ import android.util.Log;
 import java.util.HashMap;
 import java.util.Map;
 
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
@@ -85,6 +86,7 @@ public class XAppLockManager {
         try {
             return mService.isAppLockEnabled();
         } catch (Exception e) {
+            handleException(e);
 
         }
         return false;
@@ -95,6 +97,7 @@ public class XAppLockManager {
         try {
             mService.setAppLockEnabled(enabled);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -105,6 +108,7 @@ public class XAppLockManager {
         try {
             mService.setVerifySettings(settings);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -114,6 +118,7 @@ public class XAppLockManager {
         try {
             return mService.getVerifySettings();
         } catch (Exception e) {
+            handleException(e);
 
             return null;
         }
@@ -124,6 +129,7 @@ public class XAppLockManager {
         try {
             mService.setResult(transactionID, res);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -133,6 +139,7 @@ public class XAppLockManager {
         try {
             return mService.isTransactionValid(transactionID);
         } catch (Exception e) {
+            handleException(e);
 
             return false;
         }
@@ -143,6 +150,7 @@ public class XAppLockManager {
         try {
             mService.mockCrash();
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -152,6 +160,7 @@ public class XAppLockManager {
         try {
             return mService.isUninstallInterruptEnabled();
         } catch (Exception e) {
+            handleException(e);
 
         }
         return false;
@@ -162,6 +171,7 @@ public class XAppLockManager {
         try {
             mService.setUninstallInterruptEnabled(enabled);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -171,6 +181,7 @@ public class XAppLockManager {
         try {
             mService.setVerifierPackage(pkg);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -181,6 +192,7 @@ public class XAppLockManager {
         try {
             mService.injectHomeEvent();
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -190,6 +202,7 @@ public class XAppLockManager {
         try {
             mService.setDebug(debug);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -199,6 +212,7 @@ public class XAppLockManager {
         try {
             return mService.isDebug();
         } catch (Exception e) {
+            handleException(e);
 
         }
         return false;
@@ -210,6 +224,7 @@ public class XAppLockManager {
         try {
             mService.onActivityPackageResume(pkg);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -219,6 +234,7 @@ public class XAppLockManager {
         try {
             return mService.isInterruptFPEventVBEnabled(event);
         } catch (Exception e) {
+            handleException(e);
 
             return false;
         }
@@ -229,6 +245,7 @@ public class XAppLockManager {
         try {
             mService.setInterruptFPEventVBEnabled(event, enabled);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -239,6 +256,7 @@ public class XAppLockManager {
         try {
             mService.addOrRemoveComponentReplacement(from, to, add);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -249,6 +267,7 @@ public class XAppLockManager {
         try {
             return mService.getComponentReplacements();
         } catch (Exception e) {
+            handleException(e);
             return new HashMap(0);
         }
     }
@@ -258,6 +277,7 @@ public class XAppLockManager {
         try {
             mService.forceReloadPackages();
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -267,6 +287,7 @@ public class XAppLockManager {
         try {
             return mService.getLockApps(lock);
         } catch (Exception e) {
+            handleException(e);
 
             return new String[0];
         }
@@ -277,6 +298,7 @@ public class XAppLockManager {
         try {
             mService.addOrRemoveLockApps(packages, add);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -286,6 +308,7 @@ public class XAppLockManager {
         try {
             return mService.getBlurApps(lock);
         } catch (Exception e) {
+            handleException(e);
 
             return new String[0];
         }
@@ -296,6 +319,7 @@ public class XAppLockManager {
         try {
             mService.addOrRemoveBlurApps(packages, blur);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -306,6 +330,7 @@ public class XAppLockManager {
         try {
             return mService.getUPApps(lock);
         } catch (Exception e) {
+            handleException(e);
 
             return new String[0];
         }
@@ -316,6 +341,7 @@ public class XAppLockManager {
         try {
             mService.addOrRemoveUPApps(packages, add);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -325,6 +351,7 @@ public class XAppLockManager {
         try {
             return mService.isBlurEnabled();
         } catch (Exception e) {
+            handleException(e);
 
             return false;
         }
@@ -335,6 +362,7 @@ public class XAppLockManager {
         try {
             return mService.isBlurEnabledForPackage(who);
         } catch (Exception e) {
+            handleException(e);
 
             return false;
         }
@@ -345,6 +373,7 @@ public class XAppLockManager {
         try {
             mService.setBlurEnabled(enabled);
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -354,6 +383,7 @@ public class XAppLockManager {
         try {
             mService.restoreDefaultSettings();
         } catch (Exception e) {
+            handleException(e);
 
         }
     }
@@ -363,6 +393,7 @@ public class XAppLockManager {
         try {
             return mService.getBlurRadius();
         } catch (Exception e) {
+            handleException(e);
 
             return BlurSettings.BLUR_RADIUS;
         }
@@ -373,7 +404,17 @@ public class XAppLockManager {
         try {
             mService.setBlurRadius(r);
         } catch (Exception e) {
+            handleException(e);
 
+        }
+    }
+
+    private static void handleException(Throwable e) {
+        if (BuildConfig.DEBUG) {
+            // throw new RuntimeException(e);
+            Log.e(XposedLog.TAG, Log.getStackTraceString(e));
+        } else {
+            Log.e(XposedLog.TAG, Log.getStackTraceString(e));
         }
     }
 }

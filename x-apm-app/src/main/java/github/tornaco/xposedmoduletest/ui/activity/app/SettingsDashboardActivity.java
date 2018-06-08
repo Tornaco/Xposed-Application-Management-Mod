@@ -26,7 +26,7 @@ import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.backup.DataBackup;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
-import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlack;
+import github.tornaco.xposedmoduletest.ui.tiles.app.AutoApplyAppSettingsTemplate;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlackNotification;
 import github.tornaco.xposedmoduletest.ui.tiles.app.Backup;
 import github.tornaco.xposedmoduletest.ui.tiles.app.IconPack;
@@ -74,7 +74,7 @@ public class SettingsDashboardActivity extends WithWithCustomTabActivity
         XExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                DataBackup.performBackup(dir, SettingsDashboardActivity.this);
+                DataBackup.performBackup(getContext(), dir, SettingsDashboardActivity.this);
             }
         });
     }
@@ -177,7 +177,7 @@ public class SettingsDashboardActivity extends WithWithCustomTabActivity
     }
 
     @Override
-    public void onDataBackupFail(int errNum, final Throwable e) {
+    public void onDataBackupFail(final Throwable e) {
         runOnUiThreadChecked(new Runnable() {
             @Override
             public void run() {
@@ -225,7 +225,7 @@ public class SettingsDashboardActivity extends WithWithCustomTabActivity
             Category systemProtect = new Category();
             systemProtect.titleRes = R.string.title_app_settings;
             systemProtect.addTile(new WhiteSystemApp(getActivity()));
-            systemProtect.addTile(new AutoBlack(getActivity()));
+            systemProtect.addTile(new AutoApplyAppSettingsTemplate(getActivity()));
             systemProtect.addTile(new AutoBlackNotification(getActivity()));
 
             Category data = new Category();

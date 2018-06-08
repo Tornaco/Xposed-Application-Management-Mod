@@ -12,9 +12,10 @@ import dev.nick.tiles.tile.Category;
 import github.tornaco.permission.requester.RuntimePermissions;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.AppCustomDashboardFragment;
-import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlack;
+import github.tornaco.xposedmoduletest.ui.tiles.app.AutoApplyAppSettingsTemplate;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AutoBlackNotification;
 import github.tornaco.xposedmoduletest.ui.tiles.app.PowerSave;
+import github.tornaco.xposedmoduletest.ui.tiles.app.RemoveTaskOnAppIdle;
 import github.tornaco.xposedmoduletest.ui.tiles.app.WhiteSystemApp;
 
 /**
@@ -62,11 +63,16 @@ public class PolicySettingsActivity extends BaseActivity {
             Category policy = new Category();
             policy.titleRes = R.string.title_policy;
             policy.addTile(new WhiteSystemApp(getActivity()));
-            policy.addTile(new AutoBlack(getActivity()));
+            policy.addTile(new AutoApplyAppSettingsTemplate(getActivity()));
             policy.addTile(new AutoBlackNotification(getActivity()));
+
+            Category others = new Category();
+            others.titleRes = R.string.title_others;
+            others.addTile(new RemoveTaskOnAppIdle(getActivity()));
 
             categories.add(system);
             categories.add(policy);
+            categories.add(others);
         }
     }
 }

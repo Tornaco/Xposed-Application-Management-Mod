@@ -12,8 +12,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
+import github.tornaco.android.common.BlackHole;
 import github.tornaco.android.common.Collections;
-import github.tornaco.android.common.Consumer;
 
 /**
  * Created by Nick@NewStand.org on 2017/3/13 10:03
@@ -81,13 +81,19 @@ public abstract class FileUtil {
     public static boolean deleteDir(File dir) {
         final boolean[] res = {true};
         Collections.consumeRemaining(Files.fileTreeTraverser()
-                .postOrderTraversal(dir), new Consumer<File>() {
-            @Override
-            public void accept(File file) {
-                if (!file.delete()) res[0] = false;
-            }
+                .postOrderTraversal(dir), file -> {
+            if (!file.delete()) res[0] = false;
         });
         return res[0];
+    }
+
+    public static void deleteDirQuiet(File dir) {
+        try {
+            BlackHole.eat(deleteDir(dir));
+            BlackHole.eat(dir.delete());
+        } catch (Throwable ignored) {
+
+        }
     }
 
     public static boolean writeString(String str, String path) {

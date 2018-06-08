@@ -60,6 +60,8 @@ import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.MapRepo;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.repo.SetRepo;
+import github.tornaco.xposedmoduletest.xposed.service.notification.UniqueIdFactory;
+import github.tornaco.xposedmoduletest.xposed.service.notification.SystemUI;
 import github.tornaco.xposedmoduletest.xposed.service.provider.XAPMServerSettings;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -76,6 +78,8 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     private static final long TRANSACTION_EXPIRE_TIME = 60 * 1000;
 
     private static final String NOTIFICATION_CHANNEL_ID_DEBUG = "dev.tornaco.notification.channel.id.X-APM-DEBUG";
+    // Warn user if dev mode is open.
+    private final static int NOTIFICATION_ID_DEBUG_MODE = UniqueIdFactory.getIdByTag(NOTIFICATION_CHANNEL_ID_DEBUG);
 
     private Handler mServiceHandler;
 
@@ -983,10 +987,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_SETDEBUG, debug).sendToTarget();
     }
 
-
-    // Warn user if dev mode is open.
-    private final static int NOTIFICATION_ID_DEBUG_MODE = 20182018;
-
     private void updateDebugMode() {
         mServiceHandler.sendEmptyMessageDelayed(AppGuardServiceHandlerMessages.MSG_WARNIFDEBUG, 10 * 1000);
     }
@@ -1280,7 +1280,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 }
                 NotificationChannel notificationChannel;
                 notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID_DEBUG,
-                        "应用管理调试频道",
+                        new AppResource(getContext()).loadStringFromAPMApp("notification_channel_name_debug"),
                         NotificationManager.IMPORTANCE_LOW);
                 notificationChannel.enableLights(false);
                 notificationChannel.enableVibration(false);
@@ -1297,16 +1297,25 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             try {
                 if (isDevMode) {
                     Intent disableBroadcastIntent = new Intent(ACTION_DISABLE_DEBUG_MODE);
-                    PendingIntent disableIntent = PendingIntent.getBroadcast(getContext(), 0, disableBroadcastIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                    PendingIntent disableIntent = PendingIntent.getBroadcast(getContext(),
+                            UniqueIdFactory.getNextId(),
+                            disableBroadcastIntent, 0);
 
                     NotificationCompat.Builder builder
                             = new NotificationCompat.Builder(getContext(), NOTIFICATION_CHANNEL_ID_DEBUG);
+
+                    try {
+                        SystemUI.overrideNotificationAppName(getContext(), builder, "X-APM");
+                    } catch (Throwable ignored) {
+                    }
+
+                    AppResource appRes = new AppResource(getContext());
                     Notification n = builder
                             .setOngoing(true)
-                            .setContentTitle("应用管理")
-                            .setContentText("调试模式已经打开。")
+                            .setContentTitle(appRes.loadStringFromAPMApp("notification_title_debug_mode"))
+                            .setContentText(appRes.loadStringFromAPMApp("notification_content_debug_mode"))
                             .setSmallIcon(android.R.drawable.stat_sys_warning)
-                            .addAction(0, "关闭", disableIntent)
+                            .addAction(0, appRes.loadStringFromAPMApp("notification_action_debug_mode_disable"), disableIntent)
                             .build();
 
                     if (OSUtil.isMOrAbove()) {
@@ -1321,7 +1330,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 }
             } catch (Throwable e) {
                 Toast.makeText(getContext(),
-                        "应用管理 调试模式已经打开，如果使用完毕请及时关闭，否则会新增加耗电，造成系统卡顿。", Toast.LENGTH_LONG).show();
+                        new AppResource(getContext()).loadStringFromAPMApp("notification_toast_debug_mode"),
+                        Toast.LENGTH_LONG)
+                        .show();
             }
         }
 

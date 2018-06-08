@@ -7,6 +7,7 @@ import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.ITaskRemoveListener;
 import github.tornaco.xposedmoduletest.IServiceControl;
+import github.tornaco.xposedmoduletest.IBackupAgent;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 
@@ -292,7 +293,9 @@ interface IAshmanService {
     AppSettings retrieveAppSettingsForPackage(String pkg);
     void applyAppSettingsForPackage(String pkg, in AppSettings settings);
 
+    // Deprecate.
     void backupTo(String dir);
+    // Deprecate.
     void restoreFrom(String dir);
 
     String[] getRawPermSettings(int page, int countInPage);
@@ -490,6 +493,7 @@ interface IAshmanService {
     boolean addOrRemovePackageInstallerVerifyRules(String rule, boolean add);
     void onSourceApkFileDetected(String path, String pkg);
 
+    // Retrieve current top activity package name.
     String getCurrentTopPackage();
 
     // Tasks.
@@ -506,4 +510,16 @@ interface IAshmanService {
     // Inactive policy.
     void setAppInactivePolicyForModule(String module, int policy);
     int getAppInactivePolicyForModule(String module);
+
+    // Input.
+    void executeInputCommand(in String[] args);
+
+    // Screenshots.
+    void takeLongScreenShot();
+
+    // Backup And Restore.
+    IBackupAgent getBackupAgent();
+
+    // Reboot action.
+    void showRebootNeededNotification(in String why);
 }

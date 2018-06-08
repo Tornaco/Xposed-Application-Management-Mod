@@ -6,6 +6,11 @@ package github.tornaco.xposedmoduletest.xposed.service.am;
 
 public interface AppIdler {
 
+    /**
+     * Make the app idle, means make it 'idle' or stop it.
+     *
+     * @param pkg Target package.
+     */
     void setAppIdle(String pkg);
 
     void setListener(OnAppIdleListener listener);
