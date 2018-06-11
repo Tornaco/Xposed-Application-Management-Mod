@@ -23,17 +23,18 @@
     android:paddingEnd="0dp"
     android:theme="?attr/switchBarTheme">
 
-    <Spinner
+    <android.support.v7.widget.AppCompatSpinner
         android:id="@+id/filter_spinner"
+        style="@style/Widget.AppCompat.Spinner.DropDown"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignWithParentIfMissing="true"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="70dp"
         android:layout_marginStart="64dp"
+        android:spinnerMode="dropdown"
         android:textAlignment="viewStart"
-        android:theme="@style/SpinnerStyle" />
+        android:theme="?torSpinnerStyle" />
 
     <ImageView
         android:id="@+id/filter_actions"

@@ -40,6 +40,8 @@
 
         <item name="torBottomNavTextColor">@color/amber_dark</item>
         <item name="torBottomNavButtonColor">@color/amber_dark</item>
+
+        <item name="torSpinnerStyle">@style/SpinnerStyleDark</item>
     </style>
 
     <!-- Base application theme. -->
@@ -78,6 +80,8 @@
 
         <item name="torBottomNavTextColor">@color/red_dark</item>
         <item name="torBottomNavButtonColor">@color/red_dark</item>
+
+        <item name="torSpinnerStyle">@style/SpinnerStyleDark</item>
     </style>
 
     <!-- Base application theme. -->
@@ -114,6 +118,8 @@
 
         <item name="torBottomNavTextColor">@color/primary_dark</item>
         <item name="torBottomNavButtonColor">@color/primary_dark</item>
+
+        <item name="torSpinnerStyle">@style/SpinnerStyle</item>
     </style>
 
     <style name="AppThemeLight.Drawer">
@@ -162,6 +168,8 @@
 
         <item name="torBottomNavTextColor">@color/pink</item>
         <item name="torBottomNavButtonColor">@color/pink</item>
+
+        <item name="torSpinnerStyle">@style/SpinnerStyle</item>
     </style>
 
     <style name="AppThemePink.Drawer">
@@ -209,6 +217,8 @@
 
         <item name="torBottomNavTextColor">@color/red</item>
         <item name="torBottomNavButtonColor">@color/red</item>
+
+        <item name="torSpinnerStyle">@style/SpinnerStyle</item>
     </style>
 
     <style name="AppThemeNEWYEAR.Drawer">
@@ -253,6 +263,8 @@
         <item name="torBottomNavTextColor">@color/primary_dark</item>
         <item name="torBottomNavButtonColor">@color/primary_dark</item>
 
+        <item name="torSpinnerStyle">@style/SpinnerStyle</item>
+
     </style>
 
     <style name="AppThemeO.Drawer">
@@ -291,6 +303,8 @@
 
         <item name="torBottomNavTextColor">@color/black</item>
         <item name="torBottomNavButtonColor">@color/black</item>
+
+        <item name="torSpinnerStyle">@style/SpinnerStyle</item>
 
     </style>
 
@@ -382,8 +396,18 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="SpinnerStyle">
+    <style name="SpinnerStyle" parent="Widget.AppCompat.Light.DropDownItem.Spinner">
         <item name="android:colorControlNormal">?torCardSummaryColor</item>
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <style name="SpinnerStyleDark" parent="Widget.AppCompat.DropDownItem.Spinner">
+        <item name="android:colorControlNormal">?torCardSummaryColor</item>
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
     </style>
 
     <style name="TextAppearance.Medium" parent="@style/TextAppearance.AppCompat.Medium" />
