@@ -658,5 +658,5 @@
     <string name="title_long_screen_shot">滚动截图</string>
     <string name="title_copy_pkg_name">复制包名</string>
     <string name="title_remove_task_on_app_idle">应用清理后从最近任务移除</string>
-
+    <string name="title_click_to_continue">Click here to continue</string>
 </resources>
