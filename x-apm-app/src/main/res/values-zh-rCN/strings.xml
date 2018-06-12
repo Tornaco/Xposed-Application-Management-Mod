@@ -653,4 +653,5 @@
     <string name="title_p_gesture">全面屏手势</string>
     <string name="title_long_screen_shot">滚动截图</string>
     <string name="title_copy_pkg_name">复制包名</string>
+    <string name="title_click_to_continue">点击此处继续</string>
 </resources>
