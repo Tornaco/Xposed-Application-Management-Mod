@@ -25,9 +25,6 @@
     <dimen name="thumbnail_size">42dp</dimen>
     <dimen name="thumbnail_size_large">52dp</dimen>
 
-    <dimen name="list_item_elevation">1dp</dimen>
-    <dimen name="list_item_margin">2dp</dimen>
-
     <!-- Camera focus indicator values -->
     <dimen name="pie_radius_start">40dp</dimen>
     <dimen name="pie_radius_increment">30dp</dimen>

@@ -6,9 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:layout_margin="1px"
-    card_view:cardCornerRadius="1dp"
-    card_view:cardElevation="0dp"
+    android:layout_margin="@dimen/list_item_margin"
+    card_view:cardCornerRadius="@dimen/list_item_corner_radius"
+    card_view:cardElevation="@dimen/list_item_elevation"
     card_view:contentPadding="5dp">
 
     <RelativeLayout
