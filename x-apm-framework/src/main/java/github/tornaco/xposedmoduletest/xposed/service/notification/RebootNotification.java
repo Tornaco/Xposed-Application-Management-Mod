@@ -69,7 +69,7 @@ public class RebootNotification {
                 .build();
 
         if (OSUtil.isMOrAbove()) {
-            n.setSmallIcon(new AppResource(getContext()).loadIconFromAPMApp("ic_android_black_24dp"));
+            n.setSmallIcon(new AppResource(getContext()).loadIconFromAPMApp("ic_power_settings_new_black_24dp"));
         }
 
         if (mLastRebootNotificationId > 0) {
