@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?torCardBackgroundColor"
@@ -19,15 +20,31 @@
         android:textSize="21sp"
         android:textStyle="bold" />
 
+    <TextView
+        android:id="@+id/text_view_at_github"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@android:id/title"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin_small"
+        android:layout_marginTop="@dimen/activity_horizontal_margin_small"
+        android:padding="@dimen/header_padding_tiny"
+        android:text="GITHUB"
+        android:textStyle="bold"
+        android:textAllCaps="true"
+        tools:ignore="HardcodedText" />
+
     <View
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1px"
         android:layout_below="@android:id/title"
+        android:layout_marginBottom="@dimen/activity_horizontal_margin_marco"
         android:layout_marginLeft="@dimen/activity_horizontal_margin_small"
         android:layout_marginRight="@dimen/activity_horizontal_margin_small"
         android:layout_marginTop="1px"
-        android:background="@color/dividerLight" />
+        android:background="@color/dividerLight"
+        android:visibility="visible" />
 
     <TextView
         android:id="@android:id/text1"
@@ -38,7 +55,7 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin_small"
         android:layout_marginTop="@dimen/activity_horizontal_margin_small"
         android:padding="@dimen/header_padding_tiny"
-        android:text="@string/update_log_506"
+        android:text="@string/update_log_509"
         android:textAllCaps="true"
         android:textColor="?torListItemSummaryTextColor"
         android:textStyle="normal" />
@@ -53,5 +70,19 @@
         android:layout_margin="@dimen/activity_horizontal_margin_small"
         android:text="@string/done"
         android:textColor="@color/white"
-        android:theme="@style/ButtonBarGuide" />
+        android:theme="@style/ButtonBarGuide"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/update_log_github"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@android:id/text1"
+        android:layout_margin="@dimen/activity_horizontal_margin_small"
+        android:layout_toStartOf="@+id/update_log_close_button"
+        android:text="GITHUB"
+        android:textColor="@color/white"
+        android:theme="@style/ButtonBarGuide"
+        android:visibility="gone"
+        tools:ignore="HardcodedText" />
 </RelativeLayout>
