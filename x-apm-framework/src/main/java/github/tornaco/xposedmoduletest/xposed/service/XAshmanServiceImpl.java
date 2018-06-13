@@ -664,7 +664,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 .build();
 
         if (OSUtil.isMOrAbove()) {
-            n.setSmallIcon(new AppResource(getContext()).loadIconFromAPMApp("ic_stat_apply_template"));
+            n.setSmallIcon(new AppResource(getContext()).loadIconFromAPMApp("ic_template_applied_black_24dp"));
         }
 
         NotificationManagerCompat.from(context)
@@ -723,14 +723,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 .setContentTitle(appResource.loadStringFromAPMApp("notification_title_process_update"))
                 .setContentText(appResource.loadStringFromAPMApp("notification_content_process_update", recentApp, mRunningProcessPackages.size()))
                 .setSmallIcon(android.R.drawable.stat_sys_warning)
-                .setContentIntent(clearIntent)
+                .setContentIntent(detailsIntent)
                 .setAutoCancel(true)
                 .addAction(0, appResource.loadStringFromAPMApp("notification_action_clear_process_update"), clearIntent)
                 .addAction(0, appResource.loadStringFromAPMApp("notification_action_more_process_update"), detailsIntent)
                 .build();
 
         if (OSUtil.isMOrAbove()) {
-            n.setSmallIcon(new AppResource(getContext()).loadIconFromAPMApp("ic_stat_process_update"));
+            n.setSmallIcon(new AppResource(getContext()).loadIconFromAPMApp("ic_hourglass_empty_black_24dp"));
         }
 
         NotificationManagerCompat.from(getContext())

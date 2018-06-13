@@ -9,6 +9,7 @@
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:theme="?torAppbarTheme">
 
         <android.support.v7.widget.Toolbar
@@ -33,6 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/switchbar"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:background="?torAppbarDescriptionBackgroundColor"
             android:visibility="visible">
 

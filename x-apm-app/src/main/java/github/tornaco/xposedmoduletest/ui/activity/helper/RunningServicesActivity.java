@@ -1,12 +1,11 @@
 package github.tornaco.xposedmoduletest.ui.activity.helper;
 
-import android.view.LayoutInflater;
+import android.support.v7.widget.AppCompatRadioButton;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.CheckBox;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
@@ -211,20 +210,15 @@ public class RunningServicesActivity
 
     @Override
     protected boolean onBindFilterAction(RelativeLayout container) {
-        CheckBox showSystemAppsCheckBox;
-        try {
-            showSystemAppsCheckBox = (CheckBox) LayoutInflater.from(getActivity())
-                    .inflate(R.layout.checkbox_text_align_end, container, false);
-        } catch (Throwable e) {
-            showSystemAppsCheckBox = new CheckBox(getActivity());
-        }
+        AppCompatRadioButton showSystemAppsCheckBox = new AppCompatRadioButton(getActivity());
         showSystemAppsCheckBox.setText(R.string.title_show_system_app);
         showSystemAppsCheckBox.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
         showSystemAppsCheckBox.setSoundEffectsEnabled(false);
+        showSystemAppsCheckBox.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
         showSystemAppsCheckBox.setChecked(mShowSystemApps);
-        CheckBox finalShowSystemAppsCheckBox = showSystemAppsCheckBox;
         showSystemAppsCheckBox.setOnClickListener(v -> {
-            mShowSystemApps = finalShowSystemAppsCheckBox.isChecked();
+            showSystemAppsCheckBox.setChecked(!mShowSystemApps);
+            mShowSystemApps = showSystemAppsCheckBox.isChecked();
             startLoading();
         });
         container.removeAllViews();
