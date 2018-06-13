@@ -30,6 +30,7 @@ import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
+import github.tornaco.xposedmoduletest.ui.widget.TypefaceHelper;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import lombok.Getter;
 import lombok.Setter;
@@ -88,7 +89,16 @@ public class CommonPackageInfoAdapter
                 .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
                 .badgeColor(Color.GRAY)
                 .text1(context.getString(R.string.title_app_state_idle))
+                .typeFace(TypefaceHelper.futura(context))
                 .build();
+
+        this.gcmBadge =
+                new BadgeDrawable.Builder()
+                        .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
+                        .badgeColor(Color.BLUE)
+                        .text1("GCM")
+                        .typeFace(TypefaceHelper.futura(context))
+                        .build();
     }
 
     @Getter
@@ -220,12 +230,7 @@ public class CommonPackageInfoAdapter
     }
 
     @Getter
-    final BadgeDrawable gcmBadge =
-            new BadgeDrawable.Builder()
-                    .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
-                    .badgeColor(Color.BLUE)
-                    .text1("GCM")
-                    .build();
+    final BadgeDrawable gcmBadge;
 
     @Getter
     final BadgeDrawable idleBadge;
@@ -237,6 +242,7 @@ public class CommonPackageInfoAdapter
                 .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
                 .badgeColor(levelColor)
                 .text1(levelText)
+                .typeFace(TypefaceHelper.futura(getContext()))
                 .build();
     }
 
