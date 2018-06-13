@@ -385,6 +385,7 @@ public class NavigatorActivityBottomNav
                 .inflate(R.layout.update_log_sheet_layout, bottomSheet, false));
         bottomSheet.findViewById(R.id.update_log_close_button)
                 .setOnClickListener(v -> bottomSheet.dismissSheet());
+        bottomSheet.findViewById(R.id.text_view_at_github).setOnClickListener(v -> navigateToWebPage(getString(R.string.app_rel_url)));
     }
 
     @Override
@@ -407,7 +408,8 @@ public class NavigatorActivityBottomNav
             AppSettings.setGuideRead(getContext(), true);
         }
         if (item.getItemId() == R.id.action_update_log) {
-            navigateToWebPage(getString(R.string.app_rel_url));
+            // navigateToWebPage(getString(R.string.app_rel_url));
+            showUpdateLog();
         }
 
         if (item.getItemId() == R.id.action_change_column_count) {
