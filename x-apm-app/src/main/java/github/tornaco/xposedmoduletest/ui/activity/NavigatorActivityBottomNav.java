@@ -666,6 +666,7 @@ public class NavigatorActivityBottomNav
                 ViewGroup header = findView(rootView, R.id.header1);
                 header.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.amber));
                 imageView.setImageResource(R.drawable.ic_error_black_24dp);
+                XAPMManager.get().showRebootNeededNotification("isNewBuild");
             } else {
                 TypedValue typedValue = new TypedValue();
                 getActivity().getTheme().resolveAttribute(R.attr.torCardAccentBackgroundColor, typedValue, true);
