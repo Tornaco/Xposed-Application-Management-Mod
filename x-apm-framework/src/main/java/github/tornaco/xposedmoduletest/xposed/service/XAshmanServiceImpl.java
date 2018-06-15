@@ -3694,6 +3694,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    public void deleteJs(JavaScript js) {
+        enforceCallingPermissions();
+        Preconditions.checkNotNull(js);
+        RepoProxy.getProxy().getJs().remove(js.getId());
+    }
+
+    @Override
     @BinderCall
     public List<JavaScript> getSavedJses() {
         enforceCallingPermissions();

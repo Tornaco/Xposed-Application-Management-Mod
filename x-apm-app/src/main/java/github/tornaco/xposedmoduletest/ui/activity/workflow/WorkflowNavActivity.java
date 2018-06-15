@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.ui.activity.workflow;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.SwitchCompat;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,9 +22,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import github.tornaco.android.common.Collections;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.loader.JsLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
@@ -33,8 +34,6 @@ import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.bean.JavaScript;
 import lombok.Getter;
 import si.virag.fuzzydateformatter.FuzzyDateTimeFormatter;
-
-import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 public class WorkflowNavActivity extends CommonPackageInfoListActivity
         implements SwitchBar.OnSwitchChangeListener {
@@ -51,7 +50,14 @@ public class WorkflowNavActivity extends CommonPackageInfoListActivity
 
     @Override
     protected void onRequestClearItemsInBackground() {
-
+        Collections.consumeRemaining(getCommonPackageInfoAdapter()
+                        .getCommonPackageInfos(),
+                commonPackageInfo -> {
+                    if (commonPackageInfo.isChecked()) {
+                        JavaScript js = (JavaScript) commonPackageInfo.getArgs();
+                        XAPMManager.get().deleteJs(js);
+                    }
+                });
     }
 
     @Override
@@ -86,13 +92,8 @@ public class WorkflowNavActivity extends CommonPackageInfoListActivity
                         .getString(R.string.summary_created_at, FuzzyDateTimeFormatter.getTimeAgo(getContext(),
                                 new Date(js.getCreatedAt()))));
 
-                GlideApp.with(getContext())
-                        .load(packageInfo)
-                        .placeholder(0)
-                        .error(R.mipmap.ic_launcher_round)
-                        .fallback(R.mipmap.ic_launcher_round)
-                        .transition(withCrossFade())
-                        .into(holder.getCheckableImageView());
+                holder.getCheckableImageView().setImageDrawable(ContextCompat
+                        .getDrawable(getContext(), R.mipmap.ic_workflow));
 
                 WorkflowItemViewHolder workflowItemViewHolder = (WorkflowItemViewHolder) holder;
                 workflowItemViewHolder.getRunView().setOnClickListener(v -> XAPMManager.get().evaluateJsString(new String[]{js.getScript()}));

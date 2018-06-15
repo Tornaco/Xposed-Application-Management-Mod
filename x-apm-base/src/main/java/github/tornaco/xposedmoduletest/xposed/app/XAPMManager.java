@@ -2682,6 +2682,15 @@ public class XAPMManager {
         }
     }
 
+    public void deleteJs(JavaScript js) {
+        ensureService();
+        try {
+            mService.deleteJs(js);
+        } catch (Exception e) {
+            handleException(e);
+        }
+    }
+
     private static void handleException(Throwable e) {
         if (BuildConfig.DEBUG) {
             //throw new RuntimeException(e);
