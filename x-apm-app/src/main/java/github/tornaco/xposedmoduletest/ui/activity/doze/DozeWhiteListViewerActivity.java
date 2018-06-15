@@ -64,7 +64,7 @@ public class DozeWhiteListViewerActivity extends CommonPackageInfoListActivity {
                 final CommonPackageInfo packageInfo = getCommonPackageInfos().get(position);
                 boolean isSystem = packageInfo.getPayload() != null;
                 if (isSystem) {
-                    holder.getSystemAppIndicator().setText(R.string.title_doze_system_app);
+                    holder.getThirdTextView().setText(R.string.title_doze_system_app);
                 }
             }
         };

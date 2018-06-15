@@ -66,8 +66,8 @@ public class DozeEventHistoryViewerActivity extends CommonPackageInfoListPickerA
                 String lastState = packageInfo.getPayload()[2];
                 String fail = packageInfo.getPayload()[3];
 
-                holder.getSystemAppIndicator().setText(startTime);
-                holder.getSystemAppIndicator().setVisibility(View.VISIBLE);
+                holder.getThirdTextView().setText(startTime);
+                holder.getThirdTextView().setVisibility(View.VISIBLE);
 
                 if (!packageInfo.isChecked()) {
                     holder.getLineTwoTextView().setText(getString(R.string.title_doze_history_summary,

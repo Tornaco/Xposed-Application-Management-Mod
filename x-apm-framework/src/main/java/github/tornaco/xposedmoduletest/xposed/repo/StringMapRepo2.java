@@ -5,20 +5,18 @@ import android.support.annotation.NonNull;
 import android.util.AtomicFile;
 import android.util.Log;
 
+import com.android.internal.util.XmlUtils;
 import com.google.common.io.Files;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.concurrent.ExecutorService;
 
 import github.tornaco.xposedmoduletest.xposed.util.Closer;
@@ -33,8 +31,6 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 public class StringMapRepo2 implements MapRepo<String, String> {
 
     private static final String NULL_INDICATOR = "NULL";
-    private static final String TOKEN = "TOKEN-990232389453584331321-TOKEN";
-    private static final String TOKEN_OLD = "-";
 
     private final Map<String, String> mStorage = new HashMap<>();
 
@@ -62,7 +58,7 @@ public class StringMapRepo2 implements MapRepo<String, String> {
             }
         }
 
-        XposedLog.debug("StringMapRepo2: " + name() + ", comes up");
+        XposedLog.debug("StringMapRepo: " + name() + ", comes up");
 
         reload();
     }
@@ -70,6 +66,7 @@ public class StringMapRepo2 implements MapRepo<String, String> {
     @Override
     public void reload() {
         synchronized (sync) {
+            com.google.common.io.Closer closer = com.google.common.io.Closer.create();
             try {
 
                 if (!mFile.getBaseFile().exists()) {
@@ -83,46 +80,15 @@ public class StringMapRepo2 implements MapRepo<String, String> {
                     mFile.delete();
                 }
 
-                // A-JSON
-                // B-JSON
-                // C-JSON
-                Map<String, String> m = new HashMap<>();
 
-                InputStreamReader fr = new InputStreamReader(mFile.openRead());
-                BufferedReader br = new BufferedReader(fr);
-                String line;
-                while ((line = br.readLine()) != null) {
-                    // XposedLog.verbose("Read of line: " + line);
-                    StringTokenizer t = new StringTokenizer(line, TOKEN);
-                    int c = t.countTokens();
-                    if (c != 2) {
-                        // Try parse with old one.
-                        t = new StringTokenizer(line, TOKEN_OLD);
-                        c = t.countTokens();
-                        if (c != 2) {
-                            XposedLog.wtf("Found invalid line: " + line);
-                            continue;
-                        }
-                    }
-                    String key = t.nextToken();
-                    if (key == null || key.trim().length() == 0) {
-                        XposedLog.wtf("Found invalid key@line: " + line);
-                        continue;
-                    }
-                    String value = t.nextToken();
-                    if (value == null || value.trim().length() == 0) {
-                        XposedLog.wtf("Found invalid value@line: " + line);
-                        continue;
-                    }
-                    m.put(key, value);
-                }
-                Closer.closeQuietly(fr);
-                Closer.closeQuietly(br);
-
+                InputStream is = closer.register(mFile.openRead());
+                @SuppressWarnings("unchecked") Map<String, String> m = (Map<String, String>) XmlUtils.readMapXml(is);
                 mStorage.putAll(m);
 
-            } catch (IOException e) {
+            } catch (Throwable e) {
                 XposedLog.wtf("Fail reload@IOException: " + mFile + "\n" + Log.getStackTraceString(e));
+            } finally {
+                Closer.closeQuietly(closer);
             }
         }
     }
@@ -140,29 +106,20 @@ public class StringMapRepo2 implements MapRepo<String, String> {
     @Override
     public void flush() {
         XposedLog.verbose("flush");
+        com.google.common.io.Closer closer = com.google.common.io.Closer.create();
         synchronized (sync) {
             try {
 
-                // A TOKEN JSON
-                // B TOKEN JSON
-                // C TOKEN JSON
                 Map<String, String> m = new HashMap<>(mStorage);
 
-                FileOutputStream fos = mFile.startWrite();
-                PrintWriter printWriter = new PrintWriter(fos);
-
-                for (String key : m.keySet()) {
-                    String value = m.get(key);
-                    // Use NULL_INDICATOR to indicate null value.
-                    printWriter.println(key + TOKEN + (value == null ? NULL_INDICATOR : value));
-                }
-
-                printWriter.flush();
+                FileOutputStream fos = closer.register(mFile.startWrite());
+                XmlUtils.writeMapXml(m, fos);
                 mFile.finishWrite(fos);
-                Closer.closeQuietly(printWriter);
 
-            } catch (IOException e) {
+            } catch (Throwable e) {
                 XposedLog.wtf("Fail flush@IOException: " + mFile + "\n" + Log.getStackTraceString(e));
+            } finally {
+                Closer.closeQuietly(closer);
             }
         }
     }

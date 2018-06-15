@@ -6,15 +6,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:layout_margin="@dimen/list_item_margin"
+    android:layout_margin="1dp"
     card_view:cardCornerRadius="@dimen/list_item_corner_radius"
-    card_view:cardElevation="@dimen/list_item_elevation">
+    card_view:cardElevation="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:minHeight="@dimen/common_item_min_height">
+        android:minHeight="@dimen/common_item_min_height_large">
 
         <View
             android:id="@+id/extra_indicator"
@@ -41,25 +41,24 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:layout_toStartOf="@android:id/text1"
                 android:ellipsize="marquee"
                 android:fadingEdge="horizontal"
                 android:maxLines="30"
-                android:text="@string/app_wiki_url" />
+                android:text="@string/title_workflow" />
 
             <TextView
-                android:id="@android:id/text1"
-                style="@style/ListItemSecondaryTextHighlight"
+                android:id="@android:id/text2"
+                style="@style/ListItemSecondaryText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="@dimen/activity_horizontal_margin_small"
-                android:layout_toStartOf="@+id/btn_run"
+                android:layout_below="@android:id/title"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin_large"
+                android:layout_marginTop="6dp"
                 android:fadingEdge="horizontal"
                 android:maxLines="1"
-                android:text="@string/title_system_app" />
+                android:text="@string/summary_created_at" />
 
             <ImageView
                 android:id="@+id/btn_run"
