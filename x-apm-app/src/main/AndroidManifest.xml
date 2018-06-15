@@ -194,6 +194,10 @@
             android:label="@string/title_workflow"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
+            android:name=".ui.activity.workflow.WorkflowEditorActivity"
+            android:label="@string/title_workflow_editor"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
             android:name=".ui.activity.prop.PropNavActivity"
             android:label="@string/title_prop_nav"
             android:theme="@style/AppThemeLight.NoActionBar" />
