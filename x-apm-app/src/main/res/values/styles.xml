@@ -28,7 +28,7 @@
         <item name="torCardSummaryColor">@color/white</item>
         <item name="torMainWindowBackgroundColor">?colorPrimary</item>
         <item name="torListItemTitleTextColor">@color/white</item>
-        <item name="torListItemSummaryTextColor">@color/white</item>
+        <item name="torListItemSummaryTextColor">@color/grey</item>
         <item name="torListItemHighlightTextColor">@color/white</item>
         <item name="torTileContainerBackgroundColor">?colorPrimary</item>
         <item name="torAppbarDescriptionBackgroundColor">?colorPrimary</item>
@@ -68,7 +68,7 @@
         <item name="torCardSummaryColor">@color/white</item>
         <item name="torMainWindowBackgroundColor">@color/black</item>
         <item name="torListItemTitleTextColor">@color/white</item>
-        <item name="torListItemSummaryTextColor">@color/white</item>
+        <item name="torListItemSummaryTextColor">@color/grey</item>
         <item name="torListItemHighlightTextColor">@color/white</item>
         <item name="torTileContainerBackgroundColor">?colorPrimary</item>
         <item name="torAppbarDescriptionBackgroundColor">?colorPrimary</item>
@@ -106,7 +106,7 @@
         <item name="torCardSummaryColor">@color/third_text</item>
         <item name="torMainWindowBackgroundColor">@color/window_background</item>
         <item name="torListItemTitleTextColor">@color/black</item>
-        <item name="torListItemSummaryTextColor">@color/black</item>
+        <item name="torListItemSummaryTextColor">@color/grey</item>
         <item name="torListItemHighlightTextColor">@color/black</item>
         <item name="torTileContainerBackgroundColor">@color/white</item>
         <item name="torAppbarDescriptionBackgroundColor">@color/white</item>
@@ -156,7 +156,7 @@
         <item name="torCardSummaryColor">@color/third_text</item>
         <item name="torMainWindowBackgroundColor">@color/window_background</item>
         <item name="torListItemTitleTextColor">@color/black</item>
-        <item name="torListItemSummaryTextColor">@color/black</item>
+        <item name="torListItemSummaryTextColor">@color/grey</item>
         <item name="torListItemHighlightTextColor">@color/black</item>
         <item name="torTileContainerBackgroundColor">@color/white</item>
         <item name="torAppbarDescriptionBackgroundColor">@color/white</item>
@@ -205,7 +205,7 @@
         <item name="torCardSummaryColor">@color/third_text</item>
         <item name="torMainWindowBackgroundColor">@color/window_background</item>
         <item name="torListItemTitleTextColor">@color/black</item>
-        <item name="torListItemSummaryTextColor">@color/black</item>
+        <item name="torListItemSummaryTextColor">@color/grey</item>
         <item name="torListItemHighlightTextColor">@color/black</item>
         <item name="torTileContainerBackgroundColor">@color/white</item>
         <item name="torAppbarDescriptionBackgroundColor">@color/white</item>
@@ -250,7 +250,7 @@
         <item name="torCardSummaryColor">@color/third_text</item>
         <item name="torMainWindowBackgroundColor">@color/window_background</item>
         <item name="torListItemTitleTextColor">@color/black</item>
-        <item name="torListItemSummaryTextColor">@color/black</item>
+        <item name="torListItemSummaryTextColor">@color/grey</item>
         <item name="torListItemHighlightTextColor">@color/black</item>
         <item name="torTileContainerBackgroundColor">@color/white</item>
         <item name="torAppbarDescriptionBackgroundColor">@color/white</item>
@@ -291,7 +291,7 @@
         <item name="torCardSummaryColor">@color/third_text</item>
         <item name="torMainWindowBackgroundColor">@color/window_background</item>
         <item name="torListItemTitleTextColor">@color/black</item>
-        <item name="torListItemSummaryTextColor">@color/black</item>
+        <item name="torListItemSummaryTextColor">@color/grey</item>
         <item name="torListItemHighlightTextColor">@color/black</item>
         <item name="torTileContainerBackgroundColor">@color/white</item>
         <item name="torAppbarDescriptionBackgroundColor">@color/white</item>

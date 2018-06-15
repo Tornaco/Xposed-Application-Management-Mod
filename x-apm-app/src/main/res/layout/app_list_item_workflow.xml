@@ -60,13 +60,14 @@
                 android:maxLines="1"
                 android:text="@string/summary_created_at" />
 
-            <ImageView
+            <ImageButton
                 android:id="@+id/btn_run"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:background="@drawable/btn_status_action_trans"
                 android:src="@drawable/ic_play_arrow_black_24dp"
                 android:tint="@color/grey" />
         </RelativeLayout>

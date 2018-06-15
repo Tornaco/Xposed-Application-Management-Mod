@@ -40,7 +40,7 @@
 
     <dimen name="list_item_elevation">0px</dimen>
     <dimen name="list_item_corner_radius">1dp</dimen>
-    <dimen name="list_item_margin">0dp</dimen>
+    <dimen name="list_item_margin">2px</dimen>
 
     <!-- Camera focus indicator values -->
     <dimen name="pie_radius_start">40dp</dimen>
