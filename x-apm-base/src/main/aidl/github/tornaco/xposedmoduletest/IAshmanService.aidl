@@ -530,4 +530,5 @@ interface IAshmanService {
     JavaScript getSavedJs(String id);
     List<JavaScript> getSavedJses();
     void saveJs(in JavaScript js);
+    void deleteJs(in JavaScript js);
 }
