@@ -36,6 +36,7 @@
     <dimen name="avatar_size">52dp</dimen>
     <dimen name="avatar_size_large">64dp</dimen>
     <dimen name="common_item_min_height">64dp</dimen>
+    <dimen name="common_item_min_height_large">72dp</dimen>
 
     <dimen name="list_item_elevation">0px</dimen>
     <dimen name="list_item_corner_radius">1dp</dimen>

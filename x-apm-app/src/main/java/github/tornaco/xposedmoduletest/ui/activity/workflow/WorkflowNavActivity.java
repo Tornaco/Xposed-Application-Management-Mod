@@ -13,6 +13,7 @@ import java.util.List;
 
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.loader.JsLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
@@ -20,6 +21,8 @@ import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapte
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.xposed.bean.JavaScript;
 import si.virag.fuzzydateformatter.FuzzyDateTimeFormatter;
+
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 public class WorkflowNavActivity extends CommonPackageInfoListActivity
         implements SwitchBar.OnSwitchChangeListener {
@@ -58,12 +61,31 @@ public class WorkflowNavActivity extends CommonPackageInfoListActivity
     protected CommonPackageInfoAdapter onCreateAdapter() {
         return new CommonPackageInfoAdapter(this) {
             @Override
+            protected int getTemplateLayoutRes() {
+                return R.layout.app_list_item_workflow;
+            }
+
+            @Override
             public void onBindViewHolder(@NonNull CommonViewHolder holder, int position) {
                 super.onBindViewHolder(holder, position);
                 final CommonPackageInfo packageInfo = getCommonPackageInfos().get(position);
                 JavaScript js = (JavaScript) packageInfo.getArgs();
-                holder.getLineTwoTextView().setText(FuzzyDateTimeFormatter.getTimeAgo(getContext(),
-                        new Date(js.getCreatedAt())));
+                holder.getLineTwoTextView().setText(getContext()
+                        .getString(R.string.summary_created_at, FuzzyDateTimeFormatter.getTimeAgo(getContext(),
+                                new Date(js.getCreatedAt()))));
+
+                GlideApp.with(getContext())
+                        .load(packageInfo)
+                        .placeholder(0)
+                        .error(R.mipmap.ic_launcher_round)
+                        .fallback(R.mipmap.ic_launcher_round)
+                        .transition(withCrossFade())
+                        .into(holder.getCheckableImageView());
+            }
+
+            @Override
+            protected boolean imageLoadingEnabled() {
+                return false;
             }
         };
     }

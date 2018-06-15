@@ -174,7 +174,9 @@ public class CommonPackageInfoAdapter
     public void onBindViewHolder(@NonNull final CommonViewHolder holder, final int position) {
         final CommonPackageInfo packageInfo = commonPackageInfos.get(position);
 
-        inflatePackageDesc(packageInfo, holder.getSystemAppIndicator(), showGcmIndicator);
+        if (holder.getThirdTextView() != null) {
+            inflatePackageDesc(packageInfo, holder.getThirdTextView(), showGcmIndicator);
+        }
 
         holder.getExtraIndicator().setVisibility(View.INVISIBLE);
 
@@ -373,7 +375,7 @@ public class CommonPackageInfoAdapter
 
     @Getter
     public static class CommonViewHolder extends RecyclerView.ViewHolder {
-        private TextView lineOneTextView, lineTwoTextView, systemAppIndicator;
+        private TextView lineOneTextView, lineTwoTextView, thirdTextView;
         private View extraIndicator;
         private CheckableImageView checkableImageView;
         @Nullable
@@ -383,7 +385,7 @@ public class CommonPackageInfoAdapter
             super(itemView);
             lineOneTextView = itemView.findViewById(android.R.id.title);
             lineTwoTextView = itemView.findViewById(android.R.id.text2);
-            systemAppIndicator = itemView.findViewById(android.R.id.text1);
+            thirdTextView = itemView.findViewById(android.R.id.text1);
             checkableImageView = itemView.findViewById(R.id.checkable_img_view);
             extraIndicator = itemView.findViewById(R.id.extra_indicator);
             moreBtn = itemView.findViewById(R.id.more);

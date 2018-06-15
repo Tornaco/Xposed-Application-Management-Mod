@@ -209,13 +209,44 @@ public class RepoProxy {
 
         File dir = getBaseDataDir();
 
-        appFocused = new StringMapRepo(new File(dir, "app_focused"), h, io);
-        appUnFocused = new StringMapRepo(new File(dir, "app_unfocused"), h, io);
-        componentReplacement = new StringMapRepo(new File(dir, "component_replacement"), h, io);
-        systemPropProfiles = new StringMapRepo(new File(dir, "system_prop_profiles"), h, io);
-        appSettingsTemplate = new StringMapRepo(new File(dir, "app_settings_template"), h, io);
-        appOpsTemplate = new StringMapRepo(new File(dir, "app_ops_template"), h, io);
-        js = new StringMapRepo(new File(dir, "js"), h, io);
+        componentReplacement = new StringMapRepo2(new File(dir, "component_replacement.xml"), h, io);
+
+        appSettingsTemplate = new StringMapRepo2(new File(dir, "app_settings_template.xml"), h, io);
+
+        appFocused = new StringMapRepo2(new File(dir, "app_focused.xml"), h, io);
+        appUnFocused = new StringMapRepo2(new File(dir, "app_unfocused.xml"), h, io);
+
+        systemPropProfiles = new StringMapRepo2(new File(dir, "system_prop_profiles.xml"), h, io);
+
+        appOpsTemplate = new StringMapRepo2(new File(dir, "app_ops_template.xml"), h, io);
+
+        js = new StringMapRepo2(new File(dir, "js.xml"), h, io);
+
+        // Migrate.
+        migrateMapRepo(h, "component_replacement", componentReplacement);
+        migrateMapRepo(h, "app_settings_template", appSettingsTemplate);
+        migrateMapRepo(h, "app_focused", appFocused);
+        migrateMapRepo(h, "app_unfocused", appUnFocused);
+        migrateMapRepo(h, "system_prop_profiles", systemPropProfiles);
+        migrateMapRepo(h, "app_ops_template", appOpsTemplate);
+        migrateMapRepo(h, "js", js);
+    }
+
+    private void migrateMapRepo(Handler h, String name, Map<String, String> dest) {
+        File dir = getBaseDataDir();
+        File file = new File(dir, name);
+        if (file.exists()) {
+            try {
+                XposedLog.wtf("Migrating " + name);
+                @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+                StringMapRepo mapRepo = new StringMapRepo(file, h, null);
+                dest.putAll(mapRepo.dup());
+            } catch (Throwable e) {
+                XposedLog.wtf("Fail migrateMapRepo " + Log.getStackTraceString(e));
+            } finally {
+                BlackHole.eat(file.delete());
+            }
+        }
     }
 
     private static final SetRepo<String> STRING_SET_NULL_HACK = new SetRepo<String>() {

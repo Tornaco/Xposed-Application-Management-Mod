@@ -51,8 +51,8 @@ public class RunningServiceAdapter extends CommonPackageInfoAdapter {
             holder.getLineTwoTextView().setText(display.getMergedItem().mDescription);
         }
 
-        holder.getSystemAppIndicator().setVisibility(View.VISIBLE);
-        holder.getSystemAppIndicator().setText(display.getMergedItem().mSizeStr);
+        holder.getThirdTextView().setVisibility(View.VISIBLE);
+        holder.getThirdTextView().setText(display.getMergedItem().mSizeStr);
 
         inflatePackageDesc(display, runningServiceInfoHolder.getProcessNameView(), false);
     }
@@ -111,8 +111,8 @@ public class RunningServiceAdapter extends CommonPackageInfoAdapter {
         }
 
         @Override
-        public TextView getSystemAppIndicator() {
-            return commonViewHolder.getSystemAppIndicator();
+        public TextView getThirdTextView() {
+            return commonViewHolder.getThirdTextView();
         }
 
         @Override
