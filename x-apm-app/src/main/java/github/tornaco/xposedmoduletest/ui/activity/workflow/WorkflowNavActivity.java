@@ -58,6 +58,11 @@ public class WorkflowNavActivity extends CommonPackageInfoListActivity
     protected CommonPackageInfoAdapter onCreateAdapter() {
         return new CommonPackageInfoAdapter(this) {
             @Override
+            protected int getTemplateLayoutRes() {
+                return R.layout.app_list_item_workflow;
+            }
+
+            @Override
             public void onBindViewHolder(@NonNull CommonViewHolder holder, int position) {
                 super.onBindViewHolder(holder, position);
                 final CommonPackageInfo packageInfo = getCommonPackageInfos().get(position);

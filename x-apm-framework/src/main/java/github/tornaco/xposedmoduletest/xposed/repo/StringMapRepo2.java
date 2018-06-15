@@ -30,11 +30,11 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
-@Deprecated
-// Use StringMapRepo instead.
-public class StringMapRepo implements MapRepo<String, String> {
+public class StringMapRepo2 implements MapRepo<String, String> {
 
     private static final String NULL_INDICATOR = "NULL";
+    private static final String TOKEN = "TOKEN-990232389453584331321-TOKEN";
+    private static final String TOKEN_OLD = "-";
 
     private final Map<String, String> mStorage = new HashMap<>();
 
@@ -49,7 +49,7 @@ public class StringMapRepo implements MapRepo<String, String> {
 
     private final Object sync = new Object();
 
-    StringMapRepo(File file, Handler handler, ExecutorService service) {
+    StringMapRepo2(File file, Handler handler, ExecutorService service) {
         this.mFile = new AtomicFile(file);
         this.mExe = service;
         this.mHandler = handler;
@@ -62,7 +62,7 @@ public class StringMapRepo implements MapRepo<String, String> {
             }
         }
 
-        XposedLog.debug("StringMapRepo: " + name() + ", comes up");
+        XposedLog.debug("StringMapRepo2: " + name() + ", comes up");
 
         reload();
     }
@@ -93,11 +93,16 @@ public class StringMapRepo implements MapRepo<String, String> {
                 String line;
                 while ((line = br.readLine()) != null) {
                     // XposedLog.verbose("Read of line: " + line);
-                    StringTokenizer t = new StringTokenizer(line, "-");
+                    StringTokenizer t = new StringTokenizer(line, TOKEN);
                     int c = t.countTokens();
                     if (c != 2) {
-                        XposedLog.wtf("Found invalid line: " + line);
-                        continue;
+                        // Try parse with old one.
+                        t = new StringTokenizer(line, TOKEN_OLD);
+                        c = t.countTokens();
+                        if (c != 2) {
+                            XposedLog.wtf("Found invalid line: " + line);
+                            continue;
+                        }
                     }
                     String key = t.nextToken();
                     if (key == null || key.trim().length() == 0) {
@@ -138,9 +143,9 @@ public class StringMapRepo implements MapRepo<String, String> {
         synchronized (sync) {
             try {
 
-                // A-JSON
-                // B-JSON
-                // C-JSON
+                // A TOKEN JSON
+                // B TOKEN JSON
+                // C TOKEN JSON
                 Map<String, String> m = new HashMap<>(mStorage);
 
                 FileOutputStream fos = mFile.startWrite();
@@ -149,7 +154,7 @@ public class StringMapRepo implements MapRepo<String, String> {
                 for (String key : m.keySet()) {
                     String value = m.get(key);
                     // Use NULL_INDICATOR to indicate null value.
-                    printWriter.println(key + "-" + (value == null ? NULL_INDICATOR : value));
+                    printWriter.println(key + TOKEN + (value == null ? NULL_INDICATOR : value));
                 }
 
                 printWriter.flush();

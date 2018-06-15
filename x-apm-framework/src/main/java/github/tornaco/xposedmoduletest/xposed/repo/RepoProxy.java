@@ -209,13 +209,18 @@ public class RepoProxy {
 
         File dir = getBaseDataDir();
 
-        appFocused = new StringMapRepo(new File(dir, "app_focused"), h, io);
-        appUnFocused = new StringMapRepo(new File(dir, "app_unfocused"), h, io);
-        componentReplacement = new StringMapRepo(new File(dir, "component_replacement"), h, io);
-        systemPropProfiles = new StringMapRepo(new File(dir, "system_prop_profiles"), h, io);
-        appSettingsTemplate = new StringMapRepo(new File(dir, "app_settings_template"), h, io);
-        appOpsTemplate = new StringMapRepo(new File(dir, "app_ops_template"), h, io);
-        js = new StringMapRepo(new File(dir, "js"), h, io);
+        componentReplacement = new StringMapRepo2(new File(dir, "component_replacement"), h, io);
+        appSettingsTemplate = new StringMapRepo2(new File(dir, "app_settings_template"), h, io);
+
+
+        appFocused = new StringMapRepo2(new File(dir, "app_focused"), h, io);
+        appUnFocused = new StringMapRepo2(new File(dir, "app_unfocused"), h, io);
+
+        systemPropProfiles = new StringMapRepo2(new File(dir, "system_prop_profiles"), h, io);
+
+        appOpsTemplate = new StringMapRepo2(new File(dir, "app_ops_template"), h, io);
+
+        js = new StringMapRepo2(new File(dir, "js"), h, io);
     }
 
     private static final SetRepo<String> STRING_SET_NULL_HACK = new SetRepo<String>() {
