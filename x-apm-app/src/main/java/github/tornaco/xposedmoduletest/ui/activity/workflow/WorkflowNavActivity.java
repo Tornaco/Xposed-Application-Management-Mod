@@ -6,10 +6,20 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.SwitchCompat;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
+import com.google.common.io.Closer;
+
+import org.newstand.logger.Logger;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
@@ -19,7 +29,9 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.bean.JavaScript;
+import lombok.Getter;
 import si.virag.fuzzydateformatter.FuzzyDateTimeFormatter;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
@@ -49,7 +61,7 @@ public class WorkflowNavActivity extends CommonPackageInfoListActivity
 
     @Override
     protected void onRequestPick() {
-
+        WorkflowEditorActivity.start(getContext(), null);
     }
 
     @Override
@@ -81,6 +93,21 @@ public class WorkflowNavActivity extends CommonPackageInfoListActivity
                         .fallback(R.mipmap.ic_launcher_round)
                         .transition(withCrossFade())
                         .into(holder.getCheckableImageView());
+
+                WorkflowItemViewHolder workflowItemViewHolder = (WorkflowItemViewHolder) holder;
+                workflowItemViewHolder.getRunView().setOnClickListener(v -> XAPMManager.get().evaluateJsString(new String[]{js.getScript()}));
+            }
+
+            @Override
+            protected CommonViewHolder onCreateViewHolder(View root) {
+                return new WorkflowItemViewHolder(root);
+            }
+
+            @Override
+            protected void onItemClickNoneChoiceMode(CommonPackageInfo commonPackageInfo, View view) {
+                super.onItemClickNoneChoiceMode(commonPackageInfo, view);
+                JavaScript js = (JavaScript) commonPackageInfo.getArgs();
+                WorkflowEditorActivity.start(getContext(), js);
             }
 
             @Override
@@ -94,6 +121,34 @@ public class WorkflowNavActivity extends CommonPackageInfoListActivity
     protected List<CommonPackageInfo> performLoading() {
         // Wrap to common package info.
         List<JavaScript> javaScripts = JsLoader.Impl.create(getContext()).loadAll();
+
+        if (javaScripts.size() == 0) {
+            JavaScript example = new JavaScript();
+
+            Closer closer = Closer.create();
+            try {
+                InputStream is = getAssets().open("js/demo.js");
+                StringBuilder rawScript = new StringBuilder();
+                BufferedReader br = closer.register(new BufferedReader(new InputStreamReader(is)));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    rawScript.append(line).append("\n");
+                }
+
+                Logger.d(rawScript);
+
+                example.setScript(rawScript.toString());
+                example.setAlias("EXAMPLE");
+                example.setCreatedAt(System.currentTimeMillis());
+                example.setId(UUID.randomUUID().toString());
+
+                javaScripts.add(example);
+            } catch (IOException ignored) {
+            } finally {
+                github.tornaco.xposedmoduletest.xposed.util.Closer.closeQuietly(closer);
+            }
+        }
+
         List<CommonPackageInfo> res = new ArrayList<>(javaScripts.size());
         for (JavaScript js : javaScripts) {
             CommonPackageInfo c = new CommonPackageInfo();
@@ -118,5 +173,15 @@ public class WorkflowNavActivity extends CommonPackageInfoListActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(item);
+    }
+
+    @Getter
+    class WorkflowItemViewHolder extends CommonPackageInfoAdapter.CommonViewHolder {
+        private View runView;
+
+        WorkflowItemViewHolder(View itemView) {
+            super(itemView);
+            runView = itemView.findViewById(R.id.btn_run);
+        }
     }
 }

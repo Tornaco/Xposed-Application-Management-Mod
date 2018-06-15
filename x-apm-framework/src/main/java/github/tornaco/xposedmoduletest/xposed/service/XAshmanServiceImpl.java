@@ -3688,8 +3688,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     public void saveJs(JavaScript js) {
         enforceCallingPermissions();
         Preconditions.checkNotNull(js);
-        boolean exist = RepoProxy.getProxy().getJs().hasNoneNullValue(js.getId());
-        Preconditions.checkArgument(!exist, "Dup id");
+        // boolean exist = RepoProxy.getProxy().getJs().hasNoneNullValue(js.getId());
         String json = js.toJson();
         RepoProxy.getProxy().getJs().put(js.getId(), json);
     }

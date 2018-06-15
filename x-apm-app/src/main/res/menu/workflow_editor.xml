@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <item
+        android:id="@+id/action_save"
+        android:icon="@drawable/ic_check_tint_24dp"
+        android:title="@string/title_workflow_save"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+
+    <item
+        android:id="@+id/action_run"
+        android:icon="@drawable/ic_play_arrow_tint_24dp"
+        android:title="@string/title_workflow_run"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+
+</menu>
