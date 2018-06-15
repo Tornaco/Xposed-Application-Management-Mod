@@ -122,7 +122,6 @@ dependencies {
     implementation project(':third-party:dateformatter')
 
     implementation files('libs/flyme_fingerprint.jar')
-    // compile files('libs/flymeapi.jar')
 
     // debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.4'
     // releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'

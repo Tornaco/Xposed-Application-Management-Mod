@@ -87,7 +87,7 @@ public class XAPMApplication extends MultiDexApplication {
                     public void onActivityResumed(Activity activity) {
                         super.onActivityResumed(activity);
 
-                        // This is the main activity.
+                        // This is the run activity.
                         if (activity instanceof NavigatorActivityBottomNav) {
                             cacheRunningServices();
                             cacheInstalledApps();

@@ -19,6 +19,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.PackageSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.bean.SystemPropProfile;
 import github.tornaco.xposedmoduletest.xposed.bean.SystemProp;
+import github.tornaco.xposedmoduletest.xposed.bean.JavaScript;
 
 import android.content.ComponentName;
 import java.util.Map;
@@ -522,4 +523,11 @@ interface IAshmanService {
 
     // Reboot action.
     void showRebootNeededNotification(in String why);
+
+    // JS.
+    void evaluateJsString(in String[] args);
+    // JS store.
+    JavaScript getSavedJs(String id);
+    List<JavaScript> getSavedJses();
+    void saveJs(in JavaScript js);
 }

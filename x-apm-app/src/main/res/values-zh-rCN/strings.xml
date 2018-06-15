@@ -656,4 +656,6 @@
     <string name="title_long_screen_shot">滚动截图</string>
     <string name="title_copy_pkg_name">复制包名</string>
     <string name="title_click_to_continue">点击此处继续</string>
+    <string name="title_workflow">Workflow</string>
+    <string name="summary_workflow">Workflow</string>
 </resources>

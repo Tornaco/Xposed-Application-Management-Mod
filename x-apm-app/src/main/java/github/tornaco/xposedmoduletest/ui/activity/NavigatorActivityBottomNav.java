@@ -89,6 +89,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.PolicySettings;
 import github.tornaco.xposedmoduletest.ui.tiles.app.ShowFocusedActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.StyleSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.prop.PackageInstallVerify;
+import github.tornaco.xposedmoduletest.ui.tiles.workflow.Workflow;
 import github.tornaco.xposedmoduletest.ui.widget.BottomNavigationViewHelper;
 import github.tornaco.xposedmoduletest.ui.widget.ToastManager;
 import github.tornaco.xposedmoduletest.util.EmojiUtil;
@@ -1049,6 +1050,8 @@ public class NavigatorActivityBottomNav
             if (XAPMApplication.isGMSSupported()) {
                 exp.addTile(new PushMessageHandler(getActivity()));
             }
+
+            exp.addTile(new Workflow(getActivity()));
 
             if (sec.getTilesCount() > 0) categories.add(sec);
             if (rest.getTilesCount() > 0) categories.add(rest);

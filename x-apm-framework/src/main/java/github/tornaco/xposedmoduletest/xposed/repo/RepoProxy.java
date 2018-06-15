@@ -73,7 +73,8 @@ public class RepoProxy {
             wakeup_on_notification;
 
     private MapRepo<String, String> componentReplacement, appFocused, appUnFocused, systemPropProfiles,
-            appSettingsTemplate, appOpsTemplate;
+            appSettingsTemplate, appOpsTemplate,
+            js;
 
     private RepoProxy() {
 
@@ -214,6 +215,7 @@ public class RepoProxy {
         systemPropProfiles = new StringMapRepo(new File(dir, "system_prop_profiles"), h, io);
         appSettingsTemplate = new StringMapRepo(new File(dir, "app_settings_template"), h, io);
         appOpsTemplate = new StringMapRepo(new File(dir, "app_ops_template"), h, io);
+        js = new StringMapRepo(new File(dir, "js"), h, io);
     }
 
     private static final SetRepo<String> STRING_SET_NULL_HACK = new SetRepo<String>() {
@@ -529,6 +531,10 @@ public class RepoProxy {
         return systemPropProfiles == null ? MAP_SET_NULL_HACK : systemPropProfiles;
     }
 
+    public MapRepo<String, String> getJs() {
+        return js == null ? MAP_SET_NULL_HACK : js;
+    }
+
     public MapRepo<String, String> getAppOpsTemplate() {
         return appOpsTemplate == null ? MAP_SET_NULL_HACK : appOpsTemplate;
     }
@@ -580,6 +586,7 @@ public class RepoProxy {
         getAppUnFocused().clear();
         getComponentReplacement().clear();
         getSystemPropProfiles().clear();
+        getJs().clear();
         getAppOpsTemplate().clear();
         getAppSettingsTemplate().clear();
 

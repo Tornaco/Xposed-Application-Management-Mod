@@ -13,6 +13,7 @@ import dev.nick.eventbus.utils.ReflectionUtils;
 import dev.nick.tiles.tile.Tile;
 import github.tornaco.xposedmoduletest.ui.tiles.prop.Disguise;
 import github.tornaco.xposedmoduletest.ui.tiles.prop.PackageInstallVerify;
+import github.tornaco.xposedmoduletest.ui.tiles.workflow.Workflow;
 
 /**
  * Created by Tornaco on 2018/5/3 13:42.
@@ -42,6 +43,7 @@ public class TileManager {
         CLAZZ_MAP.put(getTileKey(Doze.class), Doze.class);
         CLAZZ_MAP.put(getTileKey(PushMessageHandler.class), PushMessageHandler.class);
         CLAZZ_MAP.put(getTileKey(NFManager.class), NFManager.class);
+        CLAZZ_MAP.put(getTileKey(Workflow.class), Workflow.class);
 
         // Hiddens.
         CLAZZ_MAP.put(getTileKey(Resident.class), Resident.class);

@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.service.notification.StatusBarNotification;
 import android.view.Display;
@@ -32,6 +33,7 @@ import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
+import github.tornaco.xposedmoduletest.xposed.bean.JavaScript;
 import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 import github.tornaco.xposedmoduletest.xposed.bean.OpsSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.SystemPropProfile;
@@ -225,6 +227,26 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
 
     @Override
     public void showRebootNeededNotification(String why) {
+
+    }
+
+    @Override
+    public void evaluateJsString(String[] args) {
+
+    }
+
+    @Override
+    public JavaScript getSavedJs(String id) {
+        return null;
+    }
+
+    @Override
+    public List<JavaScript> getSavedJses() {
+        return null;
+    }
+
+    @Override
+    public void saveJs(JavaScript js) {
 
     }
 
