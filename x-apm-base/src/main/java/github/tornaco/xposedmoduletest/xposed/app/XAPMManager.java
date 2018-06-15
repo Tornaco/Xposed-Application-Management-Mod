@@ -31,6 +31,7 @@ import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
+import github.tornaco.xposedmoduletest.xposed.bean.JavaScript;
 import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 import github.tornaco.xposedmoduletest.xposed.bean.OpsSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.SystemPropProfile;
@@ -2640,7 +2641,44 @@ public class XAPMManager {
             mService.showRebootNeededNotification(why);
         } catch (Exception e) {
             handleException(e);
+        }
+    }
 
+    public void evaluateJsString(String[] args) {
+        ensureService();
+        try {
+            mService.evaluateJsString(args);
+        } catch (Exception e) {
+            handleException(e);
+        }
+    }
+
+    public JavaScript getSavedJs(String id) {
+        ensureService();
+        try {
+            return mService.getSavedJs(id);
+        } catch (Exception e) {
+            handleException(e);
+            return null;
+        }
+    }
+
+    public List<JavaScript> getSavedJses() {
+        ensureService();
+        try {
+            return mService.getSavedJses();
+        } catch (Exception e) {
+            handleException(e);
+            return new ArrayList<>(0);
+        }
+    }
+
+    public void saveJs(JavaScript js) {
+        ensureService();
+        try {
+            mService.saveJs(js);
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 

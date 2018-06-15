@@ -132,7 +132,7 @@ public class DeviceIdleControllerProxy {
         XposedLog.verbose("startMonitoringMotionLocked");
         try {
             XposedHelpers.callMethod(deviceIdleController, "startMonitoringMotionLocked");
-        } catch (Exception e) {
+        } catch (Throwable e) {
             XposedLog.wtf("startMonitoringMotionLocked call fail: " + Log.getStackTraceString(e));
         }
     }
@@ -141,7 +141,7 @@ public class DeviceIdleControllerProxy {
         XposedLog.verbose("stopMonitoringMotionLocked");
         try {
             XposedHelpers.callMethod(deviceIdleController, "stopMonitoringMotionLocked");
-        } catch (Exception e) {
+        } catch (Throwable e) {
             XposedLog.wtf("stopMonitoringMotionLocked call fail: " + Log.getStackTraceString(e));
         }
     }
@@ -149,7 +149,7 @@ public class DeviceIdleControllerProxy {
     public void setForceIdle(boolean force) {
         try {
             XposedHelpers.setObjectField(deviceIdleController, "mForceIdle", force);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             XposedLog.wtf("mForceIdle call fail: " + Log.getStackTraceString(e));
         }
     }
@@ -157,7 +157,7 @@ public class DeviceIdleControllerProxy {
     public void becomeInactiveIfAppropriateLocked() {
         try {
             XposedHelpers.callMethod(deviceIdleController, "becomeInactiveIfAppropriateLocked");
-        } catch (Exception e) {
+        } catch (Throwable e) {
             XposedLog.wtf("becameInactiveIfAppropriateLocked call fail: " + Log.getStackTraceString(e));
         }
     }
@@ -166,7 +166,7 @@ public class DeviceIdleControllerProxy {
         try {
             XposedHelpers.setObjectField(deviceIdleController, "mDeepEnabled", idle);
             XposedHelpers.setObjectField(deviceIdleController, "mLightEnabled", idle);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             XposedLog.wtf("mDeepEnabled call fail: " + Log.getStackTraceString(e));
         }
     }
@@ -174,7 +174,7 @@ public class DeviceIdleControllerProxy {
     public void exitForceIdleLocked() {
         try {
             XposedHelpers.callMethod(deviceIdleController, "exitForceIdleLocked");
-        } catch (Exception e) {
+        } catch (Throwable e) {
             XposedLog.wtf("exitForceIdleLocked call fail: " + Log.getStackTraceString(e));
         }
     }

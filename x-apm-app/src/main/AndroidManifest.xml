@@ -2,7 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="github.tornaco.xposedmoduletest">
 
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
     <uses-permission android:name="com.fingerprints.service.ACCESS_FINGERPRINT_MANAGER" />
@@ -184,6 +188,10 @@
         <activity
             android:name=".ui.activity.app.PrivacyAppListPickerActivity"
             android:label="@string/title_picker"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.workflow.WorkflowNavActivity"
+            android:label="@string/title_workflow"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.prop.PropNavActivity"
@@ -470,9 +478,9 @@
 
         <service
             android:name=".service.ScreenShotQuickTileService"
+            android:enabled="false"
             android:icon="@drawable/ic_image_black_24dp"
             android:label="@string/title_long_screen_shot"
-            android:enabled="false"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <meta-data
                 android:name="android.service.quicksettings.ACTIVE_TILE"

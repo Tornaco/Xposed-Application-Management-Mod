@@ -123,6 +123,7 @@ import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
+import github.tornaco.xposedmoduletest.xposed.bean.JavaScript;
 import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
 import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 import github.tornaco.xposedmoduletest.xposed.bean.OpsSettings;
@@ -167,6 +168,7 @@ import github.tornaco.xposedmoduletest.xposed.service.pm.PackageInstallerManager
 import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.power.PowerManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.provider.XAPMServerSettings;
+import github.tornaco.xposedmoduletest.xposed.service.rhino.ScriptRunner;
 import github.tornaco.xposedmoduletest.xposed.service.rule.Rule;
 import github.tornaco.xposedmoduletest.xposed.service.rule.RuleParser;
 import github.tornaco.xposedmoduletest.xposed.service.shell.AshShellCommand;
@@ -3628,12 +3630,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    @BinderCall
     public void executeInputCommand(String[] args) {
         enforceCallingPermissions();
         wrapCallingIdetUnCaught(new ErrorCatchRunnable(() -> Input.main(args), "executeInputCommand: " + Arrays.toString(args)));
     }
 
     @Override
+    @BinderCall
     public void takeLongScreenShot() {
         enforceCallingPermissions();
         LocalScreenShot ls = new LocalScreenShot(getContext());
@@ -3647,6 +3651,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    @BinderCall
     public void showRebootNeededNotification(String why) {
         XposedLog.verbose("RebootNotification show: " + why);
         enforceCallingPermissions();
@@ -3654,6 +3659,62 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             createDefaultNotificationChannelForO();
             mRebootNotification.show(NOTIFICATION_CHANNEL_ID_DEFAULT, UniqueIdFactory.getIdByTag("Reboot Notification"));
         });
+    }
+
+    @Override
+    @BinderCall
+    public void evaluateJsString(String[] args) {
+        enforceCallingPermissions();
+        mainHandler.post(new ErrorCatchRunnable(() -> {
+            try {
+                ScriptRunner.run(getContext(), args);
+            } catch (Throwable e) {
+                XposedLog.wtf("Error run js: \n" + Log.getStackTraceString(e));
+            }
+        }, "js"));
+    }
+
+    @Override
+    @BinderCall
+    public JavaScript getSavedJs(String id) {
+        enforceCallingPermissions();
+        boolean exist = RepoProxy.getProxy().getJs().hasNoneNullValue(id);
+        if (!exist) return null;
+        return JavaScript.fromJson(RepoProxy.getProxy().getJs().get(id));
+    }
+
+    @Override
+    @BinderCall
+    public void saveJs(JavaScript js) {
+        enforceCallingPermissions();
+        Preconditions.checkNotNull(js);
+        boolean exist = RepoProxy.getProxy().getJs().hasNoneNullValue(js.getId());
+        Preconditions.checkArgument(!exist, "Dup id");
+        String json = js.toJson();
+        RepoProxy.getProxy().getJs().put(js.getId(), json);
+    }
+
+    @Override
+    @BinderCall
+    public List<JavaScript> getSavedJses() {
+        enforceCallingPermissions();
+        List<JavaScript> res = new ArrayList<>();
+        Set<String> ids = RepoProxy.getProxy().getJs().keySet();
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("getSavedJses: " + Arrays.toString(ids.toArray()));
+        }
+        for (String id : ids) {
+            if (id != null) {
+                boolean exist = RepoProxy.getProxy().getJs().hasNoneNullValue(id);
+                if (exist) {
+                    res.add(JavaScript.fromJson(RepoProxy.getProxy().getJs().get(id)));
+                }
+            }
+        }
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("getSavedJses return: " + Arrays.toString(res.toArray()));
+        }
+        return res;
     }
 
     @Override

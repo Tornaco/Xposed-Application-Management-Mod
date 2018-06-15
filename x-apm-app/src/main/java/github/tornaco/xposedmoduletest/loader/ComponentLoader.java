@@ -144,7 +144,7 @@ public interface ComponentLoader {
                     res.add(packageInfo);
                 }
 
-                if (BuildConfig.DEBUG) {
+                if (false && BuildConfig.DEBUG) {
                     Logger.d("loadInstalledApps: " + packageInfo + ", gcm support: " + packageInfo.isGCMSupport());
                 }
             }

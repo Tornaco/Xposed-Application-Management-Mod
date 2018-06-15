@@ -444,7 +444,7 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
         if (mIsLoading.get()) return;
         if (!hasRecyclerView()) return;
 
-        if (BuildConfig.DEBUG) {
+        if (false && BuildConfig.DEBUG) {
             Logger.w("startloading@" + Logger.getStackTraceString(new Throwable()));
         }
 
