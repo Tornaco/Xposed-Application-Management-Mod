@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -28,7 +29,8 @@ public class ActionTextTileView extends TileView {
 
     @Override
     protected void onBindActionView(RelativeLayout container) {
-        final TextView textView = new TextView(getContext());
+        final TextView textView = (TextView) LayoutInflater.from(getContext())
+                .inflate(R.layout.action_text_view, container, false);
         textView.setSoundEffectsEnabled(false);
         textView.setText(getActionText(getContext()));
 
