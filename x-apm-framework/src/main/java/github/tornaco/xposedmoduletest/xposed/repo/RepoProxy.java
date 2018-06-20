@@ -166,42 +166,99 @@ public class RepoProxy {
 
         File dir = getBaseDataDir();
 
-        boots = new StringSetRepo(new File(dir, "boots"), h, io);
-        starts = new StringSetRepo(new File(dir, "starts"), h, io);
-        start_rules = new StringSetRepo(new File(dir, "start_rules"), h, io);
-        ifw_activity = new StringSetRepo(new File(dir, "ifw_activity"), h, io);
-        ifw_broadcast = new StringSetRepo(new File(dir, "ifw_broadcast"), h, io);
-        ifw_service = new StringSetRepo(new File(dir, "ifw_service"), h, io);
-        lks = new StringSetRepo(new File(dir, "lks"), h, io);
-        rfks = new StringSetRepo(new File(dir, "rfks"), h, io);
-        trks = new StringSetRepo(new File(dir, "trks"), h, io);
-        comps = new StringSetRepo(new File(dir, "comps"), h, io);
-        perms = new StringSetRepo(new File(dir, "perms"), h, io);
-        privacy = new StringSetRepo(new File(dir, "privacy"), h, io);
-        props = new StringSetRepo(new File(dir, "props"), h, io);
-        greens = new StringSetRepo(new File(dir, "greens"), h, io);
-        blurs = new StringSetRepo(new File(dir, "blurs"), h, io);
-        locks = new StringSetRepo(new File(dir, "locks"), h, io);
-        lock_white_list_activity = new StringSetRepo(new File(dir, "lock_white_list_activity"), h, io);
-        uninstall = new StringSetRepo(new File(dir, "uninstall"), h, io);
-        lazy = new StringSetRepo(new File(dir, "lazy"), h, io);
-        lazy_rules = new StringSetRepo(new File(dir, "lazy_rules"), h, io);
-        pm_rules = new StringSetRepo(new File(dir, "pm_rules"), h, io);
-        pending_disable_apps = new StringSetRepo(new File(dir, "pending_disable_apps"), h, io);
-        pending_disable_apps_tr = new StringSetRepo(new File(dir, "pending_disable_apps_tr"), h, io);
-        resident = new StringSetRepo(new File(dir, "resident"), h, io);
-        doze_whitelist_adding = new StringSetRepo(new File(dir, "doze_whitelist_adding"), h, io);
-        doze_whitelist_removal = new StringSetRepo(new File(dir, "doze_whitelist_removal"), h, io);
-        wakeup_on_notification = new StringSetRepo(new File(dir, "wakeup_on_notification"), h, io);
+        boots = new StringSetRepo2(new File(dir, "boots.xml"), h, io);
+        migrateSetRepo(h, "boots", boots);
+
+        starts = new StringSetRepo2(new File(dir, "starts.xml"), h, io);
+        migrateSetRepo(h, "starts", starts);
+
+        start_rules = new StringSetRepo2(new File(dir, "start_rules.xml"), h, io);
+        migrateSetRepo(h, "start_rules", start_rules);
+
+        ifw_activity = new StringSetRepo2(new File(dir, "ifw_activity.xml"), h, io);
+        migrateSetRepo(h, "ifw_activity", ifw_activity);
+
+        ifw_broadcast = new StringSetRepo2(new File(dir, "ifw_broadcast.xml"), h, io);
+        migrateSetRepo(h, "ifw_broadcast", ifw_broadcast);
+
+        ifw_service = new StringSetRepo2(new File(dir, "ifw_service.xml"), h, io);
+        migrateSetRepo(h, "ifw_service", ifw_service);
+
+        lks = new StringSetRepo2(new File(dir, "lks.xml"), h, io);
+        migrateSetRepo(h, "lks", lks);
+
+        rfks = new StringSetRepo2(new File(dir, "rfks.xml"), h, io);
+        migrateSetRepo(h, "rfks", rfks);
+
+        trks = new StringSetRepo2(new File(dir, "trks.xml"), h, io);
+        migrateSetRepo(h, "trks", trks);
+
+        comps = new StringSetRepo2(new File(dir, "comps.xml"), h, io);
+        migrateSetRepo(h, "comps", comps);
+
+        perms = new StringSetRepo2(new File(dir, "perms.xml"), h, io);
+        migrateSetRepo(h, "perms", perms);
+
+        privacy = new StringSetRepo2(new File(dir, "privacy.xml"), h, io);
+        migrateSetRepo(h, "privacy", privacy);
+
+        props = new StringSetRepo2(new File(dir, "props.xml"), h, io);
+        migrateSetRepo(h, "props", props);
+
+        greens = new StringSetRepo2(new File(dir, "greens.xml"), h, io);
+        migrateSetRepo(h, "greens", greens);
+
+        blurs = new StringSetRepo2(new File(dir, "blurs.xml"), h, io);
+        migrateSetRepo(h, "blurs", blurs);
+
+        locks = new StringSetRepo2(new File(dir, "locks.xml"), h, io);
+        migrateSetRepo(h, "locks", locks);
+
+        lock_white_list_activity = new StringSetRepo2(new File(dir, "lock_white_list_activity.xml"), h, io);
+        migrateSetRepo(h, "lock_white_list_activity", lock_white_list_activity);
+
+        uninstall = new StringSetRepo2(new File(dir, "uninstall.xml"), h, io);
+        migrateSetRepo(h, "uninstall", uninstall);
+
+        lazy = new StringSetRepo2(new File(dir, "lazy.xml"), h, io);
+        migrateSetRepo(h, "lazy", lazy);
+
+        lazy_rules = new StringSetRepo2(new File(dir, "lazy_rules.xml"), h, io);
+        migrateSetRepo(h, "lazy_rules", lazy_rules);
+
+        pm_rules = new StringSetRepo2(new File(dir, "pm_rules.xml"), h, io);
+        migrateSetRepo(h, "pm_rules", pm_rules);
+
+        pending_disable_apps = new StringSetRepo2(new File(dir, "pending_disable_apps.xml"), h, io);
+        migrateSetRepo(h, "pending_disable_apps", pending_disable_apps);
+
+        pending_disable_apps_tr = new StringSetRepo2(new File(dir, "pending_disable_apps_tr.xml"), h, io);
+        migrateSetRepo(h, "pending_disable_apps_tr", pending_disable_apps_tr);
+
+        resident = new StringSetRepo2(new File(dir, "resident.xml"), h, io);
+        migrateSetRepo(h, "resident", resident);
+
+        doze_whitelist_adding = new StringSetRepo2(new File(dir, "doze_whitelist_adding.xml"), h, io);
+        migrateSetRepo(h, "doze_whitelist_adding", doze_whitelist_adding);
+
+        doze_whitelist_removal = new StringSetRepo2(new File(dir, "doze_whitelist_removal.xml"), h, io);
+        migrateSetRepo(h, "doze_whitelist_removal", doze_whitelist_removal);
+
+        wakeup_on_notification = new StringSetRepo2(new File(dir, "wakeup_on_notification.xml"), h, io);
+        migrateSetRepo(h, "wakeup_on_notification", wakeup_on_notification);
 
         // Prevent some system app being added to whitelist.
-        white_list_hooks_dynamic = new StringSetRepo(new File(dir, "white_list_hooks_dynamic"), h, io);
+        white_list_hooks_dynamic = new StringSetRepo2(new File(dir, "white_list_hooks_dynamic.xml"), h, io);
+        migrateSetRepo(h, "white_list_hooks_dynamic", white_list_hooks_dynamic);
 
         // FIXME java.io.FileNotFoundException:
         // /data/system/tor/wifi_restrict: open failed: EISDIR (Is a directory)
         if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_FIREWALL)) {
-            data_restrict = new StringSetRepo(new File(dir, "data_restricts_fix"), h, io);
-            wifi_restrict = new StringSetRepo(new File(dir, "wifi_restricts_fix"), h, io);
+            data_restrict = new StringSetRepo2(new File(dir, "data_restricts_fix.xml"), h, io);
+            wifi_restrict = new StringSetRepo2(new File(dir, "wifi_restricts_fix.xml"), h, io);
+
+            migrateSetRepo(h, "data_restricts_fix", data_restrict);
+            migrateSetRepo(h, "wifi_restricts_fix", wifi_restrict);
         }
     }
 
@@ -249,6 +306,22 @@ public class RepoProxy {
         }
     }
 
+    private void migrateSetRepo(Handler h, String name, SetRepo<String> dest) {
+        File dir = getBaseDataDir();
+        File file = new File(dir, name);
+        if (file.exists()) {
+            try {
+                XposedLog.wtf("Migrating " + name);
+                StringSetRepo repo = new StringSetRepo(file, h, null);
+                dest.addAll(repo.getAll());
+            } catch (Throwable e) {
+                XposedLog.wtf("Fail migrateSetRepo " + Log.getStackTraceString(e));
+            } finally {
+                BlackHole.eat(file.delete());
+            }
+        }
+    }
+
     private static final SetRepo<String> STRING_SET_NULL_HACK = new SetRepo<String>() {
         @Override
         public Set<String> getAll() {
@@ -284,6 +357,12 @@ public class RepoProxy {
         @Override
         public boolean add(String s) {
             XposedLog.verbose("add element on NULL-HACK");
+            return false;
+        }
+
+        @Override
+        public boolean addAll(Collection<? extends String> c) {
+            XposedLog.verbose("addAll element on NULL-HACK");
             return false;
         }
 

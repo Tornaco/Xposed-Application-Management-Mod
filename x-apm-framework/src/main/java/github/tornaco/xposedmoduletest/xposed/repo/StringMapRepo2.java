@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 import android.util.AtomicFile;
 import android.util.Log;
 
-import com.android.internal.util.XmlUtils;
 import com.google.common.io.Files;
 
 import java.io.File;
@@ -19,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
+import github.tornaco.xposedmoduletest.util.XmlUtils;
 import github.tornaco.xposedmoduletest.xposed.util.Closer;
 import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
