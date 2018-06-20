@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.repo;
 
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -20,6 +21,8 @@ public interface SetRepo<T> {
     void flushAsync();
 
     boolean add(T t);
+
+    boolean addAll(Collection<? extends T> c);
 
     boolean remove(T t);
 

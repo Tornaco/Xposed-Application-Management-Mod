@@ -6,28 +6,26 @@ import android.util.Log;
 
 import com.google.common.io.Files;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
-import github.tornaco.xposedmoduletest.xposed.util.Closer;
+import github.tornaco.xposedmoduletest.util.XmlUtils;
 import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
+import lombok.Cleanup;
 
 /**
  * Created by guohao4 on 2017/12/11.
  * Email: Tornaco@163.com
  */
-@Deprecated
-// Use StringSetRepo2
-public class StringSetRepo implements SetRepo<String> {
+
+public class StringSetRepo2 implements SetRepo<String> {
 
     // Flush data too many times, may drain battery.
     private static final int FLUSH_DELAY = 5000;
@@ -38,7 +36,7 @@ public class StringSetRepo implements SetRepo<String> {
 
     private AtomicFile mFile;
 
-    public StringSetRepo(File file, Handler handler, ExecutorService service) {
+    public StringSetRepo2(File file, Handler handler, ExecutorService service) {
         this.mFile = new AtomicFile(file);
         this.mExe = service;
         this.mHandler = handler;
@@ -82,24 +80,12 @@ public class StringSetRepo implements SetRepo<String> {
                     mFile.delete();
                 }
 
-                // A
-                // B
-                // C
-                Set h = new HashSet();
-
-                InputStreamReader fr = new InputStreamReader(mFile.openRead());
-                BufferedReader br = new BufferedReader(fr);
-                String line;
-                while ((line = br.readLine()) != null) {
-                    // XposedLog.verbose("Read of line: " + line);
-                    h.add(line.trim());
-                }
-                Closer.closeQuietly(fr);
-                Closer.closeQuietly(br);
-
+                @Cleanup
+                InputStream inputStream = mFile.openRead();
+                Set h = new HashSet(XmlUtils.readSetXml(inputStream));
                 mStorage.addAll(h);
 
-            } catch (IOException e) {
+            } catch (Throwable e) {
                 XposedLog.wtf("Fail reload@IOException: " + mFile + "\n" + Log.getStackTraceString(e));
             }
         }
@@ -108,12 +94,7 @@ public class StringSetRepo implements SetRepo<String> {
 
     @Override
     public void reloadAsync() {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                reload();
-            }
-        };
+        Runnable r = this::reload;
         if (mExe == null) {
             new Thread(r).start();
         } else {
@@ -126,43 +107,20 @@ public class StringSetRepo implements SetRepo<String> {
         XposedLog.verbose("flush");
         synchronized (sync) {
             try {
-
-                // com.android.mms
-                // com.android.dialer
-                Set<String> out = new HashSet<>();
-                out.addAll(mStorage);
-
+                Set<String> out = new HashSet<>(mStorage);
+                @Cleanup
                 FileOutputStream fos = mFile.startWrite();
-                PrintWriter printWriter = new PrintWriter(fos);
-
-                for (String line : out) {
-                    printWriter.println(line);
-                }
-
-                printWriter.flush();
+                XmlUtils.writeSetXml(out, fos);
                 mFile.finishWrite(fos);
-                Closer.closeQuietly(printWriter);
-
-
-            } catch (IOException e) {
+            } catch (Throwable e) {
                 XposedLog.wtf("Fail flush@IOException: " + mFile + "\n" + Log.getStackTraceString(e));
             }
         }
     }
 
-    private Runnable mFlusher = new Runnable() {
-        @Override
-        public void run() {
-            flush();
-        }
-    };
+    private Runnable mFlusher = this::flush;
 
-    private Runnable mFlushCaller = new Runnable() {
-        @Override
-        public void run() {
-            flushAsync();
-        }
-    };
+    private Runnable mFlushCaller = this::flushAsync;
 
     @Override
     public void flushAsync() {

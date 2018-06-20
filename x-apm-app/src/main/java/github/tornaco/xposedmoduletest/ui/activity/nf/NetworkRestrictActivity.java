@@ -48,7 +48,8 @@ import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.SpannableUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 
-public class NetworkRestrictActivity extends WithSearchActivity<NetworkRestrictionItem> implements AdapterView.OnItemSelectedListener {
+public class NetworkRestrictActivity extends WithSearchActivity<NetworkRestrictionItem>
+        implements AdapterView.OnItemSelectedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

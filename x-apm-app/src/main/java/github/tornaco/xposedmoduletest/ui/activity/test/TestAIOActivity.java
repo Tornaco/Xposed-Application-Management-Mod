@@ -154,6 +154,8 @@ public class TestAIOActivity extends BaseActivity {
                     .setAppInactive(BuildConfig.APPLICATION_ID, true, UserHandle.getCallingUserId());
         } catch (Throwable e) {
             Toast.makeText(getContext(), e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+        } finally {
+            TabTestActivity.start(getActivity());
         }
     }
 }
