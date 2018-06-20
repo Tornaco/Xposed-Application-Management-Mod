@@ -6,6 +6,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.UUID;
 
+import github.tornaco.xposedmoduletest.util.StopWatch;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.bean.JavaScript;
 
@@ -49,5 +50,18 @@ public class XAPMManagerTest {
 
         // execute!
         xapmManager.evaluateJsString(new String[]{js.getScript()});
+
+        StopWatch stopWatch = StopWatch.start("");
+        for (int i = 0; i < 1000; i++) {
+            js.setId(UUID.randomUUID().toString());
+            js.setAlias("JS-" + i);
+            xapmManager.saveJs(js);
+        }
+        stopWatch.split("Save JS");
+
+        javaScripts = xapmManager.getSavedJses();
+        stopWatch.split("Get JS");
+
+        stopWatch.stop();
     }
 }

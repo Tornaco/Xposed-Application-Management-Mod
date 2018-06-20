@@ -108,6 +108,7 @@ import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IBackupAgent;
 import github.tornaco.xposedmoduletest.IBooleanCallback1;
+import github.tornaco.xposedmoduletest.IJsEvaluateListener;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
 import github.tornaco.xposedmoduletest.IServiceControl;
@@ -3663,13 +3664,26 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     @BinderCall
-    public void evaluateJsString(String[] args) {
+    public void evaluateJsString(String[] args, IJsEvaluateListener listener) {
         enforceCallingPermissions();
         mainHandler.post(new ErrorCatchRunnable(() -> {
             try {
-                ScriptRunner.run(getContext(), args);
+                Object res = ScriptRunner.run(getContext(), args);
+                if (listener != null) {
+                    try {
+                        listener.onFinish(String.valueOf(res));
+                    } catch (Throwable ignored) {
+                    }
+                }
             } catch (Throwable e) {
-                XposedLog.wtf("Error run js: \n" + Log.getStackTraceString(e));
+                String errMessageTrace = e.toString() + "\n" + Log.getStackTraceString(e);
+                if (listener != null) {
+                    try {
+                        listener.onError(String.valueOf(e), errMessageTrace);
+                    } catch (Throwable ignored) {
+                    }
+                }
+                XposedLog.wtf("Error run js: " + errMessageTrace);
             }
         }, "js"));
     }

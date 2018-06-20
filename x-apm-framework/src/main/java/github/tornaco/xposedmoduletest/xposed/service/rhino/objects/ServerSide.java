@@ -2,6 +2,8 @@ package github.tornaco.xposedmoduletest.xposed.service.rhino.objects;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.view.KeyEvent;
@@ -144,7 +146,21 @@ public class ServerSide extends ImporterTopLevel {
 
     // AM START
     @FunctionProperties
-    public boolean startActivity() {
+    public boolean launchApp(String packageName) {
+        PackageManager pm = androidContext.getPackageManager();
+        Intent launchIntent = pm.getLaunchIntentForPackage(packageName);
+        if (launchIntent != null) {
+            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            androidContext.startActivity(launchIntent);
+        }
+        return true;
+    }
+
+    @FunctionProperties
+    public boolean startActivityWithAction(String action) {
+        Intent launchIntent = new Intent(action);
+        launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        androidContext.startActivity(launchIntent);
         return true;
     }
     // AM END.

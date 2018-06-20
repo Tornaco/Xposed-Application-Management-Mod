@@ -8,6 +8,7 @@ import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.ITaskRemoveListener;
 import github.tornaco.xposedmoduletest.IServiceControl;
 import github.tornaco.xposedmoduletest.IBackupAgent;
+import github.tornaco.xposedmoduletest.IJsEvaluateListener;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 
@@ -525,7 +526,7 @@ interface IAshmanService {
     void showRebootNeededNotification(in String why);
 
     // JS.
-    void evaluateJsString(in String[] args);
+    void evaluateJsString(in String[] args, in IJsEvaluateListener listener);
     // JS store.
     JavaScript getSavedJs(String id);
     List<JavaScript> getSavedJses();

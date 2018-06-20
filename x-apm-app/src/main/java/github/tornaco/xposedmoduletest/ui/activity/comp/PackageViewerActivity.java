@@ -71,10 +71,13 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
 
     private String mAppPackageToExport = null;
 
+    private String mRawTitle;
+
     @Override
     protected void initView() {
         super.initView();
         fab.hide();
+        mRawTitle = String.valueOf(getTitle());
     }
 
     @Override
@@ -153,6 +156,14 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                 .loadInstalledApps(mShowSystemApp, ComponentLoader.Sort.byState(), mFilterOption);
     }
 
+    @Override
+    protected void onLoadComplete(List<? extends CommonPackageInfo> data) {
+        super.onLoadComplete(data);
+        if (data != null) {
+            setTitle(mRawTitle + "\t" + data.size());
+        }
+    }
+
     private void showPopMenu(final CommonPackageInfo packageInfo, boolean isDisabledCurrently, View anchor) {
         PopupMenu popupMenu = new PopupMenu(PackageViewerActivity.this, anchor);
         popupMenu.inflate(R.menu.package_viewer_pop);
@@ -205,6 +216,16 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                     ClipboardManager cmb = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
                     if (cmb != null) {
                         cmb.setPrimaryClip(ClipData.newPlainText("pkg_name", packageInfo.getPkgName()));
+                    }
+                    break;
+                case R.id.action_config_copy_launch_intent:
+                    cmb = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                    if (cmb != null) {
+                        Intent launcherIntent = getPackageManager()
+                                .getLaunchIntentForPackage(packageInfo.getPkgName());
+                        if (launcherIntent != null) {
+                            cmb.setPrimaryClip(ClipData.newPlainText("launcher_intent", launcherIntent.toString()));
+                        }
                     }
                     break;
 

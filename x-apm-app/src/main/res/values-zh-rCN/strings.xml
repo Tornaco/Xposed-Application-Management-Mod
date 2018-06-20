@@ -657,10 +657,15 @@
     <string name="title_copy_pkg_name">复制包名</string>
     <string name="title_click_to_continue">点击此处继续</string>
     <string name="title_workflow">Workflow</string>
-    <string name="summary_workflow">Workflow</string>
+    <string name="summary_workflow">创建，运行基于X-APM接口的js。</string>
     <string name="summary_created_at">创建于%1$s</string>
     <string name="title_workflow_editor">编辑</string>
     <string name="title_workflow_save">保存</string>
     <string name="title_workflow_run">运行</string>
     <string name="title_workflow_saved">已保存</string>
+    <string name="message_workflow_run_finish">运行结束%1$s</string>
+    <string name="message_workflow_run_err">运行失败\n%1$s</string>
+    <string name="title_copy_launch_intent">复制启动Intent</string>
+    <string name="editor_action_move_left">Left</string>
+    <string name="editor_action_move_right">Right</string>
 </resources>

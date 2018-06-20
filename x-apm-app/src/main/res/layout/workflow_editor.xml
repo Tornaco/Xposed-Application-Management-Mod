@@ -19,7 +19,17 @@
             android:background="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="?torAppbarPopupTheme"
-            app:theme="?torToolbarTheme" />
+            app:theme="?torToolbarTheme">
+
+            <android.support.v7.widget.AppCompatEditText
+                android:id="@+id/toolbar_title"
+                style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:fontFamily="sans-serif-condensed" />
+
+        </android.support.v7.widget.Toolbar>
 
     </android.support.design.widget.AppBarLayout>
 
@@ -27,9 +37,21 @@
         android:id="@+id/edit_text"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@+id/editor_actions_toolbar"
         android:layout_below="@id/app_bar"
         android:layout_margin="@dimen/activity_horizontal_margin_marco"
         android:gravity="top"
         android:scrollbars="vertical" />
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/editor_actions_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_alignParentBottom="true"
+        android:background="?attr/colorPrimary"
+        android:gravity="center"
+        app:layout_scrollFlags="scroll|enterAlways"
+        app:popupTheme="?torAppbarPopupTheme"
+        app:theme="?torToolbarTheme" />
 
 </RelativeLayout>

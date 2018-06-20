@@ -4,9 +4,11 @@ import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
+import android.support.annotation.UiThread;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
@@ -382,6 +384,16 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
                         cmb.setPrimaryClip(ClipData.newPlainText("pkg_name", packageInfo.getPkgName()));
                     }
                     break;
+                case R.id.action_config_copy_launch_intent:
+                    cmb = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                    if (cmb != null) {
+                        Intent launcherIntent = getPackageManager()
+                                .getLaunchIntentForPackage(packageInfo.getPkgName());
+                        if (launcherIntent != null) {
+                            cmb.setPrimaryClip(ClipData.newPlainText("launcher_intent", launcherIntent.toString()));
+                        }
+                    }
+                    break;
 
             }
             return true;
@@ -453,16 +465,15 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
         mHasLoadOnce = true;
         XExecutor.execute(() -> {
             final List<? extends CommonPackageInfo> res = performLoading();
-            runOnUiThread(() -> {
-//                        if (Collections.isNullOrEmpty(res)) {
-//                            Toast.makeText(getContext(), R.string.loading_res_empty, Toast.LENGTH_SHORT).show();
-//                        }
-
-                swipeRefreshLayout.setRefreshing(false);
-                commonPackageInfoAdapter.update(res);
-                mIsLoading.set(false);
-            });
+            runOnUiThread(() -> onLoadComplete(res));
         });
+    }
+
+    @UiThread
+    protected void onLoadComplete(List<? extends CommonPackageInfo> data) {
+        swipeRefreshLayout.setRefreshing(false);
+        commonPackageInfoAdapter.update(data);
+        mIsLoading.set(false);
     }
 
     protected abstract List<? extends CommonPackageInfo> performLoading();

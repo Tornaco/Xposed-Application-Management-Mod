@@ -17,7 +17,6 @@ import java.nio.charset.Charset;
 import github.tornaco.xposedmoduletest.xposed.service.rhino.android.RhinoAndroidHelper;
 import github.tornaco.xposedmoduletest.xposed.service.rhino.objects.Counter;
 import github.tornaco.xposedmoduletest.xposed.service.rhino.objects.ServerSide;
-import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 
 /**
@@ -30,14 +29,14 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 public class ScriptRunner {
 
-    public static void run(android.content.Context androidContext, File file)
+    public static Object run(android.content.Context androidContext, File file)
             throws IOException, IllegalAccessException, InstantiationException, InvocationTargetException {
         String c = Files.asCharSource(file, Charset.defaultCharset()).read();
-        run(androidContext, new String[]{c});
+        return run(androidContext, new String[]{c});
     }
 
-    public static void run(android.content.Context androidContext,
-                           String args[])
+    public static Object run(android.content.Context androidContext,
+                             String args[])
             throws IllegalAccessException,
             InvocationTargetException,
             InstantiationException {
@@ -66,10 +65,7 @@ public class ScriptRunner {
             }
 
             // Now evaluate the string we've colected.
-            Object result = cx.evaluateString(serverSide, s.toString(), "script.js", 1, null);
-
-            // Convert the result to a string and print it.
-            XposedLog.debug((Context.toString(result)));
+            return cx.evaluateString(serverSide, s.toString(), "script.js", 1, null);
 
         } finally {
             // Exit from the context.
