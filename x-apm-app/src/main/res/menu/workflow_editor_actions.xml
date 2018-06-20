@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+
+    <item
+        android:id="@+id/action_copy"
+        android:icon="@drawable/ic_content_copy_black_24dp"
+        android:title="@android:string/copy"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+
+    <item
+        android:id="@+id/action_paste"
+        android:icon="@drawable/ic_content_paste_black_24dp"
+        android:title="@android:string/paste"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+
+    <item
+        android:id="@+id/action_arrow_left"
+        android:icon="@drawable/ic_chevron_left_black_24dp"
+        android:title="@string/editor_action_move_left"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+
+    <item
+        android:id="@+id/action_arrow_right"
+        android:icon="@drawable/ic_chevron_right_black_24dp"
+        android:title="@string/editor_action_move_right"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+
+    <item
+        android:id="@+id/action_save_apply"
+        android:icon="@drawable/ic_check_tint_24dp"
+        android:title="@string/title_workflow_save"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+
+    <item
+        android:id="@+id/action_discard"
+        android:icon="@drawable/ic_close_black_24dp"
+        android:title="@string/title_workflow_save"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+
+    <item
+        android:id="@+id/action_save"
+        android:icon="@drawable/ic_save_black_24dp"
+        android:title="@string/title_workflow_save"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+
+    <item
+        android:id="@+id/action_run"
+        android:icon="@drawable/ic_play_arrow_tint_24dp"
+        android:title="@string/title_workflow_run"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+
+
+</menu>

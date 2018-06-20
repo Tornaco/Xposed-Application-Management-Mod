@@ -56,6 +56,11 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_config_copy_launch_intent"
+        android:title="@string/title_copy_launch_intent"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_comp_details"
         android:title="@string/title_comp_details"
         app:showAsAction="never" />

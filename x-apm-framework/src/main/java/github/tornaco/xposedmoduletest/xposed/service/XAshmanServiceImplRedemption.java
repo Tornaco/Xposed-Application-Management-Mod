@@ -24,6 +24,7 @@ import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IBackupAgent;
 import github.tornaco.xposedmoduletest.IBooleanCallback1;
+import github.tornaco.xposedmoduletest.IJsEvaluateListener;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IProcessClearListener;
 import github.tornaco.xposedmoduletest.IServiceControl;
@@ -231,7 +232,7 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
-    public void evaluateJsString(String[] args) {
+    public void evaluateJsString(String[] args, IJsEvaluateListener listener) {
 
     }
 

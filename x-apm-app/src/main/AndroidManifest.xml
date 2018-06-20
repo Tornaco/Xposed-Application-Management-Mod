@@ -196,10 +196,9 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.workflow.WorkflowEditorActivity"
-            android:label="@string/title_workflow_editor"
-            android:windowSoftInputMode="stateHidden"
             android:screenOrientation="portrait"
-            android:theme="@style/AppThemeLight.NoActionBar" />
+            android:theme="@style/AppThemeLight.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".ui.activity.prop.PropNavActivity"
             android:label="@string/title_prop_nav"

@@ -96,7 +96,8 @@ public class WorkflowNavActivity extends CommonPackageInfoListActivity
                         .getDrawable(getContext(), R.mipmap.ic_workflow));
 
                 WorkflowItemViewHolder workflowItemViewHolder = (WorkflowItemViewHolder) holder;
-                workflowItemViewHolder.getRunView().setOnClickListener(v -> XAPMManager.get().evaluateJsString(new String[]{js.getScript()}));
+                workflowItemViewHolder.getRunView().setOnClickListener(v ->
+                        XAPMManager.get().evaluateJsString(new String[]{js.getScript()}, new DialogEvaluateListener(getActivity())));
             }
 
             @Override
@@ -168,6 +169,7 @@ public class WorkflowNavActivity extends CommonPackageInfoListActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.workflow_nav, menu);
         return super.onCreateOptionsMenu(menu);
     }
 

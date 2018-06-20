@@ -20,6 +20,7 @@ import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IBackupAgent;
 import github.tornaco.xposedmoduletest.IBooleanCallback1;
+import github.tornaco.xposedmoduletest.IJsEvaluateListener;
 import github.tornaco.xposedmoduletest.IPackageUninstallCallback;
 import github.tornaco.xposedmoduletest.IServiceControl;
 import github.tornaco.xposedmoduletest.ITaskRemoveListener;
@@ -2644,13 +2645,17 @@ public class XAPMManager {
         }
     }
 
-    public void evaluateJsString(String[] args) {
+    public void evaluateJsString(String[] args, IJsEvaluateListener listener) {
         ensureService();
         try {
-            mService.evaluateJsString(args);
+            mService.evaluateJsString(args, listener);
         } catch (Exception e) {
             handleException(e);
         }
+    }
+
+    public void evaluateJsString(String[] args) {
+        evaluateJsString(args, null);
     }
 
     public JavaScript getSavedJs(String id) {
