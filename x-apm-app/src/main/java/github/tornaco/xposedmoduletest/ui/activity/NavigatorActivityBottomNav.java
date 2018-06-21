@@ -1015,7 +1015,10 @@ public class NavigatorActivityBottomNav
                 exp.addTile(new PushMessageHandler(getActivity()));
             }
 
-            exp.addTile(new Workflow(getActivity()));
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_WORKFLOW)
+                    && OSUtil.isMOrAbove() && AppSettings.isShowInfoEnabled(getContext(), "show_hidden_features2", false)) {
+                exp.addTile(new Workflow(getActivity()));
+            }
 
             Category ash = new Category();
             ash.titleRes = R.string.title_control;
