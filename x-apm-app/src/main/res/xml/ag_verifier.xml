@@ -25,13 +25,6 @@
 
     <PreferenceCategory android:title="@string/title_themes">
 
-        <ListPreference
-            android:defaultValue="@string/theme_def"
-            android:entries="@array/theme_entries"
-            android:entryValues="@array/theme_entries"
-            android:key="theme"
-            android:title="@string/title_theme" />
-
         <SwitchPreference
             android:defaultValue="false"
             android:key="show_app_icon_enabled"

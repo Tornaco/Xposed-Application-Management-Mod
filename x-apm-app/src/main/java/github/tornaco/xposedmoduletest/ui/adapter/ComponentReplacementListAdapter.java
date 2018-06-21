@@ -22,12 +22,8 @@ import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.ComponentReplacement;
-import github.tornaco.xposedmoduletest.loader.GlideApp;
-import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import lombok.Getter;
 import lombok.Setter;
-
-import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 /**
  * Created by guohao4 on 2017/11/17.
@@ -102,15 +98,7 @@ public class ComponentReplacementListAdapter
         holder.getSummaryView2().setText(t.toFlattenToString());
 
 
-        CommonPackageInfo c = new CommonPackageInfo();
-        c.setPkgName(t.getAppPackageName());
-        GlideApp.with(context)
-                .load(c)
-                .placeholder(0)
-                .error(R.mipmap.ic_launcher_round)
-                .fallback(R.mipmap.ic_launcher_round)
-                .transition(withCrossFade())
-                .into(holder.getIconView());
+        holder.getIconView().setImageDrawable(ContextCompat.getDrawable(getContext(), R.mipmap.ic_comp_replacement));
     }
 
     protected void showPopMenu(final ComponentReplacement t, View anchor) {

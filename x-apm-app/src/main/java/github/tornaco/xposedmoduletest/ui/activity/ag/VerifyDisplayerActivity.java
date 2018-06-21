@@ -45,6 +45,7 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.provider.LockStorage;
 import github.tornaco.xposedmoduletest.provider.XSettings;
+import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.util.PatternLockViewListenerAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
@@ -112,6 +113,11 @@ public class VerifyDisplayerActivity extends BaseActivity {
         }
     }
 
+    @Override
+    public Themes getUserSetTheme() {
+        return Themes.DEFAULT;
+    }
+
     private void readSettings() {
         this.mTakePhoto = XSettings.takenPhotoEnabled(this);
         this.mLockMethod = LockStorage.getLockMethod(this);
@@ -124,14 +130,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
         // Apply palette color.
         // Workaround.
-        if (!mUserTheme.isReverseTheme()) {
-            PaletteColorPicker.pickPrimaryColor(this, new PaletteColorPicker.PickReceiver() {
-                @Override
-                public void onColorReady(int color) {
-                    applyColor(color);
-                }
-            }, pkg, color);
-        }
+        PaletteColorPicker.pickPrimaryColor(this, this::applyColor, pkg, color);
 
         setTitle(null);
 
@@ -173,13 +172,6 @@ public class VerifyDisplayerActivity extends BaseActivity {
                     .fallback(R.mipmap.ic_launcher_round)
                     .transition(withCrossFade())
                     .into(imageView);
-        } else {
-            // Only use a image tint when it is in reverse theme.
-            if (mUserTheme.isReverseTheme()) {
-                ImageView imageView = findViewById(R.id.icon);
-                imageView.setColorFilter(ContextCompat.getColor(getContext(),
-                        mUserTheme.getThemeColor()), android.graphics.PorterDuff.Mode.MULTIPLY);
-            }
         }
     }
 

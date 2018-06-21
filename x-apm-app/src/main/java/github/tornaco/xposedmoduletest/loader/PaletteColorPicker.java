@@ -2,12 +2,14 @@ package github.tornaco.xposedmoduletest.loader;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.v7.graphics.Palette;
 
-import github.tornaco.android.common.util.ApkUtil;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
+
 import github.tornaco.android.common.util.ColorUtil;
+import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 
 /**
  * Created by guohao4 on 2017/10/28.
@@ -26,20 +28,26 @@ public abstract class PaletteColorPicker {
             receiver.onColorReady(defColor);
             return;
         }
-        Drawable d = ApkUtil.loadIconByPkgName(context, pkg);
-        if (d != null && d instanceof BitmapDrawable) {
-            BitmapDrawable bd = (BitmapDrawable) d;
-            Bitmap bm = bd.getBitmap();
-            Palette.from(bm)
-                    .generate(new Palette.PaletteAsyncListener() {
-                        @Override
-                        public void onGenerated(Palette palette) {
-                            int main = palette.getDominantColor(defColor);
-                            receiver.onColorReady(ColorUtil.colorBurn(main));
-                        }
-                    });
-        } else {
-            receiver.onColorReady(defColor);
-        }
+
+        CommonPackageInfo c = new CommonPackageInfo();
+        c.setPkgName(pkg);
+        GlideApp.with(context)
+                .asBitmap()
+                .load(c)
+                .into(new SimpleTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource,
+                                                Transition<? super Bitmap> transition) {
+                        Palette.from(resource)
+                                .generate(palette -> {
+                                    int main = palette.getDominantColor(defColor);
+                                    // Burn 3 time to make it darker!
+                                    receiver.onColorReady(
+                                            ColorUtil.colorBurn(
+                                                    ColorUtil.colorBurn(
+                                                            ColorUtil.colorBurn(main))));
+                                });
+                    }
+                });
     }
 }

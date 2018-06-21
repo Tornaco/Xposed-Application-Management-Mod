@@ -2,6 +2,8 @@ package github.tornaco.xposedmoduletest.ui.activity.lazy;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SwitchCompat;
 import android.view.Menu;
@@ -70,7 +72,19 @@ public class LazyRuleNavActivity extends CommonPackageInfoListActivity
 
     @Override
     protected CommonPackageInfoAdapter onCreateAdapter() {
-        return new CommonPackageInfoAdapter(this);
+        return new CommonPackageInfoAdapter(this) {
+            @Override
+            protected boolean imageLoadingEnabled() {
+                return false;
+            }
+
+            @Override
+            public void onBindViewHolder(@NonNull CommonViewHolder holder, int position) {
+                super.onBindViewHolder(holder, position);
+                holder.getCheckableImageView().setImageDrawable(ContextCompat
+                        .getDrawable(getContext(), R.mipmap.ic_rules));
+            }
+        };
     }
 
     @Override

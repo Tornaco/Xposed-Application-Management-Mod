@@ -10,21 +10,21 @@
 
     <item
         android:id="@+id/navigation_manage"
-        android:icon="@drawable/ic_extension_black_24dp"
-        android:title="@string/title_manage"
+        android:icon="@drawable/ic_dashboard_black_24dp"
+        android:title="@string/title_manage_basic"
         app:showAsAction="always|withText" />
 
     <item
         android:id="@+id/navigation_tools"
-        android:icon="@drawable/ic_pan_tool_black_24dp"
-        android:title="@string/title_tools"
+        android:icon="@drawable/ic_school_black_24dp"
+        android:title="@string/title_manage_advanced"
         app:showAsAction="always|withText"
         tools:ignore="AlwaysShowAction" />
 
     <item
         android:id="@+id/navigation_settings"
-        android:icon="@drawable/ic_settings_black_24dp"
-        android:title="@string/title_settings"
+        android:icon="@drawable/ic_radio_button_checked_black_24dp"
+        android:title="@string/title_more"
         app:showAsAction="always|withText" />
 
 </menu>
