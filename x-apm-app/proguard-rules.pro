@@ -164,7 +164,7 @@
 
 -dontwarn com.google.common.**
 
-# Bean
+# Keep all for apm source.
 -keep class github.tornaco.xposedmoduletest.** {*;}
 
 # Glide http://bumptech.github.io/glide/doc/download-setup.html#proguard
@@ -196,3 +196,7 @@ public static java.lang.String TABLENAME;
 -keep public class com.tencent.bugly.**{*;}
 
 -keep class dev.nick.eventbus.** {*;}
+
+# Rhino.
+-keep class org.mozilla.** {*;}
+-dontwarn org.mozilla.**
