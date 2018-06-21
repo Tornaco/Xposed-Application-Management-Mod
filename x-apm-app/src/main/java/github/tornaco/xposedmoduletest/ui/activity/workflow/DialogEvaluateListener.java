@@ -4,11 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.RemoteException;
 import android.support.v7.app.AlertDialog;
 
 import github.tornaco.xposedmoduletest.IJsEvaluateListener;
 import github.tornaco.xposedmoduletest.R;
+import lombok.Setter;
 
 /**
  * Created by Tornaco on 2018/6/20 15:12.
@@ -20,22 +20,27 @@ public class DialogEvaluateListener extends IJsEvaluateListener.Stub {
 
     private Context context;
 
+    @Setter
+    private boolean showDialogMessageOnFinish = false, showDialogMessageOnError = true;
+
     DialogEvaluateListener(Activity context) {
         this.context = context;
     }
 
     @Override
-    public void onFinish(String res) throws RemoteException {
-        mUiHandler.post(() -> new AlertDialog.Builder(context)
-                .setMessage(context.getString(R.string.message_workflow_run_finish, res))
+    public void onFinish(String res) {
+        if (showDialogMessageOnFinish) mUiHandler.post(() -> new AlertDialog.Builder(context)
+                .setTitle(context.getString(R.string.message_workflow_run_finish, ""))
+                .setMessage(res)
                 .setPositiveButton(android.R.string.ok, null)
                 .show());
     }
 
     @Override
-    public void onError(String message, String trace) throws RemoteException {
-        mUiHandler.post(() -> new AlertDialog.Builder(context)
-                .setMessage(context.getString(R.string.message_workflow_run_err, message))
+    public void onError(String message, String trace) {
+        if (showDialogMessageOnError) mUiHandler.post(() -> new AlertDialog.Builder(context)
+                .setTitle(context.getString(R.string.message_workflow_run_err, ""))
+                .setMessage(message)
                 .setPositiveButton(android.R.string.ok, null)
                 .show());
     }

@@ -34,6 +34,7 @@ import org.newstand.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import dev.nick.eventbus.Event;
 import dev.nick.eventbus.EventBus;
@@ -48,7 +49,6 @@ import github.tornaco.xposedmoduletest.bean.Suggestion;
 import github.tornaco.xposedmoduletest.bean.Suggestions;
 import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
-import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.ActivityLifeCycleDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.FragmentController;
 import github.tornaco.xposedmoduletest.ui.Themes;
@@ -77,16 +77,10 @@ import github.tornaco.xposedmoduletest.ui.tiles.SmartSense;
 import github.tornaco.xposedmoduletest.ui.tiles.TRKill;
 import github.tornaco.xposedmoduletest.ui.tiles.TileManager;
 import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
-import github.tornaco.xposedmoduletest.ui.tiles.app.ADBWireless;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AboutSettings;
-import github.tornaco.xposedmoduletest.ui.tiles.app.AppDevMode;
 import github.tornaco.xposedmoduletest.ui.tiles.app.BackupRestoreSettings;
-import github.tornaco.xposedmoduletest.ui.tiles.app.CleanUpSystemErrorTrace;
-import github.tornaco.xposedmoduletest.ui.tiles.app.CrashDump;
-import github.tornaco.xposedmoduletest.ui.tiles.app.MokeCrash;
-import github.tornaco.xposedmoduletest.ui.tiles.app.MokeSystemDead;
+import github.tornaco.xposedmoduletest.ui.tiles.app.DevelopmentSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.app.PolicySettings;
-import github.tornaco.xposedmoduletest.ui.tiles.app.ShowFocusedActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.StyleSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.prop.PackageInstallVerify;
 import github.tornaco.xposedmoduletest.ui.tiles.workflow.Workflow;
@@ -311,8 +305,8 @@ public class NavigatorActivityBottomNav
                 ImmutableList.of(
                         new DeviceStatusFragment(),
                         new ManageNavFragment(),
-                        new ToolsNavFragment(),
-                        new SettingsNavFragment());
+                        new ExpNavFragment(),
+                        new MoreFragment());
 
         cardController = new FragmentController<>(getSupportFragmentManager(), cards, R.id.container);
         cardController.setDefaultIndex(0);
@@ -324,7 +318,7 @@ public class NavigatorActivityBottomNav
 
     public void requestUpdateTitle() {
         ActivityLifeCycleDashboardFragment dashboardFragment = getCardController().getCurrent();
-        dashboardFragment.onSetActivityTitle(this);
+        // dashboardFragment.onSetActivityTitle(this);
     }
 
     @Override
@@ -393,6 +387,8 @@ public class NavigatorActivityBottomNav
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem changeCol = menu.findItem(R.id.action_change_column_count);
         changeCol.setVisible(INDEXS.STATUS != getBottomNavIndex());
+        MenuItem help = menu.findItem(R.id.action_help);
+        help.setVisible(INDEXS.STATUS == getBottomNavIndex());
         return true;
     }
 
@@ -424,62 +420,6 @@ public class NavigatorActivityBottomNav
             }
         }
         return super.onOptionsItemSelected(item);
-    }
-
-
-    public static class ToolsNavFragment extends ActivityLifeCycleDashboardFragment {
-        @Override
-        public int getPageTitle() {
-            return R.string.title_tools;
-        }
-
-        @Override
-        protected int getLayoutId() {
-            return R.layout.dashboard_with_margin;
-        }
-
-        @Override
-        protected int getNumColumns() {
-            boolean two = AppSettings.show2ColumnsIn(getActivity(), ToolsNavFragment.class.getSimpleName());
-            return two ? 2 : 1;
-        }
-
-        @Override
-        public void onEvent(Event event) {
-            super.onEvent(event);
-            if (event.getEventType() == XAPMApplication.EVENT_APP_DEBUG_MODE_CHANGED) {
-
-                BaseActivity activity = (BaseActivity) getActivity();
-                boolean visible = activity != null && activity.isVisible();
-
-                if (visible) {
-                    buildUIDelay(getActivity(), 1000);
-                }
-            }
-        }
-
-        @Override
-        protected void onCreateDashCategories(List<Category> categories) {
-            super.onCreateDashCategories(categories);
-
-            Category dev = new Category();
-            dev.titleRes = R.string.title_dev_tools;
-            dev.addTile(new AppDevMode(getActivity()));
-            if (XSettings.isDevMode(getActivity())) {
-                dev.addTile(new ADBWireless(getActivity()));
-            }
-            dev.addTile(new CrashDump(getActivity()));
-            dev.addTile(new MokeCrash(getActivity()));
-            dev.addTile(new MokeSystemDead(getActivity()));
-
-            Category user = new Category();
-            user.titleRes = R.string.title_user_tools;
-            user.addTile(new ShowFocusedActivity(getActivity()));
-            user.addTile(new CleanUpSystemErrorTrace(getActivity()));
-
-            categories.add(dev);
-            categories.add(user);
-        }
     }
 
     public static class DeviceStatusFragment extends ActivityLifeCycleDashboardFragment {
@@ -930,7 +870,7 @@ public class NavigatorActivityBottomNav
 
         @Override
         public int getPageTitle() {
-            return R.string.title_manage;
+            return R.string.title_manage_basic;
         }
 
         @Override
@@ -940,7 +880,7 @@ public class NavigatorActivityBottomNav
 
         @Override
         protected int getNumColumns() {
-            boolean two = AppSettings.show2ColumnsIn(getActivity(), ManageNavFragment.class.getSimpleName());
+            boolean two = AppSettings.show2ColumnsIn(Objects.requireNonNull(getActivity()), ManageNavFragment.class.getSimpleName());
             return two ? 2 : 1;
         }
 
@@ -984,7 +924,8 @@ public class NavigatorActivityBottomNav
                 }
             }
 
-            if (OSUtil.isMOrAbove() && AppSettings.isShowInfoEnabled(getContext(), "show_hidden_features2", false)) {
+            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_PACKAGE_INSTALL_VERIFY)
+                    && OSUtil.isMOrAbove() && AppSettings.isShowInfoEnabled(getContext(), "show_hidden_features2", false)) {
                 sec.addTile(new PackageInstallVerify(getActivity()));
             }
 
@@ -1006,6 +947,75 @@ public class NavigatorActivityBottomNav
                 rest.addTile(new RFKill(getActivity()));
                 rest.addTile(new TRKill(getActivity()));
             }
+
+            if (sec.getTilesCount() > 0) categories.add(sec);
+            if (rest.getTilesCount() > 0) categories.add(rest);
+        }
+
+    }
+
+
+    public static class ExpNavFragment
+            extends ActivityLifeCycleDashboardFragment {
+        @Getter
+        private View rootView;
+
+        @Override
+        public int getPageTitle() {
+            return R.string.title_manage_advanced;
+        }
+
+        @Override
+        protected int getLayoutId() {
+            return R.layout.dashboard_with_margin;
+        }
+
+        @Override
+        protected int getNumColumns() {
+            boolean two = AppSettings.show2ColumnsIn(Objects.requireNonNull(getActivity()), ManageNavFragment.class.getSimpleName());
+            return two ? 2 : 1;
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            rootView = super.onCreateView(inflater, container, savedInstanceState);
+            return rootView;
+        }
+
+        @Override
+        public void onActivityResume() {
+            super.onActivityResume();
+            buildUI(getActivity());
+        }
+
+        @Override
+        protected void onCreateDashCategories(List<Category> categories) {
+            super.onCreateDashCategories(categories);
+
+            if (getContext() == null) {
+                return;
+            }
+
+            Category exp = new Category();
+            exp.moreDrawableRes = R.drawable.ic_help_black_24dp;
+            exp.onMoreButtonClickListener = v -> Toast.makeText(getActivity(),
+                    R.string.category_help_exp, Toast.LENGTH_SHORT).show();
+            exp.titleRes = R.string.title_exp;
+
+            // L do not support doze.
+            if (OSUtil.isMOrAbove() && XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_DOZE)) {
+                exp.addTile(new Doze(getActivity()));
+            }
+
+            if ((XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_LAZY))) {
+                exp.addTile(new Lazy(getActivity()));
+            }
+
+            if (XAPMApplication.isGMSSupported()) {
+                exp.addTile(new PushMessageHandler(getActivity()));
+            }
+
+            exp.addTile(new Workflow(getActivity()));
 
             Category ash = new Category();
             ash.titleRes = R.string.title_control;
@@ -1033,34 +1043,12 @@ public class NavigatorActivityBottomNav
                 ash.addTile(new NFManager(getActivity()));
             }
 
-            Category exp = new Category();
-            exp.moreDrawableRes = R.drawable.ic_help_black_24dp;
-            exp.onMoreButtonClickListener = v -> Toast.makeText(getActivity(),
-                    R.string.category_help_exp, Toast.LENGTH_SHORT).show();
-            exp.titleRes = R.string.title_exp;
-
-            // L do not support doze.
-            if (OSUtil.isMOrAbove() && XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_DOZE)) {
-                exp.addTile(new Doze(getActivity()));
-            }
-
-            if ((XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_LAZY))) {
-                exp.addTile(new Lazy(getActivity()));
-            }
-
-            if (XAPMApplication.isGMSSupported()) {
-                exp.addTile(new PushMessageHandler(getActivity()));
-            }
-
-            exp.addTile(new Workflow(getActivity()));
-
-            if (sec.getTilesCount() > 0) categories.add(sec);
-            if (rest.getTilesCount() > 0) categories.add(rest);
             if (ash.getTilesCount() > 0) categories.add(ash);
             if (exp.getTilesCount() > 0) categories.add(exp);
         }
 
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -1070,11 +1058,11 @@ public class NavigatorActivityBottomNav
     }
 
 
-    public static class SettingsNavFragment extends ActivityLifeCycleDashboardFragment {
+    public static class MoreFragment extends ActivityLifeCycleDashboardFragment {
 
         @Override
         public int getPageTitle() {
-            return R.string.title_settings;
+            return R.string.title_more;
         }
 
         @Override
@@ -1084,8 +1072,8 @@ public class NavigatorActivityBottomNav
 
         @Override
         protected int getNumColumns() {
-            boolean two = AppSettings.show2ColumnsIn(getActivity(),
-                    SettingsNavFragment.class.getSimpleName());
+            boolean two = AppSettings.show2ColumnsIn(Objects.requireNonNull(getActivity()),
+                    MoreFragment.class.getSimpleName());
             return two ? 2 : 1;
         }
 
@@ -1093,35 +1081,20 @@ public class NavigatorActivityBottomNav
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
 
-            if (AppSettings.isPStyleIcon(getActivity())) {
-                Category aio = new Category();
-                aio.addTile(new PolicySettings(getActivity()));
-                aio.addTile(new BackupRestoreSettings(getActivity()));
-                aio.addTile(new StyleSettings(getActivity()));
-                aio.addTile(new AboutSettings(getActivity()));
-                categories.add(aio);
-            } else {
-                Category policy = new Category();
-                policy.titleRes = R.string.title_policy;
-                policy.addTile(new PolicySettings(getActivity()));
+            Category tools = new Category();
+            tools.titleRes = R.string.title_tools;
+            tools.addTile(new DevelopmentSettings(getActivity()));
 
-                Category data = new Category();
-                data.titleRes = R.string.title_data;
-                data.addTile(new BackupRestoreSettings(getActivity()));
 
-                Category theme = new Category();
-                theme.titleRes = R.string.title_style;
-                theme.addTile(new StyleSettings(getActivity()));
+            Category settings = new Category();
+            settings.titleRes = R.string.title_settings;
+            settings.addTile(new PolicySettings(getActivity()));
+            settings.addTile(new BackupRestoreSettings(getActivity()));
+            settings.addTile(new StyleSettings(getActivity()));
+            settings.addTile(new AboutSettings(getActivity()));
 
-                Category about = new Category();
-                about.titleRes = R.string.title_about;
-                about.addTile(new AboutSettings(getActivity()));
-
-                categories.add(policy);
-                categories.add(data);
-                categories.add(theme);
-                categories.add(about);
-            }
+            categories.add(tools);
+            categories.add(settings);
         }
     }
 }

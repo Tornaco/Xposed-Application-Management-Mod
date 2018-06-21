@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Looper;
-import android.os.MessageQueue;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
@@ -27,14 +26,11 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        Looper.myQueue().addIdleHandler(new MessageQueue.IdleHandler() {
-            @Override
-            public boolean queueIdle() {
-                finish();
-                overridePendingTransition(0, R.anim.fade_out);
-                NavigatorActivity.start(SplashActivity.this);
-                return false;
-            }
+        Looper.myQueue().addIdleHandler(() -> {
+            finish();
+            overridePendingTransition(0, R.anim.fade_out);
+            NavigatorActivityBottomNav.start(SplashActivity.this);
+            return false;
         });
     }
 }

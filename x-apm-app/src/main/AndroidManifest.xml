@@ -303,7 +303,7 @@
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.app.ToolsDashboardActivity"
-            android:label="@string/title_settings"
+            android:label="@string/title_dev_tools"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.app.PerAppSettingsDashboardActivity"

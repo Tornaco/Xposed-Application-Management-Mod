@@ -668,4 +668,8 @@
     <string name="title_copy_launch_intent">复制启动Intent</string>
     <string name="editor_action_move_left">Left</string>
     <string name="editor_action_move_right">Right</string>
+    <string name="summary_dev_settings">调试模式、错误报告、显示活动。</string>
+    <string name="title_more">更多</string>
+    <string name="title_manage_basic">基础</string>
+    <string name="title_manage_advanced">进阶</string>
 </resources>

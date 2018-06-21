@@ -19,3 +19,4 @@ app_firewall
 app_doze
 debug
 app_package_install_verify
+app_workflow

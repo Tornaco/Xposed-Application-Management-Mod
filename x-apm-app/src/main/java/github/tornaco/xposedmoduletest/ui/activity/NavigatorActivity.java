@@ -46,7 +46,6 @@ import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.ui.activity.app.AboutDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.GetPlayVersionActivity;
 import github.tornaco.xposedmoduletest.ui.activity.app.SettingsDashboardActivity;
-import github.tornaco.xposedmoduletest.ui.activity.app.ToolsDashboardActivity;
 import github.tornaco.xposedmoduletest.ui.activity.helper.RunningServicesActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.AppBoot;
 import github.tornaco.xposedmoduletest.ui.tiles.AppGuard;
@@ -82,7 +81,8 @@ import lombok.Getter;
  * Created by guohao4 on 2017/11/10.
  * Email: Tornaco@163.com
  */
-
+@Deprecated
+// Not used.
 public class NavigatorActivity extends WithWithCustomTabActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -234,7 +234,6 @@ public class NavigatorActivity extends WithWithCustomTabActivity
         final List<ActivityLifeCycleDashboardFragment> cards =
                 ImmutableList.of(
                         onCreateMainFragment(),
-                        new ToolsDashboardActivity.Dashboards(),
                         onCreateEXTFragment());
         cardController = new FragmentController<>(getSupportFragmentManager(), cards, R.id.container);
         cardController.setDefaultIndex(0);

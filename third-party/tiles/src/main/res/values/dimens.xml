@@ -42,7 +42,7 @@
     <dimen name="dashboard_tile_minimum_height_small">56dp</dimen>
 
     <!-- Dashboard image tile size -->
-    <dimen name="dashboard_tile_image_size">33dp</dimen>
+    <dimen name="dashboard_tile_image_size">30dp</dimen>
 
     <!-- Dashboard tile image margin start / end -->
     <dimen name="dashboard_tile_image_padding">6dp</dimen>

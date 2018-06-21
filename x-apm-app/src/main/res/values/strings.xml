@@ -662,13 +662,17 @@
     <string name="title_workflow">Workflow</string>
     <string name="summary_workflow">Just create and run custom js with X-APM api</string>
     <string name="summary_created_at">创建于%1$s</string>
-    <string name="title_workflow_editor">编辑</string>
-    <string name="title_workflow_save">保存</string>
-    <string name="title_workflow_run">运行</string>
-    <string name="title_workflow_saved">已保存</string>
+    <string name="title_workflow_editor">Edit</string>
+    <string name="title_workflow_save">Save</string>
+    <string name="title_workflow_run">Execute</string>
+    <string name="title_workflow_saved">Saved</string>
     <string name="message_workflow_run_finish">运行结束%1$s</string>
     <string name="message_workflow_run_err">运行失败\n%1$s</string>
     <string name="title_copy_launch_intent">复制启动Intent</string>
     <string name="editor_action_move_left">Left</string>
     <string name="editor_action_move_right">Right</string>
+    <string name="summary_dev_settings">调试模式、错误报告、显示活动。</string>
+    <string name="title_more">More</string>
+    <string name="title_manage_basic">Basic</string>
+    <string name="title_manage_advanced">Advanced</string>
 </resources>

@@ -52,7 +52,7 @@ public class BaseActivity extends AppCompatActivity implements View {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mUserTheme = XSettings.getThemes(this.getContext());
+        mUserTheme = getUserSetTheme();
         setTheme(getUserSetThemeResId(mUserTheme));
         isVisible = true;
     }
@@ -79,6 +79,11 @@ public class BaseActivity extends AppCompatActivity implements View {
     protected void onDestroy() {
         super.onDestroy();
         isVisible = false;
+    }
+
+
+    public Themes getUserSetTheme() {
+        return XSettings.getThemes(this.getContext());
     }
 
     protected int getUserSetThemeResId(Themes themes) {
