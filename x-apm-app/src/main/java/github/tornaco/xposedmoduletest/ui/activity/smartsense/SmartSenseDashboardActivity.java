@@ -21,6 +21,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.smartsense.LongPressBackKey;
 import github.tornaco.xposedmoduletest.ui.tiles.smartsense.PGesture;
 import github.tornaco.xposedmoduletest.ui.tiles.smartsense.PanicLock;
 import github.tornaco.xposedmoduletest.ui.tiles.smartsense.ThreeFingersDownScreenshot;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 
 /**
  * Created by guohao4 on 2017/11/2.
@@ -76,7 +77,9 @@ public class SmartSenseDashboardActivity extends BaseActivity {
             Category notification = new Category();
             notification.titleRes = R.string.title_notification;
             notification.addTile(new WakeupOnNotificationPosted(getActivity()));
-            notification.addTile(new CameraOpenNotification(getActivity()));
+            if (OSUtil.isOOrAbove()) {
+                notification.addTile(new CameraOpenNotification(getActivity()));
+            }
 
             categories.add(keys);
             categories.add(panic);

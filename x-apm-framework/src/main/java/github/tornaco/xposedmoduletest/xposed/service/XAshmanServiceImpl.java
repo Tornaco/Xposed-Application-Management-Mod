@@ -4326,10 +4326,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         // For camera usage.
         // Wait for 10s after boot complete.
         // System will test camera somehow...
-        mLazyHandler.postDelayed(() -> {
-            CameraManager.getInstance().watchCameraDevice(getContext());
-            CameraManager.getInstance().enableCameraOpenNotification(NOTIFICATION_CHANNEL_ID_DEFAULT);
-        }, 10 *1000);
+        if (OSUtil.isOOrAbove()) {
+            mLazyHandler.postDelayed(() -> {
+                CameraManager.getInstance().watchCameraDevice(getContext());
+                CameraManager.getInstance().enableCameraOpenNotification(NOTIFICATION_CHANNEL_ID_DEFAULT);
+            }, 10 * 1000);
+        }
 
         // Disable layout debug incase our logic make the system dead in loop.
         if (BuildConfig.DEBUG) {
