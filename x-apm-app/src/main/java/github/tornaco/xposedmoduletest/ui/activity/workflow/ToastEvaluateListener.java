@@ -19,7 +19,7 @@ public class ToastEvaluateListener extends IJsEvaluateListener.Stub {
 
     private Context context;
 
-    ToastEvaluateListener(Context context) {
+    public ToastEvaluateListener(Context context) {
         this.context = context;
     }
 

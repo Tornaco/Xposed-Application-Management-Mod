@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.xposed.service.rhino.objects;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
@@ -157,6 +158,12 @@ public class ServerSide extends ImporterTopLevel {
     }
 
     @FunctionProperties
+    public boolean killApp(String packageName) {
+        XAPMManager.get().forceStopPackage(packageName);
+        return true;
+    }
+
+    @FunctionProperties
     public boolean startActivityWithAction(String action) {
         Intent launchIntent = new Intent(action);
         launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -205,4 +212,26 @@ public class ServerSide extends ImporterTopLevel {
         throw new RuntimeException("No impl yet.");
     }
     // POLICY END.
+
+    // APM START.
+    @FunctionProperties
+    public void addActivityFocusActions(String comp, String action) {
+        ComponentName c = ComponentName.unflattenFromString(comp);
+        if (c == null) throw new IllegalArgumentException("Invalid component name");
+        XAPMManager.get().addOrRemoveActivityFocusAction(c, new String[]{action}, true);
+    }
+
+    @FunctionProperties
+    public void removeActivityFocusActions(String comp, String action) {
+        ComponentName c = ComponentName.unflattenFromString(comp);
+        if (c == null) throw new IllegalArgumentException("Invalid component name");
+        XAPMManager.get().addOrRemoveActivityFocusAction(c, new String[]{action}, false);
+    }
+
+    public String getActivityFocusActions(String comp) {
+        ComponentName c = ComponentName.unflattenFromString(comp);
+        if (c == null) throw new IllegalArgumentException("Invalid component name");
+        return XAPMManager.get().getActivityFocusActions(c)[0];
+    }
+    // APM END.
 }

@@ -675,4 +675,6 @@
     <string name="title_more">More</string>
     <string name="title_manage_basic">Basic</string>
     <string name="title_manage_advanced">Advanced</string>
+    <string name="title_camera_notification">相机通知</string>
+    <string name="summary_camera_notification">相机被打开时发出通知。</string>
 </resources>

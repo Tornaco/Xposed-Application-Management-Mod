@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.service.notification.StatusBarNotification;
 import android.view.Display;
@@ -1347,34 +1346,35 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
-    public void addOrRemoveAppFocusAction(String pkg, String[] actions, boolean add) {
+    public void addOrRemoveActivityFocusAction(ComponentName comp, String[] actions, boolean add) {
 
     }
 
     @Override
-    public String[] getAppFocusActionPackages() {
+    public ComponentName[] getActivityFocusActionComponents() {
+        return new ComponentName[0];
+    }
+
+    @Override
+    public String[] getActivityFocusActions(ComponentName comp) {
         return new String[0];
     }
 
     @Override
-    public String[] getAppFocusActions(String pkg) {
-        return new String[0];
-    }
-
-    @Override
-    public void addOrRemoveAppUnFocusAction(String pkg, String[] actions, boolean add) {
+    public void addOrRemoveActivityUnFocusAction(ComponentName comp, String[] actions, boolean add) {
 
     }
 
     @Override
-    public String[] getAppUnFocusActionPackages() {
-        return new String[0];
+    public ComponentName[] getActivityUnFocusActionComponents() {
+        return new ComponentName[0];
     }
 
     @Override
-    public String[] getAppUnFocusActions(String pkg) {
+    public String[] getActivityUnFocusActions(ComponentName comp) {
         return new String[0];
     }
+
 
     @Override
     public void setDozeEnabled(boolean enable) {

@@ -991,7 +991,6 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         mServiceHandler.sendEmptyMessageDelayed(AppGuardServiceHandlerMessages.MSG_WARNIFDEBUG, 10 * 1000);
     }
 
-
     public boolean isDebug() {
         enforceCallingPermissions();
         return mDebugEnabled.get();
@@ -1290,6 +1289,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             }
         }
 
+        // Show notification while in Debug mode.
         public void warnIfDebug() {
             createDebugNotificationChannelForO();
 

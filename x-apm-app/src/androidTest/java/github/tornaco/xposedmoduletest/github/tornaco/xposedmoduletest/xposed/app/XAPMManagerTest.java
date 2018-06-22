@@ -28,6 +28,8 @@ public class XAPMManagerTest {
             "var top = getTopPackage();\n" +
             "toast(top);\n";
 
+    private static final String SCRIPT_TOAST_PKG = "var top = getTopPackage(); toast(top);";
+
     @Test
     public void testJsStore() {
         XAPMManager xapmManager = XAPMManager.get();
@@ -63,5 +65,23 @@ public class XAPMManagerTest {
         stopWatch.split("Get JS");
 
         stopWatch.stop();
+    }
+
+    @Test
+    public void testAppFocus() {
+        String newId = UUID.randomUUID().toString();
+        JavaScript js = new JavaScript();
+        js.setAlias("NickName");
+        js.setCreatedAt(System.currentTimeMillis());
+        js.setId(newId);
+        js.setScript(SCRIPT_TOAST_PKG);
+        XAPMManager.get().saveJs(js);
+        Assert.assertTrue(XAPMManager.get().getSavedJs(newId) != null);
+
+        // Now link to app focus.
+        String[] actions = new String[]{newId};
+//        XAPMManager.get().addOrRemoveAppFocusAction(BuildConfig.APPLICATION_ID,
+//                actions, true);
+//        Assert.assertArrayEquals(XAPMManager.get().getAppFocusActions(BuildConfig.APPLICATION_ID), actions);
     }
 }
