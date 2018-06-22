@@ -29,4 +29,5 @@ public interface AppKey {
     String FILTER_OPTIONS = "filter_options_";
     String RECENT_TILE = "recent_tile";
     String RECENT_TILE_COUNT = "recent_tile_count";
+    String ALILAY_RED_PACKET_RECEIVED = "alipay_red_packet_received_";
 }

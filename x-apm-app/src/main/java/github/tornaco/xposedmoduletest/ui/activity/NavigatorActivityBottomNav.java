@@ -86,6 +86,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.prop.PackageInstallVerify;
 import github.tornaco.xposedmoduletest.ui.tiles.workflow.Workflow;
 import github.tornaco.xposedmoduletest.ui.widget.BottomNavigationViewHelper;
 import github.tornaco.xposedmoduletest.ui.widget.ToastManager;
+import github.tornaco.xposedmoduletest.util.AliPayUtil;
 import github.tornaco.xposedmoduletest.util.EmojiUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
@@ -721,6 +722,21 @@ public class NavigatorActivityBottomNav
                         R.drawable.ic_power_black_24dp,
                         (group, flatPosition, childIndex) -> {
                             XAPMManager.get().setPowerSaveModeEnabled(true);
+                            return true;
+                        });
+                suggestionList.add(suggestion);
+            }
+
+            // AliPay.
+            if (!AppSettings.isAliPayRedPacketReceivedToady(getActivity())) {
+                Suggestion suggestion = new Suggestion(
+                        getString(R.string.suggestion_alipay_red_packet),
+                        getString(R.string.suggestion_summary_alipay_red_packet),
+                        getString(R.string.suggestion_action_alipay_red_packet),
+                        R.drawable.ic_alipay,
+                        (group, flatPosition, childIndex) -> {
+                            AliPayUtil.getRedPacket(Objects.requireNonNull(getActivity()));
+                            AppSettings.setAliPayRedPacketReceivedToady(getActivity());
                             return true;
                         });
                 suggestionList.add(suggestion);

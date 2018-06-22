@@ -51,7 +51,6 @@ import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListA
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoViewerAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.util.ArrayUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -396,17 +395,17 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
     }
 
     private void onRequestAddAppFocusedAction(final String who) {
-        pickAppFocusActions(actions -> {
-            String[] actionString = ArrayUtil.convertObjectArrayToStringArray(actions.toArray());
-            XAPMManager.get().addOrRemoveAppFocusAction(who, actionString, true);
-        });
+//        pickAppFocusActions(actions -> {
+//            String[] actionString = ArrayUtil.convertObjectArrayToStringArray(actions.toArray());
+//            XAPMManager.get().addOrRemoveAppFocusAction(who, actionString, true);
+//        });
     }
 
     private void onRequestAddAppUnFocusedAction(final String who) {
-        pickAppFocusActions(actions -> {
-            String[] actionString = ArrayUtil.convertObjectArrayToStringArray(actions.toArray());
-            XAPMManager.get().addOrRemoveAppUnFocusAction(who, actionString, true);
-        });
+//        pickAppFocusActions(actions -> {
+//            String[] actionString = ArrayUtil.convertObjectArrayToStringArray(actions.toArray());
+//            XAPMManager.get().addOrRemoveAppUnFocusAction(who, actionString, true);
+//        });
     }
 
     private void pickAppFocusActions(final ActionReceiver receiver) {

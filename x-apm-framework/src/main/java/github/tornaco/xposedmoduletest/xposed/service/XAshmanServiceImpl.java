@@ -151,6 +151,7 @@ import github.tornaco.xposedmoduletest.xposed.service.doze.DeviceIdleControllerP
 import github.tornaco.xposedmoduletest.xposed.service.doze.DozeStateRetriever;
 import github.tornaco.xposedmoduletest.xposed.service.doze.PowerWhitelistBackend;
 import github.tornaco.xposedmoduletest.xposed.service.dpm.DevicePolicyManagerServiceProxy;
+import github.tornaco.xposedmoduletest.xposed.service.hardware.CameraManager;
 import github.tornaco.xposedmoduletest.xposed.service.input.Input;
 import github.tornaco.xposedmoduletest.xposed.service.multipleapps.MultipleAppsManager;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
@@ -245,6 +246,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     private final ExecutorService mWorkingService = Executors.newCachedThreadPool();
     private final ExecutorService mLoggingService = Executors.newSingleThreadExecutor();
+
+    // Run js workflow on activity focus/unfocus.
+    private final ExecutorService mWorkflowExeService = Executors.newSingleThreadExecutor();
 
     // For debug, also for user.
     private final OpsCache mOpsCache = OpsCache.singleInstance();
@@ -3666,6 +3670,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @BinderCall
     public void evaluateJsString(String[] args, IJsEvaluateListener listener) {
         enforceCallingPermissions();
+
         mainHandler.post(new ErrorCatchRunnable(() -> {
             try {
                 Object res = ScriptRunner.run(getContext(), args);
@@ -4318,12 +4323,23 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         mRebootNotification = new RebootNotification(getContext(), mainHandler);
 
+        // For camera usage.
+        // Wait for 10s after boot complete.
+        // System will test camera somehow...
+        if (OSUtil.isOOrAbove()) {
+            mLazyHandler.postDelayed(() -> {
+                CameraManager.getInstance().watchCameraDevice(getContext());
+                CameraManager.getInstance().enableCameraOpenNotification(NOTIFICATION_CHANNEL_ID_DEFAULT);
+            }, 10 * 1000);
+        }
+
         // Disable layout debug incase our logic make the system dead in loop.
         if (BuildConfig.DEBUG) {
             SystemProperties.set(View.DEBUG_LAYOUT_PROPERTY, String.valueOf(false));
 
             MultipleAppsManager multipleAppsManager = MultipleAppsManager.getInstance();
             multipleAppsManager.onCreate(getContext());
+
         }
     }
 
@@ -5696,28 +5712,38 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
-    @BinderCall
-    public void addOrRemoveAppFocusAction(String pkg, String[] actions, boolean add) {
+    public void addOrRemoveActivityFocusAction(ComponentName comp,
+                                               String[] actions, boolean add) {
         if (XposedLog.isVerboseLoggable()) {
-            XposedLog.verbose("addOrRemoveAppFocusAction: %s %s %s", pkg, Arrays.toString(actions), String.valueOf(add));
+            XposedLog.verbose("addOrRemoveActivityFocusAction: %s %s %s", comp, Arrays.toString(actions), String.valueOf(add));
         }
         enforceCallingPermissions();
+        String compStr = comp.flattenToShortString();
         if (add) {
-            RepoProxy.getProxy().getAppFocused().put(pkg, new Gson().toJson(actions));
+            RepoProxy.getProxy().getAppFocused().put(compStr, new Gson().toJson(actions));
         } else {
-            RepoProxy.getProxy().getAppFocused().remove(pkg);
+            RepoProxy.getProxy().getAppFocused().remove(compStr);
         }
     }
 
     @Override
-    public String[] getAppFocusActionPackages() {
+    public ComponentName[] getActivityFocusActionComponents() {
         Set<String> allSet = RepoProxy.getProxy().getAppFocused().keySet();
-        return convertObjectArrayToStringArray(allSet.toArray());
+        Set<ComponentName> componentNames = new HashSet<>(allSet.size());
+        for (String key : allSet) {
+            ComponentName c = ComponentName.unflattenFromString(key);
+            if (c != null) {
+                componentNames.add(c);
+            }
+        }
+        ComponentName[] res = new ComponentName[componentNames.size()];
+        return componentNames.toArray(res);
     }
 
     @Override
-    public String[] getAppFocusActions(String pkg) {
-        String v = RepoProxy.getProxy().getAppFocused().get(pkg);
+    public String[] getActivityFocusActions(ComponentName comp) {
+        String compStr = comp.flattenToShortString();
+        String v = RepoProxy.getProxy().getAppFocused().get(compStr);
         if (v == null) return new String[0];
         try {
             return new Gson().fromJson(v, String[].class);
@@ -5728,30 +5754,37 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
-    @BinderCall
-    public void addOrRemoveAppUnFocusAction(String pkg, String[] actions, boolean add) {
+    public void addOrRemoveActivityUnFocusAction(ComponentName comp, String[] actions, boolean add) {
         if (XposedLog.isVerboseLoggable()) {
-            XposedLog.verbose("addOrRemoveAppUnFocusAction: %s %s %s", pkg, Arrays.toString(actions), String.valueOf(add));
+            XposedLog.verbose("addOrRemoveActivityUnFocusAction: %s %s %s", comp, Arrays.toString(actions), String.valueOf(add));
         }
         enforceCallingPermissions();
+        String compStr = comp.flattenToShortString();
         if (add) {
-            RepoProxy.getProxy().getAppUnFocused().put(pkg, new Gson().toJson(actions));
+            RepoProxy.getProxy().getAppUnFocused().put(compStr, new Gson().toJson(actions));
         } else {
-            RepoProxy.getProxy().getAppUnFocused().remove(pkg);
+            RepoProxy.getProxy().getAppUnFocused().remove(compStr);
         }
     }
 
     @Override
-    @BinderCall
-    public String[] getAppUnFocusActionPackages() {
+    public ComponentName[] getActivityUnFocusActionComponents() {
         Set<String> allSet = RepoProxy.getProxy().getAppUnFocused().keySet();
-        return convertObjectArrayToStringArray(allSet.toArray());
+        Set<ComponentName> componentNames = new HashSet<>(allSet.size());
+        for (String key : allSet) {
+            ComponentName c = ComponentName.unflattenFromString(key);
+            if (c != null) {
+                componentNames.add(c);
+            }
+        }
+        ComponentName[] res = new ComponentName[componentNames.size()];
+        return componentNames.toArray(res);
     }
 
     @Override
-    @BinderCall
-    public String[] getAppUnFocusActions(String pkg) {
-        String v = RepoProxy.getProxy().getAppUnFocused().get(pkg);
+    public String[] getActivityUnFocusActions(ComponentName comp) {
+        String compStr = comp.flattenToShortString();
+        String v = RepoProxy.getProxy().getAppUnFocused().get(compStr);
         if (v == null) return new String[0];
         try {
             return new Gson().fromJson(v, String[].class);
@@ -7192,11 +7225,26 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                             PKG_MOVE_TO_FRONT_EVENT_DELAY);
         }
 
+        ComponentName componentName = intent.getComponent();
         // For debug.
-        if (mIsSystemReady && showFocusedActivityInfoEnabled()) {
+        if (mIsSystemReady && componentName != null && showFocusedActivityInfoEnabled()) {
             mLazyHandler.removeCallbacks(toastRunnable);
-            mFocusedCompName = intent.getComponent();
+            mFocusedCompName = componentName;
             mLazyHandler.post(toastRunnable);
+        }
+
+        if (mIsSystemReady && componentName != null) {
+            // Check workflow.
+            Runnable jsExe = new ErrorCatchRunnable(() -> {
+                String[] workflowActions = getActivityFocusActions(componentName);
+                if (workflowActions != null) {
+                    for (String wId : workflowActions) {
+                        JavaScript js = getSavedJs(wId);
+                        evaluateJsString(new String[]{js.getScript()}, null);
+                    }
+                }
+            }, "jsExe");
+            mWorkflowExeService.execute(jsExe);
         }
     }
 

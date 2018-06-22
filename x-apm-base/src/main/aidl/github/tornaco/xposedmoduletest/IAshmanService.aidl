@@ -186,13 +186,13 @@ interface IAshmanService {
     // Usually called by systemui.
     void onTaskRemoving(int callingUid, int taskId);
 
-    void addOrRemoveAppFocusAction(String pkg, in String[] actions, boolean add);
-    String[] getAppFocusActionPackages();
-    String[] getAppFocusActions(String pkg);
+    void addOrRemoveActivityFocusAction(in ComponentName comp, in String[] actions, boolean add);
+    ComponentName[] getActivityFocusActionComponents();
+    String[] getActivityFocusActions(in ComponentName comp);
 
-    void addOrRemoveAppUnFocusAction(String pkg, in String[] actions, boolean add);
-    String[] getAppUnFocusActionPackages();
-    String[] getAppUnFocusActions(String pkg);
+    void addOrRemoveActivityUnFocusAction(in ComponentName comp, in String[] actions, boolean add);
+    ComponentName[] getActivityUnFocusActionComponents();
+    String[] getActivityUnFocusActions(in ComponentName comp);
 
     void setDozeEnabled(boolean enable);
     boolean isDozeEnabled();

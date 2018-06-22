@@ -75,6 +75,10 @@ public class WorkflowEditorActivity extends BaseActivity {
         editorActionToolbar.inflateMenu(R.menu.workflow_editor_actions);
         editorActionToolbar.setOnMenuItemClickListener(item -> {
 
+            if (item.getItemId() == R.id.action_copy) {
+                return true;
+            }
+
             if (item.getItemId() == R.id.action_run) {
                 XAPMManager.get().evaluateJsString(new String[]{getCurrentEditingContent()}, new DialogEvaluateListener(getActivity()));
                 return true;

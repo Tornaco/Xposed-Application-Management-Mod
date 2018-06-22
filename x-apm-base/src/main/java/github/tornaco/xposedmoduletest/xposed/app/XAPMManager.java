@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.util.Log;
 
@@ -76,7 +77,8 @@ public class XAPMManager {
         PKG_INSTALL_VERIFY,
         OPT_BLUR_CACHE,
         APP_INACTIVE_POLICY_,
-        REMOVE_TASK_ON_APP_IDLE
+        REMOVE_TASK_ON_APP_IDLE,
+        CAMERA_OPEN_NOTIFICATION,
     }
 
     public interface Op {
@@ -192,7 +194,8 @@ public class XAPMManager {
         ensureService();
         try {
             mService.clearProcess(adapter);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -312,7 +315,8 @@ public class XAPMManager {
         ensureService();
         try {
             return mService.checkService(intent, servicePkgName, callerUid);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
             return true;
         }
     }
@@ -321,7 +325,8 @@ public class XAPMManager {
         ensureService();
         try {
             return mService.checkBroadcast(action, receiverUid, callerUid);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
             return true;
         }
     }
@@ -370,7 +375,6 @@ public class XAPMManager {
             mService.addPendingDisableApps(pkg);
         } catch (Exception e) {
             handleException(e);
-
         }
     }
 
@@ -380,7 +384,6 @@ public class XAPMManager {
             mService.addPendingDisableAppsTR(pkg);
         } catch (Exception e) {
             handleException(e);
-
         }
     }
 
@@ -672,7 +675,8 @@ public class XAPMManager {
         ensureService();
         try {
             mService.setAutoAddBlackEnable(enable);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -748,7 +752,8 @@ public class XAPMManager {
         ensureService();
         try {
             mService.setPermissionControlBlockModeForPkg(code, pkg, mode);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -756,7 +761,8 @@ public class XAPMManager {
         ensureService();
         try {
             mService.setUserDefinedAndroidId(id);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -764,7 +770,8 @@ public class XAPMManager {
         ensureService();
         try {
             mService.setUserDefinedDeviceId(id);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -772,8 +779,8 @@ public class XAPMManager {
         ensureService();
         try {
             mService.setUserDefinedLine1Number(id);
-        } catch (Exception ignored) {
-
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -791,7 +798,8 @@ public class XAPMManager {
         ensureService();
         try {
             return mService.getDeviceId();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
             return null;
         }
     }
@@ -800,7 +808,8 @@ public class XAPMManager {
         ensureService();
         try {
             return mService.getLine1Number();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
             return null;
         }
     }
@@ -809,7 +818,8 @@ public class XAPMManager {
         ensureService();
         try {
             return mService.getUserDefinedLine1Number();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
             return null;
         }
     }
@@ -828,7 +838,8 @@ public class XAPMManager {
         ensureService();
         try {
             return mService.getUserDefinedAndroidId();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
             return null;
         }
     }
@@ -847,8 +858,8 @@ public class XAPMManager {
         ensureService();
         try {
             mService.setShowFocusedActivityInfoEnabled(enabled);
-        } catch (Exception ignored) {
-
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -858,7 +869,6 @@ public class XAPMManager {
             mService.setPrivacyEnabled(enable);
         } catch (Exception e) {
             handleException(e);
-
         }
     }
 
@@ -896,7 +906,8 @@ public class XAPMManager {
         ensureService();
         try {
             return mService.getPrivacyList(priv);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
             return new String[0];
         }
     }
@@ -914,7 +925,8 @@ public class XAPMManager {
         ensureService();
         try {
             mService.addOrRemoveFromPrivacyList(pkg, op);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -932,7 +944,8 @@ public class XAPMManager {
         ensureService();
         try {
             mService.addOrRemoveGreeningApps(packages, op);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -940,7 +953,8 @@ public class XAPMManager {
         ensureService();
         try {
             mService.setGreeningEnabled(enabled);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -989,7 +1003,8 @@ public class XAPMManager {
         ensureService();
         try {
             mService.restoreDefaultSettings();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -1016,7 +1031,8 @@ public class XAPMManager {
         ensureService();
         try {
             mService.writeSystemSettings(key, value);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -1044,7 +1060,8 @@ public class XAPMManager {
         ensureService();
         try {
             return mService.onApplicationUncaughtException(packageName, thread, exception, trace);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1063,8 +1080,8 @@ public class XAPMManager {
         ensureService();
         try {
             mService.setAppCrashDumpEnabled(enabled);
-        } catch (Exception ignored) {
-
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -1072,7 +1089,8 @@ public class XAPMManager {
         ensureService();
         try {
             mService.registerOnTopPackageChangeListener(listener);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -1080,8 +1098,8 @@ public class XAPMManager {
         ensureService();
         try {
             mService.unRegisterOnTopPackageChangeListener(listener);
-        } catch (Exception ignored) {
-
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -1119,7 +1137,8 @@ public class XAPMManager {
         ensureService();
         try {
             mService.setLazyModeEnabled(enabled);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -1137,7 +1156,8 @@ public class XAPMManager {
         ensureService();
         try {
             mService.addOrRemoveLazyApps(packages, op);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -1145,8 +1165,8 @@ public class XAPMManager {
         ensureService();
         try {
             mService.setLPBKEnabled(enabled);
-        } catch (Exception ignored) {
-
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -1154,7 +1174,8 @@ public class XAPMManager {
         ensureService();
         try {
             return mService.isLPBKEnabled();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            handleException(e);
             return false;
         }
     }
@@ -1163,66 +1184,64 @@ public class XAPMManager {
         ensureService();
         try {
             mService.onTaskRemoving(callingUid, taskId);
-        } catch (Exception ignored) {
-
-        }
-    }
-
-    public void addOrRemoveAppFocusAction(String pkg, String[] actions, boolean add) {
-        ensureService();
-        try {
-            mService.addOrRemoveAppFocusAction(pkg, actions, add);
         } catch (Exception e) {
             handleException(e);
-
         }
     }
 
-    public void addOrRemoveAppUnFocusAction(String pkg, String[] actions, boolean add) {
+    public void addOrRemoveActivityFocusAction(ComponentName comp, String[] actions, boolean add) {
         ensureService();
         try {
-            mService.addOrRemoveAppUnFocusAction(pkg, actions, add);
-        } catch (Exception e) {
+            mService.addOrRemoveActivityFocusAction(comp, actions, add);
+        } catch (RemoteException e) {
             handleException(e);
-
         }
     }
 
-    public String[] getAppFocusActionPackages() {
+    public ComponentName[] getActivityFocusActionComponents() {
         ensureService();
         try {
-            return mService.getAppFocusActionPackages();
-        } catch (Exception e) {
+            return mService.getActivityFocusActionComponents();
+        } catch (RemoteException e) {
             handleException(e);
-            return new String[0];
+            return new ComponentName[0];
         }
     }
 
-    public String[] getAppFocusActions(String pkg) {
+    public String[] getActivityFocusActions(ComponentName comp) {
         ensureService();
         try {
-            return mService.getAppFocusActions(pkg);
-        } catch (Exception e) {
+            return mService.getActivityFocusActions(comp);
+        } catch (RemoteException e) {
             handleException(e);
             return new String[0];
         }
     }
 
-    public String[] getAppUnFocusActionPackages() {
+    public void addOrRemoveActivityUnFocusAction(ComponentName comp, String[] actions, boolean add) {
         ensureService();
         try {
-            return mService.getAppUnFocusActionPackages();
-        } catch (Exception e) {
+            mService.addOrRemoveActivityUnFocusAction(comp, actions, add);
+        } catch (RemoteException e) {
             handleException(e);
-            return new String[0];
         }
     }
 
-    public String[] getAppUnFocusActions(String pkg) {
+    public ComponentName[] getActivityUnFocusActionComponents() {
         ensureService();
         try {
-            return mService.getAppUnFocusActions(pkg);
-        } catch (Exception e) {
+            return mService.getActivityUnFocusActionComponents();
+        } catch (RemoteException e) {
+            handleException(e);
+            return new ComponentName[0];
+        }
+    }
+
+    public String[] getActivityUnFocusActions(ComponentName comp) {
+        ensureService();
+        try {
+            return mService.getActivityUnFocusActions(comp);
+        } catch (RemoteException e) {
             handleException(e);
             return new String[0];
         }
@@ -1255,7 +1274,6 @@ public class XAPMManager {
             mService.setDozeEnabled(enable);
         } catch (Exception e) {
             handleException(e);
-
         }
     }
 

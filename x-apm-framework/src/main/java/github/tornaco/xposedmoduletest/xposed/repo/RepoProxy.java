@@ -72,7 +72,9 @@ public class RepoProxy {
             resident, doze_whitelist_adding, doze_whitelist_removal,
             wakeup_on_notification;
 
-    private MapRepo<String, String> componentReplacement, appFocused, appUnFocused, systemPropProfiles,
+    private MapRepo<String, String> componentReplacement,
+            appFocused, appUnFocused,
+            systemPropProfiles,
             appSettingsTemplate, appOpsTemplate,
             js;
 
