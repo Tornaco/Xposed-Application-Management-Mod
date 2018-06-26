@@ -109,11 +109,11 @@
 
     <string name="summary_boot_app">"The following applications are blocked from running after phone booting.\n\nNote that, although certain applications are blocked from starting up while booting, they may still be started by other applications/broadcasts later. If you want to disable this, please set the auto start too."</string>
 
-    <string name="summary_lock_kill_app">"The following applications will be forced to stop when they are clicked to clear immediately or after the screen is locked. To enhance the user experience, any interaction with the device during the lock screen cleanup process interrupts the cleanup process.\n\nNote that in order to prevent missing important notifications, applications that have notification messages are skipped by default when clearing the selected application. You can change this setting in the General Settings."\n\nWhy are some application lock screens not cleaned? Please check if the protection notification application setting is turned on or if the setting to protect an application with audio focus is turned on.</string>
+    <string name="summary_lock_kill_app">"The following applications will be cleared when they are clicked to clear immediately or after the screen is locked. To enhance the user experience, any interaction with the device during the lock screen cleanup process interrupts the cleanup process.\n\nNote that in order to prevent missing important notifications, applications that have notification messages are skipped by default when clearing the selected application. You can change this setting in the General Settings."\n\nWhy are some application lock screens not cleaned? Please check if the protection notification application setting is turned on or if the setting to protect an application with audio focus is turned on.</string>
 
-    <string name="summary_rf_kill_app">"The following applications will be forcibly stopped after quited via the back button."</string>
+    <string name="summary_rf_kill_app">"The following applications will be cleared after quited via the back button."</string>
 
-    <string name="summary_tr_kill_app">"The following applications will be forcibly stopped after removed from the recent tasks."</string>
+    <string name="summary_tr_kill_app">"The following applications will be cleared after removed from the recent tasks."</string>
 
     <string name="summary_start_app">"The following applications are prohibited from being launched by other applications (via service or broadcast). (WeChat and Alipay are not recommended to add, otherwise you may fail initiating a payment; neither the input method app, otherwise it may not be able to evoke the input)."</string>
 

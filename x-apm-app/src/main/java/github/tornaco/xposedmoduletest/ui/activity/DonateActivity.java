@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SwitchCompat;
-import android.view.View;
 import android.widget.ImageView;
 
 import github.tornaco.xposedmoduletest.R;
@@ -34,44 +33,23 @@ public class DonateActivity extends BaseActivity implements SwitchBar.OnSwitchCh
         showHomeAsUp();
 
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getContext(), PayListBrowserActivity.class));
-            }
+        fab.setOnClickListener(view -> startActivity(new Intent(getContext(), PayListBrowserActivity.class)));
+
+        findViewById(R.id.pay_ali).setOnClickListener(v -> AliPayUtil.startPay(getContext()));
+
+        findViewById(R.id.pay_wechat).setOnClickListener(v -> {
+            ImageView imageView = new ImageView(getActivity());
+            imageView.setImageResource(R.drawable.wechat_pay);
+            new AlertDialog.Builder(getActivity())
+                    .setView(imageView)
+                    .show();
         });
 
-        findViewById(R.id.pay_ali).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AliPayUtil.startPay(getContext());
-            }
-        });
+        findViewById(R.id.pay_btc).setOnClickListener(v -> copyTextToClipBoard("btc", "1GTYfybX6WjbSDPAwpuAu4qKocsTAEMrUN"));
 
-        findViewById(R.id.pay_wechat).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ImageView imageView = new ImageView(getActivity());
-                imageView.setImageResource(R.drawable.wechat_pay);
-                new AlertDialog.Builder(getActivity())
-                        .setView(imageView)
-                        .show();
-            }
-        });
+        findViewById(R.id.pay_eth).setOnClickListener(v -> copyTextToClipBoard("eth", "0xf2a73cc9b369b125f435878526eeb640c850369e"));
 
-        findViewById(R.id.pay_btc).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                copyTextToClipBoard("btc", "1GTYfybX6WjbSDPAwpuAu4qKocsTAEMrUN");
-            }
-        });
-
-        findViewById(R.id.pay_eth).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                copyTextToClipBoard("eth", "0xf2a73cc9b369b125f435878526eeb640c850369e");
-            }
-        });
+        findViewById(R.id.pay_ali_red_pkt).setOnClickListener(v -> AliPayUtil.getRedPacket(getContext()));
 
         SwitchBar switchBar = findViewById(R.id.switchbar);
         switchBar.setEnabled(true);
@@ -98,13 +76,10 @@ public class DonateActivity extends BaseActivity implements SwitchBar.OnSwitchCh
 
     private void copyTextToClipBoard(final String tag, final String text) {
         showTips(getString(R.string.message_coin_address_copied, tag, text), false,
-                getString(android.R.string.copy), new Runnable() {
-                    @Override
-                    public void run() {
-                        ClipboardManager cmb = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                        if (cmb != null) {
-                            cmb.setPrimaryClip(ClipData.newPlainText(tag, text));
-                        }
+                getString(android.R.string.copy), () -> {
+                    ClipboardManager cmb = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                    if (cmb != null) {
+                        cmb.setPrimaryClip(ClipData.newPlainText(tag, text));
                     }
                 });
     }
