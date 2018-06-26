@@ -730,7 +730,11 @@ public class NavigatorActivityBottomNav
             if (!isPlayVersion && !AppSettings.isAliPayRedPacketReceivedToady(getActivity())) {
                 Suggestion suggestion = new Suggestion(
                         getString(R.string.suggestion_alipay_red_packet),
-                        getString(R.string.suggestion_summary_alipay_red_packet),
+                        getString(R.string.suggestion_summary_alipay_red_packet,
+                                EmojiUtil.contactEmojiByUnicode(
+                                        EmojiUtil.HEART,
+                                        EmojiUtil.HEART,
+                                        EmojiUtil.HEART)),
                         getString(R.string.suggestion_action_alipay_red_packet),
                         R.drawable.ic_alipay,
                         (group, flatPosition, childIndex) -> {

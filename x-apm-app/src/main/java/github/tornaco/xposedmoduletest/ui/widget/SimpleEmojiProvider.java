@@ -26,6 +26,8 @@ public class SimpleEmojiProvider implements EmojiProvider {
                         return new Emoji[]{
                                 new Emoji(EmojiUtil.HAPPY, R.drawable.smile),
                                 new Emoji(EmojiUtil.DOG, R.drawable.d_doge),
+                                new Emoji(EmojiUtil.HEART, R.drawable.tieba_emotion_heart),
+                                new Emoji(EmojiUtil.HEART_BREAK, R.drawable.tieba_emotion_heart_break),
                         };
                     }
 

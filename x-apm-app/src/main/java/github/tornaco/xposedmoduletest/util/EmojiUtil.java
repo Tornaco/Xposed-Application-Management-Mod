@@ -3,8 +3,6 @@ package github.tornaco.xposedmoduletest.util;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 
-import org.newstand.logger.Logger;
-
 import java.util.Random;
 
 /**
@@ -15,19 +13,25 @@ import java.util.Random;
 
 public class EmojiUtil {
 
-    public static final int HAPPY = 0X1F60F;
-    public static final int UNHAPPY = 0x1F625;
-    public static final int BOOST = 0x1F680;
-    public static final int SHEEP = 0x1F40F;
 
-    public static final int HEIHEIHEI = 0x9999;
-    public static final int DOG = 0x9998;
-    public static final int FIVE_MORE = 0x9996;
-    public static final int ZHOUMEI = 0x9995;
-    public static final int HONGLIAN = 0x9994;
-    public static final int ERHA = 0x9993;
+    public static final int _BASE = 0X1F60F;
+    public static final int HAPPY = _BASE + 1;
+    public static final int UNHAPPY = _BASE + 2;
+    public static final int BOOST = _BASE + 3;
+    public static final int SHEEP = _BASE + 4;
 
-    public static final int[] RANDOM_CANDIDATES = new int[]{
+    public static final int HEIHEIHEI = _BASE + 5;
+    public static final int DOG = _BASE + 6;
+    public static final int FIVE_MORE = _BASE + 7;
+    public static final int ZHOUMEI = _BASE + 8;
+    public static final int HONGLIAN = _BASE + 9;
+    public static final int ERHA = _BASE + 10;
+
+    public static final int HEART = _BASE + 11;
+    public static final int HEART_BREAK = _BASE + 12;
+
+
+    private static final int[] RANDOM_CANDIDATES = new int[]{
             HAPPY,
             UNHAPPY,
             BOOST, SHEEP,
@@ -39,7 +43,7 @@ public class EmojiUtil {
             ERHA
     };
 
-    public static final int[] ALL = new int[]{
+    private static final int[] ALL = new int[]{
             HAPPY,
             UNHAPPY,
             BOOST, SHEEP,
@@ -54,7 +58,6 @@ public class EmojiUtil {
     public static String localReplaceEmojiCode(String from) {
         for (int code : ALL) {
             boolean contains = from.contains(String.valueOf(code));
-            Logger.d("CONTAINS EMOJI CODE %s %s ", code, contains);
             from = from.replace(String.valueOf(code), getEmojiByUnicode(code));
         }
         return from;
@@ -69,7 +72,6 @@ public class EmojiUtil {
     public static String getEmojiByUnicode(int unicode) {
         return new String(Character.toChars(unicode));
     }
-
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public static String contactEmojiByUnicode(int... unicode) {
