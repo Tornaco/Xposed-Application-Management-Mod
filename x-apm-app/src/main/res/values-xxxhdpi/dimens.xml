@@ -1,15 +1,4 @@
 <resources>
-    <dimen name="activity_horizontal_margin_large">24dp</dimen>
-    <dimen name="activity_horizontal_margin">16dp</dimen>
-    <dimen name="activity_horizontal_margin_middle">12dp</dimen>
-    <dimen name="activity_horizontal_margin_small">7dp</dimen>
-    <dimen name="activity_horizontal_margin_marco">5dp</dimen>
-    <dimen name="activity_horizontal_margin_transport_progress">9dp</dimen>
-    <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="activity_vertical_margin_large">36dp</dimen>
-    <dimen name="activity_vertical_margin_huge">64dp</dimen>
-    <dimen name="fab_margin">16dp</dimen>
-
     <!-- Text sizes -->
     <dimen name="text_size_extra_micro">12sp</dimen>
     <dimen name="text_size_micro">13sp</dimen>
