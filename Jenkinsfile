@@ -5,7 +5,8 @@ pipeline {
     stages {
         stage('Build') {            
             steps {                
-                echo 'Building'            
+                echo 'Building'
+                sh './gradlew app:assembleDebug'
             }        
         }        
         stage('Test') {            
@@ -26,7 +27,8 @@ pipeline {
         }        
         stage('Deploy - Production') {            
             steps {                
-                echo './deploy production'            
+                echo './deploy production'
+                sh 'tree x-apm-app/build/outputs/apk/ '
             }        
         }    
     }
