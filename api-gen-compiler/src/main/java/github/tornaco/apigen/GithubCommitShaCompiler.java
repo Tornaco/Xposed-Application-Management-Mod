@@ -163,6 +163,9 @@ public class GithubCommitShaCompiler extends AbstractProcessor {
 
     private String retrieveAndFormatLatestContributors(String user, String repo) {
         List<Contributor> contributors = retrieveLatestContributors(user, repo);
+        if (contributors == null || contributors.size() == 0) {
+            return GithubCommitSha.UNKNOWN;
+        }
         StringBuilder sb = new StringBuilder();
         for (Contributor c : contributors) {
             sb.append(c.getLogin()).append(" ");
