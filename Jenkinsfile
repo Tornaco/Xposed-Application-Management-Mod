@@ -1,11 +1,13 @@
 pipeline {
     agent {
-        label 'Production'
+        label 'master'
     }
     stages {
         stage('Build') {            
             steps {                
-                echo 'Building'            
+                echo 'Building'
+                sh 'ls -l'
+                sh './gradlew x-apm-app:assembleDebug'
             }        
         }        
         stage('Test') {            
@@ -26,7 +28,8 @@ pipeline {
         }        
         stage('Deploy - Production') {            
             steps {                
-                echo './deploy production'            
+                echo './deploy production'
+                sh 'tree x-apm-app/build/outputs/apk/ '
             }        
         }    
     }
