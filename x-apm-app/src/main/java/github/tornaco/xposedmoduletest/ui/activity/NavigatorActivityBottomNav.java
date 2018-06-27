@@ -605,12 +605,12 @@ public class NavigatorActivityBottomNav
             if (isNewBuild) {
                 summaryView.setText(R.string.app_intro_need_restart);
                 ViewGroup header = findView(rootView, R.id.header1);
-                header.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.amber));
+                header.setBackgroundColor(ContextCompat.getColor(Objects.requireNonNull(getActivity()), R.color.amber));
                 imageView.setImageResource(R.drawable.ic_error_black_24dp);
                 XAPMManager.get().showRebootNeededNotification("isNewBuild");
             } else {
                 TypedValue typedValue = new TypedValue();
-                getActivity().getTheme().resolveAttribute(R.attr.torCardAccentBackgroundColor, typedValue, true);
+                Objects.requireNonNull(getActivity()).getTheme().resolveAttribute(R.attr.torCardAccentBackgroundColor, typedValue, true);
                 int resId = typedValue.resourceId;
 
                 int cardAccentColor = ContextCompat.getColor(getActivity(), resId);
@@ -620,9 +620,8 @@ public class NavigatorActivityBottomNav
                         XAppLockManager.get().isServiceAvailable() ?
                                 cardAccentColor
                                 : ContextCompat.getColor(getActivity(), R.color.red));
-                boolean isDonatedOrPlay = XAPMApplication.isPlayVersion() || AppSettings.isDonated(getContext());
                 imageView.setImageResource(isServiceAvailable()
-                        ? isDonatedOrPlay ? R.drawable.ic_multiline_chart_black_24dp : R.drawable.ic_check_circle_black_24dp
+                        ? R.drawable.ic_check_circle_black_24dp
                         : R.drawable.ic_error_black_24dp);
 
             }
@@ -728,10 +727,14 @@ public class NavigatorActivityBottomNav
             }
 
             // AliPay.
-            if (!AppSettings.isAliPayRedPacketReceivedToady(getActivity())) {
+            if (!isPlayVersion && !AppSettings.isAliPayRedPacketReceivedToady(getActivity())) {
                 Suggestion suggestion = new Suggestion(
                         getString(R.string.suggestion_alipay_red_packet),
-                        getString(R.string.suggestion_summary_alipay_red_packet),
+                        getString(R.string.suggestion_summary_alipay_red_packet,
+                                EmojiUtil.contactEmojiByUnicode(
+                                        EmojiUtil.HEART,
+                                        EmojiUtil.HEART,
+                                        EmojiUtil.HEART)),
                         getString(R.string.suggestion_action_alipay_red_packet),
                         R.drawable.ic_alipay,
                         (group, flatPosition, childIndex) -> {
@@ -765,7 +768,7 @@ public class NavigatorActivityBottomNav
                             XAPMManager.get().restoreDefaultSettings();
                             Toast.makeText(getContext(), R.string.summary_restore_done, Toast.LENGTH_SHORT).show();
                         }
-                        PackageManagerCompat.unInstallUserAppWithIntent(getContext(), BuildConfig.APPLICATION_ID);
+                        PackageManagerCompat.unInstallUserAppWithIntent(Objects.requireNonNull(getContext()), BuildConfig.APPLICATION_ID);
                     })
                     .setNegativeButton(android.R.string.cancel, null)
                     .show();

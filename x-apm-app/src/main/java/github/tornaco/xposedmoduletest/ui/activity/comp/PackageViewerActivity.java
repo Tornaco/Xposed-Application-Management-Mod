@@ -101,6 +101,7 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
             public void onBindViewHolder(@NonNull CommonViewHolder holder, int position) {
                 super.onBindViewHolder(holder, position);
                 final CommonPackageInfo packageInfo = getCommonPackageInfos().get(position);
+                holder.getLineTwoTextView().setText(packageInfo.getPkgName());
                 if (packageInfo.isDisabled()) {
                     View.OnClickListener listener = v -> {
                         try {

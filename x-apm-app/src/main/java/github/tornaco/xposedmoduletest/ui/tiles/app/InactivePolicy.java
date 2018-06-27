@@ -20,7 +20,7 @@ public class InactivePolicy extends QuickTile {
 
         this.titleRes = R.string.title_inactive_instead_of_kill;
         this.summaryRes = R.string.summary_inactive_instead_of_kill;
-        this.iconRes = R.drawable.ic_motorcycle_black_24dp;
+        this.iconRes = R.drawable.ic_stop_black_24dp;
         this.tileView = new SwitchTileView(context) {
 
             @Override
