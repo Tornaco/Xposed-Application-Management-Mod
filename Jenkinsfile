@@ -6,7 +6,8 @@ pipeline {
         stage('Build') {            
             steps {                
                 echo 'Building'
-                sh './gradlew app:assembleDebug'
+                sh 'ls -l'
+                sh './gradlew x-apm-app:assembleDebug'
             }        
         }        
         stage('Test') {            
