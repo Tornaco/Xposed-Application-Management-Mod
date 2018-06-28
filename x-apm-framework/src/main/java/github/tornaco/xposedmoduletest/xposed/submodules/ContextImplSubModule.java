@@ -20,7 +20,10 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 class ContextImplSubModule extends AndroidSubModule {
 
-    private static final Set<String> APM_APP_NEEDED_PERMISSIONS = Sets.newHashSet(Manifest.permission.FORCE_STOP_PACKAGES);
+    // These permissions is needed by X-APM app, but for system reason,
+    // it can not acquire anyway.
+    // So we hook it.
+    private static final Set<String> APM_APP_NEEDED_PERMISSIONS = Sets.newHashSet();
 
     @Override
     public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {
