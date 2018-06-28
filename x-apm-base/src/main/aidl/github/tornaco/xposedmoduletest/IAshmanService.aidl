@@ -537,4 +537,7 @@ interface IAshmanService {
     PackageInfo getPackageInfoForPackage(String pkgName);
     ApplicationInfo getApplicationInfoForPackage(String pkgName);
     String getPackageNameForUid(int uid);
+
+    // Package manage #2.
+    void killBackgroundProcesses(String packageName);
 }

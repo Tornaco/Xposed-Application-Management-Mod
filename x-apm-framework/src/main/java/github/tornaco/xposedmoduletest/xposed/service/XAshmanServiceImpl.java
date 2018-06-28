@@ -3761,6 +3761,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     @BinderCall
+    public void killBackgroundProcesses(String packageName) {
+        enforceCallingPermissions();
+        Runnable r = () -> {
+            ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
+            if (am != null) {
+                am.killBackgroundProcesses(packageName);
+            }
+        };
+        mainHandler.post(new ErrorCatchRunnable(r, "killBackgroundProcesses"));
+    }
+
+    @Override
+    @BinderCall
     public List<JavaScript> getSavedJses() {
         enforceCallingPermissions();
         List<JavaScript> res = new ArrayList<>();

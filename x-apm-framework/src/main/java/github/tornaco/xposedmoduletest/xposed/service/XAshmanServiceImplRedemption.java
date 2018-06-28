@@ -1842,4 +1842,9 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     public String getPackageNameForUid(int uid) {
         return null;
     }
+
+    @Override
+    public void killBackgroundProcesses(String packageName) {
+
+    }
 }

@@ -2603,7 +2603,15 @@ public class XAPMManager {
             mService.forceStopPackage(packageName);
         } catch (Exception e) {
             handleException(e);
+        }
+    }
 
+    public void killBackgroundProcesses(String packageName) {
+        ensureService();
+        try {
+            mService.killBackgroundProcesses(packageName);
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
