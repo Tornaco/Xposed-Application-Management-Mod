@@ -202,11 +202,11 @@ public class RunningServiceDetails extends PreferenceFragment {
                 stopActiveService(false);
             } else if (mActiveItem.mItem.mBackground) {
                 // Background process.  Just kill it.
-                mAm.killBackgroundProcesses(mActiveItem.mItem.mPackageInfo.packageName);
+                XAPMManager.get().killBackgroundProcesses(mActiveItem.mItem.mPackageInfo.packageName);
                 finish();
             } else {
                 // Heavy-weight process.  We'll do a force-stop on it.
-                mAm.forceStopPackage(mActiveItem.mItem.mPackageInfo.packageName);
+                XAPMManager.get().forceStopPackage(mActiveItem.mItem.mPackageInfo.packageName);
                 finish();
             }
         }
