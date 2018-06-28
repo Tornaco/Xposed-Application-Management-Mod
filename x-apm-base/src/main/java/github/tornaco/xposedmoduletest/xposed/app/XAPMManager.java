@@ -4,6 +4,8 @@ import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
@@ -57,6 +59,7 @@ public class XAPMManager {
      * Reject application network traffic on wifi network
      **/
     public static final int POLICY_REJECT_ON_WIFI = 0x8000;
+
     /**
      * Reject application network traffic on cellular network
      **/
@@ -2714,6 +2717,36 @@ public class XAPMManager {
         }
     }
 
+    public PackageInfo getPackageInfoForPackage(String pkgName) {
+        ensureService();
+        try {
+            return mService.getPackageInfoForPackage(pkgName);
+        } catch (Exception e) {
+            handleException(e);
+            return null;
+        }
+    }
+
+    public ApplicationInfo getApplicationInfoForPackage(String pkgName) {
+        ensureService();
+        try {
+            return mService.getApplicationInfoForPackage(pkgName);
+        } catch (Exception e) {
+            handleException(e);
+            return null;
+        }
+    }
+
+    public String getPackageNameForUid(int uid) {
+        ensureService();
+        try {
+            return mService.getPackageNameForUid(uid);
+        } catch (Exception e) {
+            handleException(e);
+            return null;
+        }
+    }
+
     private static void handleException(Throwable e) {
         if (BuildConfig.DEBUG) {
             //throw new RuntimeException(e);
@@ -2722,4 +2755,5 @@ public class XAPMManager {
             Log.e(XposedLog.TAG, Log.getStackTraceString(e));
         }
     }
+
 }

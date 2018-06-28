@@ -6,8 +6,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.service.notification.StatusBarNotification;
 import android.view.Display;
@@ -1824,5 +1826,20 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     @Override
     public void lockNow() {
 
+    }
+
+    @Override
+    public PackageInfo getPackageInfoForPackage(String pkgName) {
+        return null;
+    }
+
+    @Override
+    public ApplicationInfo getApplicationInfoForPackage(String pkgName) {
+        return null;
+    }
+
+    @Override
+    public String getPackageNameForUid(int uid) {
+        return null;
     }
 }
