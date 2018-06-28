@@ -532,4 +532,9 @@ interface IAshmanService {
     List<JavaScript> getSavedJses();
     void saveJs(in JavaScript js);
     void deleteJs(in JavaScript js);
+
+    // PM
+    PackageInfo getPackageInfoForPackage(String pkgName);
+    ApplicationInfo getApplicationInfoForPackage(String pkgName);
+    String getPackageNameForUid(int uid);
 }

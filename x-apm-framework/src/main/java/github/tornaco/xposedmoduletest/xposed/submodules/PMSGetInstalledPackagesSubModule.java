@@ -6,7 +6,8 @@ import android.content.pm.ParceledListSlice;
 import android.os.Binder;
 import android.util.Log;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -57,9 +58,18 @@ class PMSGetInstalledPackagesSubModule extends AndroidSubModule {
                                 int mode = xAshmanManager.getPermissionControlBlockModeForUid(
                                         XAppOpsManager.OP_READ_INSTALLED_APPS, uid, true);
                                 if (mode == XAppOpsManager.MODE_IGNORED) {
-                                    XposedLog.verbose("getInstalledPackages, MODE_IGNORED returning empty for :" + uid);
                                     try {
-                                        ParceledListSlice<PackageInfo> empty = new ParceledListSlice<>(Collections.<PackageInfo>emptyList());
+                                        List<PackageInfo> selfOnlyList = new ArrayList<>();
+                                        String callingPkgName = xAshmanManager.getPackageNameForUid(uid);
+                                        XposedLog.verbose("getInstalledPackages, MODE_IGNORED returning empty for :" + uid + "-" + callingPkgName);
+                                        if (callingPkgName != null) {
+                                            PackageInfo packageInfo = xAshmanManager.getPackageInfoForPackage(callingPkgName);
+                                            if (packageInfo != null) {
+                                                selfOnlyList.add(packageInfo);
+                                                XposedLog.verbose("getInstalledPackages, MODE_IGNORED inflating pkg info :" + packageInfo);
+                                            }
+                                        }
+                                        ParceledListSlice<PackageInfo> empty = new ParceledListSlice<>(selfOnlyList);
                                         param.setResult(empty);
                                     } catch (Exception e) {
                                         param.setResult(null);
@@ -99,10 +109,19 @@ class PMSGetInstalledPackagesSubModule extends AndroidSubModule {
                                         XAppOpsManager.OP_READ_INSTALLED_APPS, uid,
                                         true);
                                 if (mode == XAppOpsManager.MODE_IGNORED) {
-                                    Log.d(XposedLog.TAG, "getInstalledApplications, MODE_IGNORED returning empty for :" + uid);
                                     try {
                                         // M has no method named empty.
-                                        ParceledListSlice<ApplicationInfo> empty = new ParceledListSlice<>(Collections.<ApplicationInfo>emptyList());
+                                        List<ApplicationInfo> selfOnlyList = new ArrayList<>();
+                                        String callingPkgName = xAshmanManager.getPackageNameForUid(uid);
+                                        Log.d(XposedLog.TAG, "getInstalledApplications, MODE_IGNORED returning empty for :" + uid + "-" + callingPkgName);
+                                        if (callingPkgName != null) {
+                                            ApplicationInfo applicationInfo = xAshmanManager.getApplicationInfoForPackage(callingPkgName);
+                                            if (applicationInfo != null) {
+                                                selfOnlyList.add(applicationInfo);
+                                                Log.d(XposedLog.TAG, "getInstalledApplications, MODE_IGNORED inflating app info :" + applicationInfo);
+                                            }
+                                        }
+                                        ParceledListSlice<ApplicationInfo> empty = new ParceledListSlice<>(selfOnlyList);
                                         param.setResult(empty);
                                     } catch (Exception e) {
                                         param.setResult(null);

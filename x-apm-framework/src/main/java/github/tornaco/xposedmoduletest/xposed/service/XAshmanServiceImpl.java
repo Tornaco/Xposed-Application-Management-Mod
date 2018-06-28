@@ -3720,6 +3720,46 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    @BinderCall(restrict = "any")
+    public PackageInfo getPackageInfoForPackage(String pkgName) {
+        PackageManager pm = getContext().getPackageManager();
+        PackageInfo info;
+        try {
+            if (OSUtil.isNOrAbove()) {
+                info = pm.getPackageInfo(pkgName, PackageManager.MATCH_UNINSTALLED_PACKAGES);
+            } else {
+                info = pm.getPackageInfo(pkgName, PackageManager.GET_UNINSTALLED_PACKAGES);
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return info;
+    }
+
+    @Override
+    @BinderCall(restrict = "any")
+    public ApplicationInfo getApplicationInfoForPackage(String pkgName) {
+        PackageManager pm = getContext().getPackageManager();
+        ApplicationInfo info;
+        try {
+            if (OSUtil.isNOrAbove()) {
+                info = pm.getApplicationInfo(pkgName, PackageManager.MATCH_UNINSTALLED_PACKAGES);
+            } else {
+                info = pm.getApplicationInfo(pkgName, PackageManager.GET_UNINSTALLED_PACKAGES);
+            }
+        } catch (PackageManager.NameNotFoundException var4) {
+            return null;
+        }
+        return info;
+    }
+
+    @Override
+    @BinderCall(restrict = "any")
+    public String getPackageNameForUid(int uid) {
+        return PkgUtil.pkgForUid(getContext(), uid);
+    }
+
+    @Override
     @BinderCall
     public List<JavaScript> getSavedJses() {
         enforceCallingPermissions();
