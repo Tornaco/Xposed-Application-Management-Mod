@@ -437,7 +437,6 @@
     <string name="filter_ext_op">拓展</string>
     <string name="filter_default_op">默认</string>
     <string name="title_perm_control_template">权限配置</string>
-    <string name="title_menu_ops_template">新装应用自动使用模板</string>
     <string name="title_app_lk_tip">锁屏清理说明</string>
     <string name="message_app_lk_tip">介于有部分用户反馈锁屏清理无效，特增加此说明，请看完，可避免不必要的使用错误。\n为了尽可能的减少杀死应用对用户带来的不必要的影响，默认不清理有通知的应用，可设置。另外，锁屏后，如果立刻开屏，而清理过程未完成，为了降低清理造成系统服务卡顿，以及你可能想继续使用刚才要被清理的应用，我们会终止清理过程。因此，当你锁屏且未在使用设备时，我们才会做清理操作。请知悉，感谢阅读，感谢阅读，感谢阅读，感谢阅读，感谢阅读x10000000000000000000。</string>
     <string name="user_notice_title">老用户可快速跳过</string>
@@ -678,4 +677,8 @@
     <string name="suggestion_summary_alipay_red_packet">感谢支持%1$s 你也可以去捐赠页面点击，每天都可以哦！</string>
     <string name="suggestion_action_alipay_red_packet">前往领取</string>
     <string name="toast_alipay_red_packet_copied">领取口令已经复制到剪贴板</string>
+    <string name="perm_system_app_protected">“排除系统应用”开关已经打开，系统应用的权限设定将不会保存。</string>
+    <string name="title_app_ops_template">权限模板</string>
+    <string name="title_app_ops_template_saved">Saved</string>
+    <string name="title_app_ops_template_edit_apply_batch">批量操作</string>
 </resources>

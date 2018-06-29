@@ -20,6 +20,7 @@
         android:id="@+id/show_system_app"
         android:checkable="true"
         android:checked="false"
+        android:visible="false"
         android:title="@string/title_show_system_app" />
 
     <item

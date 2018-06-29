@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
@@ -35,6 +36,7 @@ import org.newstand.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.os.XAppOpsManagerRes;
@@ -45,12 +47,13 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.activity.WithSearchActivity;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
+import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoViewerAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.SpannableUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
-import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
+import lombok.Getter;
 
 public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
 
@@ -82,7 +85,6 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
                         PackageManagerCompat.unInstallUserAppWithIntent(getContext(), getPackageName());
                     })
                     .show();
-
         }
     }
 
@@ -127,7 +129,7 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
 
         boolean donateOrPlay = XAPMApplication.isPlayVersion() || AppSettings.isDonated(getContext());
         if (!donateOrPlay) {
-            tabLayout.getTabAt(INDEX_OPS).setText(R.string.donated_available);
+            Objects.requireNonNull(tabLayout.getTabAt(INDEX_OPS)).setText(R.string.donated_available);
         }
 
     }
@@ -167,7 +169,7 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
         if (item.getItemId() == R.id.action_ops_template) {
             if (AppSettings.isDonated(getContext())
                     || XAPMApplication.isPlayVersion()) {
-                Apps2OpListActivity.start(getContext(), XAPMManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME);
+                AppOpsTemplateListActivity.start(getActivity());
             } else {
                 Toast.makeText(getContext(), R.string.donated_available, Toast.LENGTH_SHORT).show();
             }
@@ -224,8 +226,6 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
 
         private int index;
 
-        protected boolean mShowSystemApp = false;
-
         protected void startLoading() {
             swipeRefreshLayout.setRefreshing(true);
             XExecutor.execute(() -> {
@@ -245,8 +245,7 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
         protected List performLoading() {
             switch (index) {
                 case INDEX_APPS:
-                    return ComponentLoader.Impl.create(getActivity()).loadInstalledApps(mShowSystemApp,
-                            ComponentLoader.Sort.byName(), mFilterOption);
+                    return ComponentLoader.Impl.create(getActivity()).loadInstalledApps(true, ComponentLoader.Sort.byName(), mFilterOption);
                 case INDEX_OPS:
                     boolean donateOrPlay = XAPMApplication.isPlayVersion() || AppSettings.isDonated(getContext());
                     if (!donateOrPlay) return new ArrayList(0);
@@ -259,6 +258,7 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
         protected CommonPackageInfoViewerAdapter onCreateAdapter() {
             CommonPackageInfoViewerAdapter adapter =
                     new CommonPackageInfoViewerAdapter(getActivity()) {
+
                         @Override
                         protected boolean enableLongPressTriggerAllSelection() {
                             return false;
@@ -270,6 +270,11 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
                         }
 
                         @Override
+                        protected CommonViewHolder onCreateViewHolder(View root) {
+                            return new OpsItemViewHolder(root);
+                        }
+
+                        @Override
                         public void onBindViewHolder(@NonNull CommonViewHolder holder, int position) {
                             super.onBindViewHolder(holder, position);
 
@@ -278,15 +283,14 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
                             if (index == INDEX_OPS) {
                                 holder.getLineTwoTextView().setText(packageInfo.getPayload()[0]);
                                 if (getActivity() != null) {
-                                    holder.getCheckableImageView().setImageDrawable(ContextCompat
-                                            .getDrawable(getActivity(),
-                                                    XAppOpsManagerRes
-                                                            .opToIconRes(packageInfo.getVersion())));
+                                    OpsItemViewHolder opsItemViewHolder = (OpsItemViewHolder) holder;
+                                    opsItemViewHolder.getOpIconView().setImageResource(XAppOpsManagerRes
+                                            .opToIconRes(packageInfo.getVersion()));
                                 }
                             }
-
-                            //noinspection ConstantConditions
-                            holder.getMoreBtn().setOnClickListener(v -> showPopMenu(packageInfo, v));
+                            if (holder.getMoreBtn() != null) {
+                                holder.getMoreBtn().setOnClickListener(v -> showPopMenu(packageInfo, v));
+                            }
                         }
 
                         void showPopMenu(final CommonPackageInfo t, View anchor) {
@@ -333,7 +337,7 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
                 if (index == INDEX_APPS) {
                     Apps2OpListActivity.start(getActivity(), info.getPkgName());
                 } else if (index == INDEX_OPS) {
-                    Op2AppsListActivity.start(getActivity(), info.getVersion(), mShowSystemApp);
+                    Op2AppsListActivity.start(getActivity(), info.getVersion(), true);
                 }
             });
             return adapter;
@@ -355,22 +359,6 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
             super.onCreateOptionsMenu(menu, inflater);
             inflater.inflate(R.menu.menu_fragment_perm_viewer, menu);
-        }
-
-        @Override
-        public void onPrepareOptionsMenu(Menu menu) {
-            super.onPrepareOptionsMenu(menu);
-            menu.findItem(R.id.show_system_app).setChecked(mShowSystemApp);
-        }
-
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            if (item.getItemId() == R.id.show_system_app) {
-                mShowSystemApp = !mShowSystemApp;
-                getActivity().invalidateOptionsMenu();
-                startLoading();
-            }
-            return super.onOptionsItemSelected(item);
         }
 
         @Override
@@ -477,27 +465,27 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
 
         private List<CommonPackageInfoListActivity.FilterOption> mFilterOptions;
 
-        protected int mFilterOption = CommonPackageInfoListActivity.FilterOption.OPTION_ALL_APPS;
+        protected int mFilterOption = CommonPackageInfoListActivity.FilterOption.OPTION_3RD_APPS;
 
         protected SpinnerAdapter onCreateSpinnerAdapter(Spinner spinner) {
             if (getActivity() == null) return null;
             List<CommonPackageInfoListActivity.FilterOption> options = null;
             if (index == INDEX_APPS) {
                 options = Lists.newArrayList(
-                        new CommonPackageInfoListActivity.FilterOption(R.string.filter_installed_apps,
-                                CommonPackageInfoListActivity.FilterOption.OPTION_ALL_APPS),
                         new CommonPackageInfoListActivity.FilterOption(R.string.filter_third_party_apps,
                                 CommonPackageInfoListActivity.FilterOption.OPTION_3RD_APPS),
                         new CommonPackageInfoListActivity.FilterOption(R.string.filter_system_apps,
-                                CommonPackageInfoListActivity.FilterOption.OPTION_SYSTEM_APPS));
+                                CommonPackageInfoListActivity.FilterOption.OPTION_SYSTEM_APPS),
+                        new CommonPackageInfoListActivity.FilterOption(R.string.filter_installed_apps,
+                                CommonPackageInfoListActivity.FilterOption.OPTION_ALL_APPS));
             } else if (index == INDEX_OPS) {
                 options = Lists.newArrayList(
-                        new CommonPackageInfoListActivity.FilterOption(R.string.filter_all_op,
-                                CommonPackageInfoListActivity.FilterOption.OPTION_ALL_OP),
                         new CommonPackageInfoListActivity.FilterOption(R.string.filter_ext_op,
                                 CommonPackageInfoListActivity.FilterOption.OPTION_EXT_OP),
                         new CommonPackageInfoListActivity.FilterOption(R.string.filter_default_op,
-                                CommonPackageInfoListActivity.FilterOption.OPTION_DEFAULT_OP));
+                                CommonPackageInfoListActivity.FilterOption.OPTION_DEFAULT_OP),
+                        new CommonPackageInfoListActivity.FilterOption(R.string.filter_all_op,
+                                CommonPackageInfoListActivity.FilterOption.OPTION_ALL_OP));
             }
             mFilterOptions = options;
             if (options != null) {
@@ -545,6 +533,16 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
         @Override
         public int getCount() {
             return FRAGMENT_COUNT;
+        }
+    }
+
+    @Getter
+    static class OpsItemViewHolder extends CommonPackageInfoAdapter.CommonViewHolder {
+        private ImageView opIconView;
+
+        OpsItemViewHolder(View itemView) {
+            super(itemView);
+            opIconView = itemView.findViewById(R.id.op_icon_view);
         }
     }
 }

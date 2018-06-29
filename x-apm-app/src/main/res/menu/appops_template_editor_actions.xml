@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <item
+        android:id="@+id/action_save_apply"
+        android:icon="@drawable/ic_check_tint_24dp"
+        android:title="@string/title_workflow_save"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+
+    <item
+        android:id="@+id/action_discard"
+        android:icon="@drawable/ic_close_black_24dp"
+        android:title="@string/title_workflow_save"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+
+    <item
+        android:id="@+id/action_save"
+        android:icon="@drawable/ic_save_black_24dp"
+        android:title="@string/title_workflow_save"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+
+</menu>

@@ -121,6 +121,7 @@ import github.tornaco.xposedmoduletest.xposed.GlobalWhiteList;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.IProcessClearListenerAdapter;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
+import github.tornaco.xposedmoduletest.xposed.bean.AppOpsTemplate;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
@@ -3763,13 +3764,65 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @BinderCall
     public void killBackgroundProcesses(String packageName) {
         enforceCallingPermissions();
-        Runnable r = () -> {
+        @SuppressLint("MissingPermission") Runnable r = () -> {
             ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
             if (am != null) {
                 am.killBackgroundProcesses(packageName);
             }
         };
         mainHandler.post(new ErrorCatchRunnable(r, "killBackgroundProcesses"));
+    }
+
+    @Override
+    @BinderCall
+    public void addAppOpsTemplate(AppOpsTemplate template) {
+        enforceCallingPermissions();
+
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("addAppOpsTemplate: " + template);
+        }
+
+        String json = template.toJson();
+        RepoProxy.getProxy().getAppOpsTemplate().put(template.getId(), json);
+    }
+
+    @Override
+    @BinderCall
+    public void removeAppOpsTemplate(AppOpsTemplate template) {
+        enforceCallingPermissions();
+
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("removeAppOpsTemplate: " + template);
+        }
+
+        RepoProxy.getProxy().getAppOpsTemplate().remove(template.getId());
+    }
+
+    @Override
+    @BinderCall
+    public List<AppOpsTemplate> getAppOpsTemplates() {
+        enforceCallingPermissions();
+
+        List<AppOpsTemplate> res = new ArrayList<>();
+        Set<String> ids = RepoProxy.getProxy().getAppOpsTemplate().keySet();
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("getAppOpsTemplates: " + Arrays.toString(ids.toArray()));
+        }
+        for (String id : ids) {
+            if (id != null) {
+                boolean exist = RepoProxy.getProxy().getAppOpsTemplate().hasNoneNullValue(id);
+                if (exist) {
+                    AppOpsTemplate t = AppOpsTemplate.fromJson(RepoProxy.getProxy().getAppOpsTemplate().get(id));
+                    if (t != null) {
+                        res.add(t);
+                    }
+                }
+            }
+        }
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("getAppOpsTemplates return: " + Arrays.toString(res.toArray()));
+        }
+        return res;
     }
 
     @Override

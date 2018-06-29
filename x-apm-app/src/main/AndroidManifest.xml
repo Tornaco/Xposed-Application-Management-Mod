@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="github.tornaco.xposedmoduletest">
+
     <uses-permission android:name="android.permission.INTERNET" />
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -403,6 +404,15 @@
         <activity
             android:name=".ui.activity.perm.PermViewerActivity"
             android:label="@string/title_perm_control"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.perm.AppOpsTemplateListActivity"
+            android:label="@string/title_app_ops_template"
+            android:theme="@style/AppThemeLight.NoActionBar" />
+        <activity
+            android:name=".ui.activity.perm.AppOpsTemplateEditorActivity"
+            android:label="@string/title_app_ops_template"
+            android:windowSoftInputMode="stateHidden"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
             android:name=".ui.activity.perm.OpLogViewerActivity"
