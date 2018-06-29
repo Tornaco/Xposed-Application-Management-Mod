@@ -112,7 +112,11 @@ public interface PermissionLoader {
 
                 p.setIconRes(XAppOpsManagerRes.opToIconRes(code));
 
-                p.setMode(XAPMManager.get().getPermissionControlBlockModeForPkg(code, pkg, false));
+                if (pkg != null) {
+                    p.setMode(XAPMManager.get().getPermissionControlBlockModeForPkg(code, pkg, false));
+                } else {
+                    p.setMode(XAppOpsManager.MODE_ALLOWED);
+                }
 
                 Logger.d("Add perm: " + p);
 

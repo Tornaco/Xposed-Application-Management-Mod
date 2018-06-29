@@ -17,6 +17,7 @@ import android.widget.Toast;
 import java.util.List;
 
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.loader.PermissionLoader;
 import github.tornaco.xposedmoduletest.model.Permission;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
@@ -74,6 +75,7 @@ public class AppOpsTemplateEditorActivity extends BaseActivity {
         editorActionToolbar.setOnMenuItemClickListener(item -> {
 
             if (item.getItemId() == R.id.action_save_apply) {
+                inflateTemplateWithUserSettings();
                 XAPMManager.get().addAppOpsTemplate(mOpsTemplate);
                 Toast.makeText(getContext(), R.string.title_app_ops_template_saved, Toast.LENGTH_SHORT).show();
                 finish();
@@ -81,6 +83,7 @@ public class AppOpsTemplateEditorActivity extends BaseActivity {
             }
 
             if (item.getItemId() == R.id.action_save) {
+                inflateTemplateWithUserSettings();
                 XAPMManager.get().addAppOpsTemplate(mOpsTemplate);
                 Toast.makeText(getContext(), R.string.title_app_ops_template_saved, Toast.LENGTH_SHORT).show();
                 return true;
@@ -95,25 +98,41 @@ public class AppOpsTemplateEditorActivity extends BaseActivity {
 
         SwitchCompat switchCompat = new SwitchCompat(getActivity());
         switchCompat.setText(R.string.title_app_ops_template_edit_apply_batch);
+        switchCompat.setOnClickListener(v -> {
+            boolean checked = switchCompat.isChecked();
+            applyBatch(checked ? XAppOpsManager.MODE_ALLOWED : XAppOpsManager.MODE_IGNORED);
+        });
         editorActionToolbar.addView(switchCompat);
 
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
 
         permissionOpsAdapter = onCreateAdapter();
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this,
-                LinearLayoutManager.VERTICAL, false));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(permissionOpsAdapter);
 
         startLoading();
     }
 
+    private void inflateTemplateWithUserSettings() {
+        List<Permission> permissions = permissionOpsAdapter.getData();
+        for (Permission p : permissions) {
+            mOpsTemplate.setMode(p.getCode(), p.getMode());
+        }
+    }
+
+    private void applyBatch(int mode) {
+        List<Permission> permissions = permissionOpsAdapter.getData();
+        for (Permission p : permissions) {
+            p.setMode(mode);
+        }
+        permissionOpsAdapter.notifyDataSetChanged();
+    }
+
     protected void startLoading() {
         XExecutor.execute(() -> {
             final List<Permission> res = performLoading();
-            runOnUiThread(() -> {
-                permissionOpsAdapter.update(res);
-            });
+            runOnUiThread(() -> permissionOpsAdapter.update(res));
         });
     }
 
