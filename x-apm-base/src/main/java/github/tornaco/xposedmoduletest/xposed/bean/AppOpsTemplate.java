@@ -46,6 +46,8 @@ public class AppOpsTemplate implements Parcelable {
         opsSettings = new Gson().fromJson(in.readString(), new TypeToken<HashMap<Integer, Integer>>() {
             // Noop.
         }.getType());
+        alias = in.readString();
+        createdAtMills = in.readLong();
     }
 
     public AppOpsTemplate() {
@@ -95,6 +97,8 @@ public class AppOpsTemplate implements Parcelable {
         dest.writeString(id);
         String opsJson = new Gson().toJson(opsSettings);
         dest.writeString(opsJson);
+        dest.writeString(alias);
+        dest.writeLong(createdAtMills);
     }
 
     @Override
