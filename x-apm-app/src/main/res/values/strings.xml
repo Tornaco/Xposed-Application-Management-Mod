@@ -682,4 +682,7 @@
     <string name="suggestion_action_alipay_red_packet">前往领取</string>
     <string name="toast_alipay_red_packet_copied">领取口令已经复制到剪贴板</string>
     <string name="perm_system_app_protected">“排除系统应用”开关已经打开，系统应用的权限设定将不会保存。</string>
+    <string name="title_app_ops_template">权限模板</string>
+    <string name="title_app_ops_template_saved">Saved</string>
+    <string name="title_app_ops_template_edit_apply_batch">批量操作</string>
 </resources>

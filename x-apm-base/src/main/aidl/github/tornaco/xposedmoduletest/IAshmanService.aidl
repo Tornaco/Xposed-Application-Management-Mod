@@ -21,6 +21,7 @@ import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.bean.SystemPropProfile;
 import github.tornaco.xposedmoduletest.xposed.bean.SystemProp;
 import github.tornaco.xposedmoduletest.xposed.bean.JavaScript;
+import github.tornaco.xposedmoduletest.xposed.bean.AppOpsTemplate;
 
 import android.content.ComponentName;
 import java.util.Map;
@@ -540,4 +541,9 @@ interface IAshmanService {
 
     // Package manage #2.
     void killBackgroundProcesses(String packageName);
+
+    // Templates for ops.
+    void addAppOpsTemplate(in AppOpsTemplate template);
+    void removeAppOpsTemplate(in AppOpsTemplate template);
+    List<AppOpsTemplate> getAppOpsTemplates();
 }

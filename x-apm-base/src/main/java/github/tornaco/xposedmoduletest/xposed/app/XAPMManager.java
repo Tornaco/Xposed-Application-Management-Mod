@@ -32,6 +32,7 @@ import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.util.ArrayUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.util.Singleton;
+import github.tornaco.xposedmoduletest.xposed.bean.AppOpsTemplate;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
@@ -2752,6 +2753,34 @@ public class XAPMManager {
         } catch (Exception e) {
             handleException(e);
             return null;
+        }
+    }
+
+    public void addAppOpsTemplate(AppOpsTemplate template) {
+        ensureService();
+        try {
+            mService.addAppOpsTemplate(template);
+        } catch (Exception e) {
+            handleException(e);
+        }
+    }
+
+    public void removeAppOpsTemplate(AppOpsTemplate template) {
+        ensureService();
+        try {
+            mService.removeAppOpsTemplate(template);
+        } catch (Exception e) {
+            handleException(e);
+        }
+    }
+
+    public List<AppOpsTemplate> getAppOpsTemplates() {
+        ensureService();
+        try {
+            return mService.getAppOpsTemplates();
+        } catch (Exception e) {
+            handleException(e);
+            return new ArrayList<>(0);
         }
     }
 

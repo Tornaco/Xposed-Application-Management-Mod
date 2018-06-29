@@ -32,6 +32,7 @@ import github.tornaco.xposedmoduletest.IServiceControl;
 import github.tornaco.xposedmoduletest.ITaskRemoveListener;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
+import github.tornaco.xposedmoduletest.xposed.bean.AppOpsTemplate;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
@@ -1846,5 +1847,20 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     @Override
     public void killBackgroundProcesses(String packageName) {
 
+    }
+
+    @Override
+    public void addAppOpsTemplate(AppOpsTemplate template) {
+
+    }
+
+    @Override
+    public void removeAppOpsTemplate(AppOpsTemplate template) {
+
+    }
+
+    @Override
+    public List<AppOpsTemplate> getAppOpsTemplates() {
+        return null;
     }
 }

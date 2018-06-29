@@ -61,7 +61,7 @@ public interface PermissionLoader {
                 return new ArrayList<>(0);
             }
 
-            String[] decleared = PkgUtil.getAllDeclaredPermissions(context, pkg);
+            String[] decleared = pkg == null ? null : PkgUtil.getAllDeclaredPermissions(context, pkg);
 
             Set<String> permSet = Sets.newHashSet(decleared == null ? new String[0] : decleared);
 
@@ -76,7 +76,7 @@ public interface PermissionLoader {
                 String s = XAppOpsManager.opToPermission(code);
 
                 // Here we check if this is dummy one.
-                boolean isDummy = XAPMManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME.equals(pkg);
+                boolean isDummy = pkg == null || XAPMManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME.equals(pkg);
 
                 if (!isDummy && (s != null && !permSet.contains(s))) {
                     continue;

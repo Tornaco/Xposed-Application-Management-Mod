@@ -6,8 +6,10 @@ import org.junit.Test;
 import java.util.List;
 import java.util.UUID;
 
+import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.util.StopWatch;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
+import github.tornaco.xposedmoduletest.xposed.bean.AppOpsTemplate;
 import github.tornaco.xposedmoduletest.xposed.bean.JavaScript;
 
 /**
@@ -77,11 +79,20 @@ public class XAPMManagerTest {
         js.setScript(SCRIPT_TOAST_PKG);
         XAPMManager.get().saveJs(js);
         Assert.assertTrue(XAPMManager.get().getSavedJs(newId) != null);
+    }
 
-        // Now link to app focus.
-        String[] actions = new String[]{newId};
-//        XAPMManager.get().addOrRemoveAppFocusAction(BuildConfig.APPLICATION_ID,
-//                actions, true);
-//        Assert.assertArrayEquals(XAPMManager.get().getAppFocusActions(BuildConfig.APPLICATION_ID), actions);
+    @Test
+    public void testAppOpsTemplate() {
+        AppOpsTemplate template = new AppOpsTemplate();
+        template.setMode(XAppOpsManager.OP_ACCESS_NOTIFICATIONS, XAppOpsManager.MODE_IGNORED);
+        Assert.assertTrue(template.getMode(XAppOpsManager.OP_ACCESS_NOTIFICATIONS) == XAppOpsManager.MODE_IGNORED);
+
+        template.setMode(XAppOpsManager.OP_ACCESS_NOTIFICATIONS, XAppOpsManager.MODE_ALLOWED);
+        Assert.assertTrue(template.getMode(XAppOpsManager.OP_ACCESS_NOTIFICATIONS) == XAppOpsManager.MODE_ALLOWED);
+
+        XAPMManager.get().addAppOpsTemplate(template);
+        List<AppOpsTemplate> appOpsTemplates = XAPMManager.get().getAppOpsTemplates();
+        Assert.assertNotNull(appOpsTemplates);
+        Assert.assertTrue(appOpsTemplates.contains(template));
     }
 }
