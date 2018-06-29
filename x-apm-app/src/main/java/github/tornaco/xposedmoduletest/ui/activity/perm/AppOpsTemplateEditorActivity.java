@@ -98,6 +98,7 @@ public class AppOpsTemplateEditorActivity extends BaseActivity {
 
         SwitchCompat switchCompat = new SwitchCompat(getActivity());
         switchCompat.setText(R.string.title_app_ops_template_edit_apply_batch);
+        switchCompat.setChecked(true);
         switchCompat.setOnClickListener(v -> {
             boolean checked = switchCompat.isChecked();
             applyBatch(checked ? XAppOpsManager.MODE_ALLOWED : XAppOpsManager.MODE_IGNORED);
@@ -132,6 +133,10 @@ public class AppOpsTemplateEditorActivity extends BaseActivity {
     protected void startLoading() {
         XExecutor.execute(() -> {
             final List<Permission> res = performLoading();
+            // Apply mode.
+            for (Permission p : res) {
+                p.setMode(mOpsTemplate.getMode(p.getCode()));
+            }
             runOnUiThread(() -> permissionOpsAdapter.update(res));
         });
     }

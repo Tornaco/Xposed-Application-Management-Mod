@@ -13,8 +13,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.util.StringTokenizer;
 import java.util.UUID;
 
@@ -117,23 +115,6 @@ public abstract class DataBackup {
                 listener.onDataBackupFail(new NullPointerException("IBackupAgent is null"));
             }
         } catch (Exception e) {
-            listener.onDataBackupFail(e);
-        }
-
-    }
-
-    private static void appendStringArray(File file, String[] data, BackupRestoreListener listener) {
-        try {
-            Files.createParentDirs(file);
-            OutputStream os = Files.asByteSink(file).openStream();
-            PrintWriter printWriter = new PrintWriter(os);
-            for (String p : data) {
-                printWriter.println(p);
-            }
-            printWriter.flush();
-            Closer.closeQuietly(printWriter);
-            Closer.closeQuietly(os);
-        } catch (IOException e) {
             listener.onDataBackupFail(e);
         }
 
