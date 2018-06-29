@@ -678,4 +678,5 @@
     <string name="suggestion_summary_alipay_red_packet">感谢支持%1$s 你也可以去捐赠页面点击，每天都可以哦！</string>
     <string name="suggestion_action_alipay_red_packet">前往领取</string>
     <string name="toast_alipay_red_packet_copied">领取口令已经复制到剪贴板</string>
+    <string name="perm_system_app_protected">“排除系统应用”开关已经打开，系统应用的权限设定将不会保存。</string>
 </resources>

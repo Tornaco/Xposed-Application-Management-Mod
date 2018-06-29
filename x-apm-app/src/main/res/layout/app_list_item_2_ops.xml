@@ -22,8 +22,18 @@
             android:layout_height="match_parent"
             android:background="@color/accent" />
 
+        <!--Dummy placeholder-->
         <tornaco.lib.widget.CheckableImageView
             android:id="@+id/checkable_img_view"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_marginEnd="8dip"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/op_icon_view"
             android:layout_width="@dimen/thumbnail_size_small"
             android:layout_height="@dimen/thumbnail_size_small"
             android:layout_gravity="center"

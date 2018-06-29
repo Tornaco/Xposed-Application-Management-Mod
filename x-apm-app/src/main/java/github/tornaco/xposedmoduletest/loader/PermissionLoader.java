@@ -23,6 +23,8 @@ import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListA
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
+import static github.tornaco.xposedmoduletest.compat.os.XAppOpsManager._NUM_OP_DEF;
+
 /**
  * Created by guohao4 on 2017/10/18.
  * Email: Tornaco@163.com
@@ -31,10 +33,10 @@ import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 public interface PermissionLoader {
 
     @NonNull
-    List<Permission> load(String pkg, int category);
+    List<Permission> load(String pkg, int category, int filterOption);
 
     @NonNull
-    List<CommonPackageInfo> loadByOp(int op, int category, boolean showSystem);
+    List<CommonPackageInfo> loadByOp(int op, int category, int filterOption);
 
     @NonNull
     List<CommonPackageInfo> loadOps(int filterOption);
@@ -53,7 +55,7 @@ public interface PermissionLoader {
 
         @NonNull
         @Override
-        public List<Permission> load(final String pkg, final int category) {
+        public List<Permission> load(final String pkg, final int category, int filterOption) {
 
             if (!XAPMManager.get().isServiceAvailable()) {
                 return new ArrayList<>(0);
@@ -63,11 +65,13 @@ public interface PermissionLoader {
 
             Set<String> permSet = Sets.newHashSet(decleared == null ? new String[0] : decleared);
 
-            int OP_SIZE = XAppOpsManager._NUM_OP_DEF;
+            int OP_SIZE = _NUM_OP_DEF;
 
             final List<Permission> permissions = new ArrayList<>();
 
-            for (int code = 0; code < OP_SIZE; code++) {
+            boolean loadDefaultOp = filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ALL_OP
+                    || filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_DEFAULT_OP;
+            if (loadDefaultOp) for (int code = 0; code < OP_SIZE; code++) {
 
                 String s = XAppOpsManager.opToPermission(code);
 
@@ -117,8 +121,10 @@ public interface PermissionLoader {
 
             java.util.Collections.sort(permissions, new PermComparator());
 
+            boolean loadExtOp = filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ALL_OP
+                    || filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_EXT_OP;
             // Add our extra permissions.
-            for (int ecode : XAppOpsManager.EXTRA_OPS) {
+            if (loadExtOp) for (int ecode : XAppOpsManager.EXTRA_OPS) {
                 Permission p = new Permission();
                 p.setPkgName(pkg);
                 p.setPermission(null);
@@ -141,7 +147,7 @@ public interface PermissionLoader {
 
         @NonNull
         @Override
-        public List<CommonPackageInfo> loadByOp(int op, int category, boolean showSystem) {
+        public List<CommonPackageInfo> loadByOp(int op, int category, int filterOption) {
             if (!XAPMManager.get().isServiceAvailable()) {
                 return new ArrayList<>(0);
             }
@@ -166,13 +172,15 @@ public interface PermissionLoader {
                     c.setVersion(XAPMManager.get().getPermissionControlBlockModeForPkg(op, c.getPkgName(), false));
                     c.setSystemApp(PkgUtil.isSystemApp(context, info.packageName));
 
-                    if (c.isSystemApp() && !showSystem) {
-                        continue;
-                    }
+                    boolean match = (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ALL_APPS)
+                            || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_3RD_APPS && !c.isSystemApp())
+                            || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_SYSTEM_APPS && c.isSystemApp());
 
-                    c.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(context, info.packageName)));
-                    c.setAppLevel(XAPMManager.get().getAppLevel(info.packageName));
-                    res.add(c);
+                    if (match) {
+                        c.setAppName(String.valueOf(PkgUtil.loadNameByPkgName(context, info.packageName)));
+                        c.setAppLevel(XAPMManager.get().getAppLevel(info.packageName));
+                        res.add(c);
+                    }
                 }
             }
             return res;
@@ -191,8 +199,8 @@ public interface PermissionLoader {
                 c.setChecked(false);
                 c.setVersion(i);
 
-                boolean match = (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_DEFAULT_OP && i < 70)
-                        || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_EXT_OP && i >= 70)
+                boolean match = (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_DEFAULT_OP && i < _NUM_OP_DEF)
+                        || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_EXT_OP && i >= _NUM_OP_DEF)
                         || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_ALL_OP);
 
                 if (match) {
@@ -205,6 +213,9 @@ public interface PermissionLoader {
 
     class PermComparator implements Comparator<Permission> {
         public int compare(Permission o1, Permission o2) {
+            if (o1.getCode() == o2.getCode()) {
+                return 0;
+            }
             return o1.getCode() > o2.getCode() ? -1 : 1;
         }
     }

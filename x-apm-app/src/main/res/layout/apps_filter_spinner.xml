@@ -14,55 +14,73 @@
      limitations under the License.
 -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:id="@+id/apps_filter_spinner_container"
     android:layout_width="match_parent"
-    android:layout_height="?actionBarSize"
-    android:background="@drawable/spinnerbar_background"
-    android:gravity="center_vertical"
-    android:paddingEnd="0dp"
-    android:theme="?attr/switchBarTheme">
-
-    <android.support.v7.widget.AppCompatSpinner
-        android:id="@+id/filter_spinner"
-        style="@style/Widget.AppCompat.Spinner.DropDown"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignWithParentIfMissing="true"
-        android:layout_centerVertical="true"
-        android:layout_marginStart="64dp"
-        android:background="@null"
-        android:spinnerMode="dropdown"
-        android:textAlignment="viewStart"
-        android:theme="?torSpinnerStyle" />
-
-    <ImageView
-        android:id="@+id/filter_actions"
-        style="?android:attr/borderlessButtonStyle"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:contentDescription="@string/configure"
-        android:minHeight="0dp"
-        android:minWidth="0dp"
-        android:scaleType="center"
-        android:src="@drawable/ic_filter_list_black_24dp"
-        android:tint="@color/grey"
-        android:visibility="gone" />
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    card_view:cardCornerRadius="0dp"
+    card_view:cardElevation="1dp">
 
     <RelativeLayout
-        android:id="@+id/filter_action_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin_middle"
-        android:minHeight="0dp"
-        android:minWidth="0dp"
-        android:scaleType="center"
-        android:visibility="visible" />
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
 
+        android:background="@drawable/spinnerbar_background"
+        android:gravity="center_vertical"
+        android:paddingEnd="0dp"
+        android:paddingStart="0dp"
+        android:theme="?attr/switchBarTheme">
 
-</RelativeLayout>
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/filter_spinner"
+            style="@style/Widget.AppCompat.Spinner.DropDown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="64dp"
+            android:background="@null"
+            android:spinnerMode="dropdown"
+            android:textAlignment="viewStart"
+            android:theme="?torSpinnerStyle" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/filter_spinner"
+            android:src="@drawable/ic_arrow_drop_down_black_24dp"
+            android:tint="?torCardSummaryColor" />
+
+        <ImageView
+            android:id="@+id/filter_actions"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/configure"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:scaleType="center"
+            android:src="@drawable/ic_filter_list_black_24dp"
+            android:tint="@color/grey"
+            android:visibility="gone" />
+
+        <RelativeLayout
+            android:id="@+id/filter_action_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin_middle"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:scaleType="center"
+            android:visibility="visible" />
+
+    </RelativeLayout>
+</android.support.v7.widget.CardView>

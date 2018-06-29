@@ -50,6 +50,7 @@
                 android:visibility="visible" />
         </LinearLayout>
 
+        <include layout="@layout/apps_filter_spinner" />
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout

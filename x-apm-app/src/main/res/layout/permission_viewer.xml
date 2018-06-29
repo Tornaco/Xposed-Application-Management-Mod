@@ -21,6 +21,7 @@
             android:background="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="?torAppbarPopupTheme"
+            app:elevation="0dp"
             app:theme="?torToolbarTheme" />
 
         <github.tornaco.xposedmoduletest.ui.widget.SwitchBar
@@ -36,6 +37,8 @@
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:elevation="0dp"
+            app:elevation="0dp"
             app:tabSelectedTextColor="?torMenuIconTintColor"
             app:tabTextColor="@color/grey_light">
 

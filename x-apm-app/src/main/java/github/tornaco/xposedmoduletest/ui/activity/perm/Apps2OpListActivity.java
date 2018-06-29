@@ -15,7 +15,16 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.common.collect.Lists;
+
+import org.newstand.logger.Logger;
 
 import java.util.List;
 
@@ -28,6 +37,7 @@ import github.tornaco.xposedmoduletest.loader.PermissionLoader;
 import github.tornaco.xposedmoduletest.model.Permission;
 import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.WithRecyclerView;
+import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.PermissionOpsAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
@@ -38,7 +48,7 @@ import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
  * Email: Tornaco@163.com
  */
 
-public class Apps2OpListActivity extends WithRecyclerView {
+public class Apps2OpListActivity extends WithRecyclerView implements AdapterView.OnItemSelectedListener {
 
     private static final String EXTRA_PKG = "extra.pkg";
 
@@ -72,6 +82,18 @@ public class Apps2OpListActivity extends WithRecyclerView {
 
         mAppName = String.valueOf(PkgUtil.loadNameByPkgName(this, mPkg));
         setTitle(mAppName);
+
+        warnIfSystemAppProtected();
+    }
+
+    private void warnIfSystemAppProtected() {
+        boolean isSystemAppProtected = XAPMManager.get().isWhiteSysAppEnabled();
+        if (isSystemAppProtected) {
+            boolean isSystemApp = PkgUtil.isSystemApp(getContext(), mPkg);
+            if (isSystemApp) {
+                Toast.makeText(getContext(), R.string.perm_system_app_protected, Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     @Override
@@ -95,8 +117,63 @@ public class Apps2OpListActivity extends WithRecyclerView {
         recyclerView.setAdapter(permissionOpsAdapter);
 
 
-        swipeRefreshLayout.setOnRefreshListener(
-                () -> startLoading());
+        swipeRefreshLayout.setOnRefreshListener(this::startLoading);
+
+        ViewGroup filterContainer = findViewById(R.id.apps_filter_spinner_container);
+        onInitFilterSpinner(filterContainer);
+    }
+
+    protected void onInitFilterSpinner(ViewGroup filterContainer) {
+        if (filterContainer == null) return;
+        Spinner spinner = filterContainer.findViewById(R.id.filter_spinner);
+        SpinnerAdapter adapter = onCreateSpinnerAdapter(spinner);
+        if (adapter == null) {
+            filterContainer.setVisibility(View.GONE);
+        } else {
+            filterContainer.setVisibility(View.VISIBLE);
+            spinner.setAdapter(adapter);
+            spinner.setOnItemSelectedListener(onCreateSpinnerItemSelectListener());
+            if (getDefaultFilterSpinnerSelection() > 0) {
+                spinner.setSelection(getDefaultFilterSpinnerSelection());
+            }
+        }
+    }
+
+    protected int getDefaultFilterSpinnerSelection() {
+        return -1;
+    }
+
+    private List<CommonPackageInfoListActivity.FilterOption> mFilterOptions;
+
+    protected int mFilterOption = CommonPackageInfoListActivity.FilterOption.OPTION_EXT_OP;
+
+    protected SpinnerAdapter onCreateSpinnerAdapter(Spinner spinner) {
+        if (getActivity() == null) return null;
+        List<CommonPackageInfoListActivity.FilterOption> options = Lists.newArrayList(
+                new CommonPackageInfoListActivity.FilterOption(R.string.filter_ext_op,
+                        CommonPackageInfoListActivity.FilterOption.OPTION_EXT_OP),
+                new CommonPackageInfoListActivity.FilterOption(R.string.filter_default_op,
+                        CommonPackageInfoListActivity.FilterOption.OPTION_DEFAULT_OP),
+                new CommonPackageInfoListActivity.FilterOption(R.string.filter_all_op,
+                        CommonPackageInfoListActivity.FilterOption.OPTION_ALL_OP));
+        mFilterOptions = options;
+        return new CommonPackageInfoListActivity.FilterSpinnerAdapter(getActivity(), options);
+    }
+
+    protected AdapterView.OnItemSelectedListener onCreateSpinnerItemSelectListener() {
+        return this;
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        Logger.d("onItemSelected: " + mFilterOptions.get(position));
+        mFilterOption = mFilterOptions.get(position).getOption();
+        startLoading();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 
     private void initColor() {
@@ -104,7 +181,7 @@ public class Apps2OpListActivity extends WithRecyclerView {
         int color = ContextCompat.getColor(this, XSettings.getThemes(this).getThemeColor());
 
         // Apply palette color.
-        PaletteColorPicker.pickPrimaryColor(this, color1 -> applyColor(color1), mPkg, color);
+        PaletteColorPicker.pickPrimaryColor(this, this::applyColor, mPkg, color);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -127,13 +204,13 @@ public class Apps2OpListActivity extends WithRecyclerView {
             runOnUiThread(() -> {
                 swipeRefreshLayout.setRefreshing(false);
                 permissionOpsAdapter.update(res);
-                setTitle(mAppName + "\t" + res.size() + "项权限");
+                setTitle(mAppName + "\t" + res.size());
             });
         });
     }
 
     protected List<Permission> performLoading() {
-        return PermissionLoader.Impl.create(this).load(mPkg, 0);
+        return PermissionLoader.Impl.create(this).load(mPkg, 0, mFilterOption);
     }
 
     protected PermissionOpsAdapter onCreateAdapter() {
