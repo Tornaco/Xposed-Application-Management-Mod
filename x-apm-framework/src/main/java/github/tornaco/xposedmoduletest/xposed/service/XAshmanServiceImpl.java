@@ -5784,11 +5784,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                     if (RepoProxy.getProxy().getPending_disable_apps_tr().size() != 0) {
                         // Disable pending apps.
                         for (String p : RepoProxy.getProxy().getPending_disable_apps_tr().getAll()) {
-                            if (!isPackageRunningOnTop(p)) {
+                            if (pkgOfThisTask.equals(p) && !isPackageRunningOnTop(p)) {
                                 // Do not remove from pending disable.
                                 setApplicationEnabledSetting(p, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0, true);
                                 XposedLog.verbose("removeTask, Disable pending apps: " + p);
                                 // RepoProxy.getProxy().getPending_disable_apps_tr().remove(p);
+                                break;
                             }
                         }
                     }
@@ -7252,7 +7253,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         public void onSwipeDirection(@NonNull FloatView.SwipeDirection direction) {
             XposedLog.verbose("onSwipeDirection");
             if (direction == FloatView.SwipeDirection.L || direction == FloatView.SwipeDirection.R) {
-               setShowFocusedActivityInfoEnabled(false);
+                setShowFocusedActivityInfoEnabled(false);
             }
         }
 
