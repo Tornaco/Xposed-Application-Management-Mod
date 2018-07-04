@@ -40,10 +40,10 @@ public class AppOpsTemplateEditorActivity extends BaseActivity {
 
     private AppOpsTemplateEditorAdapter permissionOpsAdapter;
 
-    public static void start(Context context, AppOpsTemplate script) {
+    public static void start(Context context, AppOpsTemplate template) {
         Intent starter = new Intent(context, AppOpsTemplateEditorActivity.class);
         starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        starter.putExtra("template", script);
+        starter.putExtra("template", template);
         context.startActivity(starter);
     }
 

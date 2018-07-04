@@ -14,7 +14,6 @@ import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 
 import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 import github.tornaco.xposedmoduletest.xposed.bean.AppSettings;
-import github.tornaco.xposedmoduletest.xposed.bean.OpsSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.PackageSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
@@ -339,9 +338,6 @@ interface IAshmanService {
 
     boolean hasModuleError();
 
-    void setAppOpsTemplate(in OpsSettings opsSettings);
-    OpsSettings getAppOpsTemplate(in OpsSettings opsSettings);
-
     // New API since 4.4.6
     void addPendingDisableAppsTR(String pkg);
 
@@ -543,6 +539,7 @@ interface IAshmanService {
     void killBackgroundProcesses(String packageName);
 
     // Templates for ops.
+    AppOpsTemplate getAppOpsTemplateById(String id);
     void addAppOpsTemplate(in AppOpsTemplate template);
     void removeAppOpsTemplate(in AppOpsTemplate template);
     List<AppOpsTemplate> getAppOpsTemplates();

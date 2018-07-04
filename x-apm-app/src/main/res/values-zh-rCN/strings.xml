@@ -681,4 +681,10 @@
     <string name="title_app_ops_template">权限模板</string>
     <string name="title_app_ops_template_saved">Saved</string>
     <string name="title_app_ops_template_edit_apply_batch">批量操作</string>
+    <string name="summary_ops_template_not_set">未指定</string>
+    <string name="summary_ops_template_set">指定为 %1$s</string>
+    <string name="title_app_ops_template_picker">选择模板</string>
+    <string name="app_ops_template_choice_none">无可用模板</string>
+    <string name="app_ops_template_create_new">新建模板</string>
+    <string name="title_select_from_ops_template">选择模板设置</string>
 </resources>

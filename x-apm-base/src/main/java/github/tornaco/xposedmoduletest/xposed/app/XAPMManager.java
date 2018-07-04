@@ -38,7 +38,6 @@ import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 import github.tornaco.xposedmoduletest.xposed.bean.JavaScript;
 import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
-import github.tornaco.xposedmoduletest.xposed.bean.OpsSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.SystemPropProfile;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -50,6 +49,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 @SuppressWarnings("EmptyCatchBlock")
 public class XAPMManager {
 
+    // This means it is the app setting template edit settings.
     public static final String APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME = "tornaco.github.apm.ops.dummy.template";
 
     public static final int FLAG_SHOW_SYSTEM_APP = 0X100;
@@ -1651,25 +1651,6 @@ public class XAPMManager {
         }
     }
 
-    public void setAppOpsTemplate(OpsSettings opsSettings) {
-        ensureService();
-        try {
-            mService.setAppOpsTemplate(opsSettings);
-        } catch (Exception e) {
-            handleException(e);
-        }
-    }
-
-    public OpsSettings getAppOpsTemplate(OpsSettings opsSettings) {
-        ensureService();
-        try {
-            return mService.getAppOpsTemplate(opsSettings);
-        } catch (Exception e) {
-            handleException(e);
-            return new OpsSettings(XAppOpsManager.getDefaultModes());
-        }
-    }
-
     public void setResidentEnabled(boolean enable) {
         ensureService();
         try {
@@ -2781,6 +2762,16 @@ public class XAPMManager {
         } catch (Exception e) {
             handleException(e);
             return new ArrayList<>(0);
+        }
+    }
+
+    public AppOpsTemplate getAppOpsTemplateById(String id) {
+        ensureService();
+        try {
+            return mService.getAppOpsTemplateById(id);
+        } catch (Exception e) {
+            handleException(e);
+            return null;
         }
     }
 

@@ -16,6 +16,7 @@ import java.util.Observable;
 
 import dev.nick.eventbus.Event;
 import dev.nick.eventbus.EventBus;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;
@@ -91,8 +92,9 @@ public class AppSettings extends Observable {
         Date d1 = new Date();
         String time = format.format(d1);
         Logger.i("isAliPayRedPacketReceivedToady " + time);
+        // Base on version name, show it at every new version.
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(AppKey.ALILAY_RED_PACKET_RECEIVED + time, false);
+                .getBoolean(AppKey.ALILAY_RED_PACKET_RECEIVED + BuildConfig.VERSION_NAME, false);
     }
 
     public static void setAliPayRedPacketReceivedToady(Context context) {

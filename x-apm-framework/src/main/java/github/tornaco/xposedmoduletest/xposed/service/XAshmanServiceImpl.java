@@ -128,7 +128,6 @@ import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 import github.tornaco.xposedmoduletest.xposed.bean.JavaScript;
 import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
 import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
-import github.tornaco.xposedmoduletest.xposed.bean.OpsSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.SystemPropProfile;
 import github.tornaco.xposedmoduletest.xposed.bean.TypePack;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
@@ -3775,6 +3774,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     @BinderCall
+
+    public AppOpsTemplate getAppOpsTemplateById(String id) {
+        enforceCallingPermissions();
+        String json = RepoProxy.getProxy().getAppOpsTemplate().get(id);
+        return AppOpsTemplate.fromJson(json);
+    }
+
+    @Override
+    @BinderCall
     public void addAppOpsTemplate(AppOpsTemplate template) {
         enforceCallingPermissions();
 
@@ -6401,24 +6409,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 .lk(true)
                 .build();
         return as;
-    }
-
-    @Override
-    @BinderCall
-    public void setAppOpsTemplate(OpsSettings opsSettings) {
-        SettingsProvider.get().putString("AppOpsTemplate", opsSettings.toJson());
-        if (BuildConfig.DEBUG) {
-            OpsSettings test = OpsSettings.fromJson(SettingsProvider.get().getString("AppOpsTemplate", null));
-            XposedLog.verbose("setAppOpsTemplate test: " + test);
-        }
-    }
-
-    @Override
-    @BinderCall
-    public OpsSettings getAppOpsTemplate(OpsSettings opsSettings) {
-        OpsSettings os = OpsSettings.fromJson(SettingsProvider.get().getString("AppOpsTemplate", null));
-        if (os == null) os = new OpsSettings(XAppOpsManager.getDefaultModes());
-        return os;
     }
 
     @Override
