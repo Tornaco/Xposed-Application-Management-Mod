@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+import android.widget.Toast;
 
 import com.google.common.collect.Lists;
 
@@ -15,7 +16,6 @@ import org.newstand.logger.Logger;
 import java.util.List;
 
 import github.tornaco.android.common.Collections;
-import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.BootPackageLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
@@ -52,6 +52,16 @@ public class BootAppNavActivity extends CommonPackageInfoListActivity implements
         Logger.d("onItemSelected: " + mFilterOptions.get(position));
         mFilterOption = mFilterOptions.get(position).getOption();
         startLoading();
+        warnIfSystemProtectedButSelected();
+    }
+
+    private void warnIfSystemProtectedButSelected() {
+        if (mFilterOption == FilterOption.OPTION_SYSTEM_APPS || mFilterOption == FilterOption.OPTION_ALL_APPS) {
+            if (XAPMManager.get().isWhiteSysAppEnabled()) {
+                Toast.makeText(getActivity(), R.string.nav_list_warn_system_app_protected, Toast.LENGTH_LONG)
+                        .show();
+            }
+        }
     }
 
     @Override
@@ -62,13 +72,10 @@ public class BootAppNavActivity extends CommonPackageInfoListActivity implements
     @Override
     protected void onRequestClearItemsInBackground() {
         Collections.consumeRemaining(getCommonPackageInfoAdapter().getCommonPackageInfos(),
-                new Consumer<CommonPackageInfo>() {
-                    @Override
-                    public void accept(CommonPackageInfo commonPackageInfo) {
-                        if (commonPackageInfo.isChecked()) {
-                            XAPMManager.get().addOrRemoveBootBlockApps(new String[]{commonPackageInfo.getPkgName()},
-                                    XAPMManager.Op.REMOVE);
-                        }
+                commonPackageInfo -> {
+                    if (commonPackageInfo.isChecked()) {
+                        XAPMManager.get().addOrRemoveBootBlockApps(new String[]{commonPackageInfo.getPkgName()},
+                                XAPMManager.Op.REMOVE);
                     }
                 });
     }
@@ -92,11 +99,11 @@ public class BootAppNavActivity extends CommonPackageInfoListActivity implements
 
     @Override
     protected CommonPackageInfoAdapter onCreateAdapter() {
-        return new CommonPackageInfoAdapter(this){
+        return new CommonPackageInfoAdapter(this) {
             @Override
             protected void onItemClickNoneChoiceMode(CommonPackageInfo commonPackageInfo, View view) {
                 super.onItemClickNoneChoiceMode(commonPackageInfo, view);
-                showCommonItemPopMenu(commonPackageInfo,view);
+                showCommonItemPopMenu(commonPackageInfo, view);
             }
         };
     }

@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+import android.widget.Toast;
 
 import com.google.common.collect.Lists;
 
@@ -53,6 +54,17 @@ public class RFKillAppNavActivity extends CommonPackageInfoListActivity
         Logger.d("onItemSelected: " + mFilterOptions.get(position));
         mFilterOption = mFilterOptions.get(position).getOption();
         startLoading();
+
+        warnIfSystemProtectedButSelected();
+    }
+
+    private void warnIfSystemProtectedButSelected() {
+        if (mFilterOption == FilterOption.OPTION_SYSTEM_APPS || mFilterOption == FilterOption.OPTION_ALL_APPS) {
+            if (XAPMManager.get().isWhiteSysAppEnabled()) {
+                Toast.makeText(getActivity(), R.string.nav_list_warn_system_app_protected, Toast.LENGTH_LONG)
+                        .show();
+            }
+        }
     }
 
     @Override
