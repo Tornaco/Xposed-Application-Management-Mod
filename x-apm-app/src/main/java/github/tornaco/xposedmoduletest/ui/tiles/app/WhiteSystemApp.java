@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.ui.tiles.app;
 
 import android.content.Context;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import dev.nick.tiles.tile.QuickTile;
 import dev.nick.tiles.tile.SwitchTileView;
@@ -40,6 +41,9 @@ public class WhiteSystemApp extends QuickTile {
                 super.onCheckChanged(checked);
                 if (XAPMManager.get().isServiceAvailable()) {
                     XAPMManager.get().setWhiteSysAppEnabled(checked);
+                }
+                if (checked) {
+                    Toast.makeText(context, R.string.warn_turn_off_white_system_app, Toast.LENGTH_SHORT).show();
                 }
             }
         };
