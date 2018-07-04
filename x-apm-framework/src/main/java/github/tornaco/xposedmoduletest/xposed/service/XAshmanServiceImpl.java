@@ -7252,16 +7252,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         public void onSwipeDirection(@NonNull FloatView.SwipeDirection direction) {
             XposedLog.verbose("onSwipeDirection");
             if (direction == FloatView.SwipeDirection.L || direction == FloatView.SwipeDirection.R) {
-                mLazyHandler.post(new ErrorCatchRunnable(() -> {
-                    if (mFloatView != null) {
-                        try {
-                            mFloatView.hideAndDetach();
-                            mFloatView = null;
-                        } catch (Throwable e) {
-                            XposedLog.wtf("Fail detach float view: " + Log.getStackTraceString(e));
-                        }
-                    }
-                }, "onSwipeDirection hideAndDetach"));
+               setShowFocusedActivityInfoEnabled(false);
             }
         }
 
