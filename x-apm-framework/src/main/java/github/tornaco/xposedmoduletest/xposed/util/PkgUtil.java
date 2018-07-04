@@ -22,6 +22,7 @@ import android.os.Message;
 import android.os.Process;
 import android.os.UserHandle;
 import android.print.PrintManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -547,11 +548,14 @@ public class PkgUtil {
         }
     }
 
+    @NonNull
     public static String[] getAllDeclaredPermissions(Context context, String packageName) {
         PackageInfo packageInfo = getPkgInfo(context, packageName);
         String[] permissions = new String[0];
         if (packageInfo != null) {
-            permissions = packageInfo.requestedPermissions;
+            if (packageInfo.requestedPermissions != null) {
+                permissions = packageInfo.requestedPermissions;
+            }
         }
         return permissions;
     }

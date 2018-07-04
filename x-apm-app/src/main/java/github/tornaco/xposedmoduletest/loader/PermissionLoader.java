@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.compat.os.XAppOpsManagerRes;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
@@ -165,12 +166,13 @@ public interface PermissionLoader {
             List<CommonPackageInfo> res = new ArrayList<>();
 
             for (ApplicationInfo info : applicationInfos) {
-                String[] decleared = PkgUtil.getAllDeclaredPermissions(context, info.packageName);
-                if (decleared == null || decleared.length == 0) {
-                    continue;
-                }
+                Set<String> decleared = Sets.newHashSet(PkgUtil.getAllDeclaredPermissions(context, info.packageName));
                 String permission = XAppOpsManager.opToPermission(op);
-                if (permission == null || (Arrays.binarySearch(decleared, permission) >= 0)) {
+                if (BuildConfig.DEBUG) {
+                    Logger.v("decleared perm: " + Arrays.toString(decleared.toArray()));
+                    Logger.v("ops perm: " + permission);
+                }
+                if (permission == null || decleared.contains(permission)) {
                     CommonPackageInfo c = new CommonPackageInfo();
                     c.setPkgName(info.packageName);
                     c.setVersion(XAPMManager.get().getPermissionControlBlockModeForPkg(op, c.getPkgName(), false));

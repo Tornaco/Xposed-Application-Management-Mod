@@ -78,12 +78,13 @@ public class Op2AppsListActivity extends WithSearchActivity<CommonPackageInfo> i
         if (op < 0) return;
 
 
-        Logger.w("Op2AppsListActivity, op " + op + ", mShowSystem" + mShowSystem);
+        Logger.w("Op2AppsListActivity, op " + op + ", mShowSystem " + mShowSystem);
 
         initView();
 
         mRawTitle = XAppOpsManagerRes.getOpLabel(this, op);
         setTitle(mRawTitle);
+        setSubTitleChecked(XAppOpsManagerRes.getOpSummary(this, op));
     }
 
     private void warnIfSystemAppProtected() {
