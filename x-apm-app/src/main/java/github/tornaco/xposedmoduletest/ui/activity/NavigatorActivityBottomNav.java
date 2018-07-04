@@ -605,7 +605,7 @@ public class NavigatorActivityBottomNav
             if (isNewBuild) {
                 summaryView.setText(R.string.app_intro_need_restart);
                 ViewGroup header = findView(rootView, R.id.header1);
-                header.setBackgroundColor(ContextCompat.getColor(Objects.requireNonNull(getActivity()), R.color.amber));
+                header.setBackgroundColor(ContextCompat.getColor(Objects.requireNonNull(getActivity()), R.color.amber_dark));
                 imageView.setImageResource(R.drawable.ic_error_black_24dp);
                 XAPMManager.get().showRebootNeededNotification("isNewBuild");
             } else {
