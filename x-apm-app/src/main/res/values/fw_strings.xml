@@ -45,6 +45,8 @@
     <string name="notification_uninstall_pro_app">受保护应用卸载请求已经被应用管理拦截</string>
     <string name="notification_uninstall_pro_data">受保护应用清除数据请求已经被应用管理拦截</string>
 
+    <string name="tips_current_activity_view">当前活动，长按移动，点击复制，左/右滑动关闭</string>
+
     <string name="dialog_title_app_crash">糟糕:(</string>
     <string name="dialog_message_app_crash">应用管理检测到 %1$s 发生了异常，已经为你抓取错误信息，建议复制堆栈信息反馈给该应用的开发者。\n\n错误线程：%2$s\n\n堆栈：%3$s</string>
 </resources>
