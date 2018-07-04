@@ -155,6 +155,7 @@ public class AppOpsTemplateListActivity extends CommonPackageInfoListActivity
         OpsTemplateItemViewHolder(View itemView) {
             super(itemView);
             moreView = itemView.findViewById(R.id.btn_more);
+            moreView.setVisibility(View.INVISIBLE);
         }
     }
 }

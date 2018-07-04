@@ -128,7 +128,6 @@ import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 import github.tornaco.xposedmoduletest.xposed.bean.JavaScript;
 import github.tornaco.xposedmoduletest.xposed.bean.NetworkRestriction;
 import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
-import github.tornaco.xposedmoduletest.xposed.bean.OpsSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.SystemPropProfile;
 import github.tornaco.xposedmoduletest.xposed.bean.TypePack;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
@@ -3775,6 +3774,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     @BinderCall
+
+    public AppOpsTemplate getAppOpsTemplateById(String id) {
+        enforceCallingPermissions();
+        String json = RepoProxy.getProxy().getAppOpsTemplate().get(id);
+        return AppOpsTemplate.fromJson(json);
+    }
+
+    @Override
+    @BinderCall
     public void addAppOpsTemplate(AppOpsTemplate template) {
         enforceCallingPermissions();
 
@@ -6346,28 +6354,36 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
   at android.os.Looper.loop(Looper.java:154)
   at android.os.HandlerThread.run(HandlerThread.java:61)
      */
-    private void applyOpsSettingsForPackage(String pkg) {
+    @InternalCall
+    private void applyOpsSettingsForPackage(String pkg, AppSettings settings) {
         XposedLog.verbose("applyOpsSettingsForPackage: " + pkg);
-        try {
+        // Query template.
+        AppOpsTemplate appOpsTemplate = settings.getAppOpsTemplateId() == null
+                ? null : getAppOpsTemplateById(settings.getAppOpsTemplateId());
+        if (appOpsTemplate != null) {
+            XposedLog.verbose("applyOpsSettingsForPackage: " + appOpsTemplate);
             for (int i = 0; i < XAppOpsManager._NUM_OP; i++) {
                 int code = i;
-                int mode = getPermissionControlBlockModeForPkg(code, XAPMManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME, false, null);
-                XposedLog.verbose("Template code and mode: %s %s", code, mode);
+                int mode = appOpsTemplate.getMode(code);
                 setPermissionControlBlockModeForPkg(code, pkg, mode);
+
+                if (XposedLog.isVerboseLoggable()) {
+                    XposedLog.verbose("applyOpsSettingsForPackage Template code and mode: %s %s", code, mode);
+                }
             }
-        } catch (Throwable e) {
-            XposedLog.wtf("Fail applyOpsSettingsForPackage for " + pkg + ", err " + Log.getStackTraceString(e));
         }
     }
 
     @Override
     @BinderCall
+    @Deprecated
     public void backupTo(String dir) {
         throw new RuntimeException("Directly back to dir is not supported");
     }
 
     @Override
     @BinderCall
+    @Deprecated
     public void restoreFrom(String dir) {
         // No impl yet.
     }
@@ -6401,24 +6417,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 .lk(true)
                 .build();
         return as;
-    }
-
-    @Override
-    @BinderCall
-    public void setAppOpsTemplate(OpsSettings opsSettings) {
-        SettingsProvider.get().putString("AppOpsTemplate", opsSettings.toJson());
-        if (BuildConfig.DEBUG) {
-            OpsSettings test = OpsSettings.fromJson(SettingsProvider.get().getString("AppOpsTemplate", null));
-            XposedLog.verbose("setAppOpsTemplate test: " + test);
-        }
-    }
-
-    @Override
-    @BinderCall
-    public OpsSettings getAppOpsTemplate(OpsSettings opsSettings) {
-        OpsSettings os = OpsSettings.fromJson(SettingsProvider.get().getString("AppOpsTemplate", null));
-        if (os == null) os = new OpsSettings(XAppOpsManager.getDefaultModes());
-        return os;
     }
 
     @Override
@@ -7253,6 +7251,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         @Override
         public void onSwipeDirection(@NonNull FloatView.SwipeDirection direction) {
             XposedLog.verbose("onSwipeDirection");
+            if (direction == FloatView.SwipeDirection.L || direction == FloatView.SwipeDirection.R) {
+               setShowFocusedActivityInfoEnabled(false);
+            }
         }
 
         @Override
@@ -8922,7 +8923,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                                 final String finalPkgName = packageName;
                                 postDelayed(new ErrorCatchRunnable(() -> {
                                     try {
-                                        applyOpsSettingsForPackage(finalPkgName);
+                                        applyOpsSettingsForPackage(finalPkgName, template);
 
                                         boolean showNotification = isAutoAddBlackNotificationEnabled();
                                         if (showNotification) {
@@ -8935,7 +8936,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                                         XposedLog.verbose("Fail applyOpsSettingsForPackage/showNewAppRestrictedNotification: "
                                                 + Log.getStackTraceString(e));
                                     }
-                                }, "applyOpsSettingsForPackage"), 8000);
+                                }, "applyOpsSettingsForPackage delay"), 8000 /* Make it safe. */);
                             }
                         }
 

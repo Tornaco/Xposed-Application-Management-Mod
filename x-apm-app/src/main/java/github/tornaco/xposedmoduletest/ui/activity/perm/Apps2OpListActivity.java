@@ -5,12 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.AppBarLayout;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,18 +26,16 @@ import org.newstand.logger.Logger;
 import java.util.List;
 
 import github.tornaco.android.common.Collections;
-import github.tornaco.android.common.util.ColorUtil;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
-import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.loader.PermissionLoader;
 import github.tornaco.xposedmoduletest.model.Permission;
-import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.activity.WithRecyclerView;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.PermissionOpsAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
+import github.tornaco.xposedmoduletest.xposed.bean.AppOpsTemplate;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 
 /**
@@ -75,10 +70,6 @@ public class Apps2OpListActivity extends WithRecyclerView implements AdapterView
         if (TextUtils.isEmpty(mPkg)) return;
 
         initView();
-
-        if (!mUserTheme.isReverseTheme()) {
-            initColor();
-        }
 
         mAppName = String.valueOf(PkgUtil.loadNameByPkgName(this, mPkg));
         setTitle(mAppName);
@@ -145,17 +136,17 @@ public class Apps2OpListActivity extends WithRecyclerView implements AdapterView
 
     private List<CommonPackageInfoListActivity.FilterOption> mFilterOptions;
 
-    protected int mFilterOption = CommonPackageInfoListActivity.FilterOption.OPTION_EXT_OP;
+    protected int mFilterOption = CommonPackageInfoListActivity.FilterOption.OPTION_ALL_OP;
 
     protected SpinnerAdapter onCreateSpinnerAdapter(Spinner spinner) {
         if (getActivity() == null) return null;
         List<CommonPackageInfoListActivity.FilterOption> options = Lists.newArrayList(
+                new CommonPackageInfoListActivity.FilterOption(R.string.filter_all_op,
+                        CommonPackageInfoListActivity.FilterOption.OPTION_ALL_OP),
                 new CommonPackageInfoListActivity.FilterOption(R.string.filter_ext_op,
                         CommonPackageInfoListActivity.FilterOption.OPTION_EXT_OP),
                 new CommonPackageInfoListActivity.FilterOption(R.string.filter_default_op,
-                        CommonPackageInfoListActivity.FilterOption.OPTION_DEFAULT_OP),
-                new CommonPackageInfoListActivity.FilterOption(R.string.filter_all_op,
-                        CommonPackageInfoListActivity.FilterOption.OPTION_ALL_OP));
+                        CommonPackageInfoListActivity.FilterOption.OPTION_DEFAULT_OP));
         mFilterOptions = options;
         return new CommonPackageInfoListActivity.FilterSpinnerAdapter(getActivity(), options);
     }
@@ -174,27 +165,6 @@ public class Apps2OpListActivity extends WithRecyclerView implements AdapterView
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
-    }
-
-    private void initColor() {
-        // Apply theme color.
-        int color = ContextCompat.getColor(this, XSettings.getThemes(this).getThemeColor());
-
-        // Apply palette color.
-        PaletteColorPicker.pickPrimaryColor(this, this::applyColor, mPkg, color);
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    private void applyColor(int color) {
-        AppBarLayout appBar = findViewById(R.id.appbar);
-        if (appBar != null) appBar.setBackgroundColor(color);
-        int dark = ColorUtil.colorBurn(color);
-        getWindow().setStatusBarColor(dark);
-        getWindow().setNavigationBarColor(dark);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            toolbar.setBackgroundColor(color);
-        }
     }
 
     protected void startLoading() {
@@ -236,6 +206,14 @@ public class Apps2OpListActivity extends WithRecyclerView implements AdapterView
         if (item.getItemId() == R.id.action_ignore_all) {
             applyBatch(false);
         }
+
+        if (item.getItemId() == R.id.action_select_from_ops_template) {
+            AppOpsTemplatePicker.chooseOne(getActivity(), null, template -> {
+                if (template != null) {
+                    applyFromTemplate(template);
+                }
+            });
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -257,7 +235,29 @@ public class Apps2OpListActivity extends WithRecyclerView implements AdapterView
             } finally {
                 runOnUiThreadChecked(() -> {
                     p.dismiss();
+                    startLoading();
+                });
+            }
+        });
+    }
 
+    private void applyFromTemplate(final AppOpsTemplate appOpsTemplate) {
+        final ProgressDialog p = new ProgressDialog(getActivity());
+        p.setTitle(R.string.message_saving_changes);
+        p.setIndeterminate(true);
+        p.setCancelable(false);
+        p.show();
+        XExecutor.execute(() -> {
+            try {
+                Collections.consumeRemaining(permissionOpsAdapter.getData(),
+                        permission -> {
+                            int mode = appOpsTemplate.getMode(permission.getCode());
+                            XAPMManager.get().setPermissionControlBlockModeForPkg(permission.getCode(), mPkg, mode);
+                            runOnUiThreadChecked(() -> p.setMessage(permission.getName()));
+                        });
+            } finally {
+                runOnUiThreadChecked(() -> {
+                    p.dismiss();
                     startLoading();
                 });
             }

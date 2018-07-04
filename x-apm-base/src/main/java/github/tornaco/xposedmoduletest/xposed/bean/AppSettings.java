@@ -36,6 +36,8 @@ public class AppSettings implements Parcelable {
 
     private boolean wakeLock, service, alarm;
 
+    private String appOpsTemplateId;
+
     protected AppSettings(Parcel in) {
         pkgName = in.readString();
         appName = in.readString();
@@ -56,6 +58,8 @@ public class AppSettings implements Parcelable {
         wakeLock = in.readByte() != 0;
         service = in.readByte() != 0;
         alarm = in.readByte() != 0;
+
+        appOpsTemplateId = in.readString();
     }
 
     @Override
@@ -79,6 +83,8 @@ public class AppSettings implements Parcelable {
         dest.writeByte((byte) (wakeLock ? 1 : 0));
         dest.writeByte((byte) (service ? 1 : 0));
         dest.writeByte((byte) (alarm ? 1 : 0));
+
+        dest.writeString(appOpsTemplateId);
     }
 
     @Override

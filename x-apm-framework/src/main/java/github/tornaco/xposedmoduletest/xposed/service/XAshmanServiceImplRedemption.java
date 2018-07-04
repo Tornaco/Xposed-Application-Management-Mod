@@ -38,7 +38,6 @@ import github.tornaco.xposedmoduletest.xposed.bean.BlockRecord2;
 import github.tornaco.xposedmoduletest.xposed.bean.DozeEvent;
 import github.tornaco.xposedmoduletest.xposed.bean.JavaScript;
 import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
-import github.tornaco.xposedmoduletest.xposed.bean.OpsSettings;
 import github.tornaco.xposedmoduletest.xposed.bean.SystemPropProfile;
 import github.tornaco.xposedmoduletest.xposed.bean.VerifySettings;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
@@ -1765,16 +1764,6 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
-    public void setAppOpsTemplate(OpsSettings opsSettings) {
-
-    }
-
-    @Override
-    public OpsSettings getAppOpsTemplate(OpsSettings opsSettings) {
-        return null;
-    }
-
-    @Override
     public void addPendingDisableAppsTR(String pkg) {
 
     }
@@ -1847,6 +1836,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     @Override
     public void killBackgroundProcesses(String packageName) {
 
+    }
+
+    @Override
+    public AppOpsTemplate getAppOpsTemplateById(String id) throws RemoteException {
+        return null;
     }
 
     @Override

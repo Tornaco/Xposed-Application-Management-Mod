@@ -49,6 +49,7 @@ class FloatView extends LinearLayout {
     private ViewGroup mContainerView;
     private TextView mTextView;
     private String mText;
+    private String mTips;
 
     private Handler mHandler = new Handler();
 
@@ -72,6 +73,8 @@ class FloatView extends LinearLayout {
     public FloatView(final Context context, Callback callback) {
         super(context);
 
+        mTips = new AppResource(context)
+                .loadStringFromAPMApp("tips_current_activity_view");
 
         mCallback = callback;
 
@@ -259,7 +262,7 @@ class FloatView extends LinearLayout {
     }
 
     public void setText(String text) {
-        String textToShow = "当前活动，长按可移动，点击可复制：\n" + text;
+        String textToShow = mTips + "\n" + text;
         if (isShowing()) {
             mTextView.setText(textToShow);
         }

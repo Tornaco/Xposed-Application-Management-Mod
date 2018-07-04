@@ -4,19 +4,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
 
 import java.util.List;
+import java.util.Objects;
 
 import dev.nick.tiles.tile.Category;
-import github.tornaco.android.common.util.ColorUtil;
 import github.tornaco.xposedmoduletest.R;
-import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
-import github.tornaco.xposedmoduletest.provider.XSettings;
 import github.tornaco.xposedmoduletest.ui.AppCustomDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
+import github.tornaco.xposedmoduletest.ui.tiles.AppOpsTemplateSetting;
 import github.tornaco.xposedmoduletest.ui.tiles.PermControlTemplate;
 import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppBlurSetting;
 import github.tornaco.xposedmoduletest.ui.tiles.app.per.AppBootSetting;
@@ -63,43 +59,11 @@ public class PerAppSettingsDashboardActivity extends WithWithCustomTabActivity {
 
         replaceV4(R.id.container, Dashboards.newInstance(getContext(), pkgName), null, false);
 
-        // Apply theme color.
-        int color = ContextCompat.getColor(this, XSettings.getThemes(this).getThemeColor());
-
-        // Apply palette color.
-        // Workaround.
-        if (!mUserTheme.isReverseTheme()) {
-            PaletteColorPicker.pickPrimaryColor(this, new PaletteColorPicker.PickReceiver() {
-                @Override
-                public void onColorReady(int color) {
-                    applyColor(color);
-                }
-            }, pkgName, color);
-        }
-
-        findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onFabClick();
-            }
-        });
+        findViewById(R.id.fab).setOnClickListener(v -> onFabClick());
     }
 
     void onFabClick() {
         finish();
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    private void applyColor(int color) {
-        int dark = ColorUtil.colorBurn(color);
-        getWindow().setStatusBarColor(dark);
-        getWindow().setNavigationBarColor(dark);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            toolbar.setBackgroundColor(color);
-            setSupportActionBar(toolbar);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
     }
 
     AppSettings onRetrieveAppSettings(String pkg) {
@@ -141,7 +105,8 @@ public class PerAppSettingsDashboardActivity extends WithWithCustomTabActivity {
 
             if (mPkg == null) return;
 
-            AppSettings appSettings = ((PerAppSettingsDashboardActivity) getActivity()).onRetrieveAppSettings(mPkg);
+            AppSettings appSettings = ((PerAppSettingsDashboardActivity)
+                    Objects.requireNonNull(getActivity())).onRetrieveAppSettings(mPkg);
             if (appSettings == null) {
                 appSettings = AppSettings.builder()
                         .boot(false)
@@ -169,22 +134,20 @@ public class PerAppSettingsDashboardActivity extends WithWithCustomTabActivity {
             rest.addTile(new AppTRKSetting(getActivity(), appSettings));
             rest.addTile(new AppLazySetting(getActivity(), appSettings));
 
-//            Category green = new Category();
-//            green.titleRes = R.string.title_greening;
-//            green.addTile(new AppWakeLockSetting(getActivity(), appSettings));
-//            green.addTile(new AppTimerSetting(getActivity(), appSettings));
-//            green.addTile(new AppServiceSetting(getActivity(), appSettings));
-
             Category perm = new Category();
             perm.titleRes = R.string.title_perm_control;
 
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_OPS)) {
-                perm.addTile(new PermControlTemplate(getActivity(), mPkg));
+                boolean isDummy = mPkg.equals(XAPMManager.APPOPS_WORKAROUND_DUMMY_PACKAGE_NAME);
+                if (isDummy) {
+                    perm.addTile(new AppOpsTemplateSetting(getActivity(), appSettings));
+                } else {
+                    perm.addTile(new PermControlTemplate(getActivity(), mPkg));
+                }
             }
 
             categories.add(sec);
             categories.add(rest);
-//            categories.add(green);
             categories.add(perm);
         }
     }

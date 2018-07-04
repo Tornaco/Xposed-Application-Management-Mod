@@ -16,4 +16,11 @@
         android:title="@string/ignore_allow_all"
         android:visible="true"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_select_from_ops_template"
+        android:icon="@drawable/ic_search_white_24dp"
+        android:title="@string/title_select_from_ops_template"
+        android:visible="true"
+        app:showAsAction="never" />
 </menu>
