@@ -6,12 +6,9 @@ import android.text.TextUtils;
 
 import org.newstand.logger.Logger;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Observable;
 
 import dev.nick.eventbus.Event;
@@ -88,22 +85,14 @@ public class AppSettings extends Observable {
     }
 
     public static boolean isAliPayRedPacketReceivedToady(Context context) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-        Date d1 = new Date();
-        String time = format.format(d1);
-        Logger.i("isAliPayRedPacketReceivedToady " + time);
         // Base on version name, show it at every new version.
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(AppKey.ALILAY_RED_PACKET_RECEIVED + BuildConfig.VERSION_NAME, false);
     }
 
     public static void setAliPayRedPacketReceivedToady(Context context) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-        Date d1 = new Date();
-        String time = format.format(d1);
-        Logger.i("setAliPayRedPacketReceivedToady " + time);
         PreferenceManager.getDefaultSharedPreferences(context)
-                .edit().putBoolean(AppKey.ALILAY_RED_PACKET_RECEIVED + time, true)
+                .edit().putBoolean(AppKey.ALILAY_RED_PACKET_RECEIVED + BuildConfig.VERSION_NAME, true)
                 .apply();
     }
 
