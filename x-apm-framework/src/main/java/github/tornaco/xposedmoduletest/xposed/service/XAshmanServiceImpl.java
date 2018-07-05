@@ -556,7 +556,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 }
             });
 
-    private void onAppGuardClientUninstalled() {
+    private void cacheAPMClientUninstalledRes() {
+        AppResource appResource = new AppResource(getContext());
+        appResource.loadStringFromAPMApp("dialog_title_apm_uninstalled");
+        appResource.loadStringFromAPMApp("dialog_message_apm_uninstalled");
+        appResource.loadStringFromAPMApp("dialog_action_yes_apm_uninstalled");
+        appResource.loadStringFromAPMApp("dialog_action_no_apm_uninstalled");
+    }
+
+    private void onAPMClientUninstalled() {
         if (PkgUtil.isPkgInstalled(getContext(), BuildConfig.APPLICATION_ID)) return;
 
         long id = Binder.clearCallingIdentity();
@@ -4429,6 +4437,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             }
         }, "reload installed apps"), 15 * 1000);
 
+        // Notification is safe to post after then.
         mLazyHandler.postDelayed(new ErrorCatchRunnable(() -> {
             mIsNotificationPostReady = true;
         }, "Ready to post notifications"), 3 * 1000);
@@ -4447,13 +4456,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             }, 10 * 1000);
         }
 
-        // Disable layout debug incase our logic make the system dead in loop.
+        // Cache app res, in-case app is uninstalled but we still need his resource.
+        cacheAPMClientUninstalledRes();
+
+        // Disable layout debug in-case our logic make the system dead in loop.
         if (BuildConfig.DEBUG) {
             SystemProperties.set(View.DEBUG_LAYOUT_PROPERTY, String.valueOf(false));
 
             MultipleAppsManager multipleAppsManager = MultipleAppsManager.getInstance();
             multipleAppsManager.onCreate(getContext());
-
         }
     }
 
@@ -9040,7 +9051,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                         x.addOrRemoveStartBlockApps(new String[]{packageName}, XAPMManager.Op.REMOVE);
 
                         if (BuildConfig.APPLICATION_ID.equals(packageName)) {
-                            mLazyHandler.postDelayed(XAshmanServiceImpl.this::onAppGuardClientUninstalled, 2000);
+                            mLazyHandler.postDelayed(XAshmanServiceImpl.this::onAPMClientUninstalled, 2000);
                         }
                     } catch (Throwable e) {
                         XposedLog.wtf(Log.getStackTraceString(e));
