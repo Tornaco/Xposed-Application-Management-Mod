@@ -8319,7 +8319,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                         AppResource appResource = new AppResource(getContext());
                         AlertDialog d = new AlertDialog.Builder(getContext())
                                 .setTitle(appResource.loadStringFromAPMApp("dialog_title_app_crash"))
-                                .setMessage(appResource.loadStringFromAPMApp("dialog_message_app_crash", PkgUtil.loadNameByPkgName(getContext(), packageName), thread, trace))
+                                .setMessage(appResource.loadStringFromAPMApp("dialog_message_app_crash",
+                                        PkgUtil.loadNameByPkgName(getContext(), packageName), thread, trace))
                                 .setCancelable(false)
                                 .setPositiveButton(android.R.string.copy,
                                         (dialog, which) -> {
