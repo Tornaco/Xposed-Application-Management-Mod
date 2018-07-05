@@ -63,7 +63,7 @@ public class AppResource {
                         if (bitmap != null) {
                             return bitmap;
                         } else {
-                            BitmapFactory.decodeResource(this.context.getResources(), android.R.drawable.stat_sys_warning);
+                            return BitmapFactory.decodeResource(this.context.getResources(), android.R.drawable.stat_sys_warning);
                         }
                     }
                 }
