@@ -4457,7 +4457,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         // Cache app res, in-case app is uninstalled but we still need his resource.
-        cacheAPMClientUninstalledRes();
+        mainHandler.post(new ErrorCatchRunnable(this::cacheAPMClientUninstalledRes,"cacheAPMClientUninstalledRes"));
 
         // Disable layout debug in-case our logic make the system dead in loop.
         if (BuildConfig.DEBUG) {
