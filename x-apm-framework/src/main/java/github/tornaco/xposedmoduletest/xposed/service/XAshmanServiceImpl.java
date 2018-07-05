@@ -8310,40 +8310,100 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             // This package is going to die.
             PkgUtil.onAppBringDown(packageName, "onApplicationUncaughtException");
 
-            if (mCrashDialogShowing) return;
+            // Show error dump dialog.
+            if (!mCrashDialogShowing) {
+                if (!mShowAppCrashDumpEnabled.get()) {
+                    mCrashDialogShowing = false;
+                } else {
+                    try {
+                        AppResource appResource = new AppResource(getContext());
+                        AlertDialog d = new AlertDialog.Builder(getContext())
+                                .setTitle(appResource.loadStringFromAPMApp("dialog_title_app_crash"))
+                                .setMessage(appResource.loadStringFromAPMApp("dialog_message_app_crash", PkgUtil.loadNameByPkgName(getContext(), packageName), thread, trace))
+                                .setCancelable(false)
+                                .setPositiveButton(android.R.string.copy,
+                                        (dialog, which) -> {
+                                            try {
+                                                ClipboardManager cmb = (ClipboardManager) getContext()
+                                                        .getSystemService(Context.CLIPBOARD_SERVICE);
+                                                if (cmb != null) {
+                                                    cmb.setPrimaryClip(ClipData.newPlainText("service_config", trace));
+                                                }
+                                            } catch (Throwable ignored) {
+                                            }
+                                        })
+                                .setNegativeButton(android.R.string.cancel, null)
+                                .setOnDismissListener(dialog -> mCrashDialogShowing = false)
+                                .create();
+                        d.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG);
+                        d.show();
+                        mCrashDialogShowing = true;
 
-            if (!mShowAppCrashDumpEnabled.get()) {
-                mCrashDialogShowing = false;
-                return;
+                    } catch (Exception e) {
+                        XposedLog.wtf("Fail show system dialog: " + Log.getStackTraceString(e));
+                    }
+                }
             }
 
+            // analyse, why it crash?
+            // 1. check op.
+            boolean hasIgnoredOp = false;
+            for (int code = 0; code < XAppOpsManager._NUM_OP; code++) {
+                int mode = getPermissionControlBlockModeForPkgInternal(code, packageName);
+                if (mode == XAppOpsManager.MODE_IGNORED) {
+                    hasIgnoredOp = true;
+                    break;
+                }
+            }
+            if (hasIgnoredOp) {
+                showMaybeOpCauseAppCrashNotification(packageName);
+            }
+        }
+
+        private void showMaybeOpCauseAppCrashNotification(String appPkgName) {
+            XposedLog.verbose("showMaybeOpCauseAppCrashNotification: " + appPkgName);
+
+            createDefaultNotificationChannelForO();
+
+            Intent viewer = new Intent();
+            viewer.setPackage(BuildConfig.APPLICATION_ID);
+            viewer.setClassName(BuildConfig.APPLICATION_ID,
+                    "github.tornaco.xposedmoduletest.ui.activity.app.PerAppSettingsDashboardActivity");
+            viewer.putExtra("pkg_name", appPkgName);
+            viewer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(), NOTIFICATION_CHANNEL_ID_DEFAULT);
             try {
-                AppResource appResource = new AppResource(getContext());
-                AlertDialog d = new AlertDialog.Builder(getContext())
-                        .setTitle(appResource.loadStringFromAPMApp("dialog_title_app_crash"))
-                        .setMessage(appResource.loadStringFromAPMApp("dialog_message_app_crash", PkgUtil.loadNameByPkgName(getContext(), packageName), thread, trace))
-                        .setCancelable(false)
-                        .setPositiveButton(android.R.string.copy,
-                                (dialog, which) -> {
-                                    try {
-                                        ClipboardManager cmb = (ClipboardManager) getContext()
-                                                .getSystemService(Context.CLIPBOARD_SERVICE);
-                                        if (cmb != null) {
-                                            cmb.setPrimaryClip(ClipData.newPlainText("service_config", trace));
-                                        }
-                                    } catch (Throwable ignored) {
-                                    }
-                                })
-                        .setNegativeButton(android.R.string.cancel, null)
-                        .setOnDismissListener(dialog -> mCrashDialogShowing = false)
-                        .create();
-                d.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG);
-                d.show();
-                mCrashDialogShowing = true;
-
-            } catch (Exception e) {
-                XposedLog.wtf("Fail show system dialog: " + Log.getStackTraceString(e));
+                String override = new AppResource(getContext())
+                        .loadStringFromAPMApp("notification_override_bug");
+                SystemUI.overrideNotificationAppName(getContext(), builder, override);
+            } catch (Throwable ignored) {
             }
+
+            AppResource appResource = new AppResource(getContext());
+            String title = appResource.loadStringFromAPMApp("notification_title_app_crash");
+            String text = appResource.loadStringFromAPMApp("notification_message_app_crash_tips",
+                    PkgUtil.loadNameByPkgName(getContext(), appPkgName));
+
+            android.support.v4.app.NotificationCompat.BigTextStyle style =
+                    new android.support.v4.app.NotificationCompat.BigTextStyle();
+            style.bigText(text);
+            style.setBigContentTitle(title);
+
+            Notification n = builder
+                    .setStyle(style)
+                    .setContentIntent(PendingIntent.getActivity(getContext(), UniqueIdFactory.getNextId(), viewer, 0))
+                    .setContentTitle(title)
+                    .setContentText(text)
+                    .setSmallIcon(android.R.drawable.stat_sys_warning)
+                    .build();
+
+            if (OSUtil.isMOrAbove()) {
+                n.setSmallIcon(new AppResource(getContext()).loadIconFromAPMApp("ic_bug_report_black_24dp"));
+            }
+
+            NotificationManagerCompat.from(getContext())
+                    .notify(UniqueIdFactory.getIdByTag("app-crash-diag-" + appPkgName), n);
         }
 
         @Override
