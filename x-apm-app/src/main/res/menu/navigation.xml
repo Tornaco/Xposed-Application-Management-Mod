@@ -9,20 +9,20 @@
         app:showAsAction="always|withText" />
 
     <item
-        android:id="@+id/navigation_manage"
+        android:id="@+id/navigation_basic"
         android:icon="@drawable/ic_dashboard_black_24dp"
         android:title="@string/title_manage_basic"
         app:showAsAction="always|withText" />
 
     <item
-        android:id="@+id/navigation_tools"
+        android:id="@+id/navigation_advanced"
         android:icon="@drawable/ic_school_black_24dp"
         android:title="@string/title_manage_advanced"
         app:showAsAction="always|withText"
         tools:ignore="AlwaysShowAction" />
 
     <item
-        android:id="@+id/navigation_settings"
+        android:id="@+id/navigation_more"
         android:icon="@drawable/ic_radio_button_checked_black_24dp"
         android:title="@string/title_more"
         app:showAsAction="always|withText" />

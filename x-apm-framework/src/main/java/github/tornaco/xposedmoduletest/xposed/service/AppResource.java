@@ -9,6 +9,9 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -27,6 +30,9 @@ import static android.content.Context.CONTEXT_IGNORE_SECURITY;
 @AllArgsConstructor
 @Getter
 public class AppResource {
+
+    private static final Map<Object, String> sStringResCache = new HashMap<>();
+    private static final Map<Object, String[]> sStringArrayResCache = new HashMap<>();
 
     private Context context;
 
@@ -56,6 +62,8 @@ public class AppResource {
                         }
                         if (bitmap != null) {
                             return bitmap;
+                        } else {
+                            return BitmapFactory.decodeResource(this.context.getResources(), android.R.drawable.stat_sys_warning);
                         }
                     }
                 }
@@ -146,6 +154,12 @@ public class AppResource {
 
     String[] readStringArrayFromAPMApp(String resName) {
         if (!PkgUtil.isPkgInstalled(this.context, BuildConfig.APPLICATION_ID)) {
+            if (sStringArrayResCache.containsKey(resName)) {
+                String[] cached = sStringArrayResCache.get(resName);
+                if (cached != null) {
+                    return cached;
+                }
+            }
             return new String[0];
         }
         Context context = getContext();
@@ -160,7 +174,9 @@ public class AppResource {
             int id = res.getIdentifier(resName, "array", BuildConfig.APPLICATION_ID);
             Log.d(XposedLog.TAG, "readStringArrayFromAPMApp get id: " + id + ", for res: " + resName);
             if (id != 0) {
-                return res.getStringArray(id);
+                String[] stringArr = res.getStringArray(id);
+                sStringArrayResCache.put(resName, stringArr);
+                return stringArr;
             }
         } catch (Throwable e) {
             Log.e(XposedLog.TAG, "Fail createPackageContext: " + Log.getStackTraceString(e));
@@ -170,6 +186,11 @@ public class AppResource {
 
     public String loadStringFromAPMApp(String resName, Object... args) {
         if (!PkgUtil.isPkgInstalled(this.context, BuildConfig.APPLICATION_ID)) {
+            // Return cache.
+            String cachedString = sStringResCache.get(resName);
+            if (cachedString != null) {
+                return String.format(cachedString, args);
+            }
             return resName;
         }
         Context context = getContext();
@@ -184,7 +205,9 @@ public class AppResource {
             int id = res.getIdentifier(resName, "string", BuildConfig.APPLICATION_ID);
             Log.d(XposedLog.TAG, "loadStringFromAPMApp get id: " + id + ", for res: " + resName);
             if (id != 0) {
-                return res.getString(id, args);
+                String string = res.getString(id, args);
+                sStringResCache.put(resName, string);
+                return string;
             }
         } catch (Throwable e) {
             Log.e(XposedLog.TAG, "Fail createPackageContext: " + Log.getStackTraceString(e));

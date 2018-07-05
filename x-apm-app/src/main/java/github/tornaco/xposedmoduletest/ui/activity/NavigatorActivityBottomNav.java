@@ -1,7 +1,6 @@
 package github.tornaco.xposedmoduletest.ui.activity;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -109,9 +108,9 @@ public class NavigatorActivityBottomNav
     interface INDEXS {
         int BASE = 0;
         int STATUS = BASE;
-        int MANAGE = BASE + 1;
-        int TOOLS = BASE + 2;
-        int SETTINGS = BASE + 3;
+        int BASIC = BASE + 1;
+        int ADVANCED = BASE + 2;
+        int MORE = BASE + 3;
     }
 
     public static void start(Context context) {
@@ -218,19 +217,13 @@ public class NavigatorActivityBottomNav
                                     R.string.message_oreo_update
                                     : R.string.message_oreo_update_not_tv))
                     .setCancelable(false)
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            initFirstRun();
-                            AppSettings.setShowInfo(getContext(), "TV_FEATURE_WARN", false);
-                        }
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                        initFirstRun();
+                        AppSettings.setShowInfo(getContext(), "TV_FEATURE_WARN", false);
                     })
-                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                            PackageManagerCompat.unInstallUserAppWithIntent(getContext(), getPackageName());
-                        }
+                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+                        finish();
+                        PackageManagerCompat.unInstallUserAppWithIntent(getContext(), getPackageName());
                     })
                     .show();
         } else {
@@ -248,14 +241,14 @@ public class NavigatorActivityBottomNav
                 case R.id.navigation_home:
                     cardController.setCurrent(INDEXS.STATUS);
                     break;
-                case R.id.navigation_manage:
-                    cardController.setCurrent(INDEXS.MANAGE);
+                case R.id.navigation_basic:
+                    cardController.setCurrent(INDEXS.BASIC);
                     break;
-                case R.id.navigation_tools:
-                    cardController.setCurrent(INDEXS.TOOLS);
+                case R.id.navigation_advanced:
+                    cardController.setCurrent(INDEXS.ADVANCED);
                     break;
-                case R.id.navigation_settings:
-                    cardController.setCurrent(INDEXS.SETTINGS);
+                case R.id.navigation_more:
+                    cardController.setCurrent(INDEXS.MORE);
                     break;
             }
 
@@ -305,8 +298,8 @@ public class NavigatorActivityBottomNav
         final List<ActivityLifeCycleDashboardFragment> cards =
                 ImmutableList.of(
                         new DeviceStatusFragment(),
-                        new ManageNavFragment(),
-                        new ExpNavFragment(),
+                        new BasicNavFragment(),
+                        new AdvancedNavFragment(),
                         new MoreFragment());
 
         cardController = new FragmentController<>(getSupportFragmentManager(), cards, R.id.container);
@@ -412,13 +405,10 @@ public class NavigatorActivityBottomNav
 
         if (item.getItemId() == R.id.action_change_column_count) {
             ActivityLifeCycleDashboardFragment current = getCardController().getCurrent();
+            Logger.d("action_change_column_count current: " + current);
             boolean two = AppSettings.show2ColumnsIn(getActivity(), current.getClass().getSimpleName());
             AppSettings.setShow2ColumnsIn(getContext(), current.getClass().getSimpleName(), !two);
-            try {
-                recreate();
-            } catch (Throwable e) {
-                Toast.makeText(getContext(), R.string.title_theme_need_restart_app, Toast.LENGTH_SHORT).show();
-            }
+            Toast.makeText(getContext(), R.string.title_theme_need_restart_app, Toast.LENGTH_SHORT).show();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -799,30 +789,27 @@ public class NavigatorActivityBottomNav
                         Logger.d("hasModuleError %s hasSystemError %s", hasModuleError, hasSystemError);
                         BaseActivity baseActivity = (BaseActivity) getActivity();
                         if (baseActivity != null) {
-                            baseActivity.runOnUiThreadChecked(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (hasModuleError || hasSystemError) {
-                                        ViewGroup header = findView(rootView, R.id.header1);
-                                        header.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.amber));
-                                        // Setup Icon.
-                                        ImageView imageView = findView(rootView, R.id.icon1);
-                                        imageView.setImageResource(R.drawable.ic_error_black_24dp);
-                                    }
+                            baseActivity.runOnUiThreadChecked(() -> {
+                                if (hasModuleError || hasSystemError) {
+                                    ViewGroup header = findView(rootView, R.id.header1);
+                                    header.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.amber));
+                                    // Setup Icon.
+                                    ImageView imageView = findView(rootView, R.id.icon1);
+                                    imageView.setImageResource(R.drawable.ic_error_black_24dp);
+                                }
 
-                                    String summary = getString(R.string.title_device_status_summary,
-                                            (hasModuleError ? getString(R.string.title_device_status_summary_compat_ng) : getString(R.string.title_device_status_summary_good)),
-                                            hasSystemError ? getString(R.string.title_device_status_summary_system_ng) : getString(R.string.title_device_status_summary_good));
-                                    summaryView.setText(summary);
+                                String summary = getString(R.string.title_device_status_summary,
+                                        (hasModuleError ? getString(R.string.title_device_status_summary_compat_ng) : getString(R.string.title_device_status_summary_good)),
+                                        hasSystemError ? getString(R.string.title_device_status_summary_system_ng) : getString(R.string.title_device_status_summary_good));
+                                summaryView.setText(summary);
 
-                                    // If all good, hide this card.
-                                    if (!hasModuleError && !hasSystemError) {
+                                // If all good, hide this card.
+                                if (!hasModuleError && !hasSystemError) {
 //                                        findView(rootView, R.id.status_container).setVisibility(View.GONE);
-                                        apmModuleOKNoAndActionNeed = true;
-                                        NavigatorActivityBottomNav activityBottomNav = (NavigatorActivityBottomNav) getActivity();
-                                        if (activityBottomNav != null && !activityBottomNav.isDestroyed()) {
-                                            activityBottomNav.requestUpdateTitle();
-                                        }
+                                    apmModuleOKNoAndActionNeed = true;
+                                    NavigatorActivityBottomNav activityBottomNav = (NavigatorActivityBottomNav) getActivity();
+                                    if (activityBottomNav != null && !activityBottomNav.isDestroyed()) {
+                                        activityBottomNav.requestUpdateTitle();
                                     }
                                 }
                             });
@@ -882,7 +869,7 @@ public class NavigatorActivityBottomNav
         }
     }
 
-    public static class ManageNavFragment
+    public static class BasicNavFragment
             extends ActivityLifeCycleDashboardFragment {
         @Getter
         private View rootView;
@@ -899,7 +886,7 @@ public class NavigatorActivityBottomNav
 
         @Override
         protected int getNumColumns() {
-            boolean two = AppSettings.show2ColumnsIn(Objects.requireNonNull(getActivity()), ManageNavFragment.class.getSimpleName());
+            boolean two = AppSettings.show2ColumnsIn(Objects.requireNonNull(getActivity()), BasicNavFragment.class.getSimpleName());
             return two ? 2 : 1;
         }
 
@@ -974,7 +961,7 @@ public class NavigatorActivityBottomNav
     }
 
 
-    public static class ExpNavFragment
+    public static class AdvancedNavFragment
             extends ActivityLifeCycleDashboardFragment {
         @Getter
         private View rootView;
@@ -991,7 +978,7 @@ public class NavigatorActivityBottomNav
 
         @Override
         protected int getNumColumns() {
-            boolean two = AppSettings.show2ColumnsIn(Objects.requireNonNull(getActivity()), ManageNavFragment.class.getSimpleName());
+            boolean two = AppSettings.show2ColumnsIn(Objects.requireNonNull(getActivity()), AdvancedNavFragment.class.getSimpleName());
             return two ? 2 : 1;
         }
 
@@ -1094,9 +1081,7 @@ public class NavigatorActivityBottomNav
 
         @Override
         protected int getNumColumns() {
-            boolean two = AppSettings.show2ColumnsIn(Objects.requireNonNull(getActivity()),
-                    MoreFragment.class.getSimpleName());
-            return two ? 2 : 1;
+            return 1;
         }
 
         @Override
