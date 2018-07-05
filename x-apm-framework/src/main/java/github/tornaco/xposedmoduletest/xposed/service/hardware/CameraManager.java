@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.service.hardware;
 
+import android.app.KeyguardManager;
 import android.app.Notification;
 import android.content.Context;
 import android.os.Handler;
@@ -97,6 +98,12 @@ public class CameraManager {
     private void showCameraOpenNotification(Context context, String openByPackageName, String cameraId) {
         if (context == null) return;
         XposedLog.verbose("showCameraOpenNotification show");
+
+        if (isKeyguard(context)) {
+            XposedLog.verbose("showCameraOpenNotification skip on keyguard");
+            return;
+        }
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, mCameraOpenNotificationChannelId);
         try {
             SystemUI.overrideNotificationAppName(context, builder, "X-APM");
@@ -116,4 +123,10 @@ public class CameraManager {
         NotificationManagerCompat.from(context)
                 .notify(UniqueIdFactory.getIdByTag("X-APM-CAMERA-OPEN-" + cameraId), n);
     }
+
+    private boolean isKeyguard(Context context) {
+        KeyguardManager keyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+        return keyguardManager != null && keyguardManager.inKeyguardRestrictedInputMode();
+    }
+
 }
