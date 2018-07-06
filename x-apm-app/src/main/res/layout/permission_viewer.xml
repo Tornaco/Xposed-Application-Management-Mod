@@ -28,7 +28,7 @@
             android:id="@+id/switchbar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
-            android:layout_below="@+id/app_bar"
+            android:layout_below="@+id/toolbar"
             android:background="@drawable/switchbar_background"
             android:theme="?attr/switchBarTheme" />
 

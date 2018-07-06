@@ -53,6 +53,12 @@ class AMSGetRunningAppsSubModule extends AndroidSubModule {
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             super.afterHookedMethod(param);
 
+                            boolean permControlEnabled = XAPMManager.get().isServiceAvailable()
+                                    && XAPMManager.get().isPermissionControlEnabled();
+                            if (!permControlEnabled) {
+                                return;
+                            }
+
                             int callingUid = Binder.getCallingUid();
 
                             if (PkgUtil.isSystemOrPhoneOrShell(callingUid)) return;

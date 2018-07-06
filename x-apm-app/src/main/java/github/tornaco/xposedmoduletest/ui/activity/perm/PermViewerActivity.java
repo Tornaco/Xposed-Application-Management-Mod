@@ -53,6 +53,7 @@ import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
 import github.tornaco.xposedmoduletest.util.SpannableUtil;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
+import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import lombok.Getter;
 
 public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
@@ -123,8 +124,9 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
 
         runOnUiThread(() -> {
             SwitchBar switchBar = findViewById(R.id.switchbar);
-            if (switchBar == null) return;
-            switchBar.hide();
+            switchBar.show();
+            switchBar.setChecked(XAPMManager.get().isPermissionControlEnabled());
+            switchBar.addOnSwitchChangeListener((switchView, isChecked) -> XAPMManager.get().setPermissionControlEnabled(isChecked));
         });
 
         boolean donateOrPlay = XAPMApplication.isPlayVersion() || AppSettings.isDonated(getContext());

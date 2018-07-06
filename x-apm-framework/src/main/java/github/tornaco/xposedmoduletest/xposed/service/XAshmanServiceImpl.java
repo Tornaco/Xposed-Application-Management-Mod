@@ -4457,7 +4457,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         // Cache app res, in-case app is uninstalled but we still need his resource.
-        mainHandler.post(new ErrorCatchRunnable(this::cacheAPMClientUninstalledRes,"cacheAPMClientUninstalledRes"));
+        mainHandler.post(new ErrorCatchRunnable(this::cacheAPMClientUninstalledRes, "cacheAPMClientUninstalledRes"));
 
         // Disable layout debug in-case our logic make the system dead in loop.
         if (BuildConfig.DEBUG) {
@@ -5198,11 +5198,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    @InternalCall
+    @BinderCall
     public boolean isPermissionControlEnabled() {
-        enforceCallingPermissions();
-        // return mPermissionControlEnabled.get();
-        // FIXME.
-        return true;
+        return mPermissionControlEnabled.get();
     }
 
     @BinderCall
@@ -6770,11 +6769,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    @InternalCall
     public int checkPermission(String perm, int pid, int uid) {
         return PackageManager.PERMISSION_GRANTED;
     }
 
     @Override
+    @InternalCall
     public int checkOperation(int code, int uid, String packageName, String reason) {
         int mode = checkOperationInternal(code, uid, packageName, reason);
         logOperationIfNecessary(code, uid, packageName, reason, mode, null);
@@ -7023,8 +7024,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         if (isInWhiteList(packageName)) return XAppOpsManager.MODE_ALLOWED;
 
-        if (isWhiteSysAppEnabled() && isInSystemAppList(packageName))
+        if (isWhiteSysAppEnabled() && isInSystemAppList(packageName)) {
             return XAppOpsManager.MODE_ALLOWED;
+        }
 
         if (DEBUG_OP && XposedLog.isVerboseLoggable()) {
             String permName = XAppOpsManager.opToPermission(code);
@@ -7034,16 +7036,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         String pattern = constructPatternForPermission(code, packageName);
 
-        long id = Binder.clearCallingIdentity();
-        try {
-            if (isInPermissionBlockList(pattern)) {
-                if (DEBUG_OP) {
-                    XposedLog.verbose("checkOperation: returning MODE_IGNORED");
-                }
-                return XAppOpsManager.MODE_IGNORED;
+        if (isInPermissionBlockList(pattern)) {
+            if (DEBUG_OP && XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose("checkOperation: returning MODE_IGNORED");
             }
-        } finally {
-            Binder.restoreCallingIdentity(id);
+            return XAppOpsManager.MODE_IGNORED;
         }
 
         return XAppOpsManager.MODE_ALLOWED;

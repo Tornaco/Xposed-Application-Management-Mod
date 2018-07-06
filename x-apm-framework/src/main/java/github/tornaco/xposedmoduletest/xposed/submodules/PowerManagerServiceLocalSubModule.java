@@ -46,6 +46,11 @@ class PowerManagerServiceLocalSubModule extends AndroidSubModule {
                             XAPMManager ash = XAPMManager.get();
                             if (ash.isServiceAvailable()) {
 
+                                boolean permCtrlEnabled = ash.isPermissionControlEnabled();
+                                if (!permCtrlEnabled) {
+                                    return;
+                                }
+
                                 String currentPkg = ash.getCurrentTopPackage();
 
                                 if (currentPkg != null && !GlobalWhiteList.isInGlobalWhiteList(currentPkg)) {

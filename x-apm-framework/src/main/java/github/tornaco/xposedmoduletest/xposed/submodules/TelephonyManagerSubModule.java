@@ -61,8 +61,12 @@ class TelephonyManagerSubModule extends AndroidSubModule {
                             }
                             // Check op.
                             XAPMManager xAshmanManager = XAPMManager.get();
+
                             if (xAshmanManager.isServiceAvailable()) {
-                                int mode = xAshmanManager.getPermissionControlBlockModeForPkg(
+                                boolean permControlEnabled = xAshmanManager.isPermissionControlEnabled();
+                                int mode = !permControlEnabled
+                                        ? XAppOpsManager.MODE_ALLOWED
+                                        : xAshmanManager.getPermissionControlBlockModeForPkg(
                                         XAppOpsManager.OP_GET_DEVICE_ID, callPackageName,
                                         true);
                                 if (mode == XAppOpsManager.MODE_IGNORED) {
@@ -120,7 +124,10 @@ class TelephonyManagerSubModule extends AndroidSubModule {
                             // Check op.
                             XAPMManager xAshmanManager = XAPMManager.get();
                             if (xAshmanManager.isServiceAvailable()) {
-                                int mode = xAshmanManager.getPermissionControlBlockModeForPkg(
+                                boolean permControlEnabled = xAshmanManager.isPermissionControlEnabled();
+                                int mode = !permControlEnabled
+                                        ? XAppOpsManager.MODE_ALLOWED
+                                        : xAshmanManager.getPermissionControlBlockModeForPkg(
                                         XAppOpsManager.OP_GET_LINE1_NUMBER, callPackageName,
                                         true);
                                 if (mode == XAppOpsManager.MODE_IGNORED) {
@@ -177,7 +184,10 @@ class TelephonyManagerSubModule extends AndroidSubModule {
                             // Check op.
                             XAPMManager xAshmanManager = XAPMManager.get();
                             if (xAshmanManager.isServiceAvailable()) {
-                                int mode = xAshmanManager.getPermissionControlBlockModeForPkg(
+                                boolean permControlEnabled = xAshmanManager.isPermissionControlEnabled();
+                                int mode = !permControlEnabled
+                                        ? XAppOpsManager.MODE_ALLOWED
+                                        : xAshmanManager.getPermissionControlBlockModeForPkg(
                                         XAppOpsManager.OP_GET_SIM_SERIAL_NUMBER, callPackageName,
                                         true);
                                 if (mode == XAppOpsManager.MODE_IGNORED) {

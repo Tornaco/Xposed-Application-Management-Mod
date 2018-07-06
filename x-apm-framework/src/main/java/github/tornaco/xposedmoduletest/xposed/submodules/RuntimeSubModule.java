@@ -44,12 +44,18 @@ class RuntimeSubModule extends AndroidSubModule {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             super.afterHookedMethod(param);
+
+                            boolean permControlEnabled = XAPMManager.get().isServiceAvailable() && XAPMManager.get().isPermissionControlEnabled();
+                            if (!permControlEnabled) {
+                                return;
+                            }
+
                             Object in = param.args[0];
                             if (in instanceof String) {
-                                String command = (String) in;
-                                String caller = AndroidAppHelper.currentPackageName();
-                                // Log.d(XposedLog.TAG, String.format("Runtime exec: %s %s", command, caller));
                                 if (XAPMManager.get().isServiceAvailable()) {
+                                    String command = (String) in;
+                                    String caller = AndroidAppHelper.currentPackageName();
+                                    // Log.d(XposedLog.TAG, String.format("Runtime exec: %s %s", command, caller));
                                     int mode = XAPMManager.get().getPermissionControlBlockModeForPkg(XAppOpsManager
                                             .OP_EXECUTE_SHELL_COMMAND, caller, true, new String[]{command});
                                     if (mode == XAppOpsManager.MODE_IGNORED) {
