@@ -1,7 +1,6 @@
 package github.tornaco.xposedmoduletest.ui.activity.green2;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
@@ -21,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import github.tornaco.android.common.Collections;
-import github.tornaco.android.common.Consumer;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.loader.ComponentLoader;
@@ -89,7 +87,9 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
 
     @Override
     protected void onInitSwitchBar(SwitchBar switchBar) {
-        switchBar.hide();
+        switchBar.show();
+        switchBar.setChecked(XAPMManager.get().isPermissionControlEnabled());
+        switchBar.addOnSwitchChangeListener((switchView, isChecked) -> XAPMManager.get().setPermissionControlEnabled(isChecked));
     }
 
     @Override
@@ -103,18 +103,10 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
 
         final List<CommonPackageInfo> choosed = new ArrayList<>();
         Collections.consumeRemaining(getCommonPackageInfoAdapter().getCommonPackageInfos(),
-                new Consumer<CommonPackageInfo>() {
-                    @Override
-                    public void accept(CommonPackageInfo info) {
-                        if (info.isChecked()) choosed.add(info);
-                    }
+                info -> {
+                    if (info.isChecked()) choosed.add(info);
                 });
-        runOnUiThreadChecked(new Runnable() {
-            @Override
-            public void run() {
-                showExtraPermSettingDialogInBatch(choosed);
-            }
-        });
+        runOnUiThreadChecked(() -> showExtraPermSettingDialogInBatch(choosed));
     }
 
     @Override
@@ -179,12 +171,9 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
             }
         };
 
-        adapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                CommonPackageInfo info = getCommonPackageInfoAdapter().getCommonPackageInfos().get(position);
-                showExtraPermSettingDialog(info);
-            }
+        adapter.setOnItemClickListener((parent, view, position, id) -> {
+            CommonPackageInfo info = getCommonPackageInfoAdapter().getCommonPackageInfos().get(position);
+            showExtraPermSettingDialog(info);
         });
         return adapter;
     }
@@ -218,31 +207,26 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
 
         final String[] items = {"服务", "唤醒锁", "唤醒定时器"};
         new AlertDialog.Builder(getActivity()).setCancelable(false)
-                .setTitle("绿化\t"+ PkgUtil.loadNameByPkgName(getContext(), packageInfo.getPkgName()))
+                .setTitle("绿化\t" + PkgUtil.loadNameByPkgName(getContext(), packageInfo.getPkgName()))
                 .setMultiChoiceItems(items, new boolean[]{
                                 packageInfo.isServiceOpAllowed(),
                                 packageInfo.isWakelockOpAllowed(),
                                 packageInfo.isAlarmOpAllowed()},
-                        new DialogInterface.OnMultiChoiceClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                                int op = -1;
-                                if (which == 0) op = XAppOpsManager.OP_START_SERVICE;
-                                if (which == 1) op = XAppOpsManager.OP_WAKE_LOCK;
-                                if (which == 2) op = XAppOpsManager.OP_SET_ALARM;
-                                int mode = isChecked ? XAppOpsManager.MODE_ALLOWED : XAppOpsManager.MODE_IGNORED;
-                                XAPMManager.get().setPermissionControlBlockModeForPkg(op, packageInfo.getPkgName(), mode);
-                            }
+                        (dialog, which, isChecked) -> {
+                            int op = -1;
+                            if (which == 0) op = XAppOpsManager.OP_START_SERVICE;
+                            if (which == 1) op = XAppOpsManager.OP_WAKE_LOCK;
+                            if (which == 2) op = XAppOpsManager.OP_SET_ALARM;
+                            int mode = isChecked ? XAppOpsManager.MODE_ALLOWED : XAppOpsManager.MODE_IGNORED;
+                            XAPMManager.get().setPermissionControlBlockModeForPkg(op, packageInfo.getPkgName(), mode);
                         })
                 .setPositiveButton(android.R.string.ok,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialoginterface, int i) {
-                                dialoginterface.dismiss();
+                        (dialoginterface, i) -> {
+                            dialoginterface.dismiss();
 
-                                // Retrieve new state.
-                                updateOpState(packageInfo);
-                                getCommonPackageInfoAdapter().notifyDataSetChanged();
-                            }
+                            // Retrieve new state.
+                            updateOpState(packageInfo);
+                            getCommonPackageInfoAdapter().notifyDataSetChanged();
                         })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
@@ -262,44 +246,36 @@ public class PackageViewerActivity extends CommonPackageInfoListActivity impleme
                                 true,
                                 true,
                                 true},
-                        new DialogInterface.OnMultiChoiceClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                                final int mode = isChecked ? XAppOpsManager.MODE_ALLOWED : XAppOpsManager.MODE_IGNORED;
-                                if (which == 0) {
-                                    modeService[0] = mode;
-                                }
-                                if (which == 1) {
-                                    modeWakelock[0] = mode;
-                                }
-                                if (which == 2) {
-                                    modeAlarm[0] = mode;
-                                }
+                        (dialog, which, isChecked) -> {
+                            final int mode = isChecked ? XAppOpsManager.MODE_ALLOWED : XAppOpsManager.MODE_IGNORED;
+                            if (which == 0) {
+                                modeService[0] = mode;
+                            }
+                            if (which == 1) {
+                                modeWakelock[0] = mode;
+                            }
+                            if (which == 2) {
+                                modeAlarm[0] = mode;
                             }
                         })
                 .setPositiveButton(android.R.string.ok,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialoginterface, int i) {
+                        (dialoginterface, i) -> {
 
-                                Collections.consumeRemaining(packageInfo, new Consumer<CommonPackageInfo>() {
-                                    @Override
-                                    public void accept(CommonPackageInfo info) {
-                                        XAPMManager.get().setPermissionControlBlockModeForPkg(
-                                                XAppOpsManager.OP_START_SERVICE, info.getPkgName(), modeService[0]);
-                                        XAPMManager.get().setPermissionControlBlockModeForPkg(
-                                                XAppOpsManager.OP_SET_ALARM, info.getPkgName(), modeAlarm[0]);
-                                        XAPMManager.get().setPermissionControlBlockModeForPkg(
-                                                XAppOpsManager.OP_WAKE_LOCK, info.getPkgName(), modeWakelock[0]);
+                            Collections.consumeRemaining(packageInfo, info -> {
+                                XAPMManager.get().setPermissionControlBlockModeForPkg(
+                                        XAppOpsManager.OP_START_SERVICE, info.getPkgName(), modeService[0]);
+                                XAPMManager.get().setPermissionControlBlockModeForPkg(
+                                        XAppOpsManager.OP_SET_ALARM, info.getPkgName(), modeAlarm[0]);
+                                XAPMManager.get().setPermissionControlBlockModeForPkg(
+                                        XAppOpsManager.OP_WAKE_LOCK, info.getPkgName(), modeWakelock[0]);
 
 
-                                        updateOpState(info);
-                                    }
-                                });
+                                updateOpState(info);
+                            });
 
-                                dialoginterface.dismiss();
-                                // Retrieve new state.
-                                getCommonPackageInfoAdapter().notifyDataSetChanged();
-                            }
+                            dialoginterface.dismiss();
+                            // Retrieve new state.
+                            getCommonPackageInfoAdapter().notifyDataSetChanged();
                         })
 
                 .setNegativeButton(android.R.string.cancel, null)
