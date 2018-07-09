@@ -276,7 +276,7 @@
     <string name="title_privacy_apps">查看应用隐匿设置的应用</string>
     <string name="title_privacy_items">隐匿项目</string>
     <string name="title_greening">绿色化</string>
-    <string name="summary_greening_app">你可以从列表中找到你想绿化的应用，进行绿化，绿化可以禁止该应用启动服务/唤醒设备/设置定时器。\n\n默认情况下应用管理不对应用做任何修改，对勾选中表示允许该项启动，绿化用户安装的应用可能导致该应用无法正常运行；绿化系统应用可能会导致设备无法正常运行，甚至无法启动，请谨慎操作！\n\n小提示：你也可以前往权限管理，按照（服务/定时器/唤醒锁）根据自己的想法控制这些行为。</string>
+    <string name="summary_greening_app">绿化功能是基于权限控制实现的，共享同一个开关。\n\n你可以从列表中找到你想绿化的应用，进行绿化，绿化可以禁止该应用启动服务/唤醒设备/设置定时器。\n\n默认情况下应用管理不对应用做任何修改，对勾选中表示允许该项启动，绿化用户安装的应用可能导致该应用无法正常运行；绿化系统应用可能会导致设备无法正常运行，甚至无法启动，请谨慎操作！\n\n小提示：你也可以前往权限管理，按照（服务/定时器/唤醒锁）根据自己的想法控制这些行为。</string>
     <string name="title_change_column_count">切换布局</string>
     <string name="title_error_occur">糟糕</string>
     <string name="title_new_photo">有人闯入</string>

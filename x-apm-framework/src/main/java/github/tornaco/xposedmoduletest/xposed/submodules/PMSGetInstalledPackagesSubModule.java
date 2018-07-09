@@ -48,6 +48,13 @@ class PMSGetInstalledPackagesSubModule extends AndroidSubModule {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
+
+                            boolean permControlEnabled = XAPMManager.get().isServiceAvailable()
+                                    && XAPMManager.get().isPermissionControlEnabled();
+                            if (!permControlEnabled) {
+                                return;
+                            }
+
                             int uid = Binder.getCallingUid();
 
                             if (PkgUtil.isSystemOrPhoneOrShell(uid)) return;
@@ -98,6 +105,13 @@ class PMSGetInstalledPackagesSubModule extends AndroidSubModule {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
+
+                            boolean permControlEnabled = XAPMManager.get().isServiceAvailable()
+                                    && XAPMManager.get().isPermissionControlEnabled();
+                            if (!permControlEnabled) {
+                                return;
+                            }
+
                             int uid = Binder.getCallingUid();
 
                             if (PkgUtil.isSystemOrPhoneOrShell(uid)) return;

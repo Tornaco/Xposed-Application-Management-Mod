@@ -43,10 +43,16 @@ class SystemSettingsSubModule extends AndroidSubModule {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
+
+                            boolean permControlEnabled = XAPMManager.get().isServiceAvailable()
+                                    && XAPMManager.get().isPermissionControlEnabled();
+                            if (!permControlEnabled) {
+                                return;
+                            }
+
                             String name = String.valueOf(param.args[1]);
                             if (Settings.System.SCREEN_BRIGHTNESS_MODE.equals(name)
                                     || Settings.System.SCREEN_BRIGHTNESS.equals(name)) {
-                                // Use of defined id.
                                 XAPMManager ash = XAPMManager.get();
                                 if (ash.isServiceAvailable()) {
                                     String pkgName = AndroidAppHelper.currentPackageName();

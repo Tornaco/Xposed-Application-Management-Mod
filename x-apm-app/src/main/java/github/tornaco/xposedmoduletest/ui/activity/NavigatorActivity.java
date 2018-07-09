@@ -66,7 +66,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.SmartSense;
 import github.tornaco.xposedmoduletest.ui.tiles.TRKill;
 import github.tornaco.xposedmoduletest.ui.tiles.UnInstall;
 import github.tornaco.xposedmoduletest.ui.tiles.app.DetailedToast;
-import github.tornaco.xposedmoduletest.ui.tiles.app.ForegroundNotificationOptActivity;
+import github.tornaco.xposedmoduletest.ui.tiles.app.ForegroundNotificationOpt;
 import github.tornaco.xposedmoduletest.ui.tiles.app.IconToast;
 import github.tornaco.xposedmoduletest.ui.widget.ToastManager;
 import github.tornaco.xposedmoduletest.util.OSUtil;
@@ -458,7 +458,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
             ux.addTile(new IconToast(getActivity()));
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-                ux.addTile(new ForegroundNotificationOptActivity(getActivity()));
+                ux.addTile(new ForegroundNotificationOpt(getActivity()));
             }
 
             categories.add(ux);

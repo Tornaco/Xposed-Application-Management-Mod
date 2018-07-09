@@ -71,15 +71,18 @@ class ToastSubModule extends AndroidSubModule {
                                 Log.e(XposedLog.TAG, "Fail retrieve text from toast: " + e);
                             }
 
-                            int mode = XAPMManager.get().isServiceAvailable() ?
-                                    XAPMManager.get().getPermissionControlBlockModeForPkg(
-                                            XAppOpsManager.OP_TOAST_WINDOW,
-                                            currentPackageName, true, new String[]{text})
-                                    : XAppOpsManager.MODE_ALLOWED;
+                            boolean permControlEnabled = XAPMManager.get().isServiceAvailable() && XAPMManager.get().isPermissionControlEnabled();
+                            if (permControlEnabled) {
+                                int mode = XAPMManager.get().isServiceAvailable() ?
+                                        XAPMManager.get().getPermissionControlBlockModeForPkg(
+                                                XAppOpsManager.OP_TOAST_WINDOW,
+                                                currentPackageName, true, new String[]{text})
+                                        : XAppOpsManager.MODE_ALLOWED;
 
-                            if (mode == XAppOpsManager.MODE_IGNORED) {
-                                Log.d(XposedLog.TAG, "Toast show denied");
-                                param.setResult(null);
+                                if (mode == XAppOpsManager.MODE_IGNORED) {
+                                    Log.d(XposedLog.TAG, "Toast show denied");
+                                    param.setResult(null);
+                                }
                             }
                         }
 

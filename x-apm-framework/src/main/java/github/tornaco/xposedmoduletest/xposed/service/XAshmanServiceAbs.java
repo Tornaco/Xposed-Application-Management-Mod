@@ -29,7 +29,7 @@ abstract class XAshmanServiceAbs extends IAshmanService.Stub
     }
 
     @Override
-    public boolean hasModuleError() throws RemoteException {
+    public boolean hasModuleError() {
         return hasModuleError;
     }
 

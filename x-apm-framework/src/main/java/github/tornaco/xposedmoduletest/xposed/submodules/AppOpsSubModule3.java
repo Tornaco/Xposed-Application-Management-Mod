@@ -45,6 +45,12 @@ class AppOpsSubModule3 extends AndroidSubModule {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     super.beforeHookedMethod(param);
+
+                    boolean permCtrlEnabled = getBridge().isPermissionControlEnabled();
+                    if (!permCtrlEnabled) {
+                        return;
+                    }
+
                     int code = (int) param.args[0];
                     int uid = (int) param.args[2];
                     String pkgName = (String) param.args[3];

@@ -44,6 +44,11 @@ class AlarmManagerSubModule extends AndroidSubModule {
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
 
+                            boolean permControlEnabled = XAPMManager.get().isServiceAvailable() && XAPMManager.get().isPermissionControlEnabled();
+                            if (!permControlEnabled) {
+                                return;
+                            }
+
 //                            @IntDef(prefix = { "RTC", "ELAPSED" }, value = {
 //                                    RTC_WAKEUP,
 //                                    RTC,
