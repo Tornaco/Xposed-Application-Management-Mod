@@ -13,9 +13,9 @@ import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
  * Email: Tornaco@163.com
  */
 
-public class ForegroundNotificationOptActivity extends QuickTile {
+public class ForegroundNotificationOpt extends QuickTile {
 
-    public ForegroundNotificationOptActivity(final Context context) {
+    public ForegroundNotificationOpt(final Context context) {
         super(context);
         this.titleRes = R.string.title_opt_foreground_noti;
         this.iconRes = R.drawable.ic_add_alert_black_24dp;
@@ -23,7 +23,8 @@ public class ForegroundNotificationOptActivity extends QuickTile {
             @Override
             protected void onBindActionView(RelativeLayout container) {
                 super.onBindActionView(container);
-                setChecked(XAPMManager.get().isServiceAvailable() && XAPMManager.get().isOptFeatureEnabled(XAPMManager.OPT.FOREGROUND_NOTIFICATION.name()));
+                setChecked(XAPMManager.get().isServiceAvailable()
+                        && XAPMManager.get().isOptFeatureEnabled(XAPMManager.OPT.FOREGROUND_NOTIFICATION.name()));
             }
 
             @Override

@@ -2,7 +2,6 @@ package github.tornaco.xposedmoduletest.ui.activity.smartsense;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
@@ -14,7 +13,7 @@ import github.tornaco.xposedmoduletest.ui.AppCustomDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CameraOpenNotification;
 import github.tornaco.xposedmoduletest.ui.tiles.app.DetailedToast;
-import github.tornaco.xposedmoduletest.ui.tiles.app.ForegroundNotificationOptActivity;
+import github.tornaco.xposedmoduletest.ui.tiles.app.ForegroundNotificationOpt;
 import github.tornaco.xposedmoduletest.ui.tiles.app.IconToast;
 import github.tornaco.xposedmoduletest.ui.tiles.app.WakeupOnNotificationPosted;
 import github.tornaco.xposedmoduletest.ui.tiles.smartsense.LongPressBackKey;
@@ -70,8 +69,9 @@ public class SmartSenseDashboardActivity extends BaseActivity {
             app.addTile(new DetailedToast(getActivity()));
             app.addTile(new IconToast(getActivity()));
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-                app.addTile(new ForegroundNotificationOptActivity(getActivity()));
+            // This is make for N or EMUI.
+            if (OSUtil.isNOrAbove() || OSUtil.isEMUI()) {
+                app.addTile(new ForegroundNotificationOpt(getActivity()));
             }
 
             Category notification = new Category();

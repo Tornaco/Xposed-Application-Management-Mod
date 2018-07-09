@@ -10,6 +10,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -22,7 +23,9 @@ class ActiveServiceForegroundNotificationCancellationSubModule extends AndroidSu
 
     @Override
     public int needMinSdk() {
-        return Build.VERSION_CODES.N_MR1;
+        // It's introduced from N, but EMUI android 6.0 also has enabled this feature.
+        // So, decrease to M for HuwWei.
+        return OSUtil.isEMUI() ? Build.VERSION_CODES.M : Build.VERSION_CODES.N;
     }
 
     @Override
