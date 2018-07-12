@@ -30,11 +30,6 @@ public class CleanUpSystemErrorTrace extends QuickTile {
                     Toast.makeText(context, R.string.res_cleanup_system_error_trace_success, Toast.LENGTH_SHORT).show();
                 }
             }
-
-            @Override
-            protected int getImageViewBackgroundRes() {
-                return R.drawable.tile_bg_green;
-            }
         };
     }
 }

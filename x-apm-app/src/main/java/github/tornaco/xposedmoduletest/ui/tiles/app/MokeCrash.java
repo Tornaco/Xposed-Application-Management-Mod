@@ -36,11 +36,6 @@ public class MokeCrash extends QuickTile {
                         })
                         .show();
             }
-
-            @Override
-            protected int getImageViewBackgroundRes() {
-                return R.drawable.tile_bg_red;
-            }
         };
     }
 }

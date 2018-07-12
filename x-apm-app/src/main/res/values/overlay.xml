@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="def_checked_mark_background_color">@color/accent</color>
+    <color name="def_checked_mark_background_color">@color/md_grey_700</color>
 </resources>

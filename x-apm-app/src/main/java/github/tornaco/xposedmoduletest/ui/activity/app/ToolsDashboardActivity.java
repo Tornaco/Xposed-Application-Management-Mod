@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 
 import dev.nick.eventbus.Event;
 import dev.nick.tiles.tile.Category;
@@ -46,6 +47,11 @@ public class ToolsDashboardActivity extends WithWithCustomTabActivity {
     }
 
     public static class ToolsNavFragment extends ActivityLifeCycleDashboardFragment {
+
+        protected boolean androidPStyleIcon() {
+            return false;
+        }
+
         @Override
         public int getPageTitle() {
             return R.string.title_tools;
@@ -58,7 +64,8 @@ public class ToolsDashboardActivity extends WithWithCustomTabActivity {
 
         @Override
         protected int getNumColumns() {
-            boolean two = AppSettings.show2ColumnsIn(getActivity(), ToolsNavFragment.class.getSimpleName());
+            boolean two = AppSettings.show2ColumnsIn(Objects.requireNonNull(getActivity()),
+                    ToolsNavFragment.class.getSimpleName());
             return two ? 2 : 1;
         }
 
