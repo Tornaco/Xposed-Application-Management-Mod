@@ -6,8 +6,8 @@ import android.net.wifi.WifiManager;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import java.io.DataOutputStream;
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.regex.MatchResult;
@@ -35,11 +35,6 @@ public class ADBWireless extends QuickTile {
                 super.onBindActionView(container);
                 boolean ok = getprop("service.adb.tcp.port", "-1").equals("5555");
                 setChecked(ok);
-            }
-
-            @Override
-            protected int getImageViewBackgroundRes() {
-                return R.drawable.tile_bg_indigo;
             }
 
             @Override

@@ -28,11 +28,6 @@ public class CrashDump extends QuickTile {
             }
 
             @Override
-            protected int getImageViewBackgroundRes() {
-                return R.drawable.tile_bg_green;
-            }
-
-            @Override
             protected void onCheckChanged(boolean checked) {
                 super.onCheckChanged(checked);
                 if (XAPMManager.get().isServiceAvailable()) {

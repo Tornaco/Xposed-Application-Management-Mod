@@ -26,10 +26,6 @@ public class ShowFocusedActivity extends QuickTile {
         this.summaryRes = R.string.summary_show_focused_activity;
         this.iconRes = R.drawable.ic_add_alert_black_24dp;
         this.tileView = new SwitchTileView(context) {
-            @Override
-            protected int getImageViewBackgroundRes() {
-                return R.drawable.tile_bg_brown;
-            }
 
             @Override
             protected void onBindActionView(RelativeLayout container) {
