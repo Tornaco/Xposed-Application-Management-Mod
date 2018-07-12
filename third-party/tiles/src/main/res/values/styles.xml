@@ -52,4 +52,7 @@
         <item name="colorAccent">?attr/colorPrimary</item>
     </style>
 
+    <style name="CategoryCard">
+        <item name="cardBackgroundColor">?torTileContainerBackgroundColor</item>
+    </style>
 </resources>
