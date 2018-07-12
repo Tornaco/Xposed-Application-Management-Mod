@@ -90,7 +90,7 @@ public class Op2AppsListActivity extends WithSearchActivity<CommonPackageInfo> i
     private void warnIfSystemAppProtected() {
         boolean isSystemAppProtected = XAPMManager.get().isWhiteSysAppEnabled();
         if (isSystemAppProtected) {
-            Toast.makeText(getContext(), R.string.perm_system_app_protected, Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), R.string.perm_system_app_protected, Toast.LENGTH_SHORT).show();
         }
     }
 

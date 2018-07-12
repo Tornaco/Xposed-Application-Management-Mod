@@ -82,7 +82,7 @@ public class Apps2OpListActivity extends WithRecyclerView implements AdapterView
         if (isSystemAppProtected) {
             boolean isSystemApp = PkgUtil.isSystemApp(getContext(), mPkg);
             if (isSystemApp) {
-                Toast.makeText(getContext(), R.string.perm_system_app_protected, Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), R.string.perm_system_app_protected, Toast.LENGTH_SHORT).show();
             }
         }
     }
