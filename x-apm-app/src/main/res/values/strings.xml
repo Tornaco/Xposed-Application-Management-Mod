@@ -694,4 +694,8 @@
     <string name="nav_list_warn_system_app_protected">已经为你略去系统应用，如要显示，请前往 更多-策略与优化-排除系统应用 进行设置</string>
     <string name="warn_turn_off_white_system_app">干涉系统应用可能导致意想不到的异常，请谨慎操作！</string>
     <string name="title_logo_maker">Logo maker</string>
+    <string name="title_dynamic_color_enabled">自动取色</string>
+    <string name="summary_dynamic_color_enabled">提取当前锁定应用的主题颜色作为应用锁页面的主要颜色</string>
+    <string name="title_verifier_theme_color">主题颜色</string>
+    <string name="summary_verifier_theme_color">解锁页面主题颜色</string>
 </resources>
