@@ -139,7 +139,7 @@
     <string name="block_record_summary">Blocked %1$s times. Permitted %2$s times.\nRecently start attempt at %3$s, type %4$s, result %5$s, reason %6$s, launched by %7$s.</string>
     <string name="title_component_editor">Component editor- %1$s</string>
     <string name="tab_text_1">Services</string>
-    <string name="tab_text_2">Broadcast Receuver</string>
+    <string name="tab_text_2">Broadcast Receiver</string>
     <string name="tab_text_3">Activity</string>
     <string name="nf_tab_text_1">Cellular data</string>
     <string name="nf_tab_text_2">WIFI</string>
