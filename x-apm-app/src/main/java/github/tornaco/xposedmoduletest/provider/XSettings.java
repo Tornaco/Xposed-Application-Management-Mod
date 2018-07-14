@@ -35,6 +35,11 @@ public class XSettings extends Observable {
                 .getBoolean(XKey.TAKE_PHOTO_ENABLED, false);
     }
 
+    public static boolean dynamicColorEnabled(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(XKey.DYNAMIC_COLOR_ENABLED, true);
+    }
+
     public static boolean fpEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(XKey.FP_ENABLED, false);

@@ -36,6 +36,12 @@
             android:key="key_crop_circle_enabled"
             android:title="@string/title_crop_enabled" />
 
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="key_dynamic_color_enabled"
+            android:summary="@string/summary_dynamic_color_enabled"
+            android:title="@string/title_dynamic_color_enabled" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>
