@@ -9,4 +9,5 @@ include ':x-apm-app',
         ':third-party:mdsearch',
         ':third-party:dateformatter',
         ':third-party:pinlockview',
-        ':third-party:zip4j'
+        ':third-party:zip4j',
+        ':third-party:colorpicker'

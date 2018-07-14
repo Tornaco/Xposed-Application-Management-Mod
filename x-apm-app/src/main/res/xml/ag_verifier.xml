@@ -42,6 +42,11 @@
             android:summary="@string/summary_dynamic_color_enabled"
             android:title="@string/title_dynamic_color_enabled" />
 
+        <net.margaritov.preference.colorpicker.ColorPickerPreference
+            android:defaultValue="#ff4081"
+            android:key="key_def_verifier_color"
+            android:summary="@string/summary_verifier_theme_color"
+            android:title="@string/title_verifier_theme_color" />
     </PreferenceCategory>
 
 </PreferenceScreen>

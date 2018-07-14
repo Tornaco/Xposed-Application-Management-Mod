@@ -120,6 +120,7 @@ dependencies {
     implementation project(':third-party:pinlockview')
     implementation project(':third-party:mdsearch')
     implementation project(':third-party:dateformatter')
+    implementation project(':third-party:colorpicker')
 
     implementation files('libs/flyme_fingerprint.jar')
 

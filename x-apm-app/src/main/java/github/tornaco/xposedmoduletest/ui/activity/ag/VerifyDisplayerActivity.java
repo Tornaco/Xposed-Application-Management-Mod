@@ -77,6 +77,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
     private LockStorage.LockMethod mLockMethod;
 
     private boolean mDynamicColor;
+    private int mDefColor;
 
     private CancellationSignal mCancellationSignal;
 
@@ -124,6 +125,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
         this.mTakePhoto = XSettings.takenPhotoEnabled(this);
         this.mLockMethod = LockStorage.getLockMethod(this);
         this.mDynamicColor = XSettings.dynamicColorEnabled(this);
+        this.mDefColor = XSettings.defaultVerifierColor(this);
     }
 
     private void showVerifyView() {
@@ -135,6 +137,11 @@ public class VerifyDisplayerActivity extends BaseActivity {
             // Apply palette color.
             // Workaround.
             PaletteColorPicker.pickPrimaryColor(this, this::applyColor, pkg, color);
+        } else if (mDefColor != 0) {
+            if (BuildConfig.DEBUG) {
+                Logger.w("Using def color: " + mDefColor);
+            }
+            applyColor(mDefColor);
         }
 
         setTitle(null);

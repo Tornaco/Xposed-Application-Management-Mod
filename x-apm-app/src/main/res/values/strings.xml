@@ -696,4 +696,6 @@
     <string name="title_logo_maker">Logo maker</string>
     <string name="title_dynamic_color_enabled">自动取色</string>
     <string name="summary_dynamic_color_enabled">提取当前锁定应用的主题颜色作为应用锁页面的主要颜色</string>
+    <string name="title_verifier_theme_color">主题颜色</string>
+    <string name="summary_verifier_theme_color">解锁页面主题颜色</string>
 </resources>
