@@ -63,7 +63,7 @@ public class StartAppPickerActivity extends CommonPackageInfoListPickerActivity 
     private void warnIfSystemProtectedButSelected() {
         if (mFilterOption == FilterOption.OPTION_SYSTEM_APPS || mFilterOption == FilterOption.OPTION_ALL_APPS) {
             if (XAPMManager.get().isWhiteSysAppEnabled()) {
-                Toast.makeText(getActivity(), R.string.nav_list_warn_system_app_protected, Toast.LENGTH_LONG)
+                Toast.makeText(getActivity(), R.string.nav_list_warn_system_app_protected, Toast.LENGTH_SHORT)
                         .show();
             }
         }

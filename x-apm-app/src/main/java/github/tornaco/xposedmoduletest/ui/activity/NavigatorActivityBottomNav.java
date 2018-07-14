@@ -418,8 +418,6 @@ public class NavigatorActivityBottomNav
         @Getter
         private View rootView;
 
-        private boolean apmModuleOKNoAndActionNeed = false;
-
         @Override
         protected int getLayoutId() {
             return R.layout.fragment_dev_status;
@@ -452,9 +450,15 @@ public class NavigatorActivityBottomNav
 
             Category assist = new Category();
             assist.titleRes = R.string.title_assistant;
-            assist.numColumns = 1; // Force se to 1.
-            assist.addTile(new RunningServices(getActivity()));
+            boolean twoForAss = AppSettings.show2ColumnsIn(Objects.requireNonNull(getActivity()), "Category-assist");
+            assist.numColumns = twoForAss ? 2 : 1;
+            assist.moreDrawableRes = R.drawable.ic_view_stream_white_24dp;
+            assist.onMoreButtonClickListener = v -> {
+                AppSettings.setShow2ColumnsIn(Objects.requireNonNull(getActivity()), "Category-assist", !twoForAss);
+                Toast.makeText(getContext(), R.string.title_theme_need_restart_app, Toast.LENGTH_SHORT).show();
+            };
 
+            assist.addTile(new RunningServices(getActivity()));
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_COMP_EDIT)) {
                 assist.addTile(new ComponentManager(getActivity()));
             }
@@ -806,7 +810,6 @@ public class NavigatorActivityBottomNav
                                 // If all good, hide this card.
                                 if (!hasModuleError && !hasSystemError) {
 //                                        findView(rootView, R.id.status_container).setVisibility(View.GONE);
-                                    apmModuleOKNoAndActionNeed = true;
                                     NavigatorActivityBottomNav activityBottomNav = (NavigatorActivityBottomNav) getActivity();
                                     if (activityBottomNav != null && !activityBottomNav.isDestroyed()) {
                                         activityBottomNav.requestUpdateTitle();
@@ -978,7 +981,8 @@ public class NavigatorActivityBottomNav
 
         @Override
         protected int getNumColumns() {
-            boolean two = AppSettings.show2ColumnsIn(Objects.requireNonNull(getActivity()), AdvancedNavFragment.class.getSimpleName());
+            boolean two = AppSettings.show2ColumnsIn(Objects.requireNonNull(getActivity()),
+                    AdvancedNavFragment.class.getSimpleName());
             return two ? 2 : 1;
         }
 
@@ -1081,7 +1085,9 @@ public class NavigatorActivityBottomNav
 
         @Override
         protected int getNumColumns() {
-            return 1;
+            boolean two = AppSettings.show2ColumnsIn(Objects.requireNonNull(getActivity()),
+                    MoreFragment.class.getSimpleName());
+            return two ? 2 : 1;
         }
 
         @Override

@@ -64,6 +64,10 @@ public abstract class OSUtil {
         return Build.MANUFACTURER.contains("HUAWEI");
     }
 
+    public static boolean isEMUI() {
+        return !TextUtils.isEmpty(SystemProperties.get("ro.build.version.emui", ""));
+    }
+
     public static boolean isNubiaDevice() {
         return Build.FINGERPRINT.contains("nubia");
     }

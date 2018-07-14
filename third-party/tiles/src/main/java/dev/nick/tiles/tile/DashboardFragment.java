@@ -52,7 +52,6 @@ public class DashboardFragment extends Fragment {
         return rootView;
     }
 
-
     protected int getLayoutId() {
         return R.layout.dashboard;
     }

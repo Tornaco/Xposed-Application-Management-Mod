@@ -25,9 +25,9 @@
             app:cardElevation="@dimen/card_elevation">
 
             <RelativeLayout
+                android:id="@+id/status_container"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/status_container">
+                android:layout_height="wrap_content">
 
                 <RelativeLayout
                     android:id="@+id/header1"
@@ -140,6 +140,7 @@
             android:layout_marginLeft="@dimen/activity_horizontal_margin_marco"
             android:layout_marginRight="@dimen/activity_horizontal_margin_marco"
             android:layout_marginStart="@dimen/activity_horizontal_margin_marco"
+            android:layout_marginTop="@dimen/activity_horizontal_margin_tiny"
             android:orientation="vertical" />
 
     </RelativeLayout>

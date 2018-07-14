@@ -3,7 +3,7 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_horizontal_margin_middle">12dp</dimen>
     <dimen name="activity_horizontal_margin_small">7dp</dimen>
-    <dimen name="activity_horizontal_margin_marco">3dp</dimen>
+    <dimen name="activity_horizontal_margin_marco">5dp</dimen>
     <dimen name="activity_horizontal_margin_tiny">2dp</dimen>
     <dimen name="activity_horizontal_margin_noop">1dp</dimen>
     <dimen name="activity_horizontal_margin_transport_progress">9dp</dimen>
@@ -51,8 +51,8 @@
     <dimen name="focus_outer_stroke">3dp</dimen>
     <dimen name="focus_inner_stroke">2dp</dimen>
 
-    <dimen name="card_radius">0dp</dimen>
-    <dimen name="card_elevation">1dp</dimen>
+    <dimen name="card_radius">2dp</dimen>
+    <dimen name="card_elevation">2dp</dimen>
 
     <dimen name="pattern_lock_size">280dp</dimen>
     <dimen name="pattern_lock_info_container_padding">12dp</dimen>

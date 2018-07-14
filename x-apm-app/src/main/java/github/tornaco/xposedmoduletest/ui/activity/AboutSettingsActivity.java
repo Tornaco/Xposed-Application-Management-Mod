@@ -15,6 +15,7 @@ import github.tornaco.xposedmoduletest.ui.ActivityLifeCycleDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppDeveloper;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppDonate;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppGetPlay;
+import github.tornaco.xposedmoduletest.ui.tiles.app.AppLogoMaker;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppVersion;
 import github.tornaco.xposedmoduletest.ui.tiles.app.GitContributors;
 import github.tornaco.xposedmoduletest.ui.tiles.app.OpenMarket;
@@ -87,6 +88,7 @@ public class AboutSettingsActivity extends WithWithCustomTabActivity {
             open.addTile(new OpenSource(getActivity()));
             open.addTile(new OpenSourceLicenses(getActivity()));
             open.addTile(new GitContributors(getActivity()));
+            open.addTile(new AppLogoMaker(getActivity()));
             open.addTile(new Talkers(getActivity()));
 
             boolean isPlayVersion = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.PLAY);
