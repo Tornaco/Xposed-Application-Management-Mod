@@ -11,7 +11,7 @@ import github.tornaco.xposedmoduletest.xposed.service.IModuleBridge;
  * Email: Tornaco@163.com
  */
 
-public interface SubModule {
+public interface SubModule extends Comparable<SubModule> {
 
     void onBridgeCreate(IModuleBridge bridge);
 
@@ -35,6 +35,8 @@ public interface SubModule {
 
     boolean isCoreModule();
 
+    Priority priority();
+
     enum SubModuleStatus {
         UNKNOWN,
         ERROR,
@@ -46,5 +48,9 @@ public interface SubModule {
             }
             return UNKNOWN;
         }
+    }
+
+    enum Priority {
+        Low, Normal, High
     }
 }

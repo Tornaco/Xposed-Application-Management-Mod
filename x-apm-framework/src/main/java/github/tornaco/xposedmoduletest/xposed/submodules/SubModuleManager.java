@@ -2,7 +2,10 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import android.os.Build;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import github.tornaco.xposedmoduletest.BuildConfig;
@@ -34,7 +37,7 @@ public class SubModuleManager {
         }
     };
 
-    private final Set<SubModule> SUBS = new HashSet<>();
+    private final List<SubModule> SUBS = new ArrayList<>();
 
     private void addToSubsChecked(SubModule subModule) {
 
@@ -135,9 +138,6 @@ public class SubModuleManager {
 
         // Blur
         addToSubsChecked(new ScreenshotApplicationsSubModule());
-        if (BuildConfig.DEBUG) {
-            addToSubsChecked(new ThumbnalDataSubModule());
-        }
 
         addToSubsChecked(new PackageInstallerSubModule());
         addToSubsChecked(new PMSSubModule());
@@ -203,7 +203,12 @@ public class SubModuleManager {
 
             // Wakelock blocker.
             addToSubsChecked(new PowerManagerServiceSubModule());
+
+            addToSubsChecked(new ThumbnalDataSubModule());
         }
+
+        // Sort.
+        Collections.sort(SUBS);
     }
 
     @Synchronized
@@ -212,7 +217,7 @@ public class SubModuleManager {
         return sMe.get();
     }
 
-    public Set<SubModule> getAllSubModules() {
+    public List<SubModule> getAllSubModules() {
         return SUBS;
     }
 }
