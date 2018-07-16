@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.common.io.Files;
@@ -41,6 +42,32 @@ abstract class AbsSubModule implements SubModule {
     @Override
     public int needMinSdk() {
         return Build.VERSION_CODES.LOLLIPOP;
+    }
+
+    @Override
+    public Priority priority() {
+        return Priority.Normal;
+    }
+
+    @Override
+    public int compareTo(@NonNull SubModule subModule) {
+        if (isCoreModule()) {
+            return -1;
+        }
+
+        if (!isCoreModule() && subModule.isCoreModule()) {
+            return 1;
+        }
+
+        if (priority().ordinal() > subModule.priority().ordinal()) {
+            return -1;
+        }
+
+        if (priority() == subModule.priority()) {
+            return 0;
+        }
+
+        return 1;
     }
 
     @Override
