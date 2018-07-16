@@ -55,6 +55,10 @@ abstract class AbsSubModule implements SubModule {
             return -1;
         }
 
+        if (!isCoreModule() && subModule.isCoreModule()) {
+            return 1;
+        }
+
         if (priority().ordinal() > subModule.priority().ordinal()) {
             return -1;
         }

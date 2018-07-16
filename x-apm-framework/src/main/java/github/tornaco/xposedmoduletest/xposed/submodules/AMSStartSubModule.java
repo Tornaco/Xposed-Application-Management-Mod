@@ -60,4 +60,10 @@ class AMSStartSubModule extends AndroidSubModule {
     public boolean isCoreModule() {
         return true;
     }
+
+
+    @Override
+    public Priority priority() {
+        return Priority.High;
+    }
 }
