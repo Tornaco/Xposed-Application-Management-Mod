@@ -2,14 +2,22 @@ package github.tornaco.xposedmoduletest.ui.activity.app;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.widget.ImageView;
+
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 
 import java.util.List;
 import java.util.Objects;
 
 import dev.nick.tiles.tile.Category;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.loader.GlideApp;
+import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.AppCustomDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.AppOpsTemplateSetting;
@@ -47,7 +55,7 @@ public class PerAppSettingsDashboardActivity extends WithWithCustomTabActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.container_with_appbar_fab_template);
+        setContentView(R.layout.per_app_settings);
         setupToolbar();
         showHomeAsUp();
 
@@ -60,6 +68,26 @@ public class PerAppSettingsDashboardActivity extends WithWithCustomTabActivity {
         replaceV4(R.id.container, Dashboards.newInstance(getContext(), pkgName), null, false);
 
         findViewById(R.id.fab).setOnClickListener(v -> onFabClick());
+
+        setupAppBar(pkgName);
+    }
+
+    void setupAppBar(String pkgName) {
+        ImageView appIconView = findViewById(R.id.app_icon);
+        CommonPackageInfo c = new CommonPackageInfo();
+        c.setPkgName(pkgName);
+        GlideApp.with(getContext())
+                .asBitmap()
+                .load(c)
+                .into(new SimpleTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource,
+                                                Transition<? super Bitmap> transition) {
+                        if (!isDestroyed()) {
+                            appIconView.setImageBitmap(resource);
+                        }
+                    }
+                });
     }
 
     void onFabClick() {
