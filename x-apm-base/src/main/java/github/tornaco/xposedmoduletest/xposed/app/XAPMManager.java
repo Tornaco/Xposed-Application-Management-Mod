@@ -2278,7 +2278,7 @@ public class XAPMManager {
             return mService.getStartRecordsForPackage(pkg);
         } catch (Exception e) {
             handleException(e);
-            return null;
+            return new ArrayList<>(0);
         }
     }
 

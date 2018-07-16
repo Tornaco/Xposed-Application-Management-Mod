@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import java.util.List;
+import java.util.Objects;
 
 import dev.nick.tiles.tile.Category;
 import github.tornaco.xposedmoduletest.R;
@@ -16,6 +17,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.AppDeveloper;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppDonate;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppGetPlay;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppLogoMaker;
+import github.tornaco.xposedmoduletest.ui.tiles.app.AppUpdateLog;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppVersion;
 import github.tornaco.xposedmoduletest.ui.tiles.app.GitContributors;
 import github.tornaco.xposedmoduletest.ui.tiles.app.OpenMarket;
@@ -68,7 +70,8 @@ public class AboutSettingsActivity extends WithWithCustomTabActivity {
 
         @Override
         protected int getNumColumns() {
-            boolean two = AppSettings.show2ColumnsIn(getActivity(), AboutNavFragment.class.getSimpleName());
+            boolean two = AppSettings.show2ColumnsIn(Objects.requireNonNull(getActivity()),
+                    AboutNavFragment.class.getSimpleName());
             return two ? 2 : 1;
         }
 
@@ -80,6 +83,7 @@ public class AboutSettingsActivity extends WithWithCustomTabActivity {
             personal.titleRes = R.string.title_about;
             personal.addTile(new AppDeveloper(getActivity()));
             personal.addTile(new AppVersion(getActivity()));
+            personal.addTile(new AppUpdateLog(getActivity()));
             personal.addTile(new OpenMarket(getActivity()));
 
             Category open = new Category();

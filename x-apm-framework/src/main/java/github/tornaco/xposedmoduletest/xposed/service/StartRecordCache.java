@@ -54,14 +54,19 @@ class StartRecordCache {
 
     public List<BlockRecord2> getStartRecordsForPackage(String pkg) {
         synchronized (sLock) {
-            return Lists.newArrayList(mPkgCache.get(pkg));
+            if (mPkgCache.containsKey(pkg)) {
+                return Lists.newArrayList(mPkgCache.get(pkg));
+            }
+            return new ArrayList<>(0);
         }
     }
 
     public void clearStartRecordsForPackage(String pkg) {
         synchronized (sLock) {
-            List<BlockRecord2> blockRecord2s = mPkgCache.remove(pkg);
-            blockRecord2s = null;
+            if (mPkgCache.containsKey(pkg)) {
+                List<BlockRecord2> blockRecord2s = mPkgCache.remove(pkg);
+                blockRecord2s = null;
+            }
         }
     }
 
