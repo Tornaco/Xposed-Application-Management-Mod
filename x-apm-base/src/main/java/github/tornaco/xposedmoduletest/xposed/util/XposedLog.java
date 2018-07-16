@@ -19,7 +19,6 @@ public abstract class XposedLog {
         DEBUG,
         WARN,
         ERROR,
-        NONE;
     }
 
     public static final String TAG = "X-APM-S-";
@@ -39,7 +38,7 @@ public abstract class XposedLog {
     public static final String PREFIX_BROADCAST = "BROADCAST-";
 
     // Default log level.
-    private static LogLevel sLevel = LogLevel.ALL;
+    private static LogLevel sLevel = BuildConfig.DEBUG ? LogLevel.ALL : LogLevel.WARN;
 
     public static void setLogLevel(LogLevel level) {
         XposedLog.sLevel = level;

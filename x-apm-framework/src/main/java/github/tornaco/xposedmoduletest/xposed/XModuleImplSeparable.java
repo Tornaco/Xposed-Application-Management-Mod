@@ -27,11 +27,11 @@ class XModuleImplSeparable extends XModuleAbs {
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) {
         XposedLog.verbose("handleLoadPackage: " + lpparam.packageName);
-
         for (SubModule s : SubModuleManager.getInstance().getAllSubModules()) {
             if (s.getInterestedPackages().contains(lpparam.packageName)
                     || s.getInterestedPackages().contains("*")) {
                 try {
+                    XposedLog.boot("Calling handle load pkg: " + s);
                     s.handleLoadingPackage(lpparam.packageName, lpparam);
                 } catch (Throwable e) {
                     XposedLog.wtf("Error call handleLoadingPackage submodule:" + s
@@ -45,6 +45,7 @@ class XModuleImplSeparable extends XModuleAbs {
     public void initZygote(StartupParam startupParam) {
         for (SubModule s : SubModuleManager.getInstance().getAllSubModules()) {
             try {
+                XposedLog.boot("Calling init zygote: " + s);
                 s.initZygote(startupParam);
             } catch (Throwable e) {
                 XposedLog.wtf("Error call initZygote submodule:" + s
