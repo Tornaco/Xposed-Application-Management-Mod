@@ -17,6 +17,7 @@
         android:id="@+id/action_update_log"
         android:icon="@drawable/ic_format_list_bulleted_black_24dp"
         android:title="@string/title_app_update_log_view"
+        android:visible="false"
         app:showAsAction="never" />
 
     <item

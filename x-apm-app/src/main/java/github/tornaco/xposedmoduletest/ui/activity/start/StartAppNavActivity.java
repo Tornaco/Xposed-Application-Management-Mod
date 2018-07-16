@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.ui.activity.start;
 
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.SwitchCompat;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -101,13 +102,31 @@ public class StartAppNavActivity extends CommonPackageInfoListActivity
 
     @Override
     protected CommonPackageInfoAdapter onCreateAdapter() {
-        return new CommonPackageInfoAdapter(this){
+        return new CommonPackageInfoAdapter(this) {
             @Override
             protected void onItemClickNoneChoiceMode(CommonPackageInfo commonPackageInfo, View view) {
                 super.onItemClickNoneChoiceMode(commonPackageInfo, view);
-                showCommonItemPopMenu(commonPackageInfo, view);
+                showItemPopMenu(commonPackageInfo, view);
             }
         };
+    }
+
+    public void showItemPopMenu(final CommonPackageInfo packageInfo, View anchor) {
+        PopupMenu popupMenu = new PopupMenu(getActivity(), anchor);
+        popupMenu.inflate(R.menu.start_block_pop);
+        PopupMenu.OnMenuItemClickListener commonListener = onCreateCommonItemPopMenuListener(packageInfo);
+        popupMenu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.action_block_record_viewer:
+                    BlockRecordViewerActivity.start(getActivity(), packageInfo.getPkgName());
+                    break;
+                default:
+                    commonListener.onMenuItemClick(item);
+                    break;
+            }
+            return true;
+        });
+        popupMenu.show();
     }
 
     @Override

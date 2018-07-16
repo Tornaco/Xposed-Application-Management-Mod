@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_block_record_viewer"
+        android:title="@string/title_block_viewer"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_comp_edit"
+        android:title="@string/title_comp_edit"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_comp_uninstall"
+        android:title="@string/title_comp_uninstall"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_app_settings"
+        android:title="@string/title_per_app_settings"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_config_setting"
+        android:title="@string/title_config_setting"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_config_copy_pkg_name"
+        android:title="@string/title_copy_pkg_name"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_config_copy_launch_intent"
+        android:title="@string/title_copy_launch_intent"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_comp_details"
+        android:title="@string/title_comp_details"
+        app:showAsAction="never" />
+</menu>

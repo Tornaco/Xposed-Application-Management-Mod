@@ -357,10 +357,8 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
 
     protected abstract CommonPackageInfoAdapter onCreateAdapter();
 
-    public void showCommonItemPopMenu(final CommonPackageInfo packageInfo, View anchor) {
-        PopupMenu popupMenu = new PopupMenu(getActivity(), anchor);
-        popupMenu.inflate(R.menu.common_item_pop);
-        popupMenu.setOnMenuItemClickListener(item -> {
+    protected PopupMenu.OnMenuItemClickListener onCreateCommonItemPopMenuListener(final CommonPackageInfo packageInfo) {
+        return item -> {
             switch (item.getItemId()) {
                 case R.id.action_comp_edit:
                     ComponentEditorActivity.start(getActivity(), packageInfo.getPkgName());
@@ -397,7 +395,13 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
 
             }
             return true;
-        });
+        };
+    }
+
+    public void showCommonItemPopMenu(final CommonPackageInfo packageInfo, View anchor) {
+        PopupMenu popupMenu = new PopupMenu(getActivity(), anchor);
+        popupMenu.inflate(R.menu.common_item_pop);
+        popupMenu.setOnMenuItemClickListener(onCreateCommonItemPopMenuListener(packageInfo));
         popupMenu.show();
     }
 
