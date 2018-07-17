@@ -698,4 +698,8 @@
     <string name="summary_dynamic_color_enabled">提取当前锁定应用的主题颜色作为应用锁页面的主要颜色</string>
     <string name="title_verifier_theme_color">主题颜色</string>
     <string name="summary_verifier_theme_color">解锁页面主题颜色</string>
+    <string name="toast_custom_image_saved">自定义背景已经保存好了</string>
+    <string name="title_custom_background_picker">选择自定义背景</string>
+    <string name="summary_custom_background_enabled">使用自定义的图片作为验证界面的背景</string>
+    <string name="title_custom_background_enabled">使用自定义背景</string>
 </resources>

@@ -121,6 +121,7 @@ dependencies {
     implementation project(':third-party:mdsearch')
     implementation project(':third-party:dateformatter')
     implementation project(':third-party:colorpicker')
+    implementation project(':third-party:imagepicker')
 
     implementation files('libs/flyme_fingerprint.jar')
 

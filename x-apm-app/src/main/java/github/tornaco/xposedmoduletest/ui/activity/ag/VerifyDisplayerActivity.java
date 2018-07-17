@@ -7,16 +7,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.os.CancellationSignal;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -28,10 +33,14 @@ import com.andrognito.patternlockview.utils.PatternLockUtils;
 import com.andrognito.pinlockview.IndicatorDots;
 import com.andrognito.pinlockview.PinLockListener;
 import com.andrognito.pinlockview.PinLockView;
+import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 
 import org.newstand.logger.Logger;
 
+import java.io.File;
 import java.util.List;
 
 import github.tornaco.android.common.util.ApkUtil;
@@ -51,6 +60,7 @@ import github.tornaco.xposedmoduletest.util.PatternLockViewListenerAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
+import github.tornaco.xposedmoduletest.xposed.service.ErrorCatchRunnable;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 import static github.tornaco.xposedmoduletest.xposed.app.XAppLockManager.EXTRA_INJECT_HOME_WHEN_FAIL_ID;
@@ -78,6 +88,9 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private boolean mDynamicColor;
     private int mDefColor;
+
+    private boolean mUseCustomBackground;
+    private String mCustomBackgroundImagePath;
 
     private CancellationSignal mCancellationSignal;
 
@@ -126,22 +139,47 @@ public class VerifyDisplayerActivity extends BaseActivity {
         this.mLockMethod = LockStorage.getLockMethod(this);
         this.mDynamicColor = XSettings.dynamicColorEnabled(this);
         this.mDefColor = XSettings.defaultVerifierColor(this);
+        this.mUseCustomBackground = XSettings.customBackgroundEnabled(this);
     }
 
     private void showVerifyView() {
 
-        if (mDynamicColor) {
-            // Apply theme color.
-            int color = ContextCompat.getColor(this, XSettings.getThemes(this).getThemeColor());
+        String customBackgroundPath = null;
+        // Not ready yet.
+        boolean applyCustomBackground = false && mUseCustomBackground;
+        if (applyCustomBackground) {
+            customBackgroundPath = XSettings.customBackgroundPath(this);
+            applyCustomBackground = !TextUtils.isEmpty(customBackgroundPath)
+                    && new File(customBackgroundPath).exists();
+        }
 
-            // Apply palette color.
-            // Workaround.
-            PaletteColorPicker.pickPrimaryColor(this, this::applyColor, pkg, color);
-        } else if (mDefColor != 0) {
-            if (BuildConfig.DEBUG) {
-                Logger.w("Using def color: " + mDefColor);
+        if (applyCustomBackground) {
+            Glide.with(getActivity())
+                    .load(customBackgroundPath)
+                    .into(new SimpleTarget<Drawable>() {
+                        @Override
+                        public void onResourceReady(@NonNull Drawable resource,
+                                                    @Nullable Transition<? super Drawable> transition) {
+                            if (!isDestroyed()) {
+                                runOnUiThreadChecked(new ErrorCatchRunnable(() -> {
+                                    View root = findViewById(R.id.verify_displayer_root);
+                                    root.setBackground(resource);
+                                }, "applyCustomBackground"));
+                                applyColor(Color.TRANSPARENT);
+                            }
+                        }
+                    });
+        } else {
+            if (mDynamicColor) {
+                // Apply theme color.
+                int color = ContextCompat.getColor(this, XSettings.getThemes(this).getThemeColor());
+
+                // Apply palette color.
+                // Workaround.
+                PaletteColorPicker.pickPrimaryColor(this, this::applyColor, pkg, color);
+            } else if (mDefColor != 0) {
+                applyColor(mDefColor);
             }
-            applyColor(mDefColor);
         }
 
         setTitle(null);

@@ -10,4 +10,5 @@ include ':x-apm-app',
         ':third-party:dateformatter',
         ':third-party:pinlockview',
         ':third-party:zip4j',
-        ':third-party:colorpicker'
+        ':third-party:colorpicker',
+        ':third-party:imagepicker'

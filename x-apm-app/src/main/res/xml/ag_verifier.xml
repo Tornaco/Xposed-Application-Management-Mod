@@ -47,6 +47,17 @@
             android:key="key_def_verifier_color"
             android:summary="@string/summary_verifier_theme_color"
             android:title="@string/title_verifier_theme_color" />
+
+        <!--<SwitchPreference-->
+            <!--android:defaultValue="false"-->
+            <!--android:key="key_custom_background_enabled"-->
+            <!--android:summary="@string/summary_custom_background_enabled"-->
+            <!--android:title="@string/title_custom_background_enabled" />-->
+
+        <!--<Preference-->
+            <!--android:dependency="key_custom_background_enabled"-->
+            <!--android:key="key_custom_background_picker"-->
+            <!--android:title="@string/title_custom_background_picker" />-->
     </PreferenceCategory>
 
 </PreferenceScreen>
