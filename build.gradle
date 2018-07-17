@@ -35,7 +35,7 @@ ext {
     dogfoodBuild = true
 
     versionCode = 5130
-    versionName = "J-5.1.3-BETA"
+    versionName = "J-5.1.3"
 
     minSdkVersion = 21
     compileSdkVersion = 26
