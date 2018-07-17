@@ -171,6 +171,13 @@ public class OpenSourceLicenses extends QuickTile {
                                 null,
                                 new ApacheSoftwareLicense20()));
 
+                notices.addNotice(
+                        new Notice(
+                                "ImagePicker",
+                                "https://github.com/Mariovc/ImagePicker",
+                                "Copyright 2016 Mario Velasco Casquero",
+                                new ApacheSoftwareLicense20()));
+
 
 //                notices.addNotice(
 //                        new Notice(

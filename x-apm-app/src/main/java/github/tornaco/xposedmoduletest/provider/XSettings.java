@@ -45,6 +45,24 @@ public class XSettings extends Observable {
                 .getBoolean(XKey.DYNAMIC_COLOR_ENABLED, true);
     }
 
+    public static boolean customBackgroundEnabled(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(XKey.CUSTOM_BACKGROUND_ENABLED, false);
+    }
+
+    @Nullable
+    public static String customBackgroundPath(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(XKey.CUSTOM_BACKGROUND, null);
+    }
+
+    public static void setCustomBackgroundPath(Context context, String path) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putString(XKey.CUSTOM_BACKGROUND, path)
+                .apply();
+    }
+
     public static boolean fpEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(XKey.FP_ENABLED, false);

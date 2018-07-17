@@ -16,4 +16,6 @@ public interface XKey {
     String DEV_MODE = "dev_mode_enabled_c";
     String FP_ENABLED = "fp_enabled";
     String THEME = "theme";
+    String CUSTOM_BACKGROUND_ENABLED = "key_custom_background_enabled";
+    String CUSTOM_BACKGROUND = "key_custom_background_path";
 }

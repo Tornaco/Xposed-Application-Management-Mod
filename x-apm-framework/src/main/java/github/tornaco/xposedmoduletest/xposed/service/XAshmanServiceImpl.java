@@ -273,7 +273,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private final AtomicBoolean mGreeningEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mResidentEnabled = new AtomicBoolean(false);
 
-    private final AtomicBoolean mPermissionControlEnabled = new AtomicBoolean(true);
+    private final AtomicBoolean mPermissionControlEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mPrivacyEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mPanicHomeEnabled = new AtomicBoolean(false);
@@ -1028,6 +1028,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             boolean privEnabled = XAPMServerSettings.PRIVACY_ENABLED_B.read();
             mPrivacyEnabled.set(privEnabled);
             XposedLog.boot("lockKillEnabled: " + String.valueOf(privEnabled));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
+            boolean permControlEnabled = XAPMServerSettings.PERMISSION_CONTROL_B.read();
+            mPermissionControlEnabled.set(permControlEnabled);
+            XposedLog.boot("permControlEnabled: " + String.valueOf(permControlEnabled));
         } catch (Throwable e) {
             XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
         }
