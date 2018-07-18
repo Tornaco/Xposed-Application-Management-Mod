@@ -89,7 +89,7 @@ public class CommonPackageInfoAdapter
                 .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
                 .badgeColor(Color.GRAY)
                 .text1(context.getString(R.string.title_app_state_idle))
-                .typeFace(TypefaceHelper.futura(context))
+                .typeFace(TypefaceHelper.googleSans(context))
                 .build();
 
         this.gcmBadge =
@@ -97,7 +97,7 @@ public class CommonPackageInfoAdapter
                         .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
                         .badgeColor(Color.BLUE)
                         .text1("GCM")
-                        .typeFace(TypefaceHelper.futura(context))
+                        .typeFace(TypefaceHelper.googleSans(context))
                         .build();
     }
 
@@ -244,7 +244,7 @@ public class CommonPackageInfoAdapter
                 .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
                 .badgeColor(levelColor)
                 .text1(levelText)
-                .typeFace(TypefaceHelper.futura(getContext()))
+                .typeFace(TypefaceHelper.googleSans(getContext()))
                 .build();
     }
 

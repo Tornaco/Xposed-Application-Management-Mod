@@ -4,10 +4,7 @@ import android.os.Build;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.util.Singleton;
@@ -17,7 +14,6 @@ import github.tornaco.xposedmoduletest.xposed.submodules.debug.DisplayListCanvas
 import github.tornaco.xposedmoduletest.xposed.submodules.debug.PointerEventDispatcherSubModule;
 import github.tornaco.xposedmoduletest.xposed.submodules.debug.UserManagerServiceSubModule;
 import github.tornaco.xposedmoduletest.xposed.submodules.debug.WindowSubModule;
-import github.tornaco.xposedmoduletest.xposed.submodules.debug.Z2ForceFixSubModule;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.Synchronized;
 
@@ -173,43 +169,47 @@ public class SubModuleManager {
         // These module is under test, maybe publish for user
         // if we got a nice result:)
         if (BuildConfig.DEBUG) {
-            addToSubsChecked(new ActivitySubModule());
-
-            addToSubsChecked(new ResourceManagerApplyConfigSubModule());
-            addToSubsChecked(new ResourceSubModule());
-
-            // Dump broadcast details.
-            addToSubsChecked(new BroadcastQueueSubModule());
-
-            // View and event.
-            addToSubsChecked(new ViewTouchEventSubModule());
-            addToSubsChecked(new ViewGroupDebugDrawSubModule());
-
-            // Window.
-            addToSubsChecked(new WindowSubModule());
-
-            // Multiple apps.
-            addToSubsChecked(new UserManagerServiceSubModule());
-
-            // Hot fix.
-            addToSubsChecked(new DisplayListCanvasSubModule());
-            // addToSubsChecked(new Z2ForceFixSubModule());
-
-            // Input.
-            addToSubsChecked(new PointerEventDispatcherSubModule());
-
-            // Installer
-            addToSubsChecked(new PackageInstallerServiceSubModule());
-            addToSubsChecked(new PackageInstallerSessionSubModule());
-
-            // Wakelock blocker.
-            addToSubsChecked(new PowerManagerServiceSubModule());
-
-            addToSubsChecked(new ThumbnalDataSubModule());
+            addDebugModules();
         }
 
         // Sort.
         Collections.sort(SUBS, Comparable::compareTo);
+    }
+
+    private void addDebugModules() {
+        addToSubsChecked(new ActivitySubModule());
+
+        addToSubsChecked(new ResourceManagerApplyConfigSubModule());
+        addToSubsChecked(new ResourceSubModule());
+
+        // Dump broadcast details.
+        addToSubsChecked(new BroadcastQueueSubModule());
+
+        // View and event.
+        addToSubsChecked(new ViewTouchEventSubModule());
+        addToSubsChecked(new ViewGroupDebugDrawSubModule());
+
+        // Window.
+        addToSubsChecked(new WindowSubModule());
+
+        // Multiple apps.
+        addToSubsChecked(new UserManagerServiceSubModule());
+
+        // Hot fix.
+        addToSubsChecked(new DisplayListCanvasSubModule());
+        // addToSubsChecked(new Z2ForceFixSubModule());
+
+        // Input.
+        addToSubsChecked(new PointerEventDispatcherSubModule());
+
+        // Installer
+        addToSubsChecked(new PackageInstallerServiceSubModule());
+        addToSubsChecked(new PackageInstallerSessionSubModule());
+
+        // Wakelock blocker.
+        addToSubsChecked(new PowerManagerServiceSubModule());
+
+        addToSubsChecked(new ThumbnalDataSubModule());
     }
 
     @Synchronized

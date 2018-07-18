@@ -2,7 +2,6 @@ package github.tornaco.xposedmoduletest.ui.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -85,6 +84,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.prop.PackageInstallVerify;
 import github.tornaco.xposedmoduletest.ui.tiles.workflow.Workflow;
 import github.tornaco.xposedmoduletest.ui.widget.BottomNavigationViewHelper;
 import github.tornaco.xposedmoduletest.ui.widget.ToastManager;
+import github.tornaco.xposedmoduletest.ui.widget.TypefaceHelper;
 import github.tornaco.xposedmoduletest.util.AliPayUtil;
 import github.tornaco.xposedmoduletest.util.EmojiUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
@@ -290,7 +290,7 @@ public class NavigatorActivityBottomNav
     private void setTitleInternal(CharSequence title) {
         Toolbar toolbar = findViewById(R.id.toolbar);
         TextView titleView = toolbar.findViewById(R.id.toolbar_title);
-        titleView.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/futura-medium-bt.ttf"));
+        titleView.setTypeface(TypefaceHelper.googleSans(getContext()));
         titleView.setText(title);
     }
 

@@ -28,7 +28,7 @@
         android:layout_alignEnd="@android:id/title"
         android:layout_alignParentEnd="true"
         android:padding="@dimen/header_padding_tiny"
-        android:src="@drawable/ic_github"
+        android:src="@drawable/ic_public_grey_24dp"
         android:textAllCaps="true"
         android:textStyle="bold"
         tools:ignore="HardcodedText" />
