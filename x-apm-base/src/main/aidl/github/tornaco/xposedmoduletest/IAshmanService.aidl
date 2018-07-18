@@ -543,4 +543,7 @@ interface IAshmanService {
     void addAppOpsTemplate(in AppOpsTemplate template);
     void removeAppOpsTemplate(in AppOpsTemplate template);
     List<AppOpsTemplate> getAppOpsTemplates();
+
+    // MiPush.
+    boolean isMiPushSupportPackage(String pkg);
 }

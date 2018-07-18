@@ -2092,6 +2092,16 @@ public class XAPMManager {
         }
     }
 
+    public boolean isMiPushSupportPackage(String pkg) {
+        ensureService();
+        try {
+            return mService.isMiPushSupportPackage(pkg);
+        } catch (Exception e) {
+            handleException(e);
+            return false;
+        }
+    }
+
     public boolean isShowAppProcessUpdateNotificationEnabled() {
         ensureService();
         try {

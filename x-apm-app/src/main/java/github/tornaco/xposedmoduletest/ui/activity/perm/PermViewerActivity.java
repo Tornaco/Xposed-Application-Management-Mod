@@ -267,7 +267,7 @@ public class PermViewerActivity extends WithSearchActivity<CommonPackageInfo> {
                         }
 
                         @Override
-                        protected boolean onBuildGCMIndicator(CommonPackageInfo info, TextView textView) {
+                        protected boolean onBuildPushSupportIndicator(CommonPackageInfo info, TextView textView) {
                             return false;
                         }
 

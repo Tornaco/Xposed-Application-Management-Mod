@@ -29,7 +29,6 @@ import github.tornaco.android.common.Collections;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
-import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.ui.widget.TypefaceHelper;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import lombok.Getter;
@@ -66,8 +65,6 @@ public class CommonPackageInfoAdapter
     @Getter
     private ChoiceModeListener choiceModeListener;
 
-    private boolean showGcmIndicator = false;
-
     public CommonPackageInfoAdapter(Context context) {
         this.context = context;
         this.highlightColor = ContextCompat.getColor(context, R.color.accent);
@@ -83,8 +80,6 @@ public class CommonPackageInfoAdapter
 
         setChoiceMode(false);
 
-        this.showGcmIndicator = AppSettings.isShowGcmIndicator(context);
-
         this.idleBadge = new BadgeDrawable.Builder()
                 .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
                 .badgeColor(Color.GRAY)
@@ -97,6 +92,14 @@ public class CommonPackageInfoAdapter
                         .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
                         .badgeColor(Color.BLUE)
                         .text1("GCM")
+                        .typeFace(TypefaceHelper.googleSans(context))
+                        .build();
+
+        this.miPushBadge =
+                new BadgeDrawable.Builder()
+                        .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
+                        .badgeColor(Color.YELLOW)
+                        .text1("MI PUSH")
                         .typeFace(TypefaceHelper.googleSans(context))
                         .build();
     }
@@ -175,7 +178,7 @@ public class CommonPackageInfoAdapter
         final CommonPackageInfo packageInfo = commonPackageInfos.get(position);
 
         if (holder.getThirdTextView() != null) {
-            inflatePackageDesc(packageInfo, holder.getThirdTextView(), showGcmIndicator);
+            inflatePackageDesc(packageInfo, holder.getThirdTextView());
         }
 
         holder.getExtraIndicator().setVisibility(View.INVISIBLE);
@@ -232,7 +235,7 @@ public class CommonPackageInfoAdapter
     }
 
     @Getter
-    final BadgeDrawable gcmBadge;
+    final BadgeDrawable gcmBadge, miPushBadge;
 
     @Getter
     final BadgeDrawable idleBadge;
@@ -248,11 +251,11 @@ public class CommonPackageInfoAdapter
                 .build();
     }
 
-    protected boolean onBuildGCMIndicator(CommonPackageInfo info, TextView textView) {
+    protected boolean onBuildPushSupportIndicator(CommonPackageInfo info, TextView textView) {
         return true;
     }
 
-    protected void inflatePackageDesc(CommonPackageInfo info, TextView textView, boolean showGcmIndicator) {
+    protected void inflatePackageDesc(CommonPackageInfo info, TextView textView) {
 
         int appLevel = info.getAppLevel();
         String appLevelDesc = getSystemAppIndicatorLabel(appLevel);
@@ -262,8 +265,9 @@ public class CommonPackageInfoAdapter
         if (appLevelDrawable != null) {
             descSets.add(appLevelDrawable.toSpannable());
         }
-        if (onBuildGCMIndicator(info, textView) && showGcmIndicator && info.isGCMSupport()) {
-            descSets.add(getGcmBadge().toSpannable());
+        if (onBuildPushSupportIndicator(info, textView)) {
+            if (info.isGCMSupport()) descSets.add(getGcmBadge().toSpannable());
+            if (info.isMIPushSupport()) descSets.add(getMiPushBadge().toSpannable());
         }
         if (info.isAppIdle()) {
             descSets.add(getIdleBadge().toSpannable());

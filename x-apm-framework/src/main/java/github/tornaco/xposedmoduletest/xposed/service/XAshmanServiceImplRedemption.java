@@ -1857,4 +1857,9 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     public List<AppOpsTemplate> getAppOpsTemplates() {
         return null;
     }
+
+    @Override
+    public boolean isMiPushSupportPackage(String pkg) {
+        return false;
+    }
 }

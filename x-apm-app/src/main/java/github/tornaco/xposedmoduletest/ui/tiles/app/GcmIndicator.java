@@ -12,7 +12,7 @@ import github.tornaco.xposedmoduletest.provider.AppSettings;
  * Created by guohao4 on 2017/8/2.
  * Email: Tornaco@163.com
  */
-
+@Deprecated // Show it force.
 public class GcmIndicator extends QuickTile {
 
     public GcmIndicator(final Context context) {

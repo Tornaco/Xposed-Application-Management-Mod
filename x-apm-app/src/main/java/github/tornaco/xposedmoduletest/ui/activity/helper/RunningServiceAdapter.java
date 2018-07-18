@@ -54,7 +54,7 @@ public class RunningServiceAdapter extends CommonPackageInfoAdapter {
         holder.getThirdTextView().setVisibility(View.VISIBLE);
         holder.getThirdTextView().setText(display.getMergedItem().mSizeStr);
 
-        inflatePackageDesc(display, runningServiceInfoHolder.getProcessNameView(), false);
+        inflatePackageDesc(display, runningServiceInfoHolder.getProcessNameView());
     }
 
     @Override

@@ -158,8 +158,8 @@ import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationM
 import github.tornaco.xposedmoduletest.xposed.service.notification.RebootNotification;
 import github.tornaco.xposedmoduletest.xposed.service.notification.SystemUI;
 import github.tornaco.xposedmoduletest.xposed.service.notification.UniqueIdFactory;
-import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.GCMFCMHelper;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.NotificationHandlerSettingsRetriever;
+import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.PushMessageHelper;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.PushNotificationHandler;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.TGPushNotificationHandler;
 import github.tornaco.xposedmoduletest.xposed.service.opt.gcm.WeChatPushNotificationHandler;
@@ -1657,7 +1657,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             return resultCode;
         }
         // Check if GCM intent.
-        if (!GCMFCMHelper.isGcmOrFcmIntent(intent)) {
+        if (!PushMessageHelper.isPushIntent(intent)) {
             return resultCode;
         }
         // Check if PMH for this pkg is enabled.
@@ -1678,12 +1678,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     private void checkBroadcastIntentSendingInternal(Intent intent) {
 
-        // Enhance for GCM/FCM.
-        if (GCMFCMHelper.isGcmOrFcmIntent(intent)) {
+        // Enhance for GCM/FCM/MIPUSH.
+
+        boolean isCMIntent = PushMessageHelper.isFcmIntent(intent) || PushMessageHelper.isGcmIntent(intent);
+        boolean isMIPushIntent = PushMessageHelper.isMIPushIntent(intent);
+
+        boolean isPushIntent = isCMIntent || isMIPushIntent;
+
+        if (isPushIntent) {
             final String targetPkg = intent.getPackage();
             if (targetPkg != null) {
-                XposedLog.verbose("checkBroadcastIntentSendingInternal isGcmOrFcmIntent: " + targetPkg);
+                XposedLog.verbose("checkBroadcastIntentSendingInternal this is PushIntent: " + targetPkg);
 
+                // Dump intent for debug.
                 if (BuildConfig.DEBUG) {
                     XposedLog.verbose("PushNotificationHandler@ intent: "
                             + intent + "extra: " + intent.getExtras()
@@ -1692,36 +1699,39 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
                 // Notify handlers and go!
                 if (isPushMessageHandleEnabled()) {
-                    XposedLog.verbose("checkBroadcastIntentSendingInternal PMH not enabled");
-
                     // Notification handlers.
                     for (PushNotificationHandler handler : mPushNotificationHandlers) {
                         handler.handleIncomingIntent(targetPkg, intent);
                     }
+                } else {
+                    XposedLog.verbose("checkBroadcastIntentSendingInternal PMH not enabled");
                 }
 
                 @StartRuleCheck
-                boolean shouldBeEnhanced =
-                        isStartRuleEnabled() && RepoProxy.getProxy()
-                                .getStart_rules()
-                                .has(constructGCMEnhanceRuleForPackage(targetPkg));
+                boolean shouldBeEnhanced = false;
+                if (isCMIntent && RepoProxy.getProxy().getStart_rules().has(constructGCMEnhanceRuleForPackage(targetPkg))) {
+                    shouldBeEnhanced = true;
+                } else if (isMIPushIntent && RepoProxy.getProxy().getStart_rules().has(constructMIPUSHEnhanceRuleForPackage(targetPkg))) {
+                    shouldBeEnhanced = true;
+                }
+
                 if (shouldBeEnhanced) {
                     intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
                     // Notify GCM pending.
-                    GCMFCMHelper.onGcmIntentReceived(targetPkg);
+                    PushMessageHelper.onGcmIntentReceived(targetPkg);
                     // Start app process.
                     // FIXME No need to add for system app? Need a real user test.
                     int appLevel = getAppLevel(targetPkg);
                     if (appLevel == XAPMManager.AppLevel.THIRD_PARTY) {
                         addApp(targetPkg);
                     }
-                    XposedLog.verbose("Introduce FLAG_INCLUDE_STOPPED_PACKAGES for GCM/FCM package: "
+                    XposedLog.verbose("Introduce FLAG_INCLUDE_STOPPED_PACKAGES for Push intent package: "
                             + targetPkg + ", newIntent: " + intent);
 
                     // Now post a lazy app check!
-                    postLazyServiceKillerIfNecessary(targetPkg, GCMFCMHelper.GCM_INTENT_HANDLE_INTERVAL_MILLS, "GCM-ENHANCE");
+                    postLazyServiceKillerIfNecessary(targetPkg, PushMessageHelper.PUSH_INTENT_HANDLE_INTERVAL_MILLS, "PUSH-ENHANCE");
                 } else {
-                    XposedLog.verbose("Won't Introduce FLAG_INCLUDE_STOPPED_PACKAGES for GCM/FCM package: " + targetPkg);
+                    XposedLog.verbose("Won't Introduce FLAG_INCLUDE_STOPPED_PACKAGES for Push intent package: " + targetPkg);
                 }
             }
         }
@@ -1732,6 +1742,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private static String[] constructGCMEnhanceRuleForPackage(String packageName) {
         return new String[]{"ALLOW GCMENHANCE " + packageName,
                 "ALLOW GCMENHANCE *"};
+    }
+
+    // ALLOW MIPUSHENHANCE *
+    // ALLOW MIPUSHENHANCE A
+    private static String[] constructMIPUSHEnhanceRuleForPackage(String packageName) {
+        return new String[]{"ALLOW MIPUSHENHANCE " + packageName,
+                "ALLOW MIPUSHENHANCE *"};
     }
 
     private void addApp(String targetPkg) {
@@ -2297,9 +2314,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             return CheckResult.SYSTEM_APP;
         }
 
-        // Check GCM intent.
-        if (GCMFCMHelper.isHandlingGcmIntent(processPackage)) {
-            return CheckResult.HAS_GCM_INTENT;
+        // Check Push intent.
+        if (PushMessageHelper.isHandlingPushIntent(processPackage)) {
+            return CheckResult.HANDING_PUSH_INTENT;
         }
 
         if (PkgUtil.justBringDown(processPackage)) {
@@ -2478,12 +2495,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             }
 
             // Start rule enabled, may be has GCM intent.
-            boolean hasGcmIntent = GCMFCMHelper.isHandlingGcmIntent(servicePkgName);
-            if (hasGcmIntent) {
+            boolean handlingPushIntent = PushMessageHelper.isHandlingPushIntent(servicePkgName);
+            if (handlingPushIntent) {
                 if (XposedLog.isVerboseLoggable()) {
-                    XposedLog.verbose("Package is handling GCM allow service start: " + servicePkgName);
+                    XposedLog.verbose("Package is handling Push intent allow service start: " + servicePkgName);
                 }
-                return CheckResult.HAS_GCM_INTENT;
+                return CheckResult.HANDING_PUSH_INTENT;
             }
         }
 
@@ -2581,36 +2598,31 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         if (caller == null || targetPackage == null) return null;
         XStopWatch stopWatch = null;
         if (BuildConfig.DEBUG) {
-            stopWatch = XStopWatch.start("SERVICE START RULE CHECK, is GCM: " + GCMFCMHelper.isGcmOrFcmIntent(intent));
+            stopWatch = XStopWatch.start("SERVICE START RULE CHECK, is Push message: " + PushMessageHelper.isPushIntent(intent));
         }
         try {
+            String[] patternAllow = constructStartAllowedRulePattern(intent, caller, targetPackage);
+            boolean isThisCallerAllowedInRule = RepoProxy.getProxy().getStart_rules().has(patternAllow);
+            if (BuildConfig.DEBUG) {
+                XposedLog.verbose("check rules patternAllow: " + Arrays.toString(patternAllow)
+                        + ", has rule: " + isThisCallerAllowedInRule);
+            }
+            if (isThisCallerAllowedInRule) {
+                return CheckResult.ALLOWED_IN_RULE;
+            }
 
-            if (caller != null) {
-                String[] patternAllow = constructStartAllowedRulePattern(intent, caller, targetPackage);
-                boolean isThisCallerAllowedInRule = RepoProxy.getProxy().getStart_rules().has(patternAllow);
-                if (BuildConfig.DEBUG) {
-                    XposedLog.verbose("check rules patternAllow: " + Arrays.toString(patternAllow)
-                            + ", has rule: " + isThisCallerAllowedInRule);
-                }
-                if (isThisCallerAllowedInRule) {
-                    return CheckResult.ALLOWED_IN_RULE;
-                }
-
-                String[] patternDeny = constructStartDenyRulePattern(intent, caller, targetPackage);
-                boolean isThisCallerDeniedInRule = RepoProxy.getProxy().getStart_rules().has(patternDeny);
-                if (BuildConfig.DEBUG) {
-                    XposedLog.verbose("check rules patternDeny: " + Arrays.toString(patternDeny)
-                            + ", has rule: " + isThisCallerDeniedInRule);
-                }
-                if (isThisCallerDeniedInRule) {
-                    return CheckResult.DENIED_IN_RULE;
-                }
+            String[] patternDeny = constructStartDenyRulePattern(intent, caller, targetPackage);
+            boolean isThisCallerDeniedInRule = RepoProxy.getProxy().getStart_rules().has(patternDeny);
+            if (BuildConfig.DEBUG) {
+                XposedLog.verbose("check rules patternDeny: " + Arrays.toString(patternDeny)
+                        + ", has rule: " + isThisCallerDeniedInRule);
+            }
+            if (isThisCallerDeniedInRule) {
+                return CheckResult.DENIED_IN_RULE;
             }
         } finally {
             if (BuildConfig.DEBUG) {
-                if (stopWatch != null) {
-                    stopWatch.stop();
-                }
+                stopWatch.stop();
             }
         }
         return null;
@@ -2649,10 +2661,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private String[] constructStartAllowedRulePattern(Intent intent, String callerPackage, String targetPackage) {
         String[] rules = getAllowRulesFromCache(callerPackage, targetPackage);
         if (rules == null) {
-            boolean isCMIntent = GCMFCMHelper.isGcmOrFcmIntent(intent);
+            boolean isCMIntent = PushMessageHelper.isFcmIntent(intent) || PushMessageHelper.isGcmIntent(intent);
+            boolean isMIPushIntent = PushMessageHelper.isMIPushIntent(intent);
 
             if (BuildConfig.DEBUG) {
-                XposedLog.verbose("constructStartAllowedRulePattern, GCM? " + isCMIntent
+                XposedLog.verbose("constructStartAllowedRulePattern,"
+                                + " GCM? " + isCMIntent
+                                + " MIPUSH? " + isMIPushIntent
                                 + ", intent: " + intent +
                                 ", targetPackage: " + targetPackage,
                         ", callerPackage: " + callerPackage);
@@ -2663,8 +2678,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                     String.format("ALLOW * %s", targetPackage),
                     String.format("ALLOW %s *", callerPackage),
                     "ALLOW * *",
+                    // GCM/FCM
                     isCMIntent ? "ALLOW GCM *" : null,
                     isCMIntent ? String.format("ALLOW GCM %s", targetPackage) : null,
+                    // MIPUSH
+                    isCMIntent ? "ALLOW MIPUSH *" : null,
+                    isCMIntent ? String.format("ALLOW MIPUSH %s", targetPackage) : null,
                     (targetPackage.equals(callerPackage)) ? "ALLOW THIS THIS" : null,
             };
             addToAllowRulesCache(callerPackage, targetPackage, rules);
@@ -2682,18 +2701,26 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private String[] constructStartDenyRulePattern(Intent intent, String callerPackage, String targetPackage) {
         String[] rules = getDenyRulesFromCache(callerPackage, targetPackage);
         if (rules == null) {
-            boolean isCMIntent = GCMFCMHelper.isGcmOrFcmIntent(intent);
+            boolean isCMIntent = PushMessageHelper.isFcmIntent(intent) || PushMessageHelper.isGcmIntent(intent);
+            boolean isMIPushIntent = PushMessageHelper.isMIPushIntent(intent);
 
             if (BuildConfig.DEBUG) {
-                XposedLog.verbose("constructStartDenyRulePattern, GCM? " + isCMIntent + ", intent: " + intent);
+                XposedLog.verbose("constructStartDenyRulePattern,"
+                        + " GCM? " + isCMIntent
+                        + " MIPUSH? " + isMIPushIntent
+                        + ", intent: " + intent);
             }
 
             rules = new String[]{
                     String.format("DENY %s %s", callerPackage, targetPackage),
                     "DENY * " + targetPackage,
                     "DENY " + callerPackage + " *",
+                    // GCM
                     isCMIntent ? "DENY GCM *" : null,
                     isCMIntent ? String.format("DENY GCM %s", targetPackage) : null,
+                    // MIPUSH
+                    isCMIntent ? "DENY MIPUSH *" : null,
+                    isCMIntent ? String.format("DENY MIPUSH %s", targetPackage) : null,
 
             };
             addToDenyRulesCache(callerPackage, targetPackage, rules);
@@ -4050,10 +4077,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             if (ruleCheckRes != null) {
                 return ruleCheckRes;
             } else {
-                // May be has GCM intent?
-                boolean hasGcmIntent = GCMFCMHelper.isHandlingGcmIntent(receiverPkgName);
-                if (hasGcmIntent) {
-                    return CheckResult.HAS_GCM_INTENT;
+                // May be has push intent?
+                boolean handlingPushIntent = PushMessageHelper.isHandlingPushIntent(receiverPkgName);
+                if (handlingPushIntent) {
+                    return CheckResult.HANDING_PUSH_INTENT;
                 }
             }
         }
@@ -4521,11 +4548,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     private final Set<String> mGCMSupportPackages = new HashSet<>();
+    private final Set<String> mMiPushSupportPackages = new HashSet<>();
 
     @Override
+    @BinderCall
     public boolean isGCMSupportPackage(String pkg) {
         enforceCallingPermissions();
         return mGCMSupportPackages.contains(pkg);
+    }
+
+    @BinderCall
+    public boolean isMiPushSupportPackage(String pkg) {
+        enforceCallingPermissions();
+        return mMiPushSupportPackages.contains(pkg);
     }
 
     @Override
@@ -4659,7 +4694,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     public boolean isHandlingPushMessageIntent(String packageName) {
         enforceCallingPermissions();
-        return GCMFCMHelper.isHandlingGcmIntent(packageName);
+        return PushMessageHelper.isHandlingPushIntent(packageName);
     }
 
     @Override
@@ -5030,9 +5065,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         try {
             if (getContext() == null) return;
             List<ResolveInfo> list = getContext().getPackageManager()
-                    .queryBroadcastReceivers(
-                            new Intent(GCMFCMHelper.ACTION_FCM),
-                            0);
+                    .queryBroadcastReceivers(new Intent(PushMessageHelper.ACTION_FCM), 0);
             if (list != null) {
                 for (ResolveInfo r : list) {
                     if (BuildConfig.DEBUG) {
@@ -5049,9 +5082,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 }
             }
             list = getContext().getPackageManager()
-                    .queryBroadcastReceivers(
-                            new Intent(GCMFCMHelper.ACTION_GCM),
-                            0);
+                    .queryBroadcastReceivers(new Intent(PushMessageHelper.ACTION_GCM), 0);
             if (list != null) {
                 for (ResolveInfo r : list) {
 
@@ -5065,6 +5096,31 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                         XposedLog.verbose("cacheGCMPackages-GCM: " + pkg);
                     } else {
                         XposedLog.verbose("cacheGCMPackages-GCM, pkg is null: " + r);
+                    }
+                }
+            }
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail cacheGCMPackages: " + Log.getStackTraceString(e));
+        }
+    }
+
+    private void cacheMIPushPackages() {
+        XposedLog.verbose("cacheMIPushPackages...");
+        try {
+            if (getContext() == null) return;
+            List<ResolveInfo> list = getContext().getPackageManager()
+                    .queryBroadcastReceivers(new Intent(PushMessageHelper.ACTION_MIPUSH), 0);
+            if (list != null) {
+                for (ResolveInfo r : list) {
+                    if (BuildConfig.DEBUG) {
+                        XposedLog.verbose("cacheMIPushPackages-r: " + r);
+                    }
+                    String pkg = r.activityInfo == null ? null : r.activityInfo.packageName;
+                    if (pkg != null) {
+                        mMiPushSupportPackages.add(pkg);
+                        XposedLog.verbose("cacheMIPushPackages: " + pkg);
+                    } else {
+                        XposedLog.verbose("cacheMIPushPackages, pkg is null: " + r);
                     }
                 }
             }
@@ -6618,7 +6674,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             if (isHandlingPushMessageIntent(targetServicePkg)) {
                 XposedLog.verbose("LAZY, package isHandlingPushMessageIntent, do not kill, post again? " + targetServicePkg);
-                // postLazyServiceKillerIfNecessary(targetServicePkg, GCMFCMHelper.GCM_INTENT_HANDLE_INTERVAL_MILLS);
+                // postLazyServiceKillerIfNecessary(targetServicePkg, PushMessageHelper.PUSH_INTENT_HANDLE_INTERVAL_MILLS);
                 // return;
             }
 
@@ -9392,7 +9448,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         public static final CheckResult WHITE_LISTED = new CheckResult(true, "WHITE_LISTED", true);
         public static final CheckResult SYSTEM_APP = new CheckResult(true, "SYSTEM_APP", true);
         public static final CheckResult CALLED_BY_SYSTEM = new CheckResult(true, "CALLED_BY_SYSTEM", true);
-        public static final CheckResult HAS_GCM_INTENT = new CheckResult(true, "HAS_GCM_INTENT", true);
+        public static final CheckResult HANDING_PUSH_INTENT = new CheckResult(true, "HANDING_PUSH_INTENT", true);
 
         public static final CheckResult HOME_APP = new CheckResult(true, "HOME_APP", true);
         public static final CheckResult LAUNCHER_APP = new CheckResult(true, "LAUNCHER_APP", true);

@@ -631,6 +631,7 @@ public abstract class CommonPackageInfoListActivity extends NeedLockActivity<Com
         public static final int OPTION_TENCENT_APPS = 0x9;
         public static final int OPTION_BAIDU_APPS = 0x10;
         public static final int OPTION_LAUNCHER_APPS = 0x11;
+        public static final int OPTION_MIPUSH_APPS = 0x12;
 
         public static final int OPTION_EXT_OP = 0x100;
         public static final int OPTION_DEFAULT_OP = 0x101;
