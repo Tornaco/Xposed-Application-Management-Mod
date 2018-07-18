@@ -10,8 +10,6 @@
     <dimen name="fab_margin">16dp</dimen>
 
     <!-- Text sizes -->
-    <dimen name="text_size_extra_micro">12sp</dimen>
-    <dimen name="text_size_micro">13sp</dimen>
     <dimen name="text_size_small">14sp</dimen>
     <dimen name="text_size_medium">16sp</dimen>
     <dimen name="text_size_large">22sp</dimen>
@@ -19,7 +17,6 @@
     <dimen name="text_size_dayum">34sp</dimen>
 
     <dimen name="list_item_main_text_size">@dimen/text_size_medium</dimen>
-    <dimen name="list_item_secondary_text_size">@dimen/text_size_micro</dimen>
 
     <dimen name="thumbnail_size">42dp</dimen>
     <dimen name="thumbnail_size_large">52dp</dimen>
