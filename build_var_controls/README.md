@@ -48,4 +48,4 @@ play 是否是Play版本
 
 ### 执行gradle命令进行编译
 
-```./gradlew app:assembleRelease```
+```./gradlew x-apm-app:assembleRelease```
