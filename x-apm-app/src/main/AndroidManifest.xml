@@ -473,7 +473,7 @@
         <provider
             android:name=".provider.ComponentsReplacementProvider"
             android:authorities="github.tornaco.xposedmoduletest.components_replacement_provider"
-            android:exported="true" />
+            android:exported="false" />
 
         <service
             android:name=".service.WidgetService"
