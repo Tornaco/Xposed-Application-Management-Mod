@@ -90,7 +90,7 @@ public class CommonPackageInfoAdapter
         this.gcmBadge =
                 new BadgeDrawable.Builder()
                         .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
-                        .badgeColor(Color.BLUE)
+                        .badgeColor(ContextCompat.getColor(context, R.color.md_blue_600))
                         .text1("GCM")
                         .typeFace(TypefaceHelper.googleSans(context))
                         .build();
@@ -98,8 +98,8 @@ public class CommonPackageInfoAdapter
         this.miPushBadge =
                 new BadgeDrawable.Builder()
                         .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
-                        .badgeColor(Color.YELLOW)
-                        .text1("MI PUSH")
+                        .badgeColor(ContextCompat.getColor(context, R.color.md_amber_900))
+                        .text1("MI")
                         .typeFace(TypefaceHelper.googleSans(context))
                         .build();
     }
@@ -122,7 +122,7 @@ public class CommonPackageInfoAdapter
     }
 
     @Override
-    public CommonViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public CommonViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(getTemplateLayoutRes(), parent, false);
         return onCreateViewHolder(view);
     }
@@ -160,7 +160,7 @@ public class CommonPackageInfoAdapter
             case XAPMManager.AppLevel.THIRD_PARTY:
                 return 0;
             case XAPMManager.AppLevel.SYSTEM:
-                return ContextCompat.getColor(context, R.color.amber_dark);
+                return ContextCompat.getColor(context, R.color.md_teal_800);
             case XAPMManager.AppLevel.SYSTEM_UID:
                 return ContextCompat.getColor(context, R.color.red_dark);
             case XAPMManager.AppLevel.PHONE_UID:

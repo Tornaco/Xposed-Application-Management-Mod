@@ -8293,6 +8293,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 cachePackages();
 
                 cacheGCMPackages();
+                cacheMIPushPackages();
 
                 // Remove onwer package to fix previous bugs.
                 try {
@@ -9076,6 +9077,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
                         // Cache GCM packages async.
                         mWorkingService.execute(new ErrorCatchRunnable(XAshmanServiceImpl.this::cacheGCMPackages, "cacheGCMPackages"));
+                        mWorkingService.execute(new ErrorCatchRunnable(XAshmanServiceImpl.this::cacheMIPushPackages, "cacheMIPushPackages"));
 
                     } catch (Throwable e) {
                         XposedLog.wtf(Log.getStackTraceString(e));
