@@ -34,21 +34,27 @@ class ActiveServiceForegroundNotificationCancellationSubModule extends AndroidSu
     }
 
     private void hookCancelForegroundNotificationLocked(XC_LoadPackage.LoadPackageParam lpparam) {
+        boolean isMIUI = OSUtil.isMIUI();
+        boolean isEMUI = OSUtil.isEMUI();
         try {
-            XposedLog.verbose("hookCancelForegroundNotificationLocked...");
+            XposedLog.boot("hookCancelForegroundNotificationLocked...");
             Set unHooks = hookMethod(lpparam, "cancelForegroundNotificationLocked");
-            XposedLog.verbose("hookCancelForegroundNotificationLocked-1 OK:" + unHooks);
+            XposedLog.boot("hookCancelForegroundNotificationLocked-1 OK:" + unHooks);
             // Fail and try "cancelForegroudNotificationLocked"
             SubModuleStatus status = unhooksToStatus(unHooks);
             if (status == SubModuleStatus.ERROR) {
                 unHooks = hookMethod(lpparam, "cancelForegroudNotificationLocked");
                 XposedLog.verbose("hookCancelForegroundNotificationLocked-2 OK:" + unHooks);
             }
-            setStatus(unhooksToStatus(unHooks));
+            // Ignore result for MIUI/EMUI.
+            // Do not bother.
+            if (!isMIUI && !isEMUI) setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XposedLog.verbose("Fail hookCancelForegroundNotificationLocked: " + Log.getStackTraceString(e));
-            setStatus(SubModuleStatus.ERROR);
-            setErrorMessage(Log.getStackTraceString(e));
+            XposedLog.boot("Fail hookCancelForegroundNotificationLocked: " + Log.getStackTraceString(e));
+            if (!isMIUI && !isEMUI) {
+                setStatus(SubModuleStatus.ERROR);
+                setErrorMessage(Log.getStackTraceString(e));
+            }
         }
     }
 

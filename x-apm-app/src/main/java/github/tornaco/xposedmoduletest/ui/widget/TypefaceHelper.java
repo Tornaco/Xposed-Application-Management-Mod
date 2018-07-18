@@ -19,4 +19,13 @@ public class TypefaceHelper {
             return sFutura;
         }
     }
+
+    public static Typeface googleSans(Context context) {
+        synchronized (TypefaceHelper.class) {
+            if (sFutura == null) {
+                sFutura = Typeface.createFromAsset(context.getAssets(), "fonts/GoogleSans-Regular.ttf");
+            }
+            return sFutura;
+        }
+    }
 }
