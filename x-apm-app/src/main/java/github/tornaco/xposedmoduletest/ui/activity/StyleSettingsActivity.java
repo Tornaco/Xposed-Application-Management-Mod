@@ -64,7 +64,6 @@ public class StyleSettingsActivity extends BaseActivity {
             theme.addTile(new IconPack(getActivity()));
             theme.addTile(new NoShift(getActivity()));
             theme.addTile(new PStyleIcon(getActivity()));
-            theme.addTile(new GcmIndicator(getActivity()));
 
             categories.add(theme);
         }

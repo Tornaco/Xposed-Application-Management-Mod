@@ -12,16 +12,18 @@ import lombok.Synchronized;
  * God bless no bug!
  */
 
-public class GCMFCMHelper {
+public class PushMessageHelper {
 
-    public static final long GCM_INTENT_HANDLE_INTERVAL_MILLS = 30 * 1000;
+    public static final long PUSH_INTENT_HANDLE_INTERVAL_MILLS = 30 * 1000;
 
-    // Some apps received GCM event, give it a little while to handle it.
-    private static final Map<String, GcmEvent> GCM_EVENT_MAP = new HashMap<>();
+    // Some apps received Push event, give it a little while to handle it.
+    private static final Map<String, GcmEvent> PUSH_EVENT_MAP = new HashMap<>();
 
     // com.google.android.c2dm.intent.RECEIVE
     public static final String ACTION_GCM = "com.google.android.c2dm.intent.RECEIVE";
     public static final String ACTION_FCM = "com.google.firebase.MESSAGING_EVENT";
+
+    public static final String ACTION_MIPUSH = "com.xiaomi.mipush.RECEIVE_MESSAGE";
 
     public static boolean isGcmIntent(Intent intent) {
         return intent != null && ACTION_GCM.equals(intent.getAction());
@@ -31,13 +33,17 @@ public class GCMFCMHelper {
         return intent != null && ACTION_FCM.equals(intent.getAction());
     }
 
-    public static boolean isGcmOrFcmIntent(Intent intent) {
-        return isFcmIntent(intent) || isGcmIntent(intent);
+    public static boolean isMIPushIntent(Intent intent) {
+        return intent != null && ACTION_MIPUSH.equals(intent.getAction());
+    }
+
+    public static boolean isPushIntent(Intent intent) {
+        return isFcmIntent(intent) || isGcmIntent(intent) || isMIPushIntent(intent);
     }
 
     @Synchronized
-    public static boolean isHandlingGcmIntent(String who) {
-        final GcmEvent event = GCM_EVENT_MAP.get(who);
+    public static boolean isHandlingPushIntent(String who) {
+        final GcmEvent event = PUSH_EVENT_MAP.get(who);
         if (event == null) return false;
 
         long interval = System.currentTimeMillis() - event.getEventTime();
@@ -47,17 +53,17 @@ public class GCMFCMHelper {
             event.setEventTime(0);
             return false;
         }
-        return interval <= GCM_INTENT_HANDLE_INTERVAL_MILLS;
+        return interval <= PUSH_INTENT_HANDLE_INTERVAL_MILLS;
     }
 
     @Synchronized
     public static void onGcmIntentReceived(String who) {
-        GcmEvent event = GCM_EVENT_MAP.get(who);
+        GcmEvent event = PUSH_EVENT_MAP.get(who);
         if (event == null) event = new GcmEvent();
 
         // Update event.
         event.setEventTime(System.currentTimeMillis());
         event.setEventPackage(who);
-        GCM_EVENT_MAP.put(who, event);
+        PUSH_EVENT_MAP.put(who, event);
     }
 }

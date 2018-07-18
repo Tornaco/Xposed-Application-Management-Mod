@@ -49,6 +49,7 @@ public class LoaderUtil {
             dup.setAppIdle(XAPMManager.get().isAppInactive(pkg, UserHandle.USER_CURRENT));
             // Force read GCM state.
             dup.setGCMSupport(XAPMManager.get().isServiceAvailable() && XAPMManager.get().isGCMSupportPackage(pkg));
+            dup.setMIPushSupport(XAPMManager.get().isServiceAvailable() && XAPMManager.get().isMiPushSupportPackage(pkg));
             inflateEnableState(dup);
             return dup;
         }
@@ -63,6 +64,7 @@ public class LoaderUtil {
         p.setSystemApp(PkgUtil.isSystemApp(context, pkg));
 
         p.setGCMSupport(XAPMManager.get().isServiceAvailable() && XAPMManager.get().isGCMSupportPackage(pkg));
+        p.setMIPushSupport(XAPMManager.get().isServiceAvailable() && XAPMManager.get().isMiPushSupportPackage(pkg));
 
         inflateEnableState(p);
 

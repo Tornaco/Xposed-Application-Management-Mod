@@ -136,6 +136,7 @@ public interface ComponentLoader {
                         || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_SYSTEM_APPS && packageInfo.isSystemApp())
                         || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_IME_APPS && packageInfo.isIME())
                         || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_GCM_APPS && packageInfo.isGCMSupport())
+                        || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_MIPUSH_APPS && packageInfo.isMIPushSupport())
                         || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_LAUNCHER_APPS && packageInfo.isLauncher())
                         || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_TENCENT_APPS && packageInfo.isTencent())
                         || (filterOption == CommonPackageInfoListActivity.FilterOption.OPTION_BAIDU_APPS && packageInfo.isBaidu())
