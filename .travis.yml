@@ -11,25 +11,25 @@ android:
   - extra-android-m2repository
   - extra-android-support
 script:
-- cp -f ./build_var_config ./build_var_controls/bk
+- cp -f ./build_var_config ./building/bk
 - "./gradlew clean"
 - "./gradlew assembleRelease"
 - cp x-apm-app/build/outputs/apk/release/x-apm-app-release.apk x-apm-app/x-apm-app-release-default.apk
-- cp -f ./build_var_controls/build_var_config_stable_play ./build_var_config
+- cp -f ./building/build_var_config_stable_play ./build_var_config
 - "./gradlew clean"
 - "./gradlew assembleRelease"
 - cp x-apm-app/build/outputs/apk/release/x-apm-app-release.apk x-apm-app/x-apm-app-release-stable-play.apk
-- cp -f ./build_var_controls/build_var_config_aio ./build_var_config
+- cp -f ./building/build_var_config_aio ./build_var_config
 - "./gradlew clean"
 - "./gradlew assembleRelease"
 - cp x-apm-app/build/outputs/apk/release/x-apm-app-release.apk x-apm-app/x-apm-app-release-aio.apk
-- cp -f ./build_var_controls/bk ./build_var_config
+- cp -f ./building/bk ./build_var_config
 - git checkout build_var_config
 before_script:
 - mkdir -p "$ANDROID_HOME/licenses"
-- cp ./android-sdk-license "$ANDROID_HOME/licenses/"
-- cp ./hiddenapi/26/android.jar "$ANDROID_HOME/platforms/android-26/"
-- cp ./hiddenapi/25/android.jar "$ANDROID_HOME/platforms/android-25/"
+- cp ./building/android-sdk-license "$ANDROID_HOME/licenses/"
+- cp ./building/hiddenapi/26/android.jar "$ANDROID_HOME/platforms/android-26/"
+- cp ./building/hiddenapi/25/android.jar "$ANDROID_HOME/platforms/android-25/"
 after_script:
 - rm -rf ./app/google-services.json
 notifications:
@@ -40,7 +40,7 @@ notifications:
     on_failure: always
 before_install:
 - openssl aes-256-cbc -K $encrypted_9386c2da478c_key -iv $encrypted_9386c2da478c_iv
-  -in keys_android.jks.enc -out keys/keys_android.jks -d
+  -in building/keys_android.jks.enc -out building/keys/keys_android.jks -d
 deploy:
   provider: releases
   api_key:
