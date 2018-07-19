@@ -1,0 +1,13 @@
+[
+  {
+    "text": "主页",
+    "url": "/",
+    "icon": "fa-home",
+    "layout": "post"
+  },
+  {
+    "text": "开发",
+    "url": "/dev/",
+    "icon": "fa-comments"
+  }
+]

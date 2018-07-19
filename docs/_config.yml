@@ -1,0 +1,28 @@
+title: X-APM MODE
+description: 利用Xposed框架实现的类似于手机管家的Android系统工具。
+author: Tornaco
+logo: /X-APM/static/img/avatar.png
+github: https://github.com/tornaco
+about: 应用管理Xposed
+
+baseurl: "/X-APM"
+url: "https://tornaco.github.io/X-APM"
+
+allowsearch: false
+
+disqus_shortname: 0
+google_analytics: 0
+
+share:
+  twitter_username: \#
+  fb_appid: 000000000000
+
+
+enableTags: true
+tagarray: []
+
+paginate: 20
+per_page: 20
+paginate_path: "/page:num/"
+markdown: kramdown
+gems: [jekyll-paginate, jekyll-gist]
