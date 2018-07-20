@@ -15,7 +15,7 @@ categories: jekyll
 ## 激活
 1. **X-APM**依赖与**Xposed框架**，因此你的设备必须已经正确安装了**Xposed框架**（包括System-less版本）。
 2. 安装**X-APM** apk后，进入**Xposed installer**应用，依次进行如下操作，勾选**X-APM**模块：
-![xposed_installer_main](/X-APM/assets/post-install-activate/xposed_installer_main.png) ![xposed_installer_reboot](/X-APM/assets/post-install-activate/xposed_installer_reboot.png)
+![xposed_installer_main](/X-APM/assets/post-install-activate/xposed-installer-main-reboot.png)
 3. 勾选完成，重启设备。
 
 
