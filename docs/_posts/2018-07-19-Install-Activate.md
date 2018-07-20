@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "安装与激活"
+summary: "介绍了如何正确安装与激活X-APM模块以及无法激活的问题解决方案"
 date:   2018-07-19 15:58:00
 categories: jekyll
 ---
