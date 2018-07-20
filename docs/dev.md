@@ -53,4 +53,4 @@ permalink: /dev/
 ## 测试
 
 ### UI自动化测试
-自动化测试基于**Android uiautomator**框架编写，代码位于```x-apm-app/src/androidTest``下（未完成）。
+自动化测试基于**Android uiautomator**框架编写，代码位于```x-apm-app/src/androidTest```下（未完成）。
