@@ -4,6 +4,8 @@ title: 开发
 permalink: /dev/
 ---
 
+## 编译
+
 ### 编译环境配置
 * 需要配置Android SDK （推荐v26）
 * 需要配置Gradle
@@ -37,5 +39,18 @@ permalink: /dev/
 
 ### 执行gradle命令进行编译
 
-将你的签名key放在```building/keys```下
+将你的签名key放在```building/keys```下，执行以下命令编译：
+
+* windows
+
 ```./gradlew x-apm-app:assembleRelease```
+
+* linux/mac
+
+```./gradle x-apm-app:assembleRelease```
+
+
+## 测试
+
+### UI自动化测试
+自动化测试基于**Android uiautomator**框架编写，代码位于```x-apm-app/src/androidTest``下（未完成）。

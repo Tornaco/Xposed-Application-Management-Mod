@@ -9,5 +9,10 @@
     "text": "开发",
     "url": "/dev/",
     "icon": "fa-comments"
+  },
+  {
+    "text": "下载",
+    "url": "/download/",
+    "icon": "fa-download"
   }
 ]
