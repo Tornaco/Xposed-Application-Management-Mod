@@ -18,8 +18,8 @@ categories: jekyll
 ![xposed_installer_main](/X-APM/assets/post-install-activate/xposed_installer_main.png) ![xposed_installer_reboot](/X-APM/assets/post-install-activate/xposed_installer_reboot.png)
 3. 勾选完成，重启设备。
 
-### 问题排查
+## 问题排查
 
-## 无法激活
+### 无法激活？
 X-APM激活与否的判断条件，与其工作原理息息相关。
 如果无法激活，请尝试重新进入Xposed installer进行勾选。
