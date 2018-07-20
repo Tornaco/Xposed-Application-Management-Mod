@@ -16,3 +16,9 @@ categories: jekyll
 2. 安装**X-APM** apk后，进入**Xposed installer**应用，依次进行如下操作，勾选**X-APM**模块：
 ![xposed_installer_main](/X-APM/assets/post-install-activate/xposed_installer_main.png) ![xposed_installer_reboot](/X-APM/assets/post-install-activate/xposed_installer_reboot.png)
 3. 勾选完成，重启设备。
+
+### 问题排查
+
+## 无法激活
+X-APM激活与否的判断条件，与其工作原理息息相关。
+如果无法激活，请尝试重新进入Xposed installer进行勾选。
