@@ -14,4 +14,4 @@ categories: jekyll
 将需要限制的应用加入**自启限制**列表中即可。
 
 如下图，就禁止了`百度地图`的自启动。
-![xposed_installer_main](/X-APM/assets/post-start-blocker/Boot-Blocker-Sample.png)
+![xposed_installer_main](/X-APM/assets/post-boot-blocker/Boot-Blocker-Sample.png)
