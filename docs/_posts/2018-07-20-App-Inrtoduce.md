@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "应用介绍"
-summary: "介绍X-APM开发缘由与原理"
+summary: "介绍X-APM开发缘由与原理，数据存储，以及如何卸载"
 date:   2018-07-20 15:50:00
 categories: jekyll
 ---
@@ -27,3 +27,13 @@ categories: jekyll
 
 因此，**X-APM**应用在Android初始化的时候就完成了部署，设备启动完成后，用户无需进行后台的维护，用户的感受就是无需后台。
 
+## 数据存储
+由于**X-APM**整体架构分两层，其数据也分两部分存储。
+
+* **FW**层的数据包括各功能开关有**FW**负责处理，存储在`/data/system/tor`下，不root的情况下之能在`system_server`进程中读取，
+以此保证FW层核心数据的安全。
+* **APP**层的数据主要是UI相关的设定数据，例如主题，图标包的设定。存放在标准的应用数据目录下，如果用户通过系统设置，清除了**X-APM**应用数据，只有APP层数据会被清除。
+
+如果想要卸载**X-APM**模块并清除其所有数据，可以前往**X-APM**的*更多-备份与还原-立即卸载*。
+![Uninstall-X-APM](/X-APM/assets/post-app-introduce/Uninstall-X-APM.png)
+如果依然无法删除，请在卸载X-APM应用后，手动删除`/data/system/tor`目录。
