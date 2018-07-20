@@ -8,11 +8,16 @@
   {
     "text": "开发",
     "url": "/dev/",
-    "icon": "fa-comments"
+    "icon": "fa-code"
   },
   {
     "text": "下载",
     "url": "/download/",
     "icon": "fa-download"
+  },
+  {
+    "text": "Bug反馈",
+    "url": "/feedback/",
+    "icon": "fa-bug"
   }
 ]
