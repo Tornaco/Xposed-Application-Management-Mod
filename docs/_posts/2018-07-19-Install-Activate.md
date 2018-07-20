@@ -18,8 +18,22 @@ categories: jekyll
 ![xposed_installer_main](/X-APM/assets/post-install-activate/xposed_installer_main.png) ![xposed_installer_reboot](/X-APM/assets/post-install-activate/xposed_installer_reboot.png)
 3. 勾选完成，重启设备。
 
+
+## 更新
+由于**APP**层的逻辑是在Android初始化的阶段进行初始化，因此每次更新后，建议重新启动设备，因此安装新版本后，请按照**Xposed installer**的提示进行重启。
+
+
 ## 问题排查
 
 ### 无法激活？
-X-APM激活与否的判断条件，与其工作原理息息相关。
-如果无法激活，请尝试重新进入Xposed installer进行勾选。
+**X-APM**激活与否的判断条件，与其工作原理息息相关。
+如果无法激活，请尝试重新进入**Xposed installer**进行勾选。
+
+### 更新后重启显示未激活？
+当模块更新完成后，**Xposed installer**会通过广播接收的方式监听到应用路径的变化，如果你通过一些手段，禁止了**Xposed installer**的广播监听，则会出现该问题。
+因此最好不要通过任何手段禁止**Xposed installer**的广播接收，或者每次更新后，重新进入**Xposed installer**进行勾选，重启。
+
+### 尝试上述手段依然未激活
+请截取如下日志，前往github新建issue，并把日志附上：
+1. 打开**Xposed installer**，点击**日志**（log）菜单，保存日志文件。
+2. 点击这里[新建issue](https://github.com/Tornaco/X-APM/issues/new/choose)
