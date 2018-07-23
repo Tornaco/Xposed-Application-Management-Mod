@@ -22,7 +22,7 @@ categories: jekyll
 如果想允许Android系统启动所有应用，可以添加规则：```ALLOW android *```；  
 如果想要拒绝任何应用启动微信：```DENY * com.tencent.mm```。  
 
-支持以进程代号代替角色，目前可用代号包括：`SHELL`，**ROOT**。    
+支持以进程代号代替角色，目前可用代号包括：`SHELL`，`ROOT`。    
 例如，如果想允许SHELL启动任何QQ：```ALLOW SHELL com.tencent.qq```
 
 ### 针对MIUI，FLYME等ROM
