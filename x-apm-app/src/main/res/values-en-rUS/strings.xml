@@ -278,7 +278,7 @@
   <string name="message_running_services_fail">Unable to start the setup, please check the module activation status.</string>
   <string name="title_running_services">Running services</string>
   <string name="title_activity_user_giude">User guide</string>
-  <string name="message_user_giude1">这是一份不得不写的声明，请仔细阅读。\n\n1. 关于应用管理数据，为了实现开机自启动限制，我们必须把某些数据存放到系统某个目录下，我们提供了删除数据的功能，如果你介意请退出！\n\n2. 关于内存占用，应用管理本身无需后台运行，你随时可以杀死。前台运行占用部分运行内存，如果你介意请退出！\n\n3. 关于稳定性，ROM众多，可能你的设备并不兼容，会导致一些使用上的问题，如果你介意，请退出！\n\n4. 关于bug，非常感谢所有朋友的bug反馈，本人会利用闲暇时间进行维护。\n\n本程序提供的高级功能，例如组件编辑，绿化等，使用不当可能会导致应用闪退等，请使用前仔细看好说明。\n\n最后感谢支持与理解！！！</string>
+  <string name="message_user_giude1">This is a statement that I have to write, please read it carefully. \n\n1. Regarding application management data, in order to achieve boot-up and boot-up restrictions, we must store some data in a certain directory of the system. We provide the function of deleting data. If you mind, please quit! \n\n2. Regarding memory usage, application management itself does not need to run in the background, you can kill at any time. The front desk runs to occupy part of the running memory, if you mind please quit! \n\n3. Regarding stability, there are many ROMs, and your device may not be compatible. It will cause some problems in use. If you mind, please quit! \n\n4. Regarding the bug, I am very grateful to all my friends for their bug feedback. I will use my free time for maintenance. \n\nThe advanced functions provided by this program, such as component editing, greening, etc., improper use may cause the application to flash back, etc. Please carefully read the instructions before use. \n\n Finally, thank you for your support and understanding!!!</string>
   <string name="user_notice_no">Different from what I expected</string>
   <string name="user_notice_yes">I think that is OK.</string>
   <string name="title_crash_dump">Error report</string>
@@ -428,7 +428,7 @@
   <string name="filter_default_op">default</string>
   <string name="title_perm_control_template">Permission configuration</string>
   <string name="title_app_lk_tip">Lock screen cleaning instructions</string>
-  <string name="message_app_lk_tip">介于有部分用户反馈锁屏清理无效，特增加此说明，请看完，可避免不必要的使用错误。\n为了尽可能的减少杀死应用对用户带来的不必要的影响，默认不清理有通知的应用，可设置。另外，锁屏后，如果立刻开屏，而清理过程未完成，为了降低清理造成系统服务卡顿，以及你可能想继续使用刚才要被清理的应用，我们会终止清理过程。因此，当你锁屏且未在使用设备时，我们才会做清理操作。请知悉，感谢阅读，感谢阅读，感谢阅读，感谢阅读，感谢阅读x10000000000000000000。</string>
+  <string name="message_app_lk_tip">Some user feedback lock screen cleaning is invalid, especially for this description, please read to avoid unnecessary use errors. \n In order to minimize the unnecessary impact on the user by killing the application, the application without notification is not cleaned by default, and can be set. In addition, after the screen is locked, if the screen is opened immediately and the cleaning process is not completed, in order to reduce the system service jam caused by the cleaning, and you may want to continue to use the application that has just been cleaned, we will terminate the cleaning process. Therefore, we will do the cleaning operation when you lock the screen and are not using the device. Please know, thank you for reading.</string>
   <string name="user_notice_title">Old users can skip this</string>
   <string name="user_notice_title_a">It important to read the novice tutorial in the upper right corner of the homepage before the novice can use it. If you have any problems, please check the tutorial first.</string>
   <string name="user_notice_title_b">In order to achieve some functions, we will store some data in a certain directory of the system (data/system/tor), don\'t worry, we provide the function of deleting data.</string>
@@ -636,10 +636,10 @@
   <string name="title_three_fingers_down_screenshot">Three-fingers screenshot</string>
   <string name="summary_three_fingers_down_screenshot">Three fingers down to screenshot.</string>
   <string name="service_stop">Stop</string>
-  <string name="perm_unknown">未知</string>
+  <string name="perm_unknown">Unknown</string>
   <string name="package_install_verify_dialog_allow">Allow</string>
-  <string name="package_install_verify_dialog_deny">拒绝</string>
-  <string name="package_install_verify_dialog_always_allow">始终允许该应用</string>
+  <string name="package_install_verify_dialog_deny">refuse</string>
+  <string name="package_install_verify_dialog_always_allow">still agree this app</string>
   <string name="title_app_state_idle">IDLE</string>
   <string name="title_p_gesture">Full-Screen Gesture</string>
   <string name="title_long_screen_shot">Long Screen Shot</string>
@@ -663,7 +663,7 @@
   <string name="title_manage_advanced">Advanced</string>
   <string name="title_camera_notification">Camera notification</string>
   <string name="summary_camera_notification">Notify when the camera is turned on.</string>
-  <string name="suggestion_alipay_red_packet">领取支付宝红包</string>
+  <string name="suggestion_alipay_red_packet">Receive an Alipay red packet</string>
   <string name="suggestion_summary_alipay_red_packet">感谢支持%1$s 你也可以去捐赠页面点击，每天都可以哦！</string>
   <string name="suggestion_action_alipay_red_packet">前往领取</string>
   <string name="toast_alipay_red_packet_copied">领取口令已经复制到剪贴板</string>
