@@ -1,6 +1,6 @@
 files:
   - source: x-apm-app/src/main/res/values-zh-rCN/strings.xml
-    translation: ' /x-apm-app/src/main/res/values-%android_code%/%original_file_name%'
+    translation: '/x-apm-app/src/main/res/values-%android_code%/%original_file_name%'
     languages_mapping:
           android_code:
             ar: ar
