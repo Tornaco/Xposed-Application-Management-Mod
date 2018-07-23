@@ -136,7 +136,7 @@
   <string name="tab_text_2">Broadcast Receiver</string>
   <string name="tab_text_3">Activity</string>
   <string name="nf_tab_text_1">Cellular data</string>
-  <string name="nf_tab_text_2">WIFI</string>
+  <string name="nf_tab_text_2">Wifi</string>
   <string name="summary_service_info_process"><b>Process：</b>%1$s</string>
   <string name="summary_service_info_comp">%1$s</string>
   <string name="summary_service_info_comp_maybe_ad">Suspected advertisement</string>
