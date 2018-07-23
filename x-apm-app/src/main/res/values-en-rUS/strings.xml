@@ -40,7 +40,7 @@
   <string name="title_setup_code_new">Input new</string>
   <string name="title_setup_code_invalid">Password not valid</string>
   <string name="title_setup_code_mismatch">Inconsistent input</string>
-  <string name="title_help">User manual</string>
+  <string name="title_help">A guide for new users</string>
   <string name="title_help_available_pmh">Help</string>
   <string name="title_donate">Donate</string>
   <string name="title_show_system_app">System apps</string>
@@ -65,11 +65,11 @@
   <string name="title_default_verifyer">Default verifier</string>
   <string name="summary_app_recent_blur_all">Blur all tasks if turned on, otherwise only blur those need authentication.</string>
   <string name="title_app_recent_blur_all">Blur all tasks</string>
-  <string name="title_allow_third_verifier">Third party verifiers</string>
+  <string name="title_allow_third_verifier">allow to use third party verifiers</string>
   <string name="summary_allow_third_verifier">Third-party password validators will be allowed, you can choose one to use.\nSeveral styles of validators are available to choose from Coolapk.\nYou can also develop any custom style validators yourself. For specific development documentation, please refer to the source code.</string>
   <string name="title_verifier">Verifiers</string>
   <string name="title_ver_on_screenoff">Re-verify after screen off</string>
-  <string name="title_service_not_connected_settings">Service not activated</string>
+  <string name="title_service_not_connected_settings">The service is not connected and the settings will not take effect.</string>
   <string name="crash_module">CRASH Service</string>
   <string name="summary_crash_module">Mock crash once</string>
   <string name="title_thanks">Thanks</string>
@@ -318,7 +318,7 @@
   <string name="title_open_market">Market</string>
   <string name="title_launching_apps">Unlocked, launching app</string>
   <string name="title_import_old_comp_replacements">Import old version data</string>
-  <string name="message_import_old_comp_replacements">从3.0.6版本开始，为了提升兼容性与适用性，移花接木不再使用ContentProvider做数据通信，如果你刚刚完成从3.0.6之前的版本升级，点击导入按钮，将其导入到现用的数据库中吧。</string>
+  <string name="message_import_old_comp_replacements">Starting from version 3.0.6, in order to improve compatibility and applicability, the content provider is no longer used for data communication in the pad. if you have just finished upgrading from the version before version 3.0.6, click the import button to import it into the current database.</string>
   <string name="title_import">Import</string>
   <string name="title_backup">Backup data</string>
   <string name="summary_title_backup">Back up X-APM data such as function switches and lists for application management.</string>
@@ -371,7 +371,7 @@
   <string name="app_intro_switchbar">Click here to turn this feature on/off</string>
   <string name="app_intro_filter_spinner">Click here to filter the contents of the list below</string>
   <string name="title_app_oreo_update">Android Oreo Update</string>
-  <string name="message_oreo_update">在进行Oreo适配的过程中，由于Oreo上对SeLinux的策略的更改，导致之前的Binder通信方案不适用于Oreo版本，因此我们将应用管理的Binder服务作为TV服务注入，如果你不清楚上面在说什么也没关系，只要明确以下两点：\n1. 本应用在8.0以及以上版本，不适用于Android TV（电视）设备（当前设备是TV设备）。\n2. 如果其他模块作者也采用这种TV注入方式（可能性不大，或许有更好的注入方式，通常作者会告知），那么这两个模块将只能其中一个正常工作。</string>
+  <string name="message_oreo_update">During the process of Oreo adaptation, due to changes in the policy of selinux on Oreo, the previous binder communication scheme was not applicable to Oreo version. therefore, we injected the binder service managed by the application as a TV service. if you are not clear about what is said above, it doesn\'t matter as long as the following two points are made clear: \ n1. this application is in version 8.0 and above, and is not applicable to Android TV equipment ( the current equipment is TV equipment). \ N2. if other module authors also use this TV injection method ( unlikely, there may be a better injection method, usually the author will inform them), then only one of the two modules will work normally.</string>
   <string name="message_oreo_update_not_tv">在进行Oreo适配的过程中，由于Oreo上对SeLinux的策略的更改，导致之前的Binder通信方案不适用于Oreo版本，因此我们将应用管理的Binder服务作为TV服务注入，如果你不清楚上面在说什么也没关系，只要明确以下两点：\n1. 本应用在8.0以及以上版本，不适用于Android TV（电视）设备（当前设备不是TV设备）。\n2. 如果其他模块作者也采用这种TV注入方式（可能性不大，或许有更好的注入方式，通常作者会告知），那么这两个模块将只能其中一个正常工作。</string>
   <string name="app_level_system">System</string>
   <string name="app_level_media">Media</string>
@@ -420,7 +420,7 @@
   <string name="random_generate_code">Randomly generated</string>
   <string name="loading_res_empty">Empty, if the system application cannot read, please make sure the General Settings - Exclude System Application switch is off.</string>
   <string name="title_app_ops_tip">Tip</string>
-  <string name="message_app_ops_tip">为了尽可能降低本应用对系统的影响，权限管理设定值将不会与系统自带APPOPS服务设定值一致，当某个权限被申请时，如果在应用管理这里被拒绝，那么此次权限申请会被拒绝，如果在应用管理这里被允许，系统会继续检查OPS服务设定（4.4以上自带的默认权限管理）。当你清除本应用数据时，权限管理设定不会有遗留问题。</string>
+  <string name="message_app_ops_tip">In order to reduce the impact of this application on the system as much as possible, the permission management setting value will not be consistent with the system\'s own app OPS service setting value. when a certain permission is applied, if it is rejected here in application management, then this permission application will be rejected. if it is allowed here in application management, the system will continue to check the ops service setting ( default permission management above 4.4). When you clear this application data, there will be no legacy issues with permission management settings.</string>
   <string name="title_uninstall_apm">Uninstall</string>
   <string name="message_uninstall_apm">Uninstall this app and help you clean up any residual data.</string>
   <string name="filter_all_op">All</string>
@@ -664,9 +664,9 @@
   <string name="title_camera_notification">Camera notification</string>
   <string name="summary_camera_notification">Notify when the camera is turned on.</string>
   <string name="suggestion_alipay_red_packet">Receive an Alipay red packet</string>
-  <string name="suggestion_summary_alipay_red_packet">感谢支持%1$s 你也可以去捐赠页面点击，每天都可以哦！</string>
-  <string name="suggestion_action_alipay_red_packet">前往领取</string>
-  <string name="toast_alipay_red_packet_copied">领取口令已经复制到剪贴板</string>
+  <string name="suggestion_summary_alipay_red_packet">Thank you for supporting %1$s ！You can also click on the donation page, everyday!</string>
+  <string name="suggestion_action_alipay_red_packet">go to receive</string>
+  <string name="toast_alipay_red_packet_copied">Receive password has been copied to clipboard</string>
   <string name="perm_system_app_protected">The \"Exclude System Application\" switch is turned on and the system application\'s permission settings will not be saved.</string>
   <string name="title_app_ops_template">Permission template</string>
   <string name="title_app_ops_template_saved">Saved</string>
