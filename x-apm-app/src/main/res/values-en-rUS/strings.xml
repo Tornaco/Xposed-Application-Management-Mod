@@ -636,7 +636,7 @@
   <string name="title_three_fingers_down_screenshot">Three-fingers screenshot</string>
   <string name="summary_three_fingers_down_screenshot">Three fingers down to screenshot.</string>
   <string name="service_stop">Stop</string>
-  <string name="perm_unknown">未知</string>
+  <string name="perm_unknown">Unknown</string>
   <string name="package_install_verify_dialog_allow">Allow</string>
   <string name="package_install_verify_dialog_deny">refuse</string>
   <string name="package_install_verify_dialog_always_allow">still agree this app</string>
@@ -663,7 +663,7 @@
   <string name="title_manage_advanced">Advanced</string>
   <string name="title_camera_notification">Camera notification</string>
   <string name="summary_camera_notification">Notify when the camera is turned on.</string>
-  <string name="suggestion_alipay_red_packet">领取支付宝红包</string>
+  <string name="suggestion_alipay_red_packet">Receive an Alipay red packet</string>
   <string name="suggestion_summary_alipay_red_packet">感谢支持%1$s 你也可以去捐赠页面点击，每天都可以哦！</string>
   <string name="suggestion_action_alipay_red_packet">前往领取</string>
   <string name="toast_alipay_red_packet_copied">领取口令已经复制到剪贴板</string>
