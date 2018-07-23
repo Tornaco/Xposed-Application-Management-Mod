@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="package_install_verify_dialog_deny">Deny</string>
+    <string name="package_install_verify_dialog_always_allow">Always allow this app</string>
+
+
+    <string name="package_install_verify_dialog_title">应用安装</string>
+    <string name="package_install_verify_dialog_message"><Data><![CDATA[应用管理检测到<font color="#F44336"><b> %1$s </b></font>想要安装可能来源于<font color="#F44336"><i> %2$s </i> </font>的<font color="#F44336"><b> %3$s </b></font>应用，要允许这次安装吗？]]></Data></string>
+
+    <string name="package_install_verify_timeout_notification_title">拒绝安装</string>
+    <string name="package_install_verify_timeout_notification_message">应用管理检测到 %1$s 想要安装%2$s 应用，由于你没有在给定时间内响应，该安装请求已经被拒绝。</string>
+
+    <string name="package_install_verify_deny_notification_title">拒绝安装</string>
+    <string name="package_install_verify_deny_notification_message">应用管理检测到 %1$s 想要安装%2$s 应用，该安装请求已经被拒绝。</string>
+
+    <string name="notification_override_push_message_handler">%s代收</string>
+    <string name="notification_override_settings_template">模板设置</string>
+    <string name="notification_override_process_update">清理通知</string>
+    <string name="notification_override_bug">X-APM</string>
+
+    <string name="notification_channel_name_default">X-APM Default</string>
+    <string name="notification_channel_name_debug">X-APM Debug</string>
+    <string name="notification_channel_name_process_update">X-APM Process</string>
+    <string name="notification_channel_name_pmh">X-APM Push</string>
+    <string name="notification_channel_name_package_verifier">X-APM Packages</string>
+
+    <string name="notification_title_debug_mode">X-APM</string>
+    <string name="notification_content_debug_mode">调试模式已经打开。</string>
+    <string name="notification_action_debug_mode_disable">关闭</string>
+    <string name="notification_toast_debug_mode">应用管理 调试模式已经打开，如果使用完毕请及时关闭，否则会新增加耗电，造成系统卡顿</string>
+
+    <string name="notification_title_process_update">等待清理的应用</string>
+    <string name="notification_content_process_update">当前有 %1$s 等%2$s个应用等待被清理。</string>
+    <string name="notification_action_clear_process_update">立即清理</string>
+    <string name="notification_action_more_process_update">查看更多</string>
+
+    <string name="dialog_title_apm_uninstalled">X-APM</string>
+    <string name="dialog_action_yes_apm_uninstalled">清除数据</string>
+    <string name="dialog_action_no_apm_uninstalled">暂不清除</string>
+    <string name="dialog_message_apm_uninstalled">应用管理已经被卸载，是否要清除 自启动/关联启动/锁屏清理/后台限制 的名单等设置数据？
+        如果你是想安装新版本，强烈建议你保留该数据。</string>
+
+    <string name="notification_title_app_settings_template">模板已应用</string>
+    <string name="notification_content_app_settings_template">已按照模板对 %1$s 进行设置</string>
+
+    <string name="notification_uninstall_pro_app">受保护应用卸载请求已经被应用管理拦截</string>
+    <string name="notification_uninstall_pro_data">受保护应用清除数据请求已经被应用管理拦截</string>
+
+    <string name="tips_current_activity_view">当前活动，长按移动，点击复制，左/右滑动关闭</string>
+
+    <string name="notification_title_app_crash">应用崩溃</string>
+    <string name="notification_message_app_crash_tips">%1$s 刚刚崩溃了，建议检查一下该应用的配置，你禁用了该应用的部分权限，很有可能是导致其崩溃的原因</string>
+
+    <string name="dialog_title_app_crash">糟糕:(</string>
+    <string name="dialog_message_app_crash">应用管理检测到 %1$s 发生了异常，已经为你抓取错误信息，建议复制堆栈信息反馈给该应用的开发者。\n\n错误线程：%2$s\n\n堆栈：%3$s</string>
+</resources>
