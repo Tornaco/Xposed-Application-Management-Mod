@@ -372,7 +372,7 @@
   <string name="app_intro_filter_spinner">Click here to filter the contents of the list below</string>
   <string name="title_app_oreo_update">Android Oreo Update</string>
   <string name="message_oreo_update">During the process of Oreo adaptation, due to changes in the policy of selinux on Oreo, the previous binder communication scheme was not applicable to Oreo version. therefore, we injected the binder service managed by the application as a TV service. if you are not clear about what is said above, it doesn\'t matter as long as the following two points are made clear: \ n1. this application is in version 8.0 and above, and is not applicable to Android TV equipment ( the current equipment is TV equipment). \ N2. if other module authors also use this TV injection method ( unlikely, there may be a better injection method, usually the author will inform them), then only one of the two modules will work normally.</string>
-  <string name="message_oreo_update_not_tv">在进行Oreo适配的过程中，由于Oreo上对SeLinux的策略的更改，导致之前的Binder通信方案不适用于Oreo版本，因此我们将应用管理的Binder服务作为TV服务注入，如果你不清楚上面在说什么也没关系，只要明确以下两点：\n1. 本应用在8.0以及以上版本，不适用于Android TV（电视）设备（当前设备不是TV设备）。\n2. 如果其他模块作者也采用这种TV注入方式（可能性不大，或许有更好的注入方式，通常作者会告知），那么这两个模块将只能其中一个正常工作。</string>
+  <string name="message_oreo_update_not_tv">During the process of Oreo adaptation, due to changes in the policy of selinux on Oreo, the previous binder communication scheme was not applicable to Oreo version. therefore, we injected the binder service managed by the application as a TV service. if you are not clear about what is said above, it doesn\'t matter as long as the following two points are made clear: \n1. this application is in version 8.0 and above and is not applicable to Android TV ( current device is not a TV device ).  \n2. if other module authors also use this TV injection method ( unlikely, there may be a better injection method, usually the author will inform them ), then only one of the two modules will work normally.</string>
   <string name="app_level_system">System</string>
   <string name="app_level_media">Media</string>
   <string name="app_level_phone">Phone</string>
@@ -570,7 +570,7 @@
   <string name="title_open_info">Open Source Info</string>
   <string name="summary_style_settings">Theme, Icon pack, Recent mission card.</string>
   <string name="summary_backup_restore">UnInstall, Backup, Restore.</string>
-  <string name="title_push_message_handler">GCM代收</string>
+  <string name="title_push_message_handler">GCM Generation Collection</string>
   <string name="title_push_message_available_handlers">Available Receiver</string>
   <string name="summary_pmh">Help you collect GCM messages, notify you at the system level, do not need to launch the corresponding application, suitable for some applications that use GCM to wake up. \n\nBe sure to read the novice manual before using it to understand its principles and privacy protocols.</string>
   <string name="title_push_message_handlers">Receiver</string>
