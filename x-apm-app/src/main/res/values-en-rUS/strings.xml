@@ -570,7 +570,7 @@
   <string name="title_open_info">Open Source Info</string>
   <string name="summary_style_settings">Theme, Icon pack, Recent mission card.</string>
   <string name="summary_backup_restore">UnInstall, Backup, Restore.</string>
-  <string name="title_push_message_handler">GCM代收</string>
+  <string name="title_push_message_handler">GCM Generation Collection</string>
   <string name="title_push_message_available_handlers">Available Receiver</string>
   <string name="summary_pmh">Help you collect GCM messages, notify you at the system level, do not need to launch the corresponding application, suitable for some applications that use GCM to wake up. \n\nBe sure to read the novice manual before using it to understand its principles and privacy protocols.</string>
   <string name="title_push_message_handlers">Receiver</string>
