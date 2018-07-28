@@ -86,7 +86,7 @@
   <string name="summary_app_uninstall_pro">阻止任何方式（adb/installer）卸載/清資料 已經加鎖的應用，而且如果想卸載/清資料 [應用管理]必須先禁用應用鎖。</string>
   <string name="title_hide_app_icon">隱藏桌面圖示</string>
   <string name="title_secure">安全</string>
-  <string name="title_personal">个人</string>
+  <string name="title_personal">私人</string>
   <string name="title_verify_method">锁定方式</string>
   <string name="title_verify_pin">数字密码</string>
   <string name="title_verify_pattern">图案密码</string>
