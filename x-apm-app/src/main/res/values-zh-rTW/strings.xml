@@ -202,14 +202,14 @@
   <string name="title_nf">网络防火墙</string>
   <string name="summary_nf">注意该功能仍处于实验阶段！！！如果有BUG就不要尝试使用了:(\n\n 非基于LOS 的ROM，软重启之后，在设备完全重启之前，网络控制设置修改无法生效。\n\nUID相同的应用共享同一份设置。</string>
   <string name="title_nf_warn">注意！！！</string>
-  <string name="title_copy_name">复制完整名称</string>
-  <string name="titile_lk_do_not_kill_audio">不清理音频播放</string>
-  <string name="summary_lk_do_not_kill_audio">不清理获得音频（MUSIC/MOVIE/SPEECH）焦点的应用，例如正在播放音乐的网易云音乐等。\n注意，有些不按照规范设计的应用，可能在停止播放后依然会持有音频焦点。</string>
+  <string name="title_copy_name">複製完整名稱</string>
+  <string name="titile_lk_do_not_kill_audio">不清理音訊播放</string>
+  <string name="summary_lk_do_not_kill_audio">不清理獲得音訊（MUSIC/MOVIE/SPEECH）焦點的應用，例如現正播放音樂的網易雲音樂等。 \n注意，有些不按照規範設計的應用，可能在停止播放後依然會持有音訊焦點。</string>
   <string name="title_search">搜索</string>
-  <string name="title_search_hint">你在找什么？</string>
+  <string name="title_search_hint">你在找什麼？</string>
   <string name="title_comp_replacement">移花接木</string>
-  <string name="summary_comp_replacement">移花接木可以帮你去掉烦人的应用广告闪屏页面，原理是通过替换其广告闪屏Activity（A）为其真正的主页Activity（B）。\n\n勤劳的开发者目前帮你预置了几个示范的规则。
-        \n\n你可以点击下方 + 按钮，自己添加相应的替换规则，你可以打开 更多-开发者工具-显示当前活动 来观察或者复制当前Activity的具体名称，添加到你的规则里。\n\n小提示：你可以先复制A，B处填空白，保存，稍后在复制B进行修改。</string>
+  <string name="summary_comp_replacement">移花接木可以幫你去掉煩人的應用廣告閃屏頁面，原理是通過替換其廣告閃屏Activity（A）為其真正的主頁Activity（B）。 \n\n勤勞的開發者目前幫你預置了幾個示範的規則。
+        \n\n你可以點擊下方 + 按鈕，自己添加相應的替換規則，你可以打開 更多-開發者工具-顯示當前活動 來觀察或者複製當前Activity的具體名稱，添加到你的規則 裡。 \n\n小提示：你可以先複製A，B處填空白，保存，稍後在複製B進行修改。</string>
   <string name="title_comp_replacement_from">被替换的Activity</string>
   <string name="title_comp_replacement_to">用来替换的Activity</string>
   <string name="title_from_comp_null">被替换的Activity不能为空</string>
