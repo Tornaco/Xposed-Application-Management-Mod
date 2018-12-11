@@ -736,7 +736,7 @@ public class NavigatorActivityBottomNav
                             AppSettings.setAliPayRedPacketReceivedToady(getActivity());
                             return true;
                         });
-                suggestionList.add(suggestion);
+                // suggestionList.add(suggestion);
             }
 
             RecyclerView recyclerView = rootView.findViewById(R.id.suggestion_recycler_view);
