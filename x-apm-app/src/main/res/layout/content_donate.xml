@@ -57,6 +57,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/activity_horizontal_margin_small"
             android:padding="12dp"
+            android:visibility="gone"
             android:text="@string/suggestion_alipay_red_packet"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textColor="@color/white"
