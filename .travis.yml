@@ -29,7 +29,6 @@ script:
 before_script:
 - mkdir -p "$ANDROID_HOME/licenses"
 - cp ./building/android-sdk-license "$ANDROID_HOME/licenses/"
-- yes | sdkmanager –licenses
 - cp ./building/hiddenapi/26/android.jar "$ANDROID_HOME/platforms/android-26/"
 - cp ./building/hiddenapi/25/android.jar "$ANDROID_HOME/platforms/android-25/"
 after_script:
