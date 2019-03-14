@@ -43,6 +43,10 @@ public abstract class OSUtil {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
     }
 
+    public static boolean isPOrAbove() {
+        return Build.VERSION.SDK_INT > Build.VERSION_CODES.O;
+    }
+
     public static boolean isLOrBelow() {
         return Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1;
     }
