@@ -639,7 +639,7 @@
     <string name="summary_app_recent_blur_opt_cache">由于开启模糊时，每次任务快照需要处理一次，会消耗一些CPU和内存资源，你可以在性能较差的机器上开启此选项，使用缓存的模糊图片代替当前的应用快照，注意，这可能会让你的最近任务卡片内容看起来不是实时更新的。</string>
     <string name="summary_policy_settings">节电、模板、系统应用排除。</string>
     <string name="title_policy_settings">策略与优化</string>
-    <string name="title_device_status_fragment">X-APM</string>
+    <string name="title_device_status_fragment">首页</string>
     <string name="title_increase">+1</string>
     <string name="title_decrease">-1</string>
     <string name="title_clear_all_fav_tile">清空</string>

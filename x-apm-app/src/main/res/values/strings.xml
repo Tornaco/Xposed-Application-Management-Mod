@@ -644,7 +644,7 @@
     <string name="summary_app_recent_blur_opt_cache">Since blurring is enabled, each task snapshot needs to be processed once, which consumes some CPU and memory resources. You can enable this option on a poorly performing machine and use the cached blurred image instead of the current application snapshot. Note that this may be Let your recent task card content not appear to be updated in real time.</string>
     <string name="title_policy_settings">Strategy and optimization</string>
     <string name="summary_policy_settings">Power saving, Template, System application exclusion.</string>
-    <string name="title_device_status_fragment">X-APM</string>
+    <string name="title_device_status_fragment">Home</string>
     <string name="title_increase">+1</string>
     <string name="title_decrease">-1</string>
     <string name="title_clear_all_fav_tile">Clear all</string>

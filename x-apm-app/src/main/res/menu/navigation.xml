@@ -4,26 +4,26 @@
     xmlns:tools="http://schemas.android.com/tools">
     <item
         android:id="@+id/navigation_home"
-        android:icon="@drawable/ic_phone_android_black_24dp"
+        android:icon="@drawable/ic_home_5_fill"
         android:title="@string/title_main_status"
         app:showAsAction="always|withText" />
 
     <item
         android:id="@+id/navigation_basic"
-        android:icon="@drawable/ic_dashboard_black_24dp"
+        android:icon="@drawable/ic_apps_fill"
         android:title="@string/title_manage_basic"
         app:showAsAction="always|withText" />
 
     <item
         android:id="@+id/navigation_advanced"
-        android:icon="@drawable/ic_school_black_24dp"
+        android:icon="@drawable/ic_vip_diamond_fill"
         android:title="@string/title_manage_advanced"
         app:showAsAction="always|withText"
         tools:ignore="AlwaysShowAction" />
 
     <item
         android:id="@+id/navigation_more"
-        android:icon="@drawable/ic_radio_button_checked_black_24dp"
+        android:icon="@drawable/ic_settings_fill"
         android:title="@string/title_more"
         app:showAsAction="always|withText" />
 
