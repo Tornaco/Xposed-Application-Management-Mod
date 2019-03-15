@@ -73,6 +73,9 @@ class NotificationManagerServiceSubModule extends AndroidSubModule {
                         XposedLog.verbose("NotificationListeners, notifyPosted: " + Arrays.toString(param.args));
                     }
                     Object object = param.args[0];
+                    if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
+                        XposedLog.verbose("NotificationListeners, notifyPosted: " + object.getClass());
+                    }
                     if (object instanceof NotificationRecord) {
                         NotificationRecord record = (NotificationRecord) param.args[0];
                         getBridge().onNotificationPosted(record);
