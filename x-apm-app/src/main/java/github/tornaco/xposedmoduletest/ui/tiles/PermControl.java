@@ -26,7 +26,7 @@ public class PermControl extends QuickTile {
             this.summaryRes = XAPMManager.get().isPermissionControlEnabled() ?
                     R.string.summary_func_enabled : 0;
         }
-        this.iconRes = R.drawable.ic_beenhere_black_24dp;
+        this.iconRes = R.drawable.ic_shield_fill;
         this.tileView = new QuickTileView(context, this) {
             @Override
             protected int getImageViewBackgroundRes() {
