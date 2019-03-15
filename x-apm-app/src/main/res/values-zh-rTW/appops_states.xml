@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="UTF-8"?><!--
+/*
+**
+** Copyright 2007 The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+ -->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <string name="app_ops_running">正在執行</string>
+    <string name="app_ops_never_used">從未使用</string>
+
+    <string-array name="timezone_filters">
+        <item>"美洲"</item>
+        <item>"歐洲"</item>
+        <item>"非洲"</item>
+        <item>"亞洲"</item>
+        <item>"澳洲"</item>
+        <item>"太平洋"</item>
+        <item>"全部"</item>
+    </string-array>
+    <string-array name="screen_timeout_entries">
+        <item>"15秒"</item>
+        <item>"30秒"</item>
+        <item>"1分鐘"</item>
+        <item>"2分鐘"</item>
+        <item>"5分鐘"</item>
+        <item>"10分鐘"</item>
+        <item>"30分鐘"</item>
+    </string-array>
+    <string-array name="dream_timeout_entries">
+        <item>"永不"</item>
+        <item>"15秒"</item>
+        <item>"30秒"</item>
+        <item>"1分鐘"</item>
+        <item>"2分鐘"</item>
+        <item>"5分鐘"</item>
+        <item>"10分鐘"</item>
+        <item>"30分鐘"</item>
+    </string-array>
+    <string-array name="lock_after_timeout_entries">
+        <item>"立即"</item>
+        <item>"5秒"</item>
+        <item>"15秒"</item>
+        <item>"30秒"</item>
+        <item>"1分鐘"</item>
+        <item>"2分鐘"</item>
+        <item>"5分鐘"</item>
+        <item>"10分鐘"</item>
+        <item>"30分鐘"</item>
+    </string-array>
+    <string-array name="entries_font_size">
+        <item>"小"</item>
+        <item>"預設"</item>
+        <item>"大"</item>
+        <item>"最大"</item>
+    </string-array>
+    <string-array name="wifi_status">
+        <item></item>
+        <item>"正在掃描..."</item>
+        <item>"正在連接..."</item>
+        <item>"正在進行身份驗證..."</item>
+        <item>"正在取得IP位址..."</item>
+        <item>"已連接"</item>
+        <item>"已暫停"</item>
+        <item>"正在斷開連接..."</item>
+        <item>"已斷開連接"</item>
+        <item>"失敗"</item>
+        <item>"已停用"</item>
+        <item>"暫時關閉（網路狀況不佳）"</item>
+    </string-array>
+    <string-array name="wifi_status_with_ssid">
+        <item></item>
+        <item>"正在掃描..."</item>
+        <item>"正在連接到 <xliff:g id="NETWORK_NAME">%1$s</xliff:g>..."</item>
+        <item>"正在通過 <xliff:g id="NETWORK_NAME">%1$s</xliff:g> 進行身份驗證..."</item>
+        <item>"正在從<xliff:g id="NETWORK_NAME">%1$s</xliff:g>取得IP位址..."</item>
+        <item>"已連接到 <xliff:g id="NETWORK_NAME">%1$s</xliff:g>"</item>
+        <item>"已暫停"</item>
+        <item>"正在斷開與 <xliff:g id="NETWORK_NAME">%1$s</xliff:g> 的連接..."</item>
+        <item>"已斷開連接"</item>
+        <item>"失敗"</item>
+        <item>"已停用"</item>
+        <item>"暫時關閉（網路狀況不佳）"</item>
+    </string-array>
+    <!-- no translation found for wifi_security:0 (8491993170197127709) -->
+    <!-- no translation found for wifi_security:1 (6524315248437318854) -->
+    <!-- no translation found for wifi_security:2 (1532568756571457140) -->
+    <!-- no translation found for wifi_security:3 (3620707702811709779) -->
+    <!-- no translation found for wifi_security_no_eap:0 (2084555984818107151) -->
+    <!-- no translation found for wifi_security_no_eap:1 (397579322683471524) -->
+    <!-- no translation found for wifi_security_no_eap:2 (1968820975358150484) -->
+    <!-- no translation found for wifi_ap_security:0 (5251664683198623324) -->
+    <!-- no translation found for wifi_ap_security:1 (7989073072260294673) -->
+    <string-array name="wifi_eap_method">
+        <item>"PEAP"</item>
+        <item>"TLS"</item>
+        <item>"TTLS"</item>
+        <item>"PWD"</item>
+        <item>"SIM"</item>
+        <item>"AKA"</item>
+        <item>"AKA\'"</item>
+    </string-array>
+    <string-array name="eap_method_without_sim_auth">
+        <item>"PEAP"</item>
+        <item>"TLS"</item>
+        <item>"TTLS"</item>
+        <item>"PWD"</item>
+    </string-array>
+    <!-- no translation found for wifi_ap_band_config_full:0 (1085243288162893079) -->
+    <!-- no translation found for wifi_ap_band_config_full:1 (5531376834915607202) -->
+    <!-- no translation found for wifi_ap_band_config_2G_only:0 (7006771583217001015) -->
+    <string-array name="wifi_p2p_wps_setup">
+        <item>"按鈕"</item>
+        <item>"從對等設備取得的 PIN 碼"</item>
+        <item>"此設備生成的 PIN 碼"</item>
+    </string-array>
+    <string-array name="wifi_p2p_status">
+        <item>"已連接"</item>
+        <item>"已邀請"</item>
+        <item>"失敗"</item>
+        <item>"可用"</item>
+        <item>"超出範圍"</item>
+    </string-array>
+    <string-array name="bluetooth_visibility_timeout_entries">
+        <item>"2分鐘"</item>
+        <item>"5分鐘"</item>
+        <item>"1小時"</item>
+        <item>"永不超時"</item>
+    </string-array>
+    <string-array name="wifi_signal">
+        <item>"弱"</item>
+        <item>"微弱"</item>
+        <item>"一般"</item>
+        <item>"良好"</item>
+        <item>"極佳"</item>
+    </string-array>
+    <string-array name="wifi_sleep_policy_entries">
+        <item>"始終"</item>
+        <item>"僅限充電時"</item>
+        <item>"永不"</item>
+    </string-array>
+    <string-array name="wifi_sleep_policy_entries_wifi_only">
+        <item>"始終"</item>
+        <item>"僅限充電時"</item>
+        <item>"永不"</item>
+    </string-array>
+    <string-array name="data_usage_data_range">
+        <item>"過去30天"</item>
+        <item>"設定流量週期…"</item>
+    </string-array>
+    <string-array name="usage_stats_display_order_types">
+        <item>"使用時間"</item>
+        <item>"上次使用時間"</item>
+        <item>"程式名稱"</item>
+    </string-array>
+    <string-array name="wifi_eap_entries">
+        <item>"PEAP"</item>
+        <item>"TLS"</item>
+        <item>"TTLS"</item>
+        <item>"PWD"</item>
+    </string-array>
+    <string-array name="wifi_peap_phase2_entries">
+        <item>"無"</item>
+        <item>"MSCHAPV2"</item>
+        <item>"GTC"</item>
+    </string-array>
+    <string-array name="wifi_peap_phase2_entries_with_sim_auth">
+        <item>"無"</item>
+        <item>"MSCHAPV2"</item>
+        <item>"GTC"</item>
+        <item>"SIM"</item>
+        <item>"AKA"</item>
+        <item>"AKA\'"</item>
+    </string-array>
+    <string-array name="wifi_phase2_entries">
+        <item>"無"</item>
+        <item>"PAP"</item>
+        <item>"MSCHAP"</item>
+        <item>"MSCHAPV2"</item>
+        <item>"GTC"</item>
+    </string-array>
+    <string-array name="wifi_ip_settings">
+        <item>"DHCP"</item>
+        <item>"靜態"</item>
+    </string-array>
+    <string-array name="wifi_proxy_settings">
+        <item>"無"</item>
+        <item>"手動"</item>
+        <item>"代理自動配置"</item>
+    </string-array>
+    <string-array name="apn_auth_entries">
+        <item>"無"</item>
+        <item>"PAP"</item>
+        <item>"CHAP"</item>
+        <item>"PAP 或 CHAP"</item>
+    </string-array>
+    <string-array name="apn_protocol_entries">
+        <item>"IPv4"</item>
+        <item>"IPv6"</item>
+        <item>"IPv4/IPv6"</item>
+    </string-array>
+    <string-array name="bearer_entries">
+        <item>"未指定"</item>
+        <item>"LTE"</item>
+        <item>"HSPAP"</item>
+        <item>"HSPA"</item>
+        <item>"HSUPA"</item>
+        <item>"HSDPA"</item>
+        <item>"UMTS"</item>
+        <item>"EDGE"</item>
+        <item>"GPRS"</item>
+        <item>"eHRPD"</item>
+        <item>"EVDO_B"</item>
+        <item>"EVDO_A"</item>
+        <item>"EVDO_0"</item>
+        <item>"1xRTT"</item>
+        <item>"IS95B"</item>
+        <item>"IS95A"</item>
+    </string-array>
+    <string-array name="mvno_type_entries">
+        <item>"無"</item>
+        <item>"SPN"</item>
+        <item>"IMSI"</item>
+        <item>"GID"</item>
+    </string-array>
+    <string-array name="app_install_location_entries">
+        <item>"內部儲存設備"</item>
+        <item>"可移除的SD卡"</item>
+        <item>"由系統確定"</item>
+    </string-array>
+    <string-array name="app_ops_categories">
+        <item>"位置"</item>
+        <item>"個人"</item>
+        <item>"簡訊"</item>
+        <item>"媒體"</item>
+        <item>"設備"</item>
+    </string-array>
+    <string-array name="app_ops_summaries">
+        <item>"粗略位置"</item>
+        <item>"精確位置"</item>
+        <item>"GPS"</item>
+        <item>"振動"</item>
+        <item>"讀取聯絡人"</item>
+        <item>"修改聯絡人"</item>
+        <item>"讀取通話記錄"</item>
+        <item>"修改通話記錄"</item>
+        <item>"讀取日曆"</item>
+        <item>"修改日曆"</item>
+        <item>"WLAN掃描"</item>
+        <item>"通知"</item>
+        <item>"手機網路掃描"</item>
+        <item>"撥打電話"</item>
+        <item>"讀取簡訊"</item>
+        <item>"編寫簡訊"</item>
+        <item>"接收簡訊"</item>
+        <item>"接收緊急簡訊"</item>
+        <item>"接收多媒體簡訊"</item>
+        <item>"接收 WAP PUSH 消息"</item>
+        <item>"發送簡訊"</item>
+        <item>"讀取 ICC 簡訊"</item>
+        <item>"寫入 ICC 簡訊"</item>
+        <item>"修改設定"</item>
+        <item>"在最上層顯示內容"</item>
+        <item>"存取通知"</item>
+        <item>"相機"</item>
+        <item>"錄製音訊"</item>
+        <item>"播放音訊"</item>
+        <item>"讀取剪貼板內容"</item>
+        <item>"修改剪貼板內容"</item>
+        <item>"媒體按鈕"</item>
+        <item>"音訊焦點"</item>
+        <item>"主音量"</item>
+        <item>"語音音量"</item>
+        <item>"鈴聲音量"</item>
+        <item>"媒體音量"</item>
+        <item>"鬧鐘音量"</item>
+        <item>"通知音量"</item>
+        <item>"藍牙音量"</item>
+        <item>"保持喚醒狀態"</item>
+        <item>"監測位置"</item>
+        <item>"監控高電耗位置訊息服務"</item>
+        <item>"取得使用情況統計訊息"</item>
+        <item>"將麥克風靜音或取消靜音"</item>
+        <item>"顯示問候語（Toast）"</item>
+        <item>"投影媒體"</item>
+        <item>"啟動 VPN"</item>
+        <item>"寫入壁紙"</item>
+        <item>"輔助結構"</item>
+        <item>"輔助螢幕截圖"</item>
+        <item>"讀取手機狀態"</item>
+        <item>"新增語音郵件"</item>
+        <item>"使用 SIP"</item>
+        <item>"處理撥出電話"</item>
+        <item>"指紋"</item>
+        <item>"身體感測器"</item>
+        <item>"讀取小區廣播"</item>
+        <item>"模擬位置"</item>
+        <item>"讀取存儲空間"</item>
+        <item>"寫入存儲空間"</item>
+        <item>"開啟螢幕"</item>
+        <item>"取得帳號"</item>
+        <item>"在後台執行"</item>
+        <item>"無障礙功能音量"</item>
+        <item>"取得電話號碼（從Android O開始）"</item>
+        <item>"申請安裝程式（從Android O開始）"</item>
+        <item>"畫中畫（從Android O開始）"</item>
+        <item>"前台執行服務（或許是Instant app的限制）（從Android O開始）"</item>
+        <item>"接聽電話（從Android O開始）"</item>
+
+        <item>"取得已安裝程式列表"</item>
+        <item>"取得正在執行的程式"</item>
+        <item>"讀取設備ID（getDeviceId）"</item>
+        <item>"讀取ICC ID（getSimSerialNumber）"</item>
+        <item>"讀取電話號碼（getLine1Number）"</item>
+        <item>"設定定時器，可能用於喚醒服務等"</item>
+        <item>"啟動後台服務"</item>
+        <item>"執行Shell命令"</item>
+        <item>"當程式崩潰時，顯示FC對話框"</item>
+        <item>"調節螢幕亮度"</item>
+    </string-array>
+    <string-array name="app_ops_labels">
+        <item>"位置"</item>
+        <item>"位置"</item>
+        <item>"位置"</item>
+        <item>"振動"</item>
+        <item>"讀取聯絡人"</item>
+        <item>"修改聯絡人"</item>
+        <item>"讀取通話記錄"</item>
+        <item>"修改通話記錄"</item>
+        <item>"讀取日曆"</item>
+        <item>"修改日曆"</item>
+        <item>"位置"</item>
+        <item>"發布通知"</item>
+        <item>"位置"</item>
+        <item>"撥打電話"</item>
+        <item>"讀取簡訊/多媒體簡訊"</item>
+        <item>"編寫簡訊/多媒體簡訊"</item>
+        <item>"接收簡訊/多媒體簡訊"</item>
+        <item>"接收簡訊/多媒體簡訊"</item>
+        <item>"接收簡訊/多媒體簡訊"</item>
+        <item>"接收簡訊/多媒體簡訊"</item>
+        <item>"發送簡訊/多媒體簡訊"</item>
+        <item>"讀取簡訊/多媒體簡訊"</item>
+        <item>"編寫簡訊/多媒體簡訊"</item>
+        <item>"修改設定"</item>
+        <item>"在最上層顯示內容"</item>
+        <item>"存取通知"</item>
+        <item>"相機"</item>
+        <item>"錄製音訊"</item>
+        <item>"播放音訊"</item>
+        <item>"讀取剪貼板內容"</item>
+        <item>"修改剪貼板內容"</item>
+        <item>"媒體按鈕"</item>
+        <item>"音訊焦點"</item>
+        <item>"主音量"</item>
+        <item>"語音音量"</item>
+        <item>"鈴聲音量"</item>
+        <item>"媒體音量"</item>
+        <item>"鬧鐘音量"</item>
+        <item>"通知音量"</item>
+        <item>"藍牙音量"</item>
+        <item>"喚醒鎖"</item>
+        <item>"位置"</item>
+        <item>"位置訊息"</item>
+        <item>"取得使用情況統計訊息"</item>
+        <item>"將麥克風靜音或取消靜音"</item>
+        <item>"顯示問候語"</item>
+        <item>"投影媒體"</item>
+        <item>"啟動 VPN"</item>
+        <item>"寫入壁紙"</item>
+        <item>"輔助結構"</item>
+        <item>"輔助螢幕截圖"</item>
+        <item>"讀取手機狀態"</item>
+        <item>"添加語音郵件"</item>
+        <item>"使用 SIP"</item>
+        <item>"處理撥出電話"</item>
+        <item>"指紋"</item>
+        <item>"身體感測器"</item>
+        <item>"讀取小區廣播"</item>
+        <item>"模擬位置"</item>
+        <item>"讀取存儲空間"</item>
+        <item>"寫入存儲空間"</item>
+        <item>"開啟螢幕"</item>
+        <item>"取得帳號"</item>
+        <item>"在後台執行"</item>
+        <item>"無障礙功能音量"</item>
+        <item>"取得電話號碼"</item>
+        <item>"申請安裝程式"</item>
+        <item>"畫中畫"</item>
+        <item>"前台執行服務（或許是）"</item>
+        <item>"接聽電話"</item>
+
+        <item>"取得已安裝程式列表"</item>
+        <item>"取得正在執行的程式"</item>
+        <item>"讀取設備ID"</item>
+        <item>"讀取ICC ID"</item>
+        <item>"讀取電話號碼"</item>
+        <item>"設定定時器"</item>
+        <item>"啟動後台服務"</item>
+        <item>"執行Shell命令"</item>
+        <item>"顯示FC對話框"</item>
+        <item>"螢幕亮度"</item>
+    </string-array>
+    <string-array name="long_press_timeout_selector_titles">
+        <item>"短"</item>
+        <item>"中"</item>
+        <item>"長"</item>
+    </string-array>
+    <string-array name="captioning_typeface_selector_titles">
+        <item>"預設"</item>
+        <item>"Sans-serif"</item>
+        <item>"Sans-serif condensed"</item>
+        <item>"Sans-serif monospace"</item>
+        <item>"Serif"</item>
+        <item>"Serif monospace"</item>
+        <item>"Casual"</item>
+        <item>"Cursive"</item>
+        <item>"Small capitals"</item>
+    </string-array>
+    <string-array name="captioning_font_size_selector_titles">
+        <item>"超小"</item>
+        <item>"小"</item>
+        <item>"正常"</item>
+        <item>"大"</item>
+        <item>"超大"</item>
+    </string-array>
+    <string-array name="captioning_edge_type_selector_titles">
+        <item>"預設"</item>
+        <item>"無"</item>
+        <item>"輪廓"</item>
+        <item>"陰影"</item>
+        <item>"凸起"</item>
+        <item>"凹陷"</item>
+    </string-array>
+    <string-array name="captioning_opacity_selector_titles">
+        <item>"25%"</item>
+        <item>"50%"</item>
+        <item>"75%"</item>
+        <item>"100%"</item>
+    </string-array>
+    <string-array name="captioning_preset_selector_titles">
+        <item>"使用程式預設樣式"</item>
+        <item>"黑底白字"</item>
+        <item>"白底黑字"</item>
+        <item>"黑底黃字"</item>
+        <item>"藍底黃字"</item>
+        <item>"自訂"</item>
+    </string-array>
+    <string-array name="vpn_types_long">
+        <item>"PPTP VPN"</item>
+        <item>"具有預共享密鑰的 L2TP/IPSec VPN"</item>
+        <item>"具有證書的 L2TP/IPSec VPN"</item>
+        <item>"具有預共享密鑰且進行 Xauth 身份驗證的 IPSec VPN"</item>
+        <item>"具有證書且進行 Xauth 身份驗證的 IPSec VPN"</item>
+        <item>"具有證書且進行混合身份驗證的 IPSec VPN"</item>
+    </string-array>
+    <string-array name="vpn_states">
+        <item>"連接已斷開"</item>
+        <item>"正在初始化..."</item>
+        <item>"正在連接..."</item>
+        <item>"已連接"</item>
+        <item>"超時"</item>
+        <item>"失敗"</item>
+    </string-array>
+    <string-array name="security_settings_premium_sms_values">
+        <item>"詢問"</item>
+        <item>"永不允許"</item>
+        <item>"始終允許"</item>
+    </string-array>
+    <string-array name="ram_states">
+        <item>"正常"</item>
+        <item>"中等"</item>
+        <item>"不足"</item>
+        <item>"嚴重不足"</item>
+        <item>"未知"</item>
+    </string-array>
+    <string-array name="proc_stats_memory_states">
+        <item>"正常"</item>
+        <item>"中等"</item>
+        <item>"不足"</item>
+        <item>"嚴重不足"</item>
+    </string-array>
+    <string-array name="proc_stats_process_states">
+        <item>"常駐"</item>
+        <item>"頂層 Activity"</item>
+        <item>"重要（前台）"</item>
+        <item>"重要（後台）"</item>
+        <item>"備份"</item>
+        <item>"重量級"</item>
+        <item>"服務（執行中）"</item>
+        <item>"服務（重新啟動中）"</item>
+        <item>"接收器"</item>
+        <item>"主螢幕"</item>
+        <item>"前一個 Activity"</item>
+        <item>"已快取 (Activity)"</item>
+        <item>"已快取（Activity 用戶端）"</item>
+        <item>"已快取（空）"</item>
+    </string-array>
+    <string-array name="color_picker">
+        <item>"青色"</item>
+        <item>"藍色"</item>
+        <item>"靛青色"</item>
+        <item>"紫色"</item>
+        <item>"粉紅色"</item>
+        <item>"紅色"</item>
+    </string-array>
+    <string-array name="automatic_storage_management_days">
+        <item>"超過 30 天"</item>
+        <item>"超過 60 天"</item>
+        <item>"超過 90 天"</item>
+    </string-array>
+</resources>

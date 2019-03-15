@@ -313,7 +313,7 @@
   <string name="title_theme_need_restart_app">主題設定將在下次進入程式時生效</string>
   <string name="title_get_play">獲取Play版本</string>
   <string name="desc_play_version">Play版本有什麼區別？</string>
-  <string name="desc_play_version_a">\n要0.99美刀！</string>
+  <string name="desc_play_version_a">\n要0.99美元！</string>
   <string name="title_get_play_now">前往Play下載</string>
   <string name="title_open_market">目標市場</string>
   <string name="title_launching_apps">已解鎖，正在啟動程式</string>
@@ -584,9 +584,9 @@
   <string name="title_push_message_handler_sound">通知鈴音</string>
   <string name="summarywechat__push_message_handler_sound">如何自訂鈴音參見上方幫助訊息。</string>
   <string name="title_push_message_handler_vibrate">震動</string>
-  <string name="title_gcm_diag">Diagnostics</string>
-  <string name="error_activity_not_found">The app is not installed</string>
-  <string name="title_git_contributors">Code contributor</string>
+  <string name="title_gcm_diag">診斷</string>
+  <string name="error_activity_not_found">該程式尚未安裝</string>
+  <string name="title_git_contributors">代碼貢獻者</string>
   <string name="title_push_message_notification_service">推送通知服務</string>
   <string name="title_push_message_handler_notification_by_app">程式層發出通知</string>
   <string name="summarywechat__push_message_handler_notification_by_app">不推薦啟用，預設系統發出通知，如果選擇由程式發出通知需要啟動一個後台服務。</string>
@@ -623,8 +623,9 @@
   <string name="summary_lazy_toast">當處理某個乖巧程式時，顯示Toast作為提醒。</string>
   <string name="toast_error_retry_later">出錯了，請退出重試:(</string>
   <string name="title_fav">最近使用</string>
-  <string name="title_prop_apps">Disguise</string>
-  <string name="title_prop_nav">Disguise</string>
+  <string name="title_prop_apps">偽裝</string>
+  <string name="title_prop_nav">偽裝</string>
+  <string name="summary_prop">XXX</string>
   <string name="title_prop_apply_apps">偽裝的程式</string>
   <string name="summary_about_settings">版本、開源訊息、捐贈。</string>
   <string name="title_open_source_lisenses">開源許可證</string>
@@ -634,6 +635,9 @@
   <string name="summary_app_recent_blur_opt_cache">由於開啟模糊時，每次任務快照需要處理一次，會消耗一些CPU和記憶體資源，你可以在性能較差的機器上開啟此選項，使用快取的模糊圖片代替目前的程式快照，注意，這可能會讓你的最近任務卡片內容看起來不是即時更新的。</string>
   <string name="title_policy_settings">策略與最佳化</string>
   <string name="summary_policy_settings">節電、模板、系統程式排除。</string>
+  <string name="title_device_status_fragment">首頁</string>
+  <string name="title_increase">+1</string>
+  <string name="title_decrease">-1</string>
   <string name="title_clear_all_fav_tile">清空</string>
   <string name="title_three_fingers_down_screenshot">三指截圖</string>
   <string name="summary_three_fingers_down_screenshot">三指下滑截圖。</string>
@@ -644,7 +648,7 @@
   <string name="summary_p_gesture">僅用於娛樂和測試。</string>
   <string name="title_long_screen_shot">滾動截圖</string>
   <string name="title_copy_pkg_name">複製包名</string>
-  <string name="title_remove_task_on_app_idle">程式清理後，順便從最近使用程式裡清除</string>
+  <string name="title_remove_task_on_app_idle">程式清理後從最近的任務中刪除</string>
   <string name="title_click_to_continue">點擊此處繼續</string>
   <string name="title_workflow">Workflow</string>
   <string name="summary_workflow">建立，執行基於X-APM介面的js。</string>
@@ -680,13 +684,13 @@
   <string name="title_select_from_ops_template">選擇模板設定</string>
   <string name="nav_list_warn_system_app_protected">已經為你略去系統程式，如要顯示，請前往 更多-策略與最佳化-排除系統程式 進行設定</string>
   <string name="warn_turn_off_white_system_app">干涉系統程式可能導致意想不到的異常，請謹慎操作！</string>
-  <string name="title_logo_maker">Logo maker</string>
+  <string name="title_logo_maker">圖示製作</string>
   <string name="title_dynamic_color_enabled">自動取色</string>
   <string name="summary_dynamic_color_enabled">提取目前鎖定程式的主題顏色作為程式鎖頁面的主要顏色</string>
   <string name="title_verifier_theme_color">主題顏色</string>
-  <string name="summary_verifier_theme_color">解鎖頁面主題顏色</string>
+  <string name="summary_verifier_theme_color">解鎖畫面主題顏色</string>
   <string name="toast_custom_image_saved">自訂背景已經儲存好了</string>
   <string name="title_custom_background_picker">選擇自訂背景</string>
   <string name="summary_custom_background_enabled">使用自訂的圖片作為驗證介面的背景</string>
-  <string name="title_custom_background_enabled">使用自訂背景</string>
+  <string name="title_custom_background_enabled">正在使用自訂背景</string>
 </resources>
