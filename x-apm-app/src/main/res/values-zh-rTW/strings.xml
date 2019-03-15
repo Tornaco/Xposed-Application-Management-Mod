@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">程式管理</string>
   <string name="app_code_name">X-APM</string>
@@ -200,9 +201,7 @@
   <string name="title_nf">網路防火牆</string>
   <string name="summary_nf">注意該功能仍處於實驗階段！！！如果有BUG就不要嘗試使用了:(\n\n 非基於LOS 的ROM，軟重啟之後，在裝置完全重啟之前，網路控制設定修改無法生效。\n\nUID相同的程式共享同一份設定。</string>
   <string name="title_nf_warn">注意！！！</string>
-  <string name="title_copyed">已複製</string>
   <string name="title_copy_name">複製完整名稱</string>
-  <string name="title_goto_system_settings">轉到系統設定</string>
   <string name="titile_lk_do_not_kill_audio">不清理音訊播放</string>
   <string name="summary_lk_do_not_kill_audio">不清理獲得音訊（MUSIC/MOVIE/SPEECH）焦點的程式，例如正在播放音樂的網易雲音樂等。\n注意，有些不按照規範設計的程式，可能在停止播放後依然會持有音訊焦點。</string>
   <string name="title_search">搜尋</string>
@@ -305,9 +304,11 @@
   <string name="action_data_on">打開移動資料</string>
   <string name="action_data_off">關閉移動資料</string>
   <string name="action_crash">FC（意外停止）</string>
+  <string name="title_goto_system_settings">轉到系統設定</string>
   <string name="title_action_exe_by_sort">將按照選中順序執行</string>
   <string name="summary_long_press_back">如果程式重定義了長按事件則無效。</string>
   <string name="title_style">外觀</string>
+  <string name="title_copyed">已複製</string>
   <string name="theme_name_dark">深色</string>
   <string name="theme_name_def">淺色</string>
   <string name="title_theme_need_restart_app">主題設定將在下次進入程式時生效</string>
@@ -427,7 +428,6 @@
   <string name="filter_ext_op">擴展</string>
   <string name="filter_default_op">預設</string>
   <string name="title_perm_control_template">權限配置</string>
-  <string name="title_menu_ops_template">新程式自動使用模板</string>
   <string name="title_app_lk_tip">鎖定螢幕清理說明</string>
   <string name="message_app_lk_tip">介於有部分使用者回饋鎖定螢幕清理無效，特增加此說明，請看完，可避免不必要的使用錯誤。\n為了儘可能的減少殺死程式對使用者帶來的不必要的影響，預設不清理有通知的程式，可設定。另外，鎖定螢幕後，如果立刻開啟螢幕，而清理過程未完成，為了降低清理造成系統服務卡頓，以及你可能想繼續使用剛才要被清理的程式，我們會終止清理過程。因此，當你鎖定螢幕且未在使用裝置時，我們才會做清理操作。請知悉，感謝閱讀，感謝閱讀，感謝閱讀，感謝閱讀，感謝閱讀x10000000000000000000。</string>
   <string name="user_notice_title">老使用者可快速跳過</string>
@@ -585,25 +585,21 @@
   <string name="summarywechat__push_message_handler_sound">如何自訂鈴音參見上方幫助訊息。</string>
   <string name="title_push_message_handler_vibrate">震動</string>
   <string name="title_gcm_diag">診斷</string>
-  <string name="error_activity_not_found">該程式尚未安裝</string>
-  <string name="title_git_contributors">代碼貢獻者</string>
   <string name="title_push_message_notification_service">推送通知服務</string>
   <string name="title_push_message_handler_notification_by_app">程式層發出通知</string>
   <string name="summarywechat__push_message_handler_notification_by_app">不推薦啟用，預設系統發出通知，如果選擇由程式發出通知需要啟動一個後台服務。</string>
   <string name="title_push_message_handler_notification_settings_oreo">鈴聲和振動設定</string>
   <string name="lock_method_pin">數字密碼</string>
-  <string name="lock_method_pattern">PATTERN</string>
   <string name="error_notification_channel_activity_not_found">請收到任意一次通知後再進行設定</string>
+  <string name="filter_merged_process">已合併</string>
   <string name="filter_background_process">已快取</string>
   <string name="filter_running_process">正在執行</string>
-  <string name="filter_merged_process">已合併</string>
   <string name="title_notification">通知</string>
   <string name="title_wakeup_on_notification_post">通知開啟螢幕</string>
   <string name="filter_ime_apps">輸入法</string>
   <string name="filter_gcm_apps">支援GCM</string>
   <string name="filter_tencent_apps">騰訊類</string>
   <string name="filter_baidu_apps">百度類</string>
-  <string name="filter_launcher_apps">Launcher apps</string>
   <string name="title_app_lazy_rule">乖巧規則</string>
   <string name="summary_lazy_rules">可以控制保留某些服務。</string>
   <string name="title_app_disabled">%1$s 已凍結</string>
@@ -628,13 +624,12 @@
   <string name="summary_prop">XXX</string>
   <string name="title_prop_apply_apps">偽裝的程式</string>
   <string name="summary_about_settings">版本、開源訊息、捐贈。</string>
-  <string name="title_open_source_lisenses">開源許可證</string>
   <string name="title_package_install_verify">APK驗證</string>
   <string name="summary_package_install_verify">當檢測到某APK將要被安裝時，你可以指定是否允許、拒絕、或者彈出對話框詢問使用者是否允許該次安裝，每次對話框展示24秒，超時後預設拒絕此次安裝。\n\n你需要透過規則指定允許、詢問或者拒絕來自某程式/ADB的安裝請求，也可以制定超時的行為。如果不指定任何規則（預設情況），所有安裝將被允許。</string>
   <string name="title_app_recent_blur_opt_cache">使用快取</string>
   <string name="summary_app_recent_blur_opt_cache">由於開啟模糊時，每次任務快照需要處理一次，會消耗一些CPU和記憶體資源，你可以在性能較差的機器上開啟此選項，使用快取的模糊圖片代替目前的程式快照，注意，這可能會讓你的最近任務卡片內容看起來不是即時更新的。</string>
-  <string name="title_policy_settings">策略與最佳化</string>
   <string name="summary_policy_settings">節電、模板、系統程式排除。</string>
+  <string name="title_policy_settings">策略與最佳化</string>
   <string name="title_device_status_fragment">首頁</string>
   <string name="title_increase">+1</string>
   <string name="title_decrease">-1</string>
@@ -642,13 +637,14 @@
   <string name="title_three_fingers_down_screenshot">三指截圖</string>
   <string name="summary_three_fingers_down_screenshot">三指下滑截圖。</string>
   <string name="service_stop">停止</string>
+  <string name="perm_unknown">未知</string>
   <string name="package_install_verify_dialog_allow">允許</string>
+  <string name="package_install_verify_dialog_deny">拒絕</string>
+  <string name="package_install_verify_dialog_always_allow">始終允許該程式</string>
   <string name="title_app_state_idle">休眠中</string>
   <string name="title_p_gesture">全面屏手勢</string>
-  <string name="summary_p_gesture">僅用於娛樂和測試。</string>
   <string name="title_long_screen_shot">滾動截圖</string>
   <string name="title_copy_pkg_name">複製包名</string>
-  <string name="title_remove_task_on_app_idle">程式清理後從最近的任務中刪除</string>
   <string name="title_click_to_continue">點擊此處繼續</string>
   <string name="title_workflow">Workflow</string>
   <string name="summary_workflow">建立，執行基於X-APM介面的js。</string>
@@ -687,10 +683,7 @@
   <string name="title_logo_maker">圖示製作</string>
   <string name="title_dynamic_color_enabled">自動取色</string>
   <string name="summary_dynamic_color_enabled">提取目前鎖定程式的主題顏色作為程式鎖頁面的主要顏色</string>
-  <string name="title_verifier_theme_color">主題顏色</string>
-  <string name="summary_verifier_theme_color">解鎖畫面主題顏色</string>
   <string name="toast_custom_image_saved">自訂背景已經儲存好了</string>
   <string name="title_custom_background_picker">選擇自訂背景</string>
   <string name="summary_custom_background_enabled">使用自訂的圖片作為驗證介面的背景</string>
-  <string name="title_custom_background_enabled">正在使用自訂背景</string>
 </resources>
