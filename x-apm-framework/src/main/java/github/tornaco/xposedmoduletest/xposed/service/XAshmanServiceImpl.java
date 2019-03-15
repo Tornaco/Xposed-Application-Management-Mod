@@ -756,7 +756,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 .build();
 
         if (OSUtil.isMOrAbove()) {
-            n.setSmallIcon(new AppResource(getContext()).loadIconFromAPMApp("ic_hourglass_empty_black_24dp"));
+            n.setSmallIcon(new AppResource(getContext()).loadIconFromAPMApp("ic_timer_2_fill"));
         }
 
         NotificationManagerCompat.from(getContext())
