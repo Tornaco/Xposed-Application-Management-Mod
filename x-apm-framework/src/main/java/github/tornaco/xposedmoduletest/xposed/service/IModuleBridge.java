@@ -12,6 +12,8 @@ import android.view.Display;
 import android.view.KeyEvent;
 import android.view.WindowManagerPolicy;
 
+import com.android.server.notification.NotificationRecord;
+
 import github.tornaco.xposedmoduletest.xposed.service.am.AMSProxy;
 import github.tornaco.xposedmoduletest.xposed.service.am.ActiveServicesProxy;
 import github.tornaco.xposedmoduletest.xposed.service.am.UsageStatsServiceProxy;
@@ -197,6 +199,10 @@ public interface IModuleBridge {
     void onNotificationPosted(StatusBarNotification sbn);
 
     void onNotificationRemoved(StatusBarNotification sbn);
+
+    void onNotificationPosted(NotificationRecord sbn);
+
+    void onNotificationRemoved(NotificationRecord sbn);
 
     void onInputEvent(Object arg);
 

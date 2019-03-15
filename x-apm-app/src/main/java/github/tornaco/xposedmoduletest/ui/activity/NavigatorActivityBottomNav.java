@@ -1007,7 +1007,7 @@ public class NavigatorActivityBottomNav
             }
 
             Category exp = new Category();
-            exp.moreDrawableRes = R.drawable.ic_help_black_24dp;
+            exp.moreDrawableRes = R.drawable.ic_question_fill;
             exp.onMoreButtonClickListener = v -> Toast.makeText(getActivity(),
                     R.string.category_help_exp, Toast.LENGTH_SHORT).show();
             exp.titleRes = R.string.title_exp;
@@ -1032,7 +1032,7 @@ public class NavigatorActivityBottomNav
 
             Category ash = new Category();
             ash.titleRes = R.string.title_control;
-            ash.moreDrawableRes = R.drawable.ic_help_black_24dp;
+            ash.moreDrawableRes = R.drawable.ic_question_fill;
             ash.onMoreButtonClickListener = v -> Toast.makeText(getActivity(), R.string.category_help_advance, Toast.LENGTH_SHORT).show();
 
             if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_COMP_REPLACE)) {

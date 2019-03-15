@@ -3,6 +3,8 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
+import com.android.server.notification.NotificationRecord;
+
 import java.util.Arrays;
 import java.util.Set;
 
@@ -70,8 +72,14 @@ class NotificationManagerServiceSubModule extends AndroidSubModule {
                     if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
                         XposedLog.verbose("NotificationListeners, notifyPosted: " + Arrays.toString(param.args));
                     }
-                    StatusBarNotification statusBarNotification = (StatusBarNotification) param.args[0];
-                    getBridge().onNotificationPosted(statusBarNotification);
+                    Object object = param.args[0];
+                    if (object instanceof NotificationRecord) {
+                        NotificationRecord record = (NotificationRecord) param.args[0];
+                        getBridge().onNotificationPosted(record);
+                    } else if (object instanceof StatusBarNotification) {
+                        StatusBarNotification sbn = (StatusBarNotification) param.args[0];
+                        getBridge().onNotificationPosted(sbn);
+                    }
                 }
             });
             logOnBootStage("hookNotificationListeners OK:" + unHooks);
@@ -95,8 +103,14 @@ class NotificationManagerServiceSubModule extends AndroidSubModule {
                     if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
                         XposedLog.verbose("NotificationListeners, notifyRemoved: " + Arrays.toString(param.args));
                     }
-                    StatusBarNotification sbn = (StatusBarNotification) param.args[0];
-                    getBridge().onNotificationRemoved(sbn);
+                    Object object = param.args[0];
+                    if (object instanceof NotificationRecord) {
+                        NotificationRecord record = (NotificationRecord) param.args[0];
+                        getBridge().onNotificationRemoved(record);
+                    } else if (object instanceof StatusBarNotification) {
+                        StatusBarNotification sbn = (StatusBarNotification) param.args[0];
+                        getBridge().onNotificationRemoved(sbn);
+                    }
                 }
             });
             logOnBootStage("hookNotificationListenersRemove OK:" + unHooks);

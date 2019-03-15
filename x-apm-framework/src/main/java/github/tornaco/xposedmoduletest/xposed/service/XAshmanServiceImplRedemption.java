@@ -16,6 +16,8 @@ import android.view.Display;
 import android.view.KeyEvent;
 import android.view.WindowManagerPolicy;
 
+import com.android.server.notification.NotificationRecord;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -159,6 +161,16 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
 
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
+
+    }
+
+    @Override
+    public void onNotificationPosted(NotificationRecord sbn) {
+
+    }
+
+    @Override
+    public void onNotificationRemoved(NotificationRecord sbn) {
 
     }
 

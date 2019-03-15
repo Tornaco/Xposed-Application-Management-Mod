@@ -73,6 +73,7 @@ import android.webkit.WebViewProviderInfo;
 import android.widget.Toast;
 
 import com.android.internal.os.Zygote;
+import com.android.server.notification.NotificationRecord;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -220,8 +221,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private static final boolean DEBUG_BROADCAST;
     private static final boolean DEBUG_SERVICE;
 
-    private static final boolean DEBUG_OP = false && BuildConfig.DEBUG;
-    private static final boolean DEBUG_COMP = false && BuildConfig.DEBUG;
+    private static final boolean DEBUG_OP = BuildConfig.DEBUG;
+    private static final boolean DEBUG_COMP = BuildConfig.DEBUG;
 
     static {
         boolean isBuildVarDebug = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.DEBUG);
@@ -2526,14 +2527,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         // Check Op first for this package.
-        String shortString = componentName.flattenToShortString();
-        int mode = getPermissionControlBlockModeForPkg(
-                XAppOpsManager.OP_START_SERVICE, servicePkgName, true, new String[]{shortString});
-        if (XposedLog.isVerboseLoggable()) {
-            XposedLog.verbose("checkService, get op mode for service: %s, mode: %s", shortString, mode);
-        }
-        if (mode == XAppOpsManager.MODE_IGNORED) {
-            return CheckResult.DENIED_OP_DENIED;
+        if (isPermissionControlEnabled()) {
+            String shortString = componentName.flattenToShortString();
+            int mode = getPermissionControlBlockModeForPkg(
+                    XAppOpsManager.OP_START_SERVICE, servicePkgName, true, new String[]{shortString});
+            if (XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose("checkService, get op mode for service: %s, mode: %s", shortString, mode);
+            }
+            if (mode == XAppOpsManager.MODE_IGNORED) {
+                return CheckResult.DENIED_OP_DENIED;
+            }
         }
 
         // First check the user rules.
@@ -3704,6 +3707,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    public void onNotificationPosted(NotificationRecord sbn) {
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("NotificationListeners onNotificationPosted: " + sbn);
+        }
+    }
+
+    @Override
+    public void onNotificationRemoved(NotificationRecord sbn) {
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("NotificationListeners onNotificationRemoved: " + sbn);
+        }
+    }
+
+    @Override
     public void onInputEvent(Object arg) {
         // Noop.
     }
@@ -4732,6 +4749,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         return mGCMSupportPackages.contains(pkg);
     }
 
+    @Override
     @BinderCall
     public boolean isMiPushSupportPackage(String pkg) {
         enforceCallingPermissions();
