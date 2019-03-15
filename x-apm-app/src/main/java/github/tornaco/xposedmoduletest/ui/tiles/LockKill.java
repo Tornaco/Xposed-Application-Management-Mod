@@ -35,7 +35,7 @@ public class LockKill extends QuickTile {
             this.summaryRes = XAPMManager.get().isLockKillEnabled() ?
                     R.string.summary_func_lk_enabled : R.string.summary_func_lk_disabled;
         }
-        this.iconRes = R.drawable.ic_donut_small_black_24px;
+        this.iconRes = R.drawable.ic_rocket_fill;
 
         this.tileView = new ActionTextTileView(context) {
             @Override

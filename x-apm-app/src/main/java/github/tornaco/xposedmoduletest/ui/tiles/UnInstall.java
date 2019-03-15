@@ -26,7 +26,7 @@ public class UnInstall extends QuickTile {
             this.summaryRes = XAppLockManager.get().isUninstallInterruptEnabled() ?
                     R.string.summary_func_enabled : 0;
         }
-        this.iconRes = R.drawable.ic_do_not_disturb_on_black_24dp;
+        this.iconRes = R.drawable.ic_forbid_fill;
         this.tileView = new QuickTileView(context, this) {
             @Override
             protected int getImageViewBackgroundRes() {

@@ -26,7 +26,7 @@ public class RunningServices extends QuickTile {
             this.summary = context.getString(R.string.summary_running_services,
                     String.valueOf(data.getAppCount()), String.valueOf(data.getServiceCount()));
         }
-        this.iconRes = R.drawable.ic_format_list_bulleted_black_24dp;
+        this.iconRes = R.drawable.ic_list_settings_fill;
         this.tileView = new QuickTileView(context, this) {
             @Override
             protected int getImageViewBackgroundRes() {

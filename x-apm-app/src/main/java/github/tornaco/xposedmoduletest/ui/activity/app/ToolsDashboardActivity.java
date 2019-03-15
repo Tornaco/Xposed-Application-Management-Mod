@@ -48,6 +48,7 @@ public class ToolsDashboardActivity extends WithWithCustomTabActivity {
 
     public static class ToolsNavFragment extends ActivityLifeCycleDashboardFragment {
 
+        @Override
         protected boolean androidPStyleIcon() {
             return false;
         }

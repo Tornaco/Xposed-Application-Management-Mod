@@ -20,7 +20,7 @@ public class DevelopmentSettings extends QuickTile {
 
         this.titleRes = R.string.title_dev_tools;
         this.summaryRes = R.string.summary_dev_settings;
-        this.iconRes = R.drawable.ic_pan_tool_black_24dp;
+        this.iconRes = R.drawable.ic_android_fill;
 
         this.tileView = new QuickTileView(context, this) {
 
