@@ -3,8 +3,6 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
-import com.android.server.notification.NotificationRecord;
-
 import java.util.Arrays;
 import java.util.Set;
 
@@ -13,6 +11,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -73,12 +72,8 @@ class NotificationManagerServiceSubModule extends AndroidSubModule {
                         XposedLog.verbose("NotificationListeners, notifyPosted: " + Arrays.toString(param.args));
                     }
                     Object object = param.args[0];
-                    if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
-                        XposedLog.verbose("NotificationListeners, notifyPosted: " + object.getClass());
-                    }
-                    if (object instanceof NotificationRecord) {
-                        NotificationRecord record = (NotificationRecord) param.args[0];
-                        getBridge().onNotificationPosted(record);
+                    if (OSUtil.isPOrAbove()) {
+                        XposedLog.wtf("NotificationListeners No impl for android p");
                     } else if (object instanceof StatusBarNotification) {
                         StatusBarNotification sbn = (StatusBarNotification) param.args[0];
                         getBridge().onNotificationPosted(sbn);
@@ -107,9 +102,8 @@ class NotificationManagerServiceSubModule extends AndroidSubModule {
                         XposedLog.verbose("NotificationListeners, notifyRemoved: " + Arrays.toString(param.args));
                     }
                     Object object = param.args[0];
-                    if (object instanceof NotificationRecord) {
-                        NotificationRecord record = (NotificationRecord) param.args[0];
-                        getBridge().onNotificationRemoved(record);
+                    if (OSUtil.isPOrAbove()) {
+                        XposedLog.wtf("NotificationListeners No impl for android p");
                     } else if (object instanceof StatusBarNotification) {
                         StatusBarNotification sbn = (StatusBarNotification) param.args[0];
                         getBridge().onNotificationRemoved(sbn);
