@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string-array name="theme_entries">
+        <item>預設</item>
+        <item>紅</item>
+        <item>藍</item>
+        <item>青</item>
+        <item>綠</item>
+        <item>粉</item>
+        <item>橙</item>
+        <item>黑</item>
+    </string-array>
+
+    <string-array name="lk_delay_entries">
+        <item>立即</item>
+        <item>鎖定螢幕5秒後</item>
+        <item>鎖定螢幕10秒後</item>
+        <item>鎖定螢幕30秒後</item>
+        <item>鎖定螢幕1分鐘後</item>
+        <item>鎖定螢幕5分鐘後</item>
+    </string-array>
+</resources>

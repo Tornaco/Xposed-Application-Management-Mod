@@ -15,7 +15,7 @@ public class UpdateLogDialog {
     public static void show(Activity context) {
         new AlertDialog.Builder(context)
                 .setTitle(R.string.title_app_update_log)
-                .setMessage(R.string.update_log_513)
+                .setMessage(R.string.update_log_516)
                 .setPositiveButton(android.R.string.ok, null)
                 .show();
     }

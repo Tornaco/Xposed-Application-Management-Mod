@@ -11,6 +11,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -70,8 +71,13 @@ class NotificationManagerServiceSubModule extends AndroidSubModule {
                     if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
                         XposedLog.verbose("NotificationListeners, notifyPosted: " + Arrays.toString(param.args));
                     }
-                    StatusBarNotification statusBarNotification = (StatusBarNotification) param.args[0];
-                    getBridge().onNotificationPosted(statusBarNotification);
+                    Object object = param.args[0];
+                    if (OSUtil.isPOrAbove()) {
+                        XposedLog.wtf("NotificationListeners No impl for android p");
+                    } else if (object instanceof StatusBarNotification) {
+                        StatusBarNotification sbn = (StatusBarNotification) param.args[0];
+                        getBridge().onNotificationPosted(sbn);
+                    }
                 }
             });
             logOnBootStage("hookNotificationListeners OK:" + unHooks);
@@ -95,8 +101,13 @@ class NotificationManagerServiceSubModule extends AndroidSubModule {
                     if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
                         XposedLog.verbose("NotificationListeners, notifyRemoved: " + Arrays.toString(param.args));
                     }
-                    StatusBarNotification sbn = (StatusBarNotification) param.args[0];
-                    getBridge().onNotificationRemoved(sbn);
+                    Object object = param.args[0];
+                    if (OSUtil.isPOrAbove()) {
+                        XposedLog.wtf("NotificationListeners No impl for android p");
+                    } else if (object instanceof StatusBarNotification) {
+                        StatusBarNotification sbn = (StatusBarNotification) param.args[0];
+                        getBridge().onNotificationRemoved(sbn);
+                    }
                 }
             });
             logOnBootStage("hookNotificationListenersRemove OK:" + unHooks);

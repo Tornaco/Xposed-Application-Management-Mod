@@ -26,7 +26,7 @@ public class AppGuard extends QuickTile {
             this.summaryRes = XAppLockManager.get().isEnabled() ?
                     R.string.summary_func_enabled : 0;
         }
-        this.iconRes = R.drawable.ic_lock_black_24dp;
+        this.iconRes = R.drawable.ic_lock_2_fill;
         this.tileView = new QuickTileView(context, this) {
             @Override
             protected int getImageViewBackgroundRes() {

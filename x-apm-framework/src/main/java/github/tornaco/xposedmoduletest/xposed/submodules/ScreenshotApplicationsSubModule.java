@@ -65,7 +65,7 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
     public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {
         super.initZygote(startupParam);
 
-        if (OSUtil.isOOrAbove()) {
+        if (OSUtil.isOOrAbove() && !OSUtil.isPOrAbove()) {
             hookSystemProp_ENABLE_TASK_SNAPSHOTS();
             hookGetThumbForOreo();
         }

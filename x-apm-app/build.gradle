@@ -1,3 +1,5 @@
+import groovy.xml.XmlUtil
+
 apply plugin: 'com.android.application'
 apply plugin: 'org.greenrobot.greendao' // apply plugin
 
@@ -63,6 +65,10 @@ greendao {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+
+    // Framework
+    compileOnly files('../hidden-api/android-27.jar')
+    compileOnly files('../hidden-api/services-27.jar')
 
     // Test start.
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
@@ -161,5 +167,20 @@ dependencies {
 
 // apply plugin: 'com.google.gms.google-services'
 
-
-
+preBuild {
+    doLast {
+        def imlFile = file(project.name + ".iml")
+        println 'Change ' + project.name + '.iml order'
+        try {
+            def parsedXml = (new XmlParser()).parse(imlFile)
+            def jdkNode = parsedXml.component[1].orderEntry.find { it.'@type' == 'jdk' }
+            parsedXml.component[1].remove(jdkNode)
+            def sdkString = "Android API " + android.compileSdkVersion.substring("android-".length()) + " Platform"
+            //noinspection GroovyResultOfObjectAllocationIgnored
+            new Node(parsedXml.component[1], 'orderEntry', ['type': 'jdk', 'jdkName': sdkString, 'jdkType': 'Android SDK'])
+            XmlUtil.serialize(parsedXml, new FileOutputStream(imlFile))
+        } catch (FileNotFoundException e) {
+            // nop, iml not found
+        }
+    }
+}

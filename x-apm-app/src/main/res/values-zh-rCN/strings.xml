@@ -117,8 +117,7 @@
 
     <string name="summary_start_app">"禁止以下应用被其他应用（通过服务或者广播）启动（微信和支付宝建议不要加入，否则可能无法发起付款，输入法建议也不要禁止，否则无法唤起输入）。"</string>
 
-    <string name="app_intro">1. 你需要在 Xposed installer 中激活 应用管理 模块，并且重启才可以使用下面的功能。
-        Xposed installer 需要接收广播，以获取模块更新通知，如果无法激活请确保你没有对 Xposed installer 做任何限制处理，并且可以尝试重新勾选，重启。</string>
+    <string name="app_intro">你需要在 Xposed installer 中激活 应用管理 模块，并且重启才可以使用下面的功能。</string>
 
     <string name="app_intro_need_restart">应用更新后需要重新启动设备，否则系统可能无法正常工作。</string>
     <string name="redemption_need_restart">已经退出自救模式，重启生效。</string>
@@ -639,7 +638,7 @@
     <string name="summary_app_recent_blur_opt_cache">由于开启模糊时，每次任务快照需要处理一次，会消耗一些CPU和内存资源，你可以在性能较差的机器上开启此选项，使用缓存的模糊图片代替当前的应用快照，注意，这可能会让你的最近任务卡片内容看起来不是实时更新的。</string>
     <string name="summary_policy_settings">节电、模板、系统应用排除。</string>
     <string name="title_policy_settings">策略与优化</string>
-    <string name="title_device_status_fragment">X-APM</string>
+    <string name="title_device_status_fragment">首页</string>
     <string name="title_increase">+1</string>
     <string name="title_decrease">-1</string>
     <string name="title_clear_all_fav_tile">清空</string>

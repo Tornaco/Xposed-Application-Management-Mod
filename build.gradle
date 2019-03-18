@@ -34,8 +34,8 @@ task clean(type: Delete) {
 ext {
     dogfoodBuild = true
 
-    versionCode = 5140
-    versionName = "J-5.1.4-BETA"
+    versionCode = 5160
+    versionName = "P-5.1.6"
 
     minSdkVersion = 21
     compileSdkVersion = 26

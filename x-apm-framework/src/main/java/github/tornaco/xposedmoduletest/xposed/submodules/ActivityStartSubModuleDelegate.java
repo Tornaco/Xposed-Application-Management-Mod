@@ -35,6 +35,9 @@ class ActivityStartSubModuleDelegate extends AndroidSubModule {
             case 27:
                 activityStartSubModuleImpl = new ActivityStartSubModuleV27();
                 break;
+            case 28:
+                activityStartSubModuleImpl = new ActivityStartSubModuleV28();
+                break;
             default:
                 activityStartSubModuleImpl = new ActivityStartSubModuleEmpty();
                 break;

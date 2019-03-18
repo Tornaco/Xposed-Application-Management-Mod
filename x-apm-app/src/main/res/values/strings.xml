@@ -117,7 +117,7 @@
 
     <string name="summary_start_app">"The following applications are prohibited from being launched by other applications (via service or broadcast). (WeChat and Alipay are not recommended to add, otherwise you may fail initiating a payment; neither the input method app, otherwise it may not be able to evoke the input)."</string>
 
-    <string name="app_intro">1. You need to activate the X-APM module in the Xposed installer and reboot phone to use the following features.\nThe Xposed installer needs to receive broadcasts to get module update notifications. If it doesn't, make sure you don't have any restrictions on the Xposed installer , and try to recheck the module and reboot.</string>
+    <string name="app_intro">You need to activate the X-APM module in the Xposed installer and reboot phone to use the following features.</string>
 
     <string name="app_intro_need_restart">After X-APM module is updated, you need to restart the device. Otherwise, system may not work properly.</string>
     <string name="redemption_need_restart">Redemption mode has been exited and the restart takes effect.</string>
@@ -644,7 +644,7 @@
     <string name="summary_app_recent_blur_opt_cache">Since blurring is enabled, each task snapshot needs to be processed once, which consumes some CPU and memory resources. You can enable this option on a poorly performing machine and use the cached blurred image instead of the current application snapshot. Note that this may be Let your recent task card content not appear to be updated in real time.</string>
     <string name="title_policy_settings">Strategy and optimization</string>
     <string name="summary_policy_settings">Power saving, Template, System application exclusion.</string>
-    <string name="title_device_status_fragment">X-APM</string>
+    <string name="title_device_status_fragment">Home</string>
     <string name="title_increase">+1</string>
     <string name="title_decrease">-1</string>
     <string name="title_clear_all_fav_tile">Clear all</string>

@@ -73,6 +73,7 @@ import android.webkit.WebViewProviderInfo;
 import android.widget.Toast;
 
 import com.android.internal.os.Zygote;
+import com.android.server.notification.NotificationRecord;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -220,8 +221,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private static final boolean DEBUG_BROADCAST;
     private static final boolean DEBUG_SERVICE;
 
-    private static final boolean DEBUG_OP = false && BuildConfig.DEBUG;
-    private static final boolean DEBUG_COMP = false && BuildConfig.DEBUG;
+    private static final boolean DEBUG_OP = BuildConfig.DEBUG;
+    private static final boolean DEBUG_COMP = BuildConfig.DEBUG;
 
     static {
         boolean isBuildVarDebug = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.DEBUG);
@@ -390,8 +391,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private final LinkedList<String> mRunningProcessPackages = new LinkedList<>();
 
     private void addToRunningProcessPackages(String pkg) {
-        if (isInWhiteList(pkg)) return;
-        if (isWhiteSysAppEnabled() && isInSystemAppList(pkg)) return;
+        if (isInWhiteList(pkg)) {
+            return;
+        }
+        if (isWhiteSysAppEnabled() && isInSystemAppList(pkg)) {
+            return;
+        }
 
         boolean isLKList = isPackageLKByUser(pkg);
         if (!isLKList) {
@@ -409,7 +414,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     private void removeFromRunningProcessPackages(String... pkg) {
-        if (pkg == null || pkg.length == 0) return;
+        if (pkg == null || pkg.length == 0) {
+            return;
+        }
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("removeFromRunningProcessPackages: " + Arrays.toString(pkg));
         }
@@ -478,7 +485,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             = new ProtectedBroadcastReceiver(new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent == null) return;
+            if (intent == null) {
+                return;
+            }
             if (Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
                 try {
                     int userHandler = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, -1);
@@ -565,7 +574,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     private void onAPMClientUninstalled() {
-        if (PkgUtil.isPkgInstalled(getContext(), BuildConfig.APPLICATION_ID)) return;
+        if (PkgUtil.isPkgInstalled(getContext(), BuildConfig.APPLICATION_ID)) {
+            return;
+        }
 
         long id = Binder.clearCallingIdentity();
         try {
@@ -745,7 +756,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 .build();
 
         if (OSUtil.isMOrAbove()) {
-            n.setSmallIcon(new AppResource(getContext()).loadIconFromAPMApp("ic_hourglass_empty_black_24dp"));
+            n.setSmallIcon(new AppResource(getContext()).loadIconFromAPMApp("ic_timer_2_fill"));
         }
 
         NotificationManagerCompat.from(getContext())
@@ -758,7 +769,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     private void cachePackages(final String... pkg) {
-        if (pkg == null) return;
+        if (pkg == null) {
+            return;
+        }
 
         final PackageManager pm = getContext().getPackageManager();
 
@@ -774,7 +787,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
                 int uid = applicationInfo.uid;
                 String pkg1 = applicationInfo.packageName;
-                if (TextUtils.isEmpty(pkg1)) return;
+                if (TextUtils.isEmpty(pkg1)) {
+                    return;
+                }
 
                 if (XposedLog.isVerboseLoggable()) {
                     XposedLog.verbose("Cached pkg:" + pkg1 + "-" + uid);
@@ -805,8 +820,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                         PackageManager.GET_UNINSTALLED_PACKAGES);
             }
             sClientUID = applicationInfo.uid;
-            if (XposedLog.isVerboseLoggable())
+            if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("Our client app uid: " + sClientUID);
+            }
         } catch (PackageManager.NameNotFoundException e) {
             XposedLog.debug("Can not get client UID for our client:" + e);
         }
@@ -861,25 +877,36 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     private boolean isInWhiteList(String pkg) {
-        if (pkg == null) return false;
+        if (pkg == null) {
+            return false;
+        }
         // Owner package is always white listed.
-        if (pkg.equals(BuildConfig.APPLICATION_ID)) return true;
+        if (pkg.equals(BuildConfig.APPLICATION_ID)) {
+            return true;
+        }
 
         // If it is in Globacl white list.
-        if (GlobalWhiteList.isInGlobalWhiteList(pkg)) return true;
+        if (GlobalWhiteList.isInGlobalWhiteList(pkg)) {
+            return true;
+        }
 
         boolean inWhite = WHITE_LIST.contains(pkg);
-        if (inWhite) return true;
+        if (inWhite) {
+            return true;
+        }
 
         // Check if webview provider.
         // if (isWebviewProvider(pkg)) return true;
 
-        if (WHITE_LIST_PATTERNS.size() == 0) return false;
+        if (WHITE_LIST_PATTERNS.size() == 0) {
+            return false;
+        }
 
         for (Pattern p : WHITE_LIST_PATTERNS) {
             if (p.matcher(pkg).find()) {
-                if (XposedLog.isVerboseLoggable())
+                if (XposedLog.isVerboseLoggable()) {
                     XposedLog.verbose("Match white list for pattern: " + p.toString() + ", pkg: " + pkg);
+                }
                 addToWhiteList(pkg);
                 return true;
             }
@@ -895,15 +922,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     private synchronized static void addToWhiteList(String pkg) {
         if (WHITE_LIST_HOOK.contains(pkg)) {
-            if (XposedLog.isVerboseLoggable())
+            if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("Not add to white list because it is hooked: " + pkg);
+            }
             return;
         }
 
         // Check dynamic white list hook.
         if (RepoProxy.getProxy().getWhite_list_hooks_dynamic().has(pkg)) {
-            if (XposedLog.isVerboseLoggable())
+            if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("Not add to white list because it is dynamic hooked: " + pkg);
+            }
             return;
         }
 
@@ -1542,8 +1571,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         public void setDozeDelayMills(long delayMills) {
             mDozeDelay = delayMills;
             XAPMServerSettings.DOZE_DELAY_L.write(delayMills);
-            if (XposedLog.isVerboseLoggable())
+            if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("setDozeDelayMills to: " + mDozeDelay);
+            }
         }
 
         @Override
@@ -1597,7 +1627,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         private int isDeviceStateReadyToDoze() {
             XposedLog.verbose("isDeviceStateReadyToDoze: " + mBatteryState);
-            if (mBatteryState == null) return DozeEvent.FAIL_NOOP;
+            if (mBatteryState == null) {
+                return DozeEvent.FAIL_NOOP;
+            }
 
             int state = mBatteryState.getStatus();
             if (state == BatteryManager.BATTERY_STATUS_CHARGING
@@ -1611,7 +1643,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             PowerManager powerManager = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
             boolean isInteractive = powerManager != null && powerManager.isInteractive();
-            if (isInteractive) return DozeEvent.FAIL_DEVICE_INTERACTIVE;
+            if (isInteractive) {
+                return DozeEvent.FAIL_DEVICE_INTERACTIVE;
+            }
 
             return DozeEvent.FAIL_NOOP;
         }
@@ -1772,7 +1806,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @CommonBringUpApi
     @SinceSDK(Build.VERSION_CODES.O)
     public void notifyTaskCreated(int taskId, ComponentName componentName) {
-        if (componentName == null) return;
+        if (componentName == null) {
+            return;
+        }
         // Use a dup package.
         ComponentName dup = new ComponentName(componentName.getPackageName(), componentName.getClassName());
         mTaskIdMap.put(taskId, dup);
@@ -2072,7 +2108,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             return false;
         }
         ArrayList<StatusBarNotification> sbns = mNotificationService.getStatusBarNotifications();
-        if (sbns == null || sbns.size() == 0) return false;
+        if (sbns == null || sbns.size() == 0) {
+            return false;
+        }
 
         if (BuildConfig.DEBUG) {
             for (StatusBarNotification sbn : sbns) {
@@ -2096,7 +2134,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             return new HashSet<>(0);
         }
         ArrayList<StatusBarNotification> sbns = mNotificationService.getStatusBarNotifications();
-        if (sbns == null || sbns.size() == 0) return new HashSet<>(0);
+        if (sbns == null || sbns.size() == 0) {
+            return new HashSet<>(0);
+        }
 
         if (BuildConfig.DEBUG) {
             for (StatusBarNotification sbn : sbns) {
@@ -2114,7 +2154,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private void dumpNotifications() {
         XposedLog.wtf("------dumpNotifications START-------");
         ArrayList<StatusBarNotification> sbns = mNotificationService.getStatusBarNotifications();
-        if (sbns == null || sbns.size() == 0) return;
+        if (sbns == null || sbns.size() == 0) {
+            return;
+        }
         for (StatusBarNotification sbn : sbns) {
             XposedLog.verbose("StatusBarNotification: " + sbn + ", from pkg: " + sbn.getPackageName());
         }
@@ -2303,7 +2345,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private CheckResult checkStartProcessDetailed(ApplicationInfo applicationInfo, String hostType, String hostName) {
         String processPackage = applicationInfo.packageName;
 
-        if (TextUtils.isEmpty(processPackage)) return CheckResult.BAD_ARGS;
+        if (TextUtils.isEmpty(processPackage)) {
+            return CheckResult.BAD_ARGS;
+        }
 
         if (isInWhiteList(processPackage)) {
             return CheckResult.WHITE_LISTED;
@@ -2324,7 +2368,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         // Disabled case.
-        if (!isStartBlockEnabled()) return CheckResult.SERVICE_CHECK_DISABLED;
+        if (!isStartBlockEnabled()) {
+            return CheckResult.SERVICE_CHECK_DISABLED;
+        }
 
         boolean isOnTop = isPackageRunningOnTop(processPackage);
         if (isOnTop) {
@@ -2349,7 +2395,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     @InternalCall
     public boolean checkService(Intent intent, ComponentName serviceComp, int callerUid) {
-        if (serviceComp == null) return true;
+        if (serviceComp == null) {
+            return true;
+        }
 
         String appPkg = serviceComp.getPackageName();
         CheckResult res = checkServiceDetailed(intent, appPkg, serviceComp, callerUid);
@@ -2395,7 +2443,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             XposedLog.verbose("checkRestartService: " + componentName + ", pkg: " + packageName);
         }
 
-        if (TextUtils.isEmpty(packageName)) return true;
+        if (TextUtils.isEmpty(packageName)) {
+            return true;
+        }
         if (isInWhiteList(packageName)) {
             XposedLog.verbose("checkRestartService: allow white");
             return true;
@@ -2463,7 +2513,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                                              String servicePkgName,
                                              ComponentName componentName,
                                              int callerUid) {
-        if (TextUtils.isEmpty(servicePkgName)) return CheckResult.BAD_ARGS;
+        if (TextUtils.isEmpty(servicePkgName)) {
+            return CheckResult.BAD_ARGS;
+        }
 
         if (isInWhiteList(servicePkgName)) {
             return CheckResult.WHITE_LISTED;
@@ -2475,14 +2527,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         // Check Op first for this package.
-        String shortString = componentName.flattenToShortString();
-        int mode = getPermissionControlBlockModeForPkg(
-                XAppOpsManager.OP_START_SERVICE, servicePkgName, true, new String[]{shortString});
-        if (XposedLog.isVerboseLoggable()) {
-            XposedLog.verbose("checkService, get op mode for service: %s, mode: %s", shortString, mode);
-        }
-        if (mode == XAppOpsManager.MODE_IGNORED) {
-            return CheckResult.DENIED_OP_DENIED;
+        if (isPermissionControlEnabled()) {
+            String shortString = componentName.flattenToShortString();
+            int mode = getPermissionControlBlockModeForPkg(
+                    XAppOpsManager.OP_START_SERVICE, servicePkgName, true, new String[]{shortString});
+            if (XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose("checkService, get op mode for service: %s, mode: %s", shortString, mode);
+            }
+            if (mode == XAppOpsManager.MODE_IGNORED) {
+                return CheckResult.DENIED_OP_DENIED;
+            }
         }
 
         // First check the user rules.
@@ -2531,7 +2585,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         // if (!isSystemReady()) return CheckResult.SYSTEM_NOT_READY;
         // Disabled case.
-        if (!isStartBlockEnabled()) return CheckResult.SERVICE_CHECK_DISABLED;
+        if (!isStartBlockEnabled()) {
+            return CheckResult.SERVICE_CHECK_DISABLED;
+        }
 
         // Check if this is green app.
         boolean isGreeningApp = isGreeningEnabled()
@@ -2595,7 +2651,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     private CheckResult getStartCheckResultInRules(Intent intent, String caller, String targetPackage) {
-        if (caller == null || targetPackage == null) return null;
+        if (caller == null || targetPackage == null) {
+            return null;
+        }
         XStopWatch stopWatch = null;
         if (BuildConfig.DEBUG) {
             stopWatch = XStopWatch.start("SERVICE START RULE CHECK, is Push message: " + PushMessageHelper.isPushIntent(intent));
@@ -2781,12 +2839,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                     + ", state: " + newState);
         }
 
-        if (componentName == null) return true;
+        if (componentName == null) {
+            return true;
+        }
 
         String pkgName = componentName.getPackageName();
 
         //noinspection ConstantConditions
-        if (pkgName == null) return true;
+        if (pkgName == null) {
+            return true;
+        }
 
         if (BuildConfig.APPLICATION_ID.equals(pkgName)
                 && callingUid != sClientUID
@@ -3042,7 +3104,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public String[] getWhiteListApps(int filterOptions) {
-        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getWhiteListApps: " + filterOptions);
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("getWhiteListApps: " + filterOptions);
+        }
         enforceCallingPermissions();
         Object[] data = WHITE_LIST.toArray(); // FIXME, no sync protect?
         return convertObjectArrayToStringArray(data);
@@ -3063,8 +3127,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         final boolean withoutCore = filterOptions == XAPMManager.FLAG_SHOW_SYSTEM_APP_WITHOUT_CORE_APP;
         final List<String> filtered = Lists.newArrayList();
         Collections.consumeRemaining(outList, s -> {
-            if (!showSystem && (isInSystemAppList(s) || isInWhiteList(s))) return;
-            if (withoutCore && isInWhiteList(s)) return;
+            if (!showSystem && (isInSystemAppList(s) || isInWhiteList(s))) {
+                return;
+            }
+            if (withoutCore && isInWhiteList(s)) {
+                return;
+            }
             filtered.add(s);
         });
         return convertObjectArrayToStringArray(filtered.toArray());
@@ -3074,8 +3142,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         long id = Binder.clearCallingIdentity();
         try {
             for (String p : packages) {
-                if (add) repo.add(p);
-                else repo.remove(p);
+                if (add) {
+                    repo.add(p);
+                } else {
+                    repo.remove(p);
+                }
             }
         } finally {
             Binder.restoreCallingIdentity(id);
@@ -3084,7 +3155,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public String[] getBootBlockApps(boolean block) {
-        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getBootBlockApps: " + block);
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("getBootBlockApps: " + block);
+        }
         enforceCallingPermissions();
         if (!block) {
             Collection<String> packages = mPackagesCache.keySet();
@@ -3142,16 +3215,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public void addOrRemoveBootBlockApps(String[] packages, int op) {
-        if (XposedLog.isVerboseLoggable())
+        if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("addOrRemoveBootBlockApps: " + Arrays.toString(packages));
+        }
         enforceCallingPermissions();
-        if (packages == null || packages.length == 0) return;
+        if (packages == null || packages.length == 0) {
+            return;
+        }
         addOrRemoveFromRepo(packages, RepoProxy.getProxy().getBoots(), op == XAPMManager.Op.ADD);
     }
 
     @Override
     public String[] getStartBlockApps(boolean block) {
-        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getStartBlockApps: " + block);
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("getStartBlockApps: " + block);
+        }
         enforceCallingPermissions();
         if (!block) {
             Collection<String> packages = mPackagesCache.keySet();
@@ -3164,10 +3242,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             // Remove those not in blocked list.
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
             Collections.consumeRemaining(allPackagesArr, s -> {
-                if (outList.contains(s)) return;// Kik dup package.
-                if (isPackageStartBlockByUser(s)) return;
-                if (isInWhiteList(s)) return;
-                if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
+                if (outList.contains(s)) {
+                    return;// Kik dup package.
+                }
+                if (isPackageStartBlockByUser(s)) {
+                    return;
+                }
+                if (isInWhiteList(s)) {
+                    return;
+                }
+                if (isWhiteSysAppEnabled() && isInSystemAppList(s)) {
+                    return;
+                }
                 outList.add(s);
             });
 
@@ -3196,16 +3282,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public void addOrRemoveStartBlockApps(String[] packages, int op) {
-        if (XposedLog.isVerboseLoggable())
+        if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("addOrRemoveStartBlockApps: " + Arrays.toString(packages));
+        }
         enforceCallingPermissions();
-        if (packages == null || packages.length == 0) return;
+        if (packages == null || packages.length == 0) {
+            return;
+        }
         addOrRemoveFromRepo(packages, RepoProxy.getProxy().getStarts(), op == XAPMManager.Op.ADD);
     }
 
     @Override
     public String[] getLKApps(boolean kill) {
-        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getLKApps: " + kill);
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("getLKApps: " + kill);
+        }
         enforceCallingPermissions();
         if (!kill) {
             Collection<String> packages = mPackagesCache.keySet();
@@ -3218,10 +3309,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             // Remove those not in blocked list.
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
             Collections.consumeRemaining(allPackagesArr, s -> {
-                if (outList.contains(s)) return;// Kik dup package.
-                if (isPackageLKByUser(s)) return;
-                if (isInWhiteList(s)) return;
-                if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
+                if (outList.contains(s)) {
+                    return;// Kik dup package.
+                }
+                if (isPackageLKByUser(s)) {
+                    return;
+                }
+                if (isInWhiteList(s)) {
+                    return;
+                }
+                if (isWhiteSysAppEnabled() && isInSystemAppList(s)) {
+                    return;
+                }
                 outList.add(s);
             });
 
@@ -3250,10 +3349,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public void addOrRemoveLKApps(String[] packages, int op) {
-        if (XposedLog.isVerboseLoggable())
+        if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("addOrRemoveLKApps: " + Arrays.toString(packages));
+        }
         enforceCallingPermissions();
-        if (packages == null || packages.length == 0) return;
+        if (packages == null || packages.length == 0) {
+            return;
+        }
         addOrRemoveFromRepo(packages, RepoProxy.getProxy().getLks(), op == XAPMManager.Op.ADD);
         if (op == XAPMManager.Op.REMOVE) {
             removeFromRunningProcessPackages(packages);
@@ -3262,7 +3364,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public String[] getRFKApps(boolean kill) {
-        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getRFKApps: " + kill);
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("getRFKApps: " + kill);
+        }
         enforceCallingPermissions();
         if (!kill) {
             Collection<String> packages = mPackagesCache.keySet();
@@ -3275,10 +3379,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             // Remove those not in blocked list.
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
             Collections.consumeRemaining(allPackagesArr, s -> {
-                if (outList.contains(s)) return;// Kik dup package.
-                if (isPackageRFKByUser(s)) return;
-                if (isInWhiteList(s)) return;
-                if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
+                if (outList.contains(s)) {
+                    return;// Kik dup package.
+                }
+                if (isPackageRFKByUser(s)) {
+                    return;
+                }
+                if (isInWhiteList(s)) {
+                    return;
+                }
+                if (isWhiteSysAppEnabled() && isInSystemAppList(s)) {
+                    return;
+                }
                 outList.add(s);
             });
 
@@ -3307,16 +3419,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public void addOrRemoveRFKApps(String[] packages, int op) {
-        if (XposedLog.isVerboseLoggable())
+        if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("addOrRemoveRFKApps: " + Arrays.toString(packages));
+        }
         enforceCallingPermissions();
-        if (packages == null || packages.length == 0) return;
+        if (packages == null || packages.length == 0) {
+            return;
+        }
         addOrRemoveFromRepo(packages, RepoProxy.getProxy().getRfks(), op == XAPMManager.Op.ADD);
     }
 
     @Override
     public String[] getGreeningApps(boolean greening) {
-        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getGreeningApps: " + greening);
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("getGreeningApps: " + greening);
+        }
         enforceCallingPermissions();
         if (!greening) {
             Collection<String> packages = mPackagesCache.keySet();
@@ -3329,10 +3446,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             // Remove those not in blocked list.
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
             Collections.consumeRemaining(allPackagesArr, s -> {
-                if (outList.contains(s)) return;// Kik dup package.
-                if (isPackageGreeningByUser(s)) return;
-                if (isInWhiteList(s)) return;
-                if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
+                if (outList.contains(s)) {
+                    return;// Kik dup package.
+                }
+                if (isPackageGreeningByUser(s)) {
+                    return;
+                }
+                if (isInWhiteList(s)) {
+                    return;
+                }
+                if (isWhiteSysAppEnabled() && isInSystemAppList(s)) {
+                    return;
+                }
                 outList.add(s);
             });
 
@@ -3361,23 +3486,34 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public void addOrRemoveGreeningApps(String[] packages, int op) {
-        if (XposedLog.isVerboseLoggable())
+        if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("addOrRemoveGreeningApps: " + Arrays.toString(packages));
+        }
         enforceCallingPermissions();
-        if (packages == null || packages.length == 0) return;
+        if (packages == null || packages.length == 0) {
+            return;
+        }
         addOrRemoveFromRepo(packages, RepoProxy.getProxy().getGreens(), op == XAPMManager.Op.ADD);
     }
 
     @Override
     @BinderCall(restrict = "any")
     public boolean isPackageGreening(String packageName) {
-        if (packageName == null) return false;
+        if (packageName == null) {
+            return false;
+        }
         long id = Binder.clearCallingIdentity();
         try {
-            if (!isGreeningEnabled()) return false;
+            if (!isGreeningEnabled()) {
+                return false;
+            }
 
-            if (isInSystemAppList(packageName)) return false;
-            if (isWhiteSysAppEnabled() && isInSystemAppList(packageName)) return false;
+            if (isInSystemAppList(packageName)) {
+                return false;
+            }
+            if (isWhiteSysAppEnabled() && isInSystemAppList(packageName)) {
+                return false;
+            }
             return RepoProxy.getProxy().getGreens().has(packageName);
         } finally {
             Binder.restoreCallingIdentity(id);
@@ -3387,18 +3523,28 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     @BinderCall(restrict = "any")
     public boolean isUidGreening(int uid) {
-        if (PkgUtil.isSystemOrPhoneOrShell(uid)) return false;
+        if (PkgUtil.isSystemOrPhoneOrShell(uid)) {
+            return false;
+        }
 
         long id = Binder.clearCallingIdentity();
         try {
 
-            if (!isGreeningEnabled()) return false;
+            if (!isGreeningEnabled()) {
+                return false;
+            }
 
             // FIXME Too slow.
             String packageName = PkgUtil.pkgForUid(getContext(), uid);
-            if (packageName == null) return false;
-            if (isInSystemAppList(packageName)) return false;
-            if (isWhiteSysAppEnabled() && isInSystemAppList(packageName)) return false;
+            if (packageName == null) {
+                return false;
+            }
+            if (isInSystemAppList(packageName)) {
+                return false;
+            }
+            if (isWhiteSysAppEnabled() && isInSystemAppList(packageName)) {
+                return false;
+            }
 
             return RepoProxy.getProxy().getGreens().has(packageName);
         } finally {
@@ -3498,7 +3644,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public int getRecentTaskExcludeSetting(ComponentName c) {
-        if (c == null) return XAPMManager.ExcludeRecentSetting.NONE;
+        if (c == null) {
+            return XAPMManager.ExcludeRecentSetting.NONE;
+        }
         return SettingsProvider.get().getInt("RECENT_EXCLUDE_" + c.getPackageName(), XAPMManager.ExcludeRecentSetting.NONE);
     }
 
@@ -3559,6 +3707,20 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     @Override
+    public void onNotificationPosted(NotificationRecord sbn) {
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("NotificationListeners onNotificationPosted: " + sbn);
+        }
+    }
+
+    @Override
+    public void onNotificationRemoved(NotificationRecord sbn) {
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("NotificationListeners onNotificationRemoved: " + sbn);
+        }
+    }
+
+    @Override
     public void onInputEvent(Object arg) {
         // Noop.
     }
@@ -3603,11 +3765,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             if (HAS_STATS_MANAGER) {
                 IUsageStatsManager usm = IUsageStatsManager.Stub.asInterface(ServiceManager
                         .getService(Context.USAGE_STATS_SERVICE));
-                if (usm != null) try {
-                    usm.setAppInactive(packageName, true, userId);
-                } catch (Throwable e) {
-                    XposedLog.wtf("Fail setAppInactive: " +
-                            Log.getStackTraceString(e));
+                if (usm != null) {
+                    try {
+                        usm.setAppInactive(packageName, true, userId);
+                    } catch (Throwable e) {
+                        XposedLog.wtf("Fail setAppInactive: " +
+                                Log.getStackTraceString(e));
+                    }
                 }
             }
         } finally {
@@ -3625,11 +3789,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             if (HAS_STATS_MANAGER) {
                 IUsageStatsManager usm = IUsageStatsManager.Stub.asInterface(ServiceManager
                         .getService(Context.USAGE_STATS_SERVICE));
-                if (usm != null) try {
-                    return usm.isAppInactive(packageName, userId);
-                } catch (Throwable e) {
-                    XposedLog.wtf("Fail isAppInactive: " +
-                            Log.getStackTraceString(e));
+                if (usm != null) {
+                    try {
+                        return usm.isAppInactive(packageName, userId);
+                    } catch (Throwable e) {
+                        XposedLog.wtf("Fail isAppInactive: " +
+                                Log.getStackTraceString(e));
+                    }
                 }
             }
         } finally {
@@ -3741,7 +3907,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     public JavaScript getSavedJs(String id) {
         enforceCallingPermissions();
         boolean exist = RepoProxy.getProxy().getJs().hasNoneNullValue(id);
-        if (!exist) return null;
+        if (!exist) {
+            return null;
+        }
         return JavaScript.fromJson(RepoProxy.getProxy().getJs().get(id));
     }
 
@@ -4033,7 +4201,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         // if (!isSystemReady()) return CheckResult.SYSTEM_NOT_READY;
 
         // Disabled case.
-        if (!isStartBlockEnabled()) return CheckResult.BROADCAST_CHECK_DISABLED;
+        if (!isStartBlockEnabled()) {
+            return CheckResult.BROADCAST_CHECK_DISABLED;
+        }
 
         // Broadcast from/to same app is allowed.
         if (callerUid == receiverUid && PkgUtil.isSystemOrPhoneOrShell(callerUid)) {
@@ -4056,7 +4226,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         String receiverPkgName = PkgUtil.pkgForUid(getContext(), receiverUid);
-        if (TextUtils.isEmpty(receiverPkgName)) return CheckResult.BAD_ARGS;
+        if (TextUtils.isEmpty(receiverPkgName)) {
+            return CheckResult.BAD_ARGS;
+        }
 
         return checkBroadcastDetailed(action, receiverPkgName, PkgUtil.pkgForUid(getContext(), callerUid));
     }
@@ -4171,12 +4343,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private CheckResult checkBootCompleteBroadcast(int receiverUid, int callerUid) {
 
         // Disabled case.
-        if (!isBlockBlockEnabled()) return CheckResult.BOOT_CHECK_DISABLED;
+        if (!isBlockBlockEnabled()) {
+            return CheckResult.BOOT_CHECK_DISABLED;
+        }
 
         // FIXME Too Slow.
         String receiverPkgName = PkgUtil.pkgForUid(getContext(), receiverUid);
 
-        if (TextUtils.isEmpty(receiverPkgName)) return CheckResult.BAD_ARGS;
+        if (TextUtils.isEmpty(receiverPkgName)) {
+            return CheckResult.BAD_ARGS;
+        }
 
         if (isInWhiteList(receiverPkgName)) {
             return CheckResult.WHITE_LISTED;
@@ -4245,10 +4421,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     private static int blockRecordTypeFromHostType(String hostType) {
-        if (HOST_TYPE_BROADCAST.equals(hostType)) return BlockRecord2.TYPE_BROADCAST;
-        if (HOST_TYPE_ACTIVITY.equals(hostType)) return BlockRecord2.TYPE_ACTIVITY;
-        if (HOST_TYPE_SERVICE.equals(hostType)) return BlockRecord2.TYPE_SERVICE;
-        if (HOST_TYPE_CONTENT_PROVIDER.equals(hostType)) return BlockRecord2.TYPE_CONTENT_PROVIDER;
+        if (HOST_TYPE_BROADCAST.equals(hostType)) {
+            return BlockRecord2.TYPE_BROADCAST;
+        }
+        if (HOST_TYPE_ACTIVITY.equals(hostType)) {
+            return BlockRecord2.TYPE_ACTIVITY;
+        }
+        if (HOST_TYPE_SERVICE.equals(hostType)) {
+            return BlockRecord2.TYPE_SERVICE;
+        }
+        if (HOST_TYPE_CONTENT_PROVIDER.equals(hostType)) {
+            return BlockRecord2.TYPE_CONTENT_PROVIDER;
+        }
         return BlockRecord2.TYPE_UNKNOWN;
     }
 
@@ -4298,7 +4482,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                     PkgUtil.pkgForUid(getContext(), broadcastEvent.receiver);
             if (receiverPkgName == null) {
                 receiverPkgName = PkgUtil.pkgForUid(getContext(), broadcastEvent.receiver);
-                if (receiverPkgName == null) return;
+                if (receiverPkgName == null) {
+                    return;
+                }
             }
 
             String callerPkg =
@@ -4382,17 +4568,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         String[] whiteListArr = new AppResource(getContext()).readStringArrayFromAPMApp("default_ash_white_list_packages");
         XposedLog.debug("Res default_ash_white_list_packages: " + Arrays.toString(whiteListArr));
         Collections.consumeRemaining(whiteListArr, s -> {
-            if (TextUtils.isEmpty(s)) return;
+            if (TextUtils.isEmpty(s)) {
+                return;
+            }
             // Only accept pattern with *
             boolean isPattern = s.contains("*");
             if (isPattern) {
                 try {
                     addWhiteListPattern(Pattern.compile(s));
-                    if (XposedLog.isVerboseLoggable())
+                    if (XposedLog.isVerboseLoggable()) {
                         XposedLog.verbose("Adding pattern: " + s);
+                    }
                 } catch (Throwable e) {
-                    if (XposedLog.isVerboseLoggable())
+                    if (XposedLog.isVerboseLoggable()) {
                         XposedLog.verbose("Invalid pattern: " + s);
+                    }
                     addToWhiteList(s);
                 }
             } else {
@@ -4506,7 +4696,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private void applyDozeWhiteList() {
         XposedLog.verbose("applyDozeWhiteList: " + mDeviceIdleController);
         try {
-            if (mDeviceIdleController == null) return;
+            if (mDeviceIdleController == null) {
+                return;
+            }
             Set<String> adding = RepoProxy.getProxy().getDoze_whitelist_adding().getAll();
             for (String add : adding) {
                 mDeviceIdleController.addPowerSaveWhitelistAppInternal(add);
@@ -4557,6 +4749,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         return mGCMSupportPackages.contains(pkg);
     }
 
+    @Override
     @BinderCall
     public boolean isMiPushSupportPackage(String pkg) {
         enforceCallingPermissions();
@@ -4618,7 +4811,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     @BinderCall
     public boolean isPushMessageHandlerEnabled(String pkg) {
-        if (pkg == null) return false;
+        if (pkg == null) {
+            return false;
+        }
         return SettingsProvider.get().getBoolean(getPushMessageHandlerPkgEnableStateKeyForPackage(pkg), false);
     }
 
@@ -4734,7 +4929,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         RuleParser p = RuleParser.Factory.newParser();
         Rule r = p.parse(rule);
         XposedLog.verbose("addOrRemoveLazyRules: " + r);
-        if (r == null) return false;
+        if (r == null) {
+            return false;
+        }
         String rulePattern = r.toInternalPattern();
         if (add) {
             RepoProxy.getProxy().getLazy_rules().add(rulePattern);
@@ -4925,10 +5122,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public void addOrRemoveSystemPropProfileApplyApps(String[] pkgs, boolean add) {
-        if (XposedLog.isVerboseLoggable())
+        if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("addOrRemoveSystemPropProfileApplyApps: "
                     + Arrays.toString(pkgs));
-        if (pkgs == null || pkgs.length == 0) return;
+        }
+        if (pkgs == null || pkgs.length == 0) {
+            return;
+        }
         enforceCallingPermissions();
         long id = Binder.clearCallingIdentity();
         try {
@@ -4952,8 +5152,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public String[] getSystemPropProfileApplyApps(boolean apply) {
-        if (XposedLog.isVerboseLoggable())
+        if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("getSystemPropProfileApplyApps: " + apply);
+        }
         enforceCallingPermissions();
         if (!apply) {
             Collection<String> packages = mPackagesCache.keySet();
@@ -4967,10 +5168,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
             Collections.consumeRemaining(allPackagesArr,
                     s -> {
-                        if (outList.contains(s)) return;// Kik dup package.
-                        if (isPackagePropApplyByUser(s)) return;
-                        if (isInWhiteList(s)) return;
-                        if (isInSystemAppList(s)) return; // Only for 3-rd.
+                        if (outList.contains(s)) {
+                            return;// Kik dup package.
+                        }
+                        if (isPackagePropApplyByUser(s)) {
+                            return;
+                        }
+                        if (isInWhiteList(s)) {
+                            return;
+                        }
+                        if (isInSystemAppList(s)) {
+                            return; // Only for 3-rd.
+                        }
                         outList.add(s);
                     });
 
@@ -5030,7 +5239,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         RuleParser p = RuleParser.Factory.newParser();
         Rule r = p.parse(rule);
         XposedLog.verbose("addOrRemovePackageInstallerVerifyRules: " + r);
-        if (r == null) return false;
+        if (r == null) {
+            return false;
+        }
         String rulePattern = r.toInternalPattern();
         if (add) {
             RepoProxy.getProxy().getPm_rules().add(rulePattern);
@@ -5063,7 +5274,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private void cacheGCMPackages() {
         XposedLog.verbose("cacheGCMPackages...");
         try {
-            if (getContext() == null) return;
+            if (getContext() == null) {
+                return;
+            }
             List<ResolveInfo> list = getContext().getPackageManager()
                     .queryBroadcastReceivers(new Intent(PushMessageHelper.ACTION_FCM), 0);
             if (list != null) {
@@ -5107,7 +5320,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private void cacheMIPushPackages() {
         XposedLog.verbose("cacheMIPushPackages...");
         try {
-            if (getContext() == null) return;
+            if (getContext() == null) {
+                return;
+            }
             List<ResolveInfo> list = getContext().getPackageManager()
                     .queryBroadcastReceivers(new Intent(PushMessageHelper.ACTION_MIPUSH), 0);
             if (list != null) {
@@ -5224,7 +5439,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             XposedLog.verbose("onRequestAudioFocus: " + pkgName + " ,uid: " + callingUid
                     + ", type: " + type + ", res: " + res);
         }
-        if (pkgName == null) return;
+        if (pkgName == null) {
+            return;
+        }
 
         if (res == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
             return;
@@ -5251,7 +5468,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("onAbandonAudioFocus: " + callingPkg + "--" + callingUid);
         }
-        if (pkgName == null) return;
+        if (pkgName == null) {
+            return;
+        }
         mainHandler.obtainMessage(AshManHandlerMessages.MSG_ONAUDIOFOCUSEDPACKAGEABANDONED, pkgName).sendToTarget();
     }
 
@@ -5296,7 +5515,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             XposedLog.verbose("getPermissionControlBlockModeForPkg pattern %s", pattern);
         }
         try {
-            if (isInPermissionBlockList(pattern)) return XAppOpsManager.MODE_IGNORED;
+            if (isInPermissionBlockList(pattern)) {
+                return XAppOpsManager.MODE_IGNORED;
+            }
         } catch (Throwable e) {
             XposedLog.wtf("Error getPermissionControlBlockModeForPkg: " + Log.getStackTraceString(e));
             return XAppOpsManager.MODE_ALLOWED;
@@ -5325,9 +5546,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     public void setPermissionControlBlockModeForPkg(int code, String pkg, int mode) {
         enforceCallingPermissions();
 
-        if (XposedLog.isVerboseLoggable())
+        if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("setPermissionControlBlockModeForPkg: "
                     + constructPatternForPermission(code, pkg));
+        }
 
         long id = Binder.clearCallingIdentity();
         try {
@@ -5480,7 +5702,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     @BinderCall
     public String[] getPrivacyList(boolean priv) {
-        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getPrivacyList: " + priv);
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("getPrivacyList: " + priv);
+        }
         enforceCallingPermissions();
         if (!priv) {
             Collection<String> packages = mPackagesCache.keySet();
@@ -5493,10 +5717,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             // Remove those not in blocked list.
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
             Collections.consumeRemaining(allPackagesArr, s -> {
-                if (outList.contains(s)) return;// Kik dup package.
-                if (isPackageprivacyByUser(s)) return;
-                if (isInWhiteList(s)) return;
-                if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
+                if (outList.contains(s)) {
+                    return;// Kik dup package.
+                }
+                if (isPackageprivacyByUser(s)) {
+                    return;
+                }
+                if (isInWhiteList(s)) {
+                    return;
+                }
+                if (isWhiteSysAppEnabled() && isInSystemAppList(s)) {
+                    return;
+                }
                 outList.add(s);
             });
 
@@ -5526,11 +5758,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     @BinderCall(restrict = "any")
     public boolean isPackageInPrivacyList(String pkg) {
-        if (pkg == null) return false;
+        if (pkg == null) {
+            return false;
+        }
         long id = Binder.clearCallingIdentity();
         try {
-            if (isInWhiteList(pkg)) return false;
-            if (isWhiteSysAppEnabled() && isInSystemAppList(pkg)) return false;
+            if (isInWhiteList(pkg)) {
+                return false;
+            }
+            if (isWhiteSysAppEnabled() && isInSystemAppList(pkg)) {
+                return false;
+            }
             return RepoProxy.getProxy().getPrivacy().has(pkg);
         } finally {
             Binder.restoreCallingIdentity(id);
@@ -5554,7 +5792,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     @BinderCall
     public void addOrRemoveFromPrivacyList(String pkg, int op) {
-        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("addOrRemoveFromPrivacyList: " + pkg);
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("addOrRemoveFromPrivacyList: " + pkg);
+        }
         enforceCallingPermissions();
         long id = Binder.clearCallingIdentity();
         try {
@@ -5731,7 +5971,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public String[] getLazyApps(boolean lazy) {
-        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getLazyApps: " + lazy);
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("getLazyApps: " + lazy);
+        }
         enforceCallingPermissions();
         if (!lazy) {
             Collection<String> packages = mPackagesCache.keySet();
@@ -5745,10 +5987,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
             Collections.consumeRemaining(allPackagesArr,
                     s -> {
-                        if (outList.contains(s)) return;// Kik dup package.
-                        if (isPackageLazyByUser(s)) return;
-                        if (isInWhiteList(s)) return;
-                        if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
+                        if (outList.contains(s)) {
+                            return;// Kik dup package.
+                        }
+                        if (isPackageLazyByUser(s)) {
+                            return;
+                        }
+                        if (isInWhiteList(s)) {
+                            return;
+                        }
+                        if (isWhiteSysAppEnabled() && isInSystemAppList(s)) {
+                            return;
+                        }
                         outList.add(s);
                     });
 
@@ -5777,10 +6027,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public void addOrRemoveLazyApps(String[] packages, int op) {
-        if (XposedLog.isVerboseLoggable())
+        if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("addOrRemoveLazyApps: " + Arrays.toString(packages));
+        }
         enforceCallingPermissions();
-        if (packages == null || packages.length == 0) return;
+        if (packages == null || packages.length == 0) {
+            return;
+        }
         addOrRemoveFromRepo(packages, RepoProxy.getProxy().getLazy(), op == XAPMManager.Op.ADD);
 
         if (op == XAPMManager.Op.ADD) {
@@ -5933,7 +6186,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     public String[] getActivityFocusActions(ComponentName comp) {
         String compStr = comp.flattenToShortString();
         String v = RepoProxy.getProxy().getAppFocused().get(compStr);
-        if (v == null) return new String[0];
+        if (v == null) {
+            return new String[0];
+        }
         try {
             return new Gson().fromJson(v, String[].class);
         } catch (Exception e) {
@@ -5974,7 +6229,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     public String[] getActivityUnFocusActions(ComponentName comp) {
         String compStr = comp.flattenToShortString();
         String v = RepoProxy.getProxy().getAppUnFocused().get(compStr);
-        if (v == null) return new String[0];
+        if (v == null) {
+            return new String[0];
+        }
         try {
             return new Gson().fromJson(v, String[].class);
         } catch (Exception e) {
@@ -6088,7 +6345,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public String[] getTRKApps(boolean kill) {
-        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getTRKApps: " + kill);
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("getTRKApps: " + kill);
+        }
         enforceCallingPermissions();
         if (!kill) {
             Collection<String> packages = mPackagesCache.keySet();
@@ -6100,10 +6359,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
             Collections.consumeRemaining(allPackagesArr, s -> {
-                if (outList.contains(s)) return;// Kik dup package.
-                if (isPackageTRKByUser(s)) return;
-                if (isInWhiteList(s)) return;
-                if (isWhiteSysAppEnabled() && isInSystemAppList(s)) return;
+                if (outList.contains(s)) {
+                    return;// Kik dup package.
+                }
+                if (isPackageTRKByUser(s)) {
+                    return;
+                }
+                if (isInWhiteList(s)) {
+                    return;
+                }
+                if (isWhiteSysAppEnabled() && isInSystemAppList(s)) {
+                    return;
+                }
                 outList.add(s);
             });
 
@@ -6133,10 +6400,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public void addOrRemoveTRKApps(String[] packages, int op) {
-        if (XposedLog.isVerboseLoggable())
+        if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("addOrRemoveTRKApps: " + Arrays.toString(packages));
+        }
         enforceCallingPermissions();
-        if (packages == null || packages.length == 0) return;
+        if (packages == null || packages.length == 0) {
+            return;
+        }
         addOrRemoveFromRepo(packages, RepoProxy.getProxy().getTrks(), op == XAPMManager.Op.ADD);
     }
 
@@ -6484,13 +6754,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     public AppSettings getAppInstalledAutoApplyTemplate() {
         AppSettings as = AppSettings.fromJson(SettingsProvider.get()
                 .getString("AppInstalledAutoApplyTemplate", null));
-        if (as == null) as = AppSettings.builder()
-                .boot(true)
-                .start(true)
-                .trk(true)
-                .rfk(true)
-                .lk(true)
-                .build();
+        if (as == null) {
+            as = AppSettings.builder()
+                    .boot(true)
+                    .start(true)
+                    .trk(true)
+                    .rfk(true)
+                    .lk(true)
+                    .build();
+        }
         return as;
     }
 
@@ -6513,12 +6785,15 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         return pkgName != null
                 && (pkgName.equals(SYSTEM_UI_PKG)
                 || pkgName.equals(SYSTEM_UI_PKG_HTC)
-                || pkgName.equals(SYSTEM_UI_PKG_HUAWEI));
+                || pkgName.equals(SYSTEM_UI_PKG_HUAWEI)
+                || OSUtil.isPOrAbove());
     }
 
     private void postNotifyTopPackageChanged(final String from, final String to) {
 
-        if (from == null || to == null) return;
+        if (from == null || to == null) {
+            return;
+        }
         mLazyHandler.removeMessages(AshManLZHandlerMessages.MSG_NOTIFYTOPPACKAGECHANGED);
         mLazyHandler.obtainMessage(AshManLZHandlerMessages.MSG_NOTIFYTOPPACKAGECHANGED,
                 new Pair<>(from, to))
@@ -6629,7 +6904,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     // KEEP A xx/xx.yy
     private static String[] constructStopServiceKeepRule(String packageName,
                                                          ComponentName componentName) {
-        if (packageName == null || componentName == null) return null;
+        if (packageName == null || componentName == null) {
+            return null;
+        }
         String shortName = componentName.flattenToShortString();
         String name = componentName.flattenToString();
         return new String[]{
@@ -6775,7 +7052,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             XposedLog.verbose("LAZY mAppServiceControllerServiceStopperProxy now stop: " + name);
         }
 
-        if (name == null) return false;
+        if (name == null) {
+            return false;
+        }
 
         boolean confirm = confirmToStopLazyService(name.getPackageName(), name);
         if (!confirm) {
@@ -6848,23 +7127,34 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     private void logOperationIfNecessary(int code, int uid, String packageName, String reason, int mode, String[] payload) {
         // No log for power save.
-        if (isPowerSaveModeEnabled()) return;
+        if (isPowerSaveModeEnabled()) {
+            return;
+        }
 
         if (code >= XAppOpsManager._NUM_OP) {
             // Do not add invaild op.
             return;
         }
 
-        if (packageName == null) return;
-
-        if (BuildConfig.APPLICATION_ID.equals(packageName)) return;
-
-        if (PkgUtil.isSystemOrPhoneOrShell(uid)) return;
-
-        if (isInWhiteList(packageName)) return;
-
-        if (isWhiteSysAppEnabled() && isInSystemAppList(packageName))
+        if (packageName == null) {
             return;
+        }
+
+        if (BuildConfig.APPLICATION_ID.equals(packageName)) {
+            return;
+        }
+
+        if (PkgUtil.isSystemOrPhoneOrShell(uid)) {
+            return;
+        }
+
+        if (isInWhiteList(packageName)) {
+            return;
+        }
+
+        if (isWhiteSysAppEnabled() && isInSystemAppList(packageName)) {
+            return;
+        }
 
         if (XAppOpsManager.isLoggableOp(code)) {
             logOpEventToMemory(packageName, code, mode, payload);
@@ -6905,18 +7195,25 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     @BinderCall
     public void addOrRemoveResidentApps(String app, boolean add) {
-        if (XposedLog.isVerboseLoggable())
+        if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("addOrRemoveResidentApps: " + app);
+        }
         enforceCallingPermissions();
-        if (app == null) return;
-        if (isInSystemAppList(app)) return; // Not allowed for system app.
+        if (app == null) {
+            return;
+        }
+        if (isInSystemAppList(app)) {
+            return; // Not allowed for system app.
+        }
         addOrRemoveFromRepo(new String[]{app}, RepoProxy.getProxy().getResident(), add);
     }
 
     @Override
     @BinderCall
     public String[] getResidentApps(boolean resident) {
-        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("getResidentApps: " + resident);
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("getResidentApps: " + resident);
+        }
         enforceCallingPermissions();
         if (!resident) {
             Collection<String> packages = mPackagesCache.keySet();
@@ -6929,10 +7226,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             // Remove those not in blocked list.
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
             Collections.consumeRemaining(allPackagesArr, s -> {
-                if (isInSystemAppList(s)) return; // No system app.
-                if (outList.contains(s)) return;// Kik dup package.
-                if (isPackageResidentByUser(s)) return;
-                if (isInWhiteList(s)) return;
+                if (isInSystemAppList(s)) {
+                    return; // No system app.
+                }
+                if (outList.contains(s)) {
+                    return;// Kik dup package.
+                }
+                if (isPackageResidentByUser(s)) {
+                    return;
+                }
+                if (isInWhiteList(s)) {
+                    return;
+                }
                 outList.add(s);
             });
 
@@ -7048,7 +7353,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         RuleParser p = RuleParser.Factory.newParser();
         Rule r = p.parse(rule);
         XposedLog.verbose("addOrRemoveStartRules: " + r);
-        if (r == null) return false;
+        if (r == null) {
+            return false;
+        }
         String rulePattern = r.toInternalPattern();
         if (add) {
             RepoProxy.getProxy().getStart_rules().add(rulePattern);
@@ -7073,20 +7380,30 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     public void addAppLockWhiteListActivity(String[] activities) {
         XposedLog.verbose("addAppLockWhiteListActivity: " + Arrays.toString(activities));
-        if (activities == null) return;
+        if (activities == null) {
+            return;
+        }
         for (String a : activities) {
             RepoProxy.getProxy().getLock_white_list_activity().add(a);
         }
     }
 
     private int checkOperationInternal(int code, int uid, String packageName, String reason) {
-        if (packageName == null) return XAppOpsManager.MODE_ALLOWED;
+        if (packageName == null) {
+            return XAppOpsManager.MODE_ALLOWED;
+        }
 
-        if (BuildConfig.APPLICATION_ID.equals(packageName)) return XAppOpsManager.MODE_ALLOWED;
+        if (BuildConfig.APPLICATION_ID.equals(packageName)) {
+            return XAppOpsManager.MODE_ALLOWED;
+        }
 
-        if (PkgUtil.isSystemOrPhoneOrShell(uid)) return XAppOpsManager.MODE_ALLOWED;
+        if (PkgUtil.isSystemOrPhoneOrShell(uid)) {
+            return XAppOpsManager.MODE_ALLOWED;
+        }
 
-        if (isInWhiteList(packageName)) return XAppOpsManager.MODE_ALLOWED;
+        if (isInWhiteList(packageName)) {
+            return XAppOpsManager.MODE_ALLOWED;
+        }
 
         if (isWhiteSysAppEnabled() && isInSystemAppList(packageName)) {
             return XAppOpsManager.MODE_ALLOWED;
@@ -7369,7 +7686,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         if (BuildConfig.DEBUG) {
             XposedLog.verbose("onPackageMoveToFront: " + intent);
         }
-        if (intent == null) return;
+        if (intent == null) {
+            return;
+        }
 
         // Check if this is a verifier.
         // Ignore this event for verifier.
@@ -7660,8 +7979,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     protected void enforceCallingPermissions() {
         int callingUID = Binder.getCallingUid();
-        if (XposedLog.isVerboseLoggable())
+        if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("enforceCallingPermissions@uid:" + callingUID);
+        }
         if (callingUID == android.os.Process.myUid() || (sClientUID > 0 && sClientUID == callingUID)) {
             return;
         }
@@ -7696,10 +8016,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public String getServiceStarter(ComponentName service) {
-        if (service == null) return null;
+        if (service == null) {
+            return null;
+        }
         String key = service.flattenToString();
         Integer uid = mServiceStartRecords.get(key);
-        if (uid == null) return null;
+        if (uid == null) {
+            return null;
+        }
         return PkgUtil.pkgForUid(getContext(), uid);
     }
 
@@ -7987,8 +8311,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         @Override
         public void handleMessage(Message msg) {
-            if (XposedLog.isVerboseLoggable())
+            if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("HandlerImpl handleMessage: " + AshManHandlerMessages.decodeMessage(msg.what));
+            }
             super.handleMessage(msg);
             switch (msg.what) {
                 case AshManHandlerMessages.MSG_CLEARPROCESS:
@@ -8532,20 +8857,24 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             }
 
             boolean doNotCleatWhenInter = true;
-            if (listener != null) try {
-                doNotCleatWhenInter = listener.doNotClearWhenIntervative();
-            } catch (RemoteException ignored) {
+            if (listener != null) {
+                try {
+                    doNotCleatWhenInter = listener.doNotClearWhenIntervative();
+                } catch (RemoteException ignored) {
 
+                }
             }
 
             if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose(TAG_LK + "clearProcess!!! doNotCleatWhenInter: " + doNotCleatWhenInter);
             }
 
-            if (listener != null) try {
-                listener.onPrepareClearing();
-            } catch (RemoteException ignored) {
+            if (listener != null) {
+                try {
+                    listener.onPrepareClearing();
+                } catch (RemoteException ignored) {
 
+                }
             }
 
             final boolean finalDoNotClearWhenInter = doNotCleatWhenInter;
@@ -8557,7 +8886,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
                     PowerManager power = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
                     ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
-                    if (am == null) return null;
+                    if (am == null) {
+                        return null;
+                    }
 
                     Set<String> runningPackages = PkgUtil.getRunningProcessPackages(getContext());
                     if (BuildConfig.DEBUG) {
@@ -8567,10 +8898,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                     String[] packagesToClear = getLKApps(true);
                     int count = packagesToClear.length;
 
-                    if (listener != null) try {
-                        listener.onStartClearing(count);
-                    } catch (RemoteException ignored) {
+                    if (listener != null) {
+                        try {
+                            listener.onStartClearing(count);
+                        } catch (RemoteException ignored) {
 
+                        }
                     }
 
                     String[] cleared = new String[count];
@@ -8588,10 +8921,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                             if (XposedLog.isVerboseLoggable()) {
                                 XposedLog.verbose(TAG_LK + "Won't kill app in white list: " + runningPackageName);
                             }
-                            if (listener != null) try {
-                                listener.onIgnoredPkg(null, "White list");
-                            } catch (RemoteException ignored) {
+                            if (listener != null) {
+                                try {
+                                    listener.onIgnoredPkg(null, "White list");
+                                } catch (RemoteException ignored) {
 
+                                }
                             }
                             continue;
                         }
@@ -8600,10 +8935,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                             if (XposedLog.isVerboseLoggable()) {
                                 XposedLog.verbose(TAG_LK + "Won't kill app which not running: " + runningPackageName);
                             }
-                            if (listener != null) try {
-                                listener.onIgnoredPkg(null, "Not running");
-                            } catch (RemoteException ignored) {
+                            if (listener != null) {
+                                try {
+                                    listener.onIgnoredPkg(null, "Not running");
+                                } catch (RemoteException ignored) {
 
+                                }
                             }
                             continue;
                         }
@@ -8613,34 +8950,41 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                             if (XposedLog.isVerboseLoggable()) {
                                 XposedLog.verbose(TAG_LK + "Won't kill app with audio focus: " + runningPackageName);
                             }
-                            if (listener != null) try {
-                                listener.onIgnoredPkg(null, "Audio focused");
-                            } catch (RemoteException ignored) {
+                            if (listener != null) {
+                                try {
+                                    listener.onIgnoredPkg(null, "Audio focused");
+                                } catch (RemoteException ignored) {
 
+                                }
                             }
                             continue;
                         }
 
                         if (PkgUtil.isAppRunningForeground(getContext(), runningPackageName)) {
 
-                            if (listener != null) try {
-                                listener.onIgnoredPkg(runningPackageName, "foreground-app");
-                            } catch (RemoteException ignored) {
+                            if (listener != null) {
+                                try {
+                                    listener.onIgnoredPkg(runningPackageName, "foreground-app");
+                                } catch (RemoteException ignored) {
 
+                                }
                             }
 
-                            if (XposedLog.isVerboseLoggable())
+                            if (XposedLog.isVerboseLoggable()) {
                                 XposedLog.verbose(TAG_LK + "App is in foreground, wont kill: " + runningPackageName);
+                            }
                             continue;
                         }
 
                         if (isDoNotKillSBNEnabled(XAppBuildVar.APP_LK)
                                 && hasNotificationForPackageInternal(runningPackageName)) {
 
-                            if (listener != null) try {
-                                listener.onIgnoredPkg(runningPackageName, "sbn-app");
-                            } catch (RemoteException ignored) {
+                            if (listener != null) {
+                                try {
+                                    listener.onIgnoredPkg(runningPackageName, "sbn-app");
+                                } catch (RemoteException ignored) {
 
+                                }
                             }
 
                             if (XposedLog.isVerboseLoggable()) {
@@ -8649,10 +8993,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                             continue;
                         }
 
-                        if (listener != null) try {
-                            listener.onClearingPkg(runningPackageName);
-                        } catch (RemoteException ignored) {
+                        if (listener != null) {
+                            try {
+                                listener.onClearingPkg(runningPackageName);
+                            } catch (RemoteException ignored) {
 
+                            }
                         }
 
                         // Clearing using kill command.
@@ -8667,17 +9013,21 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
                         XposedLog.verbose(TAG_LK + "Force stopped: " + runningPackageName);
 
-                        if (listener != null) try {
-                            listener.onClearedPkg(runningPackageName);
-                        } catch (RemoteException ignored) {
+                        if (listener != null) {
+                            try {
+                                listener.onClearedPkg(runningPackageName);
+                            } catch (RemoteException ignored) {
 
+                            }
                         }
                     }
 
-                    if (listener != null) try {
-                        listener.onAllCleared(cleared);
-                    } catch (RemoteException ignored) {
+                    if (listener != null) {
+                        try {
+                            listener.onAllCleared(cleared);
+                        } catch (RemoteException ignored) {
 
+                        }
                     }
 
                     if (isOptFeatureEnabled(XAPMManager.OPT.REMOVE_TASK_ON_APP_IDLE.name())) {
@@ -8705,8 +9055,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         public void setLockKillDelay(long delay) {
             mLockKillDelay = delay;
             XAPMServerSettings.LOCK_KILL_DELAY_L.write(delay);
-            if (XposedLog.isVerboseLoggable())
+            if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("setLockKillDelay to: " + mLockKillDelay);
+            }
         }
 
         @Override
@@ -8718,7 +9069,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             // Re-disable apps.
             try {
-                if (RepoProxy.getProxy().getPending_disable_apps().size() == 0) return;
+                if (RepoProxy.getProxy().getPending_disable_apps().size() == 0) {
+                    return;
+                }
                 // Disable pending apps.
                 for (String p : RepoProxy.getProxy().getPending_disable_apps().getAll()) {
                     if (!isPackageRunningOnTop(p)) {
@@ -8749,11 +9102,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 return;
             }
 
-            if (!force) synchronized (mQuotaLock) {
-                boolean oldValue = isRestrictOnData(uid);
-                if (oldValue == restrict) {
-                    XposedLog.debug("restrictAppOnData oldValue == restrict: " + uid);
-                    return;
+            if (!force) {
+                synchronized (mQuotaLock) {
+                    boolean oldValue = isRestrictOnData(uid);
+                    if (oldValue == restrict) {
+                        XposedLog.debug("restrictAppOnData oldValue == restrict: " + uid);
+                        return;
+                    }
                 }
             }
 
@@ -8782,11 +9137,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         @Override
         public void restrictAppOnWifi(int uid, boolean restrict, boolean force) {
 
-            if (!force) synchronized (mQuotaLock) {
-                boolean oldValue = isRestrictOnWifi(uid);
-                if (oldValue == restrict) {
-                    XposedLog.debug("restrictAppOnWifi oldValue == restrict: " + uid);
-                    return;
+            if (!force) {
+                synchronized (mQuotaLock) {
+                    boolean oldValue = isRestrictOnWifi(uid);
+                    if (oldValue == restrict) {
+                        XposedLog.debug("restrictAppOnWifi oldValue == restrict: " + uid);
+                        return;
+                    }
                 }
             }
 
@@ -8814,7 +9171,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         private void cancelProcessClearing(String why) {
-            if (XposedLog.isVerboseLoggable()) XposedLog.verbose("cancelProcessClearing: " + why);
+            if (XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose("cancelProcessClearing: " + why);
+            }
             removeCallbacks(clearProcessRunnable);
         }
 
@@ -9013,12 +9372,16 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         public void onBroadcastAction(Intent intent) {
             String action = intent.getAction();
             XposedLog.debug("mPackageReceiver action: " + action);
-            if (action == null || intent.getData() == null) return;
+            if (action == null || intent.getData() == null) {
+                return;
+            }
 
             switch (action) {
                 case Intent.ACTION_PACKAGE_ADDED:
                     String packageName = intent.getData().getSchemeSpecificPart();
-                    if (packageName == null) return;
+                    if (packageName == null) {
+                        return;
+                    }
 
                     boolean replacing = intent.getBooleanExtra(Intent.EXTRA_REPLACING, false);
                     int uid = intent.getIntExtra(Intent.EXTRA_UID, -1);
@@ -9029,95 +9392,103 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                     cachePackages(packageName);
 
                     // We only add to black list when this is a new installed app.
-                    if (!replacing) try {
+                    if (!replacing) {
+                        try {
 
-                        XAPMManager x = XAPMManager.get();
+                            XAPMManager x = XAPMManager.get();
 
-                        boolean autoAdd = x.isServiceAvailable() && x.isAutoAddBlackEnabled();
+                            boolean autoAdd = x.isServiceAvailable() && x.isAutoAddBlackEnabled();
 
-                        XposedLog.verbose("ACTION_PACKAGE_ADDED autoAdd:%s", autoAdd);
+                            XposedLog.verbose("ACTION_PACKAGE_ADDED autoAdd:%s", autoAdd);
 
-                        if (autoAdd) {
-                            if (!isInWhiteList(packageName)) {
+                            if (autoAdd) {
+                                if (!isInWhiteList(packageName)) {
 
-                                // Do not apply for google vending.
-                                if ("com.android.vending".equals(packageName)) {
-                                    return;
-                                }
-
-                                // Apply template.
-                                AppSettings template = getAppInstalledAutoApplyTemplate();
-                                XposedLog.verbose("ACTION_PACKAGE_ADDED: " + template);
-
-                                applyAppSettingsForPackage(packageName, template);
-
-                                XposedLog.verbose("Apply app settings template for new app!!!!!!!!!!!");
-
-                                // Ops.
-                                // Note. Please see detailed comment @applyOpsSettingsForPackage.
-                                final String finalPkgName = packageName;
-                                postDelayed(new ErrorCatchRunnable(() -> {
-                                    try {
-                                        applyOpsSettingsForPackage(finalPkgName, template);
-
-                                        boolean showNotification = isAutoAddBlackNotificationEnabled();
-                                        if (showNotification) {
-                                            showNewAppRestrictedNotification(getContext(),
-                                                    finalPkgName,
-                                                    String.valueOf(PkgUtil.loadNameByPkgName(getContext(), finalPkgName)));
-                                        }
-
-                                    } catch (Exception e) {
-                                        XposedLog.verbose("Fail applyOpsSettingsForPackage/showNewAppRestrictedNotification: "
-                                                + Log.getStackTraceString(e));
+                                    // Do not apply for google vending.
+                                    if ("com.android.vending".equals(packageName)) {
+                                        return;
                                     }
-                                }, "applyOpsSettingsForPackage delay"), 8000 /* Make it safe. */);
+
+                                    // Apply template.
+                                    AppSettings template = getAppInstalledAutoApplyTemplate();
+                                    XposedLog.verbose("ACTION_PACKAGE_ADDED: " + template);
+
+                                    applyAppSettingsForPackage(packageName, template);
+
+                                    XposedLog.verbose("Apply app settings template for new app!!!!!!!!!!!");
+
+                                    // Ops.
+                                    // Note. Please see detailed comment @applyOpsSettingsForPackage.
+                                    final String finalPkgName = packageName;
+                                    postDelayed(new ErrorCatchRunnable(() -> {
+                                        try {
+                                            applyOpsSettingsForPackage(finalPkgName, template);
+
+                                            boolean showNotification = isAutoAddBlackNotificationEnabled();
+                                            if (showNotification) {
+                                                showNewAppRestrictedNotification(getContext(),
+                                                        finalPkgName,
+                                                        String.valueOf(PkgUtil.loadNameByPkgName(getContext(), finalPkgName)));
+                                            }
+
+                                        } catch (Exception e) {
+                                            XposedLog.verbose("Fail applyOpsSettingsForPackage/showNewAppRestrictedNotification: "
+                                                    + Log.getStackTraceString(e));
+                                        }
+                                    }, "applyOpsSettingsForPackage delay"), 8000 /* Make it safe. */);
+                                }
                             }
+
+                            // Cache GCM packages async.
+                            mWorkingService.execute(new ErrorCatchRunnable(XAshmanServiceImpl.this::cacheGCMPackages, "cacheGCMPackages"));
+                            mWorkingService.execute(new ErrorCatchRunnable(XAshmanServiceImpl.this::cacheMIPushPackages, "cacheMIPushPackages"));
+
+                        } catch (Throwable e) {
+                            XposedLog.wtf(Log.getStackTraceString(e));
                         }
-
-                        // Cache GCM packages async.
-                        mWorkingService.execute(new ErrorCatchRunnable(XAshmanServiceImpl.this::cacheGCMPackages, "cacheGCMPackages"));
-                        mWorkingService.execute(new ErrorCatchRunnable(XAshmanServiceImpl.this::cacheMIPushPackages, "cacheMIPushPackages"));
-
-                    } catch (Throwable e) {
-                        XposedLog.wtf(Log.getStackTraceString(e));
                     }
                     break;
                 case Intent.ACTION_PACKAGE_REPLACED:
                     packageName = intent.getData().getSchemeSpecificPart();
-                    if (packageName == null) return;
+                    if (packageName == null) {
+                        return;
+                    }
                     parsePackageAsync(packageName);
                     break;
 
                 case Intent.ACTION_PACKAGE_REMOVED:
                     packageName = intent.getData().getSchemeSpecificPart();
-                    if (packageName == null) return;
+                    if (packageName == null) {
+                        return;
+                    }
 
                     replacing = intent.getBooleanExtra(Intent.EXTRA_REPLACING, false);
 
                     // We will remove from cache and black list when this app is uninstall.
-                    if (!replacing) try {
-                        uid = intent.getIntExtra(Intent.EXTRA_UID, -1);
-                        if (uid > 0) {
-                            // FIXME Too slow.
-                            String needRem = PkgUtil.pkgForUid(getContext(), uid);
-                            if (needRem != null) {
-                                int removed = mPackagesCache.remove(needRem);
+                    if (!replacing) {
+                        try {
+                            uid = intent.getIntExtra(Intent.EXTRA_UID, -1);
+                            if (uid > 0) {
+                                // FIXME Too slow.
+                                String needRem = PkgUtil.pkgForUid(getContext(), uid);
+                                if (needRem != null) {
+                                    int removed = mPackagesCache.remove(needRem);
+                                }
+                                XposedLog.debug("Package uninstalled, remove from cache: " + needRem);
                             }
-                            XposedLog.debug("Package uninstalled, remove from cache: " + needRem);
-                        }
 
-                        XAPMManager x = XAPMManager.get();
-                        x.addOrRemoveBootBlockApps(new String[]{packageName}, XAPMManager.Op.REMOVE);
-                        x.addOrRemoveRFKApps(new String[]{packageName}, XAPMManager.Op.REMOVE);
-                        x.addOrRemoveLKApps(new String[]{packageName}, XAPMManager.Op.REMOVE);
-                        x.addOrRemoveStartBlockApps(new String[]{packageName}, XAPMManager.Op.REMOVE);
+                            XAPMManager x = XAPMManager.get();
+                            x.addOrRemoveBootBlockApps(new String[]{packageName}, XAPMManager.Op.REMOVE);
+                            x.addOrRemoveRFKApps(new String[]{packageName}, XAPMManager.Op.REMOVE);
+                            x.addOrRemoveLKApps(new String[]{packageName}, XAPMManager.Op.REMOVE);
+                            x.addOrRemoveStartBlockApps(new String[]{packageName}, XAPMManager.Op.REMOVE);
 
-                        if (BuildConfig.APPLICATION_ID.equals(packageName)) {
-                            mLazyHandler.postDelayed(XAshmanServiceImpl.this::onAPMClientUninstalled, 2000);
+                            if (BuildConfig.APPLICATION_ID.equals(packageName)) {
+                                mLazyHandler.postDelayed(XAshmanServiceImpl.this::onAPMClientUninstalled, 2000);
+                            }
+                        } catch (Throwable e) {
+                            XposedLog.wtf(Log.getStackTraceString(e));
                         }
-                    } catch (Throwable e) {
-                        XposedLog.wtf(Log.getStackTraceString(e));
                     }
                     break;
             }
@@ -9151,7 +9522,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             // Check for panic.
             boolean panicHandled = checkPanicEvent(keyCode, action, currentPkg);
             // This is a painc event, will not check more if it handle ok.
-            if (panicHandled) return;
+            if (panicHandled) {
+                return;
+            }
 
             boolean inKeyguard = isKeyguard();
             if (inKeyguard) {
@@ -9159,7 +9532,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 return;
             }
 
-            if (currentPkg == null) return;
+            if (currentPkg == null) {
+                return;
+            }
 
             switch (keyCode) {
                 case KeyEvent.KEYCODE_BACK:
@@ -9298,7 +9673,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         private void onBackPressed(final String packageName) {
             XposedLog.verbose(XposedLog.PREFIX_KEY + "onBackPressed: " + packageName);
 
-            if (packageName == null) return;
+            if (packageName == null) {
+                return;
+            }
 
             if (!isRFKillEnabled()) {
                 XposedLog.verbose(XposedLog.PREFIX_KEY + "PackageRFKill not enabled for all package");
@@ -9340,8 +9717,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            if (XposedLog.isVerboseLoggable()) XposedLog.verbose("LazyHandler handle message: "
-                    + AshManLZHandlerMessages.decodeMessage(msg.what));
+            if (XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose("LazyHandler handle message: "
+                        + AshManLZHandlerMessages.decodeMessage(msg.what));
+            }
             switch (msg.what) {
                 case AshManLZHandlerMessages.MSG_ONACTIVITYDESTROY:
                     LazyHandler.this.onActivityDestroy((Intent) msg.obj);

@@ -26,7 +26,7 @@ public class Blur extends QuickTile {
             this.summaryRes = XAppLockManager.get().isBlurEnabled() ?
                     R.string.summary_func_enabled : 0;
         }
-        this.iconRes = R.drawable.ic_blur_on_black_24dp;
+        this.iconRes = R.drawable.ic_window_2_fill;
         this.tileView = new QuickTileView(context, this) {
             @Override
             protected int getImageViewBackgroundRes() {

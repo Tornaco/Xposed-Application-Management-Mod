@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import android.os.Build;
 
+import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.experimental.Delegate;
 
 /**
@@ -15,6 +16,7 @@ class TaskMoverSubModuleDelegate extends AndroidSubModule {
 
     TaskMoverSubModuleDelegate() {
         int sdkVersion = Build.VERSION.SDK_INT;
+        XposedLog.boot("TaskMoverSubModuleDelegate SDK VERSION =" + sdkVersion);
         switch (sdkVersion) {
             case 21:
                 taskMoverSubModule = new TaskMoverSubModuleV21();
@@ -36,6 +38,9 @@ class TaskMoverSubModuleDelegate extends AndroidSubModule {
                 break;
             case 27:
                 taskMoverSubModule = new TaskMoverSubModuleV27();
+                break;
+            case 28:
+                taskMoverSubModule = new TaskMoverSubModuleV28();
                 break;
             default:
                 taskMoverSubModule = new TaskMoverSubModuleEmpty();

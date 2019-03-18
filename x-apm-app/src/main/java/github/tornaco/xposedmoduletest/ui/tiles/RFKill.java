@@ -26,7 +26,7 @@ public class RFKill extends QuickTile {
             this.summaryRes = XAPMManager.get().isRFKillEnabled() ?
                     R.string.summary_func_enabled : 0;
         }
-        this.iconRes = R.drawable.ic_arrow_back_black_24dp;
+        this.iconRes = R.drawable.ic_arrow_left_circle_fill;
         this.tileView = new QuickTileView(context, this) {
             @Override
             protected int getImageViewBackgroundRes() {

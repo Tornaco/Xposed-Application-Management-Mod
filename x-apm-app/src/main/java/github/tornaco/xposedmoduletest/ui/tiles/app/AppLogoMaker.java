@@ -19,7 +19,7 @@ public class AppLogoMaker extends QuickTile {
     public AppLogoMaker(final Context context) {
         super(context);
         this.titleRes = R.string.title_logo_maker;
-        this.summary = "https://logomakr.com/";
+        this.summary = "LogoMaker&RemixIcon";
         this.iconRes = R.drawable.ic_brush_black_24dp;
         this.tileView = new QuickTileView(context, this) {
             @Override

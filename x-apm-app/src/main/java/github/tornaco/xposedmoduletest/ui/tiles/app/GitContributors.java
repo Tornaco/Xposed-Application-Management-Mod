@@ -18,8 +18,8 @@ public class GitContributors extends QuickTile {
         super(context);
         this.titleRes = R.string.title_git_contributors;
         this.summary = XAppGithubCommitSha.CONTRIBUTORS;
-        this.iconRes = R.drawable.ic_github;
-        this.tileView = new QuickTileView(context, this){
+        this.iconRes = R.drawable.ic_github_fill;
+        this.tileView = new QuickTileView(context, this) {
             @Override
             protected int getImageViewBackgroundRes() {
                 return R.drawable.tile_bg_amber;
