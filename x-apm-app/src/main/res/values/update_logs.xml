@@ -106,7 +106,7 @@
         BUG FIX：\n
         1. 修复#310，划卡任意app，会直接把打开的冻结app也一起划卡清理掉。\n
     </string>
-    
+
     <string name="update_log_513">
         注意（如果从5.0.6以及更早的版本升级到该版本）：\n
         1. 此次更新会删除旧版本上（应用管理）的一些开关和设置数据！如果你不想折腾，请不要重启，装回旧版，即可继续使用旧版与数据。\n
@@ -143,5 +143,11 @@
         1. Translation update. \n
         2. 适配P的应用锁部分. \n
         3. 样式更新. \n
+    </string>
+
+    <string name="update_log_517">
+        优化：\n
+        1. P适配[2/3]. \n
+        2. 样式更新. \n
     </string>
 </resources>

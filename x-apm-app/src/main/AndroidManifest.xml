@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="github.tornaco.xposedmoduletest">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -42,7 +43,8 @@
         android:icon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppThemeLight">
+        android:theme="@style/AppThemeLight"
+        tools:ignore="GoogleAppIndexingWarning">
         <meta-data
             android:name="xposedmodule"
             android:value="true" />
