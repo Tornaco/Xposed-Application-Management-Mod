@@ -43,7 +43,7 @@
     <string name="title_donate">捐贈</string>
     <string name="title_show_system_app">系統程式</string>
     <string name="first_run_title">XXXXX？!</string>
-    <string name="message_first_run">安全须知：本应用不以盈利为目的，且在github上开源，github以及coolapk，Google play上作者发布的apk均为CI编译，保证代码不会经过作者的二次加工。\n\n如果要查看编译信息，请在 更多->版本号—>长按查看。\n\n本程式開發目的是為了儘可能的阻止不常用的APP對系統資源的消耗，常用的APP不要進行任何干涉，否則可能造成使用上的困擾，浪費許多時間和精力，甚至影響自己的生活，造成蝴蝶效應（愛折騰，願意主動動手解決問題的朋友例外），因此你並不需要用到所有功能。\n\n新版本對Play版本以及捐贈過的朋友提供了一些額外的小功能，如果你已經捐贈過，請前往 捐贈 勾選我已經捐贈即可。Play版本無需進行此項設定即可使用所有功能。</string>
+    <string name="message_first_run">安全须知：本应用不以盈利为目的，且在github上开源，github以及coolapk，Google play上作者发布的apk均为CI编译，保证代码不会经过作者的二次加工。\n\n如果要查看编译信息，请在 更多-版本号-长按查看。\n\n本程式開發目的是為了儘可能的阻止不常用的APP對系統資源的消耗，常用的APP不要進行任何干涉，否則可能造成使用上的困擾，浪費許多時間和精力，甚至影響自己的生活，造成蝴蝶效應（愛折騰，願意主動動手解決問題的朋友例外），因此你並不需要用到所有功能。\n\n新版本對Play版本以及捐贈過的朋友提供了一些額外的小功能，如果你已經捐贈過，請前往 捐贈 勾選我已經捐贈即可。Play版本無需進行此項設定即可使用所有功能。</string>
     <string name="title_hide_pattern">隱藏手勢圖案</string>
     <string name="title_use_fp">使用指紋</string>
     <string name="title_ver_on_home">程式切換時重新驗證</string>
