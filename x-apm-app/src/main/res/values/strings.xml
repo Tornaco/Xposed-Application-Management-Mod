@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">X-APM</string>
-    <string name="app_code_name">X-APM</string>
+    <string name="app_code_name" translatable="false">X-APM</string>
     <string name="manage_overlay">Manage overlay</string>
     <string name="switch_on_text">Enabled</string>
     <string name="switch_off_text">Not enabled</string>

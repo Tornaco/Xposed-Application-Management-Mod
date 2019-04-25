@@ -134,6 +134,7 @@ public class NavigatorActivityBottomNav
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_bottom_nav);
+        setTitleInternal(getString(R.string.app_name));
 
         setupView();
         setupFragment();
@@ -305,14 +306,11 @@ public class NavigatorActivityBottomNav
         cardController = new FragmentController<>(getSupportFragmentManager(), cards, R.id.container);
         cardController.setDefaultIndex(0);
         cardController.setCurrent(0);
-
-        // Set activity title from the first one.
-        cards.get(INDEXS.STATUS).onSetActivityTitle(this);
     }
 
     public void requestUpdateTitle() {
-        ActivityLifeCycleDashboardFragment dashboardFragment = getCardController().getCurrent();
-        // dashboardFragment.onSetActivityTitle(this);
+        // Noop.
+        // Title should always be X-APM
     }
 
     @Override
@@ -431,9 +429,6 @@ public class NavigatorActivityBottomNav
         @Override
         public void onSetActivityTitle(BaseActivity activity) {
             super.onSetActivityTitle(activity);
-//            if (apmModuleOKNoAndActionNeed) {
-//                activity.setSubTitleChecked(getString(R.string.title_service_connected));
-//            }
         }
 
         @Override
@@ -807,9 +802,7 @@ public class NavigatorActivityBottomNav
                                         hasSystemError ? getString(R.string.title_device_status_summary_system_ng) : getString(R.string.title_device_status_summary_good));
                                 summaryView.setText(summary);
 
-                                // If all good, hide this card.
                                 if (!hasModuleError && !hasSystemError) {
-//                                        findView(rootView, R.id.status_container).setVisibility(View.GONE);
                                     NavigatorActivityBottomNav activityBottomNav = (NavigatorActivityBottomNav) getActivity();
                                     if (activityBottomNav != null && !activityBottomNav.isDestroyed()) {
                                         activityBottomNav.requestUpdateTitle();
