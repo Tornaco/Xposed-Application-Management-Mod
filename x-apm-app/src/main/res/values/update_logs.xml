@@ -150,4 +150,9 @@
         1. P适配[2/3]. \n
         2. 样式更新. \n
     </string>
+
+    <string name="update_log_518">
+        优化：\n
+        1. 继续进行Android P适配[2.5/3]. \n
+    </string>
 </resources>
