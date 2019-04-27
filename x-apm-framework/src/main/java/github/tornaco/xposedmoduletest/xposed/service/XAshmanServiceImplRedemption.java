@@ -1874,4 +1874,6 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     public boolean isMiPushSupportPackage(String pkg) {
         return false;
     }
+
+
 }

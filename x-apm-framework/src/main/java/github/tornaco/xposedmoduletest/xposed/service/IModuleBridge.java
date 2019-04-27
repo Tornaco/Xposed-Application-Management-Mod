@@ -83,7 +83,7 @@ public interface IModuleBridge {
     void notifyTaskCreated(int taskId, ComponentName componentName);
 
     @CommonBringUpApi
-    ComponentName componentNameForTaskId(int taskId);
+    ComponentName componentNameForTaskId(int taskId) throws RemoteException;
 
     boolean isSystemReady();
 

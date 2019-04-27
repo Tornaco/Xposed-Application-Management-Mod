@@ -2785,6 +2785,16 @@ public class XAPMManager {
         }
     }
 
+    public ComponentName componentNameForTaskId(int taskId) {
+        ensureService();
+        try {
+            return mService.componentNameForTaskId(taskId);
+        } catch (Exception e) {
+            handleException(e);
+            return null;
+        }
+    }
+
     private static void handleException(Throwable e) {
         if (BuildConfig.DEBUG) {
             //throw new RuntimeException(e);

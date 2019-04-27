@@ -8,8 +8,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.v4.util.ObjectsCompat;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.google.common.collect.Sets;
 
 import java.lang.reflect.Method;
 import java.util.Set;
@@ -36,9 +39,10 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  * Email: Tornaco@163.com
  */
 
-public class ScreenshotApplicationsSubModule extends AndroidSubModule {
+public class RecentBlurSubModule extends AndroidSubModule {
 
     private static final String ENABLE_TASK_SNAPSHOTS_PROP = "persist.enable_task_snapshots";
+    private static final String PKG_NAME_SYSTEM_UI = "com.android.systemui";
 
     private final static BitmapFactory.Options sBitmapOptions;
 
@@ -54,18 +58,27 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
     }
 
     @Override
+    public Set<String> getInterestedPackages() {
+        return Sets.newHashSet(PKG_NAME_ANDROID, PKG_NAME_SYSTEM_UI);
+    }
+
+    @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         // For N and below android.
-        if (!OSUtil.isOOrAbove()) {
+        if (!OSUtil.isOOrAbove() && ObjectsCompat.equals(PKG_NAME_ANDROID, lpparam.packageName)) {
             hookScreenshotApplicationsForNAndBelow(lpparam);
+        }
+        // P here.
+        if (OSUtil.isPOrAbove() && ObjectsCompat.equals(PKG_NAME_SYSTEM_UI, lpparam.packageName)) {
+            hookSystemUiActivityManagerWrapper(lpparam);
         }
     }
 
     @Override
     public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {
         super.initZygote(startupParam);
-
-        if (OSUtil.isOOrAbove() && !OSUtil.isPOrAbove()) {
+        // For O.
+        if (OSUtil.isO()) {
             hookSystemProp_ENABLE_TASK_SNAPSHOTS();
             hookGetThumbForOreo();
         }
@@ -265,8 +278,7 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
         }
 
         XposedLog.verbose("BLUR onScreenshotApplicationsNAndBelow: " + pkgName);
-        if (getBridge().isBlurForPkg(pkgName)
-                && param.getResult() != null) {
+        if (getBridge().isBlurForPkg(pkgName) && param.getResult() != null) {
 
             // Query from cache.
             BlurTaskCache cache = BlurTaskCache.getInstance();
@@ -294,5 +306,76 @@ public class ScreenshotApplicationsSubModule extends AndroidSubModule {
         } else {
             XposedLog.verbose("BLUR onScreenshotApplicationsNAndBelow, blur is disabled...");
         }
+    }
+
+    private void hookSystemUiActivityManagerWrapper(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedLog.boot("BLUR hookSystemUiActivityManagerWrapper...");
+
+        try {
+            Class clz = XposedHelpers.findClass("com.android.systemui.shared.system.ActivityManagerWrapper",
+                    lpparam.classLoader);
+            Set unHooks = XposedBridge.hookAllMethods(clz, "getTaskThumbnail", new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    super.afterHookedMethod(param);
+                    onGetTaskThumbnailP(param);
+                }
+            });
+            XposedLog.boot("BLUR hookSystemUiActivityManagerWrapper OK: " + unHooks);
+            setStatus(unhooksToStatus(unHooks));
+        } catch (Exception e) {
+            XposedLog.boot("BLUR Fail hookSystemUiActivityManagerWrapper: " + e);
+            setStatus(SubModuleStatus.ERROR);
+            setErrorMessage(Log.getStackTraceString(e));
+        }
+    }
+
+    private void onGetTaskThumbnailP(XC_MethodHook.MethodHookParam param) {
+        int taskId = (int) param.args[0];
+        XposedLog.verbose("BLUR ActivityManagerWrapper getTaskThumbnail called, task id: " + taskId);
+        if (!XAPMManager.get().isServiceAvailable()) {
+            XposedLog.wtf("BLUR ActivityManagerWrapper getTaskThumbnail, APM service not available");
+            return;
+        }
+
+        ComponentName componentName = XAPMManager.get().componentNameForTaskId(taskId);
+        XposedLog.verbose("BLUR ActivityManagerWrapper getTaskThumbnail called, componentName: " + componentName);
+        if (componentName == null) {
+            return;
+        }
+
+        String pkgName = componentName.getPackageName();
+        boolean blur = XAppLockManager.get().isBlurEnabledForPackage(pkgName);
+        if (!blur) {
+            XposedLog.verbose("BLUR isBlurEnabledForPackage is false");
+            return;
+        }
+
+        Object dataObj = param.getResult();
+        Bitmap thumbnail = (Bitmap) XposedHelpers.getObjectField(dataObj, "thumbnail");
+        XposedLog.verbose("BLUR ActivityManagerWrapper getTaskThumbnail thumbnail:" + thumbnail);
+        if (thumbnail == null) {
+            return;
+        }
+
+        // Query from cache.
+        BlurTaskCache cache = BlurTaskCache.getInstance();
+        BlurTask cachedTask = cache.get(pkgName);
+        if (BuildConfig.DEBUG) {
+            XposedLog.verbose("BLUR ActivityManagerWrapper getTaskThumbnail cachedTask: " + cachedTask);
+        }
+        if (cachedTask != null) {
+            XposedHelpers.setObjectField(dataObj, "thumbnail", cachedTask);
+            param.setResult(dataObj);
+            return;
+        }
+
+        int br = XAppLockManager.get().getBlurRadius();
+        Bitmap newBitmap = XBitmapUtil.createBlurredBitmap(thumbnail, br, XBitmapUtil.BITMAP_SCALE);
+        // Save to cache.
+        cache.put(pkgName, BlurTask.from(pkgName, newBitmap));
+        XposedHelpers.setObjectField(dataObj, "thumbnail", newBitmap);
+        param.setResult(dataObj);
+        XposedLog.verbose("BLUR ActivityManagerWrapper getTaskThumbnail Thumb replaced!");
     }
 }

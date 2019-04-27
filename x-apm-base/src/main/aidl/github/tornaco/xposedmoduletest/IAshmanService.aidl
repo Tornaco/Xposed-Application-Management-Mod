@@ -546,4 +546,7 @@ interface IAshmanService {
 
     // MiPush.
     boolean isMiPushSupportPackage(String pkg);
+
+    // Query name from task id.
+    ComponentName componentNameForTaskId(int taskId);
 }

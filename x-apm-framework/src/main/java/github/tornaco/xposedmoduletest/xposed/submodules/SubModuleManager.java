@@ -134,7 +134,7 @@ public class SubModuleManager {
         addToSubsChecked(new FPSubModule());
 
         // Blur
-        addToSubsChecked(new ScreenshotApplicationsSubModule());
+        addToSubsChecked(new RecentBlurSubModule());
 
         addToSubsChecked(new PackageInstallerSubModule());
         addToSubsChecked(new PMSSubModule());

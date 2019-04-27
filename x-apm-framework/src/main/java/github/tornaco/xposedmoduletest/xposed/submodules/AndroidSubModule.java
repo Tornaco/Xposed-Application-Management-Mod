@@ -14,9 +14,11 @@ import de.robv.android.xposed.XposedHelpers;
  */
 
 public abstract class AndroidSubModule extends AbsSubModule {
+    static final String PKG_NAME_ANDROID = "android";
+
     @Override
     public Set<String> getInterestedPackages() {
-        return Sets.newHashSet("android");
+        return Sets.newHashSet(PKG_NAME_ANDROID);
     }
 
     protected String getPackageNameFromTaskRecord(Object taskRecord) {
