@@ -13,10 +13,11 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
-class AMSCreateRecentTaskInfoFromTaskRecordSubModule extends AndroidSubModule {
+class CreateRecentTaskInfoFromTaskRecordSubModule extends AndroidSubModule {
 
     @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
@@ -24,19 +25,30 @@ class AMSCreateRecentTaskInfoFromTaskRecordSubModule extends AndroidSubModule {
     }
 
     private void hookCreateRecentTaskInfoFromTaskRecord(XC_LoadPackage.LoadPackageParam lpparam) {
-        XposedLog.verbose("hookCreateRecentTaskInfoFromTaskRecord...");
+        XposedLog.boot("hookCreateRecentTaskInfoFromTaskRecord...");
         try {
-            Class ams = XposedHelpers.findClass("com.android.server.am.ActivityManagerService",
+            boolean isPOrAbove = OSUtil.isPOrAbove();
+            Class clazz = XposedHelpers.findClass(isPOrAbove
+                            ? "com.android.server.am.RecentTasks"
+                            : "com.android.server.am.ActivityManagerService",
                     lpparam.classLoader);
-            Set unHooks = XposedBridge.hookAllMethods(ams, "createRecentTaskInfoFromTaskRecord",
+            XposedLog.boot("hookCreateRecentTaskInfoFromTaskRecord...class:" + clazz);
+            Set unHooks = XposedBridge.hookAllMethods(clazz,
+                    isPOrAbove
+                            ? "createRecentTaskInfo"
+                            : "createRecentTaskInfoFromTaskRecord",
                     new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             super.afterHookedMethod(param);
                             ActivityManager.RecentTaskInfo recentTaskInfo = (ActivityManager.RecentTaskInfo) param.getResult();
-                            if (recentTaskInfo == null) return;
+                            if (recentTaskInfo == null) {
+                                return;
+                            }
                             Intent baseIntent = recentTaskInfo.baseIntent;
-                            if (baseIntent == null) return;
+                            if (baseIntent == null) {
+                                return;
+                            }
                             ComponentName componentName = baseIntent.getComponent();
                             if (componentName == null) {
                                 XposedLog.wtf("Null comp for base intent: " + baseIntent);
@@ -45,7 +57,9 @@ class AMSCreateRecentTaskInfoFromTaskRecordSubModule extends AndroidSubModule {
                             int flags = baseIntent.getFlags();
                             boolean excludeRecent = (flags & Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS) == Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
                             String pkgName = componentName.getPackageName();
-                            if (TextUtils.isEmpty(pkgName)) return;
+                            if (TextUtils.isEmpty(pkgName)) {
+                                return;
+                            }
                             if (BuildConfig.DEBUG) {
                                 XposedLog.verbose("- createRecentTaskInfoFromTaskRecord exclude: %s comp: %s", excludeRecent, componentName);
                             }

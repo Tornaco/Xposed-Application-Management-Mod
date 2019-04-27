@@ -70,7 +70,7 @@ public class RecentBlurSubModule extends AndroidSubModule {
         }
         // P here.
         if (OSUtil.isPOrAbove() && ObjectsCompat.equals(PKG_NAME_SYSTEM_UI, lpparam.packageName)) {
-            hookSystemUiActivityManagerWrapper(lpparam);
+            // hookSystemUiActivityManagerWrapper(lpparam);
         }
     }
 
@@ -314,6 +314,7 @@ public class RecentBlurSubModule extends AndroidSubModule {
         try {
             Class clz = XposedHelpers.findClass("com.android.systemui.shared.system.ActivityManagerWrapper",
                     lpparam.classLoader);
+            XposedLog.boot("ActivityManagerWrapper class= " + clz);
             Set unHooks = XposedBridge.hookAllMethods(clz, "getTaskThumbnail", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {

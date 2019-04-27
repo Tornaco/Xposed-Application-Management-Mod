@@ -150,7 +150,7 @@ public class SubModuleManager {
         addToSubsChecked(new RuntimeSubModule());
         addToSubsChecked(new AndroidProcessSubModule());
 
-        addToSubsChecked(new AMSCreateRecentTaskInfoFromTaskRecordSubModule());
+        addToSubsChecked(new CreateRecentTaskInfoFromTaskRecordSubModule());
 
 
         // Modules to hook intent result code for GCM.
