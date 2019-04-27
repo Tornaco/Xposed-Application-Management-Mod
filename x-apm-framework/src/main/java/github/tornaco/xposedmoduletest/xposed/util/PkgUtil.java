@@ -52,7 +52,9 @@ public class PkgUtil {
 
     public static boolean isPkgInstalled(Context context, String pkg) {
         String path = pathOf(context, pkg);
-        if (path == null) return false;
+        if (path == null) {
+            return false;
+        }
 //        if (!new File(path).exists()) {
 //            // FIXME Should we skip now?
 //        }
@@ -109,9 +111,13 @@ public class PkgUtil {
             } else {
                 info = pm.getPackageInfo(pkg, PackageManager.GET_UNINSTALLED_PACKAGES);
             }
-            if (info == null) return 0;
+            if (info == null) {
+                return 0;
+            }
             long lastUpdateTime = info.lastUpdateTime;
-            if (lastUpdateTime > 0) return lastUpdateTime;
+            if (lastUpdateTime > 0) {
+                return lastUpdateTime;
+            }
             return info.firstInstallTime;
         } catch (PackageManager.NameNotFoundException var4) {
             return 0;
@@ -126,7 +132,9 @@ public class PkgUtil {
     }
 
     public static CharSequence loadNameByPkgName(Context context, String pkg) {
-        if (pkg == null) return "NULL";
+        if (pkg == null) {
+            return "NULL";
+        }
         if ("android".equals(pkg)) {
             return "Android操作系统"; // FIXME Not availabe in system process.
         }
@@ -167,7 +175,9 @@ public class PkgUtil {
         }
         // Check if in map.
         String cached = sUidMap.get(uid);
-        if (cached != null) return cached;
+        if (cached != null) {
+            return cached;
+        }
 
         // This is fucking dangerous!!!!!!!!! to call get installed apps cross system.
         // This cause the overflow error!!!!!!!!!!!!!!!!!!
@@ -224,7 +234,9 @@ public class PkgUtil {
     }
 
     public static boolean isSystemApp(Context context, String pkg) {
-        if ("android".equals(pkg)) return true;
+        if ("android".equals(pkg)) {
+            return true;
+        }
         PackageManager pm = context.getPackageManager();
         try {
             ApplicationInfo applicationInfo = null;
@@ -265,10 +277,16 @@ public class PkgUtil {
     }
 
     public static String packageNameOf(Intent intent) {
-        if (intent == null) return null;
+        if (intent == null) {
+            return null;
+        }
         String packageName = intent.getPackage();
-        if (packageName != null) return packageName;
-        if (intent.getComponent() == null) return null;
+        if (packageName != null) {
+            return packageName;
+        }
+        if (intent.getComponent() == null) {
+            return null;
+        }
         return intent.getComponent().getPackageName();
     }
 
@@ -325,7 +343,9 @@ public class PkgUtil {
                 ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE))
                         .getRunningAppProcesses();
         HashSet<String> h = new HashSet<>();
-        if (processes == null || processes.size() == 0) return h;
+        if (processes == null || processes.size() == 0) {
+            return h;
+        }
         for (ActivityManager.RunningAppProcessInfo info : processes) {
             if (info != null && info.pkgList != null && info.pkgList.length > 0) {
                 Collections.addAll(h, info.pkgList);
@@ -359,7 +379,9 @@ public class PkgUtil {
         // Use our running apps cal only for 3-rd app.
         if (!systemApp) {
             boolean running = sRunningApps.contains(pkg);
-            if (!running) return false;
+            if (!running) {
+                return false;
+            }
             // Do not rely on the true res for 3-rd apps, also check by system.
         }
 
@@ -381,7 +403,9 @@ public class PkgUtil {
     private static String getFirstTask(Context context) {
 
         ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        if (am == null) return null;
+        if (am == null) {
+            return null;
+        }
         List<ActivityManager.RecentTaskInfo> recentTasks =
                 am.getRecentTasksForUser(1, ActivityManager.RECENT_IGNORE_UNAVAILABLE,
                         UserHandle.getUserId(Binder.getCallingUid()));
@@ -409,9 +433,13 @@ public class PkgUtil {
     }
 
     private static boolean arraysContains(String[] arr, String target) {
-        if (arr == null) return false;
+        if (arr == null) {
+            return false;
+        }
         for (String s : arr) {
-            if (s.equals(target)) return true;
+            if (s.equals(target)) {
+                return true;
+            }
         }
         return false;
     }
@@ -461,7 +489,9 @@ public class PkgUtil {
     }
 
     public static void kill(Context context, String pkg) {
-        if (pkg == null) return;
+        if (pkg == null) {
+            return;
+        }
         try {
             ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
             if (am != null) {
@@ -571,12 +601,16 @@ public class PkgUtil {
     }
 
     private static String[] extractUnGrantedPerms(Context context, String packageName, String[] declaredPerms) {
-        if (declaredPerms == null || declaredPerms.length == 0) return null;
+        if (declaredPerms == null || declaredPerms.length == 0) {
+            return null;
+        }
         PackageManager packageManager = context.getPackageManager();
         List<String> requestList = new ArrayList<>(declaredPerms.length);
         for (String info : declaredPerms) {
             int code = packageManager.checkPermission(info, packageName);
-            if (code == PackageManager.PERMISSION_GRANTED) continue;
+            if (code == PackageManager.PERMISSION_GRANTED) {
+                continue;
+            }
             requestList.add(info);
         }
         String[] out = new String[requestList.size()];

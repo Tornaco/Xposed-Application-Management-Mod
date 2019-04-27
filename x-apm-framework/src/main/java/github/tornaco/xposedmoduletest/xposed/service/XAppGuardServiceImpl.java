@@ -151,7 +151,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                     }
 
                     String packageName = intent.getData().getSchemeSpecificPart();
-                    if (packageName == null) return;
+                    if (packageName == null) {
+                        return;
+                    }
 
                     switch (action) {
                         case Intent.ACTION_PACKAGE_ADDED:
@@ -196,8 +198,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     private void construct() {
         mServiceHandler = onCreateServiceHandler();
-        if (XposedLog.isVerboseLoggable())
+        if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("construct, mServiceHandler: " + mServiceHandler + " -" + serial());
+        }
         mPackageManager = getContext().getPackageManager();
         mRepoProxy = RepoProxy.getProxy();
         XposedLog.verbose("Repo proxy: " + mRepoProxy);
@@ -320,8 +323,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         boolean enabled = isUninstallInterruptEnabled();
 
         if (!enabled) {
-            if (XposedLog.isVerboseLoggable())
+            if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("interruptPackageRemoval false: not enabled.");
+            }
             return false;
         }
 
@@ -332,8 +336,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
         boolean userSet = isPackageInUPList(pkg);
         if (!userSet) {
-            if (XposedLog.isVerboseLoggable())
+            if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("interruptPackageRemoval false: not in user list.");
+            }
             return false;
         }
         return true;
@@ -342,12 +347,18 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @InternalCall
     public Intent checkIntent(Intent from) {
-        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("checkIntent: " + from);
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("checkIntent: " + from);
+        }
         ComponentName fromComp = from.getComponent();
-        if (fromComp == null) return from;
+        if (fromComp == null) {
+            return from;
+        }
 
         // Check if this component is disabled.
-        if (getPackageManager() == null) return from;
+        if (getPackageManager() == null) {
+            return from;
+        }
         int compState = PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
 
         try {
@@ -363,7 +374,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         }
 
         MapRepo<String, String> compMap = RepoProxy.getProxy().getComponentReplacement();
-        if (compMap.size() == 0) return from;
+        if (compMap.size() == 0) {
+            return from;
+        }
 
         String key = fromComp.flattenToString();
 
@@ -384,7 +397,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             return from;
         }
 
-        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("Replacing using: " + toComp);
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("Replacing using: " + toComp);
+        }
 
         return from.setComponent(toComp);
     }
@@ -442,7 +457,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     private PackageManager getPackageManager() {
-        if (mPackageManager == null) mPackageManager = getContext().getPackageManager();
+        if (mPackageManager == null) {
+            mPackageManager = getContext().getPackageManager();
+        }
         return mPackageManager;
     }
 
@@ -463,44 +480,45 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("onEarlyVerifyConfirm: " + res + " calling by: "
                     + Binder.getCallingUid());
-            Collections.consumeRemaining(mVerifiedPackages, new Consumer<String>() {
-
-                public void accept(String s) {
-                    XposedLog.verbose("@@@@ " + s);
-                }
-            });
+            Collections.consumeRemaining(mVerifiedPackages, s -> XposedLog.verbose("@@@@ " + s));
         }
         if (pkg == null) {
-            if (XposedLog.isVerboseLoggable())
+            if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("onEarlyVerifyConfirm, false@pkg-null");
+            }
             return false;
         }
         if (mIsSafeMode) {
-            if (XposedLog.isVerboseLoggable())
+            if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("onEarlyVerifyConfirm, false@safe-mode:" + pkg);
+            }
             return false;
         }
         if (!mAppLockEnabled.get()) {
-            if (XposedLog.isVerboseLoggable())
+            if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("onEarlyVerifyConfirm, false@disabled:" + pkg);
+            }
             return false;
         }
         if (PREBUILT_WHITE_LIST.contains(pkg)) {
-            if (XposedLog.isVerboseLoggable())
+            if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("onEarlyVerifyConfirm, false@prebuilt-w-list:" + pkg);
+            }
             return false;
         } // White list.
 
         if (mVerifiedPackages.contains(pkg)) {
-            if (XposedLog.isVerboseLoggable())
+            if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("onEarlyVerifyConfirm, false@in-verified-list:" + pkg);
+            }
             return false;
         } // Passed.
 
         boolean inUserSetList = isPackageInLockList(pkg);
         if (!inUserSetList) {
-            if (XposedLog.isVerboseLoggable())
+            if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("onEarlyVerifyConfirm, false@not-in-guard-list:" + pkg);
+            }
             return false;
         }
         return true;
@@ -583,7 +601,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     @BinderCall(restrict = "anyone")
     public void onActivityPackageResume(String pkg) {
-        if (mServiceHandler == null) return;
+        if (mServiceHandler == null) {
+            return;
+        }
         mServiceHandler.obtainMessage(AppGuardServiceHandlerMessages.MSG_ONACTIVITYPACKAGERESUME, pkg).sendToTarget();
     }
 
@@ -663,13 +683,17 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     public boolean interruptFPSuccessVibrate() {
         boolean isKeyguard = isDeviceLocked();
-        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("Device is locked: " + isKeyguard);
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("Device is locked: " + isKeyguard);
+        }
         return !isKeyguard && mInterruptFPSuccessVB.get();
     }
 
     public boolean interruptFPErrorVibrate() {
         boolean isKeyguard = isDeviceLocked();
-        if (XposedLog.isVerboseLoggable()) XposedLog.verbose("Device is locked: " + isKeyguard);
+        if (XposedLog.isVerboseLoggable()) {
+            XposedLog.verbose("Device is locked: " + isKeyguard);
+        }
         return !isKeyguard && mInterruptFPERRORVB.get();
     }
 
@@ -696,8 +720,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         long id = Binder.clearCallingIdentity();
         try {
             for (String p : packages) {
-                if (add) repo.add(p);
-                else repo.remove(p);
+                if (add) {
+                    repo.add(p);
+                } else {
+                    repo.remove(p);
+                }
             }
         } finally {
             Binder.restoreCallingIdentity(id);
@@ -711,7 +738,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         String[] out = new String[objArr.length];
         for (int i = 0; i < objArr.length; i++) {
             Object o = objArr[i];
-            if (o == null) continue;
+            if (o == null) {
+                continue;
+            }
             String pkg = String.valueOf(o);
             out[i] = pkg;
         }
@@ -744,9 +773,15 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             String[] allPackagesArr = convertObjectArrayToStringArray(packages.toArray());
             Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
                 public void accept(String s) {
-                    if (outList.contains(s)) return;// Kik dup package.
-                    if (isPackageInLockList(s)) return;
-                    if (PREBUILT_WHITE_LIST.contains(s)) return; // Do not set lock for these.
+                    if (outList.contains(s)) {
+                        return;// Kik dup package.
+                    }
+                    if (isPackageInLockList(s)) {
+                        return;
+                    }
+                    if (PREBUILT_WHITE_LIST.contains(s)) {
+                        return; // Do not set lock for these.
+                    }
                     outList.add(s);
                 }
             });
@@ -760,10 +795,13 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     public void addOrRemoveLockApps(String[] packages, boolean add) {
-        if (XposedLog.isVerboseLoggable())
+        if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("addOrRemoveLockApps: " + Arrays.toString(packages));
+        }
         enforceCallingPermissions();
-        if (packages == null || packages.length == 0) return;
+        if (packages == null || packages.length == 0) {
+            return;
+        }
         addOrRemoveFromRepo(packages, mRepoProxy.getLocks(), add);
     }
 
@@ -794,9 +832,15 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
 
                 public void accept(String s) {
-                    if (outList.contains(s)) return;// Kik dup package.
-                    if (isPackageInBlurList(s)) return;
-                    if (PREBUILT_WHITE_LIST.contains(s)) return; // Do not set lock for these.
+                    if (outList.contains(s)) {
+                        return;// Kik dup package.
+                    }
+                    if (isPackageInBlurList(s)) {
+                        return;
+                    }
+                    if (PREBUILT_WHITE_LIST.contains(s)) {
+                        return; // Do not set lock for these.
+                    }
                     outList.add(s);
                 }
             });
@@ -810,10 +854,13 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
     }
 
     public void addOrRemoveBlurApps(String[] packages, boolean blur) {
-        if (XposedLog.isVerboseLoggable())
+        if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("addOrRemoveBlurApps: " + Arrays.toString(packages));
+        }
         enforceCallingPermissions();
-        if (packages == null || packages.length == 0) return;
+        if (packages == null || packages.length == 0) {
+            return;
+        }
         addOrRemoveFromRepo(packages, mRepoProxy.getBlurs(), blur);
     }
 
@@ -847,10 +894,18 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
             Collections.consumeRemaining(allPackagesArr, new Consumer<String>() {
 
                 public void accept(String s) {
-                    if (outList.contains(s)) return;// Kik dup package.
-                    if (isPackageInUPList(s)) return;
-                    if (PREBUILT_WHITE_LIST.contains(s)) return; // Do not set lock for these.
-                    if (isInSystemAppList(s)) return;
+                    if (outList.contains(s)) {
+                        return;// Kik dup package.
+                    }
+                    if (isPackageInUPList(s)) {
+                        return;
+                    }
+                    if (PREBUILT_WHITE_LIST.contains(s)) {
+                        return; // Do not set lock for these.
+                    }
+                    if (isInSystemAppList(s)) {
+                        return;
+                    }
                     outList.add(s);
                 }
             });
@@ -865,10 +920,13 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
 
     public void addOrRemoveUPApps(String[] packages, boolean add) {
-        if (XposedLog.isVerboseLoggable())
+        if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("addOrRemoveUPApps: " + Arrays.toString(packages));
+        }
         enforceCallingPermissions();
-        if (packages == null || packages.length == 0) return;
+        if (packages == null || packages.length == 0) {
+            return;
+        }
         addOrRemoveFromRepo(packages, mRepoProxy.getUninstall(), add);
     }
 
@@ -998,8 +1056,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     protected void enforceCallingPermissions() {
         int callingUID = Binder.getCallingUid();
-        if (XposedLog.isVerboseLoggable())
+        if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("enforceCallingPermissions@uid:" + callingUID);
+        }
         if (callingUID == android.os.Process.myUid() || (sClientUID > 0 && sClientUID == callingUID)) {
             return;
         }
@@ -1054,9 +1113,10 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             int wht = msg.what;
-            if (XposedLog.isVerboseLoggable())
+            if (XposedLog.isVerboseLoggable()) {
                 XposedLog.verbose("AppGuardServiceHandlerImpl-handleMessage@"
                         + AppGuardServiceHandlerMessages.decodeMessage(wht));
+            }
             switch (wht) {
                 case AppGuardServiceHandlerMessages.MSG_SETENABLED:
                     AppGuardServiceHandlerImpl.this.setEnabled(msg.arg1 == 1);
@@ -1104,7 +1164,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                     AppGuardServiceHandlerImpl.this.onAppTaskRemoved((String) msg.obj);
                     break;
                 default:
-                    if (msg.obj == null) return;
+                    if (msg.obj == null) {
+                        return;
+                    }
                     AppGuardServiceHandlerImpl.this.setResult((Integer) msg.obj,
                             XAppVerifyMode.MODE_IGNORED);
                     break;
@@ -1165,7 +1227,9 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 return;
             }
 
-            if (XposedLog.isVerboseLoggable()) XposedLog.verbose("setResult: " + res);
+            if (XposedLog.isVerboseLoggable()) {
+                XposedLog.verbose("setResult: " + res);
+            }
 
             if (res == XAppVerifyMode.MODE_ALLOWED) {
                 mVerifiedPackages.add(transaction.pkg);

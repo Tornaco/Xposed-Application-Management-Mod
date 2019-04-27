@@ -2,6 +2,7 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
+import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -46,20 +47,27 @@ class TaskMoverSubModule extends AndroidSubModule {
                             pkgName = (String) XposedHelpers.getObjectField(param.args[0], "affinity");
                         }
 
-                        if (TextUtils.isEmpty(pkgName)) return;
+                        if (TextUtils.isEmpty(pkgName)) {
+                            return;
+                        }
 
                         XposedLog.verbose("findTaskToMoveToFrontLocked:" + pkgName);
 
+                        Intent intent = new Intent();
+                        intent.setComponent(componentName);
+                        intent.setPackage(pkgName);
+
                         // Package has been passed.
                         if (!getBridge().onEarlyVerifyConfirm(pkgName, "findTaskToMoveToFrontLocked")) {
+                            getBridge().reportActivityLaunching(intent, "findTaskToMoveToFrontLocked onEarlyVerifyConfirm");
                             return;
                         }
 
                         getBridge().verify(null, pkgName, componentName, 0, 0,
-                                new VerifyListener() {
-                                    @Override
-                                    public void onVerifyRes(String pkg, int uid, int pid, int res) {
-                                        if (res == XAppVerifyMode.MODE_ALLOWED) try {
+                                (pkg, uid, pid, res) -> {
+                                    if (res == XAppVerifyMode.MODE_ALLOWED) {
+                                        try {
+                                            getBridge().reportActivityLaunching(intent, "findTaskToMoveToFrontLocked MODE_ALLOWED");
                                             XposedBridge.invokeOriginalMethod(moveToFront,
                                                     param.thisObject, param.args);
                                         } catch (Exception e) {

@@ -1,5 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
+import android.content.Intent;
 import android.content.pm.UserInfo;
 import android.os.Build;
 import android.os.Bundle;
@@ -65,7 +66,9 @@ class LauncherAppServiceSubModule extends AndroidSubModule {
 
             XposedLog.boot("verifyCallingPackage method: " + verifyMethod);
 
-            if (verifyMethod == null) return;
+            if (verifyMethod == null) {
+                return;
+            }
 
             Object unHooks = XposedBridge.hookMethod(verifyMethod, new XC_MethodHook() {
                 @Override
@@ -100,7 +103,9 @@ class LauncherAppServiceSubModule extends AndroidSubModule {
 
             XposedLog.boot("startShortcut method: " + startShortcutMethod);
 
-            if (startShortcutMethod == null) return;
+            if (startShortcutMethod == null) {
+                return;
+            }
 
             final Method finalStartShortcutMethod = startShortcutMethod;
             Object unHooks = XposedBridge.hookMethod(startShortcutMethod, new XC_MethodHook() {
@@ -114,18 +119,27 @@ class LauncherAppServiceSubModule extends AndroidSubModule {
                         XposedLog.verbose("startShortcut: %s %s", pkgName, op);
                     }
 
-                    if (pkgName == null) return;
+                    if (pkgName == null) {
+                        return;
+                    }
+
+                    Intent intent = new Intent();
+                    intent.setPackage(pkgName);
 
                     // Package has been passed.
                     if (!getBridge().onEarlyVerifyConfirm(pkgName, "startShortcut")) {
+                        getBridge().reportActivityLaunching(intent, "startShortcut onEarlyVerifyConfirm");
                         return;
                     }
 
                     getBridge().verify(op, pkgName, null, 0, 0, (pkg, uid, pid, res) -> {
-                        if (res == XAppVerifyMode.MODE_ALLOWED) try {
-                            XposedBridge.invokeOriginalMethod(finalStartShortcutMethod, param.thisObject, param.args);
-                        } catch (Exception e) {
-                            XposedLog.wtf("Error@" + Log.getStackTraceString(e));
+                        if (res == XAppVerifyMode.MODE_ALLOWED) {
+                            try {
+                                getBridge().reportActivityLaunching(intent, "startShortcut MODE_ALLOWED");
+                                XposedBridge.invokeOriginalMethod(finalStartShortcutMethod, param.thisObject, param.args);
+                            } catch (Exception e) {
+                                XposedLog.wtf("Error@" + Log.getStackTraceString(e));
+                            }
                         }
                     });
                     param.setResult(true);

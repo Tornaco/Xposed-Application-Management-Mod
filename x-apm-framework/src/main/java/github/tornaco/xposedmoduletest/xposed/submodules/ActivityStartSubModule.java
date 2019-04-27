@@ -100,7 +100,9 @@ class ActivityStartSubModule extends AndroidSubModule {
                                 finalIntentIndex > 0 ?
                                         (Intent) param.args[finalIntentIndex]
                                         : null;
-                        if (intent == null) return;
+                        if (intent == null) {
+                            return;
+                        }
 
                         // Use checked Intent instead of previous one.
                         Intent checkedIntent = getBridge().checkIntent(intent);
@@ -115,7 +117,9 @@ class ActivityStartSubModule extends AndroidSubModule {
                         }
 
                         ComponentName componentName = intent.getComponent();
-                        if (componentName == null) return;
+                        if (componentName == null) {
+                            return;
+                        }
 
                         // Incas the component is disabled.
                         boolean itrp = getBridge()
@@ -134,6 +138,7 @@ class ActivityStartSubModule extends AndroidSubModule {
 
                         // Package has been passed.
                         if (!getBridge().onEarlyVerifyConfirm(pkgName, "startActivityMayWait")) {
+                            getBridge().reportActivityLaunching(intent, "startActivityMayWait onEarlyVerifyConfirm");
                             return;
                         }
 
@@ -142,11 +147,12 @@ class ActivityStartSubModule extends AndroidSubModule {
                                         (Bundle) param.args[finalActivityOptsIndex]
                                         : null;
 
+                        Intent finalIntent = intent;
                         getBridge().verify(options, pkgName, componentName, 0, 0,
-                                new VerifyListener() {
-                                    @Override
-                                    public void onVerifyRes(String pkg, int uid, int pid, int res) {
-                                        if (res == XAppVerifyMode.MODE_ALLOWED) try {
+                                (pkg, uid, pid, res) -> {
+                                    if (res == XAppVerifyMode.MODE_ALLOWED) {
+                                        try {
+                                            getBridge().reportActivityLaunching(finalIntent, "startActivityMayWait, MODE_ALLOWED");
                                             XposedBridge.invokeOriginalMethod(finalStartActivityMayWaitMethod,
                                                     param.thisObject, param.args);
                                         } catch (Exception e) {
