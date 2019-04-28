@@ -102,7 +102,6 @@ public class AboutSettingsActivity extends WithWithCustomTabActivity {
                 Category help = new Category();
                 help.titleRes = R.string.title_help_dev;
                 help.addTile(new AppDonate(getActivity()));
-                help.addTile(new AppGetPlay(getActivity()));
                 categories.add(help);
             }
         }
