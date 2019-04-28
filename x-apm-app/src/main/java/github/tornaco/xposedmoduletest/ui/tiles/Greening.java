@@ -21,7 +21,7 @@ public class Greening extends QuickTile {
     public Greening(final Context context) {
         super(context);
         this.titleRes = R.string.title_greening;
-        this.iconRes = R.drawable.ic_palette_green_24dp;
+        this.iconRes = R.drawable.ic_slack_fill;
         this.tileView = new QuickTileView(context, this) {
             @Override
             protected int getImageViewBackgroundRes() {

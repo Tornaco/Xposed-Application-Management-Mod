@@ -26,7 +26,7 @@ public class StyleSettings extends QuickTile {
 
             @Override
             protected int getImageViewBackgroundRes() {
-                return R.drawable.tile_bg_pink;
+                return R.drawable.tile_bg_orange;
             }
 
             @Override

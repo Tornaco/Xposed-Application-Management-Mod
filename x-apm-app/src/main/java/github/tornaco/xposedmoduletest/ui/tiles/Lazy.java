@@ -28,7 +28,7 @@ public class Lazy extends QuickTile {
             this.summaryRes = XAPMManager.get().isLazyModeEnabled() ?
                     R.string.summary_func_enabled : 0;
         }
-        this.iconRes = R.drawable.ic_child_care_black_24dp;
+        this.iconRes = R.drawable.ic_user_smile_fill;
         this.tileView = new QuickTileView(context, this) {
             @Override
             protected int getImageViewBackgroundRes() {
