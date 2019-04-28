@@ -13,10 +13,6 @@ import android.text.TextUtils;
 
 public abstract class OSUtil {
 
-    private static final String KEY_MIUI_VERSION_CODE = "ro.miui.ui.version.code";
-    private static final String KEY_MIUI_VERSION_NAME = "ro.miui.ui.version.name";
-    private static final String KEY_MIUI_INTERNAL_STORAGE = "ro.miui.internal.storage";
-
     public static boolean isFlyme() {
         String id = SystemProperties.get("ro.build.display.id", "");
         return !TextUtils.isEmpty(id) && (id.contains("flyme")
@@ -50,10 +46,6 @@ public abstract class OSUtil {
 
     public static boolean isPOrAbove() {
         return Build.VERSION.SDK_INT > Build.VERSION_CODES.O_MR1;
-    }
-
-    public static boolean isLOrBelow() {
-        return Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1;
     }
 
     public static boolean hasTvFeature(Context context) {
