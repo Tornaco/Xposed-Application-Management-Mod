@@ -49,7 +49,7 @@ public abstract class OSUtil {
     }
 
     public static boolean isPOrAbove() {
-        return Build.VERSION.SDK_INT > Build.VERSION_CODES.O;
+        return Build.VERSION.SDK_INT > Build.VERSION_CODES.O_MR1;
     }
 
     public static boolean isLOrBelow() {
