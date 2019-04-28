@@ -317,7 +317,7 @@ public class NavigatorActivityBottomNav
 
     private void initFirstRun() {
         try {
-            if (BuildConfig.DEBUG || AppSettings.isFirstRun(getApplicationContext())) {
+            if (AppSettings.isFirstRun(getApplicationContext())) {
                 showUserNoticeDialog();
             }
         } catch (Throwable e) {
@@ -538,12 +538,7 @@ public class NavigatorActivityBottomNav
         private void setupView() {
 
             findView(rootView, R.id.card)
-                    .setOnClickListener(v -> {
-                        if (BuildConfig.DEBUG) {
-                            // Only show power for debug mode.
-                            showPowerPopMenu(v);
-                        }
-                    });
+                    .setOnClickListener(this::showPowerPopMenu);
 
             // Hide it... Move it to settings/data.
             findView(rootView, R.id.button).setVisibility(View.GONE);
