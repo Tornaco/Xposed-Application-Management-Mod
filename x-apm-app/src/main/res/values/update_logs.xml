@@ -158,8 +158,8 @@
 
     <string name="update_log_520">
         优化：\n
-        1. 修复一处Android O兼容性异常。
-        2. 修复2处Android P兼容性异常。
-        3. 修复EdXposed + Android P某些时候设备异常重启问题。
+        1. 修复一处Android O兼容性异常。\n
+        2. 修复2处Android P兼容性异常。\n
+        3. 修复EdXposed + Android P某些时候设备异常重启问题。\n
     </string>
 </resources>
