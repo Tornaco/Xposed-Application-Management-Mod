@@ -45,7 +45,7 @@
     <string name="title_donate">التبرع</string>
     <string name="title_show_system_app">تطبيقات النظام</string>
     <string name="first_run_title">XXXXX？!</string>
-    <string name="message_first_run">安全须知：本应用不以盈利为目的，且在github上开源，github以及coolapk，Google play上作者发布的apk均为CI编译，保证代码不会经过作者的二次加工。\n\n如果要查看编译信息，请在 更多-版本号-长按查看。\n\n本应用开发目的是为了尽可能的阻止不常用的APP对系统资源的消耗，常用的APP不要进行任何干涉，否则可能造成使用上的困扰，浪费许多时间和精力，甚至影响自己的生活，造成蝴蝶效应（爱折腾，愿意主动动手解决问题的朋友例外），因此你并不需要用到所有功能。\n\n新版本对Play版本以及捐赠过的朋友提供了一些额外的小功能，如果你已经捐赠过，请前往 捐赠 勾选我己经捐赠即可。Play版本无需进行此项设定即可使用所有功能。</string>
+    <string name="message_first_run">本应用不以盈利为目的，且在github上开源，github以及coolapk，Google play上作者发布的apk均为CI编译，保证代码不会经过作者的二次加工。\n\n如果要查看编译信息，请在 更多-版本号-长按查看。\n\n本应用开发目的是为了尽可能的阻止不常用的APP对系统资源的消耗，常用的APP不要进行任何干涉，否则可能造成使用上的困扰，浪费许多时间和精力，甚至影响自己的生活，造成蝴蝶效应（爱折腾，愿意主动动手解决问题的朋友例外），因此你并不需要用到所有功能。\n\n新版本对Play版本以及捐赠过的朋友提供了一些额外的小功能，如果你已经捐赠过，请前往 捐赠 勾选我己经捐赠即可。Play版本无需进行此项设定即可使用所有功能。</string>
     <string name="title_hide_pattern">إخفاء النمط</string>
     <string name="title_use_fp">استخدم بصمة الأصبع</string>
     <string name="title_ver_on_home">إعادة التحقق عند التبديل بين التطبيقات</string>
@@ -185,7 +185,7 @@
     <string name="title_app_settings">限制设置</string>
     <string name="title_white_system_app">排除系统应用</string>
     <string name="summary_white_system_app">不对任何的系统应用做任何处理。各个列表不显示任何系统应用。</string>
-    <string name="title_app_dev_say">内功心法</string>
+    <string name="title_app_dev_say">必读</string>
     <string name="title_app_black_list">很重要的通知</string>
     <string name="message_app_black_list">新用户请绕过。\n\n由于各个亲爱的用户的反馈中，有很多是因为应用被误杀，造成一些使用问题，因此，从这个版本起，我们的 [限制] 部分由之前的白名单模式改为了黑名单模式，你可能需要前往下面的各项设置重新进行配置。</string>
     <string name="no_remind">同意并记住</string>
