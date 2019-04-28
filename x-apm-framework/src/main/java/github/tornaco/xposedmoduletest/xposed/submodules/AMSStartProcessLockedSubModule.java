@@ -11,6 +11,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -63,7 +64,9 @@ class AMSStartProcessLockedSubModule extends AndroidSubModule {
                                     boolean res = getBridge().checkStartProcess(info, hostType, hostName);
                                     if (!res) {
                                         XposedLog.verbose("startProcessLocked BLOCKED!!!, info: " + info);
-                                        param.setResult(null);
+                                        // P require a boolean value
+                                        // @return {@code true} if process start is successful, false otherwise.
+                                        param.setResult(OSUtil.isPOrAbove() ? false : null);
                                     } else {
                                         getBridge().onStartProcessLocked(info);
                                     }
