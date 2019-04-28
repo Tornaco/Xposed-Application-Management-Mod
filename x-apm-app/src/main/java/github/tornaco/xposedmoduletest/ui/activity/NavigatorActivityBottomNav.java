@@ -125,6 +125,7 @@ public class NavigatorActivityBottomNav
     @Setter
     private int bottomNavIndex;
 
+    @Override
     protected int getUserSetThemeResId(Themes themes) {
         return themes.getThemeStyleResNoActionBar();
     }
@@ -159,7 +160,9 @@ public class NavigatorActivityBottomNav
     private EventReceiver mEventReceiver = new EventReceiver() {
         @Override
         public void onReceive(@NonNull final Event event) {
-            if (isDestroyed()) return;
+            if (isDestroyed()) {
+                return;
+            }
 
             runOnUiThreadChecked(() -> {
                 for (ActivityLifeCycleDashboardFragment f : getCardController().getPages()) {
@@ -250,6 +253,8 @@ public class NavigatorActivityBottomNav
                     break;
                 case R.id.navigation_more:
                     cardController.setCurrent(INDEXS.MORE);
+                    break;
+                default:
                     break;
             }
 
@@ -441,7 +446,9 @@ public class NavigatorActivityBottomNav
         protected void onCreateDashCategories(List<Category> categories) {
             super.onCreateDashCategories(categories);
 
-            if (getActivity() == null) return;
+            if (getActivity() == null) {
+                return;
+            }
 
             Category assist = new Category();
             assist.titleRes = R.string.title_assistant;
@@ -748,7 +755,9 @@ public class NavigatorActivityBottomNav
         }
 
         private void onRequestUninstalledAPM() {
-            if (getActivity() == null) return;
+            if (getActivity() == null) {
+                return;
+            }
             new AlertDialog.Builder(getActivity())
                     .setTitle(R.string.title_uninstall_apm)
                     .setMessage(getString(R.string.message_uninstall_apm))
@@ -769,7 +778,9 @@ public class NavigatorActivityBottomNav
             boolean serviceAvailable = isServiceAvailable();
 
             // Do not setup for new build.
-            if (isNewBuild) return;
+            if (isNewBuild) {
+                return;
+            }
 
             final TextView summaryView = findView(rootView, android.R.id.text1);
 
@@ -950,8 +961,12 @@ public class NavigatorActivityBottomNav
                 rest.addTile(new TRKill(getActivity()));
             }
 
-            if (sec.getTilesCount() > 0) categories.add(sec);
-            if (rest.getTilesCount() > 0) categories.add(rest);
+            if (sec.getTilesCount() > 0) {
+                categories.add(sec);
+            }
+            if (rest.getTilesCount() > 0) {
+                categories.add(rest);
+            }
         }
 
     }
@@ -1049,8 +1064,12 @@ public class NavigatorActivityBottomNav
                 ash.addTile(new NFManager(getActivity()));
             }
 
-            if (ash.getTilesCount() > 0) categories.add(ash);
-            if (exp.getTilesCount() > 0) categories.add(exp);
+            if (ash.getTilesCount() > 0) {
+                categories.add(ash);
+            }
+            if (exp.getTilesCount() > 0) {
+                categories.add(exp);
+            }
         }
 
     }

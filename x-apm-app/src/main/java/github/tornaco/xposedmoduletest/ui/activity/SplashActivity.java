@@ -7,6 +7,8 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
+import org.newstand.logger.Logger;
+
 import github.tornaco.xposedmoduletest.R;
 
 /**
@@ -27,6 +29,7 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
 
         Looper.myQueue().addIdleHandler(() -> {
+            Logger.w("SplashActivity IDLE");
             finish();
             overridePendingTransition(0, R.anim.fade_out);
             NavigatorActivityBottomNav.start(SplashActivity.this);
