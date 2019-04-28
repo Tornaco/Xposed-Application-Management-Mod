@@ -870,7 +870,7 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
-    public void clearProcess(IProcessClearListener listener) {
+    public void clearProcess(IProcessClearListener listener, boolean doNotClearWhenIntervative, boolean onlyForThoseInList) {
 
     }
 

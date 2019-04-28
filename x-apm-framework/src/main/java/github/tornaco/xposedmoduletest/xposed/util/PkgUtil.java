@@ -351,6 +351,8 @@ public class PkgUtil {
                 Collections.addAll(h, info.pkgList);
             }
         }
+        // Add our own package.
+        h.addAll(new HashSet<>(sRunningApps));
         return h;
     }
 
@@ -424,6 +426,7 @@ public class PkgUtil {
         return null;
     }
 
+    // TODO Calling this API on P has trouble.
     public static boolean isAppRunningForeground(Context context, String pkg) {
         return pkg != null && pkg.equals(getFirstTask(context));
     }

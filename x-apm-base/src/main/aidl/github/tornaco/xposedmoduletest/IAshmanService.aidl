@@ -27,7 +27,7 @@ import java.util.Map;
 
 interface IAshmanService {
 
-    void clearProcess(in IProcessClearListener listener);
+    void clearProcess(in IProcessClearListener listener, boolean doNotClearWhenIntervative, boolean onlyForThoseInList);
 
     void setLockKillDelay(long delay);
     long getLockKillDelay();

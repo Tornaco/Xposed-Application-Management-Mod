@@ -194,10 +194,10 @@ public class XAPMManager {
         }
     }
 
-    public void clearProcess(IProcessClearListenerAdapter adapter) {
+    public void clearProcess(IProcessClearListenerAdapter adapter, boolean doNotClearWhenIntervative, boolean onlyForThoseInList) {
         ensureService();
         try {
-            mService.clearProcess(adapter);
+            mService.clearProcess(adapter, doNotClearWhenIntervative, onlyForThoseInList);
         } catch (Exception e) {
             handleException(e);
         }

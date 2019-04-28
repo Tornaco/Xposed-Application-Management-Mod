@@ -44,10 +44,6 @@ public class ClearProcessActivity extends BaseActivity {
         final TextView textView = findViewById(R.id.text);
 
         XAPMManager.get().clearProcess(new IProcessClearListenerAdapter() {
-            @Override
-            public boolean doNotClearWhenIntervative() throws RemoteException {
-                return false;
-            }
 
             @Override
             public void onPrepareClearing() throws RemoteException {
@@ -84,6 +80,6 @@ public class ClearProcessActivity extends BaseActivity {
                     }
                 });
             }
-        });
+        }, false, false);
     }
 }

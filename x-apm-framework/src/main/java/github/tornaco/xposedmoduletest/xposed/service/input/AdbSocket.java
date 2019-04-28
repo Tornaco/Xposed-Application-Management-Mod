@@ -38,7 +38,7 @@ public class AdbSocket {
     public boolean open(String destination) {
         AdbMessage message = new AdbMessage();
         message.set(AdbMessage.A_OPEN, mId, 0, destination);
-        if (! message.write(mDevice)) {
+        if (!message.write(mDevice)) {
             return false;
         }
 

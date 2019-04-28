@@ -371,16 +371,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                         XposedLog.verbose("mClearProcessBroadcast, receive");
                         clearProcess(new IProcessClearListenerAdapter() {
                             @Override
-                            public boolean doNotClearWhenIntervative() {
-                                return false;
-                            }
-
-                            @Override
                             public void onAllCleared(String[] pkg) throws RemoteException {
                                 super.onAllCleared(pkg);
                                 mLazyHandler.post(mClearCompleteActionRunnable);
                             }
-                        });
+                        }, false, false);
                     } catch (Exception e) {
                         XposedLog.wtf("Fail call clearProcess: " + Log.getStackTraceString(e));
                     }
@@ -7754,10 +7749,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     @BinderCall
-    public void clearProcess(IProcessClearListener listener) {
+    public void clearProcess(IProcessClearListener listener, boolean doNotClearWhenInteractive, boolean onlyForThoseInList) {
         enforceCallingPermissions();
-        mainHandler.obtainMessage(AshManHandlerMessages.MSG_CLEARPROCESS, listener)
-                .sendToTarget();
+        mainHandler.obtainMessage(AshManHandlerMessages.MSG_CLEARPROCESS,
+                doNotClearWhenInteractive ? 1 : 0,
+                onlyForThoseInList ? 1 : 0,
+                listener).sendToTarget();
     }
 
     @Override
@@ -8303,7 +8300,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         private final Runnable clearProcessRunnable = () -> {
             try {
-                clearProcess(null);
+                clearProcess(null, true, false);
             } catch (Throwable e) {
                 XposedLog.wtf("Error on clearProcessRunnable: " + Log.getStackTraceString(e));
             }
@@ -8318,7 +8315,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             switch (msg.what) {
                 case AshManHandlerMessages.MSG_CLEARPROCESS:
                     IProcessClearListener listener = msg.obj == null ? null : (IProcessClearListener) msg.obj;
-                    HandlerImpl.this.clearProcess(listener);
+                    HandlerImpl.this.clearProcess(listener, msg.arg1 == 1, msg.arg2 == 1);
                     break;
                 case AshManHandlerMessages.MSG_SETWHITESYSAPPENABLED:
                     HandlerImpl.this.setWhiteSysAppEnabled((Boolean) msg.obj);
@@ -8848,21 +8845,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         @Override
-        public void clearProcess(final IProcessClearListener listener) {
+        public void clearProcess(final IProcessClearListener listener, boolean doNotCleatWhenInter, boolean onlyForThoseInList) {
             boolean doNotKillAppWithSBNEnabled = isDoNotKillSBNEnabled(XAppBuildVar.APP_LK);
             XposedLog.verbose("clearProcess, doNotKillAppWithSBNEnabled: " + doNotKillAppWithSBNEnabled);
 
             if (XposedLog.isVerboseLoggable()) {
                 dumpNotifications();
-            }
-
-            boolean doNotCleatWhenInter = true;
-            if (listener != null) {
-                try {
-                    doNotCleatWhenInter = listener.doNotClearWhenIntervative();
-                } catch (RemoteException ignored) {
-
-                }
             }
 
             if (XposedLog.isVerboseLoggable()) {
@@ -8896,6 +8884,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                     }
 
                     String[] packagesToClear = getLKApps(true);
+                    if (BuildConfig.DEBUG) {
+                        XposedLog.verbose(TAG_LK + "packagesToClear: " + Arrays.toString(packagesToClear));
+                    }
                     int count = packagesToClear.length;
 
                     if (listener != null) {
@@ -8916,7 +8907,13 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                         }
 
                         String runningPackageName = packagesToClear[i];
+                        if (XposedLog.isVerboseLoggable()) {
+                            XposedLog.verbose(TAG_LK + "About to check if kill: " + runningPackageName);
+                        }
 
+                        if (XposedLog.isVerboseLoggable()) {
+                            XposedLog.verbose(TAG_LK + "Checkpoint 1: " + runningPackageName);
+                        }
                         if (isInWhiteList(runningPackageName)) {
                             if (XposedLog.isVerboseLoggable()) {
                                 XposedLog.verbose(TAG_LK + "Won't kill app in white list: " + runningPackageName);
@@ -8931,6 +8928,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                             continue;
                         }
 
+                        if (XposedLog.isVerboseLoggable()) {
+                            XposedLog.verbose(TAG_LK + "Checkpoint 2: " + runningPackageName);
+                        }
                         if (!runningPackages.contains(runningPackageName)) {
                             if (XposedLog.isVerboseLoggable()) {
                                 XposedLog.verbose(TAG_LK + "Won't kill app which not running: " + runningPackageName);
@@ -8945,6 +8945,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                             continue;
                         }
 
+                        if (XposedLog.isVerboseLoggable()) {
+                            XposedLog.verbose(TAG_LK + "Checkpoint 3: " + runningPackageName);
+                        }
                         if (isLockKillDoNotKillAudioEnabled()
                                 && runningPackageName.equals(mAudioFocusedPackage.getData())) {
                             if (XposedLog.isVerboseLoggable()) {
@@ -8960,7 +8963,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                             continue;
                         }
 
-                        if (PkgUtil.isAppRunningForeground(getContext(), runningPackageName)) {
+                        if (XposedLog.isVerboseLoggable()) {
+                            XposedLog.verbose(TAG_LK + "Checkpoint 4: " + runningPackageName);
+                        }
+                        if (runningPackageName.equals(getCurrentTopPackage())) {
 
                             if (listener != null) {
                                 try {
@@ -8976,6 +8982,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                             continue;
                         }
 
+                        if (XposedLog.isVerboseLoggable()) {
+                            XposedLog.verbose(TAG_LK + "Checkpoint 5: " + runningPackageName);
+                        }
                         if (isDoNotKillSBNEnabled(XAppBuildVar.APP_LK)
                                 && hasNotificationForPackageInternal(runningPackageName)) {
 
@@ -9001,10 +9010,17 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                             }
                         }
 
+                        if (XposedLog.isVerboseLoggable()) {
+                            XposedLog.verbose(TAG_LK + "Checkpoint 6: " + runningPackageName);
+                        }
                         // Clearing using kill command.
                         if (power != null && (finalDoNotClearWhenInter && power.isInteractive())) {
                             XposedLog.wtf(TAG_LK + "isInteractive, skip clearing");
                             return cleared;
+                        }
+
+                        if (XposedLog.isVerboseLoggable()) {
+                            XposedLog.verbose(TAG_LK + "Going to kill: " + runningPackageName);
                         }
 
                         getAppIdler(XAppBuildVar.APP_LK).setAppIdle(runningPackageName);

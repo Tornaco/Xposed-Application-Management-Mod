@@ -64,12 +64,7 @@ public class WidgetService extends Service {
                         }
                     });
                 }
-
-                @Override
-                public boolean doNotClearWhenIntervative() throws RemoteException {
-                    return false;
-                }
-            });
+            }, false, false);
         }
 
         return START_NOT_STICKY;

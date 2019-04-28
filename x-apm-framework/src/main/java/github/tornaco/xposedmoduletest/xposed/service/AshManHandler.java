@@ -49,7 +49,7 @@ interface AshManHandler {
 
     void setCompSettingBlockEnabled(boolean enabled);
 
-    void clearProcess(IProcessClearListener listener);
+    void clearProcess(IProcessClearListener listener, boolean doNotClearWhenIntervative, boolean onlyForThoseInList);
 
     void clearBlockRecords();
 

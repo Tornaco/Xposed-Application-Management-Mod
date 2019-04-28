@@ -105,11 +105,6 @@ public class ClearStubActivity extends Activity {
             final int[] clearNum = {0};
             XAPMManager.get().clearProcess(new IProcessClearListenerAdapter() {
                 @Override
-                public boolean doNotClearWhenIntervative() throws RemoteException {
-                    return false;
-                }
-
-                @Override
                 public void onPrepareClearing() throws RemoteException {
                     super.onPrepareClearing();
                     clearNum[0] = 0;
@@ -138,7 +133,7 @@ public class ClearStubActivity extends Activity {
                         }
                     });
                 }
-            });
+            }, false, false);
         }
     }
 }

@@ -1,7 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.service;
 
 import android.content.Context;
-import android.os.RemoteException;
 import android.util.Log;
 
 import github.tornaco.xposedmoduletest.IAshmanService;

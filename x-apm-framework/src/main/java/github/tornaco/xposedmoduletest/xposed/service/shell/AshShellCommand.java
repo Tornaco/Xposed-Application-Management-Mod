@@ -63,16 +63,6 @@ public class AshShellCommand extends ShellCommandCompat {
                 final CountDownLatch latch = new CountDownLatch(1);
                 mService.clearProcess(new IProcessClearListener.Stub() {
                     @Override
-                    public boolean doNotClearWhenIntervative() throws RemoteException {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onlyForThoseInList() throws RemoteException {
-                        return false;
-                    }
-
-                    @Override
                     public void onPrepareClearing() throws RemoteException {
 
                     }
@@ -104,7 +94,7 @@ public class AshShellCommand extends ShellCommandCompat {
                     public void onIgnoredPkg(String pkg, String reason) throws RemoteException {
 
                     }
-                });
+                }, false, false);
                 try {
                     latch.await();
                 } catch (InterruptedException ignored) {

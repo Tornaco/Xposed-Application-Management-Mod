@@ -61,8 +61,9 @@ public class AdbMessage {
     }
 
     public void set(int command, int arg0, int arg1) {
-        set(command, arg0, arg1, (byte[])null);
+        set(command, arg0, arg1, (byte[]) null);
     }
+
     public void set(int command, int arg0, int arg1, String data) {
         // add trailing zero
         data += "\0";
@@ -150,7 +151,7 @@ public class AdbMessage {
         String commandName = extractString(mMessageBuffer, 0, 4);
         int dataLength = getDataLength();
         String result = "Adb Message: " + commandName + " arg0: " + getArg0() +
-             " arg1: " + getArg1() + " dataLength: " + dataLength;
+                " arg1: " + getArg1() + " dataLength: " + dataLength;
         if (dataLength > 0) {
             result += (" data: \"" + getDataString() + "\"");
         }
