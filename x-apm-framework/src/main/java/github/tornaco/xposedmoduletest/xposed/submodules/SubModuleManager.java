@@ -114,7 +114,9 @@ public class SubModuleManager {
         addToSubsChecked(new AMSSystemReadySubModule());
         addToSubsChecked(new AMSStartSubModule());
 
+        // Activity launching.
         addToSubsChecked(new ActivityRecordSubModule());
+        addToSubsChecked(new ActivityStackSupervisorReportActivityVisibleSubModule());
 
         addToSubsChecked(new DeviceIdleControllerSubModule());
         addToSubsChecked(new NotificationManagerServiceSubModule());
