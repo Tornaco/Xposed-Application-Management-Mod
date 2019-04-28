@@ -39,9 +39,9 @@ public enum Themes {
 
     NEWYEAR(R.string.theme_name_newyear,
             R.color.red,
-            R.style.AppThemeNEWYEAR,
-            R.style.AppThemeNEWYEAR_NoActionBar,
-            R.style.AppThemeNEWYEAR_Drawer_NoActionBar,
+            R.style.AppThemeNewYear,
+            R.style.AppThemeNewYear_NoActionBar,
+            R.style.AppThemeNewYear_Drawer_NoActionBar,
             false, false),
 
     O(R.string.theme_name_o,
@@ -53,10 +53,17 @@ public enum Themes {
 
     INVERT(R.string.theme_name_invert,
             R.color.black,
-            R.style.AppThemeINVERSE,
-            R.style.AppThemeINVERSE_NoActionBar,
-            R.style.AppThemeINVERSE_Drawer_NoActionBar,
+            R.style.AppThemeInverse,
+            R.style.AppThemeInverse_NoActionBar,
+            R.style.AppThemeInverse_Drawer_NoActionBar,
             true, false),
+
+    COOLAPK(R.string.theme_name_coolapk,
+            R.color.green,
+            R.style.AppThemeCoolapk,
+            R.style.AppThemeCoolapk_NoActionBar,
+            R.style.AppThemeCoolapk_Drawer_NoActionBar,
+            false, false),
 
     DEFAULT(R.string.theme_name_def,
             R.color.primary,

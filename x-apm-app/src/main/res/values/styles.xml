@@ -189,7 +189,7 @@
         <item name="android:windowBackground">@color/window_background</item>
     </style>
 
-    <style name="AppThemeNEWYEAR" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppThemeNewYear" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="switchBarTheme">@style/SwitchBarSettings</item>
         <item name="torToolbarTheme">@style/ToolbarThemeCommon</item>
 
@@ -221,7 +221,7 @@
         <item name="torSpinnerStyle">@style/SpinnerStyle</item>
     </style>
 
-    <style name="AppThemeNEWYEAR.Drawer">
+    <style name="AppThemeNewYear.Drawer">
         <item name="colorPrimary">@color/red</item>
         <item name="colorPrimaryDark">@color/red_dark</item>
         <item name="colorAccent">@color/primary</item>
@@ -231,10 +231,60 @@
         <item name="android:navigationBarColor">@color/red</item>
     </style>
 
-    <style name="AppThemeNEWYEARDialog" parent="Theme.AppCompat.Light.Dialog">
+    <style name="AppThemeNewYearDialog" parent="Theme.AppCompat.Light.Dialog">
         <item name="switchBarTheme">@style/SwitchBarSettings</item>
         <item name="colorPrimary">@color/red</item>
         <item name="colorPrimaryDark">@color/red_dark</item>
+        <item name="colorAccent">@color/primary</item>
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
+
+    <style name="AppThemeCoolapk" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="switchBarTheme">@style/SwitchBarSettings</item>
+        <item name="torToolbarTheme">@style/ToolbarThemeCommon</item>
+
+        <item name="colorPrimary">@color/green</item>
+        <item name="colorPrimaryDark">@color/green_dark</item>
+        <item name="colorAccent">@color/red</item>
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:navigationBarColor">@color/green</item>
+
+        <item name="torCardBackgroundColor">@color/card_background</item>
+        <item name="torCardAccentBackgroundColor">@color/green</item>
+        <item name="torCardTitleColor">@color/white</item>
+        <item name="torCardSummaryColor">@color/third_text</item>
+        <item name="torMainWindowBackgroundColor">@color/window_background</item>
+        <item name="torListItemTitleTextColor">@color/black</item>
+        <item name="torListItemSummaryTextColor">@color/grey</item>
+        <item name="torListItemHighlightTextColor">@color/black</item>
+        <item name="torTileContainerBackgroundColor">@color/white</item>
+        <item name="torAppbarDescriptionBackgroundColor">@color/white</item>
+        <item name="torAppbarPopupTheme">@style/AppThemeLight.PopupOverlay</item>
+        <item name="torAppbarTheme">@style/AppThemeLight.AppBarOverlay</item>
+        <item name="torMDSearchBackground">@color/white</item>
+        <item name="torMenuIconTintColor">@color/white</item>
+        <item name="torDrawerMenuIconTintColor">@color/green</item>
+
+        <item name="torBottomNavTextColor">@color/green</item>
+        <item name="torBottomNavButtonColor">@color/green</item>
+
+        <item name="torSpinnerStyle">@style/SpinnerStyle</item>
+    </style>
+
+    <style name="AppThemeCoolapk.Drawer">
+        <item name="colorPrimary">@color/green</item>
+        <item name="colorPrimaryDark">@color/green_dark</item>
+        <item name="colorAccent">@color/primary</item>
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/green</item>
+    </style>
+
+    <style name="AppThemeCoolapkDialog" parent="Theme.AppCompat.Light.Dialog">
+        <item name="switchBarTheme">@style/SwitchBarSettings</item>
+        <item name="colorPrimary">@color/green</item>
+        <item name="colorPrimaryDark">@color/green_dark</item>
         <item name="colorAccent">@color/primary</item>
         <item name="android:windowBackground">@color/window_background</item>
     </style>
@@ -280,7 +330,7 @@
         <item name="android:windowBackground">@color/window_background</item>
     </style>
 
-    <style name="AppThemeINVERSE" parent="Theme.AppCompat.Light">
+    <style name="AppThemeInverse" parent="Theme.AppCompat.Light">
         <item name="switchBarTheme">@style/SwitchBarSettingsInvert</item>
         <item name="torToolbarTheme">@style/ToolbarThemeCommon</item>
         <item name="colorAccent">@color/black</item>
@@ -308,13 +358,13 @@
 
     </style>
 
-    <style name="AppThemeINVERSE.Drawer">
+    <style name="AppThemeInverse.Drawer">
         <item name="android:windowBackground">@color/window_background</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
-    <style name="AppThemeINVERSEDialog" parent="Theme.AppCompat.Light.Dialog">
+    <style name="AppThemeInverseDialog" parent="Theme.AppCompat.Light.Dialog">
         <item name="colorPrimary">@color/red</item>
         <item name="colorPrimaryDark">@color/red_dark</item>
         <item name="colorAccent">@color/black</item>
@@ -351,12 +401,22 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppThemeNEWYEAR.NoActionBar">
+    <style name="AppThemeNewYear.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppThemeNEWYEAR.Drawer.NoActionBar">
+    <style name="AppThemeNewYear.Drawer.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppThemeCoolapk.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppThemeCoolapk.Drawer.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
@@ -371,12 +431,12 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppThemeINVERSE.NoActionBar">
+    <style name="AppThemeInverse.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppThemeINVERSE.Drawer.NoActionBar">
+    <style name="AppThemeInverse.Drawer.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>

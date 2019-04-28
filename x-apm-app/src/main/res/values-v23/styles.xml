@@ -29,7 +29,7 @@
         <item name="android:statusBarColor">@color/window_background</item>
     </style>
 
-    <style name="AppThemeINVERSE" parent="Theme.AppCompat.Light">
+    <style name="AppThemeInverse" parent="Theme.AppCompat.Light">
         <item name="switchBarTheme">@style/SwitchBarSettingsInvert</item>
         <item name="torToolbarTheme">@style/ToolbarThemeCommon</item>
         <item name="colorAccent">@color/black</item>
