@@ -65,6 +65,13 @@ public enum Themes {
             R.style.AppThemeCoolapk_Drawer_NoActionBar,
             false, false),
 
+    PURPLE(R.string.theme_name_purple,
+            R.color.purple,
+            R.style.AppThemePurple,
+            R.style.AppThemePurple_NoActionBar,
+            R.style.AppThemePurple_Drawer_NoActionBar,
+            false, false),
+
     DEFAULT(R.string.theme_name_def,
             R.color.primary,
             R.style.AppThemeLight,

@@ -289,6 +289,56 @@
         <item name="android:windowBackground">@color/window_background</item>
     </style>
 
+    <style name="AppThemePurple" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="switchBarTheme">@style/SwitchBarSettings</item>
+        <item name="torToolbarTheme">@style/ToolbarThemeCommon</item>
+
+        <item name="colorPrimary">@color/purple</item>
+        <item name="colorPrimaryDark">@color/purple_dark</item>
+        <item name="colorAccent">@color/amber_dark</item>
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:navigationBarColor">@color/purple</item>
+
+        <item name="torCardBackgroundColor">@color/card_background</item>
+        <item name="torCardAccentBackgroundColor">@color/purple</item>
+        <item name="torCardTitleColor">@color/white</item>
+        <item name="torCardSummaryColor">@color/third_text</item>
+        <item name="torMainWindowBackgroundColor">@color/window_background</item>
+        <item name="torListItemTitleTextColor">@color/black</item>
+        <item name="torListItemSummaryTextColor">@color/grey</item>
+        <item name="torListItemHighlightTextColor">@color/black</item>
+        <item name="torTileContainerBackgroundColor">@color/white</item>
+        <item name="torAppbarDescriptionBackgroundColor">@color/white</item>
+        <item name="torAppbarPopupTheme">@style/AppThemeLight.PopupOverlay</item>
+        <item name="torAppbarTheme">@style/AppThemeLight.AppBarOverlay</item>
+        <item name="torMDSearchBackground">@color/white</item>
+        <item name="torMenuIconTintColor">@color/white</item>
+        <item name="torDrawerMenuIconTintColor">@color/purple</item>
+
+        <item name="torBottomNavTextColor">@color/purple</item>
+        <item name="torBottomNavButtonColor">@color/purple</item>
+
+        <item name="torSpinnerStyle">@style/SpinnerStyle</item>
+    </style>
+
+    <style name="AppThemePurple.Drawer">
+        <item name="colorPrimary">@color/purple</item>
+        <item name="colorPrimaryDark">@color/purple_dark</item>
+        <item name="colorAccent">@color/primary</item>
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/purple</item>
+    </style>
+
+    <style name="AppThemePurpleDialog" parent="Theme.AppCompat.Light.Dialog">
+        <item name="switchBarTheme">@style/SwitchBarSettings</item>
+        <item name="colorPrimary">@color/purple</item>
+        <item name="colorPrimaryDark">@color/purple_dark</item>
+        <item name="colorAccent">@color/amber_dark</item>
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
+
     <style name="AppThemeO" parent="Theme.AppCompat.Light">
         <item name="switchBarTheme">@style/SwitchBarSettingsInvert</item>
         <item name="torToolbarTheme">@style/ToolbarThemeCommon</item>
@@ -417,6 +467,16 @@
     </style>
 
     <style name="AppThemeCoolapk.Drawer.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppThemePurple.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppThemePurple.Drawer.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>

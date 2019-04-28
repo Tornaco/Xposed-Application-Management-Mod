@@ -519,6 +519,7 @@
     <string name="app_splash_boot">Get on the car</string>
     <string name="theme_name_invert">INVERT</string>
     <string name="theme_name_coolapk" translatable="false">CoolApk</string>
+    <string name="theme_name_purple" translatable="false">Purple</string>
     <string name="title_add_shortcut">Create a shortcut</string>
     <string name="pay_miner">Help me dig a penny mine in just a few seconds</string>
     <string name="title_main_status">Status</string>
