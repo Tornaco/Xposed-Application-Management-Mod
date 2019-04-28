@@ -193,7 +193,7 @@
     <string name="title_app_settings">Restrict settings</string>
     <string name="title_white_system_app">Whitelist system apps</string>
     <string name="summary_white_system_app">Do nothing to system applications. Each list does not show any system applications.</string>
-    <string name="title_app_dev_say">Tips</string>
+    <string name="title_app_dev_say">Notice</string>
     <string name="title_app_black_list">A very important notice</string>
     <string name="message_app_black_list">Because of the feedback from users, many of them are caused by the application being killed, causing some usage problems. Therefore, from this version, our [Limited] part was changed from the previous whitelist mode to the blacklist mode. You may need to go to the settings below to reconfigure.</string>
     <string name="no_remind">Agree and remember</string>

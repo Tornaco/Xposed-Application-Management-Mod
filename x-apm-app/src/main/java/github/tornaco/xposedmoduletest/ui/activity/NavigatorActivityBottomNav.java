@@ -24,6 +24,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.flipboard.bottomsheet.BottomSheetLayout;
+import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog;
+import com.github.javiersantos.materialstyleddialogs.enums.Style;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.jaredrummler.android.shell.Shell;
@@ -147,12 +149,7 @@ public class NavigatorActivityBottomNav
         }
 
         miscIfNotFirst();
-
-        if (OSUtil.isOOrAbove()) {
-            initTVStateForOreo();
-        } else {
-            initFirstRun();
-        }
+        initFirstRun();
 
         registerEventReceivers();
     }
@@ -199,39 +196,6 @@ public class NavigatorActivityBottomNav
                 String[] whitelist = getResources().getStringArray(R.array.app_lock_white_list_activity);
                 XAPMManager.get().addAppLockWhiteListActivity(whitelist);
             });
-        }
-    }
-
-    private void initTVStateForOreo() {
-        showTvDialog();
-    }
-
-    private void showTvDialog() {
-        Logger.w("showTvDialog");
-
-        if (AppSettings.isShowInfoEnabled(this, "TV_FEATURE_WARN", true)) {
-
-            boolean hasTv = OSUtil.hasTvFeature(this);
-            Logger.w("initTVStateForOreo, hasTvFeature: " + hasTv);
-
-            new AlertDialog.Builder(NavigatorActivityBottomNav.this)
-                    .setTitle(R.string.title_app_oreo_update)
-                    .setMessage(getString(
-                            hasTv ?
-                                    R.string.message_oreo_update
-                                    : R.string.message_oreo_update_not_tv))
-                    .setCancelable(false)
-                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                        initFirstRun();
-                        AppSettings.setShowInfo(getContext(), "TV_FEATURE_WARN", false);
-                    })
-                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-                        finish();
-                        PackageManagerCompat.unInstallUserAppWithIntent(getContext(), getPackageName());
-                    })
-                    .show();
-        } else {
-            initFirstRun();
         }
     }
 
@@ -353,22 +317,32 @@ public class NavigatorActivityBottomNav
 
     private void initFirstRun() {
         try {
-            if (AppSettings.isFirstRun(getApplicationContext())) {
-                new AlertDialog.Builder(NavigatorActivityBottomNav.this)
-                        .setTitle(R.string.title_app_dev_say)
-                        .setMessage(getString(R.string.message_first_run))
-                        .setCancelable(false)
-                        .setNeutralButton(R.string.no_remind, (dialog, which) -> {
-                            AppSettings.setFirstRun(getApplicationContext());
-                            showUpdateLog();
-                        })
-                        .setPositiveButton(android.R.string.ok, (dialog, which) -> showUpdateLog())
-                        .setNegativeButton(android.R.string.cancel, (dialog, which) -> finish())
-                        .show();
+            if (BuildConfig.DEBUG || AppSettings.isFirstRun(getApplicationContext())) {
+                showUserNoticeDialog();
             }
         } catch (Throwable e) {
             Toast.makeText(getActivity(), R.string.init_first_run_fail, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void showUserNoticeDialog() {
+        new MaterialStyledDialog.Builder(NavigatorActivityBottomNav.this)
+                .setTitle(R.string.title_app_dev_say)
+                .setDescription(getString(R.string.message_first_run))
+                .setScrollable(true, 30)
+                .setCancelable(false)
+                .setStyle(Style.HEADER_WITH_ICON)
+                .setIcon(R.drawable.ic_chat_smile_2_fill)
+                .setPositiveText(android.R.string.ok)
+                .setNegativeText(android.R.string.cancel)
+                .setNeutralText(R.string.no_remind)
+                .onPositive((dialog, which) -> showUpdateLog())
+                .onNegative((dialog, which) -> finish())
+                .onNeutral((dialog, which) -> {
+                    AppSettings.setFirstRun(getApplicationContext());
+                    showUpdateLog();
+                })
+                .show();
     }
 
     private void showUpdateLog() {
