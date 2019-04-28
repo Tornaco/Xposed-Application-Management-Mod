@@ -155,4 +155,11 @@
         优化：\n
         1. 继续进行Android P适配[2.5/3]. \n
     </string>
+
+    <string name="update_log_520">
+        优化：\n
+        1. 修复一处Android O兼容性异常。
+        2. 修复2处Android P兼容性异常。
+        3. 修复EdXposed + Android P某些时候设备异常重启问题。
+    </string>
 </resources>
