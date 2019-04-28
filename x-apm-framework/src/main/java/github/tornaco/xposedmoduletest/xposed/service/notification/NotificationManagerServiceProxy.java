@@ -37,7 +37,9 @@ public class NotificationManagerServiceProxy {
 
             ArrayList<StatusBarNotification> res = new ArrayList<>();
 
-            for (Object nr : notificationRecordList) {
+            @SuppressWarnings("unchecked")
+            ArrayList copied = new ArrayList(notificationRecordList);
+            for (Object nr : copied) {
                 try {
                     StatusBarNotification sbn = (StatusBarNotification) XposedHelpers.getObjectField(nr, "sbn");
                     XposedLog.debug("getStatusBarNotifications, sbn: " + sbn);
