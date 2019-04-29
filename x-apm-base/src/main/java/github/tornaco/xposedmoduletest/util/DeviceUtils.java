@@ -6,6 +6,6 @@ public class DeviceUtils {
     }
 
     public static boolean isFastDevice() {
-        return Runtime.getRuntime().availableProcessors() >= 4;
+        return Runtime.getRuntime().availableProcessors() >= 24;
     }
 }

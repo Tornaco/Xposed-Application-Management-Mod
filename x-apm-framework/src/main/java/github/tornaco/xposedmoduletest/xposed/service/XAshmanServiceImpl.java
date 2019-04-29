@@ -6861,6 +6861,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             return;
         }
 
+        if (isInSystemAppList(packageName) && isWhiteSysAppEnabled()) {
+            XposedLog.verbose("LAZY postLazyServiceKillerIfNecessary, ignore system app while sys prot.");
+            return;
+        }
+
         // If this package is pending?
         if (isPackageInLazyPendingCheckList(packageName)) {
             XposedLog.verbose("LAZY postLazyServiceKillerIfNecessary, ignore isPackageInLazyPendingCheckList!!!");
@@ -7010,7 +7015,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             boolean optLazyTipsEnabled = isOptFeatureEnabled(XAPMManager.OPT.LAZY_APP_TIPS.name());
             if (optLazyTipsEnabled) {
                 Toast.makeText(getContext(),
-                        String.format("即将为 %s 停止服务。",
+                        String.format("即将为 %s 停止服务",
                                 PkgUtil.loadNameByPkgName(getContext(), packageName)),
                         Toast.LENGTH_SHORT)
                         .show();
