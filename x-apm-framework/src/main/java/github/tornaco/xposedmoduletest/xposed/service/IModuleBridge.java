@@ -5,9 +5,11 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.service.notification.StatusBarNotification;
+import android.util.Pair;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.WindowManagerPolicy;
@@ -113,6 +115,10 @@ public interface IModuleBridge {
     int getBlurRadius() throws RemoteException;
 
     float getBlurScale();
+
+    Pair<Integer, Integer> getScreenSize();
+
+    Bitmap getAppIconBitmap(String pkgName);
 
     boolean interruptFPSuccessVibrate();
 

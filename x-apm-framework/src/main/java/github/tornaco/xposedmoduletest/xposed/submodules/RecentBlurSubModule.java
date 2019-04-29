@@ -14,11 +14,9 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.support.v4.util.ObjectsCompat;
 import android.text.TextUtils;
 import android.util.Log;
-
-import com.google.common.collect.Sets;
+import android.util.Pair;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -38,7 +36,6 @@ import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurTask;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.util.BlurTaskCache;
-import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XBitmapUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XStopWatch;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -345,10 +342,24 @@ public class RecentBlurSubModule extends AndroidSubModule {
         if (XAPMManager.get().isServiceAvailable()) {
             ComponentName name = XAPMManager.get().componentNameForTaskId(taskId);
             XposedLog.verbose("BLUR onSnapshotTask, name: " + name);
-            try {
-                param.setResult(new TaskSnapshotBuilder().build());
-            } catch (Exception e) {
-                XposedLog.wtf("Error TaskSnapshotBuilder " + Log.getStackTraceString(e));
+            String pkgName = name.getPackageName();
+            if (getBridge().isBlurForPkg(pkgName)) {
+                try {
+                    Pair<Integer, Integer> screenSize = getBridge().getScreenSize();
+                    if (BuildConfig.DEBUG) {
+                        XposedLog.verbose("BLUR onSnapshotTask, screenSize: " + screenSize);
+                    }
+                    if (screenSize == null) {
+                        XposedLog.verbose("BLUR onSnapshotTask, no screen size");
+                        return;
+                    }
+                    ActivityManager.TaskSnapshot snapshot = new TaskSnapshotBuilder()
+                            .setRect(new Rect(0, 0, screenSize.first, screenSize.second))
+                            .build();
+                    param.setResult(snapshot);
+                } catch (Exception e) {
+                    XposedLog.wtf("Error TaskSnapshotBuilder " + Log.getStackTraceString(e));
+                }
             }
         }
     }
@@ -358,7 +369,6 @@ public class RecentBlurSubModule extends AndroidSubModule {
      */
     @TargetApi(28)
     static class TaskSnapshotBuilder {
-        private static final Rect TEST_INSETS = new Rect(10, 20, 30, 40);
 
         private float mScale = 1f;
         private boolean mIsRealSnapshot = true;
@@ -366,6 +376,12 @@ public class RecentBlurSubModule extends AndroidSubModule {
         // WINDOWING_MODE_FULLSCREEN = 1;
         private int mWindowingMode = 1;
         private int mSystemUiVisibility = 0;
+        private Rect mRect;
+
+        public TaskSnapshotBuilder setRect(Rect rect) {
+            this.mRect = rect;
+            return this;
+        }
 
         public TaskSnapshotBuilder setScale(float scale) {
             mScale = scale;
@@ -393,19 +409,20 @@ public class RecentBlurSubModule extends AndroidSubModule {
         }
 
         public ActivityManager.TaskSnapshot build() throws Exception {
-            @SuppressWarnings("PointlessBitwiseExpression") final GraphicBuffer buffer = GraphicBuffer.create(100, 100, PixelFormat.RGBA_8888,
+            @SuppressWarnings("PointlessBitwiseExpression")
+            final GraphicBuffer buffer = GraphicBuffer.create(100, 100, PixelFormat.RGBA_8888,
                     USAGE_HW_TEXTURE | USAGE_SW_READ_RARELY | USAGE_SW_READ_RARELY);
             Canvas c = buffer.lockCanvas();
             c.drawColor(Color.RED);
             buffer.unlockCanvasAndPost(c);
 
             if (OSUtil.isPOrAbove()) {
-                return newSnapshotP(buffer, ORIENTATION_PORTRAIT, TEST_INSETS,
+                return newSnapshotP(buffer, ORIENTATION_PORTRAIT, mRect,
                         mScale < 1f /* reducedResolution */, mScale, mIsRealSnapshot, mWindowingMode,
                         mSystemUiVisibility, mIsTranslucent);
             }
             if (OSUtil.isO()) {
-                return new ActivityManager.TaskSnapshot(buffer, ORIENTATION_PORTRAIT, TEST_INSETS, mScale < 1f, mScale);
+                return new ActivityManager.TaskSnapshot(buffer, ORIENTATION_PORTRAIT, mRect, mScale < 1f, mScale);
             }
             return null;
         }

@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.service.notification.StatusBarNotification;
+import android.util.Pair;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.WindowManagerPolicy;
@@ -732,6 +733,16 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
 
     @Override
     public float getBlurScale() {
+        return throwNoImpl();
+    }
+
+    @Override
+    public Pair<Integer, Integer> getScreenSize() {
+        return new Pair<>(0, 0);
+    }
+
+    @Override
+    public Bitmap getAppIconBitmap(String pkgName) {
         return throwNoImpl();
     }
 

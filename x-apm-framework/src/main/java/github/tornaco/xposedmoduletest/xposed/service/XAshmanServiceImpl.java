@@ -60,6 +60,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseBooleanArray;
@@ -193,6 +194,7 @@ import lombok.ToString;
 import static android.content.Context.ACTIVITY_SERVICE;
 import static android.content.Context.KEYGUARD_SERVICE;
 import static android.content.Context.POWER_SERVICE;
+import static android.content.Context.WINDOW_SERVICE;
 import static github.tornaco.xposedmoduletest.xposed.app.XAPMManager.POLICY_REJECT_NONE;
 import static github.tornaco.xposedmoduletest.xposed.app.XAPMManager.POLICY_REJECT_ON_DATA;
 import static github.tornaco.xposedmoduletest.xposed.app.XAPMManager.POLICY_REJECT_ON_WIFI;
@@ -308,6 +310,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private final Holder<String> mUserDefinedDeviceId = new Holder<>();
     private final Holder<String> mUserDefinedAndroidId = new Holder<>();
     private final Holder<String> mUserDefinedLine1Number = new Holder<>();
+
+    private Pair<Integer, Integer> mScreenSize;
 
     // FIXME Now we force set control mode to BLACK LIST.
     private AtomicInteger mControlMode = new AtomicInteger(XAPMManager.ControlMode.BLACK_LIST);
@@ -1930,6 +1934,24 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     public float getBlurScale() {
         return mAppGuardService.getBlurScale();
+    }
+
+    @Override
+    public Pair<Integer, Integer> getScreenSize() {
+        if (mScreenSize == null) {
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            WindowManager windowManager = (WindowManager) getContext().getSystemService(WINDOW_SERVICE);
+            windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+            int height = displayMetrics.heightPixels;
+            int width = displayMetrics.widthPixels;
+            mScreenSize = new Pair<>(width, height);
+        }
+        return new Pair<>(mScreenSize.first, mScreenSize.second);
+    }
+
+    @Override
+    public Bitmap getAppIconBitmap(String pkgName) {
+        return null;
     }
 
     @Override
