@@ -443,7 +443,7 @@ public class RecentBlurSubModule extends AndroidSubModule {
             @SuppressWarnings("PointlessBitwiseExpression") final GraphicBuffer buffer = GraphicBuffer.create(
                     mScreenSize.first,
                     mScreenSize.second,
-                    PixelFormat.RGB_565,
+                    PixelFormat.RGBA_8888,
                     USAGE_HW_TEXTURE | USAGE_SW_READ_RARELY);
             Canvas c = buffer.lockCanvas();
             c.drawColor(MASK_COLOR);
