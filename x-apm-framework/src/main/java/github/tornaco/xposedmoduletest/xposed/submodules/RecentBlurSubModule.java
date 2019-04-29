@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.GraphicBuffer;
+import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.IBinder;
@@ -29,6 +30,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.util.BitmapUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
@@ -83,8 +85,8 @@ public class RecentBlurSubModule extends AndroidSubModule {
         super.initZygote(startupParam);
         // For O.
         if (OSUtil.isO()) {
-            hookSystemProp_ENABLE_TASK_SNAPSHOTS();
-            hookGetThumbForOreo();
+//            hookSystemProp_ENABLE_TASK_SNAPSHOTS();
+//            hookGetThumbForOreo();
         }
     }
 
@@ -353,8 +355,29 @@ public class RecentBlurSubModule extends AndroidSubModule {
                         XposedLog.verbose("BLUR onSnapshotTask, no screen size");
                         return;
                     }
+                    BlurTask cachedTask = BlurTaskCache.getInstance().get(pkgName);
+                    if (cachedTask == null) {
+                        Bitmap icon = getBridge().getAppIconBitmap(pkgName);
+                        if (icon != null) {
+                            cachedTask = BlurTask.from(pkgName,
+                                    BitmapUtil.createScaledBitmap(XBitmapUtil.createBlurredBitmap(
+                                            icon,
+                                            XBitmapUtil.BLUR_RADIUS_MAX,
+                                            1f),
+                                            screenSize.first,
+                                            screenSize.second));
+                            BlurTaskCache.getInstance().put(pkgName, cachedTask);
+                        }
+                    }
+                    if (cachedTask == null || cachedTask.bitmap == null) {
+                        XposedLog.verbose("BLUR onSnapshotTask, cachedTask.bitmap");
+                        return;
+                    }
+                    XposedLog.verbose("BLUR onSnapshotTask, icon bitmap: " + cachedTask.bitmap);
                     ActivityManager.TaskSnapshot snapshot = new TaskSnapshotBuilder()
                             .setRect(new Rect(0, 0, screenSize.first, screenSize.second))
+                            .setScreenSize(screenSize)
+                            .setBitmap(cachedTask.bitmap)
                             .build();
                     param.setResult(snapshot);
                 } catch (Exception e) {
@@ -369,6 +392,7 @@ public class RecentBlurSubModule extends AndroidSubModule {
      */
     @TargetApi(28)
     static class TaskSnapshotBuilder {
+        private static final Paint ICON_PAINT = new Paint();
 
         private float mScale = 1f;
         private boolean mIsRealSnapshot = true;
@@ -377,6 +401,18 @@ public class RecentBlurSubModule extends AndroidSubModule {
         private int mWindowingMode = 1;
         private int mSystemUiVisibility = 0;
         private Rect mRect;
+        private Pair<Integer, Integer> mScreenSize;
+        private Bitmap mBitmap;
+
+        public TaskSnapshotBuilder setBitmap(Bitmap bitmap) {
+            this.mBitmap = bitmap;
+            return this;
+        }
+
+        public TaskSnapshotBuilder setScreenSize(Pair<Integer, Integer> screenSize) {
+            this.mScreenSize = screenSize;
+            return this;
+        }
 
         public TaskSnapshotBuilder setRect(Rect rect) {
             this.mRect = rect;
@@ -409,13 +445,20 @@ public class RecentBlurSubModule extends AndroidSubModule {
         }
 
         public ActivityManager.TaskSnapshot build() throws Exception {
-            @SuppressWarnings("PointlessBitwiseExpression")
-            final GraphicBuffer buffer = GraphicBuffer.create(100, 100, PixelFormat.RGBA_8888,
+            @SuppressWarnings("PointlessBitwiseExpression") final GraphicBuffer buffer = GraphicBuffer.create(
+                    mScreenSize.first,
+                    mScreenSize.second,
+                    PixelFormat.RGBA_8888,
                     USAGE_HW_TEXTURE | USAGE_SW_READ_RARELY | USAGE_SW_READ_RARELY);
             Canvas c = buffer.lockCanvas();
-            c.drawColor(Color.RED);
+            c.drawColor(Color.WHITE);
+            // Insert icon.
+            float iconW = mBitmap.getWidth();
+            float iconH = mBitmap.getHeight();
+            float left = ((float) mScreenSize.first - iconW) / 2.0f;
+            float top = ((float) mScreenSize.second - iconH) / 2.0f;
+            c.drawBitmap(mBitmap, left, top, ICON_PAINT);
             buffer.unlockCanvasAndPost(c);
-
             if (OSUtil.isPOrAbove()) {
                 return newSnapshotP(buffer, ORIENTATION_PORTRAIT, mRect,
                         mScale < 1f /* reducedResolution */, mScale, mIsRealSnapshot, mWindowingMode,

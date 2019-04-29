@@ -98,8 +98,8 @@ public final class XBitmapUtil {
         //
         // Stack Blur Algorithm by Mario Klingemann <mario@quasimondo.com>
 
-        int width = Math.round(sentBitmap.getWidth() * BITMAP_SCALE);
-        int height = Math.round(sentBitmap.getHeight() * BITMAP_SCALE);
+        int width = Math.round(sentBitmap.getWidth() * scale);
+        int height = Math.round(sentBitmap.getHeight() * scale);
         Bitmap inputBitmap = Bitmap.createScaledBitmap(sentBitmap, width, height, false);
         final Bitmap mBitmap = Bitmap.createBitmap(inputBitmap);
 

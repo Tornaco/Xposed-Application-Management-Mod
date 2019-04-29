@@ -31,6 +31,7 @@ import android.content.pm.PackageUserState;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
@@ -106,6 +107,7 @@ import de.robv.android.xposed.SELinuxHelper;
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Holder;
+import github.tornaco.android.common.util.ApkUtil;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IBackupAgent;
@@ -118,6 +120,7 @@ import github.tornaco.xposedmoduletest.ITaskRemoveListener;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.util.ArrayUtil;
+import github.tornaco.xposedmoduletest.util.BitmapUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.GlobalWhiteList;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
@@ -1951,7 +1954,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     @Override
     public Bitmap getAppIconBitmap(String pkgName) {
-        return null;
+        Drawable d = ApkUtil.loadIconByPkgName(getContext(), pkgName);
+        return BitmapUtil.getBitmap(getContext(), d);
     }
 
     @Override
