@@ -74,8 +74,8 @@ public class RecentBlurSubModule extends AndroidSubModule {
         if (!OSUtil.isOOrAbove()) {
             hookScreenshotApplicationsForNAndBelow(lpparam);
         }
-        // O-P here.
-        if (OSUtil.isOOrAbove()) {
+        // P here.
+        if (OSUtil.isPOrAbove()) {
             hookTaskSnapshotController(lpparam);
         }
     }
@@ -85,8 +85,8 @@ public class RecentBlurSubModule extends AndroidSubModule {
         super.initZygote(startupParam);
         // For O.
         if (OSUtil.isO()) {
-//            hookSystemProp_ENABLE_TASK_SNAPSHOTS();
-//            hookGetThumbForOreo();
+            hookSystemProp_ENABLE_TASK_SNAPSHOTS();
+            hookGetThumbForOreo();
         }
     }
 
@@ -101,7 +101,6 @@ public class RecentBlurSubModule extends AndroidSubModule {
 
                     try {
                         if (ENABLE_TASK_SNAPSHOTS_PROP.equals(param.args[0])) {
-
                             boolean blurEnabledOreo = RepoProxy.hasFileIndicator("blur_indicator");
                             XposedLog.boot("blur_indicator " + blurEnabledOreo);
                             if (blurEnabledOreo) {
@@ -388,6 +387,7 @@ public class RecentBlurSubModule extends AndroidSubModule {
     @TargetApi(28)
     static class TaskSnapshotBuilder {
         private static final Paint ICON_PAINT = new Paint();
+        private static final int MASK_COLOR = Color.parseColor("#90ececec");
 
         private float mScale = 1f;
         private boolean mIsRealSnapshot = true;
@@ -443,10 +443,10 @@ public class RecentBlurSubModule extends AndroidSubModule {
             @SuppressWarnings("PointlessBitwiseExpression") final GraphicBuffer buffer = GraphicBuffer.create(
                     mScreenSize.first,
                     mScreenSize.second,
-                    PixelFormat.RGBA_8888,
+                    PixelFormat.RGB_565,
                     USAGE_HW_TEXTURE | USAGE_SW_READ_RARELY);
             Canvas c = buffer.lockCanvas();
-            c.drawColor(Color.parseColor("#88ececec"));
+            c.drawColor(MASK_COLOR);
             // Insert icon.
             float iconW = mBitmap.getWidth();
             float iconH = mBitmap.getHeight();
