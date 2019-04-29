@@ -16,8 +16,13 @@ public class BlurTask {
     public String packageName;
     public long updateTimeMills;
     public Bitmap bitmap;
+    public Object obj;
 
     public static BlurTask from(String pkg, Bitmap bitmap) {
-        return new BlurTask(pkg, System.currentTimeMillis(), bitmap);
+        return new BlurTask(pkg, System.currentTimeMillis(), bitmap, null);
+    }
+
+    public static BlurTask from(String pkg, Bitmap bitmap, Object obj) {
+        return new BlurTask(pkg, System.currentTimeMillis(), bitmap, obj);
     }
 }

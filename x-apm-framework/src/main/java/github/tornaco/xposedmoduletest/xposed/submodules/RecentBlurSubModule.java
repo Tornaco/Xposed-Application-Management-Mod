@@ -19,6 +19,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
+import com.android.internal.graphics.palette.Palette;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -31,6 +33,7 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.util.BitmapUtil;
+import github.tornaco.xposedmoduletest.util.DeviceUtils;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
@@ -54,6 +57,7 @@ import static android.graphics.GraphicBuffer.USAGE_SW_READ_RARELY;
 public class RecentBlurSubModule extends AndroidSubModule {
 
     private static final String ENABLE_TASK_SNAPSHOTS_PROP = "persist.enable_task_snapshots";
+    private static final int MASK_COLOR = Color.parseColor("#90ececec");
 
     private final static BitmapFactory.Options sBitmapOptions;
 
@@ -359,7 +363,8 @@ public class RecentBlurSubModule extends AndroidSubModule {
                         Bitmap icon = getBridge().getAppIconBitmap(pkgName);
                         if (icon != null) {
                             icon = BitmapUtil.createScaledBitmap(icon, screenSize.first / 6, screenSize.first / 6);
-                            cachedTask = BlurTask.from(pkgName, icon);
+                            int dominant = DeviceUtils.isFastDevice() ? getDominantColor(icon) : MASK_COLOR;
+                            cachedTask = BlurTask.from(pkgName, icon, dominant);
                             BlurTaskCache.getInstance().put(pkgName, cachedTask);
                         }
                     }
@@ -371,6 +376,7 @@ public class RecentBlurSubModule extends AndroidSubModule {
                     ActivityManager.TaskSnapshot snapshot = new TaskSnapshotBuilder()
                             .setRect(new Rect(0, 0, screenSize.first, screenSize.second))
                             .setScreenSize(screenSize)
+                            .setDominantColor((Integer) cachedTask.obj)
                             .setBitmap(cachedTask.bitmap)
                             .build();
                     param.setResult(snapshot);
@@ -381,13 +387,23 @@ public class RecentBlurSubModule extends AndroidSubModule {
         }
     }
 
+    private int getDominantColor(Bitmap source) {
+        try {
+            Palette palette = Palette.from(source).generate();
+            int dominant = palette.getDominantColor(MASK_COLOR);
+            String dominantStr = String.format("#88%06X", 0xFFFFFF & dominant);
+            return Color.parseColor(dominantStr);
+        } catch (Throwable e) {
+            return MASK_COLOR;
+        }
+    }
+
     /**
      * Builds a TaskSnapshot, only used for Android P.
      */
     @TargetApi(28)
     static class TaskSnapshotBuilder {
         private static final Paint ICON_PAINT = new Paint();
-        private static final int MASK_COLOR = Color.parseColor("#90ececec");
 
         private float mScale = 1f;
         private boolean mIsRealSnapshot = true;
@@ -398,6 +414,12 @@ public class RecentBlurSubModule extends AndroidSubModule {
         private Rect mRect;
         private Pair<Integer, Integer> mScreenSize;
         private Bitmap mBitmap;
+        private int mDominantColor;
+
+        public TaskSnapshotBuilder setDominantColor(int dominantColor) {
+            this.mDominantColor = dominantColor;
+            return this;
+        }
 
         public TaskSnapshotBuilder setBitmap(Bitmap bitmap) {
             this.mBitmap = bitmap;
@@ -446,7 +468,7 @@ public class RecentBlurSubModule extends AndroidSubModule {
                     PixelFormat.RGBA_8888,
                     USAGE_HW_TEXTURE | USAGE_SW_READ_RARELY);
             Canvas c = buffer.lockCanvas();
-            c.drawColor(MASK_COLOR);
+            c.drawColor(mDominantColor);
             // Insert icon.
             float iconW = mBitmap.getWidth();
             float iconH = mBitmap.getHeight();
