@@ -1,11 +1,17 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
+import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
 import android.app.AndroidAppHelper;
 import android.content.ComponentName;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.GraphicBuffer;
+import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v4.util.ObjectsCompat;
@@ -14,6 +20,7 @@ import android.util.Log;
 
 import com.google.common.collect.Sets;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Set;
 
@@ -30,9 +37,14 @@ import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurTask;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.util.BlurTaskCache;
+import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XBitmapUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XStopWatch;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
+
+import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
+import static android.graphics.GraphicBuffer.USAGE_HW_TEXTURE;
+import static android.graphics.GraphicBuffer.USAGE_SW_READ_RARELY;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -42,7 +54,6 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 public class RecentBlurSubModule extends AndroidSubModule {
 
     private static final String ENABLE_TASK_SNAPSHOTS_PROP = "persist.enable_task_snapshots";
-    private static final String PKG_NAME_SYSTEM_UI = "com.android.systemui";
 
     private final static BitmapFactory.Options sBitmapOptions;
 
@@ -59,7 +70,7 @@ public class RecentBlurSubModule extends AndroidSubModule {
 
     @Override
     public Set<String> getInterestedPackages() {
-        return Sets.newHashSet(PKG_NAME_ANDROID, PKG_NAME_SYSTEM_UI);
+        return Sets.newHashSet(PKG_NAME_ANDROID, PkgUtil.SYSTEM_UI_SHARED_PKG);
     }
 
     @Override
@@ -69,8 +80,8 @@ public class RecentBlurSubModule extends AndroidSubModule {
             hookScreenshotApplicationsForNAndBelow(lpparam);
         }
         // P here.
-        if (OSUtil.isPOrAbove() && ObjectsCompat.equals(PKG_NAME_SYSTEM_UI, lpparam.packageName)) {
-            // hookSystemUiActivityManagerWrapper(lpparam);
+        if (OSUtil.isPOrAbove() && ObjectsCompat.equals(PkgUtil.SYSTEM_UI_SHARED_PKG, lpparam.packageName)) {
+            hookSystemUiActivityManagerWrapper(lpparam);
         }
     }
 
@@ -378,5 +389,90 @@ public class RecentBlurSubModule extends AndroidSubModule {
         XposedHelpers.setObjectField(dataObj, "thumbnail", newBitmap);
         param.setResult(dataObj);
         XposedLog.verbose("BLUR ActivityManagerWrapper getTaskThumbnail Thumb replaced!");
+    }
+
+    /**
+     * Builds a TaskSnapshot, only used for Android P.
+     */
+    @TargetApi(28)
+    static class TaskSnapshotBuilder {
+        private static final Rect TEST_INSETS = new Rect(10, 20, 30, 40);
+
+        private float mScale = 1f;
+        private boolean mIsRealSnapshot = true;
+        private boolean mIsTranslucent = false;
+        // WINDOWING_MODE_FULLSCREEN = 1;
+        private int mWindowingMode = 1;
+        private int mSystemUiVisibility = 0;
+
+        public TaskSnapshotBuilder setScale(float scale) {
+            mScale = scale;
+            return this;
+        }
+
+        public TaskSnapshotBuilder setIsRealSnapshot(boolean isRealSnapshot) {
+            mIsRealSnapshot = isRealSnapshot;
+            return this;
+        }
+
+        public TaskSnapshotBuilder setIsTranslucent(boolean isTranslucent) {
+            mIsTranslucent = isTranslucent;
+            return this;
+        }
+
+        public TaskSnapshotBuilder setWindowingMode(int windowingMode) {
+            mWindowingMode = windowingMode;
+            return this;
+        }
+
+        public TaskSnapshotBuilder setSystemUiVisibility(int systemUiVisibility) {
+            mSystemUiVisibility = systemUiVisibility;
+            return this;
+        }
+
+        public ActivityManager.TaskSnapshot build() throws Exception {
+            if (!OSUtil.isPOrAbove()) {
+                return null;
+            }
+            @SuppressWarnings("PointlessBitwiseExpression")
+            final GraphicBuffer buffer = GraphicBuffer.create(100, 100, PixelFormat.RGBA_8888,
+                    USAGE_HW_TEXTURE | USAGE_SW_READ_RARELY | USAGE_SW_READ_RARELY);
+            Canvas c = buffer.lockCanvas();
+            c.drawColor(Color.RED);
+            buffer.unlockCanvasAndPost(c);
+//            return new ActivityManager.TaskSnapshot(buffer, ORIENTATION_PORTRAIT, TEST_INSETS,
+//                    mScale < 1f /* reducedResolution */, mScale, mIsRealSnapshot, mWindowingMode,
+//                    mSystemUiVisibility, mIsTranslucent);
+
+//            GraphicBuffer snapshot,
+//            int orientation,
+//            Rect contentInsets,
+//            boolean reducedResolution,
+//            float scale,
+//            boolean isRealSnapshot,
+//            int windowingMode,
+//            int systemUiVisibility,
+//            boolean isTranslucent)
+            Class<ActivityManager.TaskSnapshot> snapshotClass = ActivityManager.TaskSnapshot.class;
+            @SuppressWarnings("JavaReflectionMemberAccess")
+            Constructor<ActivityManager.TaskSnapshot> constructor = snapshotClass.getConstructor(
+                    GraphicBuffer.class,
+                    int.class,
+                    Rect.class,
+                    boolean.class,
+                    float.class,
+                    boolean.class,
+                    int.class,
+                    int.class,
+                    boolean.class);
+            if (constructor != null) {
+                return constructor.newInstance(buffer, ORIENTATION_PORTRAIT, TEST_INSETS,
+                    mScale < 1f /* reducedResolution */, mScale, mIsRealSnapshot, mWindowingMode,
+                    mSystemUiVisibility, mIsTranslucent);
+            }
+
+            return null;
+        }
+
     }
 }

@@ -210,8 +210,6 @@ public class SubModuleManager {
 
         // Wakelock blocker.
         addToSubsChecked(new PowerManagerServiceSubModule());
-
-        addToSubsChecked(new ThumbnalDataSubModule());
     }
 
     @Synchronized

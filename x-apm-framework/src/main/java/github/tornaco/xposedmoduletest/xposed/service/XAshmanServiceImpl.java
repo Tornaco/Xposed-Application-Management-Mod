@@ -209,10 +209,6 @@ import static github.tornaco.xposedmoduletest.xposed.bean.DozeEvent.FAIL_RETRY_T
 public class XAshmanServiceImpl extends XAshmanServiceAbs
         implements NotificationHandlerSettingsRetriever {
 
-    private static final String SYSTEM_UI_PKG = "com.android.systemui";
-    private static final String SYSTEM_UI_PKG_HTC = "com.htc.lockscreen";
-    private static final String SYSTEM_UI_PKG_HUAWEI = "com.huawei.bd";
-
     private static final String TAG_LK = "LOCK-KILL-";
 
     private static final String NOTIFICATION_CHANNEL_ID_DEFAULT = "dev.tornaco.notification.channel.id.X-APM-DEFAULT";
@@ -6778,9 +6774,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         return pkgName != null
-                && (pkgName.equals(SYSTEM_UI_PKG)
-                || pkgName.equals(SYSTEM_UI_PKG_HTC)
-                || pkgName.equals(SYSTEM_UI_PKG_HUAWEI)
+                && (pkgName.equals(PkgUtil.SYSTEM_UI_PKG)
+                || pkgName.equals(PkgUtil.SYSTEM_UI_PKG_HTC)
+                || pkgName.equals(PkgUtil.SYSTEM_UI_PKG_HUAWEI)
                 || OSUtil.isPOrAbove());
     }
 

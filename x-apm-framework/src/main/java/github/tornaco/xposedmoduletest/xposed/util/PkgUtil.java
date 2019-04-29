@@ -44,6 +44,11 @@ import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 
 public class PkgUtil {
 
+    public static final String SYSTEM_UI_PKG = "com.android.systemui";
+    public static final String SYSTEM_UI_SHARED_PKG = "com.android.systemui.shared";
+    public static final String SYSTEM_UI_PKG_HTC = "com.htc.lockscreen";
+    public static final String SYSTEM_UI_PKG_HUAWEI = "com.huawei.bd";
+
     public static boolean isApplicationStateDisabled(int state) {
         return state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED
                 || state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER
