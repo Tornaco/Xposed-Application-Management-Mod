@@ -21,6 +21,7 @@ import android.util.Log;
 import com.google.common.collect.Sets;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Set;
 
@@ -69,19 +70,14 @@ public class RecentBlurSubModule extends AndroidSubModule {
     }
 
     @Override
-    public Set<String> getInterestedPackages() {
-        return Sets.newHashSet(PKG_NAME_ANDROID, PkgUtil.SYSTEM_UI_SHARED_PKG);
-    }
-
-    @Override
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         // For N and below android.
-        if (!OSUtil.isOOrAbove() && ObjectsCompat.equals(PKG_NAME_ANDROID, lpparam.packageName)) {
+        if (!OSUtil.isOOrAbove()) {
             hookScreenshotApplicationsForNAndBelow(lpparam);
         }
-        // P here.
-        if (OSUtil.isPOrAbove() && ObjectsCompat.equals(PkgUtil.SYSTEM_UI_SHARED_PKG, lpparam.packageName)) {
-            hookSystemUiActivityManagerWrapper(lpparam);
+        // O-P here.
+        if (OSUtil.isOOrAbove()) {
+            hookTaskSnapshotController(lpparam);
         }
     }
 
@@ -319,76 +315,42 @@ public class RecentBlurSubModule extends AndroidSubModule {
         }
     }
 
-    private void hookSystemUiActivityManagerWrapper(XC_LoadPackage.LoadPackageParam lpparam) {
-        XposedLog.boot("BLUR hookSystemUiActivityManagerWrapper...");
+    private void hookTaskSnapshotController(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedLog.boot("BLUR hookTaskSnapshotController...");
 
         try {
-            Class clz = XposedHelpers.findClass("com.android.systemui.shared.system.ActivityManagerWrapper",
+            Class clz = XposedHelpers.findClass("com.android.server.wm.TaskSnapshotController",
                     lpparam.classLoader);
-            XposedLog.boot("ActivityManagerWrapper class= " + clz);
-            Set unHooks = XposedBridge.hookAllMethods(clz, "getTaskThumbnail", new XC_MethodHook() {
+            Set unHooks = XposedBridge.hookAllMethods(clz, "snapshotTask", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
-                    onGetTaskThumbnailP(param);
+                    onSnapshotTask(param);
                 }
             });
-            XposedLog.boot("BLUR hookSystemUiActivityManagerWrapper OK: " + unHooks);
+            XposedLog.boot("BLUR hookTaskSnapshotController OK: " + unHooks);
             setStatus(unhooksToStatus(unHooks));
         } catch (Exception e) {
-            XposedLog.boot("BLUR Fail hookSystemUiActivityManagerWrapper: " + e);
+            XposedLog.boot("BLUR Fail hookTaskSnapshotController: " + e);
             setStatus(SubModuleStatus.ERROR);
             setErrorMessage(Log.getStackTraceString(e));
         }
     }
 
-    private void onGetTaskThumbnailP(XC_MethodHook.MethodHookParam param) {
-        int taskId = (int) param.args[0];
-        XposedLog.verbose("BLUR ActivityManagerWrapper getTaskThumbnail called, task id: " + taskId);
-        if (!XAPMManager.get().isServiceAvailable()) {
-            XposedLog.wtf("BLUR ActivityManagerWrapper getTaskThumbnail, APM service not available");
-            return;
+    private void onSnapshotTask(XC_MethodHook.MethodHookParam param) {
+        Object taskObj = param.args[0];
+        XposedLog.verbose("BLUR onSnapshotTask, taskObj: " + taskObj);
+        int taskId = (int) XposedHelpers.getObjectField(taskObj, "mTaskId");
+        XposedLog.verbose("BLUR onSnapshotTask, taskId: " + taskId);
+        if (XAPMManager.get().isServiceAvailable()) {
+            ComponentName name = XAPMManager.get().componentNameForTaskId(taskId);
+            XposedLog.verbose("BLUR onSnapshotTask, name: " + name);
+            try {
+                param.setResult(new TaskSnapshotBuilder().build());
+            } catch (Exception e) {
+                XposedLog.wtf("Error TaskSnapshotBuilder " + Log.getStackTraceString(e));
+            }
         }
-
-        ComponentName componentName = XAPMManager.get().componentNameForTaskId(taskId);
-        XposedLog.verbose("BLUR ActivityManagerWrapper getTaskThumbnail called, componentName: " + componentName);
-        if (componentName == null) {
-            return;
-        }
-
-        String pkgName = componentName.getPackageName();
-        boolean blur = XAppLockManager.get().isBlurEnabledForPackage(pkgName);
-        if (!blur) {
-            XposedLog.verbose("BLUR isBlurEnabledForPackage is false");
-            return;
-        }
-
-        Object dataObj = param.getResult();
-        Bitmap thumbnail = (Bitmap) XposedHelpers.getObjectField(dataObj, "thumbnail");
-        XposedLog.verbose("BLUR ActivityManagerWrapper getTaskThumbnail thumbnail:" + thumbnail);
-        if (thumbnail == null) {
-            return;
-        }
-
-        // Query from cache.
-        BlurTaskCache cache = BlurTaskCache.getInstance();
-        BlurTask cachedTask = cache.get(pkgName);
-        if (BuildConfig.DEBUG) {
-            XposedLog.verbose("BLUR ActivityManagerWrapper getTaskThumbnail cachedTask: " + cachedTask);
-        }
-        if (cachedTask != null) {
-            XposedHelpers.setObjectField(dataObj, "thumbnail", cachedTask);
-            param.setResult(dataObj);
-            return;
-        }
-
-        int br = XAppLockManager.get().getBlurRadius();
-        Bitmap newBitmap = XBitmapUtil.createBlurredBitmap(thumbnail, br, XBitmapUtil.BITMAP_SCALE);
-        // Save to cache.
-        cache.put(pkgName, BlurTask.from(pkgName, newBitmap));
-        XposedHelpers.setObjectField(dataObj, "thumbnail", newBitmap);
-        param.setResult(dataObj);
-        XposedLog.verbose("BLUR ActivityManagerWrapper getTaskThumbnail Thumb replaced!");
     }
 
     /**
@@ -431,28 +393,34 @@ public class RecentBlurSubModule extends AndroidSubModule {
         }
 
         public ActivityManager.TaskSnapshot build() throws Exception {
-            if (!OSUtil.isPOrAbove()) {
-                return null;
-            }
-            @SuppressWarnings("PointlessBitwiseExpression")
-            final GraphicBuffer buffer = GraphicBuffer.create(100, 100, PixelFormat.RGBA_8888,
+            @SuppressWarnings("PointlessBitwiseExpression") final GraphicBuffer buffer = GraphicBuffer.create(100, 100, PixelFormat.RGBA_8888,
                     USAGE_HW_TEXTURE | USAGE_SW_READ_RARELY | USAGE_SW_READ_RARELY);
             Canvas c = buffer.lockCanvas();
             c.drawColor(Color.RED);
             buffer.unlockCanvasAndPost(c);
-//            return new ActivityManager.TaskSnapshot(buffer, ORIENTATION_PORTRAIT, TEST_INSETS,
-//                    mScale < 1f /* reducedResolution */, mScale, mIsRealSnapshot, mWindowingMode,
-//                    mSystemUiVisibility, mIsTranslucent);
 
-//            GraphicBuffer snapshot,
-//            int orientation,
-//            Rect contentInsets,
-//            boolean reducedResolution,
-//            float scale,
-//            boolean isRealSnapshot,
-//            int windowingMode,
-//            int systemUiVisibility,
-//            boolean isTranslucent)
+            if (OSUtil.isPOrAbove()) {
+                return newSnapshotP(buffer, ORIENTATION_PORTRAIT, TEST_INSETS,
+                        mScale < 1f /* reducedResolution */, mScale, mIsRealSnapshot, mWindowingMode,
+                        mSystemUiVisibility, mIsTranslucent);
+            }
+            if (OSUtil.isO()) {
+                return new ActivityManager.TaskSnapshot(buffer, ORIENTATION_PORTRAIT, TEST_INSETS, mScale < 1f, mScale);
+            }
+            return null;
+        }
+
+        @SuppressWarnings("SameParameterValue")
+        private ActivityManager.TaskSnapshot newSnapshotP(
+                GraphicBuffer snapshot,
+                int orientation,
+                Rect contentInsets,
+                boolean reducedResolution,
+                float scale,
+                boolean isRealSnapshot,
+                int windowingMode,
+                int systemUiVisibility,
+                boolean isTranslucent) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
             Class<ActivityManager.TaskSnapshot> snapshotClass = ActivityManager.TaskSnapshot.class;
             @SuppressWarnings("JavaReflectionMemberAccess")
             Constructor<ActivityManager.TaskSnapshot> constructor = snapshotClass.getConstructor(
@@ -466,13 +434,12 @@ public class RecentBlurSubModule extends AndroidSubModule {
                     int.class,
                     boolean.class);
             if (constructor != null) {
-                return constructor.newInstance(buffer, ORIENTATION_PORTRAIT, TEST_INSETS,
-                    mScale < 1f /* reducedResolution */, mScale, mIsRealSnapshot, mWindowingMode,
-                    mSystemUiVisibility, mIsTranslucent);
+                return constructor.newInstance(snapshot, orientation, contentInsets,
+                        reducedResolution, scale, isRealSnapshot, windowingMode,
+                        systemUiVisibility, isTranslucent);
             }
 
             return null;
         }
-
     }
 }
