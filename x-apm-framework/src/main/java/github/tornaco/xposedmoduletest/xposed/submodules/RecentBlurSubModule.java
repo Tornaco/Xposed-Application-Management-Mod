@@ -322,8 +322,8 @@ public class RecentBlurSubModule extends AndroidSubModule {
                     lpparam.classLoader);
             Set unHooks = XposedBridge.hookAllMethods(clz, "snapshotTask", new XC_MethodHook() {
                 @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    super.afterHookedMethod(param);
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    super.beforeHookedMethod(param);
                     onSnapshotTask(param);
                 }
             });
@@ -359,13 +359,8 @@ public class RecentBlurSubModule extends AndroidSubModule {
                     if (cachedTask == null) {
                         Bitmap icon = getBridge().getAppIconBitmap(pkgName);
                         if (icon != null) {
-                            cachedTask = BlurTask.from(pkgName,
-                                    BitmapUtil.createScaledBitmap(XBitmapUtil.createBlurredBitmap(
-                                            icon,
-                                            XBitmapUtil.BLUR_RADIUS_MAX,
-                                            1f),
-                                            screenSize.first,
-                                            screenSize.second));
+                            icon = BitmapUtil.createScaledBitmap(icon, screenSize.first / 6, screenSize.first / 6);
+                            cachedTask = BlurTask.from(pkgName, icon);
                             BlurTaskCache.getInstance().put(pkgName, cachedTask);
                         }
                     }
@@ -449,9 +444,9 @@ public class RecentBlurSubModule extends AndroidSubModule {
                     mScreenSize.first,
                     mScreenSize.second,
                     PixelFormat.RGBA_8888,
-                    USAGE_HW_TEXTURE | USAGE_SW_READ_RARELY | USAGE_SW_READ_RARELY);
+                    USAGE_HW_TEXTURE | USAGE_SW_READ_RARELY);
             Canvas c = buffer.lockCanvas();
-            c.drawColor(Color.WHITE);
+            c.drawColor(Color.parseColor("#88ececec"));
             // Insert icon.
             float iconW = mBitmap.getWidth();
             float iconH = mBitmap.getHeight();
