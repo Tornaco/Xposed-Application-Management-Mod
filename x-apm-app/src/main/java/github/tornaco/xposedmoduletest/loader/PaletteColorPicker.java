@@ -3,6 +3,7 @@ package github.tornaco.xposedmoduletest.loader;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
+import android.support.v4.util.LruCache;
 import android.support.v7.graphics.Palette;
 
 import com.bumptech.glide.request.target.SimpleTarget;
@@ -17,7 +18,6 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
  */
 
 public abstract class PaletteColorPicker {
-
     public interface PickReceiver {
         void onColorReady(int color);
     }

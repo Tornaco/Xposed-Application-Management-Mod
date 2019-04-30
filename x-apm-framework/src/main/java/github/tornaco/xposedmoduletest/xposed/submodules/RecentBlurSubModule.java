@@ -57,7 +57,7 @@ import static android.graphics.GraphicBuffer.USAGE_SW_READ_RARELY;
 public class RecentBlurSubModule extends AndroidSubModule {
 
     private static final String ENABLE_TASK_SNAPSHOTS_PROP = "persist.enable_task_snapshots";
-    private static final int MASK_COLOR = Color.parseColor("#90ffffff");
+    private static final int MASK_COLOR = Color.WHITE;
 
     private final static BitmapFactory.Options sBitmapOptions;
 
@@ -391,7 +391,7 @@ public class RecentBlurSubModule extends AndroidSubModule {
         try {
             Palette palette = Palette.from(source).generate();
             int dominant = palette.getDominantColor(MASK_COLOR);
-            String dominantStr = String.format("#88%06X", 0xFFFFFF & dominant);
+            String dominantStr = String.format("#%06X", 0xFFFFFF & dominant);
             return Color.parseColor(dominantStr);
         } catch (Throwable e) {
             return MASK_COLOR;

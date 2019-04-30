@@ -7,21 +7,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.os.CancellationSignal;
+import android.support.v4.util.LruCache;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -33,14 +29,10 @@ import com.andrognito.patternlockview.utils.PatternLockUtils;
 import com.andrognito.pinlockview.IndicatorDots;
 import com.andrognito.pinlockview.PinLockListener;
 import com.andrognito.pinlockview.PinLockView;
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
 
 import org.newstand.logger.Logger;
 
-import java.io.File;
 import java.util.List;
 
 import github.tornaco.android.common.util.ApkUtil;
@@ -59,7 +51,6 @@ import github.tornaco.xposedmoduletest.util.PatternLockViewListenerAdapter;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppVerifyMode;
-import github.tornaco.xposedmoduletest.xposed.service.ErrorCatchRunnable;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 import static github.tornaco.xposedmoduletest.xposed.app.XAppLockManager.EXTRA_INJECT_HOME_WHEN_FAIL_ID;
@@ -73,6 +64,7 @@ import static github.tornaco.xposedmoduletest.xposed.app.XAppLockManager.EXTRA_T
  */
 
 public class VerifyDisplayerActivity extends BaseActivity {
+    private static final LruCache<String, Integer> sDominantCache = new LruCache<>(64);
 
     private String pkg = null;
     // FIXME, this is not a good solution.
@@ -132,43 +124,23 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private void showVerifyView() {
-
-        String customBackgroundPath = null;
-        // Not ready yet.
-        boolean applyCustomBackground = false && mUseCustomBackground;
-        if (applyCustomBackground) {
-            customBackgroundPath = XSettings.customBackgroundPath(this);
-            applyCustomBackground = !TextUtils.isEmpty(customBackgroundPath)
-                    && new File(customBackgroundPath).exists();
-        }
-
-        if (applyCustomBackground) {
-            Glide.with(getActivity())
-                    .load(customBackgroundPath)
-                    .into(new SimpleTarget<Drawable>() {
-                        @Override
-                        public void onResourceReady(@NonNull Drawable resource,
-                                                    @Nullable Transition<? super Drawable> transition) {
-                            if (!isDestroyed()) {
-                                runOnUiThreadChecked(new ErrorCatchRunnable(() -> {
-                                    View root = findViewById(R.id.verify_displayer_root);
-                                    root.setBackground(resource);
-                                }, "applyCustomBackground"));
-                                applyColor(Color.TRANSPARENT);
-                            }
-                        }
-                    });
-        } else {
-            if (mDynamicColor) {
-                // Apply theme color.
-                int color = ContextCompat.getColor(this, XSettings.getThemes(this).getThemeColor());
-
-                // Apply palette color.
-                // Workaround.
-                PaletteColorPicker.pickPrimaryColor(this, this::applyColor, pkg, color);
-            } else if (mDefColor != 0) {
-                applyColor(mDefColor);
+        if (mDynamicColor) {
+            // Apply theme color.
+            int color = ContextCompat.getColor(this, XSettings.getThemes(this).getThemeColor());
+            // Apply palette color.
+            // Workaround.
+            Integer cachedDominant = sDominantCache.get(pkg);
+            if (cachedDominant != null) {
+                applyColor(cachedDominant);
+            } else {
+                PaletteColorPicker.pickPrimaryColor(this, color1 -> {
+                    sDominantCache.put(pkg, color1);
+                    applyColor(color1);
+                }, pkg, color);
             }
+
+        } else if (mDefColor != 0) {
+            applyColor(mDefColor);
         }
 
         setTitle(null);
