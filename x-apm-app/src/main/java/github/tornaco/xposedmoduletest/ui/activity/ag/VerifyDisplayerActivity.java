@@ -45,7 +45,6 @@ import java.util.List;
 
 import github.tornaco.android.common.util.ApkUtil;
 import github.tornaco.android.common.util.ColorUtil;
-import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerCompat;
 import github.tornaco.xposedmoduletest.loader.GlideApp;
@@ -116,16 +115,6 @@ public class VerifyDisplayerActivity extends BaseActivity {
                 : R.layout.verify_displayer_pin);
         if (resolveIntent(getIntent())) {
             showVerifyView();
-
-            // Test fast res.
-            if (BuildConfig.DEBUG) {
-//                getUIThreadHandler().postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        XAppLockManager.get().setResult(tid, XAppVerifyMode.MODE_ALLOWED);
-//                    }
-//                }, 100);
-            }
         }
     }
 

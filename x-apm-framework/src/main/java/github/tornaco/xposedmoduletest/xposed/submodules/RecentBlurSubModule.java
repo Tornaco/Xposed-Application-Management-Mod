@@ -57,7 +57,7 @@ import static android.graphics.GraphicBuffer.USAGE_SW_READ_RARELY;
 public class RecentBlurSubModule extends AndroidSubModule {
 
     private static final String ENABLE_TASK_SNAPSHOTS_PROP = "persist.enable_task_snapshots";
-    private static final int MASK_COLOR = Color.parseColor("#90ececec");
+    private static final int MASK_COLOR = Color.parseColor("#90ffffff");
 
     private final static BitmapFactory.Options sBitmapOptions;
 

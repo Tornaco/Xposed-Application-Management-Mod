@@ -56,7 +56,7 @@
                         android:layout_height="@dimen/thumbnail_size_large"
                         android:layout_centerHorizontal="true"
                         android:scaleType="centerCrop"
-                        android:src="@drawable/ic_verified_user_black_24dp"
+                        android:src="@drawable/ic_lock_2_fill"
                         android:visibility="visible" />
 
                     <TextView
