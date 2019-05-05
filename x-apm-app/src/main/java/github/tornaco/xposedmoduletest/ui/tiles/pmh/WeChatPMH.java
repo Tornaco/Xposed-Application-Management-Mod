@@ -18,7 +18,7 @@ public class WeChatPMH extends QuickTile {
     public WeChatPMH(final Context context) {
         super(context);
         this.titleRes = R.string.title_push_message_handler_wechat;
-        this.iconRes = R.drawable.ic_stat_weixin;
+        this.iconRes = R.drawable.ic_wechat_2_fill;
         this.tileView = new SwitchTileView(context) {
 
             @Override
