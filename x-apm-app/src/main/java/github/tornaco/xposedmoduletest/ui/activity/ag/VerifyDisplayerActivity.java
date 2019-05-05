@@ -18,6 +18,7 @@ import android.support.v4.os.CancellationSignal;
 import android.support.v4.util.LruCache;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -38,6 +39,7 @@ import java.util.List;
 import github.tornaco.android.common.util.ApkUtil;
 import github.tornaco.android.common.util.ColorUtil;
 import github.tornaco.xposedmoduletest.R;
+import github.tornaco.xposedmoduletest.camera.CameraManager;
 import github.tornaco.xposedmoduletest.compat.fingerprint.FingerprintManagerCompat;
 import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
@@ -277,24 +279,24 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private void takePhoto() {
         Logger.d("takePhoto, enabled: " + mTakePhoto);
-//        if (mTakePhoto) {
-//            try {
-//                setupCamera();
-//                CameraManager.get().captureSaveAsync(new CameraManager.PictureCallback() {
-//                    @Override
-//                    public void onImageReady(String path) {
-//                        Logger.d("CameraManager- onImageReady@" + path);
-//                    }
-//
-//                    @Override
-//                    public void onDataBackupFail(Exception e) {
-//                        Logger.d("CameraManager- onDataBackupFail@" + e);
-//                    }
-//                });
-//            } catch (Throwable e) {
-//                Logger.e("Fail take photo: " + Logger.getStackTraceString(e));
-//            }
-//        }
+        if (mTakePhoto) {
+            try {
+                setupCamera();
+                CameraManager.get().captureSaveAsync(new CameraManager.PictureCallback() {
+                    @Override
+                    public void onImageReady(String path) {
+                        Logger.d("CameraManager- onImageReady@" + path);
+                    }
+
+                    @Override
+                    public void onFail(Exception e) {
+                        Logger.d("CameraManager- onFail@" + e);
+                    }
+                });
+            } catch (Throwable e) {
+                Logger.e("Fail take photo: " + Logger.getStackTraceString(e));
+            }
+        }
     }
 
     private void cancelCheckTask() {
@@ -309,10 +311,11 @@ public class VerifyDisplayerActivity extends BaseActivity {
     }
 
     private void setupCamera() {
-        //  Setup camera preview.
-//        View softwareCameraPreview = findViewById(R.id.surface);
-//        if (softwareCameraPreview != null)
-//            softwareCameraPreview.setVisibility(mTakePhoto ? View.VISIBLE : View.GONE);
+        // Setup camera preview.
+        View softwareCameraPreview = findViewById(R.id.surface);
+        if (softwareCameraPreview != null) {
+            softwareCameraPreview.setVisibility(mTakePhoto ? View.VISIBLE : View.GONE);
+        }
     }
 
     private final class ScreenBroadcastReceiver extends BroadcastReceiver {
@@ -418,13 +421,10 @@ public class VerifyDisplayerActivity extends BaseActivity {
             final boolean needFix = AppSettings.isAppLockWorkaroundEnabled(getContext());
             long resDelay = needFix ? 800 : 100;
             Handler h = XExecutor.getUIThreadHandler();
-            h.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    Logger.w("set Res delayed: " + needFix);
-                    // Delay res.
-                    XAppLockManager.get().setResult(tid, XAppVerifyMode.MODE_ALLOWED);
-                }
+            h.postDelayed(() -> {
+                Logger.w("set Res delayed: " + needFix);
+                // Delay res.
+                XAppLockManager.get().setResult(tid, XAppVerifyMode.MODE_ALLOWED);
             }, resDelay);
 
         } finally {
@@ -552,7 +552,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         try {
-//            CameraManager.get().closeCamera();
+            CameraManager.get().closeCamera();
 
             if (mScreenBroadcastReceiver != null) {
                 unregisterReceiver(mScreenBroadcastReceiver);
