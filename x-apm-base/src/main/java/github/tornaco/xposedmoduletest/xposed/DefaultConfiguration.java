@@ -12,7 +12,7 @@ public abstract class DefaultConfiguration {
     public static final String LOG_TAG_PREFIX = "X-APM";
 
     // Blur config.
-    public static final float BITMAP_SCALE = 0.22f;
+    public static final float BITMAP_SCALE = 0.18f;
     /* Initial blur radius. */
     public static final int BLUR_RADIUS = 8;
     public static final int BLUR_RADIUS_MAX = 25;

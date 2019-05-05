@@ -196,8 +196,10 @@ public class RecentBlurSubModule extends AndroidSubModule {
                             int br = XAppLockManager.get().getBlurRadius();
                             swBitmap = XBitmapUtil.createBlurredBitmap(swBitmap, br, XBitmapUtil.BITMAP_SCALE);
                             swBitmap = BitmapUtil.createScaledBitmap(swBitmap, screenSize.first, screenSize.second);
-                            hwBitmap = swBitmap.copy(Bitmap.Config.HARDWARE, false);
-                            cachedTask = BlurTask.from(pkgName, hwBitmap);
+                            Bitmap newHwBitmap = swBitmap.copy(Bitmap.Config.HARDWARE, false);
+                            swBitmap.recycle();
+                            hwBitmap.recycle();
+                            cachedTask = BlurTask.from(pkgName, newHwBitmap);
                             BlurTaskCache.getInstance().put(pkgName, cachedTask);
                         }
                     }

@@ -21,7 +21,7 @@ public class Blur extends QuickTile {
 
     public Blur(final Context context) {
         super(context);
-        this.titleRes = R.string.title_app_recent_blur;
+        this.title = context.getString(R.string.title_app_recent_blur) + "(BETA)";
         if (XAppLockManager.get().isServiceAvailable()) {
             this.summaryRes = XAppLockManager.get().isBlurEnabled() ?
                     R.string.summary_func_enabled : 0;

@@ -26,7 +26,7 @@ public class BlurSettings implements Parcelable, Cloneable {
 
     public static final float BITMAP_SCALE = DefaultConfiguration.BITMAP_SCALE;
     /* Initial blur radius. */
-    public static final int BLUR_RADIUS = 15;
+    public static final int BLUR_RADIUS = 12;
     public static final int BLUR_RADIUS_MAX = 25;
 
     public static final String KEY_SETTINGS = "tornaco.ag_blur";
