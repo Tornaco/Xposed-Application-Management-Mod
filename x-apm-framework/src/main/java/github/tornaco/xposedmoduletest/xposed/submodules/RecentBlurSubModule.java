@@ -36,6 +36,7 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 public class RecentBlurSubModule extends AndroidSubModule {
+    private static final long REPORT_TOO_LONG_TO_BLUR_IF_TIME_LONGER_THAN = 240;
 
     @Override
     public String needBuildVar() {
@@ -167,6 +168,7 @@ public class RecentBlurSubModule extends AndroidSubModule {
         XposedLog.verbose("BLUR onSnapshotTask, taskObj: " + taskObj);
         int taskId = (int) XposedHelpers.getObjectField(taskObj, "mTaskId");
         XposedLog.verbose("BLUR onSnapshotTask, taskId: " + taskId);
+        long startTimeMills = System.currentTimeMillis();
         if (XAPMManager.get().isServiceAvailable()) {
             ComponentName name = XAPMManager.get().componentNameForTaskId(taskId);
             XposedLog.verbose("BLUR onSnapshotTask, name: " + name);
@@ -206,10 +208,21 @@ public class RecentBlurSubModule extends AndroidSubModule {
                     XposedLog.verbose("BLUR onSnapshotTask, icon bitmap: " + cachedTask.bitmap);
                     XposedHelpers.setObjectField(snapshot, "mSnapshot", cachedTask.bitmap.createGraphicBufferHandle());
                     XposedLog.verbose("BLUR onSnapshotTask, mSnapshot: " + snapshot);
+                    long timeTaken = System.currentTimeMillis() - startTimeMills;
+                    reportBlurTimeIfNeed(timeTaken);
                     param.setResult(snapshot);
                 } catch (Exception e) {
                     XposedLog.wtf("Error TaskSnapshotBuilder " + Log.getStackTraceString(e));
                 }
+            }
+        }
+    }
+
+    private void reportBlurTimeIfNeed(long timeMills) {
+        XposedLog.verbose("BLUR reportBlurTimeIfNeed, time taken: " + timeMills);
+        if (timeMills > REPORT_TOO_LONG_TO_BLUR_IF_TIME_LONGER_THAN) {
+            if (XAPMManager.get().isServiceAvailable()) {
+                XAPMManager.get().reportBlurBadPerformance(timeMills);
             }
         }
     }

@@ -2795,6 +2795,15 @@ public class XAPMManager {
         }
     }
 
+    public void reportBlurBadPerformance(long timeTaken) {
+        ensureService();
+        try {
+            mService.reportBlurBadPerformance(timeTaken);
+        } catch (Exception e) {
+            handleException(e);
+        }
+    }
+
     private static void handleException(Throwable e) {
         if (BuildConfig.DEBUG) {
             //throw new RuntimeException(e);

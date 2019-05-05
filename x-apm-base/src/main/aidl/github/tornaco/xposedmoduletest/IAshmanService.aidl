@@ -549,4 +549,6 @@ interface IAshmanService {
 
     // Query name from task id.
     ComponentName componentNameForTaskId(int taskId);
+
+    void reportBlurBadPerformance(long timeTaken);
 }

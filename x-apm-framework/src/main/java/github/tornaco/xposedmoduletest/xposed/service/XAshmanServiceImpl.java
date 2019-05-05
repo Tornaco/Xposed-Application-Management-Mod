@@ -338,6 +338,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private ActiveServicesProxy mActiveServicesProxy;
     private PowerManagerServiceProxy mPowerManagerServiceProxy;
 
+    private int mBlurTimeTooLongToastedTimes = 0;
+
     // App idler.
     private AppIdler mKillIdler, mInactiveIdler;
     private AppIdler mDummyIdler = new AppIdler() {
@@ -913,9 +915,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     private synchronized static void addWhiteListPattern(Pattern pattern) {
-        if (!WHITE_LIST_PATTERNS.contains(pattern)) {
-            WHITE_LIST_PATTERNS.add(pattern);
-        }
+        WHITE_LIST_PATTERNS.add(pattern);
     }
 
     private synchronized static void addToWhiteList(String pkg) {
@@ -934,15 +934,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             return;
         }
 
-        if (!WHITE_LIST.contains(pkg)) {
-            WHITE_LIST.add(pkg);
-        }
+        WHITE_LIST.add(pkg);
     }
 
     private synchronized static void addToWhiteListHook(String pkg) {
-        if (!WHITE_LIST_HOOK.contains(pkg)) {
-            WHITE_LIST_HOOK.add(pkg);
-        }
+        WHITE_LIST_HOOK.add(pkg);
     }
 
     boolean isInSystemAppList(String pkg) {
@@ -950,27 +946,19 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     private synchronized static void addToSystemApps(String pkg) {
-        if (!SYSTEM_APPS.contains(pkg)) {
-            SYSTEM_APPS.add(pkg);
-        }
+        SYSTEM_APPS.add(pkg);
     }
 
     private synchronized static void addToMediaApps(String pkg) {
-        if (!MEDIA_UID_APPS.contains(pkg)) {
-            MEDIA_UID_APPS.add(pkg);
-        }
+        MEDIA_UID_APPS.add(pkg);
     }
 
     private synchronized static void addToPhoneApps(String pkg) {
-        if (!PHONE_UID_APPS.contains(pkg)) {
-            PHONE_UID_APPS.add(pkg);
-        }
+        PHONE_UID_APPS.add(pkg);
     }
 
     private synchronized static void addToCoreApps(String pkg) {
-        if (!SYSTEM_UID_APPS.contains(pkg)) {
-            SYSTEM_UID_APPS.add(pkg);
-        }
+        SYSTEM_UID_APPS.add(pkg);
     }
 
     private void checkSafeMode() {
@@ -1863,6 +1851,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @CommonBringUpApi
     public ComponentName componentNameForTaskId(int taskId) {
         return mTaskIdMap.get(taskId);
+    }
+
+    @Override
+    public void reportBlurBadPerformance(long timeTaken) {
+        enforceCallingPermissions();
+        if (XposedLog.isVerboseLoggable() || mBlurTimeTooLongToastedTimes < 6) {
+            mainHandler.post(new ErrorCatchRunnable(() -> {
+                String content = String.format("你的设备性能过低，此次渲染模糊图片耗时%s毫秒，建议开启缓存或停用任务模糊功能", timeTaken);
+                Toast.makeText(getContext(), content, Toast.LENGTH_SHORT).show();
+                mBlurTimeTooLongToastedTimes += 1;
+            }, "reportBlurBadPerformance"));
+        }
     }
 
     @Override
@@ -9261,9 +9261,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         @Override
         public void watch(WatcherClient w) {
-            if (!mWatcherClients.contains(w)) {
-                mWatcherClients.add(w);
-            }
+            mWatcherClients.add(w);
         }
 
         @Override

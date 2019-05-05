@@ -677,6 +677,11 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public void reportBlurBadPerformance(long timeTaken) throws RemoteException {
+
+    }
+
+    @Override
     public boolean isSystemReady() {
         return mSystemReady;
     }
