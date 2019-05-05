@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
-import android.widget.Toast;
 
 import com.google.common.collect.Lists;
 
@@ -23,8 +22,6 @@ import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.ui.activity.common.CommonPackageInfoListActivity;
 import github.tornaco.xposedmoduletest.ui.adapter.common.CommonPackageInfoAdapter;
 import github.tornaco.xposedmoduletest.ui.widget.SwitchBar;
-import github.tornaco.xposedmoduletest.util.OSUtil;
-import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 
 public class BlurAppNavActivity extends CommonPackageInfoListActivity implements SwitchBar.OnSwitchChangeListener,
@@ -109,10 +106,6 @@ public class BlurAppNavActivity extends CommonPackageInfoListActivity implements
     @Override
     public void onSwitchChanged(SwitchCompat switchView, boolean isChecked) {
         XAppLockManager.get().setBlurEnabled(isChecked);
-        if (OSUtil.isOOrAbove()) {
-            Toast.makeText(getContext(), R.string.title_reboot_take_effect_blur, Toast.LENGTH_LONG).show();
-            XAPMManager.get().showRebootNeededNotification("Blur update");
-        }
     }
 
     @Override

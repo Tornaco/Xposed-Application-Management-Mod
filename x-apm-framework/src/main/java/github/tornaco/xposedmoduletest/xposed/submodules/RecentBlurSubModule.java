@@ -2,11 +2,8 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
-import android.app.AndroidAppHelper;
 import android.content.ComponentName;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -18,7 +15,6 @@ import android.util.Pair;
 import java.lang.reflect.Method;
 import java.util.Set;
 
-import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
@@ -30,10 +26,8 @@ import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurTask;
-import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.util.BlurTaskCache;
 import github.tornaco.xposedmoduletest.xposed.util.XBitmapUtil;
-import github.tornaco.xposedmoduletest.xposed.util.XStopWatch;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -42,17 +36,6 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 public class RecentBlurSubModule extends AndroidSubModule {
-
-    private static final String ENABLE_TASK_SNAPSHOTS_PROP = "persist.enable_task_snapshots";
-    private static final int MASK_COLOR = Color.WHITE;
-
-    private final static BitmapFactory.Options sBitmapOptions;
-
-    static {
-        sBitmapOptions = new BitmapFactory.Options();
-        sBitmapOptions.inMutable = true;
-        sBitmapOptions.inPreferredConfig = Bitmap.Config.RGB_565;
-    }
 
     @Override
     public String needBuildVar() {
@@ -65,159 +48,9 @@ public class RecentBlurSubModule extends AndroidSubModule {
         if (!OSUtil.isOOrAbove()) {
             hookScreenshotApplicationsForNAndBelow(lpparam);
         }
-        // P here.
+        // O P here.
         if (OSUtil.isOOrAbove()) {
             hookTaskSnapshotController(lpparam);
-        }
-    }
-
-    @Override
-    public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {
-        super.initZygote(startupParam);
-        // For O.
-//        if (OSUtil.isO()) {
-//            hookSystemProp_ENABLE_TASK_SNAPSHOTS();
-//            hookGetThumbForOreo();
-//        }
-    }
-
-    private void hookSystemProp_ENABLE_TASK_SNAPSHOTS() {
-        XposedLog.boot("hookSystemProp_ENABLE_TASK_SNAPSHOTS...");
-        try {
-            Class clz = XposedHelpers.findClass("android.os.SystemProperties", null);
-            Set unHooks = XposedBridge.hookAllMethods(clz, "getBoolean", new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    super.beforeHookedMethod(param);
-
-                    try {
-                        if (ENABLE_TASK_SNAPSHOTS_PROP.equals(param.args[0])) {
-                            boolean blurEnabledOreo = RepoProxy.hasFileIndicator("blur_indicator");
-                            XposedLog.boot("blur_indicator " + blurEnabledOreo);
-                            if (blurEnabledOreo) {
-                                XposedLog.boot("BLUR hookSystemProp_ENABLE_TASK_SNAPSHOTS caller:"
-                                        + AndroidAppHelper.currentPackageName());
-                                param.setResult(false);
-                                XposedLog.boot("BLUR hookSystemProp_ENABLE_TASK_SNAPSHOTS returning false");
-                            }
-                        }
-                    } catch (Throwable e) {
-                        XposedLog.boot("Fail handle SystemProp_ENABLE_TASK_SNAPSHOTS: " + e);
-                    }
-                }
-            });
-            XposedLog.boot("BLUR hookSystemProp_ENABLE_TASK_SNAPSHOTS OK: " + unhooksToStatus(unHooks));
-            final boolean ENABLE_TASK_SNAPSHOT = ActivityManager.ENABLE_TASK_SNAPSHOTS;
-            XposedLog.boot("BLUR hookSystemProp_ENABLE_TASK_SNAPSHOTS AFTER: " + ENABLE_TASK_SNAPSHOT);
-        } catch (Exception e) {
-            XposedLog.boot("BLUR Fail hookSystemProp_ENABLE_TASK_SNAPSHOTS: " + e);
-            setStatus(SubModuleStatus.ERROR);
-            setErrorMessage(Log.getStackTraceString(e));
-        }
-    }
-
-    private void hookGetThumbForOreo() {
-        XposedLog.boot("hookGetThumbForOreo...");
-
-        try {
-            Class clz = XposedHelpers.findClass("android.app.ActivityManager",
-                    null);
-
-            Set unHooks = XposedBridge.hookAllMethods(clz,
-                    "getTaskThumbnail", new XC_MethodHook() {
-                        @Override
-                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                            super.afterHookedMethod(param);
-
-                            // Bench.
-                            XStopWatch xStopWatch = null;
-                            if (BuildConfig.DEBUG) {
-                                xStopWatch = XStopWatch.start("BLUR");
-                            }
-
-                            try {
-
-                                if (!XAPMManager.get().isServiceAvailable()
-                                        || !XAppLockManager.get().isBlurEnabled()) {
-                                    return;
-                                }
-
-                                String caller = AndroidAppHelper.currentPackageName();
-                                int taskId = (int) param.args[0];
-                                String pkg = XAPMManager.get().packageForTaskId(taskId);
-                                XposedLog.verbose("BLUR getTaskThumbnail caller %s task %s", caller, pkg);
-
-                                if (pkg == null) {
-                                    return;
-                                }
-
-                                boolean blur = XAppLockManager.get().isBlurEnabledForPackage(pkg);
-                                if (!blur) {
-                                    XposedLog.verbose("BLUR isBlurEnabledForPackage is false");
-                                    return;
-                                }
-
-                                // Query from cache.
-                                BlurTaskCache cache = BlurTaskCache.getInstance();
-                                BlurTask cachedTask = cache.get(pkg);
-                                if (BuildConfig.DEBUG) {
-                                    XposedLog.verbose("BLUR getTaskThumbnail cachedTask: " + cachedTask);
-                                }
-
-                                ActivityManager.TaskThumbnail tt = (ActivityManager.TaskThumbnail) param.getResult();
-                                if (tt == null) {
-                                    XposedLog.verbose("BLUR TaskThumbnail is null");
-                                    return;
-                                }
-
-                                if (cachedTask != null) {
-                                    tt.mainThumbnail = cachedTask.bitmap;
-                                    param.setResult(tt);
-                                    XposedLog.verbose("BLUR getTaskThumbnail using cached: " + cachedTask);
-                                    return;
-                                }
-
-                                if (BuildConfig.DEBUG) {
-                                    XposedLog.verbose("BLUR getTaskThumbnail mainThumbnail: " + tt.mainThumbnail);
-                                    XposedLog.verbose("BLUR getTaskThumbnail thumbnailFileDescriptor: " + tt.thumbnailFileDescriptor);
-                                    XposedLog.verbose("BLUR getTaskThumbnail thumbnailInfo: " + tt.thumbnailInfo);
-                                }
-
-                                int br = XAppLockManager.get().getBlurRadius();
-                                Bitmap source = tt.mainThumbnail;
-                                if (source == null) {
-                                    XposedLog.verbose("BLUR getTaskThumbnail source is null, Try decode with fd.");
-                                    if (tt.thumbnailFileDescriptor != null) {
-                                        XposedLog.verbose("BLUR getTaskThumbnail source is null, Try decode with op: " + sBitmapOptions);
-                                        source = BitmapFactory.decodeFileDescriptor(
-                                                tt.thumbnailFileDescriptor.getFileDescriptor(),
-                                                null, sBitmapOptions);
-                                        if (source != null) {
-                                            XposedLog.verbose("BLUR getTaskThumbnail source is null, Got decoded: " + source);
-                                            tt.thumbnailFileDescriptor = null;
-                                        }
-                                    }
-                                }
-                                tt.mainThumbnail = XBitmapUtil.createBlurredBitmap(source, br, XBitmapUtil.BITMAP_SCALE);
-                                // Save to cache.
-                                cache.put(pkg, BlurTask.from(pkg, tt.mainThumbnail));
-                                param.setResult(tt);
-                                XposedLog.verbose("BLUR getTaskThumbnail Thumb replaced!");
-                            } catch (Throwable e) {
-                                XposedLog.wtf("BLUR Fail replace thumb: " + Log.getStackTraceString(e));
-                            } finally {
-                                if (xStopWatch != null) {
-                                    xStopWatch.stop();
-                                }
-                            }
-                        }
-                    });
-            XposedLog.boot("BLUR hookGetThumbForOreo OK: " + unHooks);
-            setStatus(unhooksToStatus(unHooks));
-        } catch (Exception e) {
-            XposedLog.boot("BLUR Fail hookGetThumbForOreo: " + e);
-            setStatus(SubModuleStatus.ERROR);
-            setErrorMessage(Log.getStackTraceString(e));
         }
     }
 
@@ -358,7 +191,8 @@ public class RecentBlurSubModule extends AndroidSubModule {
                         XposedLog.verbose("BLUR onSnapshotTask, hwBitmap: " + hwBitmap);
                         if (hwBitmap != null) {
                             Bitmap swBitmap = hwBitmap.copy(Bitmap.Config.ARGB_8888, false);
-                            swBitmap = XBitmapUtil.createBlurredBitmap(swBitmap);
+                            int br = XAppLockManager.get().getBlurRadius();
+                            swBitmap = XBitmapUtil.createBlurredBitmap(swBitmap, br, XBitmapUtil.BITMAP_SCALE);
                             swBitmap = BitmapUtil.createScaledBitmap(swBitmap, screenSize.first, screenSize.second);
                             hwBitmap = swBitmap.copy(Bitmap.Config.HARDWARE, false);
                             cachedTask = BlurTask.from(pkgName, hwBitmap);
