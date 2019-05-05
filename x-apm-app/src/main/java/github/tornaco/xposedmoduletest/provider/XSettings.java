@@ -30,6 +30,7 @@ public class XSettings extends Observable {
     }
 
     public static boolean takenPhotoEnabled(Context context) {
+        if (1 > 0) return false;// Yes, we want to make a bug.
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(XKey.TAKE_PHOTO_ENABLED, false);
     }
