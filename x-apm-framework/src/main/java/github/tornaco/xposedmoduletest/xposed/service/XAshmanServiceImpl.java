@@ -338,6 +338,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private ActiveServicesProxy mActiveServicesProxy;
     private PowerManagerServiceProxy mPowerManagerServiceProxy;
 
+    private static final int BLUR_TIME_TOO_LONG_REPORT_MAX_TIME = 6;
     private int mBlurTimeTooLongToastedTimes = 0;
 
     // App idler.
@@ -1856,7 +1857,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     public void reportBlurBadPerformance(long timeTaken) {
         enforceCallingPermissions();
-        if (XposedLog.isVerboseLoggable() || mBlurTimeTooLongToastedTimes < 6) {
+        if (mBlurTimeTooLongToastedTimes <= BLUR_TIME_TOO_LONG_REPORT_MAX_TIME) {
             mainHandler.post(new ErrorCatchRunnable(() -> {
                 String content = String.format("你的设备性能过低，此次渲染模糊图片耗时%s毫秒，建议开启缓存或停用任务模糊功能", timeTaken);
                 Toast.makeText(getContext(), content, Toast.LENGTH_SHORT).show();
@@ -6490,6 +6491,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     public void setBlurEnabled(boolean enabled) {
         mAppGuardService.setBlurEnabled(enabled);
+        // Reset.
+        mBlurTimeTooLongToastedTimes = 0;
     }
 
     @Override
