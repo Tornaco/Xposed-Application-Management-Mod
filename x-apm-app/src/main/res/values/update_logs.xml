@@ -162,4 +162,11 @@
         2. 修复2处Android P兼容性异常。\n
         3. 修复EdXposed + Android P某些时候设备异常重启问题。\n
     </string>
+
+    <string name="update_log_521">
+        优化：\n
+        1. Android O和P采用新的任务模糊方案。\n
+        2. 修复排除的系统系统应用依然被乖巧。\n
+        3. 陆续更新图标，采用Remix icon。\n
+    </string>
 </resources>
