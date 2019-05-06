@@ -101,7 +101,7 @@ public class XAPMServerSettings {
     public static final BaseSetting<Boolean> INACTIVE_INSTEAD_OF_FORCE_STOP = new BooleanSettingImpl("INACTIVE_INSTEAD_OF_FORCE_STOP", false);
 
     // Int fields.
-    public static final BaseSetting<Integer> BLUR_RADIUS_I = new IntSettingImpl("BLUR_RADIUS_I", BlurSettings.BLUR_RADIUS);
+    public static final BaseSetting<Integer> BLUR_RADIUS_I = new IntSettingImpl("BLUR_RADIUS_I_RS", BlurSettings.BLUR_RADIUS);
     public static final BaseSetting<Integer> ASH_CONTROL_MODE_I = new IntSettingImpl("ASH_CONTROL_MODE_I", XAPMManager.ControlMode.BLACK_LIST);
 
     // String fields.
