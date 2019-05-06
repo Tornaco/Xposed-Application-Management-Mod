@@ -29,6 +29,8 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+    testImplementation 'junit:junit:4.12'
+
     // Framework
     compileOnly files('../hidden-api/android-27.jar')
     compileOnly files('../hidden-api/services-27.jar')

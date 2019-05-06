@@ -20,7 +20,7 @@ public abstract class OSUtil {
     }
 
     public static boolean isMIUI() {
-        return Build.FINGERPRINT.startsWith("Xiaomi");
+        return Build.FINGERPRINT.startsWith("Xiaomi") || Build.FINGERPRINT.startsWith("xiaomi");
     }
 
     public static boolean isLOS() {
