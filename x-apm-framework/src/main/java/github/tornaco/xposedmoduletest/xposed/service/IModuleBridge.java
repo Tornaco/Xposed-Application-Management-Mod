@@ -40,6 +40,9 @@ public interface IModuleBridge {
     void attachContext(Context context);
 
     @CoreApi
+    Context getContext();
+
+    @CoreApi
     @CommonBringUpApi
     void publish();
 

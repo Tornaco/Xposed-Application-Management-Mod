@@ -12,9 +12,14 @@
  */
 package github.tornaco.xposedmoduletest.xposed.util;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.renderscript.Allocation;
+import android.renderscript.Element;
+import android.renderscript.RenderScript;
+import android.renderscript.ScriptIntrinsicBlur;
 
 import github.tornaco.xposedmoduletest.xposed.DefaultConfiguration;
 
@@ -29,6 +34,8 @@ public final class XBitmapUtil {
     /* Initial blur radius. */
     public static final int BLUR_RADIUS = DefaultConfiguration.BLUR_RADIUS;
     public static final int BLUR_RADIUS_MAX = DefaultConfiguration.BLUR_RADIUS_MAX;
+
+    private static RenderScript sRs;
 
     /**
      * This class is never instantiated
@@ -293,5 +300,26 @@ public final class XBitmapUtil {
 
         mBitmap.setPixels(pix, 0, w, 0, 0, w, h);
         return mBitmap;
+    }
+
+    public synchronized static Bitmap rsBlur(Context context, Bitmap inputBitmap, int radius) {
+        if (inputBitmap == null) {
+            return null;
+        }
+        // Define this only once if blurring multiple times
+        if (sRs == null) {
+            sRs = RenderScript.create(context);
+        }
+
+        // This will blur the bitmapOriginal with a radius of 8 and save it in bitmapOriginal
+        // use this constructor for best performance, because it uses USAGE_SHARED mode which reuses memory
+        final Allocation input = Allocation.createFromBitmap(sRs, inputBitmap);
+        final Allocation output = Allocation.createTyped(sRs, input.getType());
+        final ScriptIntrinsicBlur script = ScriptIntrinsicBlur.create(sRs, Element.U8_4(sRs));
+        script.setRadius(radius);
+        script.setInput(input);
+        script.forEach(output);
+        output.copyTo(inputBitmap);
+        return inputBitmap;
     }
 }

@@ -154,6 +154,10 @@ public class RepoProxy {
         return new File(systemFile, ".tmp_tor");
     }
 
+    public static File getRsCacheDir() {
+        return new File(getBaseDataDir(), ".rs_cache");
+    }
+
     public static File getSystemErrorTraceDirByVersion() {
         String versionName = String.valueOf(BuildConfig.VERSION_CODE);
         return new File(getSystemErrorTraceDir(), versionName);

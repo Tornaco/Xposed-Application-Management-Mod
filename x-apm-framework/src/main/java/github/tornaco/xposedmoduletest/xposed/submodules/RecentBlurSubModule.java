@@ -3,10 +3,12 @@ package github.tornaco.xposedmoduletest.xposed.submodules;
 import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
 import android.content.ComponentName;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.renderscript.RenderScriptCacheDir;
 import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.util.Log;
@@ -26,6 +28,7 @@ import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.app.XAppLockManager;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurTask;
+import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
 import github.tornaco.xposedmoduletest.xposed.util.BlurTaskCache;
 import github.tornaco.xposedmoduletest.xposed.util.XBitmapUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -36,7 +39,8 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 public class RecentBlurSubModule extends AndroidSubModule {
-    private static final long REPORT_TOO_LONG_TO_BLUR_IF_TIME_LONGER_THAN = 240;
+    private static final long REPORT_TOO_LONG_TO_BLUR_IF_TIME_LONGER_THAN = 200;
+    private static final boolean RS_BLUR_ENABLED = true;
 
     @Override
     public String needBuildVar() {
@@ -188,18 +192,11 @@ public class RecentBlurSubModule extends AndroidSubModule {
                         return;
                     }
                     BlurTask cachedTask = BlurTaskCache.getInstance().get(pkgName);
-                    if (cachedTask == null) {
+                    if (cachedTask == null || cachedTask.bitmap == null) {
                         Bitmap hwBitmap = Bitmap.createHardwareBitmap(snapshot.getSnapshot());
                         XposedLog.verbose("BLUR onSnapshotTask, hwBitmap: " + hwBitmap);
                         if (hwBitmap != null) {
-                            Bitmap swBitmap = hwBitmap.copy(Bitmap.Config.ARGB_8888, false);
-                            int br = XAppLockManager.get().getBlurRadius();
-                            swBitmap = XBitmapUtil.createBlurredBitmap(swBitmap, br, XBitmapUtil.BITMAP_SCALE);
-                            swBitmap = BitmapUtil.createScaledBitmap(swBitmap, screenSize.first, screenSize.second);
-                            Bitmap newHwBitmap = swBitmap.copy(Bitmap.Config.HARDWARE, false);
-                            swBitmap.recycle();
-                            hwBitmap.recycle();
-                            cachedTask = BlurTask.from(pkgName, newHwBitmap);
+                            cachedTask = BlurTask.from(pkgName, blurBitmap(hwBitmap, screenSize));
                             BlurTaskCache.getInstance().put(pkgName, cachedTask);
                         }
                     }
@@ -220,6 +217,50 @@ public class RecentBlurSubModule extends AndroidSubModule {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private Bitmap blurBitmap(Bitmap hwBitmap, Pair<Integer, Integer> screenSize) {
+        if (RS_BLUR_ENABLED) {
+            return rsBlur(hwBitmap, screenSize);
+        } else {
+            return jBlur(hwBitmap, screenSize);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private Bitmap rsBlur(Bitmap hwBitmap, Pair<Integer, Integer> screenSize) {
+        setupRsCache(getBridge().getContext());
+        Bitmap swBitmap = hwBitmap.copy(Bitmap.Config.ARGB_8888, false);
+        XposedLog.verbose("BLUR rsBlur, copy done");
+        swBitmap = BitmapUtil.createScaledBitmap(swBitmap, screenSize.first / 2, screenSize.second / 2);
+        XposedLog.verbose("BLUR rsBlur, scale down done");
+        int br = XAppLockManager.get().getBlurRadius();
+        swBitmap = XBitmapUtil.rsBlur(getBridge().getContext(), swBitmap, br);
+        XposedLog.verbose("BLUR rsBlur, blur done");
+        swBitmap = BitmapUtil.createScaledBitmap(swBitmap, screenSize.first, screenSize.second);
+        XposedLog.verbose("BLUR rsBlur, scale up done");
+        Bitmap newHwBitmap = swBitmap.copy(Bitmap.Config.HARDWARE, false);
+        XposedLog.verbose("BLUR rsBlur, copy done");
+        swBitmap.recycle();
+        hwBitmap.recycle();
+        return newHwBitmap;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private Bitmap jBlur(Bitmap hwBitmap, Pair<Integer, Integer> screenSize) {
+        setupRsCache(getBridge().getContext());
+        Bitmap swBitmap = hwBitmap.copy(Bitmap.Config.ARGB_8888, false);
+        int br = XAppLockManager.get().getBlurRadius();
+        swBitmap = XBitmapUtil.createBlurredBitmap(swBitmap, br, XBitmapUtil.BITMAP_SCALE);
+        XposedLog.verbose("BLUR jBlur, blur done");
+        swBitmap = BitmapUtil.createScaledBitmap(swBitmap, screenSize.first, screenSize.second);
+        XposedLog.verbose("BLUR jBlur, scale done");
+        Bitmap newHwBitmap = swBitmap.copy(Bitmap.Config.HARDWARE, false);
+        XposedLog.verbose("BLUR jBlur, copy done");
+        swBitmap.recycle();
+        hwBitmap.recycle();
+        return newHwBitmap;
+    }
+
     private void reportBlurTimeIfNeed(long timeMills) {
         XposedLog.verbose("BLUR reportBlurTimeIfNeed, time taken: " + timeMills);
         if (timeMills > REPORT_TOO_LONG_TO_BLUR_IF_TIME_LONGER_THAN) {
@@ -227,5 +268,9 @@ public class RecentBlurSubModule extends AndroidSubModule {
                 XAPMManager.get().reportBlurBadPerformance(timeMills);
             }
         }
+    }
+
+    private void setupRsCache(Context context) {
+        RenderScriptCacheDir.setupDiskCache(RepoProxy.getRsCacheDir());
     }
 }
