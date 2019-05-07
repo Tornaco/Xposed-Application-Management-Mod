@@ -78,6 +78,7 @@ public class SmartSenseDashboardActivity extends BaseActivity {
             Category notification = new Category();
             notification.titleRes = R.string.title_notification;
             notification.addTile(new WakeupOnNotificationPosted(getActivity()));
+
             if (OSUtil.isOOrAbove()) {
                 notification.addTile(new CameraOpenNotification(getActivity()));
             }
