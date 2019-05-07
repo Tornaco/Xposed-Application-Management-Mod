@@ -98,7 +98,6 @@ public class SubModuleManager {
         addToSubsChecked(new ContextImplSubModule());
         addToSubsChecked(new ServiceSubModule());
         addToSubsChecked(new ActiveServiceSubModule());
-        addToSubsChecked(new ActiveServiceForegroundNotificationCancellationSubModule());
         addToSubsChecked(new RuntimeInitSubModule());
 
         addToSubsChecked(new AMSBroadcastIntentSubModule());
@@ -210,6 +209,8 @@ public class SubModuleManager {
 
         // Wakelock blocker.
         addToSubsChecked(new PowerManagerServiceSubModule());
+
+        addToSubsChecked(new ActiveServiceForegroundNotificationCancellationSubModule());
     }
 
     @Synchronized

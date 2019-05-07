@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import java.util.List;
 
 import dev.nick.tiles.tile.Category;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.AppCustomDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;
@@ -70,7 +71,7 @@ public class SmartSenseDashboardActivity extends BaseActivity {
             app.addTile(new IconToast(getActivity()));
 
             // This is make for N or EMUI.
-            if (OSUtil.isNOrAbove() || OSUtil.isEMUI()) {
+            if (BuildConfig.DEBUG) {
                 app.addTile(new ForegroundNotificationOpt(getActivity()));
             }
 
