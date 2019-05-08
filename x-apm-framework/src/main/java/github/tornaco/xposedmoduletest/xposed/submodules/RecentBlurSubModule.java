@@ -16,6 +16,8 @@ import android.util.Pair;
 
 import java.lang.reflect.Method;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -39,8 +41,9 @@ import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
  */
 
 public class RecentBlurSubModule extends AndroidSubModule {
-    private static final long REPORT_TOO_LONG_TO_BLUR_IF_TIME_LONGER_THAN = 200;
-    private static final boolean RS_BLUR_ENABLED = true;
+    private static final long REPORT_TOO_LONG_TO_BLUR_IF_TIME_LONGER_THAN = 100;
+    private static final boolean RS_BLUR_ENABLED = false;
+    private static final Executor BLUR_EXE = Executors.newCachedThreadPool();
 
     @Override
     public String needBuildVar() {
@@ -56,6 +59,7 @@ public class RecentBlurSubModule extends AndroidSubModule {
         // O P here.
         if (OSUtil.isOOrAbove()) {
             hookTaskSnapshotController(lpparam);
+            hookGetTaskSnapshot(lpparam);
         }
     }
 
@@ -167,7 +171,34 @@ public class RecentBlurSubModule extends AndroidSubModule {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void onSnapshotTask(XC_MethodHook.MethodHookParam param) {
+    private void hookGetTaskSnapshot(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedLog.boot("BLUR hookGetTaskSnapshot...");
+
+        try {
+            Class clz = XposedHelpers.findClass("com.android.server.am.ActivityManagerService",
+                    lpparam.classLoader);
+            Set unHooks = XposedBridge.hookAllMethods(clz, "getTaskSnapshot", new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    super.afterHookedMethod(param);
+                    ActivityManager.TaskSnapshot orig = (ActivityManager.TaskSnapshot) param.getResult();
+                    ActivityManager.TaskSnapshot taskSnapshot = onGetTaskSnapshot(orig, (Integer) param.args[0]);
+                    if (taskSnapshot != null) {
+                        param.setResult(taskSnapshot);
+                    }
+                }
+            });
+            XposedLog.boot("BLUR hookGetTaskSnapshot OK: " + unHooks);
+            setStatus(unhooksToStatus(unHooks));
+        } catch (Exception e) {
+            XposedLog.boot("BLUR Fail hookGetTaskSnapshot: " + e);
+            setStatus(SubModuleStatus.ERROR);
+            setErrorMessage(Log.getStackTraceString(e));
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void blurAndCacheAsync(XC_MethodHook.MethodHookParam param) {
         Object taskObj = param.args[0];
         XposedLog.verbose("BLUR onSnapshotTask, taskObj: " + taskObj);
         int taskId = (int) XposedHelpers.getObjectField(taskObj, "mTaskId");
@@ -191,30 +222,43 @@ public class RecentBlurSubModule extends AndroidSubModule {
                         XposedLog.verbose("BLUR onSnapshotTask, no screen size");
                         return;
                     }
-                    BlurTask cachedTask = BlurTaskCache.getInstance().get(pkgName);
-                    if (cachedTask == null || cachedTask.bitmap == null) {
-                        Bitmap hwBitmap = Bitmap.createHardwareBitmap(snapshot.getSnapshot());
-                        XposedLog.verbose("BLUR onSnapshotTask, hwBitmap: " + hwBitmap);
-                        if (hwBitmap != null) {
-                            cachedTask = BlurTask.from(pkgName, blurBitmap(hwBitmap, screenSize));
-                            BlurTaskCache.getInstance().put(pkgName, cachedTask);
-                        }
+
+                    Bitmap hwBitmap = Bitmap.createHardwareBitmap(snapshot.getSnapshot());
+                    XposedLog.verbose("BLUR onSnapshotTask, hwBitmap: " + hwBitmap);
+                    if (hwBitmap != null) {
+                        BlurTask cachedTask = BlurTask.from(pkgName, blurBitmap(hwBitmap, screenSize));
+                        BlurTaskCache.getInstance().put(pkgName, cachedTask);
+                        XposedLog.verbose("BLUR onSnapshotTask, bitmap: " + cachedTask.bitmap);
+                        XposedHelpers.setObjectField(snapshot, "mSnapshot", cachedTask.bitmap.createGraphicBufferHandle());
+                        XposedLog.verbose("BLUR onSnapshotTask, mSnapshot: " + snapshot);
+
+                        long timeTaken = System.currentTimeMillis() - startTimeMills;
+                        reportBlurTimeIfNeed(timeTaken);
                     }
-                    if (cachedTask == null || cachedTask.bitmap == null) {
-                        XposedLog.verbose("BLUR onSnapshotTask, cachedTask.bitmap");
-                        return;
-                    }
-                    XposedLog.verbose("BLUR onSnapshotTask, icon bitmap: " + cachedTask.bitmap);
-                    XposedHelpers.setObjectField(snapshot, "mSnapshot", cachedTask.bitmap.createGraphicBufferHandle());
-                    XposedLog.verbose("BLUR onSnapshotTask, mSnapshot: " + snapshot);
-                    long timeTaken = System.currentTimeMillis() - startTimeMills;
-                    reportBlurTimeIfNeed(timeTaken);
-                    param.setResult(snapshot);
+
+
                 } catch (Exception e) {
                     XposedLog.wtf("Error TaskSnapshotBuilder " + Log.getStackTraceString(e));
                 }
             }
         }
+    }
+
+    private ActivityManager.TaskSnapshot onGetTaskSnapshot(ActivityManager.TaskSnapshot orig, int taskId) {
+        ComponentName name = XAPMManager.get().componentNameForTaskId(taskId);
+        XposedLog.verbose("BLUR onGetTaskSnapshot, name: " + name);
+        String pkgName = name.getPackageName();
+        BlurTask cache = BlurTaskCache.getInstance().get(pkgName);
+        if (cache == null || cache.bitmap == null) {
+            return null;
+        }
+        XposedHelpers.setObjectField(orig, "mSnapshot", cache.bitmap.createGraphicBufferHandle());
+        return orig;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void onSnapshotTask(final XC_MethodHook.MethodHookParam param) {
+        BLUR_EXE.execute(() -> blurAndCacheAsync(param));
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -227,6 +271,7 @@ public class RecentBlurSubModule extends AndroidSubModule {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
+    @Deprecated
     private Bitmap rsBlur(Bitmap hwBitmap, Pair<Integer, Integer> screenSize) {
         setupRsCache(getBridge().getContext());
         Bitmap swBitmap = hwBitmap.copy(Bitmap.Config.ARGB_8888, false);
@@ -249,6 +294,7 @@ public class RecentBlurSubModule extends AndroidSubModule {
     private Bitmap jBlur(Bitmap hwBitmap, Pair<Integer, Integer> screenSize) {
         setupRsCache(getBridge().getContext());
         Bitmap swBitmap = hwBitmap.copy(Bitmap.Config.ARGB_8888, false);
+        XposedLog.verbose("BLUR jBlur, copy done");
         int br = XAppLockManager.get().getBlurRadius();
         swBitmap = XBitmapUtil.createBlurredBitmap(swBitmap, br, XBitmapUtil.BITMAP_SCALE);
         XposedLog.verbose("BLUR jBlur, blur done");
@@ -263,11 +309,6 @@ public class RecentBlurSubModule extends AndroidSubModule {
 
     private void reportBlurTimeIfNeed(long timeMills) {
         XposedLog.verbose("BLUR reportBlurTimeIfNeed, time taken: " + timeMills);
-        if (timeMills > REPORT_TOO_LONG_TO_BLUR_IF_TIME_LONGER_THAN) {
-            if (XAPMManager.get().isServiceAvailable()) {
-                XAPMManager.get().reportBlurBadPerformance(timeMills);
-            }
-        }
     }
 
     private void setupRsCache(Context context) {

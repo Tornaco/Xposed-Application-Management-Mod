@@ -219,17 +219,11 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private static final String NOTIFICATION_CHANNEL_ID_DEFAULT = "dev.tornaco.notification.channel.id.X-APM-DEFAULT";
     private static final String NOTIFICATION_CHANNEL_ID_APP_PROCESS = "dev.tornaco.notification.channel.id.X-APM-PROCESS";
 
-    private static final boolean DEBUG_BROADCAST;
-    private static final boolean DEBUG_SERVICE;
+    private static final boolean DEBUG_BROADCAST = false;
+    private static final boolean DEBUG_SERVICE = false;
 
-    private static final boolean DEBUG_OP = BuildConfig.DEBUG;
-    private static final boolean DEBUG_COMP = BuildConfig.DEBUG;
-
-    static {
-        boolean isBuildVarDebug = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.DEBUG);
-        DEBUG_BROADCAST = DEBUG_SERVICE = BuildConfig.DEBUG;
-        XposedLog.boot("DEBUG_BROADCAST & DEBUG_SERVICE: " + DEBUG_BROADCAST);
-    }
+    private static final boolean DEBUG_OP = false;
+    private static final boolean DEBUG_COMP = false;
 
     private static final Set<String> WHITE_LIST = new HashSet<>();
     private static final Set<Pattern> WHITE_LIST_PATTERNS = new HashSet<>();
