@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import github.tornaco.x.base.BuildConfig;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 

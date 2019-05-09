@@ -8,7 +8,7 @@ import android.support.v4.content.FileProvider;
 
 import java.io.File;
 
-import github.tornaco.x.base.BuildConfig;
+import github.tornaco.xposedmoduletest.BuildConfig;
 
 public abstract class MediaUtil {
 

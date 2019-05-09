@@ -8,7 +8,7 @@ import android.support.annotation.Nullable;
 import java.util.List;
 
 import dev.nick.tiles.tile.Category;
-import github.tornaco.x.base.BuildConfig;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.ui.AppCustomDashboardFragment;
 import github.tornaco.xposedmoduletest.ui.activity.BaseActivity;

@@ -17,7 +17,7 @@ import java.util.List;
 
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
-import github.tornaco.x.base.BuildConfig;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.model.ActivityInfoSettings;
 import github.tornaco.xposedmoduletest.model.ActivityInfoSettingsList;

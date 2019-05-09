@@ -12,7 +12,7 @@ import android.util.Log;
 import java.util.HashMap;
 import java.util.Map;
 
-import github.tornaco.x.base.BuildConfig;
+import github.tornaco.x.framework.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.AllArgsConstructor;
@@ -30,14 +30,13 @@ import static android.content.Context.CONTEXT_IGNORE_SECURITY;
 @AllArgsConstructor
 @Getter
 public class AppResource {
-
     private static final Map<Object, String> sStringResCache = new HashMap<>();
     private static final Map<Object, String[]> sStringArrayResCache = new HashMap<>();
 
     private Context context;
 
     public Bitmap loadBitmapFromAPMApp(String resName) {
-        if (!PkgUtil.isPkgInstalled(this.context, BuildConfig.APPLICATION_ID)) {
+        if (!PkgUtil.isPkgInstalled(this.context, BuildConfig.X_APM_APP_PACKAGE_NAME)) {
             return BitmapFactory.decodeResource(this.context.getResources(), android.R.drawable.stat_sys_warning);
         }
         if (BuildConfig.DEBUG) {
@@ -51,7 +50,7 @@ public class AppResource {
                     Log.d(XposedLog.TAG, "loadBitmapFromAPMApp, res: " + res);
                 }
                 if (res != null) {
-                    int id = res.getIdentifier(resName, "drawable", BuildConfig.APPLICATION_ID);
+                    int id = res.getIdentifier(resName, "drawable", BuildConfig.X_APM_APP_PACKAGE_NAME);
                     if (BuildConfig.DEBUG) {
                         Log.d(XposedLog.TAG, "loadBitmapFromAPMApp, id: " + id);
                     }
@@ -81,7 +80,7 @@ public class AppResource {
 
     @RequiresApi(Build.VERSION_CODES.M)
     public Icon loadIconFromAPMApp(String resName, Transform<Bitmap> bitmapTransform) {
-        if (!PkgUtil.isPkgInstalled(this.context, BuildConfig.APPLICATION_ID)) {
+        if (!PkgUtil.isPkgInstalled(this.context, BuildConfig.X_APM_APP_PACKAGE_NAME)) {
             return Icon.createWithResource(this.context.getResources(), android.R.drawable.stat_sys_warning);
         }
         if (BuildConfig.DEBUG) {
@@ -95,7 +94,7 @@ public class AppResource {
                     Log.d(XposedLog.TAG, "loadIconFromAPMApp, res: " + res);
                 }
                 if (res != null) {
-                    int id = res.getIdentifier(resName, "drawable", BuildConfig.APPLICATION_ID);
+                    int id = res.getIdentifier(resName, "drawable", BuildConfig.X_APM_APP_PACKAGE_NAME);
                     if (BuildConfig.DEBUG) {
                         Log.d(XposedLog.TAG, "loadIconFromAPMApp, id: " + id);
                     }
@@ -145,7 +144,7 @@ public class AppResource {
             return null;
         }
         try {
-            return context.createPackageContext(BuildConfig.APPLICATION_ID, CONTEXT_IGNORE_SECURITY);
+            return context.createPackageContext(BuildConfig.X_APM_APP_PACKAGE_NAME, CONTEXT_IGNORE_SECURITY);
         } catch (Throwable e) {
             Log.e(XposedLog.TAG, "Fail createPackageContext: " + Log.getStackTraceString(e));
         }
@@ -153,7 +152,7 @@ public class AppResource {
     }
 
     String[] readStringArrayFromAPMApp(String resName) {
-        if (!PkgUtil.isPkgInstalled(this.context, BuildConfig.APPLICATION_ID)) {
+        if (!PkgUtil.isPkgInstalled(this.context, BuildConfig.X_APM_APP_PACKAGE_NAME)) {
             if (sStringArrayResCache.containsKey(resName)) {
                 String[] cached = sStringArrayResCache.get(resName);
                 if (cached != null) {
@@ -169,9 +168,9 @@ public class AppResource {
         }
         try {
             Context appContext =
-                    context.createPackageContext(BuildConfig.APPLICATION_ID, CONTEXT_IGNORE_SECURITY);
+                    context.createPackageContext(BuildConfig.X_APM_APP_PACKAGE_NAME, CONTEXT_IGNORE_SECURITY);
             Resources res = appContext.getResources();
-            int id = res.getIdentifier(resName, "array", BuildConfig.APPLICATION_ID);
+            int id = res.getIdentifier(resName, "array", BuildConfig.X_APM_APP_PACKAGE_NAME);
             Log.d(XposedLog.TAG, "readStringArrayFromAPMApp get id: " + id + ", for res: " + resName);
             if (id != 0) {
                 String[] stringArr = res.getStringArray(id);
@@ -185,7 +184,7 @@ public class AppResource {
     }
 
     public String loadStringFromAPMApp(String resName, Object... args) {
-        if (!PkgUtil.isPkgInstalled(this.context, BuildConfig.APPLICATION_ID)) {
+        if (!PkgUtil.isPkgInstalled(this.context, BuildConfig.X_APM_APP_PACKAGE_NAME)) {
             // Return cache.
             String cachedString = sStringResCache.get(resName);
             if (cachedString != null) {
@@ -200,9 +199,9 @@ public class AppResource {
         }
         try {
             Context appContext =
-                    context.createPackageContext(BuildConfig.APPLICATION_ID, CONTEXT_IGNORE_SECURITY);
+                    context.createPackageContext(BuildConfig.X_APM_APP_PACKAGE_NAME, CONTEXT_IGNORE_SECURITY);
             Resources res = appContext.getResources();
-            int id = res.getIdentifier(resName, "string", BuildConfig.APPLICATION_ID);
+            int id = res.getIdentifier(resName, "string", BuildConfig.X_APM_APP_PACKAGE_NAME);
             Log.d(XposedLog.TAG, "loadStringFromAPMApp get id: " + id + ", for res: " + resName);
             if (id != 0) {
                 String string = res.getString(id, args);

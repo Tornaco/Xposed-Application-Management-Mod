@@ -17,7 +17,7 @@ import java.io.OutputStream;
 import java.util.UUID;
 
 import dev.nick.tiles.tile.DashboardFragment;
-import github.tornaco.x.base.BuildConfig;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.provider.AppSettings;
 import github.tornaco.xposedmoduletest.util.XExecutor;
 

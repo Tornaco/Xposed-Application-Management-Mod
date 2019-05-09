@@ -36,7 +36,7 @@ import org.newstand.logger.Logger;
 import java.util.List;
 
 import dev.nick.tiles.tile.Category;
-import github.tornaco.x.base.BuildConfig;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;
 import github.tornaco.xposedmoduletest.provider.AppSettings;

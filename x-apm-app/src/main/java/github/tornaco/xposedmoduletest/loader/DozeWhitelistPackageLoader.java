@@ -13,7 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import github.tornaco.x.base.BuildConfig;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
 import github.tornaco.xposedmoduletest.util.ArrayUtil;
 import github.tornaco.xposedmoduletest.util.PinyinComparator;
