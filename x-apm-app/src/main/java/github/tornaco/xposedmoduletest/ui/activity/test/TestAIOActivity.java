@@ -24,7 +24,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import dev.nick.tiles.tile.Tile;
-import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.provider.AppSettings;

@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import de.robv.android.xposed.SELinuxHelper;
-import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IBackupAgent;
 import github.tornaco.xposedmoduletest.IBooleanCallback1;

@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.robv.android.xposed.XposedHelpers;
-import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.util.ReflectionUtils;
 import github.tornaco.xposedmoduletest.xposed.service.ErrorCatchRunnable;
 import github.tornaco.xposedmoduletest.xposed.service.InvokeTargetProxy;

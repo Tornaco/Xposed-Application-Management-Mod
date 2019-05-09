@@ -10,7 +10,7 @@ import android.util.Log;
 import java.io.File;
 
 import github.tornaco.android.common.BlackHole;
-import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.ISettingsChangeListener;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.DefaultConfiguration;

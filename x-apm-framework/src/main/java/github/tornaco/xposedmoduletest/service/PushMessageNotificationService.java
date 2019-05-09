@@ -11,7 +11,7 @@ import android.util.Log;
 import java.util.HashMap;
 import java.util.Map;
 
-import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.model.PushMessage;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;

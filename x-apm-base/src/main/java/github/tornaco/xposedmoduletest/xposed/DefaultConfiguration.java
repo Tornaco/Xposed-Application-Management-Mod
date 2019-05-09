@@ -1,6 +1,7 @@
 package github.tornaco.xposedmoduletest.xposed;
 
-import github.tornaco.xposedmoduletest.BuildConfig;
+
+import github.tornaco.x.base.BuildConfig;
 
 /**
  * Created by Tornaco on 2018/5/14 10:26.

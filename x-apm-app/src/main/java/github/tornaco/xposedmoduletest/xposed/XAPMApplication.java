@@ -15,7 +15,7 @@ import org.newstand.logger.Logger;
 import org.newstand.logger.Settings;
 
 import github.tornaco.android.common.BlackHole;
-import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.cache.InstalledAppsLoadingCache;
 import github.tornaco.xposedmoduletest.cache.RunningServicesLoadingCache;
 import github.tornaco.xposedmoduletest.provider.AppSettings;

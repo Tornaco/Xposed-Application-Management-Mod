@@ -7,7 +7,7 @@ import android.util.Log;
 import java.util.HashMap;
 import java.util.Map;
 
-import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;

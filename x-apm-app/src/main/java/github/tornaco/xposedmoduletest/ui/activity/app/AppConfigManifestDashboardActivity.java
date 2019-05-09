@@ -12,7 +12,7 @@ import java.util.List;
 
 import dev.nick.tiles.tile.Category;
 import github.tornaco.android.common.util.ColorUtil;
-import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.PaletteColorPicker;
 import github.tornaco.xposedmoduletest.provider.XSettings;

@@ -108,7 +108,7 @@ import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Holder;
 import github.tornaco.android.common.util.ApkUtil;
-import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IBackupAgent;
 import github.tornaco.xposedmoduletest.IBooleanCallback1;

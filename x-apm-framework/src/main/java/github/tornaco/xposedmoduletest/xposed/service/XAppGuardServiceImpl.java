@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.android.common.Holder;
-import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.AppGlobals;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;

@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 import github.tornaco.android.common.Collections;
-import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.JsLoader;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;

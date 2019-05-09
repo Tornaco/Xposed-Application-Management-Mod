@@ -3,7 +3,7 @@ package github.tornaco.xposedmoduletest.xposed.util;
 import java.util.concurrent.ExecutorService;
 
 import de.robv.android.xposed.XposedBridge;
-import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.x.base.BuildConfig;
 
 /**
  * Created by guohao4 on 2017/10/25.

@@ -3,7 +3,7 @@ package github.tornaco.xposedmoduletest.xposed.service.bandwidth;
 import android.text.TextUtils;
 import android.util.Log;
 
-import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.service.NativeDaemonConnector;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
