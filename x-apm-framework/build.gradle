@@ -2,11 +2,6 @@ import groovy.xml.XmlUtil
 
 apply plugin: 'com.android.library'
 
-afterEvaluate {
-    generateReleaseBuildConfig.enabled = false
-    generateDebugBuildConfig.enabled = false
-}
-
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion as int
     // buildToolsVersion rootProject.ext.buildToolsVersion as String
