@@ -688,5 +688,4 @@
     <string name="title_custom_background_picker">選擇自訂背景</string>
     <string name="summary_custom_background_enabled">使用自訂的圖片作為驗證介面的背景</string>
     <string name="title_custom_background_enabled">使用自訂背景</string>
-    <string name="verify_fp_indicator_text">请验证指纹</string>
 </resources>
