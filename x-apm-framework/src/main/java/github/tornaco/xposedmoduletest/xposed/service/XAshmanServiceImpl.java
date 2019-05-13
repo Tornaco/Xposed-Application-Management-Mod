@@ -175,7 +175,6 @@ import github.tornaco.xposedmoduletest.xposed.service.pm.PackageInstallerManager
 import github.tornaco.xposedmoduletest.xposed.service.policy.PhoneWindowManagerProxy;
 import github.tornaco.xposedmoduletest.xposed.service.power.PowerManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.service.provider.XAPMServerSettings;
-import github.tornaco.xposedmoduletest.xposed.service.rhino.ScriptRunner;
 import github.tornaco.xposedmoduletest.xposed.service.rule.Rule;
 import github.tornaco.xposedmoduletest.xposed.service.rule.RuleParser;
 import github.tornaco.xposedmoduletest.xposed.service.shell.AshShellCommand;
@@ -3891,27 +3890,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @BinderCall
     public void evaluateJsString(String[] args, IJsEvaluateListener listener) {
         enforceCallingPermissions();
-
-        mainHandler.post(new ErrorCatchRunnable(() -> {
-            try {
-                Object res = ScriptRunner.run(getContext(), args);
-                if (listener != null) {
-                    try {
-                        listener.onFinish(String.valueOf(res));
-                    } catch (Throwable ignored) {
-                    }
-                }
-            } catch (Throwable e) {
-                String errMessageTrace = e.toString() + "\n" + Log.getStackTraceString(e);
-                if (listener != null) {
-                    try {
-                        listener.onError(String.valueOf(e), errMessageTrace);
-                    } catch (Throwable ignored) {
-                    }
-                }
-                XposedLog.wtf("Error run js: " + errMessageTrace);
-            }
-        }, "js"));
     }
 
     @Override

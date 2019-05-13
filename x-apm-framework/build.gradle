@@ -40,8 +40,8 @@ dependencies {
 
     implementation rootProject.ext.supportAppCompat
 
-    annotationProcessor 'org.projectlombok:lombok:1.16.16'
-    compileOnly 'org.projectlombok:lombok:1.16.16'
+    annotationProcessor 'org.projectlombok:lombok:1.16.18'
+    compileOnly 'org.projectlombok:lombok:1.16.18'
 
     compileOnly 'de.robv.android.xposed:api:82'
 
@@ -57,10 +57,7 @@ dependencies {
 
     api project(':x-apm-base')
 
-    // https://github.com/mozilla/rhino
-    implementation files('libs/rhino-1.7.9.jar')
     // compile files('libs/flymeapi.jar')
-    implementation 'com.jakewharton.android.repackaged:dalvik-dx:7.1.0_r7'
 }
 
 preBuild {

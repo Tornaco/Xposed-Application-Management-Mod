@@ -83,7 +83,6 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.DevelopmentSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.app.PolicySettings;
 import github.tornaco.xposedmoduletest.ui.tiles.app.StyleSettings;
 import github.tornaco.xposedmoduletest.ui.tiles.prop.PackageInstallVerify;
-import github.tornaco.xposedmoduletest.ui.tiles.workflow.Workflow;
 import github.tornaco.xposedmoduletest.ui.widget.BottomNavigationViewHelper;
 import github.tornaco.xposedmoduletest.ui.widget.ToastManager;
 import github.tornaco.xposedmoduletest.ui.widget.TypefaceHelper;
@@ -1000,11 +999,6 @@ public class NavigatorActivityBottomNav
 
             if (XAPMApplication.isGMSSupported()) {
                 exp.addTile(new PushMessageHandler(getActivity()));
-            }
-
-            if (XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.APP_WORKFLOW)
-                    && OSUtil.isMOrAbove() && AppSettings.isShowInfoEnabled(getContext(), "show_hidden_features2", false)) {
-                exp.addTile(new Workflow(getActivity()));
             }
 
             Category ash = new Category();
