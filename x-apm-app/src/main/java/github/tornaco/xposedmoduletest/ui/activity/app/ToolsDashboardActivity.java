@@ -19,8 +19,6 @@ import github.tornaco.xposedmoduletest.ui.activity.WithWithCustomTabActivity;
 import github.tornaco.xposedmoduletest.ui.tiles.app.ADBWireless;
 import github.tornaco.xposedmoduletest.ui.tiles.app.AppDevMode;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CleanUpSystemErrorTrace;
-import github.tornaco.xposedmoduletest.ui.tiles.app.CrashDump;
-import github.tornaco.xposedmoduletest.ui.tiles.app.MokeCrash;
 import github.tornaco.xposedmoduletest.ui.tiles.app.MokeSystemDead;
 import github.tornaco.xposedmoduletest.ui.tiles.app.ShowFocusedActivity;
 import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
@@ -91,12 +89,11 @@ public class ToolsDashboardActivity extends WithWithCustomTabActivity {
             Category dev = new Category();
             dev.titleRes = R.string.title_dev_tools;
             dev.addTile(new AppDevMode(getActivity()));
+
             if (XSettings.isDevMode(getActivity())) {
                 dev.addTile(new ADBWireless(getActivity()));
+                dev.addTile(new MokeSystemDead(getActivity()));
             }
-            dev.addTile(new CrashDump(getActivity()));
-            dev.addTile(new MokeCrash(getActivity()));
-            dev.addTile(new MokeSystemDead(getActivity()));
 
             Category user = new Category();
             user.titleRes = R.string.title_user_tools;
