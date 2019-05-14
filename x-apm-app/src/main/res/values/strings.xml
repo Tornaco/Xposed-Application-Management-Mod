@@ -43,7 +43,7 @@
     <string name="title_donate">Donate</string>
     <string name="title_show_system_app">System apps</string>
     <string name="first_run_title">Tips</string>
-    <string name="message_first_run">App is open source and hosted on Github, published apk is built by CI. \n\nThe purpose of this application development is to prevent as much as possible the consumption of system resources by the infrequent APPs. The commonly used APPs do not interfere in any way. Otherwise, they may cause problems in use, waste a lot of time and effort, and even affect their own lives. The effect (except for friends who are willing to take the initiative to solve the problem), so you do not need to use all the features. \n\nThe new version provides some additional minor features for the Play version and donated friends. If you have already donated, go to 'Donate' and check 'I have donated'. Play Edition does not require this setting to use all features.</string>
+    <string name="message_first_run">App is open source and hosted on Github, published apk is built by CI. The purpose of this application development is to prevent as much as possible the consumption of system resources by the infrequent APPs. The commonly used APPs do not interfere in any way. Otherwise, they may cause problems in use, waste a lot of time and effort, and even affect their own lives. The effect (except for friends who are willing to take the initiative to solve the problem), so you do not need to use all the features. The new version provides some additional minor features for the Play version and donated friends. If you have already donated, go to Donate and check I have donated. Play Edition does not require this setting to use all features.</string>
     <string name="title_hide_pattern">Hide pattern</string>
     <string name="title_use_fp">Use fingerprint</string>
     <string name="title_ver_on_home">Re-verify when app switched</string>
@@ -296,7 +296,7 @@
     <string name="title_crash_moke">Crash Mode</string>
     <string name="summary_crash_moke">Once clicked, X-APM will crash.</string>
     <string name="summary_exp">Experimental function</string>
-    <string name="summary_app_lazy">The application in the Smart mode is unrestricted when running in the foreground. When the application returns to the background for 3 seconds, the service is actively stopped (if the FCM/GCM message is received during the period, it will remain for half a minute). \n\nNote that this mode conflicts with Greening. If you green the service for the application, then the application in the foreground still can't start any service.</string>
+    <string name="summary_app_lazy">The application in the Smart mode is unrestricted when running in the foreground. When the application returns to the background for 3 seconds, the service is actively stopped (if the FCM/GCM message is received during the period, it will remain for half a minute). \n\nNote that this mode conflicts with Greening. If you green the service for the application, then the application in the foreground still can not start any service.</string>
     <string name="title_app_lazy">Smart Mode</string>
     <string name="title_draw_vibrate">Draw vibrate</string>
     <string name="title_keys">keys</string>
