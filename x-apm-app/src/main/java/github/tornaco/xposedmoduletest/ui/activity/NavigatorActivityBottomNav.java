@@ -644,7 +644,7 @@ public class NavigatorActivityBottomNav
             }
 
             // Donate
-            boolean isPlayVersion = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.PLAY);
+            boolean isPlayVersion = XAPMApplication.isPlayVersion();
             if (!isPlayVersion && XAPMManager.get().isServiceAvailable() && !AppSettings.isDonated(getActivity())) {
                 Suggestion suggestion = new Suggestion(
                         getString(R.string.suggestion_donate),

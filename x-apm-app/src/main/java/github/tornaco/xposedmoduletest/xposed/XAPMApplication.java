@@ -113,7 +113,8 @@ public class XAPMApplication extends MultiDexApplication {
     }
 
     public static boolean isPlayVersion() {
-        return XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.PLAY);
+        //noinspection ConstantConditions
+        return BuildConfig.CURRENT_FLAVOR == BuildConfig.FLAVOR_PLAY;
     }
 
     private void forDev() {
