@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -17,6 +18,7 @@ import android.support.v4.content.ContextCompat;
 
 import java.io.ByteArrayOutputStream;
 
+import github.tornaco.xposedmoduletest.R;
 
 /**
  * Created by guohao4 on 2017/10/24.
