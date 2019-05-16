@@ -12,7 +12,7 @@ import android.util.Log;
 import java.util.HashMap;
 import java.util.Map;
 
-import github.tornaco.x.framework.BuildConfig;
+import github.tornaco.xposedmoduletest.framework.config.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 import lombok.AllArgsConstructor;
