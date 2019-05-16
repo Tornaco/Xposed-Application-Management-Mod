@@ -18,6 +18,7 @@ import android.support.v4.os.CancellationSignal;
 import android.support.v4.util.LruCache;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -79,9 +80,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
     private boolean mDynamicColor;
     private int mDefColor;
-
-    private boolean mUseCustomBackground;
-    private String mCustomBackgroundImagePath;
+    private boolean mHideKeyboardFirst;
 
     private CancellationSignal mCancellationSignal;
 
@@ -120,7 +119,7 @@ public class VerifyDisplayerActivity extends BaseActivity {
         this.mLockMethod = LockStorage.getLockMethod(this);
         this.mDynamicColor = XSettings.dynamicColorEnabled(this);
         this.mDefColor = XSettings.defaultVerifierColor(this);
-        this.mUseCustomBackground = XSettings.customBackgroundEnabled(this);
+        this.mHideKeyboardFirst = XSettings.fpEnabled(this);
     }
 
     private void showVerifyView() {
@@ -234,6 +233,18 @@ public class VerifyDisplayerActivity extends BaseActivity {
             }
         });
         patternLockView.setEnableHapticFeedback(true);
+
+        if (mHideKeyboardFirst) {
+            findViewById(R.id.pattern_container).setVisibility(View.GONE);
+            findViewById(R.id.fp_indicator_container_strum).setVisibility(View.VISIBLE);
+            findViewById(R.id.fp_indicator_container_strum).setOnClickListener(view -> {
+                findViewById(R.id.pattern_container).setVisibility(View.VISIBLE);
+                findViewById(R.id.fp_indicator_container_strum).setVisibility(View.GONE);
+            });
+        } else {
+            findViewById(R.id.pattern_container).setVisibility(View.VISIBLE);
+            findViewById(R.id.fp_indicator_container_strum).setVisibility(View.GONE);
+        }
     }
 
     private void setupPinLockView() {
@@ -273,6 +284,17 @@ public class VerifyDisplayerActivity extends BaseActivity {
 
             }
         });
+        if (mHideKeyboardFirst) {
+            findViewById(R.id.pin_container).setVisibility(View.GONE);
+            findViewById(R.id.fp_indicator_container_strum).setVisibility(View.VISIBLE);
+            findViewById(R.id.fp_indicator_container_strum).setOnClickListener(view -> {
+                findViewById(R.id.pin_container).setVisibility(View.VISIBLE);
+                findViewById(R.id.fp_indicator_container_strum).setVisibility(View.GONE);
+            });
+        } else {
+            findViewById(R.id.pin_container).setVisibility(View.VISIBLE);
+            findViewById(R.id.fp_indicator_container_strum).setVisibility(View.GONE);
+        }
     }
 
     private void takePhoto() {

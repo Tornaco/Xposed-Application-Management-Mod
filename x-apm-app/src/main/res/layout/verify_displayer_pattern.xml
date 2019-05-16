@@ -80,12 +80,12 @@
 
 
         <RelativeLayout
-            android:id="@+id/pin_container"
+            android:id="@+id/pattern_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_gravity="center|bottom"
-            android:layout_marginBottom="@dimen/activity_vertical_margin_large"
             android:layout_marginTop="@dimen/activity_horizontal_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin_large"
             android:layout_weight="3"
             android:gravity="center|bottom">
 
@@ -105,6 +105,42 @@
                 app:pathEndAnimationDuration="100"
                 app:pathWidth="4dp"
                 app:wrongStateColor="@color/pomegranate" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/fp_indicator_container_strum"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center|bottom"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin_large"
+            android:layout_weight="3"
+            android:gravity="center|bottom"
+            android:visibility="invisible">
+
+            <RelativeLayout
+                android:id="@+id/fp_indicator_container"
+                android:layout_width="@dimen/pattern_lock_size"
+                android:layout_height="@dimen/pattern_lock_size"
+                android:layout_centerHorizontal="true">
+
+                <ImageView
+                    android:id="@+id/fp_indicator_image"
+                    android:layout_width="@dimen/thumbnail_size_large"
+                    android:layout_height="@dimen/thumbnail_size_large"
+                    android:layout_centerInParent="true"
+                    android:tint="@color/md_grey_800"
+                    android:src="@drawable/ic_fingerprint_black_24dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/fp_indicator_image"
+                    android:layout_centerHorizontal="true"
+                    android:textColor="@color/md_grey_800"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin_middle"
+                    android:text="@string/verify_fp_indicator_text" />
+            </RelativeLayout>
         </RelativeLayout>
     </LinearLayout>
 

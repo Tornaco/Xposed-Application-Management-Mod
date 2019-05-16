@@ -704,4 +704,5 @@
     <string name="title_custom_background_picker">Choose a custom background</string>
     <string name="summary_custom_background_enabled">Use a custom image as the background for the verification interface</string>
     <string name="title_custom_background_enabled">Using a custom background</string>
+    <string name="verify_fp_indicator_text">请验证指纹</string>
 </resources>
