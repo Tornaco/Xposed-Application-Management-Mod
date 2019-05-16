@@ -11,7 +11,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -40,18 +39,16 @@ class PackageInstallerServiceSubModule extends AndroidSubModule {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     super.beforeHookedMethod(param);
-                    if (BuildConfig.DEBUG) {
-                        int callingUid = Binder.getCallingUid();
-                        XposedLog.verbose("createSession to install package, caller: " + callingUid
-                                + ", args: " + Arrays.toString(param.args));
-                        PackageInstaller.SessionParams s = (PackageInstaller.SessionParams) param.args[0];
-                        XposedLog.verbose("createSession SessionParams appLabel: " + s.appLabel);
-                        XposedLog.verbose("createSession SessionParams appPackageName: " + s.appPackageName);
-                        XposedLog.verbose("createSession SessionParams appIcon: " + s.appIcon);
-                        XposedLog.verbose("createSession SessionParams installFlags: " + s.installFlags);
-                        XposedLog.verbose("createSession SessionParams originatingUri: " + s.originatingUri);
-                        XposedLog.verbose("createSession SessionParams referrerUri: " + s.referrerUri);
-                    }
+                    int callingUid = Binder.getCallingUid();
+                    XposedLog.verbose("createSession to install package, caller: " + callingUid
+                            + ", args: " + Arrays.toString(param.args));
+                    PackageInstaller.SessionParams s = (PackageInstaller.SessionParams) param.args[0];
+                    XposedLog.verbose("createSession SessionParams appLabel: " + s.appLabel);
+                    XposedLog.verbose("createSession SessionParams appPackageName: " + s.appPackageName);
+                    XposedLog.verbose("createSession SessionParams appIcon: " + s.appIcon);
+                    XposedLog.verbose("createSession SessionParams installFlags: " + s.installFlags);
+                    XposedLog.verbose("createSession SessionParams originatingUri: " + s.originatingUri);
+                    XposedLog.verbose("createSession SessionParams referrerUri: " + s.referrerUri);
                 }
             });
             logOnBootStage("PackageInstallerServiceSubModule hookCreateSession OK:" + unHooks);

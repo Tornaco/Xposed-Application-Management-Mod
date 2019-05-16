@@ -10,7 +10,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -39,7 +38,9 @@ class AMSStartProcessLockedSubModule extends AndroidSubModule {
                             super.beforeHookedMethod(param);
                             Object processRecord = param.args[0];
                             // We only hook the method with ProcessRecord param class.
-                            if (processRecord instanceof String) return;
+                            if (processRecord instanceof String) {
+                                return;
+                            }
                             if (!processRecord.getClass().getName().contains("ProcessRecord")) {
                                 return;
                             }
@@ -51,10 +52,8 @@ class AMSStartProcessLockedSubModule extends AndroidSubModule {
                             if (param.args.length <= 4) {
                                 return;
                             }
-                            if (BuildConfig.DEBUG) {
-                                XposedLog.verbose("startProcessLocked in ams, processRecord: "
-                                        + Arrays.toString(param.args));
-                            }
+                            XposedLog.verbose("startProcessLocked in ams, processRecord: "
+                                    + Arrays.toString(param.args));
                             if (processRecord != null) {
                                 ApplicationInfo info = (ApplicationInfo) XposedHelpers.getObjectField(processRecord, "info");
                                 String hostType = (String) param.args[1];

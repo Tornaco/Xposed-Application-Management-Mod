@@ -67,7 +67,6 @@ import android.util.Pair;
 import android.util.SparseBooleanArray;
 import android.view.Display;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.WindowManager;
 import android.view.WindowManagerPolicy;
 import android.webkit.IWebViewUpdateService;
@@ -108,7 +107,6 @@ import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Holder;
 import github.tornaco.android.common.util.ApkUtil;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IBackupAgent;
 import github.tornaco.xposedmoduletest.IBooleanCallback1;
@@ -119,6 +117,7 @@ import github.tornaco.xposedmoduletest.IServiceControl;
 import github.tornaco.xposedmoduletest.ITaskRemoveListener;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
 import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
+import github.tornaco.xposedmoduletest.framework.config.BuildConfig;
 import github.tornaco.xposedmoduletest.util.ArrayUtil;
 import github.tornaco.xposedmoduletest.util.BitmapUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
@@ -181,7 +180,6 @@ import github.tornaco.xposedmoduletest.xposed.service.shell.AshShellCommand;
 import github.tornaco.xposedmoduletest.xposed.service.view.LocalScreenShot;
 import github.tornaco.xposedmoduletest.xposed.submodules.InputManagerInjectInputSubModule;
 import github.tornaco.xposedmoduletest.xposed.submodules.SubModuleManager;
-import github.tornaco.xposedmoduletest.xposed.submodules.debug.TestXposedMethod;
 import github.tornaco.xposedmoduletest.xposed.util.FileUtil;
 import github.tornaco.xposedmoduletest.xposed.util.ObjectToStringUtil;
 import github.tornaco.xposedmoduletest.xposed.util.PkgUtil;
@@ -301,7 +299,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private final AtomicBoolean mLongPressBackKillEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mCompSettingBlockEnabled = new AtomicBoolean(false);
 
-    private final AtomicBoolean mWakeupOnNotificationPosted = new AtomicBoolean(BuildConfig.DEBUG);
+    private final AtomicBoolean mWakeupOnNotificationPosted = new AtomicBoolean(false);
 
     private final Holder<String> mUserDefinedDeviceId = new Holder<>();
     private final Holder<String> mUserDefinedAndroidId = new Holder<>();
@@ -568,7 +566,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     private void onAPMClientUninstalled() {
-        if (PkgUtil.isPkgInstalled(getContext(), BuildConfig.APPLICATION_ID)) {
+        if (PkgUtil.isPkgInstalled(getContext(), BuildConfig.X_APM_APP_PACKAGE_NAME)) {
             return;
         }
 
@@ -661,9 +659,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         // FIXME Extract an intent.
         Intent viewer = new Intent();
-        viewer.setPackage(BuildConfig.APPLICATION_ID);
-        viewer.setClassName(BuildConfig.APPLICATION_ID,
-                "github.tornaco.xposedmoduletest.ui.activity.app.PerAppSettingsDashboardActivity");
+        viewer.setPackage(BuildConfig.X_APM_APP_PACKAGE_NAME);
+        viewer.setClassName(BuildConfig.X_APM_APP_PACKAGE_NAME, BuildConfig.X_APM_APP_PER_APP_SETTINGS_CLAZZ);
         viewer.putExtra("pkg_name", pkg);
         viewer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
@@ -723,9 +720,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         PendingIntent clearIntent = PendingIntent.getBroadcast(getContext(), UniqueIdFactory.getNextId(), clearBroadcastIntent, 0);
 
         Intent viewerIntent = new Intent();
-        viewerIntent.setPackage(BuildConfig.APPLICATION_ID);
-        viewerIntent.setClassName(BuildConfig.APPLICATION_ID,
-                "github.tornaco.xposedmoduletest.ui.activity.helper.RunningServicesActivity");
+        viewerIntent.setPackage(BuildConfig.X_APM_APP_PACKAGE_NAME);
+        viewerIntent.setClassName(BuildConfig.X_APM_APP_PACKAGE_NAME, BuildConfig.X_APM_APP_RUNNING_SERVICES_CLAZZ);
         viewerIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent detailsIntent = PendingIntent.getActivity(getContext(), UniqueIdFactory.getNextId(), viewerIntent, 0);
 
@@ -756,10 +752,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         NotificationManagerCompat.from(getContext())
                 .notify(UniqueIdFactory.getIdByTag(NOTIFICATION_CHANNEL_ID_APP_PROCESS), n);
 
-        if (BuildConfig.DEBUG) {
-            XposedLog.verbose("showRunningAppProcessUpdateNotification:"
-                    + Arrays.toString(mRunningProcessPackages.toArray()));
-        }
+        XposedLog.verbose("showRunningAppProcessUpdateNotification:"
+                + Arrays.toString(mRunningProcessPackages.toArray()));
     }
 
     private void cachePackages(final String... pkg) {
@@ -807,10 +801,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         try {
             ApplicationInfo applicationInfo;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                applicationInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID,
+                applicationInfo = pm.getApplicationInfo(BuildConfig.X_APM_APP_PACKAGE_NAME,
                         PackageManager.MATCH_UNINSTALLED_PACKAGES);
             } else {
-                applicationInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID,
+                applicationInfo = pm.getApplicationInfo(BuildConfig.X_APM_APP_PACKAGE_NAME,
                         PackageManager.GET_UNINSTALLED_PACKAGES);
             }
             sClientUID = applicationInfo.uid;
@@ -875,7 +869,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             return false;
         }
         // Owner package is always white listed.
-        if (pkg.equals(BuildConfig.APPLICATION_ID)) {
+        if (pkg.equals(BuildConfig.X_APM_APP_PACKAGE_NAME)) {
             return true;
         }
 
@@ -1644,10 +1638,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     public boolean checkBroadcastIntentSending(IApplicationThread caller, Intent intent) {
         mAppGuardService.checkBroadcastIntent(caller, intent);
 
-        if (BuildConfig.DEBUG) {
-            int callingUid = Binder.getCallingUid();
-            XposedLog.verbose("checkBroadcastIntentSending: %s, callingUid %s", intent, callingUid);
-        }
+        int callingUid = Binder.getCallingUid();
+        XposedLog.verbose("checkBroadcastIntentSending: %s, callingUid %s", intent, callingUid);
 
         // Run this in lazy handler.
         // Note. please make sure all calling of pmh in same handler.
@@ -1705,11 +1697,9 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 XposedLog.verbose("checkBroadcastIntentSendingInternal this is PushIntent: " + targetPkg);
 
                 // Dump intent for debug.
-                if (BuildConfig.DEBUG) {
-                    XposedLog.verbose("PushNotificationHandler@ intent: "
-                            + intent + "extra: " + intent.getExtras()
-                            + ObjectToStringUtil.intentToString(intent));
-                }
+                XposedLog.verbose("PushNotificationHandler@ intent: "
+                        + intent + "extra: " + intent.getExtras()
+                        + ObjectToStringUtil.intentToString(intent));
 
                 // Notify handlers and go!
                 if (isPushMessageHandleEnabled()) {
@@ -1800,9 +1790,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             return new ArrayList<>(0);
         }
         Set<String> targetSets = Sets.newHashSet(packages);
-        if (BuildConfig.DEBUG) {
-            XposedLog.verbose("getRecentTaskIdsForPackageInternal targetSets: " + Arrays.toString(targetSets.toArray()));
-        }
+        XposedLog.verbose("getRecentTaskIdsForPackageInternal targetSets: " + Arrays.toString(targetSets.toArray()));
         List<Integer> ids = new ArrayList<>();
         ActivityManager am = (ActivityManager) getContext().getSystemService(ACTIVITY_SERVICE);
         List<ActivityManager.RecentTaskInfo> recentTaskInfos = null;
@@ -1824,9 +1812,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     private void removeTaskForPackagesInternal(String[] packages) {
-        if (BuildConfig.DEBUG) {
-            XposedLog.verbose("removeTaskForPackagesInternal packages: " + Arrays.toString(packages));
-        }
+        XposedLog.verbose("removeTaskForPackagesInternal packages: " + Arrays.toString(packages));
         List<Integer> taskIds = getRecentTaskIdsForPackageInternal(packages);
         for (Integer taskId : taskIds) {
             if (taskId != null) {
@@ -1868,7 +1854,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     @InternalCall
     public boolean interruptPackageDataClear(String pkg) {
-        if (BuildConfig.APPLICATION_ID.equals(pkg)) {
+        if (BuildConfig.X_APM_APP_PACKAGE_NAME.equals(pkg)) {
             // Always allow clear data for our app???
         }
         return interruptPackageRemoval(pkg);
@@ -2123,10 +2109,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             return false;
         }
 
-        if (BuildConfig.DEBUG) {
-            for (StatusBarNotification sbn : sbns) {
-                XposedLog.verbose("StatusBarNotification: " + sbn + ", from pkg: " + sbn.getPackageName());
-            }
+        for (StatusBarNotification sbn : sbns) {
+            XposedLog.verbose("StatusBarNotification: " + sbn + ", from pkg: " + sbn.getPackageName());
         }
 
         for (StatusBarNotification sbn : sbns) {
@@ -2149,10 +2133,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             return new HashSet<>(0);
         }
 
-        if (BuildConfig.DEBUG) {
-            for (StatusBarNotification sbn : sbns) {
-                XposedLog.verbose("getStatusBarNotificationsPackagesInternal, StatusBarNotification: " + sbn + ", from pkg: " + sbn.getPackageName());
-            }
+        for (StatusBarNotification sbn : sbns) {
+            XposedLog.verbose("getStatusBarNotificationsPackagesInternal, StatusBarNotification: " + sbn + ", from pkg: " + sbn.getPackageName());
         }
 
         Set<String> res = new HashSet<>();
@@ -2666,31 +2648,25 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             return null;
         }
         XStopWatch stopWatch = null;
-        if (BuildConfig.DEBUG) {
-            stopWatch = XStopWatch.start("SERVICE START RULE CHECK, is Push message: " + PushMessageHelper.isPushIntent(intent));
-        }
+        stopWatch = XStopWatch.start("SERVICE START RULE CHECK, is Push message: " + PushMessageHelper.isPushIntent(intent));
         try {
             String[] patternAllow = constructStartAllowedRulePattern(intent, caller, targetPackage);
             boolean isThisCallerAllowedInRule = RepoProxy.getProxy().getStart_rules().has(patternAllow);
-            if (BuildConfig.DEBUG) {
-                XposedLog.verbose("check rules patternAllow: " + Arrays.toString(patternAllow)
-                        + ", has rule: " + isThisCallerAllowedInRule);
-            }
+            XposedLog.verbose("check rules patternAllow: " + Arrays.toString(patternAllow)
+                    + ", has rule: " + isThisCallerAllowedInRule);
             if (isThisCallerAllowedInRule) {
                 return CheckResult.ALLOWED_IN_RULE;
             }
 
             String[] patternDeny = constructStartDenyRulePattern(intent, caller, targetPackage);
             boolean isThisCallerDeniedInRule = RepoProxy.getProxy().getStart_rules().has(patternDeny);
-            if (BuildConfig.DEBUG) {
-                XposedLog.verbose("check rules patternDeny: " + Arrays.toString(patternDeny)
-                        + ", has rule: " + isThisCallerDeniedInRule);
-            }
+            XposedLog.verbose("check rules patternDeny: " + Arrays.toString(patternDeny)
+                    + ", has rule: " + isThisCallerDeniedInRule);
             if (isThisCallerDeniedInRule) {
                 return CheckResult.DENIED_IN_RULE;
             }
         } finally {
-            if (BuildConfig.DEBUG) {
+            if (stopWatch != null) {
                 stopWatch.stop();
             }
         }
@@ -2733,14 +2709,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             boolean isCMIntent = PushMessageHelper.isFcmIntent(intent) || PushMessageHelper.isGcmIntent(intent);
             boolean isMIPushIntent = PushMessageHelper.isMIPushIntent(intent);
 
-            if (BuildConfig.DEBUG) {
-                XposedLog.verbose("constructStartAllowedRulePattern,"
-                                + " GCM? " + isCMIntent
-                                + " MIPUSH? " + isMIPushIntent
-                                + ", intent: " + intent +
-                                ", targetPackage: " + targetPackage,
-                        ", callerPackage: " + callerPackage);
-            }
+            XposedLog.verbose("constructStartAllowedRulePattern,"
+                            + " GCM? " + isCMIntent
+                            + " MIPUSH? " + isMIPushIntent
+                            + ", intent: " + intent +
+                            ", targetPackage: " + targetPackage,
+                    ", callerPackage: " + callerPackage);
 
             rules = new String[]{
                     String.format("ALLOW %s %s", callerPackage, targetPackage),
@@ -2773,12 +2747,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             boolean isCMIntent = PushMessageHelper.isFcmIntent(intent) || PushMessageHelper.isGcmIntent(intent);
             boolean isMIPushIntent = PushMessageHelper.isMIPushIntent(intent);
 
-            if (BuildConfig.DEBUG) {
-                XposedLog.verbose("constructStartDenyRulePattern,"
-                        + " GCM? " + isCMIntent
-                        + " MIPUSH? " + isMIPushIntent
-                        + ", intent: " + intent);
-            }
+            XposedLog.verbose("constructStartDenyRulePattern,"
+                    + " GCM? " + isCMIntent
+                    + " MIPUSH? " + isMIPushIntent
+                    + ", intent: " + intent);
 
             rules = new String[]{
                     String.format("DENY %s %s", callerPackage, targetPackage),
@@ -2861,7 +2833,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             return true;
         }
 
-        if (BuildConfig.APPLICATION_ID.equals(pkgName)
+        if (BuildConfig.X_APM_APP_PACKAGE_NAME.equals(pkgName)
                 && callingUid != sClientUID
                 && callingUid != android.os.Process.myUid()
                 && callingUid > 1000) {
@@ -4540,18 +4512,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         intentFilter = new IntentFilter();
         intentFilter.addAction(ACTION_CLEAR_PROCESS);
         getContext().registerReceiver(mClearProcessBroadcast, intentFilter);
-
-        // This is a test.
-        // FIMXE THIS IS FUCKING DANGEROUS FOR USER. BE CAREFUL.
-        if (BuildConfig.DEBUG) {
-            boolean hasErrorIndicator = RepoProxy.hasFileIndicator("mock_system_err");
-            if (hasErrorIndicator) {
-                intentFilter = new IntentFilter();
-                intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
-                getContext().registerReceiver(mTestProtectedBroadcastReceiver, intentFilter);
-                getContext().registerReceiver(mTestSystemErrorBroadcastReceiver, intentFilter);
-            }
-        }
     }
 
     private void inflateWhiteList() {
@@ -4673,14 +4633,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
         // Cache app res, in-case app is uninstalled but we still need his resource.
         mainHandler.post(new ErrorCatchRunnable(this::cacheAPMClientUninstalledRes, "cacheAPMClientUninstalledRes"));
-
-        // Disable layout debug in-case our logic make the system dead in loop.
-        if (BuildConfig.DEBUG) {
-            SystemProperties.set(View.DEBUG_LAYOUT_PROPERTY, String.valueOf(false));
-
-            MultipleAppsManager multipleAppsManager = MultipleAppsManager.getInstance();
-            multipleAppsManager.onCreate(getContext());
-        }
     }
 
     private void applyDozeWhiteList() {
@@ -5271,9 +5223,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                     .queryBroadcastReceivers(new Intent(PushMessageHelper.ACTION_FCM), 0);
             if (list != null) {
                 for (ResolveInfo r : list) {
-                    if (BuildConfig.DEBUG) {
-                        XposedLog.verbose("cacheGCMPackages-FCM: r: " + r);
-                    }
+                    XposedLog.verbose("cacheGCMPackages-FCM: r: " + r);
 
                     String pkg = r.activityInfo == null ? null : r.activityInfo.packageName;
                     if (pkg != null) {
@@ -5289,9 +5239,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             if (list != null) {
                 for (ResolveInfo r : list) {
 
-                    if (BuildConfig.DEBUG) {
-                        XposedLog.verbose("cacheGCMPackages-GCM: r: " + r);
-                    }
+                    XposedLog.verbose("cacheGCMPackages-GCM: r: " + r);
 
                     String pkg = r.activityInfo == null ? null : r.activityInfo.packageName;
                     if (pkg != null) {
@@ -5317,9 +5265,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                     .queryBroadcastReceivers(new Intent(PushMessageHelper.ACTION_MIPUSH), 0);
             if (list != null) {
                 for (ResolveInfo r : list) {
-                    if (BuildConfig.DEBUG) {
-                        XposedLog.verbose("cacheMIPushPackages-r: " + r);
-                    }
+                    XposedLog.verbose("cacheMIPushPackages-r: " + r);
                     String pkg = r.activityInfo == null ? null : r.activityInfo.packageName;
                     if (pkg != null) {
                         mMiPushSupportPackages.add(pkg);
@@ -6248,7 +6194,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     }
 
     private boolean isDozeSupported() {
-        return BuildConfig.DEBUG || OSUtil.isMOrAbove();
+        return OSUtil.isMOrAbove();
     }
 
     @Override
@@ -6735,10 +6681,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @BinderCall
     public void setAppInstalledAutoApplyTemplate(AppSettings settings) {
         SettingsProvider.get().putString("AppInstalledAutoApplyTemplate", settings.toJson());
-        if (BuildConfig.DEBUG) {
-            AppSettings test = AppSettings.fromJson(SettingsProvider.get().getString("AppInstalledAutoApplyTemplate", null));
-            XposedLog.verbose("setAppInstalledAutoApplyTemplate test: " + test);
-        }
     }
 
     @Override
@@ -6769,11 +6711,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     // Fix #126, From the log we found that the caller is "com.htc.lockscreen", so
     // we think it is OK for htc...
     private boolean isSystemUIPackage(String pkgName) {
-        // Should we check caller?
-        if (!BuildConfig.DEBUG) {
-            // return true;// Always true for user build.
-        }
-
         return pkgName != null
                 && (pkgName.equals(PkgUtil.SYSTEM_UI_PKG)
                 || pkgName.equals(PkgUtil.SYSTEM_UI_PKG_HTC)
@@ -6889,9 +6826,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         // Check rules.
         @LazyRuleCheck
         String[] ruleKeep = constructStopServiceKeepRule(packageName, name);
-        if (BuildConfig.DEBUG) {
-            XposedLog.verbose("constructStopServiceKeepRule: " + Arrays.toString(ruleKeep));
-        }
+        XposedLog.verbose("constructStopServiceKeepRule: " + Arrays.toString(ruleKeep));
         return !RepoProxy.getProxy().getLazy_rules().has(ruleKeep);
     }
 
@@ -7137,7 +7072,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             return;
         }
 
-        if (BuildConfig.APPLICATION_ID.equals(packageName)) {
+        if (BuildConfig.X_APM_APP_PACKAGE_NAME.equals(packageName)) {
             return;
         }
 
@@ -7390,7 +7325,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             return XAppOpsManager.MODE_ALLOWED;
         }
 
-        if (BuildConfig.APPLICATION_ID.equals(packageName)) {
+        if (BuildConfig.X_APM_APP_PACKAGE_NAME.equals(packageName)) {
             return XAppOpsManager.MODE_ALLOWED;
         }
 
@@ -7568,9 +7503,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
     private AppIdler getAppIdler(String module) {
         AppIdler idler = getAppIdlerInternal(module);
-        if (BuildConfig.DEBUG) {
-            XposedLog.verbose("getAppIdler: " + idler);
-        }
+        XposedLog.verbose("getAppIdler: " + idler);
         return idler;
     }
 
@@ -7680,9 +7613,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @InternalCall
     @CommonBringUpApi
     public void onPackageMoveToFront(final Intent intent) {
-        if (BuildConfig.DEBUG) {
-            XposedLog.verbose("onPackageMoveToFront: " + intent);
-        }
+        XposedLog.verbose("onPackageMoveToFront: " + intent);
         if (intent == null) {
             return;
         }
@@ -8043,10 +7974,6 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     @Override
     public void mockSystemDead(long delay) {
         enforceCallingPermissions();
-
-        if (BuildConfig.DEBUG) {
-            new TestXposedMethod().main();
-        }
 
         mainHandler.postDelayed(() -> {
             throw new IllegalStateException("Mock system dead by user, bye!");
@@ -8621,12 +8548,12 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
                 // Remove onwer package to fix previous bugs.
                 try {
-                    RepoProxy.getProxy().getBoots().remove(BuildConfig.APPLICATION_ID);
-                    RepoProxy.getProxy().getStarts().remove(BuildConfig.APPLICATION_ID);
-                    RepoProxy.getProxy().getRfks().remove(BuildConfig.APPLICATION_ID);
-                    RepoProxy.getProxy().getGreens().remove(BuildConfig.APPLICATION_ID);
-                    RepoProxy.getProxy().getLks().remove(BuildConfig.APPLICATION_ID);
-                    RepoProxy.getProxy().getPrivacy().remove(BuildConfig.APPLICATION_ID);
+                    RepoProxy.getProxy().getBoots().remove(BuildConfig.X_APM_APP_PACKAGE_NAME);
+                    RepoProxy.getProxy().getStarts().remove(BuildConfig.X_APM_APP_PACKAGE_NAME);
+                    RepoProxy.getProxy().getRfks().remove(BuildConfig.X_APM_APP_PACKAGE_NAME);
+                    RepoProxy.getProxy().getGreens().remove(BuildConfig.X_APM_APP_PACKAGE_NAME);
+                    RepoProxy.getProxy().getLks().remove(BuildConfig.X_APM_APP_PACKAGE_NAME);
+                    RepoProxy.getProxy().getPrivacy().remove(BuildConfig.X_APM_APP_PACKAGE_NAME);
                     RepoProxy.getProxy().getWhite_list_hooks_dynamic().reloadAsync();
                 } catch (Throwable e) {
                     XposedLog.wtf("Fail remove owner package from repo: " + Log.getStackTraceString(e));
@@ -8764,8 +8691,8 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
             createDefaultNotificationChannelForO();
 
             Intent viewer = new Intent();
-            viewer.setPackage(BuildConfig.APPLICATION_ID);
-            viewer.setClassName(BuildConfig.APPLICATION_ID,
+            viewer.setPackage(BuildConfig.X_APM_APP_PACKAGE_NAME);
+            viewer.setClassName(BuildConfig.X_APM_APP_PACKAGE_NAME,
                     "github.tornaco.xposedmoduletest.ui.activity.app.PerAppSettingsDashboardActivity");
             viewer.putExtra("pkg_name", appPkgName);
             viewer.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -8881,14 +8808,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                     }
 
                     Set<String> runningPackages = PkgUtil.getRunningProcessPackages(getContext());
-                    if (BuildConfig.DEBUG) {
-                        XposedLog.verbose(TAG_LK + "Running packages: " + runningPackages.toString());
-                    }
+                    XposedLog.verbose(TAG_LK + "Running packages: " + runningPackages.toString());
 
                     String[] packagesToClear = getLKApps(true);
-                    if (BuildConfig.DEBUG) {
-                        XposedLog.verbose(TAG_LK + "packagesToClear: " + Arrays.toString(packagesToClear));
-                    }
+                    XposedLog.verbose(TAG_LK + "packagesToClear: " + Arrays.toString(packagesToClear));
                     int count = packagesToClear.length;
 
                     if (listener != null) {
@@ -9499,7 +9422,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                             x.addOrRemoveLKApps(new String[]{packageName}, XAPMManager.Op.REMOVE);
                             x.addOrRemoveStartBlockApps(new String[]{packageName}, XAPMManager.Op.REMOVE);
 
-                            if (BuildConfig.APPLICATION_ID.equals(packageName)) {
+                            if (BuildConfig.X_APM_APP_PACKAGE_NAME.equals(packageName)) {
                                 mLazyHandler.postDelayed(XAshmanServiceImpl.this::onAPMClientUninstalled, 2000);
                             }
                         } catch (Throwable e) {
@@ -9528,12 +9451,10 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
 
             String currentPkg = getTopPackageDelay();
 
-            if (BuildConfig.DEBUG) {
-                XposedLog.verbose(XposedLog.PREFIX_KEY + "onKeyEvent: %s %s, current package: %s",
-                        keyCode,
-                        action,
-                        currentPkg);
-            }
+            XposedLog.verbose(XposedLog.PREFIX_KEY + "onKeyEvent: %s %s, current package: %s",
+                    keyCode,
+                    action,
+                    currentPkg);
 
             // Check for panic.
             boolean panicHandled = checkPanicEvent(keyCode, action, currentPkg);

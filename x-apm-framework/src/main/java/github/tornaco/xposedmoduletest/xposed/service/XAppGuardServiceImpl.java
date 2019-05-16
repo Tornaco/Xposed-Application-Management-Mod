@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import github.tornaco.android.common.Collections;
 import github.tornaco.android.common.Consumer;
 import github.tornaco.android.common.Holder;
-import github.tornaco.x.base.BuildConfig;
+import github.tornaco.xposedmoduletest.framework.config.BuildConfig;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.AppGlobals;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
@@ -302,10 +302,10 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         try {
             ApplicationInfo applicationInfo = null;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                applicationInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID,
+                applicationInfo = pm.getApplicationInfo(BuildConfig.X_APM_APP_PACKAGE_NAME,
                         PackageManager.MATCH_UNINSTALLED_PACKAGES);
             } else {
-                applicationInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID,
+                applicationInfo = pm.getApplicationInfo(BuildConfig.X_APM_APP_PACKAGE_NAME,
                         PackageManager.GET_UNINSTALLED_PACKAGES);
             }
             sClientUID = applicationInfo.uid;
@@ -330,7 +330,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
         }
 
 
-        if (BuildConfig.APPLICATION_ID.equals(pkg)) {
+        if (BuildConfig.X_APM_APP_PACKAGE_NAME.equals(pkg)) {
             return true;
         }
 
@@ -477,7 +477,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
 
     public boolean onEarlyVerifyConfirm(String pkg, String res) {
-        if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
+        if (XposedLog.isVerboseLoggable()) {
             XposedLog.verbose("onEarlyVerifyConfirm: " + res + " calling by: "
                     + Binder.getCallingUid());
             Collections.consumeRemaining(mVerifiedPackages, s -> XposedLog.verbose("@@@@ " + s));
@@ -546,15 +546,13 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
         if (componentName != null) {
             boolean isAPM = XAPMManager.VERIFIER_CLASS_NAME.equals(componentName.getClassName());
-            if (BuildConfig.DEBUG) {
-                XposedLog.verbose("is APM?" + isAPM);
-            }
+            XposedLog.verbose("is APM?" + isAPM);
             if (isAPM) {
                 listener.onVerifyRes(pkg, uid, pid, XAppVerifyMode.MODE_ALLOWED);
                 XposedLog.verbose("Do not ever verify APM-VERIFIER it self.");
                 return;
             }
-        } else if (BuildConfig.APPLICATION_ID.equals(pkg)) {
+        } else if (BuildConfig.X_APM_APP_PACKAGE_NAME.equals(pkg)) {
             listener.onVerifyRes(pkg, uid, pid, XAppVerifyMode.MODE_ALLOWED);
             XposedLog.verbose("We do not know which one of us is top now, in-case it loops. skip verify us.");
             return;
@@ -651,7 +649,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
                 // Make sure we received the intent.
                 mScreenReceiver.onReceive(getContext(), intent);
             }
-            if (BuildConfig.DEBUG && Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
+            if (Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
                 XposedLog.verbose("ACTION_USER_SWITCHED");
             }
         }
@@ -705,10 +703,11 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
         mWorkingService.execute(new Runnable() {
 
+            @Override
             public void run() {
                 // Remove onwer package to fix previous bugs.
                 try {
-                    mRepoProxy.getLocks().remove(BuildConfig.APPLICATION_ID);
+                    mRepoProxy.getLocks().remove(BuildConfig.X_APM_APP_PACKAGE_NAME);
                 } catch (Throwable e) {
                     XposedLog.wtf("Fail remove owner package from repo: " + Log.getStackTraceString(e));
                 }
@@ -1086,7 +1085,7 @@ class XAppGuardServiceImpl extends XAppGuardServiceAbs {
 
     private static Intent buildVerifyIntent(boolean injectHome, int transId, String pkg) {
         Intent intent = new Intent(XAppLockManager.ACTION_APP_GUARD_VERIFY_DISPLAYER);
-        intent.setClassName(BuildConfig.APPLICATION_ID,
+        intent.setClassName(BuildConfig.X_APM_APP_PACKAGE_NAME,
                 XAPMManager.VERIFIER_CLASS_NAME);
         intent.putExtra(XAppLockManager.EXTRA_PKG_NAME, pkg);
         intent.putExtra(XAppLockManager.EXTRA_TRANS_ID, transId);

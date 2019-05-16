@@ -24,11 +24,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import github.tornaco.android.common.BlackHole;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.IBackupAgent;
 import github.tornaco.xposedmoduletest.IBackupCallback;
 import github.tornaco.xposedmoduletest.IFileDescriptorConsumer;
 import github.tornaco.xposedmoduletest.IFileDescriptorInitializer;
+import github.tornaco.xposedmoduletest.framework.config.BuildConfig;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.util.ZipUtils;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
@@ -90,9 +90,8 @@ public class RepoProxy {
         bringBases(h, io);
         bringUpMaps(h, io);
 
-        if (BuildConfig.DEBUG) {
-            XposedLog.boot("RepoProxy app data dir exists? " + isAppDataDirExists(BuildConfig.APPLICATION_ID));
-        }
+        XposedLog.boot("RepoProxy app data dir exists? "
+                + isAppDataDirExists(github.tornaco.xposedmoduletest.framework.config.BuildConfig.X_APM_APP_PACKAGE_NAME));
     }
 
     private static boolean isAppDataDirExists(String pkgName) {

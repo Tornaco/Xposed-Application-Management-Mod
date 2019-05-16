@@ -10,7 +10,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 class AMSActivityIntentResolverSubModule extends AndroidSubModule {
@@ -41,9 +40,7 @@ class AMSActivityIntentResolverSubModule extends AndroidSubModule {
                                 int hookedCode = getBridge().onHookBroadcastPerformResult(intent, resultCode);
                                 if (isValidResultCode(hookedCode) && resultCode != hookedCode) {
                                     param.args[3] = hookedCode;
-                                    if (BuildConfig.DEBUG) {
-                                        XposedLog.verbose("BroadcastRecord perform receive hooked res code to: " + hookedCode);
-                                    }
+                                    XposedLog.verbose("BroadcastRecord perform receive hooked res code to: " + hookedCode);
                                 }
                             }
                         }

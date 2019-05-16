@@ -39,26 +39,14 @@ public class AppResource {
         if (!PkgUtil.isPkgInstalled(this.context, BuildConfig.X_APM_APP_PACKAGE_NAME)) {
             return BitmapFactory.decodeResource(this.context.getResources(), android.R.drawable.stat_sys_warning);
         }
-        if (BuildConfig.DEBUG) {
-            Log.d(XposedLog.TAG, "loadBitmapFromAPMApp, resName: " + resName);
-        }
         try {
             Context appContext = getAPMAppContext();
             if (appContext != null) {
                 Resources res = appContext.getResources();
-                if (BuildConfig.DEBUG) {
-                    Log.d(XposedLog.TAG, "loadBitmapFromAPMApp, res: " + res);
-                }
                 if (res != null) {
                     int id = res.getIdentifier(resName, "drawable", BuildConfig.X_APM_APP_PACKAGE_NAME);
-                    if (BuildConfig.DEBUG) {
-                        Log.d(XposedLog.TAG, "loadBitmapFromAPMApp, id: " + id);
-                    }
                     if (id > 0) {
                         Bitmap bitmap = BitmapFactory.decodeResource(res, id);
-                        if (BuildConfig.DEBUG) {
-                            Log.d(XposedLog.TAG, "loadBitmapFromAPMApp, bitmap: " + bitmap);
-                        }
                         if (bitmap != null) {
                             return bitmap;
                         } else {
@@ -83,21 +71,12 @@ public class AppResource {
         if (!PkgUtil.isPkgInstalled(this.context, BuildConfig.X_APM_APP_PACKAGE_NAME)) {
             return Icon.createWithResource(this.context.getResources(), android.R.drawable.stat_sys_warning);
         }
-        if (BuildConfig.DEBUG) {
-            Log.d(XposedLog.TAG, "loadIconFromAPMApp, resName: " + resName);
-        }
         try {
             Context appContext = getAPMAppContext();
             if (appContext != null) {
                 Resources res = appContext.getResources();
-                if (BuildConfig.DEBUG) {
-                    Log.d(XposedLog.TAG, "loadIconFromAPMApp, res: " + res);
-                }
                 if (res != null) {
                     int id = res.getIdentifier(resName, "drawable", BuildConfig.X_APM_APP_PACKAGE_NAME);
-                    if (BuildConfig.DEBUG) {
-                        Log.d(XposedLog.TAG, "loadIconFromAPMApp, id: " + id);
-                    }
                     if (id > 0) {
                         Icon ic = null;
                         // Create with res directly.
@@ -122,12 +101,7 @@ public class AppResource {
                                 }
                             }
                         }
-                        if (BuildConfig.DEBUG) {
-                            Log.d(XposedLog.TAG, "loadIconFromAPMApp, ic: " + ic);
-                        }
-                        if (ic != null) {
-                            return ic;
-                        }
+                        return ic;
                     }
                 }
             }

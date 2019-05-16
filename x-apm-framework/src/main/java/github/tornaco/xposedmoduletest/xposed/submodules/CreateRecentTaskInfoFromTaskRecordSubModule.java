@@ -12,7 +12,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -60,9 +59,7 @@ class CreateRecentTaskInfoFromTaskRecordSubModule extends AndroidSubModule {
                             if (TextUtils.isEmpty(pkgName)) {
                                 return;
                             }
-                            if (BuildConfig.DEBUG) {
-                                XposedLog.verbose("- createRecentTaskInfoFromTaskRecord exclude: %s comp: %s", excludeRecent, componentName);
-                            }
+                            XposedLog.verbose("- createRecentTaskInfoFromTaskRecord exclude: %s comp: %s", excludeRecent, componentName);
                             int setting = getBridge().getRecentTaskExcludeSetting(componentName);
                             if (setting == XAPMManager.ExcludeRecentSetting.NONE) {
                                 // Do nothing.
@@ -75,10 +72,8 @@ class CreateRecentTaskInfoFromTaskRecordSubModule extends AndroidSubModule {
                             recentTaskInfo.baseIntent = baseIntent;
                             param.setResult(recentTaskInfo);
 
-                            if (BuildConfig.DEBUG) {
-                                excludeRecent = (flags & Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS) == Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
-                                XposedLog.verbose("-AFTER createRecentTaskInfoFromTaskRecord exclude: %s comp: %s", excludeRecent, componentName);
-                            }
+                            excludeRecent = (flags & Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS) == Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
+                            XposedLog.verbose("-AFTER createRecentTaskInfoFromTaskRecord exclude: %s comp: %s", excludeRecent, componentName);
                         }
                     });
             XposedLog.verbose("hookCreateRecentTaskInfoFromTaskRecord OK:" + unHooks);

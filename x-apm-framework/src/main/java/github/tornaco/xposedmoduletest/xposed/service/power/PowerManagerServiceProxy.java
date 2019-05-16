@@ -5,7 +5,6 @@ import android.os.PowerManager;
 import java.util.HashSet;
 import java.util.Set;
 
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.service.DebugOnly;
 import github.tornaco.xposedmoduletest.xposed.service.InvokeTargetProxy;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -42,9 +41,7 @@ public class PowerManagerServiceProxy extends InvokeTargetProxy<Object> {
         if (!mSeenWakeLocks.contains(acquire)) {
             if ((flags & PowerManager.WAKE_LOCK_LEVEL_MASK) == PowerManager.PARTIAL_WAKE_LOCK) {
                 mSeenWakeLocks.add(acquire);
-                if (BuildConfig.DEBUG) {
-                    XposedLog.verbose("PowerManagerServiceProxy, sean: " + acquire);
-                }
+                XposedLog.verbose("PowerManagerServiceProxy, sean: " + acquire);
             }
         }
 

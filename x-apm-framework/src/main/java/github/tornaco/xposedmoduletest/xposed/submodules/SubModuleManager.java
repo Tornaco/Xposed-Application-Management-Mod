@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import github.tornaco.x.base.BuildConfig;
+import github.tornaco.xposedmoduletest.framework.config.BuildConfig;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.repo.RepoProxy;
@@ -90,8 +90,6 @@ public class SubModuleManager {
         addToSubsChecked(new AppOpsSubModule2());
         addToSubsChecked(new AppOpsSubModule());
 
-        // For some permissions.
-        addToSubsChecked(new ContextImplSubModule());
         addToSubsChecked(new ServiceSubModule());
         addToSubsChecked(new ActiveServiceSubModule());
 

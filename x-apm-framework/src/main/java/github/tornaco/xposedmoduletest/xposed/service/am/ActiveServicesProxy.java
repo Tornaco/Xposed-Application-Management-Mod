@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.robv.android.xposed.XposedHelpers;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.util.ReflectionUtils;
 import github.tornaco.xposedmoduletest.xposed.service.ErrorCatchRunnable;
 import github.tornaco.xposedmoduletest.xposed.service.InvokeTargetProxy;
@@ -96,22 +95,16 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
         ArrayMap mServicesByNameSafe = new ArrayMap(mServicesByName);
         List<Object> res = new ArrayList<>();
         for (int i = mServicesByNameSafe.size() - 1; i >= 0; i--) {
-            if (BuildConfig.DEBUG) {
-                XposedLog.verbose("ActiveServicesProxy getServiceRecords: " + mServicesByNameSafe.valueAt(i));
-            }
+            XposedLog.verbose("ActiveServicesProxy getServiceRecords: " + mServicesByNameSafe.valueAt(i));
             Object serviceRecordObject = mServicesByNameSafe.valueAt(i);
             ServiceRecordProxy serviceRecordProxy = new ServiceRecordProxy(serviceRecordObject);
             String pkg = serviceRecordProxy.getPackageName();
-            if (BuildConfig.DEBUG) {
-                XposedLog.verbose("ActiveServicesProxy getServiceRecords, pkg: " + pkg);
-            }
+            XposedLog.verbose("ActiveServicesProxy getServiceRecords, pkg: " + pkg);
             // Dose someone explicitly called start?
             List<String> candidates = Arrays.asList(packageNames);
             if (pkg != null && candidates.contains(pkg) && serviceRecordProxy.isStartRequested()) {
                 res.add(serviceRecordObject);
-                if (BuildConfig.DEBUG) {
-                    XposedLog.verbose("ActiveServicesProxy getServiceRecords, adding: " + serviceRecordObject);
-                }
+                XposedLog.verbose("ActiveServicesProxy getServiceRecords, adding: " + serviceRecordObject);
             }
         }
         return res;
@@ -137,9 +130,7 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
         List<Object> res = new ArrayList<>();
 
         for (int i = mServicesByNameSafe.size() - 1; i >= 0; i--) {
-            if (BuildConfig.DEBUG) {
-                XposedLog.verbose("ActiveServicesProxy getServiceRecords: " + mServicesByNameSafe.valueAt(i));
-            }
+            XposedLog.verbose("ActiveServicesProxy getServiceRecords: " + mServicesByNameSafe.valueAt(i));
             Object serviceRecordObject = mServicesByNameSafe.valueAt(i);
             ServiceRecordProxy serviceRecordProxy = new ServiceRecordProxy(serviceRecordObject);
             if (intent.getComponent().equals(serviceRecordProxy.getName())) {
@@ -195,14 +186,12 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
         return callStopServiceLockChecked(serviceRecordObj);
     }
 
-    private static final String HWActiveServiceClassName = "com.android.server.am.HwActiveServices";
-    private static final String ActiveServiceClassName = "com.android.server.am.ActiveServices";
-    private static final String stopServiceLockMethodName = "stopServiceLocked";
+    private static final String STOP_SERVICE_LOCK_METHOD_NAME = "stopServiceLocked";
     private static Method sCacheStopServiceLockedMethod = null;
 
     private boolean callStopServiceLockChecked(Object serviceRecordObj) {
 
-        if (BuildConfig.DEBUG) {
+        if (XposedLog.isVerboseLoggable()) {
             Class hostClass = getHost().getClass();
             new ErrorCatchRunnable(() -> ClazzDumper.dump(hostClass, ClazzDumper.ANDROID_UTIL_LOG_PRINTER), "ClazzDumper.dump for debug.").run();
         }
@@ -211,7 +200,7 @@ public class ActiveServicesProxy extends InvokeTargetProxy<Object> {
             Method stopMethod = sCacheStopServiceLockedMethod;
             if (stopMethod == null) {
                 Class paramClz = serviceRecordObj.getClass();
-                stopMethod = ReflectionUtils.findMethod(getHost().getClass(), stopServiceLockMethodName, paramClz);
+                stopMethod = ReflectionUtils.findMethod(getHost().getClass(), STOP_SERVICE_LOCK_METHOD_NAME, paramClz);
                 sCacheStopServiceLockedMethod = stopMethod;
             }
 

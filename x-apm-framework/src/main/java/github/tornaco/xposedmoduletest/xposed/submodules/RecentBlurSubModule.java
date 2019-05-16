@@ -23,7 +23,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.util.BitmapUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
@@ -121,9 +120,7 @@ public class RecentBlurSubModule extends AndroidSubModule {
             // Query from cache.
             BlurTaskCache cache = BlurTaskCache.getInstance();
             BlurTask cachedTask = cache.get(pkgName);
-            if (BuildConfig.DEBUG) {
-                XposedLog.verbose("BLUR onScreenshotApplicationsNAndBelow cachedTask: " + cachedTask);
-            }
+            XposedLog.verbose("BLUR onScreenshotApplicationsNAndBelow cachedTask: " + cachedTask);
 
             if (cachedTask != null) {
                 param.setResult(cachedTask.bitmap);
@@ -215,9 +212,7 @@ public class RecentBlurSubModule extends AndroidSubModule {
                 }
                 try {
                     Pair<Integer, Integer> screenSize = getBridge().getScreenSize();
-                    if (BuildConfig.DEBUG) {
-                        XposedLog.verbose("BLUR onSnapshotTask, screenSize: " + screenSize);
-                    }
+                    XposedLog.verbose("BLUR onSnapshotTask, screenSize: " + screenSize);
                     if (screenSize == null) {
                         XposedLog.verbose("BLUR onSnapshotTask, no screen size");
                         return;

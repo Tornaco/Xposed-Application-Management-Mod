@@ -11,8 +11,8 @@ import android.util.Log;
 import java.util.HashMap;
 import java.util.Map;
 
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.ITopPackageChangeListener;
+import github.tornaco.xposedmoduletest.framework.config.BuildConfig;
 import github.tornaco.xposedmoduletest.model.PushMessage;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.service.ErrorCatchRunnable;
@@ -31,7 +31,7 @@ public class PushMessageNotificationService extends Service implements Notificat
 
     public static Intent getIntent(PushMessage pushMessage) {
         Intent intent = new Intent(SERVICE_ACTION);
-        intent.setPackage(BuildConfig.APPLICATION_ID);
+        intent.setPackage(BuildConfig.X_APM_APP_PACKAGE_NAME);
         intent.putExtra(INTENT_EXTRA_KEY_PUSH_MESSAGE, pushMessage);
         return intent;
     }

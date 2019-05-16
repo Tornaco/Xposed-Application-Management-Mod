@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.model.PushMessage;
 import github.tornaco.xposedmoduletest.util.BitmapUtil;
 import github.tornaco.xposedmoduletest.util.OSUtil;
@@ -209,9 +208,7 @@ public abstract class BasePushNotificationHandler implements PushNotificationHan
             curSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         }
 
-        if (BuildConfig.DEBUG) {
-            Log.d(XposedLog.TAG, String.format("BasePushNotificationHandler, curSoundUri: %s", curSoundUri));
-        }
+        Log.d(XposedLog.TAG, String.format("BasePushNotificationHandler, curSoundUri: %s", curSoundUri));
 
         try {
             CharSequence appName = PkgUtil.loadNameByPkgName(getContext(), getTargetPackageName());
@@ -238,7 +235,9 @@ public abstract class BasePushNotificationHandler implements PushNotificationHan
         if (OSUtil.isMOrAbove()) {
             // Now our icon is too small, so we scale to larger!!!
             AppResource.Transform<Bitmap> scaleUp = in -> {
-                if (in == null) return null;
+                if (in == null) {
+                    return null;
+                }
                 int width = in.getWidth();
                 int newWidth = (int) (width * 1.5);
                 //noinspection SuspiciousNameCombination
@@ -258,15 +257,11 @@ public abstract class BasePushNotificationHandler implements PushNotificationHan
         File customFile = new File(userEnvironment.getExternalStorageDirectory().getPath()
                 + File.separator + Environment.DIRECTORY_NOTIFICATIONS
                 + File.separator + "apm_custom_ringtone_" + getTargetPackageName() + ".ogg");
-        if (BuildConfig.DEBUG) {
-            Log.d(XposedLog.TAG, String.format("BasePushNotificationHandler getCustomRingtoneUri from %s", customFile));
-        }
+        Log.d(XposedLog.TAG, String.format("BasePushNotificationHandler getCustomRingtoneUri from %s", customFile));
         if (customFile.exists()) {
             return Uri.fromFile(customFile);
         }
-        if (BuildConfig.DEBUG) {
-            Log.d(XposedLog.TAG, "BasePushNotificationHandler getCustomRingtoneUri, file not exist! ");
-        }
+        Log.d(XposedLog.TAG, "BasePushNotificationHandler getCustomRingtoneUri, file not exist! ");
         return null;
     }
 

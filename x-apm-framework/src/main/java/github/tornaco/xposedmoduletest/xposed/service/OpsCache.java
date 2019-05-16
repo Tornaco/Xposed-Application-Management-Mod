@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.bean.OpLog;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -51,10 +50,6 @@ class OpsCache {
         synchronized (sLock) {
             logForOp(code, mode, pkg, payload);
             logForPkg(code, mode, pkg, payload);
-
-            if (BuildConfig.DEBUG) {
-                XposedLog.verbose(TAG + "logPackageOp %s %s %s", code, mode, pkg);
-            }
         }
     }
 

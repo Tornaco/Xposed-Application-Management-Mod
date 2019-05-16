@@ -10,7 +10,6 @@ import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
@@ -64,20 +63,18 @@ class AlarmManagerSubModule extends AndroidSubModule {
 
                             String pkgName = AndroidAppHelper.currentPackageName();
 
-                            if (BuildConfig.DEBUG) {
-                                Log.d(XposedLog.TAG, "set alarm: " + pkgName);
-                            }
+                            Log.d(XposedLog.TAG, "set alarm: " + pkgName);
 
-                            if ("android".equals(pkgName)) return;
+                            if ("android".equals(pkgName)) {
+                                return;
+                            }
 
                             // Check Greening.
                             boolean greening = XAPMManager.get().isServiceAvailable()
                                     && XAPMManager.get().isPackageGreening(pkgName);
-                            if (BuildConfig.DEBUG) {
-                                Log.d(XposedLog.TAG, "set alarm: "
-                                        + pkgName
-                                        + ", greening: " + greening);
-                            }
+                            Log.d(XposedLog.TAG, "set alarm: "
+                                    + pkgName
+                                    + ", greening: " + greening);
                             if (greening) {
                                 param.setResult(null);
                                 return;
@@ -88,9 +85,7 @@ class AlarmManagerSubModule extends AndroidSubModule {
                                 int mode = XAPMManager.get().getPermissionControlBlockModeForPkg(
                                         XAppOpsManager.OP_SET_ALARM, pkgName, true);
                                 if (mode == XAppOpsManager.MODE_IGNORED) {
-                                    if (BuildConfig.DEBUG) {
-                                        Log.d(XposedLog.TAG, "set alarm, MODE_IGNORED returning...");
-                                    }
+                                    Log.d(XposedLog.TAG, "set alarm, MODE_IGNORED returning...");
                                     param.setResult(null);
                                 }
                             }

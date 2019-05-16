@@ -9,7 +9,6 @@ import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
@@ -48,11 +47,11 @@ class TelephonyManagerSubModule extends AndroidSubModule {
 
                             String callPackageName = AndroidAppHelper.currentPackageName();
 
-                            if (BuildConfig.DEBUG) {
-                                XposedLog.verbose("getDeviceId: " + callPackageName);
-                            }
+                            XposedLog.verbose("getDeviceId: " + callPackageName);
 
-                            if (callPackageName == null) return;
+                            if (callPackageName == null) {
+                                return;
+                            }
 
                             if ("com.android.phone".equals(callPackageName)
                                     || "android".equals(callPackageName)
@@ -110,11 +109,11 @@ class TelephonyManagerSubModule extends AndroidSubModule {
 
                             String callPackageName = AndroidAppHelper.currentPackageName();
 
-                            if (BuildConfig.DEBUG) {
-                                XposedLog.verbose("getLine1Number: " + callPackageName);
-                            }
+                            XposedLog.verbose("getLine1Number: " + callPackageName);
 
-                            if (callPackageName == null) return;
+                            if (callPackageName == null) {
+                                return;
+                            }
 
                             if ("com.android.phone".equals(callPackageName)
                                     || "android".equals(callPackageName)
@@ -170,11 +169,11 @@ class TelephonyManagerSubModule extends AndroidSubModule {
 
                             String callPackageName = AndroidAppHelper.currentPackageName();
 
-                            if (BuildConfig.DEBUG) {
-                                XposedLog.verbose("getSimSerialNumber: " + callPackageName);
-                            }
+                            XposedLog.verbose("getSimSerialNumber: " + callPackageName);
 
-                            if (callPackageName == null) return;
+                            if (callPackageName == null) {
+                                return;
+                            }
 
                             if ("com.android.phone".equals(callPackageName)
                                     || "android".equals(callPackageName)

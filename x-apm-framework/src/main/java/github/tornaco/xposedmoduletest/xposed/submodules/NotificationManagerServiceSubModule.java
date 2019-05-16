@@ -10,7 +10,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.service.notification.NotificationManagerServiceProxy;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -68,7 +67,7 @@ class NotificationManagerServiceSubModule extends AndroidSubModule {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
-                    if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
+                    if (XposedLog.isVerboseLoggable()) {
                         XposedLog.verbose("NotificationListeners, notifyPosted: " + Arrays.toString(param.args));
                     }
                     Object object = param.args[0];
@@ -98,7 +97,7 @@ class NotificationManagerServiceSubModule extends AndroidSubModule {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
-                    if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
+                    if (XposedLog.isVerboseLoggable()) {
                         XposedLog.verbose("NotificationListeners, notifyRemoved: " + Arrays.toString(param.args));
                     }
                     Object object = param.args[0];

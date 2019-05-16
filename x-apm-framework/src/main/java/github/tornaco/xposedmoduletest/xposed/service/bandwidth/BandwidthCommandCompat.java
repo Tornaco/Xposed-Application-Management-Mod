@@ -3,7 +3,6 @@ package github.tornaco.xposedmoduletest.xposed.service.bandwidth;
 import android.text.TextUtils;
 import android.util.Log;
 
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.service.NativeDaemonConnector;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -26,12 +25,13 @@ public class BandwidthCommandCompat {
             connector.execute("bandwidth", action + "restrictappsonwlan", uid);
             success = true;
         } catch (NativeDaemonConnector.NativeDaemonConnectorException e) {
-            if (BuildConfig.DEBUG)
-                XposedLog.verbose("Fail@aosp command restrictAppOnWifi: " + Log.getStackTraceString(e));
+            XposedLog.verbose("Fail@aosp command restrictAppOnWifi: " + Log.getStackTraceString(e));
             success = false;
         }
 
-        if (success) return true;
+        if (success) {
+            return true;
+        }
 
         if (TextUtils.isEmpty(ifaceName)) {
             XposedLog.wtf("ifaceName is empty!!!");
@@ -42,8 +42,7 @@ public class BandwidthCommandCompat {
             connector.execute("bandwidth", action + "restrictappsonwlan", ifaceName, uid);
             success = true;
         } catch (NativeDaemonConnector.NativeDaemonConnectorException e) {
-            if (BuildConfig.DEBUG)
-                XposedLog.verbose("Fail@los command restrictAppOnWifi: " + Log.getStackTraceString(e));
+            XposedLog.verbose("Fail@los command restrictAppOnWifi: " + Log.getStackTraceString(e));
             success = false;
         }
 
@@ -66,7 +65,9 @@ public class BandwidthCommandCompat {
             success = false;
         }
 
-        if (success) return true;
+        if (success) {
+            return true;
+        }
 
 
         if (TextUtils.isEmpty(ifaceName)) {

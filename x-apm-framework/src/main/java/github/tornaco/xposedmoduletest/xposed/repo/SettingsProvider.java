@@ -10,7 +10,6 @@ import android.util.Log;
 import java.io.File;
 
 import github.tornaco.android.common.BlackHole;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.ISettingsChangeListener;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.DefaultConfiguration;
@@ -94,9 +93,7 @@ public class SettingsProvider {
 
     private boolean insertSettingLocked(String name, String value) {
         synchronized (mLock) {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "insertSettingLocked: " + name + " " + value);
-            }
+            Log.d(TAG, "insertSettingLocked: " + name + " " + value);
             boolean success = mSettingsState.insertSettingLocked(name, value, "tornaco", true, "android");
             if (success) {
                 notifyForSettingChange(name);

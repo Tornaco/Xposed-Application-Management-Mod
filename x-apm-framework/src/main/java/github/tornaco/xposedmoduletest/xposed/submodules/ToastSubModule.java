@@ -20,7 +20,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import github.tornaco.android.common.util.ApkUtil;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
@@ -54,12 +53,12 @@ class ToastSubModule extends AndroidSubModule {
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
 
-                            if (BuildConfig.DEBUG) {
-                                Log.d(XposedLog.TAG, "Toast show: " + AndroidAppHelper.currentPackageName());
-                            }
+                            Log.d(XposedLog.TAG, "Toast show: " + AndroidAppHelper.currentPackageName());
 
                             String currentPackageName = AndroidAppHelper.currentPackageName();
-                            if (currentPackageName == null) return;
+                            if (currentPackageName == null) {
+                                return;
+                            }
 
                             String text = "";
                             try {
@@ -188,7 +187,9 @@ class ToastSubModule extends AndroidSubModule {
         if (isToastCallerIconEnabled()) {
             try {
                 Toast t = (Toast) param.getResult();
-                if (t == null) return;
+                if (t == null) {
+                    return;
+                }
                 ViewGroup v = (ViewGroup) t.getView();
                 if (v != null && !hasToastIconImageView(v)) {
                     ImageView iconView = new ImageView(v.getContext());
@@ -210,10 +211,12 @@ class ToastSubModule extends AndroidSubModule {
     private static final String ICON_VIEW_TAG = "APM-TOAST-ICON";
 
     private static boolean hasToastIconImageView(ViewGroup viewGroup) {
-        if (viewGroup != null) for (int i = 0; i < viewGroup.getChildCount(); i++) {
-            View c = viewGroup.getChildAt(i);
-            if (c instanceof ImageView && ICON_VIEW_TAG.equals(c.getTag())) {
-                return true;
+        if (viewGroup != null) {
+            for (int i = 0; i < viewGroup.getChildCount(); i++) {
+                View c = viewGroup.getChildAt(i);
+                if (c instanceof ImageView && ICON_VIEW_TAG.equals(c.getTag())) {
+                    return true;
+                }
             }
         }
         return false;

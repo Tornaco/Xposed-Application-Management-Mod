@@ -10,7 +10,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -61,18 +60,14 @@ class AMSRemoveProcessLockedSubModule extends AndroidSubModule {
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             super.afterHookedMethod(param);
 
-                            if (BuildConfig.DEBUG) {
-                                XposedLog.verbose("removeProcessLocked in ams: " + Arrays.toString(param.args));
-                            }
+                            XposedLog.verbose("removeProcessLocked in ams: " + Arrays.toString(param.args));
                             Object processRecord = param.args[0];
                             boolean callerWillRestart = (boolean) param.args[1];
                             boolean allowRestart = (boolean) param.args[2];
                             String reason = (String) param.args[3];
                             if (processRecord != null) {
                                 ApplicationInfo info = (ApplicationInfo) XposedHelpers.getObjectField(processRecord, "info");
-                                if (BuildConfig.DEBUG) {
-                                    XposedLog.verbose("removeProcessLocked in ams, info: " + info);
-                                }
+                                XposedLog.verbose("removeProcessLocked in ams, info: " + info);
                                 if (info != null) {
                                     getBridge().onRemoveProcessLocked(info, callerWillRestart, allowRestart, reason);
                                 }

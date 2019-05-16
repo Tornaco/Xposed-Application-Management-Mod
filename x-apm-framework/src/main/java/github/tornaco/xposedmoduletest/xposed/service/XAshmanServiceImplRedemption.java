@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import de.robv.android.xposed.SELinuxHelper;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IBackupAgent;
 import github.tornaco.xposedmoduletest.IBooleanCallback1;
@@ -1152,12 +1151,12 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
 
     @Override
     public String getBuildVersionName() {
-        return BuildConfig.VERSION_NAME;
+        return "Redemption";
     }
 
     @Override
     public int getBuildVersionCode() {
-        return BuildConfig.VERSION_CODE;
+        return Integer.MIN_VALUE;
     }
 
     @Override

@@ -10,7 +10,6 @@ import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -53,10 +52,8 @@ class SecureSettingsSubModule extends AndroidSubModule {
                                             pkgName != null
                                                     && ash.isPrivacyEnabled()
                                                     && ash.isPackageInPrivacyList(pkgName);
-                                    if (BuildConfig.DEBUG) {
-                                        Log.d(XposedLog.TAG_DANGER,
-                                                "get ANDROID_ID, pkg:" + pkgName);
-                                    }
+                                    Log.d(XposedLog.TAG_DANGER,
+                                            "get ANDROID_ID, pkg:" + pkgName);
                                     if (priv) {
                                         String androidId = ash.getUserDefinedAndroidId();
                                         if (androidId != null) {

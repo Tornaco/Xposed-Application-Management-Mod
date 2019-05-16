@@ -9,7 +9,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -42,9 +41,7 @@ class AMSStartServiceSubModule extends AndroidSubModule {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
-                            if (BuildConfig.DEBUG) {
-                                Log.d("APM-LAZY-startService@", Arrays.toString(param.args));
-                            }
+                            Log.d("APM-LAZY-startService@", Arrays.toString(param.args));
                         }
                     });
             XposedLog.verbose("hookStartService OK:" + unHooks);

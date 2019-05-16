@@ -9,7 +9,6 @@ import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -40,15 +39,15 @@ class ResourceSubModule extends AndroidSubModule {
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
                             Configuration configuration = (Configuration) param.args[0];
-                            if (configuration == null) return;
+                            if (configuration == null) {
+                                return;
+                            }
                             String currentPackage = AndroidAppHelper.currentPackageName();
 
                             if (XAPMManager.get().isServiceAvailable()) {
                                 int densityDpi = XAPMManager.get().getAppConfigOverlayIntSetting(currentPackage, "densityDpi");
-                                if (BuildConfig.DEBUG) {
-                                    Log.d(XposedLog.TAG, "updateConfiguration: "
-                                            + currentPackage + "-" + configuration.densityDpi + "-" + densityDpi);
-                                }
+                                Log.d(XposedLog.TAG, "updateConfiguration: "
+                                        + currentPackage + "-" + configuration.densityDpi + "-" + densityDpi);
                                 if (densityDpi != XAPMManager.ConfigOverlays.NONE) {
                                     configuration.densityDpi = densityDpi;
                                 }

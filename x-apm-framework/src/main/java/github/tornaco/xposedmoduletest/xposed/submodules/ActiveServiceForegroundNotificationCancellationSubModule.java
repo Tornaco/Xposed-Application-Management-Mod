@@ -9,7 +9,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -79,10 +78,8 @@ class ActiveServiceForegroundNotificationCancellationSubModule extends AndroidSu
                                 try {
                                     XposedHelpers.callMethod(serviceRecordObject, "cancelNotification");
                                     param.setResult(null);
-                                    if (BuildConfig.DEBUG) {
-                                        String pkgName = (String) XposedHelpers.getObjectField(serviceRecordObject, "packageName");
-                                        XposedLog.verbose("cancelNotification hooked for: " + pkgName);
-                                    }
+                                    String pkgName = (String) XposedHelpers.getObjectField(serviceRecordObject, "packageName");
+                                    XposedLog.verbose("cancelNotification hooked for: " + pkgName);
                                 } catch (Throwable e) {
                                     XposedLog.wtf("Fail invoke cancelNotification: " + Log.getStackTraceString(e));
                                 }

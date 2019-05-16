@@ -10,7 +10,6 @@ import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.GlobalWhiteList;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
@@ -59,9 +58,7 @@ public class SystemPropSubModule extends AndroidSubModule {
                         return;
                     }
 
-                    if (BuildConfig.DEBUG) {
-                        Log.d(XposedLog.TAG, "SystemProp get: " + param.args[0] + ", caller: " + callerPackage);
-                    }
+                    Log.d(XposedLog.TAG, "SystemProp get: " + param.args[0] + ", caller: " + callerPackage);
 
                     String propKey = (String) param.args[0];
 
@@ -75,32 +72,24 @@ public class SystemPropSubModule extends AndroidSubModule {
                         boolean isSystemPropEnabled = XAPMManager.get()
                                 .isServiceAvailable() && XAPMManager.get()
                                 .isSystemPropEnabled();
-                        if (BuildConfig.DEBUG) {
-                            Log.d(XposedLog.TAG,
-                                    "SystemProp get, will check for key: " + propKey
-                                            + ", isSystemPropEnabled: " + isSystemPropEnabled);
-                        }
+                        Log.d(XposedLog.TAG,
+                                "SystemProp get, will check for key: " + propKey
+                                        + ", isSystemPropEnabled: " + isSystemPropEnabled);
                         if (isSystemPropEnabled) {
                             // Check if should apply this this package.
                             boolean enabledForThisPackage =
                                     !GlobalWhiteList.isInGlobalWhiteList(callerPackage)
                                             && XAPMManager.get().isSystemPropProfileApplyApp(callerPackage);
-                            if (BuildConfig.DEBUG) {
-                                Log.d(XposedLog.TAG,
-                                        "SystemProp get, enabledForThisPackage: " + enabledForThisPackage);
-                            }
+                            Log.d(XposedLog.TAG,
+                                    "SystemProp get, enabledForThisPackage: " + enabledForThisPackage);
                             if (enabledForThisPackage) {
                                 SystemPropProfile activeProfile = XAPMManager.get().getActiveSystemPropProfile();
-                                if (BuildConfig.DEBUG) {
-                                    Log.d(XposedLog.TAG,
-                                            "SystemProp get, activeProfile: " + activeProfile);
-                                }
+                                Log.d(XposedLog.TAG,
+                                        "SystemProp get, activeProfile: " + activeProfile);
                                 if (activeProfile != null && activeProfile.getSystemProp() != null) {
                                     String value = SystemProp.getProp(activeProfile.getSystemProp(), propKey);
-                                    if (BuildConfig.DEBUG) {
-                                        Log.d(XposedLog.TAG,
-                                                "SystemProp get, replace with value: " + value);
-                                    }
+                                    Log.d(XposedLog.TAG,
+                                            "SystemProp get, replace with value: " + value);
                                     param.setResult(value);
                                 }
                             }

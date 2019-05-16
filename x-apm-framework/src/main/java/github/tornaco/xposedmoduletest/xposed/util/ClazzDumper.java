@@ -108,8 +108,10 @@ public class ClazzDumper {
 
             // Dump class fields.
             Field[] fields = searchType.isInterface() ? null : clazz.getDeclaredFields();
-            if (fields != null) for (Field field : fields) {
-                printer.println(String.format("FIELD OF CLASS %s: %s", searchType, field));
+            if (fields != null) {
+                for (Field field : fields) {
+                    printer.println(String.format("FIELD OF CLASS %s: %s", searchType, field));
+                }
             }
 
             searchType = searchType.getSuperclass();

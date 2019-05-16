@@ -4,7 +4,7 @@ import android.os.Build;
 import android.support.annotation.Keep;
 
 import de.robv.android.xposed.XposedBridge;
-import github.tornaco.x.base.BuildConfig;
+import github.tornaco.xposedmoduletest.framework.config.BuildConfig;
 import lombok.experimental.Delegate;
 
 /**

@@ -7,7 +7,6 @@ import android.util.Log;
 import java.util.HashMap;
 import java.util.Map;
 
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.util.Singleton;
 import github.tornaco.xposedmoduletest.xposed.bean.BlurSettings;
@@ -410,11 +409,6 @@ public class XAppLockManager {
     }
 
     private static void handleException(Throwable e) {
-        if (BuildConfig.DEBUG) {
-            // throw new RuntimeException(e);
-            Log.e(XposedLog.TAG, Log.getStackTraceString(e));
-        } else {
-            Log.e(XposedLog.TAG, Log.getStackTraceString(e));
-        }
+        Log.e(XposedLog.TAG, Log.getStackTraceString(e));
     }
 }

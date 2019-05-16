@@ -10,7 +10,6 @@ import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -41,9 +40,7 @@ class ServiceManagerSubModule extends AndroidSubModule {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     super.afterHookedMethod(param);
-                    if (BuildConfig.DEBUG) {
-                        XposedLog.verbose("****************** addService: " + param.args[0] + " *****************");
-                    }
+                    XposedLog.verbose("****************** addService: " + param.args[0] + " *****************");
                     boolean isTVInput = Context.TV_INPUT_SERVICE.equals(param.args[0]);
                     if (isTVInput) {
                         XposedLog.wtf("Adding TV input service @" + Log.getStackTraceString(new Throwable()));

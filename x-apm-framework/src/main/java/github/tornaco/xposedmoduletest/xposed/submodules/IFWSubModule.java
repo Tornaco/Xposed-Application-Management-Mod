@@ -10,7 +10,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.util.ObjectToStringUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
@@ -38,7 +37,7 @@ public class IFWSubModule extends AndroidSubModule {
 
                             Intent intent = (Intent) param.args[1];
                             // Dump intent for debug build.
-                            if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
+                            if (XposedLog.isVerboseLoggable()) {
                                 try {
                                     Log.d(XposedLog.TAG + XposedLog.PREFIX_SERVICE,
                                             "checkService@ intent: " + intent + "extra: " + intent.getExtras()
@@ -65,10 +64,12 @@ public class IFWSubModule extends AndroidSubModule {
                     int callerUid = (int) param.args[1];
                     int recUid = (int) param.args[4];
                     Intent intent = (Intent) param.args[0];
-                    if (intent == null) return;
+                    if (intent == null) {
+                        return;
+                    }
 
                     // Dump intent for debug build.
-                    if (BuildConfig.DEBUG && XposedLog.isVerboseLoggable()) {
+                    if (XposedLog.isVerboseLoggable()) {
                         try {
                             Log.d(XposedLog.TAG + XposedLog.PREFIX_BROADCAST,
                                     "checkBroadcast@ intent: " + intent + "extra: " + intent.getExtras()
@@ -91,9 +92,6 @@ public class IFWSubModule extends AndroidSubModule {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             super.beforeHookedMethod(param);
-                            if (BuildConfig.DEBUG) {
-                                // XposedLog.verbose("IFW checkIntent: " + Arrays.toString(param.args));
-                            }
                         }
                     });
             XposedLog.boot("hookIntentFireWall checkIntent OK:" + unHooks3);

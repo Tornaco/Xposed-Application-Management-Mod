@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.IAshmanService;
 import github.tornaco.xposedmoduletest.IAshmanWatcher;
 import github.tornaco.xposedmoduletest.IBackupAgent;
@@ -974,12 +973,6 @@ public class XAPMManager {
 
     public boolean isPackageGreening(String packageName) {
         ensureService();
-        if (BuildConfig.DEBUG) try {
-            return mService.isPackageGreening(packageName);
-        } catch (Exception e) {
-            handleException(e);
-            return false;
-        }
         return false;
     }
 
@@ -2805,12 +2798,7 @@ public class XAPMManager {
     }
 
     private static void handleException(Throwable e) {
-        if (BuildConfig.DEBUG) {
-            //throw new RuntimeException(e);
-            Log.e(XposedLog.TAG, Log.getStackTraceString(e));
-        } else {
-            Log.e(XposedLog.TAG, Log.getStackTraceString(e));
-        }
+        Log.e(XposedLog.TAG, Log.getStackTraceString(e));
     }
 
 }

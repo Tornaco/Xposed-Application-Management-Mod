@@ -26,7 +26,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 class FloatView extends LinearLayout {
@@ -283,13 +282,13 @@ class FloatView extends LinearLayout {
         mLp.y = dp2px(150);
         mLp.x = mRect.width() - dp2px(55);
         reposition();
-        if (BuildConfig.DEBUG) {
-            XposedLog.verbose("FloatView show");
-        }
+        XposedLog.verbose("FloatView show");
     }
 
     private void performTapFeedbackIfNeed() {
-        if (!mFeedbackAnimEnabled) return;
+        if (!mFeedbackAnimEnabled) {
+            return;
+        }
         AnimatorSet set = new AnimatorSet();
         final ObjectAnimator alphaAnimatorX = ObjectAnimator.ofFloat(mContainerView, "scaleX", 1f, 0.8f);
         final ObjectAnimator alphaAnimatorY = ObjectAnimator.ofFloat(mContainerView, "scaleY", 1f, 0.8f);
@@ -331,7 +330,9 @@ class FloatView extends LinearLayout {
     }
 
     public void hideAndDetach() {
-        if (!isShowing()) return;
+        if (!isShowing()) {
+            return;
+        }
         AnimatorSet set = new AnimatorSet();
         final ObjectAnimator alphaAnimatorX = ObjectAnimator.ofFloat(mContainerView, "scaleX", 1f, 0f);
         final ObjectAnimator alphaAnimatorY = ObjectAnimator.ofFloat(mContainerView, "scaleY", 1f, 0f);
@@ -350,7 +351,9 @@ class FloatView extends LinearLayout {
     }
 
     public void show() {
-        if (isShowing()) return;
+        if (isShowing()) {
+            return;
+        }
         setVisibility(VISIBLE);
         AnimatorSet set = new AnimatorSet();
         final ObjectAnimator alphaAnimatorX = ObjectAnimator.ofFloat(mContainerView, "scaleX", 0f, 1f);
@@ -359,9 +362,7 @@ class FloatView extends LinearLayout {
         set.setInterpolator(new LinearInterpolator());
         set.playTogether(alphaAnimatorX, alphaAnimatorY);
         set.start();
-        if (BuildConfig.DEBUG) {
-            XposedLog.verbose("FloatView show");
-        }
+        XposedLog.verbose("FloatView show");
     }
 
     private boolean isDragging, inDragMode;

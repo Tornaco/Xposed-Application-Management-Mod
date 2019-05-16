@@ -49,7 +49,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.util.Closer;
 import github.tornaco.xposedmoduletest.xposed.util.Objects;
 
@@ -188,8 +187,7 @@ final class SettingsState {
             mPackageToMemoryUsage = null;
         }
 
-        mHistoricalOperations = BuildConfig.DEBUG
-                ? new ArrayList<HistoricalOperation>(HISTORICAL_OPERATION_COUNT) : null;
+        mHistoricalOperations = false ? new ArrayList<HistoricalOperation>(HISTORICAL_OPERATION_COUNT) : null;
 
         synchronized (mLock) {
             readStateSyncLocked();

@@ -11,7 +11,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
@@ -37,9 +36,8 @@ class AMSGetRunningAppsSubModule extends AndroidSubModule {
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         // No need to check ops. Now 3-rd app can only get self process.
         // so we break here, only hook it for debug.
-        if (BuildConfig.DEBUG) {
-            hookGetRunningAppProcess(lpparam);
-        }
+        // TODO Check if this really needed.
+        hookGetRunningAppProcess(lpparam);
     }
 
     private void hookGetRunningAppProcess(XC_LoadPackage.LoadPackageParam lpparam) {
@@ -61,7 +59,9 @@ class AMSGetRunningAppsSubModule extends AndroidSubModule {
 
                             int callingUid = Binder.getCallingUid();
 
-                            if (PkgUtil.isSystemOrPhoneOrShell(callingUid)) return;
+                            if (PkgUtil.isSystemOrPhoneOrShell(callingUid)) {
+                                return;
+                            }
                             // Check op.
                             XAPMManager xAshmanManager = XAPMManager.get();
                             if (xAshmanManager.isServiceAvailable()) {
@@ -77,9 +77,7 @@ class AMSGetRunningAppsSubModule extends AndroidSubModule {
                                             for (int i = 0; i < empty.size(); i++) {
                                                 ActivityManager.RunningAppProcessInfo info = empty.get(i);
                                                 int uid = info.uid;
-                                                if (BuildConfig.DEBUG) {
-                                                    XposedLog.verbose("getRunningAppProcesses items uid %s caller %s", uid, callingUid);
-                                                }
+                                                XposedLog.verbose("getRunningAppProcesses items uid %s caller %s", uid, callingUid);
                                                 if (uid == callingUid) {
                                                     selfInfo = info;
                                                     break;

@@ -8,7 +8,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -49,15 +48,17 @@ class ActivityStackRealStartActivitySubModule extends AndroidSubModule {
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             super.afterHookedMethod(param);
                             String pkgName = (String) getObjectField(param.args[0], "packageName");
-                            if (pkgName == null) return;
+                            if (pkgName == null) {
+                                return;
+                            }
                             XAPMManager ash = XAPMManager.get();
-                            if (!ash.isServiceAvailable()) return;
+                            if (!ash.isServiceAvailable()) {
+                                return;
+                            }
                             boolean resident = ash.isResidentEnabled()
                                     && ash.isResidentEnabledForPackage(pkgName);
-                            if (BuildConfig.DEBUG) {
-                                XposedLog.verbose("realStartActivityLocked: " + pkgName
-                                        + ", resident " + resident);
-                            }
+                            XposedLog.verbose("realStartActivityLocked: " + pkgName
+                                    + ", resident " + resident);
                             if (resident) {
                                 XposedLog.verbose("resident adj app: " + pkgName);
                                 int adj = -12; // LKM Android Will not kill this app.
