@@ -128,13 +128,7 @@ public class BuildVarCompiler extends AbstractProcessor {
         BuildVar annotation = type.getAnnotation(BuildVar.class);
         String varPath = annotation.config();
 
-        Logger.debug("BuildVar path=" + varPath);
-
-        if (!new File(varPath).exists()) {
-            Logger.debug("BuildVar path not exist:" + varPath + ", current dir:" + new File("./").getAbsolutePath());
-        } else {
-            Logger.debug("BuildVar path exist:" + varPath + ", current dir:" + new File("./").getAbsolutePath());
-        }
+        Logger.debug("BuildVar:" + varPath);
 
         StringSetRepo supported = new StringSetRepo(new File(annotation.supportedConfig()));
         Collections.consumeRemaining(supported.getAll(), s -> Logger.debug(s));
