@@ -9,7 +9,7 @@ import java.util.Observable;
 
 import dev.nick.eventbus.Event;
 import dev.nick.eventbus.EventBus;
-import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.ui.Themes;
 import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 

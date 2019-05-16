@@ -13,7 +13,7 @@ import java.util.Observable;
 
 import dev.nick.eventbus.Event;
 import dev.nick.eventbus.EventBus;
-import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.bean.DaoManager;
 import github.tornaco.xposedmoduletest.bean.DaoSession;

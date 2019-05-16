@@ -25,7 +25,7 @@ import java.util.List;
 import dev.nick.tiles.tile.Category;
 import github.tornaco.permission.requester.RequiresPermission;
 import github.tornaco.permission.requester.RuntimePermissions;
-import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.backup.DataBackup;
 import github.tornaco.xposedmoduletest.compat.pm.PackageManagerCompat;

@@ -14,12 +14,6 @@ android {
     }
     buildTypes {
         release {
-            buildConfigField "String", "X_APM_APP_PACKAGE_NAME", "\"github.tornaco.xposedmoduletest\""
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-        debug {
-            buildConfigField "String", "X_APM_APP_PACKAGE_NAME", "\"github.tornaco.xposedmoduletest\""
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

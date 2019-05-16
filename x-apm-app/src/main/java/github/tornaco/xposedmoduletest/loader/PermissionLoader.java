@@ -15,7 +15,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.x.base.BuildConfig;
 import github.tornaco.xposedmoduletest.compat.os.XAppOpsManager;
 import github.tornaco.xposedmoduletest.compat.os.XAppOpsManagerRes;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
