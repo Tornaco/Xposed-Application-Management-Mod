@@ -3,6 +3,11 @@ import groovy.xml.XmlUtil
 apply plugin: 'com.android.application'
 apply plugin: 'org.greenrobot.greendao' // apply plugin
 
+afterEvaluate {
+    generateReleaseBuildConfig.enabled = false
+    generateDebugBuildConfig.enabled = false
+}
+
 android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion as int
