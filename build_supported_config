@@ -21,3 +21,5 @@ app_prop
 app_package_install_verify
 app_wakelock_blocker
 app_workflow
+play
+debug

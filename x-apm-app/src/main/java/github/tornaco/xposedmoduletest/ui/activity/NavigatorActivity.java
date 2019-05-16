@@ -223,7 +223,7 @@ public class NavigatorActivity extends WithWithCustomTabActivity
 
         MenuItem play = navigationView.getMenu().findItem(R.id.action_play_version);
         MenuItem donate = navigationView.getMenu().findItem(R.id.action_donate);
-        boolean isPlayVersion = XAPMApplication.isPlayVersion();
+        boolean isPlayVersion = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.PLAY);
         play.setVisible(!isPlayVersion);
         donate.setVisible(!isPlayVersion);
 

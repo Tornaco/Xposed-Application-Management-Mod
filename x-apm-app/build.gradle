@@ -42,26 +42,6 @@ android {
         }
     }
 
-    // Specifies one flavor dimension.
-    flavorDimensions "def"
-    productFlavors {
-        coolapk {
-            dimension "def"
-            versionNameSuffix "-coolapk"
-            buildConfigField "int", "FLAVOR_COOLAPK", "0"
-            buildConfigField "int", "FLAVOR_PLAY", "1"
-            buildConfigField "int", "CURRENT_FLAVOR", "0"
-        }
-
-        play {
-            dimension "def"
-            versionNameSuffix "-play"
-            buildConfigField "int", "FLAVOR_COOLAPK", "0"
-            buildConfigField "int", "FLAVOR_PLAY", "1"
-            buildConfigField "int", "CURRENT_FLAVOR", "1"
-        }
-    }
-
     lintOptions {
         checkReleaseBuilds false
         // Or, if you prefer, you can continue to check for errors in release builds,
