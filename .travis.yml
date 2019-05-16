@@ -12,20 +12,9 @@ android:
   - extra-android-m2repository
   - extra-android-support
 script:
-- cp -f ./build_var_config ./building/bk
 - "./gradlew clean"
 - "./gradlew assembleRelease"
 - cp x-apm-app/build/outputs/apk/release/x-apm-app-release.apk x-apm-app/x-apm-app-release-default.apk
-- cp -f ./building/build_var_config_stable_play ./build_var_config
-- "./gradlew clean"
-- "./gradlew assembleRelease"
-- cp x-apm-app/build/outputs/apk/release/x-apm-app-release.apk x-apm-app/x-apm-app-release-stable-play.apk
-- cp -f ./building/build_var_config_aio ./build_var_config
-- "./gradlew clean"
-- "./gradlew assembleRelease"
-- cp x-apm-app/build/outputs/apk/release/x-apm-app-release.apk x-apm-app/x-apm-app-release-aio.apk
-- cp -f ./building/bk ./build_var_config
-- git checkout build_var_config
 before_script:
 - mkdir -p "$ANDROID_HOME/licenses"
 - cp ./building/android-sdk-license "$ANDROID_HOME/licenses/"
@@ -48,8 +37,6 @@ deploy:
     secure: QGGIdCX9U+piuLrgHk7KhC3gIKJg7JeqocLWKw5g0lfdbcNjEUWO/mDSs8ucqk27WIoD/Nj0uzRGFq6P68WIpehpwEjoCild4bfTFhQomGG/kJ1GnvlPFG0K13qB0Ll3PXrRt661OAQcnpbiGzwoaiJOe+BozOCcmuJQxvCbATj8VQ88uZeCE4w+Ap/4FraCMb8qifeme2QjFZoXzh6zHelT13IB23+HQRCGczbalgmhUXo+rk8aCd+WE8MzDny9mOMizcMXG78kdhYzSJfW9B2WwFg6iKSkxPdkRvQedLr+sVA4katRhnUr5uJ1hOBnjB0KxPjUu44DEWaVBjqCzXAJh/z5CLLwmhi4qoKbc60LReiwCwgRuUNqeIYyIWO4fCwEY1SahL03jNjVQm9DI9mPGsUzwKY088hFqe5im79PCdWQETvnxGtSFWhqmztd1WwlAJZBc8zXbK99vf3DTa0yI3OU9XaIN8cgTIckWtavC3yY0Yuj2HIvGWaU4emE0LoNVSsQCUg/78rmy9GeKGtnHQJY5/LJC1xogP3IxQyiVDDU+HgE/8Be1l8ZtNw0/8DiFRCMckYrotpvtoG6ATzmVf+VLqGMs3EYG6a52LL5tPFWUl8HF2Ng2St/M6nk9C8hStyKpdhyJsLWX5sA25UzOg1itXIvyc90gAUnGtY=
   file:
   - x-apm-app/x-apm-app-release-default.apk
-  - x-apm-app/x-apm-app-release-stable-play.apk
-  - x-apm-app/x-apm-app-release-aio.apk
   skip_cleanup: true
   on:
     repo: Tornaco/X-APM

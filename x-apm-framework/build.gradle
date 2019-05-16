@@ -46,7 +46,7 @@ dependencies {
     compileOnly 'de.robv.android.xposed:api:82'
 
     api 'com.google.guava:guava:20.0'
-    api ("com.squareup.retrofit2:converter-gson:${rootProject.ext.retrofitVersion}")
+    api("com.squareup.retrofit2:converter-gson:${rootProject.ext.retrofitVersion}")
             { exclude group: 'com.google.code.gson', module: 'gson' }
     api 'com.google.code.gson:gson:2.8.4'
 
@@ -56,8 +56,6 @@ dependencies {
     annotationProcessor project(':api-gen-compiler')
 
     api project(':x-apm-base')
-
-    // compile files('libs/flymeapi.jar')
 }
 
 preBuild {
