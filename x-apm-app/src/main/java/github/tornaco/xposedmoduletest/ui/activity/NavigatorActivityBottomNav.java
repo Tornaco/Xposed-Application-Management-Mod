@@ -347,11 +347,15 @@ public class NavigatorActivityBottomNav
 
     private void showUpdateLog() {
         final BottomSheetLayout bottomSheet = findViewById(R.id.bottomsheet);
+
         bottomSheet.showWithSheetView(LayoutInflater.from(getActivity())
                 .inflate(R.layout.update_log_sheet_layout, bottomSheet, false));
         bottomSheet.findViewById(R.id.update_log_close_button)
                 .setOnClickListener(v -> bottomSheet.dismissSheet());
         bottomSheet.findViewById(R.id.text_view_at_github).setOnClickListener(v -> navigateToWebPage(getString(R.string.app_rel_url)));
+
+        TextView logView = bottomSheet.getSheetView().findViewById(android.R.id.text1);
+        logView.setText(BuildConfig.UPDATE_LOGS);
     }
 
     @Override

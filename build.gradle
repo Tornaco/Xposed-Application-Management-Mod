@@ -37,11 +37,16 @@ static def getVersionName() {
     return 'git describe --abbrev=0 --tags'.execute().text.trim()
 }
 
+static def getGitLogs() {
+    return 'git log --pretty=format:"%ad%%%s" --graph --date=short -24'.execute().text.replace('\"', '').replace(System.lineSeparator(), '\\n').replace('%', " ").trim()
+}
+
 ext {
     dogfoodBuild = true
 
     versionCode = androidGitVersion.code() as int
     versionName = androidGitVersion.name()
+    updateLogs = getGitLogs() as String
 
     minSdkVersion = 21
     compileSdkVersion = 26

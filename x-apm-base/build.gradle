@@ -18,6 +18,12 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "UPDATE_LOGS", "\"${rootProject.ext.updateLogs}\""
+        }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "UPDATE_LOGS", "\"${rootProject.ext.updateLogs}\""
         }
     }
     compileOptions {
@@ -35,8 +41,8 @@ dependencies {
     compileOnly files('../hidden-api/android-27.jar')
     compileOnly files('../hidden-api/services-27.jar')
 
-    annotationProcessor 'org.projectlombok:lombok:1.16.16'
-    compileOnly 'org.projectlombok:lombok:1.16.16'
+    annotationProcessor 'org.projectlombok:lombok:1.16.18'
+    compileOnly 'org.projectlombok:lombok:1.16.18'
 
     implementation 'com.google.guava:guava:20.0'
     implementation 'com.google.code.gson:gson:2.8.4'
