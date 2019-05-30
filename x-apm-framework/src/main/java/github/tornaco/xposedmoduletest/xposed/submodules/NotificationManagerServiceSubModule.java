@@ -73,7 +73,8 @@ class NotificationManagerServiceSubModule extends AndroidSubModule {
                     }
                     Object object = param.args[0];
                     if (OSUtil.isPOrAbove()) {
-                        XposedLog.wtf("NotificationListeners No impl for android p");
+                        // FIXME Need a solution for Android P.
+                        XposedLog.verbose("NotificationListeners No impl for android p");
                     } else if (object instanceof StatusBarNotification) {
                         StatusBarNotification sbn = (StatusBarNotification) param.args[0];
                         getBridge().onNotificationPosted(sbn);
