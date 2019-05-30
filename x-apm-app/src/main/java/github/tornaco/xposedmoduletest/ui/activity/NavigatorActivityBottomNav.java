@@ -260,7 +260,6 @@ public class NavigatorActivityBottomNav
     private void setTitleInternal(CharSequence title) {
         Toolbar toolbar = findViewById(R.id.toolbar);
         TextView titleView = toolbar.findViewById(R.id.toolbar_title);
-        titleView.setTypeface(TypefaceHelper.googleSans(getContext()));
         titleView.setText(title);
     }
 
