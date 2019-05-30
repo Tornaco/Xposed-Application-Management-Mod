@@ -25,7 +25,9 @@ import java.util.Collection;
 import java.util.List;
 
 import cn.nekocode.badge.BadgeDrawable;
+import dev.nick.tiles.tile.ResUtils;
 import github.tornaco.android.common.Collections;
+import github.tornaco.xposedmoduletest.BuildConfig;
 import github.tornaco.xposedmoduletest.R;
 import github.tornaco.xposedmoduletest.loader.GlideApp;
 import github.tornaco.xposedmoduletest.model.CommonPackageInfo;
@@ -80,10 +82,15 @@ public class CommonPackageInfoAdapter
 
         setChoiceMode(false);
 
+        float badgePadding = ResUtils.convertDpToPixel(4, context);
+        float badgeSize = ResUtils.convertDpToPixel(10, context);
         this.idleBadge = new BadgeDrawable.Builder()
                 .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
                 .badgeColor(Color.GRAY)
+                .padding(badgePadding, badgePadding, badgePadding, badgePadding, badgePadding)
+                .cornerRadius(ResUtils.convertDpToPixel(5, context))
                 .text1(context.getString(R.string.title_app_state_idle))
+                .textSize(badgeSize)
                 .typeFace(TypefaceHelper.googleSans(context))
                 .build();
 
@@ -91,7 +98,10 @@ public class CommonPackageInfoAdapter
                 new BadgeDrawable.Builder()
                         .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
                         .badgeColor(ContextCompat.getColor(context, R.color.md_blue_600))
-                        .text1("GCM")
+                        .cornerRadius(ResUtils.convertDpToPixel(5, context))
+                        .padding(badgePadding, badgePadding, badgePadding, badgePadding, badgePadding)
+                        .text1("FCM")
+                        .textSize(badgeSize)
                         .typeFace(TypefaceHelper.googleSans(context))
                         .build();
 
@@ -99,7 +109,10 @@ public class CommonPackageInfoAdapter
                 new BadgeDrawable.Builder()
                         .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
                         .badgeColor(ContextCompat.getColor(context, R.color.md_amber_900))
-                        .text1("MI")
+                        .padding(badgePadding, badgePadding, badgePadding, badgePadding, badgePadding)
+                        .cornerRadius(ResUtils.convertDpToPixel(5, context))
+                        .text1(context.getString(R.string.badge_text_mi_push))
+                        .textSize(badgeSize)
                         .typeFace(TypefaceHelper.googleSans(context))
                         .build();
     }
@@ -243,10 +256,15 @@ public class CommonPackageInfoAdapter
 
     BadgeDrawable createAppLevelBadge(String levelText, int levelColor) {
         if (levelText == null) return null;
+        float padding = ResUtils.convertDpToPixel(4, context);
+        float badgeSize = ResUtils.convertDpToPixel(10, context);
         return new BadgeDrawable.Builder()
                 .type(BadgeDrawable.TYPE_ONLY_ONE_TEXT)
+                .cornerRadius(ResUtils.convertDpToPixel(5, context))
+                .padding(padding, padding, padding, padding, padding)
                 .badgeColor(levelColor)
                 .text1(levelText)
+                .textSize(badgeSize)
                 .typeFace(TypefaceHelper.googleSans(getContext()))
                 .build();
     }
@@ -261,13 +279,18 @@ public class CommonPackageInfoAdapter
         String appLevelDesc = getSystemAppIndicatorLabel(appLevel);
         BadgeDrawable appLevelDrawable = createAppLevelBadge(appLevelDesc, getSystemAppIndicatorColor(appLevel));
 
-        List<CharSequence> descSets = new ArrayList<>(2);
+        List<CharSequence> descSets = new ArrayList<>();
         if (appLevelDrawable != null) {
             descSets.add(appLevelDrawable.toSpannable());
         }
         if (onBuildPushSupportIndicator(info, textView)) {
-            if (info.isGCMSupport()) descSets.add(getGcmBadge().toSpannable());
-            if (info.isMIPushSupport()) descSets.add(getMiPushBadge().toSpannable());
+            if (info.isGCMSupport() || BuildConfig.APPLICATION_ID.equals(info.getPkgName())) {
+                descSets.add(getGcmBadge().toSpannable());
+            }
+            // Set our app as supported, to see what the MI PUSH seems like.
+            if (info.isMIPushSupport() || BuildConfig.APPLICATION_ID.equals(info.getPkgName())) {
+                descSets.add(getMiPushBadge().toSpannable());
+            }
         }
         if (info.isAppIdle()) {
             descSets.add(getIdleBadge().toSpannable());

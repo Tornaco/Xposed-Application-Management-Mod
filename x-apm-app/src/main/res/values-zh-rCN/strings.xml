@@ -696,4 +696,6 @@
     <string name="summary_custom_background_enabled">使用自定义的图片作为验证界面的背景</string>
     <string name="verify_fp_indicator_text">请验证指纹</string>
     <string name="title_remove_task_on_app_idle">应用被清理后，顺便从最近任务移除</string>
+
+    <string name="badge_text_mi_push">米推</string>
 </resources>
