@@ -55,11 +55,6 @@ dependencies {
     annotationProcessor project(':api-gen-compiler')
 
     api project(':x-apm-base')
-
-    // https://github.com/mozilla/rhino
-    implementation files('libs/rhino-1.7.9.jar')
-    // compile files('libs/flymeapi.jar')
-    implementation 'com.jakewharton.android.repackaged:dalvik-dx:7.1.0_r7'
 }
 
 preBuild {

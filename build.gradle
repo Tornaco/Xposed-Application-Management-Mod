@@ -33,12 +33,8 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
-static def getVersionName() {
-    return 'git describe --abbrev=0 --tags'.execute().text.trim()
-}
-
-static def getGitLogs() {
-    return 'git log --pretty=format:"%ad%%%s" --graph --date=short -24'.execute().text.replace('\"', '').replace(System.lineSeparator(), '\\n').replace('%', " ").trim()
+static def getUpdateLogs() {
+    return 'cat ./UPDATE_LOG.md'.execute().text.replace(System.lineSeparator(), '\\n').trim()
 }
 
 ext {
@@ -46,7 +42,7 @@ ext {
 
     versionCode = androidGitVersion.code() as int
     versionName = androidGitVersion.name()
-    updateLogs = getGitLogs() as String
+    updateLogs = getUpdateLogs() as String
 
     minSdkVersion = 21
     compileSdkVersion = 26
