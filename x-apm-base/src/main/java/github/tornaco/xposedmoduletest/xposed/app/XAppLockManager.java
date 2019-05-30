@@ -71,7 +71,24 @@ public class XAppLockManager {
     }
 
     public boolean isServiceAvailable() {
-        return mService != null;
+        return isServiceAvailable(false);
+    }
+
+    public boolean isServiceAvailable(boolean doubleConfirm) {
+        boolean isRegistered = mService != null;
+        if (!isRegistered) {
+            return false;
+        }
+        if (!doubleConfirm) {
+            return true;
+        }
+        try {
+            String answer = mService.getBuildVersionName();
+            return answer != null;
+        } catch (Throwable e) {
+            // Dead.
+        }
+        return false;
     }
 
     private void ensureService() {

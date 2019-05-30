@@ -144,7 +144,7 @@ public class NavigatorActivityBottomNav
 
         // This is a workaround that some apps is installed on SD.
         // We trigger a package scan now, to ensure wo got all packages.
-        if (XAPMManager.get().isServiceAvailable()) {
+        if (XAPMManager.get().isServiceAvailable(true)) {
             XAPMManager.get().forceReloadPackages();
         }
 
@@ -191,7 +191,7 @@ public class NavigatorActivityBottomNav
     }
 
     private void loadAppLockConfig() {
-        if (XAPMManager.get().isServiceAvailable()) {
+        if (XAPMManager.get().isServiceAvailable(true)) {
             XExecutor.execute(() -> {
                 String[] whitelist = getResources().getStringArray(R.array.app_lock_white_list_activity);
                 XAPMManager.get().addAppLockWhiteListActivity(whitelist);
@@ -289,7 +289,7 @@ public class NavigatorActivityBottomNav
     }
 
     private void checkForRedemptionMode() {
-        boolean redemption = XAPMManager.get().isServiceAvailable()
+        boolean redemption = XAPMManager.get().isServiceAvailable(true)
                 && XAPMManager.get().isInRedemptionMode();
         if (redemption) {
             new AlertDialog.Builder(getActivity())
@@ -585,7 +585,7 @@ public class NavigatorActivityBottomNav
 
                 ViewGroup header = findView(rootView, R.id.header1);
                 header.setBackgroundColor(
-                        XAppLockManager.get().isServiceAvailable() ?
+                        XAppLockManager.get().isServiceAvailable(true) ?
                                 cardAccentColor
                                 : ContextCompat.getColor(getActivity(), R.color.red));
                 imageView.setImageResource(isServiceAvailable()
@@ -626,7 +626,7 @@ public class NavigatorActivityBottomNav
             }
 
             // Active!
-            if (!XAPMManager.get().isServiceAvailable()) {
+            if (!XAPMManager.get().isServiceAvailable(true)) {
                 Suggestion suggestion = new Suggestion(
                         getString(R.string.suggestion_active),
                         getString(R.string.suggestion_summary_active),
@@ -649,7 +649,7 @@ public class NavigatorActivityBottomNav
 
             // Donate
             boolean isPlayVersion = XAppBuildVar.BUILD_VARS.contains(XAppBuildVar.PLAY);
-            if (!isPlayVersion && XAPMManager.get().isServiceAvailable() && !AppSettings.isDonated(getActivity())) {
+            if (!isPlayVersion && XAPMManager.get().isServiceAvailable(true) && !AppSettings.isDonated(getActivity())) {
                 Suggestion suggestion = new Suggestion(
                         getString(R.string.suggestion_donate),
                         getString(R.string.suggestion_summary_donate,
@@ -667,7 +667,7 @@ public class NavigatorActivityBottomNav
             }
 
             // Debug mode.
-            if (XAppLockManager.get().isServiceAvailable() && XAppLockManager.get().isDebug()) {
+            if (XAppLockManager.get().isServiceAvailable(true) && XAppLockManager.get().isDebug()) {
                 Suggestion suggestion = new Suggestion(
                         getString(R.string.suggestion_turn_off_debug_mode),
                         getString(R.string.suggestion_summary_turn_off_debug_mode),
@@ -681,7 +681,7 @@ public class NavigatorActivityBottomNav
             }
 
             // Power save.
-            if (XAPMManager.get().isServiceAvailable() && !XAPMManager.get().isPowerSaveModeEnabled()) {
+            if (XAPMManager.get().isServiceAvailable(true) && !XAPMManager.get().isPowerSaveModeEnabled()) {
                 Suggestion suggestion = new Suggestion(
                         getString(R.string.suggestion_turn_on_power_save),
                         getString(R.string.suggestion_summary_turn_on_power_save),
@@ -734,7 +734,7 @@ public class NavigatorActivityBottomNav
                     .setTitle(R.string.title_uninstall_apm)
                     .setMessage(getString(R.string.message_uninstall_apm))
                     .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                        if (XAPMManager.get().isServiceAvailable()) {
+                        if (XAPMManager.get().isServiceAvailable(true)) {
                             XAPMManager.get().restoreDefaultSettings();
                             Toast.makeText(getContext(), R.string.summary_restore_done, Toast.LENGTH_SHORT).show();
                         }
@@ -801,7 +801,7 @@ public class NavigatorActivityBottomNav
         }
 
         private boolean isServiceAvailable() {
-            return XAppLockManager.get().isServiceAvailable();
+            return XAppLockManager.get().isServiceAvailable(true);
         }
 
         @SuppressWarnings("unchecked")
