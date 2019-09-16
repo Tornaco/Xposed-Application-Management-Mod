@@ -207,6 +207,7 @@ public class RecentBlurSubModule extends AndroidSubModule {
         if (XAPMManager.get().isServiceAvailable()) {
             ComponentName name = XAPMManager.get().componentNameForTaskId(taskId);
             XposedLog.verbose("BLUR onSnapshotTask, name: " + name);
+            if (name == null) return;
             String pkgName = name.getPackageName();
             if (getBridge().isBlurForPkg(pkgName)) {
                 ActivityManager.TaskSnapshot snapshot = (ActivityManager.TaskSnapshot) param.getResult();
