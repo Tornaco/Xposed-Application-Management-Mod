@@ -6,6 +6,7 @@ import android.app.ActivityOptions;
 import java.lang.reflect.Method;
 
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 
 /**
  * Created by guohao4 on 2017/10/31.
@@ -18,10 +19,16 @@ class TaskMoverSubModuleV28 extends TaskMoverSubModuleV27 {
     @SuppressLint("PrivateApi")
     @Override
     Method methodForTaskMover(XC_LoadPackage.LoadPackageParam lpparam) throws ClassNotFoundException, NoSuchMethodException {
+        String clazzName = OSUtil.isQOrAbove() ? "com.android.server.wm.TaskRecord" : "com.android.server.am.TaskRecord";
         @SuppressLint("PrivateApi")
-        Class taskRecordClass = Class.forName("com.android.server.am.TaskRecord", false, lpparam.classLoader);
+        Class taskRecordClass = Class.forName(clazzName, false, lpparam.classLoader);
+
+        String superVisorClazzName = OSUtil.isQOrAbove()
+                ? "com.android.server.wm.ActivityStackSupervisor"
+                : "com.android.server.am.ActivityStackSupervisor";
+
         @SuppressLint("PrivateApi") final Method moveToFront
-                = Class.forName("com.android.server.am.ActivityStackSupervisor",
+                = Class.forName(superVisorClazzName,
                 false, lpparam.classLoader)
                 .getDeclaredMethod("findTaskToMoveToFront",
                         taskRecordClass, int.class, ActivityOptions.class,

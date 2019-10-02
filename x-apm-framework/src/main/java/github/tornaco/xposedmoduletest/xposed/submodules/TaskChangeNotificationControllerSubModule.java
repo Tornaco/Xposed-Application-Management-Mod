@@ -29,8 +29,10 @@ public class TaskChangeNotificationControllerSubModule extends AndroidSubModule 
         XposedLog.boot("hookNotifyTaskCreated...");
 
         try {
-            Class clz = XposedHelpers.findClass("com.android.server.am.TaskChangeNotificationController",
-                    lpparam.classLoader);
+            String clazzName = OSUtil.isQOrAbove()
+                    ? "com.android.server.wm.TaskChangeNotificationController"
+                    : "com.android.server.am.TaskChangeNotificationController";
+            Class clz = XposedHelpers.findClass(clazzName, lpparam.classLoader);
 
             Set unHooks = XposedBridge.hookAllMethods(clz,
                     "notifyTaskCreated", new XC_MethodHook() {

@@ -28,8 +28,9 @@ class CreateRecentTaskInfoFromTaskRecordSubModule extends AndroidSubModule {
         XposedLog.boot("hookCreateRecentTaskInfoFromTaskRecord...");
         try {
             boolean isPOrAbove = OSUtil.isPOrAbove();
+            boolean isQOrAlove = OSUtil.isQOrAbove();
             Class clazz = XposedHelpers.findClass(isPOrAbove
-                            ? "com.android.server.am.RecentTasks"
+                            ? (isQOrAlove ? "com.android.server.wm.RecentTasks" : "com.android.server.am.RecentTasks")
                             : "com.android.server.am.ActivityManagerService",
                     lpparam.classLoader);
             XposedLog.boot("hookCreateRecentTaskInfoFromTaskRecord...class:" + clazz);

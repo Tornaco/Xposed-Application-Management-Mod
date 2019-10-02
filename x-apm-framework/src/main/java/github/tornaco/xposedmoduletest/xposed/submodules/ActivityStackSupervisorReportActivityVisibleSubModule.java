@@ -1,7 +1,6 @@
 package github.tornaco.xposedmoduletest.xposed.submodules;
 
 import android.content.Intent;
-import android.os.Build;
 import android.util.Log;
 
 import java.util.Set;
@@ -30,8 +29,10 @@ class ActivityStackSupervisorReportActivityVisibleSubModule extends AndroidSubMo
     private void hookReportActivityVisible(XC_LoadPackage.LoadPackageParam lpparam) {
         XposedLog.verbose("hookReportActivityVisible...");
         try {
-            Class ams = XposedHelpers.findClass("com.android.server.am.ActivityStackSupervisor",
-                    lpparam.classLoader);
+            String clazzName = OSUtil.isQOrAbove()
+                    ? "com.android.server.wm.ActivityStackSupervisor"
+                    : "com.android.server.am.ActivityStackSupervisor";
+            Class ams = XposedHelpers.findClass(clazzName, lpparam.classLoader);
             Set unHooks = XposedBridge.hookAllMethods(ams, "reportActivityVisibleLocked", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {

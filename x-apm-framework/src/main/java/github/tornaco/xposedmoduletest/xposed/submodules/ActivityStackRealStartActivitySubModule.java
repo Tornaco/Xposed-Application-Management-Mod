@@ -9,6 +9,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import github.tornaco.xposedmoduletest.BuildConfig;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.XAppBuildVar;
 import github.tornaco.xposedmoduletest.xposed.app.XAPMManager;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
@@ -41,7 +42,10 @@ class ActivityStackRealStartActivitySubModule extends AndroidSubModule {
     private void hookRealStartActivityLocked(XC_LoadPackage.LoadPackageParam lpparam) {
         logOnBootStage("hookRealStartActivityLocked...");
         try {
-            Class clz = XposedHelpers.findClass("com.android.server.am.ActivityStackSupervisor",
+            String clazzName = OSUtil.isQOrAbove()
+                    ? "com.android.server.wm.ActivityStackSupervisor"
+                    : "com.android.server.am.ActivityStackSupervisor";
+            Class clz = XposedHelpers.findClass(clazzName,
                     lpparam.classLoader);
             Set unHooks = XposedBridge.hookAllMethods(clz, "realStartActivityLocked",
                     new XC_MethodHook() {

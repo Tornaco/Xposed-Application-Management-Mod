@@ -9,6 +9,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import github.tornaco.xposedmoduletest.util.OSUtil;
 import github.tornaco.xposedmoduletest.xposed.util.XposedLog;
 
 /**
@@ -25,8 +26,10 @@ class ASDSubModule extends AndroidSubModule {
     private void hookActivityStack(XC_LoadPackage.LoadPackageParam lpparam) {
         XposedLog.verbose("ASDSubModule hookActivityStack...");
         try {
-            Class stackClass = XposedHelpers.findClass("com.android.server.am.ActivityStack",
-                    lpparam.classLoader);
+            String stackClassName = OSUtil.isQOrAbove()
+                    ? "com.android.server.wm.ActivityStack"
+                    : "com.android.server.am.ActivityStack";
+            Class stackClass = XposedHelpers.findClass(stackClassName, lpparam.classLoader);
 
             @SuppressWarnings("unchecked")
             Set unHooks = XposedBridge.hookAllMethods(stackClass,

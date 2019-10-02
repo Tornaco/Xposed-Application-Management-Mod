@@ -39,7 +39,8 @@ class TaskMoverSubModuleDelegate extends AndroidSubModule {
             case 27:
                 taskMoverSubModule = new TaskMoverSubModuleV27();
                 break;
-            case 28:
+            case 28: // Fall
+            case 29:
                 taskMoverSubModule = new TaskMoverSubModuleV28();
                 break;
             default:

@@ -48,6 +48,10 @@ public abstract class OSUtil {
         return Build.VERSION.SDK_INT > (Build.VERSION_CODES.O + 1);
     }
 
+    public static boolean isQOrAbove() {
+        return Build.VERSION.SDK_INT >= 29;
+    }
+
     public static boolean hasTvFeature(Context context) {
         PackageManager pm = context.getPackageManager();
         return pm.hasSystemFeature(PackageManager.FEATURE_LIVE_TV);
