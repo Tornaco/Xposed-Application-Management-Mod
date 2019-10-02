@@ -24,6 +24,29 @@ class ActiveServiceSubModule extends AndroidSubModule {
     public void handleLoadingPackage(String pkg, XC_LoadPackage.LoadPackageParam lpparam) {
         hookRestartService(lpparam);
         hookActiveServicesConstructor(lpparam);
+        hookBindService(lpparam);
+    }
+
+    private void hookBindService(XC_LoadPackage.LoadPackageParam lpparam) {
+        try {
+            Class ams = XposedHelpers.findClass("com.android.server.am.ActiveServices",
+                    lpparam.classLoader);
+            Set unHooks = XposedBridge.hookAllMethods(ams, "bindServiceLocked",
+                    new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) {
+                            int res = (int) param.getResult();
+                            if (res < 0) {
+                                XposedLog.boot("bindServiceLocked result < 0, we will fix it to 0.");
+                                // Do not crash.
+                                param.setResult(0);
+                            }
+                        }
+                    });
+            XposedLog.debug("bindServiceLocked, unhooks" + unHooks);
+        } catch (Exception e) {
+            XposedLog.wtf("bindServiceLocked error" + Log.getStackTraceString(e));
+        }
     }
 
     private void hookRestartService(XC_LoadPackage.LoadPackageParam lpparam) {
