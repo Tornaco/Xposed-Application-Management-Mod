@@ -246,6 +246,7 @@
     <string name="title_tools">Tools</string>
     <string name="title_dev_tools">Developer tools</string>
     <string name="title_show_focused_activity">Show focused activity</string>
+    <string name="title_enable_redemption">自动启用自救模式</string>
     <string name="summary_show_focused_activity">Display the current Activity with Toast way.</string>
     <string name="title_privacy">Fake identity</string>
     <string name="title_doo">Happy</string>
