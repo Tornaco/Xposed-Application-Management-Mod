@@ -7,4 +7,4 @@
 [![Build Status](https://travis-ci.org/Tornaco/X-APM.svg?branch=master)](https://travis-ci.org/Tornaco/X-APM)
 [![Crowdin](https://d322cqt584bo4o.cloudfront.net/x-apm/localized.svg)](https://crowdin.com/project/x-apm)
 
-> 需要一大波重构。:d
+重构版本：https://github.com/Tornaco/Thanox
