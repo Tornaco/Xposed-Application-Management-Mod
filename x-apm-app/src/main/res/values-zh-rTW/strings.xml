@@ -246,6 +246,7 @@
     <string name="title_tools">工具箱</string>
     <string name="title_dev_tools">開發者工具</string>
     <string name="title_show_focused_activity">顯示當前活動</string>
+    <string name="title_enable_redemption">自动启用自救模式</string>
     <string name="summary_show_focused_activity">以 Toast 的形式顯示當前的 Activity 。</string>
     <string name="title_privacy">隱匿</string>
     <string name="title_doo">幸福</string>
