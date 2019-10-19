@@ -22,6 +22,7 @@ import github.tornaco.xposedmoduletest.ui.tiles.app.CleanUpSystemErrorTrace;
 import github.tornaco.xposedmoduletest.ui.tiles.app.CrashDump;
 import github.tornaco.xposedmoduletest.ui.tiles.app.MokeCrash;
 import github.tornaco.xposedmoduletest.ui.tiles.app.MokeSystemDead;
+import github.tornaco.xposedmoduletest.ui.tiles.app.RedemptionEnable;
 import github.tornaco.xposedmoduletest.ui.tiles.app.ShowFocusedActivity;
 import github.tornaco.xposedmoduletest.xposed.XAPMApplication;
 
@@ -102,6 +103,7 @@ public class ToolsDashboardActivity extends WithWithCustomTabActivity {
             user.titleRes = R.string.title_user_tools;
             user.addTile(new ShowFocusedActivity(getActivity()));
             user.addTile(new CleanUpSystemErrorTrace(getActivity()));
+            user.addTile(new RedemptionEnable(getActivity()));
 
             categories.add(dev);
             categories.add(user);

@@ -82,7 +82,9 @@ class RuntimeInitSubModule extends AndroidSubModule {
 
                                 // Check if it we cause this err.
                                 boolean maybeUs = trace.contains(BuildConfig.APPLICATION_ID);
-                                if (maybeUs) {
+                                boolean isRedemptionModeEnabled = XAPMManager.get().isServiceAvailable()
+                                        && XAPMManager.get().isRedemptionModeEnabled();
+                                if (maybeUs && isRedemptionModeEnabled) {
                                     XposedLog.wtf("Maybe our APM module cause this err, disable our module anyway.");
                                     // Fake disable by create a file indicator.
                                     RepoProxy.createFileIndicator(SubModuleManager.REDEMPTION);

@@ -682,6 +682,16 @@ public class XAshmanServiceImplRedemption extends XAshmanServiceAbs {
     }
 
     @Override
+    public boolean isRedemptionModeEnabled() throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public void setRedemptionModeEnabled(boolean enabled) throws RemoteException {
+
+    }
+
+    @Override
     public boolean isSystemReady() {
         return mSystemReady;
     }

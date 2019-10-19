@@ -283,6 +283,7 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
     private final AtomicBoolean mDozeEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mForeDozeEnabled = new AtomicBoolean(false);
     private final AtomicBoolean mDisableMotionEnabled = new AtomicBoolean(false);
+    private final AtomicBoolean mRedemptionEnabled = new AtomicBoolean(false);
 
     private final AtomicBoolean mPowerSaveModeEnabled = new AtomicBoolean(false);
 
@@ -1266,6 +1267,14 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
         }
 
         try {
+            boolean redemption = XAPMServerSettings.REDEMPTION_ENABLED.read();
+            mRedemptionEnabled.set(redemption);
+            XposedLog.boot("redemption: " + String.valueOf(redemption));
+        } catch (Throwable e) {
+            XposedLog.wtf("Fail loadConfigFromSettings:" + Log.getStackTraceString(e));
+        }
+
+        try {
             boolean powerSave = XAPMServerSettings.APM_POWER_SAVE_B.read();
             mPowerSaveModeEnabled.set(powerSave);
             XposedLog.boot("powerSave: " + String.valueOf(powerSave));
@@ -1856,6 +1865,18 @@ public class XAshmanServiceImpl extends XAshmanServiceAbs
                 Toast.makeText(getContext(), content, Toast.LENGTH_SHORT).show();
                 mBlurTimeTooLongToastedTimes += 1;
             }, "reportBlurBadPerformance"));
+        }
+    }
+
+    @Override
+    public boolean isRedemptionModeEnabled() {
+        return mRedemptionEnabled.get();
+    }
+
+    @Override
+    public void setRedemptionModeEnabled(boolean enabled) {
+        if (mRedemptionEnabled.compareAndSet(!enabled, enabled)) {
+            mainHandler.post(new ErrorCatchRunnable(() -> XAPMServerSettings.REDEMPTION_ENABLED.write(enabled), "setRedemptionModeEnabled"));
         }
     }
 

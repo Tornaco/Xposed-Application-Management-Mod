@@ -92,6 +92,9 @@ public class XAPMServerSettings {
     // 清理通知
     public static final BaseSetting<Boolean> APM_SHOW_APP_PROCESS_UPDATE_B = new BooleanSettingImpl("APM_SHOW_APP_PROCESS_UPDATE_B", false);
 
+    // 自救
+    public static final BaseSetting<Boolean> REDEMPTION_ENABLED = new BooleanSettingImpl("REDEMPTION_ENABLED", true);
+
     /**
      * 眠代替KILL
      *

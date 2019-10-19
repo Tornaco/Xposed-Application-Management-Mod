@@ -551,4 +551,7 @@ interface IAshmanService {
     ComponentName componentNameForTaskId(int taskId);
 
     void reportBlurBadPerformance(long timeTaken);
+
+    boolean isRedemptionModeEnabled();
+    void setRedemptionModeEnabled(boolean enabled);
 }
