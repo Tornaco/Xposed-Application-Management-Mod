@@ -31,7 +31,7 @@ public class RedemptionEnable extends QuickTile {
             protected void onCheckChanged(boolean checked) {
                 super.onCheckChanged(checked);
                 if (XAPMManager.get().isServiceAvailable()) {
-                    XAPMManager.get().setResidentEnabled(checked);
+                    XAPMManager.get().setRedemptionModeEnabled(checked);
                 }
             }
         };

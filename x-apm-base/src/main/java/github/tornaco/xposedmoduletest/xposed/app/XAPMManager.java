@@ -1107,6 +1107,15 @@ public class XAPMManager {
         }
     }
 
+    public void setRedemptionModeEnabled(boolean enabled) {
+        ensureService();
+        try {
+            mService.setRedemptionModeEnabled(enabled);
+        } catch (Exception e) {
+            handleException(e);
+        }
+    }
+
     public void setAppCrashDumpEnabled(boolean enabled) {
         ensureService();
         try {
