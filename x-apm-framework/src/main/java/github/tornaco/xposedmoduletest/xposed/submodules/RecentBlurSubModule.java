@@ -259,7 +259,13 @@ public class RecentBlurSubModule extends AndroidSubModule {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void onSnapshotTask(final XC_MethodHook.MethodHookParam param) {
-        BLUR_EXE.execute(() -> blurAndCacheAsync(param));
+        BLUR_EXE.execute(() -> {
+            try {
+                blurAndCacheAsync(param);
+            } catch (Throwable e) {
+                XposedLog.wtf("Error occur @BLUR_EXE, while call blurAndCacheAsync: " + Log.getStackTraceString(e));
+            }
+        });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
